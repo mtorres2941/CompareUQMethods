@@ -5,6 +5,8 @@
 Martín I. Torres · Wil V. Srubar III
 University of Colorado Boulder
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19226461.svg)](https://doi.org/10.5281/zenodo.19226461)
+
 ---
 
 ## Overview
@@ -162,6 +164,8 @@ Notebooks 2 and 3 depend on the processed data files produced by Notebook 1. If 
 If you use this code or data in your research, please cite:
 
 > Torres, M.I. and Srubar III, W.V. (in preparation). Uncertainty quantification methods for probabilistic whole-building life cycle assessment: A comparative analysis.
+
+The dataset and code are archived on Zenodo: https://doi.org/10.5281/zenodo.19226461
 
 ---
 
