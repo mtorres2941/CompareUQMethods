@@ -1,0 +1,37 @@
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+.env
+.venv/
+env/
+
+# macOS
+.DS_Store
+**/.DS_Store
+~$*
+
+# Editor
+.vscode/
+.idea/
+
+# Large data files — regenerate by running Notebook 1
+# (comment out these lines if you want to track them in git)
+data/processed/DATA_all.json
+
+# Nested git repo (cloned GitHub copy — not needed here)
+CompareUQMethods/
+
+# Void/scratch notebooks
+notebooks/VOID_*
+notebooks/_SCRATCHPAD.ipynb
+notebooks/CompareUQMethods_backup.ipynb
