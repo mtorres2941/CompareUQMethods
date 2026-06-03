@@ -5,7 +5,7 @@
 Martín I. Torres · Wil V. Srubar III
 University of Colorado Boulder
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19226461.svg)](https://doi.org/10.5281/zenodo.19226461)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19226429.svg)](https://doi.org/10.5281/zenodo.19226429)
 
 ---
 
@@ -155,6 +155,7 @@ Notebooks 2 and 3 depend on the processed data files produced by Notebook 1. If 
 | `src/customstats.py` | Core statistical functions: weighted distribution fitting, Wasserstein distances, Shapiro–Wilk test, ECDF construction, mode estimation |
 | `src/datageneration.py` | Synthetic dataset generation: multimodal mixture sampling, log-uniform count sampling |
 | `src/datavisualization.py` | Visualization utilities |
+| `src/funcs_unit_conversion.py` | Unit conversion utilities for normalizing EC3 data (area, density, volume, weight, emissions, length, pressure, thermal resistance, time) |
 | `src/dct_metriclabels.json` | Display labels for dataset metadata metrics used in figures |
 
 ---
@@ -163,9 +164,9 @@ Notebooks 2 and 3 depend on the processed data files produced by Notebook 1. If 
 
 If you use this code or data in your research, please cite:
 
-> Torres, M.I. and Srubar III, W.V. (in preparation). Uncertainty quantification methods for probabilistic whole-building life cycle assessment: A comparative analysis.
+> Torres, M.I. and Srubar III, W.V. (submitted). Uncertainty quantification methods for probabilistic whole-building life cycle assessment: A comparative analysis. *Building & Environment*.
 
-The dataset and code are archived on Zenodo: https://doi.org/10.5281/zenodo.19226461
+The dataset and code are archived on Zenodo: https://doi.org/10.5281/zenodo.19226429
 
 ---
 
