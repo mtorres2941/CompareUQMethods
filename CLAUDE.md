@@ -262,6 +262,14 @@ Newest last. Every entry gives the decision, the date, and the reason. A later
 stage must never silently reverse one of these; if it finds a decision wrong,
 it says so explicitly in its handoff, naming the decision and what changed.
 
+**Provenance tags.** Entries 10 onward are tagged, because several arose in
+conversation and a later window cannot see that conversation. The distinction
+matters: a **[AUTHOR]** item is settled and a later stage should implement it;
+a **[RECOMMENDED]** item is a Stage 1 suggestion the owning stage is free to
+overrule; a **[DELEGATED]** item is one the author explicitly left to
+judgment. Untagged entries 1 to 9 are all author decisions, taken in a prompt
+rather than in conversation.
+
 1. **2026-09-11, Stage 0. `refs/` is not tracked.** It holds copyrighted
    publisher PDFs and a 104 MB third-party dataset. This repository is public
    and Zenodo-archived.
@@ -301,42 +309,67 @@ it says so explicitly in its handoff, naming the decision and what changed.
    Silverman's robust rule of thumb. The hazard is that `scipy.stats.gaussian_kde`
    uses the same two words for different formulas. An earlier Stage 0 note
    wrongly implied the project's labels were wrong.
-10. **2026-09-11, Stage 1. The lognormal keeps a threshold, and Stage 2 will
-    estimate it rather than fix it.** The near-zero pathology `LOGFIT_OFFSET`
-    was patching is real and is worse in the empirical data than in the
-    synthetic data: 28.3% of the 138 empirical ECC datasets have a minimum
-    below 1% of their mean, against 1.8% of the synthetic datasets. A Stage 1
-    recommendation to simply drop the offset was withdrawn as wrong. The
-    threshold may be allowed to approach the normal limit; a more flexible
-    family is an asset, not a bug. Parameter counts must then be stated
-    plainly, and a held-out or cross-validated W1 considered, because W1 is an
-    in-sample criterion with no complexity penalty.
-11. **2026-09-11, Stage 1. Multimodality will be measured by Hartigan's dip
-    statistic, not a mode count.** The question of interest is unimodal versus
-    multimodal; distinguishing bimodal from trimodal is not decision-relevant
-    here. The dip statistic needs no bandwidth, which also avoids using KDE to
-    justify KDE. Report the statistic, not a p-value: `n` spans 4 to 10,000, so
-    a p-value would conflate effect size with sample size, and `n` is already a
-    separate metric.
-12. **2026-09-11, Stage 1. Cleaning will move to a multiplicative
-    (log-space) filter in Stage 2.** The current additive `Q1 - 3*IQR` bound is
-    negative in 128 of 138 empirical datasets, so it never binds and near-zero
-    values are never removed while high outliers are. `ReadyMix` retains a
-    value at 3.1e-17 of its mean, which is a data error, not a product.
-13. **2026-09-11, Stage 1. Models are supported on (0, inf), open at zero.**
-    Zero is not an acceptable ECC. The pLCA rejection sampling already enforces
-    this; the W1 scoring grid starting at exactly 0 is a loose end for Stage 2.
-14. **2026-09-11, Stage 1. Synthetic dataset size will extend to 10,000 and
-    `n` will be exempt from the outlier filter.** The filter currently discards
-    824 datasets for being large, capping the effective maximum at 749 against
-    a stated 1,000. Empirical sizes reach 77,548. Extending to 10,000 covers
-    132 of 138 empirical datasets; going to 77,548 would put 44% of synthetic
-    datasets above n=1,000, which is unrepresentative, and would make
-    `DATA_all` roughly 10 GB.
-15. **2026-09-11, Stage 1. `DATA_all` moves off JSON to Parquet in long
-    format** (`dataset_id, value, weight`), which is columnar, compresses well
-    and is readable from R and Julia as well as Python. That matters for a
-    Zenodo deposit.
+10. **2026-09-11, Stage 1. The lognormal keeps a threshold.** Owned by 2b.
+    - **[AUTHOR]** Use a three-parameter lognormal, and do not constrain the
+      threshold to stop it approaching the normal limit: "that sounds like an
+      asset of the lognormal distribution. It can accommodate more datasets.
+      That's a good thing, not a bug... Why unnecessarily cripple it?"
+    - **[CONTEXT]** The near-zero pathology `LOGFIT_OFFSET` was patching is
+      real, and worse in the empirical data than the synthetic: 28.3% of the
+      138 empirical datasets have a minimum below 1% of their mean, against
+      1.8% of the synthetic. A Stage 1 recommendation to simply drop the offset
+      was withdrawn as wrong.
+    - **[RECOMMENDED]** State parameter counts plainly and consider a held-out
+      or cross-validated W1, because W1 is an in-sample criterion with no
+      complexity penalty and the three families differ in flexibility. 2b and
+      2c may overrule this.
+11. **2026-09-11, Stage 1. Multimodality.** Owned by 2a.
+    - **[AUTHOR]** The question of interest is unimodal versus multimodal.
+      "I don't want to distinguish bimodal from trimodal." Whatever measure is
+      chosen, report the test statistic and not a p-value: the author is
+      "highly skeptical of p-values" and prefers statistics directly.
+    - **[RECOMMENDED]** Hartigan's dip statistic. The author said they were
+      "open to using" it, not that it is settled. It needs no bandwidth, which
+      also avoids using KDE to justify KDE, and `n` spans 4 to 10,000 so a
+      p-value would conflate effect size with sample size. 2a chooses.
+12. **2026-09-11, Stage 1. Cleaning.** Owned by 2a.
+    - **[AUTHOR]** The cleaning must be fixed: "I agree with fixing the
+      cleaning." The multiplicative idea was the author's own, offered as
+      "maybe we should take a multiplicative approach", so the direction is
+      theirs but the specific filter is not settled.
+    - **[CONTEXT]** The additive `Q1 - 3*IQR` bound is negative in 128 of 138
+      empirical datasets, so it never binds: near-zero values are never removed
+      while high outliers are. `ReadyMix` retains a value at 3.1e-17 of its
+      mean, which is a data error, not a product.
+    - **[RECOMMENDED]** IQR in log space. On ReadyMix it keeps 77,439 of 77,548
+      values with bounds [90.6, 1240]. 2a chooses the final form, including
+      whether synthetic generation needs a matching floor.
+13. **2026-09-11, Stage 1. Support is (0, inf), open at zero.**
+    - **[AUTHOR]** "I think it's (0, infinity), rather than [0, infinity) since
+      we shouldn't accept zero as an input."
+    - **Reach, flagged for confirmation.** This constrains the lognormal and
+      gamma fits in 2b and the W1 evaluation grid in 2c. It was stated in
+      conversation rather than in a prompt, so 2b or 2c should confirm it with
+      the author before building on it. The pLCA rejection sampling already
+      enforces it; the scoring grid starting at exactly 0 does not.
+14. **2026-09-11, Stage 1. Dataset size range and the n filter.** Owned by 2a.
+    - **[AUTHOR]** "I like the idea of extending to 10,000 for the sample size.
+      I also agree with exempting n from the outlier filter."
+    - **[CONTEXT]** The filter discards 824 datasets for being large, capping
+      the effective maximum at 749 against a stated 1,000. Empirical sizes
+      reach 77,548. Extending to 10,000 covers 132 of 138 empirical datasets;
+      going to 77,548 would put 44% of synthetic datasets above n=1,000, which
+      is unrepresentative of an empirical median of 37, and would make
+      `DATA_all` roughly 10 GB.
+15. **2026-09-11, Stage 1. `DATA_all` storage format.** Owned by 2a.
+    - **[AUTHOR]** Move off JSON. "That was just because I know JSON better
+      than other file types."
+    - **[DELEGATED]** The format itself: "Please go with what you think is
+      best."
+    - **[RECOMMENDED]** Parquet in long format (`dataset_id, value, weight`):
+      columnar, compresses roughly 19M rows to a few hundred MB, and readable
+      from R and Julia as well as Python, which matters for a Zenodo deposit.
+      Not `.npz`, which is smaller but opaque outside Python.
 
 ---
 

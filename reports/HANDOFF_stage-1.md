@@ -271,8 +271,20 @@ and the Monte Carlo noise floor (2e).
 **Treat these as inputs, not conclusions.** They were made on the pre-
 regeneration data, they do not bind the owning stage, and each owning stage
 should reach its own decision. They are recorded so the work is not repeated,
-not to pre-empt it. Decision log entries 10 to 15 in CLAUDE.md carry the
-author's positions where one was stated.
+not to pre-empt it.
+
+Decision log entries 10 to 15 in CLAUDE.md are **tagged by provenance** for
+exactly this reason: `[AUTHOR]` is settled and should be implemented,
+`[RECOMMENDED]` is a Stage 1 suggestion the owning stage may overrule,
+`[DELEGATED]` is a choice the author explicitly left to judgment, and
+`[CONTEXT]` is a measured fact rather than a decision. The tags were added
+after a review pointed out that the original entries conflated the author's
+decisions with mine. Four of the six did.
+
+**One entry is flagged for confirmation.** Entry 13, that ECC support is
+(0, inf) open at zero, was stated in conversation rather than in a prompt, and
+it constrains the lognormal and gamma fits in 2b and the W1 evaluation grid in
+2c. Confirm it with the author before building on it.
 
 ### Deferred Stage 1 work
 
@@ -302,6 +314,24 @@ Recommended to the author and accepted as deferrable. None blocks Stage 2.
 
 **Not touched:** `DATA_all.json`, `dct_realeccs_trimmed.json`, `combos.txt`,
 `datasets_trimto10k.json`, and the manuscript.
+
+### Irreplaceable inputs
+
+`data/INPUTS.sha256` records SHA-256 checksums and provenance for the five
+input files and the three pLCA artifacts. `DATA_all.json` is 122 MB,
+gitignored, dated 2026-03-13, and **cannot be reproduced by any means**: it was
+generated before seeding existed, with `default_rng(None)` for the structural
+parameters and a `seed=0` default for the component draws, both since changed.
+Every regression fixture is pinned to it and Stage 2a's verification story
+depends on it.
+
+The repository lives inside a synced Dropbox folder and the file carries
+`com.dropbox.attrs`, so it is replicated off-machine already. That is sync, not
+backup: a deletion or corruption propagates. The manifest lets any copy be
+verified as the genuine pre-regeneration artifact with
+`shasum -a 256 -c data/INPUTS.sha256`. Stage 0 plan item 11 asked that this
+file stop being both required and untracked; the manifest closes the
+verification half, not the durability half.
 
 ## 7. Next stage
 

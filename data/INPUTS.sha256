@@ -1,0 +1,46 @@
+# Irreplaceable input manifest
+
+`DATA_all.json` is 122 MB, gitignored, dated 2026-03-13, and was generated
+before seeding existed. Its values cannot be reproduced by any means: the
+generator that produced them used `np.random.default_rng(None)` for the
+structural parameters and a `seed=0` default for the component draws, and both
+have since been changed. Every regression fixture Stage 1 froze is pinned to
+it, and Stage 2a's verification story is "here is how far the numbers moved
+from that baseline."
+
+This manifest exists so that any copy of these files can be verified as the
+genuine pre-regeneration artifact. The files themselves are not in git; their
+fingerprints are. It partially closes Stage 0 plan item 11, which asked that
+`DATA_all.json` stop being both required and untracked.
+
+Verify a copy with:
+
+    shasum -a 256 -c data/INPUTS.sha256
+
+run from the repository root.
+
+## Provenance
+
+- `DATA_all.json`: 15,000 synthetic datasets, 127,433,052 bytes, mtime
+  2026-03-13. Produced by notebook 1 with `generate_dontread = True` under the
+  lost `waterweed` kernel. Unseeded, so unreproducible.
+- `dct_realeccs_trimmed.json`: 138 empirical EC3 datasets. The weights were
+  drawn from an unseeded `np.random.dirichlet`, so these are also
+  unreproducible, though the underlying EC3 values are not.
+- `datasets_outliers.json`, `datasets_trimto10k.json`, `combos.txt`: derived
+  from the above. Deterministic given `DATA_all.json`, except `combos.txt`,
+  which came from an unseeded shuffle.
+- `tests/fixtures/plca/*.gz`: the three pLCA artifacts. The unseeded archive is
+  the only surviving record of the configuration the current manuscript draft
+  reports.
+
+## Checksums
+
+a301c7f8ac8c55d01ec40dda0d2e67b8b61122d7894ce5678abc623c6cc3bb16  data/processed/DATA_all.json
+89da01bdc03113c3e5a73a081d542ef68d0c3a8f6e93e75c19ac28438105e049  data/processed/dct_realeccs_trimmed.json
+74764d6001f1fb9fc2fd98d41f7438b28ad2287685d308077495e0405aa23ad5  data/processed/datasets_outliers.json
+9b73cd88fe4017637ece736daed89f347d33140268a9fba03b9610ed8cf6290a  data/processed/datasets_trimto10k.json
+40df9b47ed245988881049a1d5b218e6a7a1e63762450ce0a4607c162ab62950  data/processed/combos.txt
+cae18862c5eda4bd5c482cc244c74acc80d743b47620748e5d461afc1af932a9  tests/fixtures/plca/PLCA_seeded_neccs1000.csv.gz
+8fb8e1d00140301af687673b9dab7b161152ff3355835d6a7dad1ea6668619b7  tests/fixtures/plca/PLCA_seeded_neccs10000.csv.gz
+624b1b771812093df04c1398cd28bba7cce1041aff951de98768bd15e8d6f2fb  tests/fixtures/plca/PLCA_unseeded_archive_neccs1000.csv.gz
