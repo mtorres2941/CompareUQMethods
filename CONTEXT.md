@@ -10,26 +10,26 @@ the end of Stage 1, when CLAUDE.md grew past a comfortable size.
 
 ```
 CompareUQMethods/
-|-- CLAUDE.md                  Project brief, constraints, decision log
-|-- CONTEXT.md                 This file
-|-- environment.yml            Pinned environment (see section 4)
-|-- environment.lock.yml       Full transitive solve, osx-arm64
-|-- notebooks/
-|   |-- 01_CompareUQ_CreateData.ipynb    generate/read data, compute metrics
-|   |-- 02_CompareUQ_AnalyzeData.ipynb   fit 6 methods, score by W1/W2/KS
-|   \-- 03_CompareUQ_PerformPLCA.ipynb   2,500 pLCAs, downstream results
-|-- src/
-|   |-- customstats.py         weighted statistics, distances, bandwidths
-|   |-- datageneration.py      synthetic ECC dataset generation
-|   |-- fitting.py             the six PEWT fits and W1 scoring
-|   |-- datavisualization.py   one colour helper
-|   |-- funcs_unit_conversion.py  EC3 unit normalization
-|   \-- dct_metriclabels.json  display labels for the 20 metrics
-|-- data/processed/            inputs, see section 5
-|-- outputs/tables/            tidy results, see section 6
-|-- outputs/figures/           publication and supplementary figures
-|-- reports/                   handoffs, baselines, discrepancy log
-\-- tests/                     regression, determinism, unit, notebook guards
+├── CLAUDE.md                  Project brief, constraints, decision log
+├── CONTEXT.md                 This file
+├── environment.yml            Pinned environment (see section 4)
+├── environment.lock.yml       Full transitive solve, osx-arm64
+├── notebooks/
+│   ├── 01_CompareUQ_CreateData.ipynb    generate/read data, compute metrics
+│   ├── 02_CompareUQ_AnalyzeData.ipynb   fit 6 methods, score by W1/W2/KS
+│   └── 03_CompareUQ_PerformPLCA.ipynb   2,500 pLCAs, downstream results
+├── src/
+│   ├── customstats.py         weighted statistics, distances, bandwidths
+│   ├── datageneration.py      synthetic ECC dataset generation
+│   ├── fitting.py             the six PEWT fits and W1 scoring
+│   ├── datavisualization.py   one colour helper
+│   ├── funcs_unit_conversion.py  EC3 unit normalization
+│   └── dct_metriclabels.json  display labels for the 20 metrics
+├── data/processed/            inputs, see section 5
+├── outputs/tables/            tidy results, see section 6
+├── outputs/figures/           publication and supplementary figures
+├── reports/                   handoffs, baselines, discrepancy log
+└── tests/                     regression, determinism, unit, notebook guards
 ```
 
 Notebooks are the entry point by design: the author values seeing inputs and
