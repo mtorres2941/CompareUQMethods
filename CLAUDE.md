@@ -189,6 +189,101 @@ between them, and the following rules are binding:
 
 ---
 
+## How the repository works
+
+Mechanics live in **CONTEXT.md**: package layout, the fitting interface, the
+seeding and caching conventions, how to run the pinned environment and the
+smoke configuration, the input and output tables, the regression fixture
+inventory and what each one pins, and the test suite. Read it before touching
+code. It was split out of this file at the end of Stage 1, when this file grew
+past a comfortable size.
+
+---
+
+## Decision log
+
+Newest last. Every entry gives the decision, the date, and the reason. A later
+stage must never silently reverse one of these; if it finds a decision wrong,
+it says so explicitly in its handoff, naming the decision and what changed.
+
+1. **2026-09-11, Stage 0. `refs/` is not tracked.** It holds copyrighted
+   publisher PDFs and a 104 MB third-party dataset. This repository is public
+   and Zenodo-archived.
+2. **2026-09-11, Stage 0. Manuscript drafts are not tracked.** The working
+   `.docx` carries 98 unresolved comments from named third parties, and git
+   history would retain them even after deletion.
+3. **2026-09-11, Stage 0. Notebooks remain the entry point.** The author values
+   seeing inputs and outputs inline and considers notebooks more reviewable by
+   an outside reader. The Stage 0 session initially recommended scripts and
+   withdrew it: the defects found came from leaked kernel state, duplicated
+   logic and untested code, not from notebooks as a medium.
+4. **2026-09-11, Stage 0. The synthetic datasets are regenerated once, in
+   Stage 2.** Several Stage 2 decisions concern the generation algorithm
+   itself, so regenerating in Stage 1 would mean regenerating twice and
+   invalidating the paper's numbers twice.
+5. **2026-09-11, Stage 0. Invalidating the manuscript's numbers is accepted.**
+   The analysis is being redone because of structural problems. No
+   number-preservation constraint applies to the final results; the "never
+   silently change a result" constraint still applies in full, meaning every
+   change must be attributable, recorded and intentional.
+6. **2026-09-11, Stage 1 (A3). Normalization stays on the unweighted mean.**
+   `data / np.mean(data)` in both the synthetic and empirical paths. The
+   practitioner-facing threshold this study builds must be computable by
+   someone who has a set of EPDs but does not know the market shares, which is
+   precisely the quantity they lack. The manuscript text is what is wrong; see
+   `reports/MANUSCRIPT_discrepancies.md` entry 2.
+7. **2026-09-11, Stage 1 (A2). Three pLCA artifacts are kept**: the unseeded
+   archive at neccs=1000, the seeded run at neccs=1000, and the seeded run at
+   neccs=10000. The first is unreproducible and is the closest surviving record
+   of what the current manuscript reports.
+8. **2026-09-11, Stage 1. The pLCA runs at 10,000 draws.** The manuscript
+   states this throughout, and at 1,000 the Monte Carlo noise in `eci_rank_1`
+   was 15.5% of that result's standard deviation across datasets, leaving the
+   weakest pair of UQ methods only 2.2x above the noise floor.
+9. **2026-09-11, Stage 1. Bandwidth labels are correct as written.**
+   `weighted_bw`'s `'scott'` is Scott (1992) and its `'silverman'` is
+   Silverman's robust rule of thumb. The hazard is that `scipy.stats.gaussian_kde`
+   uses the same two words for different formulas. An earlier Stage 0 note
+   wrongly implied the project's labels were wrong.
+10. **2026-09-11, Stage 1. The lognormal keeps a threshold, and Stage 2 will
+    estimate it rather than fix it.** The near-zero pathology `LOGFIT_OFFSET`
+    was patching is real and is worse in the empirical data than in the
+    synthetic data: 28.3% of the 138 empirical ECC datasets have a minimum
+    below 1% of their mean, against 1.8% of the synthetic datasets. A Stage 1
+    recommendation to simply drop the offset was withdrawn as wrong. The
+    threshold may be allowed to approach the normal limit; a more flexible
+    family is an asset, not a bug. Parameter counts must then be stated
+    plainly, and a held-out or cross-validated W1 considered, because W1 is an
+    in-sample criterion with no complexity penalty.
+11. **2026-09-11, Stage 1. Multimodality will be measured by Hartigan's dip
+    statistic, not a mode count.** The question of interest is unimodal versus
+    multimodal; distinguishing bimodal from trimodal is not decision-relevant
+    here. The dip statistic needs no bandwidth, which also avoids using KDE to
+    justify KDE. Report the statistic, not a p-value: `n` spans 4 to 10,000, so
+    a p-value would conflate effect size with sample size, and `n` is already a
+    separate metric.
+12. **2026-09-11, Stage 1. Cleaning will move to a multiplicative
+    (log-space) filter in Stage 2.** The current additive `Q1 - 3*IQR` bound is
+    negative in 128 of 138 empirical datasets, so it never binds and near-zero
+    values are never removed while high outliers are. `ReadyMix` retains a
+    value at 3.1e-17 of its mean, which is a data error, not a product.
+13. **2026-09-11, Stage 1. Models are supported on (0, inf), open at zero.**
+    Zero is not an acceptable ECC. The pLCA rejection sampling already enforces
+    this; the W1 scoring grid starting at exactly 0 is a loose end for Stage 2.
+14. **2026-09-11, Stage 1. Synthetic dataset size will extend to 10,000 and
+    `n` will be exempt from the outlier filter.** The filter currently discards
+    824 datasets for being large, capping the effective maximum at 749 against
+    a stated 1,000. Empirical sizes reach 77,548. Extending to 10,000 covers
+    132 of 138 empirical datasets; going to 77,548 would put 44% of synthetic
+    datasets above n=1,000, which is unrepresentative, and would make
+    `DATA_all` roughly 10 GB.
+15. **2026-09-11, Stage 1. `DATA_all` moves off JSON to Parquet in long
+    format** (`dataset_id, value, weight`), which is columnar, compresses well
+    and is readable from R and Julia as well as Python. That matters for a
+    Zenodo deposit.
+
+---
+
 ## Repository conventions
 
 - Branch per stage: `stage-<id>-<short-name>`, e.g. `stage-0-1-refactor`.
