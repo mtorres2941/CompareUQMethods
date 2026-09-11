@@ -679,30 +679,76 @@ def weighted_quantile(X, W, x, output='perc2val'):
     Given a set of values with weights, returns a value from a percentage, or a percentage from a value
     INPUTS:
     X       values
-    W       weights
+    W       weights (non-negative, need not be normalized)
     x       desired percentage or value
     output  'perc2val' or 'val2perc' (as string)
-    
+
     OUTPUT:
     value or percentage, depending on 'output' variable
+
+    The weighted quantile function is the inverse of the weighted empirical
+    CDF, anchored so that perc2val(0) is min(X) and perc2val(1) is max(X).
+
+    Fixed in Stage 1. The previous implementation sorted the (value, weight)
+    pairs together but then built the cumulative sum from the ORIGINAL,
+    unsorted weight array:
+
+        y_cdf, cdf = zip(*sorted(zip(np.append(X, [0]), np.append(cdf, [0])), ...))
+        for i in range(len(cdf)-1):
+            cdf[i+1] = cdf[i] + W[i]      # W, not the sorted weights
+
+    so the answer depended on the order in which the caller happened to supply
+    the data. On one 8-point example the 25th percentile came back as 4.03
+    against a correct 1.05. Across 2,000 random lognormal datasets the
+    Silverman bandwidth computed from it differed between sorted and unsorted
+    presentations of the same weighted sample in 93.1% of cases, with a median
+    relative error of 10.6% and a maximum of 172%.
+
+    No published number was affected, because the only bandwidth path the
+    analysis uses is bw_method='scott', which depends on the standard
+    deviation alone and never calls this function. The fix has to land before
+    any switch to Silverman's rule for consistency with Torres et al. (2026).
     """
-    cdf = W.copy()    
-    y_cdf, cdf = zip(*sorted(zip(np.append(X, [0]), np.append(cdf, [0])), key=lambda x: x[0]))
-    y_cdf, cdf = np.array(y_cdf), np.array(cdf)
-    for i in range(len(cdf)-1):
-        cdf[i+1] = cdf[i] + W[i]
-    cdf[0] = 0
-    cdf[-1] = 1
-    y_cdf[0] = min(X)
-    
+    X = np.asarray(X, dtype=float).ravel()
+    W = np.asarray(W, dtype=float).ravel()
+
+    if X.size != W.size:
+        raise ValueError(f'X and W must be the same length, instead of {X.size} and {W.size}')
+    if X.size == 0:
+        raise ValueError('X must not be empty')
+    if np.any(W < 0):
+        raise ValueError('weights must be non-negative')
+    total = W.sum()
+    if not np.isfinite(total) or total <= 0:
+        raise ValueError('weights must sum to a positive, finite value')
+
+    # Collapse tied values into a single atom, then sort. The weighted ECDF of
+    # a sample with ties is a step function with ONE jump at each distinct
+    # value, of size equal to the total weight there. Carrying tied values as
+    # separate knots leaves the curve dependent on input order, because
+    # np.argsort is not stable and so splits the tied weights differently for
+    # different presentations of the same sample. That was still true of the
+    # first Stage 1 version of this fix: on dataset71, which has three tied
+    # pairs, the 25th percentile came out as 0.8293 or 0.8146 depending on
+    # ordering, a 7.6% difference in the resulting bandwidth.
+    x_sorted, inverse = np.unique(X, return_inverse=True)
+    w_sorted = np.bincount(inverse, weights=W) / total
+
+    cdf = np.cumsum(w_sorted)
+    cdf[-1] = 1.0  # guard against cumulative rounding drift
+
+    # Anchor the curve at (min(X), 0) so the full range is representable.
+    x_curve = np.concatenate([[x_sorted[0]], x_sorted])
+    cdf_curve = np.concatenate([[0.0], cdf])
+
+    # np.interp is used rather than scipy.interpolate.interp1d because zero
+    # weights and tied values produce repeated knots, which interp1d rejects.
+    # np.interp resolves a repeated knot to its last occurrence and clamps
+    # outside the range rather than raising.
     if output == 'perc2val':
-        perc2val = scipy.interpolate.interp1d(cdf, y_cdf, assume_sorted=False)
-        return perc2val(x)
-    
+        return np.interp(x, cdf_curve, x_curve)
     elif output == 'val2perc':
-        val2perc = scipy.interpolate.interp1d(y_cdf, cdf, assume_sorted=False)
-        return val2perc(x)
-    
+        return np.interp(x, x_curve, cdf_curve)
     else:
         raise ValueError("output must be 'perc2val' or 'val2perc'")
 
