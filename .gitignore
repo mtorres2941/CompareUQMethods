@@ -35,3 +35,8 @@ CompareUQMethods/
 notebooks/VOID_*
 notebooks/_SCRATCHPAD.ipynb
 notebooks/CompareUQMethods_backup.ipynb
+
+# Reference PDFs and third-party datasets (copyrighted publisher files,
+# large supplementary data). Kept locally for consultation, never committed
+# to this public repository.
+refs/
