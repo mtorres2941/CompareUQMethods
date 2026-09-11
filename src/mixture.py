@@ -162,6 +162,48 @@ class MixtureParent:
                 break
         return 0.5 * (lo + hi)
 
+    def truncated_mean(self, grid_n=4001):
+        """Population mean of the truncated mixture, in RAW units.
+
+        Computed as lo + integral of (1 - F) over [lo, hi], which needs only
+        the closed-form mixture CDF and no quantile inversion. Shifting every
+        component by s shifts this by exactly s, which is what lets
+        `generator.draw_parent` solve for the shift that places the lower
+        support bound at a requested fraction of the mean.
+        """
+        return self.truncated_moments(grid_n)[0]
+
+    def truncated_moments(self, grid_n=4001):
+        """(mean, sd) of the truncated mixture, in RAW units.
+
+        Both from the closed-form CDF alone, with no quantile inversion, and
+        both computed about Y = X - lo rather than about the origin:
+
+            E[Y]   = integral of (1 - F) over [0, hi - lo]
+            E[Y^2] = integral of 2y (1 - F)
+            var    = E[Y^2] - E[Y]^2
+
+        Working in Y matters. The generator places a mixture by shifting it,
+        and the shift can be many orders of magnitude larger than the spread.
+        Computed about the origin, the variance is then the difference of two
+        numbers of order lo ** 2, and cancels catastrophically: the solve for a
+        target coefficient of variation was coming out 59 percent off at the
+        median because of it, and low targets were driving the shift to 1e14
+        times the span, which left the normalized values identical to float
+        precision and the datasets rejected as degenerate.
+        """
+        y = np.linspace(0.0, self.hi - self.lo, grid_n)
+        x = self.lo + y
+        F = np.zeros_like(x)
+        for wk, d, mk in zip(self.pi_trunc, self.comps, self._mass):
+            lo_k = float(d.cdf(self.lo))
+            F += wk * np.clip((np.asarray(d.cdf(x), float) - lo_k) / mk, 0.0, 1.0)
+        S = 1.0 - F
+        e1 = np.trapezoid(S, y)
+        e2 = np.trapezoid(2.0 * y * S, y)
+        var = max(e2 - e1 ** 2, 0.0)
+        return float(self.lo + e1), float(np.sqrt(var))
+
     def truncated_mass(self):
         """Probability mass the truncation step removes, per component and
         overall. Stage 2a Part 1 asks for this to be stated."""
@@ -204,79 +246,119 @@ class MixtureParent:
 # --------------------------------------------------------------------------
 # overlap, after Maitra and Melnykov (2010) generalized to one dimension
 # --------------------------------------------------------------------------
-def _log_ratio(di, dj, pi_i, pi_j):
-    """g(x) = log(pi_j f_j(x)) - log(pi_i f_i(x)). Positive where a draw is
-    assigned to j."""
-    def g(x):
-        x = np.asarray(x, float)
-        with np.errstate(divide='ignore', invalid='ignore'):
-            fi = np.asarray(di.pdf(x), float)
-            fj = np.asarray(dj.pdf(x), float)
-            a = np.log(np.where(fj > 0, fj, 1e-300)) + np.log(pi_j)
-            b = np.log(np.where(fi > 0, fi, 1e-300)) + np.log(pi_i)
-        return a - b
-    return g
+def _log_assignment_margin(x, di, dj, pi_i, pi_j):
+    """log(pi_j f_j(x)) - log(pi_i f_i(x)). Positive where the Bayes rule
+    assigns x to component j rather than to component i."""
+    with np.errstate(divide='ignore', invalid='ignore'):
+        fi = np.asarray(di.pdf(x), float)
+        fj = np.asarray(dj.pdf(x), float)
+        v = (np.log(np.where(fj > 0, fj, 1e-300)) + np.log(pi_j)
+             - np.log(np.where(fi > 0, fi, 1e-300)) - np.log(pi_i))
+    return np.where(np.isfinite(v), v, -np.inf)
 
 
-def _mass_where_positive(g, d, lo, hi, grid_n):
-    """Probability under d of the region where g > 0, from d's CDF.
+def _assigned_to_other(x, di, dj, pi_i, pi_j):
+    """True where the Bayes rule assigns x to component j rather than i."""
+    return _log_assignment_margin(x, di, dj, pi_i, pi_j) > 0
 
-    Evaluating the misclassification probability as a sum of CDF differences
-    over root-found crossings, rather than as a quadrature of the density,
-    matters here. The targeted overlaps run down to 1e-4, and at that size the
-    region is a thin tail: a trapezoid rule on a grid that has to span every
-    component at once puts only a handful of nodes inside it, and the resulting
-    value is quantized rather than small. That quantization is not monotone in
-    the component spread, which broke the bisection in
-    solve_spread_for_overlap - 23 percent of multi-component datasets came back
-    'tolerance_not_met' before this was changed. CDF differences are exact
-    given the crossings, and the crossings are found to machine precision.
+
+def _pair_overlap(di, dj, pi_i, pi_j, n_u=120, refine=20):
+    """omega_ij = omega_{j|i} + omega_{i|j} for one pair of components.
+
+    Maitra and Melnykov define omega_{j|i} as the probability that a draw from
+    component i is assigned to component j by the Bayes rule, the
+    misclassification probability. Their closed forms are Gaussian-only, but
+    the DEFINITION is distribution free; in one dimension the assigned region
+    is a handful of intervals, and the answer is the probability each component
+    puts on them.
+
+    Both directions are computed together, because they share everything that
+    costs anything. The assignment margin for j given i is the negative of the
+    margin for i given j, so the crossings are the SAME points; only which
+    intervals count, and which component's CDF measures them, differ. Computing
+    them once halves the number of scipy density evaluations, which is what
+    this function's runtime is made of.
+
+    The scan grid is the UNION of both components' quantiles, not a uniform
+    grid in x and not a dense quantile grid of one component. Each choice fixes
+    a specific failure:
+
+      - a uniform x-grid has to span both components at once, so a narrow
+        component gets very few nodes. On one pair that put the answer 0.070 in
+        absolute probability away from the truth at 2,001 nodes while reporting
+        the correct NUMBER of crossings: the crossings were being located
+        inside cells across which f_i's CDF moved a great deal.
+      - a dense quantile grid of one component fixes the accuracy and costs too
+        much: scipy inverts numerically for the Johnson SU, beta and beta-prime
+        families, and 2,001 ppf evaluations per pair per bisection step made
+        generation slower than the version it replaced.
+
+    An earlier version located each crossing with scipy.optimize.brentq and
+    spent 65 percent of the entire generation run inside it.
+
+    The defaults come from measurement against a 500,001-point brute-force
+    count of the definition: 120 quantiles per component with 20 bisection
+    refinements agrees to 7.5e-07. More of either buys no accuracy (400 with 44
+    refinements is also 7.5e-07, at twice the cost); fewer refinements cost
+    accuracy quickly (8 gives 9.9e-06, none gives 1.6e-03).
     """
-    x = np.linspace(lo, hi, grid_n)
-    v = g(x)
-    v = np.where(np.isfinite(v), v, -np.inf)
+    eps = 1e-9
+    u = np.linspace(eps, 1.0 - eps, n_u)
+    x = np.unique(np.concatenate([np.asarray(di.ppf(u), float),
+                                  np.asarray(dj.ppf(u), float)]))
+    x = x[np.isfinite(x)]
+    if len(x) < 3:
+        return 0.0
+
+    margin = _log_assignment_margin(x, di, dj, pi_i, pi_j)
     # Two components that coincide tie everywhere. The strict inequality in the
     # definition then reports zero overlap for the most overlapping case there
-    # is, so ties are split. Splitting keeps the function continuous as
+    # is, so an exact tie is split. Splitting keeps overlap continuous as
     # components merge, which the bisection in solve_spread_for_overlap needs.
-    if np.all(np.abs(v) < 1e-12):
-        return 0.5
-    sign = v > 0
+    if np.all(np.abs(margin) < 1e-12):
+        return 1.0
+    to_j = margin > 0
+    idx = np.flatnonzero(to_j[:-1] != to_j[1:])
+    if len(idx) == 0:
+        # One component dominates everywhere. Every draw from the loser is then
+        # misassigned and none from the winner is, so the two directions sum to
+        # exactly 1 whichever component wins. Returning the winner-dependent
+        # 1.0-or-0.0 here, as the single-direction version correctly did, is
+        # wrong once both directions are added together.
+        return 1.0
+
+    xa, xb = x[idx].copy(), x[idx + 1].copy()
+    left = to_j[idx]
+    for _ in range(refine):
+        xm = 0.5 * (xa + xb)
+        same_as_left = _assigned_to_other(xm, di, dj, pi_i, pi_j) == left
+        xa = np.where(same_as_left, xm, xa)
+        xb = np.where(same_as_left, xb, xm)
+    edges = np.concatenate(([x[0]], 0.5 * (xa + xb), [x[-1]]))
+
+    assigned_to_j = np.empty(len(edges) - 1, bool)
+    assigned_to_j[0] = bool(to_j[0])
+    assigned_to_j[1:] = ~to_j[idx]
+
     total = 0.0
-    # locate every sign change, refine it, and add the CDF mass between
-    # consecutive crossings wherever g is positive
-    changes = np.flatnonzero(sign[:-1] != sign[1:])
-    edges = [lo]
-    for c in changes:
-        a, b = x[c], x[c + 1]
-        try:
-            edges.append(optimize.brentq(lambda t: g(np.array([t]))[0], a, b,
-                                         xtol=1e-13 * max(1.0, abs(b)), rtol=1e-14))
-        except Exception:
-            edges.append(0.5 * (a + b))
-    edges.append(hi)
-    for a, b in zip(edges[:-1], edges[1:]):
-        if b <= a:
-            continue
-        mid = 0.5 * (a + b)
-        if g(np.array([mid]))[0] > 0:
-            total += float(d.cdf(b)) - float(d.cdf(a))
-    return float(np.clip(total, 0.0, 1.0))
+    for d, want_j in ((di, True), (dj, False)):
+        F = np.asarray(d.cdf(edges), float)
+        F[0], F[-1] = 0.0, 1.0      # the scan grid spans both supports
+        seg = assigned_to_j if want_j else ~assigned_to_j
+        total += float(np.clip(np.sum(np.diff(F)[seg]), 0.0, 1.0))
+    return float(np.clip(total, 0.0, 2.0))
 
 
-def pairwise_overlap(comps, pi, grid_n=2001):
+def pairwise_overlap(comps, pi, grid_n=120):
     """Matrix of pairwise overlaps omega_ij = omega_{j|i} + omega_{i|j}.
 
     Maitra and Melnykov define omega_{j|i} as the probability that a draw from
-    component i is assigned to component j by the Bayes rule,
-
-        omega_{j|i} = Pr[ pi_i f_i(X) < pi_j f_j(X) | X ~ f_i ],
-
-    the misclassification probability. Their closed forms are Gaussian-only,
-    but the DEFINITION is distribution free, and in one dimension the assigned
-    region is a handful of intervals whose endpoints can be found exactly. That
-    matters here because the components are Johnson SU, beta, beta-prime and
-    lognormal, not Gaussians, so the Gaussian formulas would not apply anyway.
+    component i is assigned to component j by the Bayes rule, the
+    misclassification probability. Their closed forms are Gaussian-only, but
+    the DEFINITION is distribution free, and in one dimension it is a measure
+    of a set of quantiles. That matters here because the components are Johnson
+    SU, beta, beta-prime and lognormal, not Gaussians, so the Gaussian formulas
+    would not apply anyway.
 
     Overlap is the right generation parameter for this study because the thing
     that varies between real material categories is how far apart the product
@@ -291,24 +373,12 @@ def pairwise_overlap(comps, pi, grid_n=2001):
         return om
     for i in range(k):
         for j in range(i + 1, k):
-            di, dj = comps[i], comps[j]
-            lo = min(float(di.ppf(1e-10)), float(dj.ppf(1e-10)))
-            hi = max(float(di.ppf(1 - 1e-10)), float(dj.ppf(1 - 1e-10)))
-            if not np.isfinite(lo) or not np.isfinite(hi) or hi <= lo:
-                continue
-            pad = 0.02 * (hi - lo)
-            lo, hi = lo - pad, hi + pad
-            g_ij = _log_ratio(di, dj, pi[i], pi[j])
-            om_ji = _mass_where_positive(g_ij, di, lo, hi, grid_n)
-
-            def g_ji(x, g_ij=g_ij):
-                return -g_ij(x)
-            om_ij = _mass_where_positive(g_ji, dj, lo, hi, grid_n)
-            om[i, j] = om[j, i] = float(np.clip(om_ji + om_ij, 0.0, 2.0))
+            om[i, j] = om[j, i] = _pair_overlap(comps[i], comps[j], pi[i], pi[j],
+                                                grid_n)
     return om
 
 
-def average_overlap(comps, pi, grid_n=2001):
+def average_overlap(comps, pi, grid_n=120):
     k = len(comps)
     if k < 2:
         return 0.0
@@ -317,7 +387,7 @@ def average_overlap(comps, pi, grid_n=2001):
     return float(np.mean(om[iu]))
 
 
-def solve_spread_for_overlap(build, target, lo=1e-4, hi=1e4, tol=1e-3, grid_n=1501):
+def solve_spread_for_overlap(build, target, lo=1e-4, hi=1e4, tol=1e-3, grid_n=120):
     """Find the location spread giving the requested average overlap.
 
     `build(c)` returns the component list at spread multiplier c, with c small
@@ -360,12 +430,36 @@ def solve_spread_for_overlap(build, target, lo=1e-4, hi=1e4, tol=1e-3, grid_n=15
 
 
 # --------------------------------------------------------------------------
-def population_truncation_bounds(comps, pi, mult=TRUNC_IQR_MULT):
-    """[max(Q1 - mult * IQR, 0), Q3 + mult * IQR] of the POPULATION mixture.
+def mixture_quantile(comps, pi, p):
+    """p-quantile of the untruncated mixture, by bisection on its CDF."""
+    def mix_cdf(x):
+        return float(np.sum([w * float(d.cdf(x)) for w, d in zip(pi, comps)]))
+
+    lo_b = min(float(d.ppf(1e-12)) for d in comps)
+    hi_b = max(float(d.ppf(1 - 1e-12)) for d in comps)
+    span = hi_b - lo_b
+    lo_b, hi_b = lo_b - 0.5 * span, hi_b + 0.5 * span
+    return optimize.brentq(lambda x: mix_cdf(x) - p, lo_b, hi_b,
+                           xtol=1e-12 * max(1.0, abs(hi_b)), rtol=1e-13)
+
+
+def population_truncation_bounds(comps, pi, mult=TRUNC_IQR_MULT, clip_at_zero=True):
+    """Q1 - mult * IQR and Q3 + mult * IQR of the POPULATION mixture.
 
     The rule is the one the old generator used; what changes is that Q1 and Q3
     are quantiles of the mixture rather than of one realized draw, so the
     bounds are a property of the parent and the same for every sample from it.
+
+    `clip_at_zero` reproduces the old `max(Q1 - mult * IQR, 0)`. The caller
+    needs the UNCLIPPED lower bound to position the mixture, because the two
+    are very different objects: for any right-skewed distribution on the
+    positive half line, Q1 - 3 * IQR is comfortably negative and the low end is
+    therefore not truncated at all. Shifting a mixture so that Q1 - 3 * IQR
+    lands on zero is not the same as shifting it so its SUPPORT starts at zero,
+    and the difference is large: the first forces the mean to sit about
+    3.5 * IQR above the lower bound with the upper bound at about 7 * IQR,
+    which caps the coefficient of variation near 0.5 whatever the component
+    shapes. The empirical ECC datasets reach 2.08.
     """
     def mix_cdf(x):
         return float(np.sum([w * float(d.cdf(x)) for w, d in zip(pi, comps)]))
@@ -381,4 +475,5 @@ def population_truncation_bounds(comps, pi, mult=TRUNC_IQR_MULT):
 
     q1, q3 = q(0.25), q(0.75)
     iqr = q3 - q1
-    return max(q1 - mult * iqr, 0.0), q3 + mult * iqr
+    lo = q1 - mult * iqr
+    return (max(lo, 0.0) if clip_at_zero else lo), q3 + mult * iqr

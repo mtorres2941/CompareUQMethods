@@ -95,15 +95,21 @@ class GeneratorConfig:
     outputs/tables/stage2a/TABLE_2a_OverlapComparison.csv."""
 
     # ---- component shapes, as moment targets -------------------------------
-    comp_skew_lo: float = -3.5
-    comp_skew_hi: float = 3.5
-    """Component skewness target, drawn uniformly. Covers the empirical dataset
-    skewness range of -5.73 to 4.09 with margin once the mixture and the
-    small-sample noise are applied on top; a MIXTURE of components can be more
-    skewed than any of its components."""
+    comp_skew_lo: float = -3.0
+    comp_skew_hi: float = 8.0
+    """Component skewness target, drawn uniformly.
+
+    Deliberately asymmetric. Real ECC datasets are predominantly right skewed
+    (the 138 empirical datasets have a median skewness of 1.055 and run from
+    -1.44 to 4.62), and a symmetric component range produces a corpus with a
+    median skewness near zero, which is not what the data look like. The range
+    keeps a substantial negative arm anyway, because the corpus has to contain
+    left-skewed datasets for a generalizability claim even though the empirical
+    set has few. A MIXTURE can be more skewed than any of its components, and
+    small-sample noise widens the realized range further."""
 
     comp_exkurt_lo: float = -1.2
-    comp_exkurt_hi: float = 20.0
+    comp_exkurt_hi: float = 60.0
     """Component excess kurtosis target, drawn uniformly and then clipped up to
     the feasible boundary skewness ** 2 - 2 plus a margin. -1.2 is the uniform
     distribution, the platykurtic limit of any unimodal shape."""
@@ -144,6 +150,43 @@ class GeneratorConfig:
     distribution existed only on the realized sample and had no population to
     be right or wrong about. 1 makes market share fully mode-determined, so the
     market-weighted parent is the mixture sum_k v_k f_k. Swept."""
+
+    # ---- spread, as a target rather than a side effect ---------------------
+    cv_log10_lo: float = np.log10(0.004)
+    cv_log10_hi: float = np.log10(3.2)
+    """Target coefficient of variation of the population parent, drawn
+    log-uniformly in this range and then solved for exactly.
+
+    This is the parameter that replaces the removed power transform. That step
+    raised every value to a power drawn from U(0.9, 4.0) with an inline comment
+    saying the purpose was to align with empirical ECC data; its actual job was
+    to manufacture spread, and nothing else in the generator produced any. With
+    it gone and nothing in its place, the first Stage 2a regeneration came out
+    with a median coefficient of variation of 0.049 against an empirical 0.600,
+    which is not a corpus with margin around the empirical data, it is a
+    different population.
+
+    The difference from the power transform is that this is a named
+    distributional property with a target, solved for and reported, not a knob
+    whose effect is discovered afterwards. For data on (0, inf) normalized to
+    mean 1, the coefficient of variation is set by how far the distribution
+    sits from the origin relative to its own spread, and shifting a mixture
+    changes its mean while leaving its standard deviation alone, so the
+    solution is a single bisection on the shift.
+
+    The range brackets the 138 empirical datasets, which run from 0.0066 to
+    2.40, with margin at both ends."""
+
+    max_low_tail_truncated: float = 0.15
+    """The largest share of the parent's probability the generator may discard
+    below zero when placing the mixture.
+
+    Positivity is enforced by the truncation at `lo`, not by the shift, so this
+    is not a correctness requirement: it is a limit on how far a distribution
+    may be pushed toward the origin in pursuit of its target coefficient of
+    variation. Setting it to 1e-4 capped the achievable spread and left 39
+    percent of datasets unable to reach their target; 0.15 leaves the median
+    dataset discarding 0.0002 of its mass and the 95th percentile 0.157."""
 
     # ---- truncation --------------------------------------------------------
     trunc_iqr_mult: float = 3.0

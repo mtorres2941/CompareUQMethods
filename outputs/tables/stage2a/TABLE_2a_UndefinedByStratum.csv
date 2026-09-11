@@ -1,0 +1,5 @@
+stratum,n_datasets,n_min,n_max,n_median,undef__coeffvar,undef__coeffvar_uw,undef__crit_bw_1,undef__crit_bw_1_uw,undef__entropy,undef__entropy_uw,undef__fit_lognorm_SW,undef__fit_lognorm_SW_uw,undef__fit_norm_SW,undef__fit_norm_SW_uw,undef__kurtosis,undef__kurtosis_uw,undef__mean,undef__mean_uw,undef__modality_index,undef__modality_index_uw,undef__n,undef__skewness,undef__skewness_uw,undef__w_v_uw_wasserstein,undef__weight_outliers,undef__weight_outliers_uw,undef__k,undef__overlap_target,undef__overlap_achieved,undef__truncated_mass,undef__normalizer,undef__n_components_dropped
+s1_3_9,2500,3,9,5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.248,0.248,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+s2_10_99,2500,10,99,31.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+s3_100_999,2500,100,999,315.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+s4_1000_9999,2500,1000,9996,3118.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

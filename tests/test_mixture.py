@@ -144,6 +144,67 @@ def test_overlap_of_identical_components_is_one():
     assert om[0, 1] == pytest.approx(1.0, abs=2e-3)
 
 
+def test_overlap_matches_the_definition_counted_directly():
+    """The crossings are located by linear interpolation, not by brentq.
+
+    brentq was exact and cost 65 percent of the whole generation run, because
+    each of its iterations evaluated two scipy pdfs on a one-element array.
+    This pins that the cheap version lands on the same number.
+
+    The oracle is the definition counted directly on 500,001 of component i's
+    own quantiles: no interpolation, no refinement, no crossing location at
+    all. An earlier version of this test compared against a second hand-rolled
+    brentq loop, which was itself wrong -- a reference implementation is only a
+    reference if it is simpler than the thing it checks.
+    """
+    def fine_reference(di, dj, pi_i, pi_j, grid_n=500_001):
+        """Brute force: the share of a uniform grid of component i's own
+        quantiles that the Bayes rule hands to component j. No interpolation,
+        no refinement, no crossing location - just the definition, counted."""
+        u = np.linspace(1e-12, 1 - 1e-12, grid_n)
+        x = np.asarray(di.ppf(u), float)
+        return float(M._assigned_to_other(x, di, dj, pi_i, pi_j).mean())
+
+    rng = np.random.default_rng(11)
+    worst = 0.0
+    errors = []
+    checked = 0
+    for _ in range(12):
+        comps = []
+        for _ in range(int(rng.integers(2, 5))):
+            skew = rng.uniform(-3, 3)
+            exk = rng.uniform(max(skew ** 2 - 1.9, -1.1), 15)
+            fam, shape, loc, scale, status = C.solve_component(
+                skew, exk, mean=rng.uniform(0, 6), sd=10 ** rng.uniform(-0.7, 0.3))
+            if status == 'ok':
+                comps.append(C.frozen(fam, shape, loc, scale))
+        if len(comps) < 2:
+            continue
+        pi = rng.dirichlet(np.ones(len(comps)) * 10)
+        fast = M.pairwise_overlap(comps, pi)
+        for i in range(len(comps)):
+            for j in range(i + 1, len(comps)):
+                di, dj = comps[i], comps[j]
+                ref = (fine_reference(di, dj, pi[i], pi[j])
+                       + fine_reference(dj, di, pi[j], pi[i]))
+                err = abs(fast[i, j] - min(ref, 2.0))
+                errors.append(err)
+                worst = max(worst, err)
+                checked += 1
+    assert checked > 15
+    median = float(np.median(errors))
+    # the solver's own tolerance is 1e-3 relative, so this is far inside it
+    # Median agreement is 2.2e-06. The residual sits entirely on NEARLY
+    # DISJOINT pairs, where the crossing lies far out in a tail and the two
+    # methods disagree about a region carrying about 2e-04 of probability. The
+    # counting oracle is itself unreliable at that magnitude, and the solver's
+    # own tolerance is 1e-03 relative, so this bound is not the binding
+    # constraint on anything.
+    assert worst < 5e-4, f'overlap off by {worst:.2e}'
+    assert median < 1e-5, f'typical overlap error {median:.2e}'
+
+
+
 def test_spread_solver_hits_the_requested_overlap():
     def build(c):
         comps = []

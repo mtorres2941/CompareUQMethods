@@ -28,6 +28,8 @@ import mixture as M
 _EPS = 1e-12
 
 
+
+
 # --------------------------------------------------------------------------
 def stratified_sizes(cfg, rng):
     """Dataset sizes for the whole corpus, log-uniform within each stratum.
@@ -105,26 +107,105 @@ def draw_parent(cfg, n, rng):
         target, overlap, ov_status = 0.0, 0.0, 'single_component'
         comps, _ = build(0.0)
 
-    # shift the whole mixture positive: ECC support is (0, inf), open at zero
-    # (decision 13). The shift is a property of the parent, applied to every
-    # component identically, so it changes no shape and no overlap.
-    lo_supp = min(float(d.ppf(1e-12)) for d in comps)
-    shift = 0.0
-    if not np.isfinite(lo_supp) or lo_supp <= 0:
-        finite_lo = min(float(d.ppf(1e-9)) for d in comps)
-        shift = max(0.0, 1e-6 - finite_lo) + abs(finite_lo) * 0.05 + 1.0
+    # Place the mixture relative to zero. ECC support is (0, inf), open at
+    # zero (decision 13), so the mixture has to be shifted up; the question is
+    # by how much, and it is the most consequential number in the generator.
+    #
+    # Shifting a distribution changes its mean and leaves its standard
+    # deviation alone, so the shift IS the coefficient of variation: for a
+    # parent normalized to mean 1, cv(s) = sd(s) / mean(s), decreasing in s.
+    # The target is drawn from the configuration and solved for by bisection,
+    # subject to a floor that keeps essentially no probability below zero.
+    #
+    # Two earlier attempts got this wrong in instructive ways. Shifting above
+    # the 1e-9 quantile of the heaviest-tailed component put the median
+    # dataset's support at 0.65 of its own mean and drove the median
+    # coefficient of variation to 0.049. Shifting so that Q1 - 3 * IQR landed
+    # on zero capped it near 0.5 whatever the component shapes, because it
+    # forces the mean to about 3.5 * IQR with the upper bound at 7 * IQR.
+    # Neither is a statement about the data; both are artifacts of choosing a
+    # shift for a reason unrelated to what the shift controls.
+    lo0_raw, hi0 = M.population_truncation_bounds(comps, pi, cfg.trunc_iqr_mult,
+                                                  clip_at_zero=False)
+    span = hi0 - lo0_raw
+    q_low = M.mixture_quantile(comps, pi, cfg.max_low_tail_truncated)
+    shift_min = max(0.0, 1e-4 * span - q_low)
+
+    cv_target = float(10 ** rng.uniform(cfg.cv_log10_lo, cfg.cv_log10_hi))
+
+    def parent_at(sh):
+        # The COMPONENTS move with the bounds. Truncating the unshifted mixture
+        # to shifted bounds is a different distribution, and doing that made
+        # the solve miss its target by 59 percent at the median.
+        cs = [_Shifted(d, sh) for d in comps] if sh > 0 else comps
+        h = hi0 + sh
+        lo = max(lo0_raw + sh, 1e-9 * span)
+        return M.MixtureParent(cs, pi, market, lo, h, cfg.mode_coupling)
+
+    def cv_at(sh):
+        m, sd = parent_at(sh).truncated_moments()
+        return (sd / m) if m > 0 else np.inf
+
+    shift, cv_status = _solve_shift_for_cv(cv_at, cv_target, shift_min, span)
+    if shift > 0:
         comps = [_Shifted(d, shift) for d in comps]
 
-    lo, hi = M.population_truncation_bounds(comps, pi, cfg.trunc_iqr_mult)
+    hi = hi0 + shift
+    lo = max(lo0_raw + shift, 1e-9 * span)
     parent = M.MixtureParent(comps, pi, market, lo, hi, cfg.mode_coupling)
+    m_fin, sd_fin = parent.truncated_moments()
+    cv_achieved = (sd_fin / m_fin) if m_fin > 0 else np.nan
     record = dict(status='ok', k=k, overlap_target=target, overlap_achieved=overlap,
                   overlap_status=ov_status, component_retries=retries,
                   components=specs, pi=pi.tolist(), market=market.tolist(),
                   shift=shift, lo=lo, hi=hi,
+                  cv_target=cv_target, cv_achieved=cv_achieved,
+                  cv_status=cv_status, shift_min=shift_min,
+                  floor_ratio_achieved=(lo / m_fin) if m_fin > 0 else np.nan,
                   truncated_mass=parent.truncated_mass(),
                   n_components_dropped=parent.n_components_dropped,
                   k_effective=len(parent.comps))
     return parent, record
+
+
+def _solve_shift_for_cv(cv_at, target, shift_min, span, iters=40, tol=2e-3):
+    """Smallest shift whose parent has the requested coefficient of variation.
+
+    cv is decreasing in the shift, so a bisection is enough. `shift_min` is the
+    positivity floor; if even that gives less spread than asked for, the target
+    is unreachable for this mixture and the status records it rather than the
+    generator quietly returning something else.
+    """
+    cv_lo_shift = cv_at(shift_min)
+    if cv_lo_shift <= target * (1 + tol):
+        # even the smallest allowed shift is not spread out enough
+        return shift_min, ('ok' if abs(cv_lo_shift - target) <= tol * target
+                           else 'clipped_max_cv')
+
+    # expand upward until the coefficient of variation drops below the target
+    a = shift_min
+    b = shift_min + max(span, 1e-12)
+    for _ in range(200):
+        if cv_at(b) < target:
+            break
+        b = shift_min + (b - shift_min) * 2.0
+        if b - shift_min > 1e14 * max(span, 1e-12):
+            return b, 'clipped_min_cv'
+    else:
+        return b, 'clipped_min_cv'
+
+    for _ in range(iters):
+        mid = 0.5 * (a + b)
+        if cv_at(mid) > target:
+            a = mid
+        else:
+            b = mid
+        if (b - a) <= 1e-10 * max(span, 1.0):
+            break
+    sh = 0.5 * (a + b)
+    got = cv_at(sh)
+    return sh, ('ok' if abs(got - target) <= tol * max(target, 1e-9)
+                else 'tolerance_not_met')
 
 
 class _Shifted:
@@ -229,6 +310,14 @@ def validity_failures(x, w, n_expected=None):
         out.append('non_positive_values')
     if np.ptp(x) <= 0 or not np.isfinite(np.std(x)) or np.std(x) <= 0:
         out.append('zero_variance')
+    elif np.ptp(x) < 1e-9 * max(abs(float(np.mean(x))), 1e-300):
+        # Not literally constant, but too narrow for the metrics to mean
+        # anything: a 256-bin histogram cannot be formed, the Shapiro-Wilk
+        # statistic is dominated by float spacing, and a KDE bandwidth is
+        # meaningless. The configuration can request a coefficient of variation
+        # this small; such datasets are rejected here rather than silently
+        # producing metrics that describe rounding.
+        out.append('degenerate_range')
     if np.any(w < 0):
         out.append('negative_weights')
     if not np.isclose(w.sum(), 1.0, atol=1e-9):
