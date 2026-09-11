@@ -135,9 +135,32 @@ verbatim). Within NB1, cell 12 must precede cell 27 (which needs
 
 ### 3.5 Runtime bottlenecks, measured
 
-The pipeline is considerably faster than assumed. Measured on this machine,
-total compute across all three notebooks is on the order of 10 to 20 minutes,
-not hours. The costs are not where they appear to be:
+Measured on this machine (2026 laptop, Python 3.12, pandas 2.x), total compute
+across all three notebooks is on the order of 20 to 35 minutes. The full NB3
+cell 21 pLCA loop, reproduced verbatim, runs at 0.08 s per combo at
+`neccs=1000` (3.5 min for 2,500 combos) and 0.25 s per combo at `neccs=10000`
+(10.2 min). NB3 cell 25's growing-DataFrame append is linear, not quadratic, in
+this pandas version: about 25 s in total.
+
+**This contradicts the author's recollection that NB3 took extremely long, and
+that discrepancy is unresolved.** The measurements above were taken on a
+different machine and a newer software stack than the one that produced the
+published results, and the original `waterweed` environment no longer exists to
+test against. The most likely explanations are (a) an older pandas, where
+`df.loc[len(df)] = row` and scalar `.loc` assignment on object-dtype frames
+were genuinely quadratic rather than linear, which would turn cell 25 and
+`compare_results` from seconds into tens of minutes; (b) the previous laptop;
+(c) earlier runs at a larger `neccs` or over all 15,000 datasets. Figure
+rasterization at dpi=1200 is the one cost that is real on any machine.
+
+The practical consequence: **do not treat these timings as the baseline.** The
+first action in Stage 1 is a single timed end-to-end run on the author's
+current laptop in the new pinned environment, recorded per cell. Optimization
+targets should be set from that, not from this section. The refactor is
+justified by correctness and reproducibility regardless of what the timings
+say.
+
+The costs, ranked as measured here:
 
 1. **Figure rasterization at dpi=1200 is the single largest cost.** NB3
    cell 39 builds one 6x7 panel figure in which each of 38 panels scatters 30
@@ -291,17 +314,27 @@ Findings, in descending order of consequence:
    for Stage 2: the moment the bandwidth rule is switched to Silverman for
    consistency with KL2, this bug starts driving every KDE fit. It must be
    fixed before that switch, not after.
-2. **The two bandwidth rules are not named the way scipy names them.**
-   `weighted_bw` implements `'scott'` as `1.06 * std * n_eff**-0.2` and
-   `'silverman'` as `0.9 * min(std, IQR/1.34) * n_eff**-0.2`. The second is
-   Silverman's robust rule of thumb (Silverman 1986 eq. 3.31). The first
-   matches Scott's textbook constant and also Silverman's normal-reference
-   constant, but **scipy's own `bw_method='scott'` carries no 1.06 factor**, so
-   the same word means different things in this code and in
-   `scipy.stats.gaussian_kde`. The README describes the method as "Scott's
-   bandwidth rule" without this distinction. Relevant to the known KL1/KL2
-   divergence: on skewed data, `0.9 * IQR/1.34` and `1.06 * std` can differ
-   substantially, so the KL2 consistency question is not a 15% cosmetic change.
+2. **The bandwidth rules are correctly named; only cross-referencing scipy is
+   a hazard.** `weighted_bw` implements `'scott'` as `1.06 * std * n_eff**-0.2`
+   and `'silverman'` as `0.9 * min(std, IQR/1.34) * n_eff**-0.2`. Both match
+   the standard convention: Scott (1992) gives `1.059 * sigma * n**(-1/5)`, and
+   Silverman's robust rule of thumb is Silverman (1986) eq. 3.31. The
+   implementation and the README are right, and an earlier draft of this
+   handoff wrongly implied otherwise.
+
+   The one live hazard is that `scipy.stats.gaussian_kde` uses these two words
+   for different formulas: its `bw_method='scott'` is `sigma * n**(-1/5)` with
+   no constant, and its `'silverman'` is `sigma * (3n/4)**(-1/5)`, which is
+   about `1.06 * sigma * n**(-1/5)`. So scipy's `'silverman'` is numerically
+   this project's `'scott'`. The code sidesteps this by computing the bandwidth
+   itself and passing `bw_method=1.0` before calling `set_bandwidth`, which is
+   correct. The trap is documentation and review: never describe the method by
+   pointing at a scipy keyword, and never compare this bandwidth to a scipy
+   default without converting.
+
+   Relevant to the KL1/KL2 divergence: on skewed data `0.9 * IQR/1.34` and
+   `1.06 * std` can differ substantially, so switching to Silverman for KL2
+   consistency is not a cosmetic change.
 3. **`shapiro_wilk_weighted` silently switches estimator between the weighted
    and unweighted columns.** With uniform weights it returns
    `scipy.stats.shapiro`, the true Shapiro-Wilk W. With non-uniform weights it
@@ -395,14 +428,24 @@ Findings, in descending order of consequence:
 - **The README documents output filenames that are no longer produced**
   (`FIG1_`..`FIG7_`), and its figure list does not match what the notebooks
   write.
+- **The manuscript `.docx` carries 98 unresolved comments from the author's
+  advisor, and this repository is public and Zenodo-archived.** Committing the
+  file as it stands would publish a named third party's private editorial
+  feedback, permanently and without their consent, and git history would retain
+  it even after a later deletion. The file should be gitignored until the
+  comments are resolved and accepted, and only a clean copy committed, if any
+  copy is committed at all. This is flagged for decision, not acted on.
 
 ### 3.10 Citation check
 
-There is no manuscript file in this repository (`reports/` is empty; no
-`.docx`, `.tex` or `.bib` anywhere). The requested update of "Torres et al.
-(in press)" to the published RC&R 234, 109022 citation therefore cannot be
-performed here. The manuscript needs to be added to the repository, or the
-citation update handled outside it.
+The manuscript was added by the author on 2026-09-11, after this inventory was
+first written, at `outputs/manuscript/2026-09-10_Manuscript_CompareUQMethods.docx`
+(15,314 words, 98 unresolved advisor comments). The citation pass over it has
+**not** been performed: by the author's instruction the analysis is to be
+settled first, and the manuscript revised afterwards in light of whatever the
+analysis changes. The "Torres et al. (in press)" to RC&R 234, 109022 update is
+therefore carried forward as a manuscript-stage task, together with a sweep for
+any other placeholder or in-press citations.
 
 Within the repository, the only citation-like strings are in `README.md`:
 - line 167, the present paper cited as "(submitted)". Still accurate while in
@@ -420,15 +463,32 @@ The only committed changes are `.gitignore`, `CLAUDE.md` and this handoff file.
 
 ## 5. Open questions and flags
 
-Blocking, needed before Stage 1 refactoring begins:
+Decisions taken (author, 2026-09-11), superseding the open questions as first
+written:
 
-1. **`neccs = 1000` versus the stated 10,000.** Which is correct for the
-   manuscript? If the manuscript says 10,000, the pLCA must be rerun, and
-   every pLCA number will move.
-2. **Unweighted versus weighted mean normalization.** The brief says weighted;
-   the code uses unweighted. Which is intended? Changing it moves every metric
-   and every W1.
-3. **Approval of the refactor plan** before any code is touched.
+1. **The pLCA runs at 10,000 draws.** `neccs` moves from 1,000 to 10,000.
+   Every pLCA number in the manuscript will move. Measured cost of the change
+   is about 10 min for all 2,500 combos (see 3.5), so it is affordable; if a
+   later change makes it prohibitive, reassess.
+2. **Normalization is by the weighted mean,** because the weighted values are
+   the synthesized ground truth. Both the synthetic path
+   (`datageneration.random_irregular_dataset`) and the empirical path (NB1
+   cell 12) change from `np.mean(data)` to the weighted mean. This moves every
+   metric and every W1 in the paper.
+3. **Bandwidth naming corrected** (3.8 item 2). The implementation was right.
+4. **A dedicated conda environment will be created for this repository** in
+   Stage 1, with pinned versions, replacing the lost `waterweed` kernel.
+5. **`tqdm` is to be removed.** It dates from a pre-VS-Code workflow.
+6. **The manuscript is now in the repository** at
+   `outputs/manuscript/2026-09-10_Manuscript_CompareUQMethods.docx`: 15,314
+   words with 98 unresolved comments from the author's advisor. The analysis is
+   to be straightened out first; the manuscript is revisited afterwards, in
+   light of whatever the analysis changes. **See the flag in 3.9 about
+   publishing advisor comments in a public repository.**
+
+Still blocking before code is touched:
+
+7. **Approval of the refactor plan.**
 
 Non-blocking, carried into Stage 2:
 
@@ -460,6 +520,9 @@ Written:
 - `reports/HANDOFF_stage-0.md` (this file)
 
 Nothing under `data/`, `outputs/`, `src/` or `notebooks/` was modified.
+
+Added by the author during this stage, not by this stage's work:
+`outputs/manuscript/2026-09-10_Manuscript_CompareUQMethods.docx`.
 
 ## 7. Next stage
 
