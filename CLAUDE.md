@@ -189,6 +189,62 @@ between them, and the following rules are binding:
 
 ---
 
+## Pipeline roadmap
+
+Everything that is queued, so that a session can recognize an item belonging to
+a later stage and leave it alone instead of either solving it early or worrying
+that it has been forgotten.
+
+**How to use this list.** If you hit something this list assigns to another
+stage, do not fix it, do not sketch a solution, and do not run a quick check
+"just to know." Write one line in your handoff under the carried-forward items
+saying what you saw and which stage owns it, and carry on with your own stage.
+The failure mode this list exists to prevent is a stage that does its own work
+plus a thin version of three others, leaving the author unable to tell which
+number came from which decision.
+
+**The one hard sequencing rule:** regeneration of the synthetic datasets
+happens exactly once, at the end of Stage 2a. Every number in the paper moves
+when it does. Any stage that touches generation parameters before 2a closes, or
+regenerates again afterward, doubles the verification work for no gain.
+
+| Stage | Owns | Explicitly not its job |
+|---|---|---|
+| **0 DONE** | Inventory, dependency map, refactor plan, baseline code and analysis assessments. `reports/HANDOFF_stage-0.md` | Any change to analysis logic |
+| **1 DONE** | Pinned environment, regression fixtures, persisted pLCA table, seeding machinery, correctness fixes, thin notebooks over a tested `src/`. Exactly two intended number-moving changes: neccs 1,000 to 10,000, and the wbeci assignment moved inside the loop. `reports/HANDOFF_stage-1.md` | Regeneration, and every methodological judgment call. Amendment A3 settled normalization: unweighted mean, code stands, text is wrong |
+| **2a** | Generator audit: seeding collapse, Dirichlet concentration mismatch, stale docstring, the truncation loop, power transform, reflection, component overlap, mode counting, the 27.5 percent filter, mode-level market share, the coverage table that becomes Table 1. Then regenerate, once | Changing the fitting methods, changing the scoring target, or sweeping anything that 2h owns |
+| **2b** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE | Adding new families for robustness (2h), or rescoring against a parent (2c) |
+| **2c** | The evaluation target: score synthetic against the known parent, cross-validate the empirical 138, decompose location versus definitional error, report regret distributions. Overlap area alongside W1 | The pLCA construction (2e) and the flip-probability threshold (2d) |
+| **2d** | Decompose the uniform-to-variable W1 into location and shape, define the named relative measure, calibrate flip probability against relative W1, report the 1, 5 and 10 percent crossings | Building companion decision metrics (2g) |
+| **2e** | pLCA construction: common random numbers across UQ methods, sweep materials per pLCA over 2 to 12, resample groupings, dominant-MUI variant, bootstrap intervals on every headline percentage and NRMSE | Changing what the headline metric is (2g) |
+| **2f** | Resolve Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue`, then the multivariate model of W1 and of which method wins, to cut the metric set to three to five survivors | Regenerating, or redesigning figures (3) |
+| **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
+| **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling | Anything not framed as a sweep with a tabulated result |
+| **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
+| **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check | Changing any number |
+| **4** (optional) | README and Zenodo re-deposit | Anything analytical |
+
+Items already known to be open and owned by a named stage, so that none of them
+reads as a fresh discovery: the bandwidth rule and its KL1/KL2 inconsistency
+(2h); `logfit_offset` (2b, swept in 2h); the "Mode Count" label naming a
+continuous modality index (2a); the 27.5 percent filter and its n cap at 749
+(2a); the variance-inflation exponent and the reflection step (2a);
+Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue` (2f); dependent
+sampling (2e); overlap area alongside W1 (2c); the `(1-capecc)` divisor (2g);
+`weighted_quantile` order dependence (fixed in Stage 1 Phase 3, and it must
+stay fixed before any switch to Silverman in 2h).
+
+Mark each stage done as it completes. If a stage hands an item to a different
+stage than this table says, update the table rather than leaving the two out of
+step.
+
+**Outside the stage structure, and belonging to the manuscript session, not to
+any analysis stage:** revising the manuscript, and
+`reports/MANUSCRIPT_discrepancies.md`, which every stage appends to and which
+is worked from later. Keep appending. Do not start editing the paper.
+
+---
+
 ## How the repository works
 
 Mechanics live in **CONTEXT.md**: package layout, the fitting interface, the
