@@ -398,6 +398,15 @@ def weighted_kurtosis(data, weights, bias=False):
     n = len(data)
 
     if bias is False:
+        # The bias correction divides by (n-1)(n-2)(n-3), so the unbiased
+        # excess kurtosis is undefined for n < 4. Five of the 138 empirical ECC
+        # datasets have exactly n = 3, and before this guard they produced
+        # infinite kurtosis in the shipped supplementary table (10 non-finite
+        # cells across kurtosis and kurtosis_uw). NaN is returned rather than
+        # silently substituting the biased estimator, which would mix two
+        # different quantities in one column.
+        if n < 4:
+            return np.nan
         g2 = n**2*((n+1)*m4-3*(n-1)*m2**2)/((n-1)*(n-2)*(n-3)) * (n-1)**2/(n**2*m2**2)
     else:
         g2 = m4/m2**2-3
