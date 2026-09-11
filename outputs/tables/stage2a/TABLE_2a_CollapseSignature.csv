@@ -1,0 +1,17 @@
+check,legacy_value,claimed,note
+shape_param_skewnorm_a,3.45873181125018,3.458732,"constant for all skewnorm components, all datasets"
+shape_param_studentt_df,3.3663275929465444,3.366328,"constant for all studentt components, all datasets"
+shape_param_lognorm_s,1.1369616873214543,1.136962,"constant for all lognorm components, all datasets"
+legacy_repeat_identical_gauss,0.0,0.0,"max abs difference between two calls with the same (type, loc, scale, count)"
+legacy_repeat_identical_skewnorm,0.0,0.0,"max abs difference between two calls with the same (type, loc, scale, count)"
+legacy_repeat_identical_studentt,0.0,0.0,"max abs difference between two calls with the same (type, loc, scale, count)"
+legacy_repeat_identical_lognorm,13.30356941328835,0.0,"max abs difference between two calls with the same (type, loc, scale, count)"
+legacy_two_gauss_standardized_maxdiff,4.385380947269368e-15,0.0,two gauss components of equal length are exact affine images
+current_repeat_identical_gauss,3.634006380396226,,same call twice under the corrected generator
+current_repeat_identical_skewnorm,4.574476451566493,,same call twice under the corrected generator
+current_repeat_identical_studentt,7.551425450327755,,same call twice under the corrected generator
+current_repeat_identical_lognorm,21.758832513542732,,same call twice under the corrected generator
+current_two_gauss_standardized_maxdiff,4.799419680369554,,Stage 1 handoff reports 3.36 here
+current_shape_spread_skewnorm_a,2.018309163830595,0.0,sd of the shape parameter across draws; legacy sd is exactly 0
+current_shape_spread_studentt_df,1.3076948663896673,0.0,sd of the shape parameter across draws; legacy sd is exactly 0
+current_shape_spread_lognorm_s,0.2892281207390406,0.0,sd of the shape parameter across draws; legacy sd is exactly 0
