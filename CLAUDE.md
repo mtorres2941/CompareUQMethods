@@ -157,6 +157,36 @@ Each handoff file contains, in order:
 6. **Inputs and outputs.** Files read and files written by the stage.
 7. **Next stage.** What the next stage should pick up first.
 
+### Continuity across sessions and windows
+
+This project is worked on from several Claude Code windows at once, and
+different stages run in different sessions. A session cannot see another
+session's conversation. The handoff files are therefore the only channel
+between them, and the following rules are binding:
+
+- **Nothing outstanding may live only in a conversation.** Any open question,
+  deferred decision, known defect, suspicion, or promise to revisit must be
+  written into a handoff file before the stage ends. If it is not in a handoff
+  file, it does not exist.
+- **Every handoff carries forward the unresolved items from every previous
+  handoff**, not only its own. Section 5 of each handoff opens with a
+  "Carried forward" list restating every still-open item from earlier stages,
+  each marked resolved, still open, or superseded, with the stage that last
+  touched it. An item may only leave the list by being marked resolved, with
+  the reason given.
+- **Start every stage by reading `reports/` in full**, in stage order, before
+  doing any work. Do not rely on this file alone; it holds the brief, not the
+  state.
+- **Record decisions with their reason and their date**, so a later session can
+  tell a settled decision from an open one.
+- **Never silently reverse an earlier stage's decision.** If a later stage
+  finds an earlier decision wrong, say so explicitly in the handoff, name the
+  stage and the decision, and state what changed.
+- The baseline assessments in `reports/HANDOFF_stage-0.md` section 8 are the
+  reference point for any later before-and-after comparison of code quality or
+  analysis quality. Do not edit them; later stages record their own assessment
+  in their own handoff.
+
 ---
 
 ## Repository conventions
