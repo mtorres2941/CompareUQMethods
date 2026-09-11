@@ -254,3 +254,58 @@ if __name__ == '__main__':
     print(f'\nwrote {d}')
     print('run  python -c "import sys; sys.path.insert(0,\'src\'); '
           f'import corpus; corpus.set_active(\'{label}\')"  to activate it')
+
+
+# --------------------------------------------------------------------------
+# adapters, so downstream notebook cells keep the shape they already use
+# --------------------------------------------------------------------------
+METRIC_COLUMNS = ('n', 'mean', 'mean_uw', 'coeffvar', 'coeffvar_uw', 'skewness',
+                  'skewness_uw', 'kurtosis', 'kurtosis_uw', 'entropy', 'entropy_uw',
+                  'modality_index', 'modality_index_uw', 'crit_bw_1', 'crit_bw_1_uw',
+                  'weight_outliers', 'weight_outliers_uw', 'fit_norm_SW',
+                  'fit_norm_SW_uw', 'fit_lognorm_SW', 'fit_lognorm_SW_uw',
+                  'w_v_uw_wasserstein')
+
+
+def as_legacy_dict(metrics, values):
+    """{dataset_id: {'data', 'weights', 'metrics'}}, the shape notebooks 2 and 3
+    already consume. The corpus itself is stored in long format (decision 15);
+    this only reshapes it in memory."""
+    cols = [c for c in METRIC_COLUMNS if c in metrics.columns]
+    meta = metrics.set_index('dataset')[cols].to_dict('index')
+    out = {}
+    for ds, g in values.groupby('dataset_id', observed=True):
+        ds = str(ds)
+        if ds not in meta:
+            continue
+        out[ds] = {'data': g['value'].to_numpy(),
+                   'weights': g['weight'].to_numpy(),
+                   'metrics': meta[ds]}
+    return out
+
+
+def make_combos(metrics, rng, nmats=4, corpus_only=True):
+    """Disjoint groups of `nmats` datasets, for the pLCA.
+
+    Written into the corpus directory rather than to a loose combos.txt, so a
+    grouping always belongs to a named corpus. The probe set is excluded: its
+    only job is to test whether results plateau above n = 10 ** 4, and it must
+    stay out of every aggregate.
+    """
+    m = metrics[~metrics.is_probe] if (corpus_only and 'is_probe' in metrics) else metrics
+    ids = np.array(sorted(m['dataset'].astype(str)))
+    rng.shuffle(ids)
+    ids = ids[:len(ids) // nmats * nmats]
+    return ids.reshape(-1, nmats)
+
+
+def write_combos(directory, combos):
+    path = os.path.join(directory, 'combos.csv')
+    pd.DataFrame(combos, columns=[f'material{i+1}' for i in range(combos.shape[1])]
+                 ).to_csv(path, index=False)
+    return path
+
+
+def load_combos(directory=None):
+    d = directory or active_dir()
+    return pd.read_csv(os.path.join(d, 'combos.csv')).to_numpy(dtype=str)
