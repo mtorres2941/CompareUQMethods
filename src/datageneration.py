@@ -179,3 +179,41 @@ def random_logcount(rng, lo=4, hi=1_000, n=1):
     # np.log(x)/np.log(10) is kept rather than np.log10(x): the two differ in
     # the last bit, and there is no reason to perturb the generation stream.
     return np.round(10 ** rng.uniform(np.log(lo) / np.log(10), np.log(hi) / np.log(10), n), 0)
+
+
+########################################################################
+def clean_empirical_low_end(data, mult=3.0):
+    """Remove near-zero empirical ECC values with a MULTIPLICATIVE bound.
+
+    The extraction trims at Q1 - 3 * IQR and Q3 + 3 * IQR. The low bound is
+    negative in 128 of the 138 empirical datasets, so it never binds: high
+    outliers are removed and near-zero values are not. `ReadyMix` retains a
+    value at 3.1e-17 of its mean, which is a data error rather than a product,
+    and 39 of the 138 datasets hold a value below 1 percent of their mean.
+
+    In log space the same rule is a ratio rather than a difference and does
+    bind. A value is kept when
+
+        log(x) > Q1(log x) - mult * IQR(log x)
+
+    Decision 12 in CLAUDE.md records the multiplicative direction as the
+    author's, with the specific filter left to this stage.
+
+    Only the LOW end is treated here, deliberately. The high end was already
+    trimmed additively when `dct_realeccs_trimmed.json` was written, and the
+    directory that extraction read no longer exists, so the empirical data
+    cannot be re-cleaned from source on this machine. Applying a log-space high
+    bound on top of the additive one would trim the same tail twice. A
+    symmetric re-clean needs a fresh EC3 extraction; see
+    reports/MANUSCRIPT_discrepancies.md.
+    """
+    data = np.asarray(data, float)
+    pos = data[data > 0]
+    if len(pos) < 4:
+        return data
+    L = np.log(pos)
+    l1, l3 = np.quantile(L, [0.25, 0.75])
+    li = l3 - l1
+    if li <= 0:
+        return data
+    return data[(data > 0) & (np.log(np.where(data > 0, data, 1e-300)) > l1 - mult * li)]

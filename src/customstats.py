@@ -7,6 +7,8 @@ from scipy.optimize import minimize
 from scipy.signal import argrelextrema
 from scipy.stats import lognorm, gaussian_kde, wasserstein_distance, energy_distance, norm
 
+import modality
+
 
 # from customstats import weighted_lognorm_fit, shapiro_wilk_weighted, _royston_pvalue, empirical_metadata, NestedDictValues, weighted_ecdf, estimate_maxima, weighted_kurtosis, weighted_skew, wasserstein1_weighted, wasserstein2_weighted, weighted_mean, weighted_var, weighted_distance_norm, weighted_quantile, weighted_bw, weighted_std
 
@@ -283,9 +285,24 @@ def empirical_metadata(data: np.ndarray, weights: np.ndarray, num_bins: int = 25
         entr = float(stats.entropy(probs))
         metadata[f'entropy{label}'] = entr
 
-        # conservative mode count using smoothed histogram local maxima
-        mode_count_est = estimate_maxima(data, weights=W, gran=1_000)
-        metadata[f'mode_count_est{label}'] = mode_count_est
+        # Modality. Two measures are recorded side by side.
+        #
+        # modality_index is the old `mode_count_est`, renamed. It was labelled
+        # "Mode Count" but it is a continuous index,
+        # (sum of maxima heights - sum of minima heights) / max height, of a
+        # KDE at Scott's bandwidth. Across the 138 empirical datasets it spans
+        # only 1.000 to 1.159, so read as a count it is constant at 1. The
+        # column is kept under an honest name so the new corpus stays
+        # comparable to the old on this axis; Stage 2f decides which survives.
+        #
+        # crit_bw_1 is Silverman's critical bandwidth for unimodality, in units
+        # of the data's standard deviation: the smallest Gaussian-kernel
+        # bandwidth at which the density has one mode. Large means the data
+        # resist being smoothed into one mode. It is a statistic, not a
+        # p-value, per decision 11.
+        modality_index = estimate_maxima(data, weights=W, gran=1_000)
+        metadata[f'modality_index{label}'] = modality_index
+        metadata[f'crit_bw_1{label}'] = modality.critical_bandwidth(data, 1, W)
 
         # find the proportion of data classified as an outlier (farther than 1.5*IQR from the IQR)
         xcdf, ycdf, func = weighted_ecdf(data, W)

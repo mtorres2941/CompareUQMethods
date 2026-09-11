@@ -121,7 +121,9 @@ def draw_parent(cfg, n, rng):
                   overlap_status=ov_status, component_retries=retries,
                   components=specs, pi=pi.tolist(), market=market.tolist(),
                   shift=shift, lo=lo, hi=hi,
-                  truncated_mass=parent.truncated_mass())
+                  truncated_mass=parent.truncated_mass(),
+                  n_components_dropped=parent.n_components_dropped,
+                  k_effective=len(parent.comps))
     return parent, record
 
 

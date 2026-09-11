@@ -49,6 +49,10 @@ import components as C
 TRUNC_IQR_MULT = 3.0
 _EPS = 1e-12
 
+# A component holding less than this share of its own probability inside the
+# truncation bounds is dropped from the parent. See MixtureParent.__init__.
+MIN_COMPONENT_MASS = 1e-9
+
 
 # --------------------------------------------------------------------------
 class MixtureParent:
@@ -70,16 +74,46 @@ class MixtureParent:
     """
 
     __slots__ = ('comps', 'pi', 'market', 'lo', 'hi', 'pi_trunc',
-                 'market_effective', 'coupling', 'normalizer', '_mass')
+                 'market_effective', 'coupling', 'normalizer', '_mass',
+                 'n_components_dropped')
 
     def __init__(self, comps, pi, market, lo, hi, coupling):
-        self.comps = tuple(comps)
-        self.pi = np.asarray(pi, float)
-        self.market = np.asarray(market, float)
+        comps = list(comps)
+        pi = np.asarray(pi, float)
+        market = np.asarray(market, float)
         self.lo, self.hi = float(lo), float(hi)
         self.coupling = float(coupling)
-        self._mass = np.array([float(d.cdf(self.hi) - d.cdf(self.lo))
-                               for d in self.comps])
+
+        # A component can fall almost entirely outside [lo, hi]: the truncation
+        # bounds come from the MIXTURE's quartiles, so a far-flung component
+        # contributes essentially nothing to the truncated mixture. Such a
+        # component must be dropped, not kept with a near-zero mass. Keeping it
+        # divides by that mass in cdf() and in sample(), which turns a
+        # rounding-level number into the dominant term: two parents in a
+        # 1,600-draw check came back with a population mean of 1e-12 because
+        # one component's clipped CDF saturated at 1 for every x.
+        #
+        # The mass genuinely is not there, so the honest treatment is to drop
+        # the component and renormalize both weight vectors over the
+        # survivors. How many were dropped is recorded rather than hidden.
+        mass = np.array([float(d.cdf(self.hi)) - float(d.cdf(self.lo)) for d in comps])
+        mass = np.where(np.isfinite(mass), np.clip(mass, 0.0, 1.0), 0.0)
+        contrib = pi * mass
+        total = contrib.sum()
+        keep = (mass > MIN_COMPONENT_MASS) & (contrib > MIN_COMPONENT_MASS * max(total, _EPS))
+        if not keep.any():
+            keep = np.zeros(len(comps), bool)
+            keep[int(np.argmax(contrib))] = True
+        self.n_components_dropped = int((~keep).sum())
+        comps = [d for d, k in zip(comps, keep) if k]
+        pi = pi[keep] / pi[keep].sum()
+        market = market[keep] / market[keep].sum()
+        mass = mass[keep]
+
+        self.comps = tuple(comps)
+        self.pi = pi
+        self.market = market
+        self._mass = mass
         w = self.pi * self._mass
         self.pi_trunc = w / w.sum()
         self.market_effective = ((1.0 - self.coupling) * self.pi_trunc
@@ -170,7 +204,67 @@ class MixtureParent:
 # --------------------------------------------------------------------------
 # overlap, after Maitra and Melnykov (2010) generalized to one dimension
 # --------------------------------------------------------------------------
-def pairwise_overlap(comps, pi, grid_n=4001):
+def _log_ratio(di, dj, pi_i, pi_j):
+    """g(x) = log(pi_j f_j(x)) - log(pi_i f_i(x)). Positive where a draw is
+    assigned to j."""
+    def g(x):
+        x = np.asarray(x, float)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            fi = np.asarray(di.pdf(x), float)
+            fj = np.asarray(dj.pdf(x), float)
+            a = np.log(np.where(fj > 0, fj, 1e-300)) + np.log(pi_j)
+            b = np.log(np.where(fi > 0, fi, 1e-300)) + np.log(pi_i)
+        return a - b
+    return g
+
+
+def _mass_where_positive(g, d, lo, hi, grid_n):
+    """Probability under d of the region where g > 0, from d's CDF.
+
+    Evaluating the misclassification probability as a sum of CDF differences
+    over root-found crossings, rather than as a quadrature of the density,
+    matters here. The targeted overlaps run down to 1e-4, and at that size the
+    region is a thin tail: a trapezoid rule on a grid that has to span every
+    component at once puts only a handful of nodes inside it, and the resulting
+    value is quantized rather than small. That quantization is not monotone in
+    the component spread, which broke the bisection in
+    solve_spread_for_overlap - 23 percent of multi-component datasets came back
+    'tolerance_not_met' before this was changed. CDF differences are exact
+    given the crossings, and the crossings are found to machine precision.
+    """
+    x = np.linspace(lo, hi, grid_n)
+    v = g(x)
+    v = np.where(np.isfinite(v), v, -np.inf)
+    # Two components that coincide tie everywhere. The strict inequality in the
+    # definition then reports zero overlap for the most overlapping case there
+    # is, so ties are split. Splitting keeps the function continuous as
+    # components merge, which the bisection in solve_spread_for_overlap needs.
+    if np.all(np.abs(v) < 1e-12):
+        return 0.5
+    sign = v > 0
+    total = 0.0
+    # locate every sign change, refine it, and add the CDF mass between
+    # consecutive crossings wherever g is positive
+    changes = np.flatnonzero(sign[:-1] != sign[1:])
+    edges = [lo]
+    for c in changes:
+        a, b = x[c], x[c + 1]
+        try:
+            edges.append(optimize.brentq(lambda t: g(np.array([t]))[0], a, b,
+                                         xtol=1e-13 * max(1.0, abs(b)), rtol=1e-14))
+        except Exception:
+            edges.append(0.5 * (a + b))
+    edges.append(hi)
+    for a, b in zip(edges[:-1], edges[1:]):
+        if b <= a:
+            continue
+        mid = 0.5 * (a + b)
+        if g(np.array([mid]))[0] > 0:
+            total += float(d.cdf(b)) - float(d.cdf(a))
+    return float(np.clip(total, 0.0, 1.0))
+
+
+def pairwise_overlap(comps, pi, grid_n=2001):
     """Matrix of pairwise overlaps omega_ij = omega_{j|i} + omega_{i|j}.
 
     Maitra and Melnykov define omega_{j|i} as the probability that a draw from
@@ -179,46 +273,42 @@ def pairwise_overlap(comps, pi, grid_n=4001):
         omega_{j|i} = Pr[ pi_i f_i(X) < pi_j f_j(X) | X ~ f_i ],
 
     the misclassification probability. Their closed forms are Gaussian-only,
-    but the DEFINITION is distribution free, and in one dimension the integral
-    is a quadrature over a common grid. That matters here because the
-    components are Johnson SU, beta, beta-prime and lognormal, not Gaussians,
-    so the Gaussian formulas would not apply anyway.
+    but the DEFINITION is distribution free, and in one dimension the assigned
+    region is a handful of intervals whose endpoints can be found exactly. That
+    matters here because the components are Johnson SU, beta, beta-prime and
+    lognormal, not Gaussians, so the Gaussian formulas would not apply anyway.
 
     Overlap is the right generation parameter for this study because the thing
     that varies between real material categories is how far apart the product
-    groups are, and the current generator has no knob for it: locations on
-    (5, 20) with scales on (0.2, 1.5) place components tens of standard
-    deviations apart, giving well-separated clusters rather than the partially
-    merged shoulders real ECC data shows.
+    groups are, and the old generator had no knob for it: locations on (5, 20)
+    with scales on (0.2, 1.5) placed components a measured 6.5 pooled standard
+    deviations apart on average, giving well-separated clusters rather than the
+    partially merged shoulders real ECC data shows.
     """
     k = len(comps)
     om = np.zeros((k, k))
     if k < 2:
         return om
-    lo = min(float(d.ppf(1e-6)) for d in comps)
-    hi = max(float(d.ppf(1 - 1e-6)) for d in comps)
-    pad = 0.05 * (hi - lo)
-    x = np.linspace(lo - pad, hi + pad, grid_n)
-    dens = np.array([np.asarray(d.pdf(x), float) for d in comps])
-    dens = np.where(np.isfinite(dens), dens, 0.0)
-    wd = dens * np.asarray(pi, float)[:, None]
     for i in range(k):
         for j in range(i + 1, k):
-            # Ties are split rather than dropped. Maitra and Melnykov write the
-            # definition with a strict inequality because for two distinct
-            # Gaussians the tie set has probability zero, but two components
-            # that coincide tie everywhere and the strict form then reports
-            # zero overlap for the most overlapping case there is. Splitting
-            # ties makes the function continuous as components merge, which the
-            # bisection in solve_spread_for_overlap relies on.
-            tie = 0.5 * (wd[i] == wd[j])
-            om_ji = np.trapezoid(np.where(wd[i] < wd[j], 1.0, tie) * dens[i], x)
-            om_ij = np.trapezoid(np.where(wd[j] < wd[i], 1.0, tie) * dens[j], x)
+            di, dj = comps[i], comps[j]
+            lo = min(float(di.ppf(1e-10)), float(dj.ppf(1e-10)))
+            hi = max(float(di.ppf(1 - 1e-10)), float(dj.ppf(1 - 1e-10)))
+            if not np.isfinite(lo) or not np.isfinite(hi) or hi <= lo:
+                continue
+            pad = 0.02 * (hi - lo)
+            lo, hi = lo - pad, hi + pad
+            g_ij = _log_ratio(di, dj, pi[i], pi[j])
+            om_ji = _mass_where_positive(g_ij, di, lo, hi, grid_n)
+
+            def g_ji(x, g_ij=g_ij):
+                return -g_ij(x)
+            om_ij = _mass_where_positive(g_ji, dj, lo, hi, grid_n)
             om[i, j] = om[j, i] = float(np.clip(om_ji + om_ij, 0.0, 2.0))
     return om
 
 
-def average_overlap(comps, pi, grid_n=4001):
+def average_overlap(comps, pi, grid_n=2001):
     k = len(comps)
     if k < 2:
         return 0.0
@@ -227,7 +317,7 @@ def average_overlap(comps, pi, grid_n=4001):
     return float(np.mean(om[iu]))
 
 
-def solve_spread_for_overlap(build, target, lo=1e-3, hi=1e3, tol=1e-3, grid_n=2001):
+def solve_spread_for_overlap(build, target, lo=1e-4, hi=1e4, tol=1e-3, grid_n=1501):
     """Find the location spread giving the requested average overlap.
 
     `build(c)` returns the component list at spread multiplier c, with c small
