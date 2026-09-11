@@ -16,6 +16,9 @@
 # and so shift slightly between scipy versions. See tests/test_regression.py
 # for the tolerance and how it was chosen.
 #
+# scikit-learn, xgboost, openturns and requests were removed at the end of
+# Stage 1: all four were imported by the notebooks and used zero times.
+#
 # environment.lock.yml holds the full transitive solve for this platform
 # (osx-arm64). Use environment.yml for portability, the lock file for an exact
 # rebuild on the same platform.
@@ -30,11 +33,7 @@ dependencies:
   - pandas=3.0.5
   - matplotlib=3.11.1
   - seaborn=0.13.2
-  - scikit-learn=1.9.1  # imported by NB2 and NB3
-  - xgboost=3.2.0  # imported by NB3
-  - openturns=1.27.3  # imported by NB2 and NB3
   - tqdm=4.70.0
-  - requests=2.34.2  # imported but unused; kept so the notebooks import cleanly
   - openpyxl=3.1.5  # pandas Excel engine
   - pillow=12.3.0
   - ipykernel=7.3.0  # Jupyter kernel registration
