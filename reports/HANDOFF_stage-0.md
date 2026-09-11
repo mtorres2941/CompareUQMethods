@@ -496,7 +496,10 @@ Author decisions, 2026-09-11, superseding the open questions as first written:
 
 Still blocking before code is touched:
 
-7. **Approval of the refactor plan.**
+7. **Approval of the refactor plan, which is set out in full in section 10.**
+   Approval is the author's to give. Two structural questions inside the plan
+   (10.7) must be answered as part of that approval, because they determine
+   the shape of everything after.
 
 Non-blocking, carried into Stage 2:
 
@@ -534,8 +537,9 @@ Added by the author during this stage, not by this stage's work:
 
 ## 7. Next stage
 
-Stage 1 is the refactor, and it must not begin until the plan is approved and
-questions 1 and 2 above are answered.
+Stage 1 is the refactor. **The full proposed plan is section 10 of this
+document.** It must not begin until that plan is approved and the two
+structural questions in 10.7 are answered.
 
 The first task in Stage 1, before any restructuring, is to establish a
 regression baseline: pin the current environment, capture the existing
@@ -645,3 +649,171 @@ Confirmed with the author on 2026-09-11:
   undocumented choices in 8.2) are to be addressed in separate prompts, not in
   the refactor. They remain on the carried-forward list until a stage resolves
   them explicitly.
+
+## 10. Proposed Stage 1 refactor plan
+
+Proposed by the Stage 0 session, not approved. Awaiting the author's sign-off.
+An earlier version of this plan was given only in conversation, which is the
+failure the continuity rules in CLAUDE.md exist to prevent; it is recorded here
+so any window can review it.
+
+### 10.1 Governing principle
+
+The binding constraint is "never silently change a result". The plan is
+therefore ordered so that **every change that moves a number is isolated in its
+own commit, with the before value, the after value, and the reason recorded in
+the commit message and in the Stage 1 handoff.** Phases that cannot move a
+number come first, so that when numbers do start moving there is a verified
+baseline to move them from and a clean bisect path.
+
+Each phase below is labelled:
+
+- **NEUTRAL** - cannot change any result. Verified by the regression fixtures.
+- **MOVES NUMBERS** - deliberately changes results. Requires a recorded delta.
+
+### 10.2 Phase 0 - Baseline and environment (NEUTRAL)
+
+Nothing may be refactored before this exists, because without it the standing
+constraint is unenforceable.
+
+1. Create `environment.yml` with pinned versions, replacing the lost
+   `waterweed` kernel, and register it as a named Jupyter kernel. Pin from
+   what actually runs, not from the README's unversioned list.
+2. Run all three notebooks end to end, once, unmodified, in that environment,
+   and record per-cell wall time. This is the real performance baseline and it
+   settles the open disagreement in section 3.5 about how slow NB3 is.
+3. Freeze the three existing tables as regression fixtures under
+   `tests/fixtures/`: `TABLE_EmpiricalECCMetrics.xlsx`,
+   `TABLE_EmpiricalECCMetricsAndW1.xlsx`,
+   `TABLE_SyntheticECCMetricsAndW1.xlsx`.
+4. Write `tests/test_regression.py` reproducing those tables from the current
+   code to a stated floating point tolerance.
+
+Acceptance: the environment builds from the file alone; the regression test
+passes; the timing log is committed.
+
+Note: there is deliberately no NB3 fixture here. NB3 writes no table, so there
+is nothing to freeze. That is what Phase 1 fixes, and it is why Phase 1 must
+precede any change to NB3.
+
+### 10.3 Phase 1 - Persist the pLCA results (NEUTRAL)
+
+5. Make NB3 write `results_meta` to a tidy long-format table
+   (one row per combo per PEWT per dataset), plus a run-metadata record
+   capturing seed, `neccs`, package versions and timestamp.
+6. Add that table to the regression fixtures and extend the test.
+
+This is done **before** any NB3 logic changes, so the current pLCA results are
+captured on disk while they still exist. Once Phase 2 begins they are
+unrecoverable.
+
+Acceptance: NB3 writes the table; a rerun reproduces it within Monte Carlo
+tolerance; the fixture is committed.
+
+### 10.4 Phase 2 - Randomness and determinism (MOVES NUMBERS)
+
+7. Thread a single `numpy.random.Generator` through `datageneration.py`,
+   `customstats.py` and all three notebooks. One seed, set once, passed
+   explicitly. No global `np.random` anywhere.
+8. Remove the `seed=0` default from `generate_random_numbers`, making the seed
+   a required argument.
+9. Give the lognormal branch its missing `random_state=rng`.
+10. Regenerate the synthetic datasets. **This invalidates every number in the
+    paper simultaneously** and is the single largest change in the project.
+    Timing of this step is open question 10.7(b).
+11. Commit `DATA_all.json` or, preferably, make it regenerable from the seed
+    alone and record the seed. The current situation, where the file is both
+    required and gitignored, must not survive Stage 1.
+
+Acceptance: two runs from the same seed produce byte-identical outputs; a run
+from a different seed produces different outputs; the delta against the Phase 0
+baseline is recorded metric by metric.
+
+### 10.5 Phase 3 - Correctness fixes (MIXED, one commit each)
+
+Each of these is a separate commit with its own recorded delta.
+
+12. `weighted_quantile` order dependence (3.8 item 1). **NEUTRAL** against
+    current results, because the analysis uses the `'scott'` path which never
+    calls it. Must land before any switch to Silverman.
+13. Weighted-mean normalization, replacing `np.mean(data)` in both the
+    synthetic and empirical paths. **MOVES NUMBERS** - every metric and every
+    W1.
+14. `neccs` from 1,000 to 10,000. **MOVES NUMBERS** - every pLCA result.
+    Measured cost about 10 min for 2,500 combos, subject to the Phase 0
+    baseline.
+15. `wbeci_mean` and `wbeci_stdev` assigned inside the per-dataset loop rather
+    than outside it. **MOVES NUMBERS** - fixes values currently recorded for
+    only one of four datasets per combo.
+16. Guard the `mean_uw` degenerate case in the outlier filter, so datasets are
+    not discarded for floating point noise. **MOVES NUMBERS** - restores 14
+    datasets.
+17. Guard the non-finite quartile case in `empirical_metadata` (3.8 item 6).
+    **NEUTRAL** expected; verify.
+18. Unit tests for every function touched, including hand-computed cases for
+    `weighted_quantile`, `weighted_skew`, `weighted_kurtosis` and
+    `weighted_bw`.
+
+Deliberately **not** in Stage 1, because they are statistical judgment calls
+for separate prompts: the Shapiro-Wilk versus Shapiro-Francia inconsistency,
+`_royston_pvalue`, the 27.5% outlier filter, `logfit_offset`, the
+`(1-capecc)` divisor, the "Mode Count" naming, dependent sampling, and the
+bandwidth rule. These stay on the carried-forward list.
+
+### 10.6 Phase 4 to 6 - Structure, separation, hygiene (NEUTRAL)
+
+Phase 4, consolidation:
+
+19. One `fit_pewt_models()` replacing the three verbatim copies.
+20. One metric-assembly helper replacing the four row-by-row loops.
+21. Shared `PEWT`, `dct_colors`, `rankth` in `src/`.
+22. Delete dead code: `weighted_distance_norm` and `random_samples` if still
+    uncalled, `VOID_dct_metriclabels.json`, the empty separator blocks, the
+    commented-out cells, NB3 cells 17 and 18.
+23. Remove the leaked loop variables, the undefined `W` in NB3 cell 21, the
+    `metrics`-defined-in-a-commented-cell break in NB2 cell 65, the
+    `generate_dontread` flag, the `../../shared` path, and `tqdm`.
+24. Replace `tqdm` in the pLCA with a plain periodic progress line that also
+    records elapsed and projected time into the run log.
+
+Phase 5, compute and plotting separated:
+
+25. Compute writes tables; figures read only from tables. This is required by
+    the standing constraint and is currently violated by all 15 NB3 figures.
+
+Phase 6, hygiene:
+
+26. Exploratory figures to dpi 150-300; publication dpi only for final figures.
+27. Delete the 15 orphaned figures; reconcile the README's output list with
+    what the notebooks actually write; document `logfit_offset` and the
+    bandwidth rule, including the scipy naming hazard in 3.8 item 2.
+
+Acceptance for 10.6: the regression fixtures from Phases 0 and 1 pass
+unchanged. Any deviation is a bug in the refactor, not an improvement.
+
+### 10.7 Structural questions that must be answered to approve this plan
+
+(a) **Notebooks or scripts as the entry point.** The pipeline is really three
+batch jobs plus plotting. The proposal is to move compute into `src/` functions
+called by thin scripts, keeping notebooks for figures and exploration only.
+This is a larger change than tidying the notebooks and it shapes Phases 4 and
+5. The alternative is to keep notebooks as the entry point and only extract
+shared functions.
+
+(b) **When the synthetic datasets are regenerated** (Phase 2 step 10). Options:
+the last act of Stage 1, or the first act of Stage 2. Argument for Stage 1: the
+refactor is verified end to end before methodological work begins. Argument for
+Stage 2: regeneration should happen once, after the Stage 2 decisions about
+the generation algorithm itself (the `seed=0` collapse, the outlier filter, the
+variance-inflation exponent) are settled, to avoid regenerating twice.
+
+The Stage 0 session's recommendation is scripts for (a), and Stage 2 for (b),
+on the grounds that regenerating before the generation algorithm is settled
+means doing it twice and invalidating the paper's numbers twice.
+
+### 10.8 What this plan does not do
+
+It does not change any statistical method, does not resolve any of the
+judgment items in section 5, and does not touch the manuscript. Its purpose is
+to make the analysis reproducible, tested and readable so that the Stage 2
+methodological work has a trustworthy foundation.
