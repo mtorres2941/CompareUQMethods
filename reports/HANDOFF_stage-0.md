@@ -494,12 +494,29 @@ Author decisions, 2026-09-11, superseding the open questions as first written:
    light of whatever the analysis changes. **See the flag in 3.9 about
    publishing advisor comments in a public repository.**
 
+7. **Notebooks remain the entry point.** The author values being able to see
+   inputs and outputs inline, and considers notebooks more reviewable by an
+   outside reader of the code, which is a reasonable priority for a Building
+   and Environment submission. The Stage 0 session initially recommended
+   scripts and withdraws that recommendation: the defects found were caused by
+   leaked kernel state, duplicated logic and untested code, not by notebooks
+   as a medium, and all three are fixable while keeping notebooks. The target
+   shape is thin notebooks over a tested library. See 10.6.
+8. **The synthetic datasets are regenerated once, in Stage 2, not in Stage 1.**
+   Several Stage 2 decisions are about the generation algorithm itself, so
+   regenerating in Stage 1 would mean regenerating twice. This rescopes the
+   plan: see 10.4 and 10.9.
+9. **The author accepts that the manuscript's numbers will be invalidated.**
+   The analysis is being redone because of structural problems the author
+   identified and this stage substantiated. No number-preservation constraint
+   applies to the final results; the "never silently change a result"
+   constraint still applies in full, meaning every change must be attributable,
+   recorded and intentional.
+
 Still blocking before code is touched:
 
-7. **Approval of the refactor plan, which is set out in full in section 10.**
-   Approval is the author's to give. Two structural questions inside the plan
-   (10.7) must be answered as part of that approval, because they determine
-   the shape of everything after.
+10. **Approval of the refactor plan in section 10**, as rescoped by decisions
+    7 and 8 above.
 
 Non-blocking, carried into Stage 2:
 
@@ -710,7 +727,11 @@ unrecoverable.
 Acceptance: NB3 writes the table; a rerun reproduces it within Monte Carlo
 tolerance; the fixture is committed.
 
-### 10.4 Phase 2 - Randomness and determinism (MOVES NUMBERS)
+### 10.4 Phase 2 - Randomness infrastructure (NEUTRAL, rescoped)
+
+Per decision 8 in section 5, Stage 1 builds the seeding machinery but does
+**not** regenerate the datasets. The existing `DATA_all.json` stays in place so
+the Phase 0 regression fixtures remain valid through the whole refactor.
 
 7. Thread a single `numpy.random.Generator` through `datageneration.py`,
    `customstats.py` and all three notebooks. One seed, set once, passed
@@ -718,16 +739,20 @@ tolerance; the fixture is committed.
 8. Remove the `seed=0` default from `generate_random_numbers`, making the seed
    a required argument.
 9. Give the lognormal branch its missing `random_state=rng`.
-10. Regenerate the synthetic datasets. **This invalidates every number in the
-    paper simultaneously** and is the single largest change in the project.
-    Timing of this step is open question 10.7(b).
-11. Commit `DATA_all.json` or, preferably, make it regenerable from the seed
-    alone and record the seed. The current situation, where the file is both
+10. Prove determinism on a small test set (for example 200 datasets, not the
+    full 15,000): the same seed reproduces byte-identical output, a different
+    seed does not. Commit that as a test.
+11. Make `DATA_all.json` regenerable from a recorded seed, and record the seed
+    in the run-metadata file. The current situation, where the file is both
     required and gitignored, must not survive Stage 1.
 
-Acceptance: two runs from the same seed produce byte-identical outputs; a run
-from a different seed produces different outputs; the delta against the Phase 0
-baseline is recorded metric by metric.
+Acceptance: the determinism test passes; **the Phase 0 and Phase 1 regression
+fixtures still pass unchanged**, because the shipped datasets have not been
+regenerated.
+
+Deferred to Stage 2: the actual regeneration, and with it the weighted-mean
+normalization (decision 2), because normalization is the final step of
+generation and cannot be changed without regenerating. See 10.9.
 
 ### 10.5 Phase 3 - Correctness fixes (MIXED, one commit each)
 
@@ -736,23 +761,23 @@ Each of these is a separate commit with its own recorded delta.
 12. `weighted_quantile` order dependence (3.8 item 1). **NEUTRAL** against
     current results, because the analysis uses the `'scott'` path which never
     calls it. Must land before any switch to Silverman.
-13. Weighted-mean normalization, replacing `np.mean(data)` in both the
-    synthetic and empirical paths. **MOVES NUMBERS** - every metric and every
-    W1.
-14. `neccs` from 1,000 to 10,000. **MOVES NUMBERS** - every pLCA result.
+13. `neccs` from 1,000 to 10,000. **MOVES NUMBERS** - every pLCA result.
     Measured cost about 10 min for 2,500 combos, subject to the Phase 0
-    baseline.
-15. `wbeci_mean` and `wbeci_stdev` assigned inside the per-dataset loop rather
+    baseline. Included in Stage 1 so the pipeline ends at its final
+    configuration and the real runtime is known.
+14. `wbeci_mean` and `wbeci_stdev` assigned inside the per-dataset loop rather
     than outside it. **MOVES NUMBERS** - fixes values currently recorded for
     only one of four datasets per combo.
-16. Guard the `mean_uw` degenerate case in the outlier filter, so datasets are
-    not discarded for floating point noise. **MOVES NUMBERS** - restores 14
-    datasets.
-17. Guard the non-finite quartile case in `empirical_metadata` (3.8 item 6).
+15. Guard the non-finite quartile case in `empirical_metadata` (3.8 item 6).
     **NEUTRAL** expected; verify.
-18. Unit tests for every function touched, including hand-computed cases for
+16. Unit tests for every function touched, including hand-computed cases for
     `weighted_quantile`, `weighted_skew`, `weighted_kurtosis` and
     `weighted_bw`.
+
+Moved to Stage 2, because each requires regeneration or is a methodological
+decision: weighted-mean normalization, and the `mean_uw` degenerate-case guard
+in the outlier filter (the filter itself is under review in Stage 2, so
+patching one case of it now would be wasted work).
 
 Deliberately **not** in Stage 1, because they are statistical judgment calls
 for separate prompts: the Shapiro-Wilk versus Shapiro-Francia inconsistency,
@@ -761,6 +786,14 @@ for separate prompts: the Shapiro-Wilk versus Shapiro-Francia inconsistency,
 bandwidth rule. These stay on the carried-forward list.
 
 ### 10.6 Phase 4 to 6 - Structure, separation, hygiene (NEUTRAL)
+
+Per decision 7 in section 5, **notebooks remain the entry point.** The target
+shape for every notebook cell is: load a table, call one tested function from
+`src/`, display the result, write a table. The narrative and the visible
+outputs that make notebooks reviewable are kept; what leaves is the
+computation, which moves into `src/` where it can be tested and reused. A thin
+script wrapper is added only for the pLCA, so that a ten-minute run can go
+headless if wanted, with the notebook remaining canonical.
 
 Phase 4, consolidation:
 
@@ -791,25 +824,11 @@ Phase 6, hygiene:
 Acceptance for 10.6: the regression fixtures from Phases 0 and 1 pass
 unchanged. Any deviation is a bug in the refactor, not an improvement.
 
-### 10.7 Structural questions that must be answered to approve this plan
+### 10.7 Structural questions - both resolved
 
-(a) **Notebooks or scripts as the entry point.** The pipeline is really three
-batch jobs plus plotting. The proposal is to move compute into `src/` functions
-called by thin scripts, keeping notebooks for figures and exploration only.
-This is a larger change than tidying the notebooks and it shapes Phases 4 and
-5. The alternative is to keep notebooks as the entry point and only extract
-shared functions.
-
-(b) **When the synthetic datasets are regenerated** (Phase 2 step 10). Options:
-the last act of Stage 1, or the first act of Stage 2. Argument for Stage 1: the
-refactor is verified end to end before methodological work begins. Argument for
-Stage 2: regeneration should happen once, after the Stage 2 decisions about
-the generation algorithm itself (the `seed=0` collapse, the outlier filter, the
-variance-inflation exponent) are settled, to avoid regenerating twice.
-
-The Stage 0 session's recommendation is scripts for (a), and Stage 2 for (b),
-on the grounds that regenerating before the generation algorithm is settled
-means doing it twice and invalidating the paper's numbers twice.
+Both were answered by the author on 2026-09-11 and are recorded as decisions 7
+and 8 in section 5. Notebooks remain the entry point; regeneration happens once
+in Stage 2. The plan above is written as rescoped.
 
 ### 10.8 What this plan does not do
 
@@ -817,3 +836,69 @@ It does not change any statistical method, does not resolve any of the
 judgment items in section 5, and does not touch the manuscript. Its purpose is
 to make the analysis reproducible, tested and readable so that the Stage 2
 methodological work has a trustworthy foundation.
+
+### 10.9 What Stage 1 deliberately hands to Stage 2
+
+Stage 1 ends with a reproducible, tested, readable pipeline that still produces
+**the existing datasets**. Everything below is deferred so that regeneration
+happens exactly once, after the generation algorithm itself is settled.
+
+- Regeneration of the 15,000 synthetic datasets.
+- Weighted-mean normalization (decision 2), which is the final step of
+  generation and cannot be applied without regenerating.
+- Whether the `seed=0` diversity collapse (3.7b) requires any change to the
+  generation algorithm beyond correct seeding.
+- The 27.5% outlier filter, including its `n` cap at 749, its preferential
+  removal of high-`weight_outliers` datasets, and the degenerate `mean_uw`
+  case.
+- The variance-inflation exponent and the reflection step in generation.
+- Bandwidth rule, dependent sampling, Shapiro-Wilk versus Shapiro-Francia,
+  `_royston_pvalue`, `logfit_offset`, the `(1-capecc)` divisor, the "Mode
+  Count" naming, and overlap area alongside W1.
+
+The single most important sequencing constraint: **Stage 2 should make all of
+its generation decisions before regenerating, then regenerate once.** Each
+regeneration invalidates every number in the paper, so doing it twice doubles
+the verification work for no gain.
+
+## 11. Division of work
+
+Recorded because this project runs across several Claude sessions plus the
+author, and ambiguity about who does what has already cost one round trip.
+
+### 11.1 For the author
+
+1. Approve or amend the plan in section 10 (section 5 item 10). This is the
+   only remaining blocker on Stage 1.
+2. Nothing else. The environment, fixtures, refactor and tests are all session
+   work.
+
+### 11.2 For the prompt-drafting session
+
+You are being asked to draft the **Stage 1 prompt**. Everything you need is in
+this document. Specifically:
+
+- The plan to turn into a prompt is section 10, as rescoped by decisions 7, 8
+  and 9 in section 5.
+- Phases run in order. Phases 0 and 1 are gates: **no refactoring may begin
+  until the pinned environment, the regression fixtures and the persisted pLCA
+  table exist**, because until then the standing constraint "never silently
+  change a result" cannot be enforced.
+- Stage 1 has exactly **two** intended number-moving changes (10.5 items 13
+  and 14). Every other phase must leave the regression fixtures passing
+  unchanged. The prompt should say this explicitly, because a refactor that
+  quietly changes a third number is the main failure mode to guard against.
+- Do **not** put any item from 10.9 into the Stage 1 prompt. Those are Stage 2
+  work, and pulling one forward forces an extra regeneration.
+- The Stage 1 handoff must follow the specification in CLAUDE.md, including a
+  "Carried forward" list restating every still-open item from this document.
+
+### 11.3 For the Stage 1 execution session (this window)
+
+Executes the approved plan. Writes `reports/HANDOFF_stage-1.md`. Records the
+before and after value of every number that moves.
+
+### 11.4 For the Stage 2 session (a new window)
+
+Reads `reports/` in full first. Picks up 10.9. Makes all generation decisions
+before regenerating, then regenerates once.
