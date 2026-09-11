@@ -1,9 +1,9 @@
 {
-  "written_utc": "2026-09-11T19:21:47+00:00",
+  "written_utc": "2026-09-11T19:38:53+00:00",
   "stage": "stage-1-phase-1",
-  "artifact_kind": "archive",
-  "seeded": false,
-  "seed": null,
+  "artifact_kind": "fixture",
+  "seeded": true,
+  "seed": 20260911,
   "neccs": 1000,
   "capecc": 0.75,
   "matred": 0.25,
