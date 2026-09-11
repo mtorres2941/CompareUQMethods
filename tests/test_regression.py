@@ -55,6 +55,34 @@ PROCESSED = ROOT / "data" / "processed"
 RTOL = 1e-6
 ATOL = 1e-12
 
+# Stage 2a renamed one metric and added another. `mode_count_est` became
+# `modality_index`, which is what it measures: a continuous KDE-based modality
+# index, not a count. `crit_bw_1`, Silverman's critical bandwidth, is new.
+# Neither change moves a value, and the recomputation tests below prove it by
+# comparing every column the frozen fixtures and the current code have in
+# common, under this mapping.
+RENAMED_SINCE_FIXTURES = {
+    "mode_count_est": "modality_index",
+    "mode_count_est_uw": "modality_index_uw",
+}
+ADDED_SINCE_FIXTURES = ("crit_bw_1", "crit_bw_1_uw")
+
+
+def align_to_fixture(actual, expected):
+    """Rename current columns back to the fixture's names and drop new ones.
+
+    Returns (expected_subset, actual_subset) over the shared columns, so a
+    renamed metric is still checked value for value rather than silently
+    skipped.
+    """
+    actual = actual.rename(columns={v: k for k, v in RENAMED_SINCE_FIXTURES.items()})
+    actual = actual.drop(columns=[c for c in ADDED_SINCE_FIXTURES
+                                  if c in actual.columns], errors="ignore")
+    shared = [c for c in expected.columns if c in actual.columns]
+    missing = [c for c in expected.columns if c not in actual.columns]
+    assert not missing, f"fixture columns no longer produced: {missing}"
+    return expected[shared], actual[shared]
+
 TABLE_NAMES = [
     "TABLE_EmpiricalECCMetrics.xlsx",
     "TABLE_EmpiricalECCMetricsAndW1.xlsx",
@@ -220,7 +248,8 @@ def test_empirical_metrics_recomputed():
             # material. Reproduced here so the row sets line up.
             continue
 
-    actual = pd.DataFrame(computed).T.loc[expected.index, expected.columns]
+    actual = pd.DataFrame(computed).T.loc[expected.index]
+    expected, actual = align_to_fixture(actual, expected)
     compare_frames(expected, actual, "empirical metrics recomputed")
 
 
@@ -265,6 +294,7 @@ def test_synthetic_metrics_recomputed():
         weights = np.array(data_all[name]["weights"], dtype=float)
         rows[name] = empirical_metadata(x, weights)
 
-    actual = pd.DataFrame(rows).T[metric_columns]
+    actual = pd.DataFrame(rows).T
     expected = expected_full.loc[sample, metric_columns]
+    expected, actual = align_to_fixture(actual, expected)
     compare_frames(expected, actual, "synthetic metrics recomputed")

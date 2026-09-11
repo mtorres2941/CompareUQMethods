@@ -196,3 +196,95 @@ claim. See entries 3, 4 and 6.
 | **Consequence** | Negligible numerically, but the two are not the same set, and the author's position is that zero is not an acceptable ECC. |
 | **Fix** | **Code.** Make the scoring grid open at zero so the model scored is exactly the model sampled. |
 | **Status** | Open. Stage 2, low priority. |
+
+---
+
+## New, found during Stage 2a
+
+## 19. The two arms used different Dirichlet concentrations
+
+| | |
+|---|---|
+| **Manuscript** | Describes the market-share weights as drawn from a uniform or flat Dirichlet. |
+| **Code** | The synthetic arm used `np.random.dirichlet(np.ones_like(data))`, alpha = 1, which is flat. The empirical arm used `np.random.dirichlet(np.ones_like(data)*5)`, alpha = 5, which is not. The two arms of the study therefore received systematically different weight concentrations, on the exact dimension the paper is about. |
+| **Consequence** | Large, and on the headline quantity. Redrawing the empirical weights at alpha = 1 more than doubles the mean uniform-to-variable Wasserstein-1 distance across the 138 datasets, from **0.0594 to 0.1329**, a shift of 1.33 standard deviations of the alpha = 5 distribution. Kurtosis moves 0.98 sd, weight_outliers 0.58 sd, skewness 0.63 sd. Every published empirical-versus-synthetic comparison of the weighting effect was made between arms that were not comparable. |
+| **A wording trap** | alpha is the Dirichlet CONCENTRATION parameter, and a SMALLER alpha gives MORE dispersed market shares. So alpha = 1 makes the weights less equal than alpha = 5 did and the measured weighting effect goes UP. Do not write that alpha = 1 is "less concentrated" without saying which sense is meant. The lower-bound argument still holds, but for a different reason: at n = 100 a flat Dirichlet gives an expected largest share of 5.2 percent, while Marsh, Hattam and Allen (2025) report Rest-of-World BOF steel at 63.75 percent of global production, so alpha = 1 still understates real market concentration considerably. |
+| **Fix** | **Code, done in Stage 2a.** alpha = 1 in both arms. The text is already correct; the numbers move. |
+| **Status** | Resolved in code. The manuscript's empirical weighting-effect numbers must be replaced. |
+
+## 20. The undocumented 27.5 percent selection step
+
+| | |
+|---|---|
+| **Manuscript** | Describes generating 10,000 synthetic datasets. It does not describe any selection. |
+| **Code** | 15,000 were generated, then every dataset that was a marginal outlier on any of 20 metrics was discarded, using Q1 - 1.5*IQR and Q3 + 1.5*IQR with the IQR widened to `max(q3-q1, std*1.35)`, and the first 10,000 survivors kept. **4,131 datasets, 27.5 percent, were discarded.** |
+| **Consequence** | It removed exactly the cases the paper exists to study. `weight_outliers` flagged more datasets than any other metric (1,061), and the removed set averaged 0.0755 against 0.0146 for the kept set, a difference of 0.83 pooled standard deviations. The removed datasets were also less normal (fit_norm_SW -0.89 sd), more variable (coeffvar +0.48 sd), larger (n +0.52 sd), more multimodal (+0.46 sd) and had a larger uniform-to-variable W1 (+0.54 sd). The filter flagged 824 datasets on `n` alone, every one with n >= 750, which is what capped the analysed maximum at 749 against a stated 1,000. It also flagged 14 datasets on `mean_uw`, a column that is 1.0 by construction and ranges only from 0.99999999999999911 to 1.0000000000000009. |
+| **Fix** | **Code, done in Stage 2a.** Replaced by a validity-only filter that rejects a dataset solely because it cannot be analysed. Empirical plausibility is now a reported coverage statistic, not an enforced criterion. |
+| **Status** | Resolved in code. The manuscript must either describe what the old corpus was or, preferably, describe the new one. |
+
+## 21. "Mode Count" is not a count
+
+| | |
+|---|---|
+| **Manuscript** | Reports a metric called "Mode Count". |
+| **Code** | `estimate_maxima` returns `(sum of KDE local maxima heights - sum of local minima heights) / max height`, a continuous modality index. Across the 138 empirical datasets it spans only **1.000 to 1.159**, so read as a count it is constant at 1 for every empirical dataset. |
+| **Consequence** | The metric could not see multimodality in the empirical data at all. Silverman's critical-bandwidth test finds **27 of the 138 empirical datasets multimodal**: 22 bimodal, 4 trimodal and 1 with four modes. Rounded, the old index agrees with the Silverman count in 80.4 percent of empirical and 53.2 percent of synthetic datasets; Spearman correlation between the two is 0.673. |
+| **Fix** | **Code and text, done in Stage 2a.** The column is renamed `modality_index`, which is what it measures, and `crit_bw_1` is added alongside it. Stage 2f decides which survives into the final metric set. |
+| **Status** | Resolved in code. The manuscript's "Mode Count" label and any claim resting on it must change. |
+
+## 22. The power transform and the reflection were undescribed tuning steps
+
+| | |
+|---|---|
+| **Manuscript** | Describes the synthetic datasets as mixtures of named component distributions. |
+| **Code** | After drawing the mixture, every value was raised to a power drawn from U(0.9, 4.0), with an inline comment saying the purpose was to align with empirical ECC data, and 25 percent of datasets were then reflected as `np.max(data) - data + np.min(data)`. Neither step is in the manuscript. The reflection used realized order statistics, so the distribution a synthetic dataset came from could not be written down. With locations up to 20 and exponents up to 4 the power transform mapped values as high as 160,000. |
+| **Fix** | **Code, done in Stage 2a.** Both removed. Skewness is now a component moment target, and left skew comes from reflected one-sided families, which is a population property. |
+| **Status** | Resolved in code. The manuscript's description of data generation must be rewritten against src/genconfig.py and Table 1. |
+
+## 23. The empirical datasets are not deduplicated at product level
+
+| | |
+|---|---|
+| **Manuscript** | Treats each EC3 category as a set of independent product EPDs. |
+| **Measured in Stage 2a** | At EPD level there is nothing to deduplicate: 0 of 206,668 records share an `open_xpd_uuid` within their category, and no EPD appears in two of the 138 categories. But **55.00 percent of records share a (manufacturer, GWP per kg) pair with another record in the same category**, across 105 of 138 categories, and the top manufacturer holds a median 18.4 percent of a category, up to 73.0 percent. |
+| **Consequence** | The uniform-weighted empirical distribution the paper scores against is already implicitly weighted, by how many EPDs each manufacturer published. That bears directly on the paper's thesis about weighting: the "unweighted" baseline is not weight-free. |
+| **Caveat** | Measured on a 2026-08 EC3 pull, not the 2026-03 pull that produced the 138 datasets, whose source directory no longer exists on this machine. |
+| **Fix** | **Text at minimum.** State that the uniform-weighted baseline carries publication-frequency weighting. Whether to deduplicate is a methodological choice for a later stage. |
+| **Status** | Open. |
+
+## 24. No industry-average EPDs are mixed in
+
+| | |
+|---|---|
+| **Question** | Whether industry-average and product-specific EPDs are mixed within a category. |
+| **Measured in Stage 2a** | They are not. All 206,668 records in the 138 categories are Product EPDs. Within those, 98.5 percent are product-specific and 82.9 percent plant-specific, so 16.7 percent are manufacturer-level rather than plant-level, but no industry-average declaration appears. |
+| **Fix** | **Text, optional.** This can be stated positively as a data-quality property of the extraction. |
+| **Status** | Resolved, no change needed beyond an optional sentence. |
+
+## 25. The cleaning rule moves the empirical metric ranges a lot for what it removes
+
+| | |
+|---|---|
+| **Manuscript** | "Extreme outliers were also discarded, which were defined as outside IQR +/- 3*IQR." |
+| **Measured in Stage 2a** | The rule removes only 1.61 percent of records but moves `fit_norm_SW` by 1.55, `entropy` by 1.42, `modality_index` by 1.00 and `weight_outliers` by 0.77 standard deviations of the uncleaned metric. A multiplicative (log-space) 3*IQR rule removes less (1.20 percent) and moves entropy and fit_norm_SW less, at the cost of moving fit_lognorm_SW more. |
+| **Consequence** | The cleaning rule is not a minor tidy-up. It substantially determines the empirical metric ranges that anchor the whole study, so it has to be stated precisely and its sensitivity reported. |
+| **Fix** | **Text.** Report the sensitivity. See `outputs/tables/stage2a/TABLE_2a_EmpiricalCleaningSensitivity.csv`. |
+| **Status** | Open. Text. |
+
+## 26. The empirical extraction cannot be reproduced
+
+| | |
+|---|---|
+| **Code** | Notebook 1's empirical branch reads `'../../EPDsFromEC3/EPD_AllOfEC3'`. **That directory does not exist on this machine.** |
+| **Consequence** | `dct_realeccs_trimmed.json` is now the only surviving record of the empirical arm, and it is POST-cleaning, so the cleaning rules cannot be varied on the real data without a fresh EC3 extraction. That is why Stage 2a's cleaning sensitivity check was run on store-reconstructed datasets, and why only the low-end cleaning bound was changed: the high end was already trimmed additively and cannot be un-trimmed. |
+| **Fix** | **Code and deposit.** Either re-extract from EC3 and version the raw pull, or state plainly in the paper and the Zenodo deposit that the empirical arm begins from the cleaned file. The extraction path in the notebook should be corrected or removed, since as written it is dead code pointing at nothing. |
+| **Status** | Open, and it affects the Zenodo deposit. |
+
+## 27. Component separation was far outside the empirical range
+
+| | |
+|---|---|
+| **Manuscript** | Describes multimodal synthetic datasets without characterizing how separated the modes are. |
+| **Measured in Stage 2a** | The old generator placed components a mean of **6.46 pooled standard deviations apart** (median 6.01, up to 20.95), producing well-separated clusters. Fitting a BIC-selected Gaussian mixture to every dataset and computing the Maitra-Melnykov pairwise overlap on the same footing gives an empirical median overlap of 0.0218 against a shipped synthetic median of 0.0037: the synthetic datasets had about **six times less mode overlap** than the empirical ones at the median. |
+| **Fix** | **Code, done in Stage 2a.** Overlap is now a generation parameter, drawn log-uniformly on [1e-4, 0.75], which covers the empirical maximum of 0.6719 with margin. |
+| **Status** | Resolved in code. The manuscript should report the overlap distribution, and Table 1 gives it. |
