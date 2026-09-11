@@ -1,0 +1,42 @@
+# Pinned environment for CompareUQMethods.
+#
+# Replaces the Jupyter kernel 'waterweed' recorded in the notebooks, which was
+# lost when the author changed laptops and was never version pinned. Versions
+# below are the ones the analysis was verified to run and reproduce under, not
+# aspirational minimums.
+#
+#   conda env create -f environment.yml
+#   conda activate compareuq
+#   python -m ipykernel install --user --name compareuq --display-name compareuq
+#   python -m pytest tests/
+#
+# Reproducibility note: this environment reproduces the shipped result tables
+# to a maximum relative difference of 4.3e-08, the largest term being the
+# lognormal Wasserstein-1 distances, which depend on scipy.optimize.minimize
+# and so shift slightly between scipy versions. See tests/test_regression.py
+# for the tolerance and how it was chosen.
+#
+# environment.lock.yml holds the full transitive solve for this platform
+# (osx-arm64). Use environment.yml for portability, the lock file for an exact
+# rebuild on the same platform.
+
+name: compareuq
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.16
+  - numpy=2.4.6
+  - scipy=1.17.1
+  - pandas=3.0.5
+  - matplotlib=3.11.1
+  - seaborn=0.13.2
+  - scikit-learn=1.9.1  # imported by NB2 and NB3
+  - xgboost=3.2.0  # imported by NB3
+  - openturns=1.27.3  # imported by NB2 and NB3
+  - tqdm=4.70.0
+  - requests=2.34.2  # imported but unused; kept so the notebooks import cleanly
+  - openpyxl=3.1.5  # pandas Excel engine
+  - pillow=12.3.0
+  - ipykernel=7.3.0  # Jupyter kernel registration
+  - nbconvert=7.17.1  # headless notebook execution
+  - pytest=9.1.1  # test suite
