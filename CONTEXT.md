@@ -19,12 +19,20 @@ CompareUQMethods/
 │   ├── 02_CompareUQ_AnalyzeData.ipynb   fit 6 methods, score by W1/W2/KS
 │   └── 03_CompareUQ_PerformPLCA.ipynb   2,500 pLCAs, downstream results
 ├── src/
+│   ├── components.py          moment-targeted component families (Stage 2a)
+│   ├── mixture.py             the truncated-mixture parent (Stage 2a)
+│   ├── genconfig.py           every generation parameter (Stage 2a)
+│   ├── generator.py           parent -> dataset, plus the validity filter
+│   ├── corpus.py              generate, write and read a named corpus
+│   ├── empirical.py           prepare the 138 empirical EC3 datasets
+│   ├── modality.py            Silverman critical bandwidth (Stage 2a)
 │   ├── customstats.py         weighted statistics, distances, bandwidths
-│   ├── datageneration.py      synthetic ECC dataset generation
+│   ├── datageneration.py      legacy generation helpers, empirical cleaning
 │   ├── fitting.py             the six PEWT fits and W1 scoring
 │   ├── datavisualization.py   one colour helper
 │   ├── funcs_unit_conversion.py  EC3 unit normalization
-│   └── dct_metriclabels.json  display labels for the 20 metrics
+│   └── dct_metriclabels.json  display labels for the 22 metrics
+├── audits/stage2a/            one-off measurement scripts, see audits/README.md
 ├── data/processed/            inputs, see section 5
 ├── outputs/tables/            tidy results, see section 6
 ├── outputs/figures/           publication and supplementary figures
@@ -101,10 +109,33 @@ advances the legacy global stream.
 
 Record the seed in the run-metadata file beside any table the notebook writes.
 
-**Caching.** Notebook 1 has a `generate_dontread` flag. When `False`, the
-default, it reads `data/processed/` rather than regenerating. Regeneration is a
-Stage 2 activity and invalidates every number in the paper, so it should happen
-once, deliberately, at a known commit.
+**Corpus, not caching.** `generate_dontread` was removed in Stage 2a. It was a
+hand-edited module-level boolean that left no record in the outputs of which
+mode had produced them, which is the wrong mechanism for the one irreversible
+operation in this project.
+
+A corpus is now a named, dated directory that carries its own provenance, and
+the notebooks only ever read. Regeneration is explicit:
+
+```bash
+cd src && python corpus.py 2026-09-11          # writes data/processed/corpus_2026-09-11/
+python -c "import sys; sys.path.insert(0,'src'); import corpus; corpus.set_active('2026-09-11')"
+```
+
+`generate_corpus` refuses to write into a directory that already exists, so a
+corpus can never be overwritten. `data/processed/CORPUS.json`, which IS tracked,
+names the active one, so repointing the whole analysis is a one-line change.
+
+Each corpus directory holds:
+
+| File | What |
+|---|---|
+| `values.parquet` | long format, `dataset_id, value, weight` (decision 15) |
+| `metrics.parquet` | one row per dataset: stratum, metrics, generation record |
+| `parents.json.gz` | the parent of each dataset, enough to rebuild its CDF exactly |
+| `combos.csv` | the 2,500 disjoint pLCA groups of four |
+| `runmeta.json` | seed, full config, git commit, library versions, platform, counts |
+| `invalid_datasets.json` | what the validity filter rejected, and why |
 
 ## 4. Running
 
@@ -112,7 +143,7 @@ once, deliberately, at a known commit.
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 42 tests, about 8 seconds
+python -m pytest tests/          # 125 tests, about 90 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -147,14 +178,25 @@ optimizations: NB1 about 20 s, NB2 about 75 s, NB3 about 11 min at
 
 | File | What | Tracked |
 |---|---|---|
-| `DATA_all.json` | 15,000 synthetic datasets, values, weights, 20 metrics | no, 122 MB |
-| `dct_realeccs_trimmed.json` | 138 empirical EC3 datasets | yes |
-| `datasets_outliers.json` | 4,131 datasets flagged by the metric filter | yes |
-| `datasets_trimto10k.json` | 869 further datasets dropped to reach 10,000 | yes |
-| `combos.txt` | 2,500 groups of four, as a flat list | yes |
+| `CORPUS.json` | names the active corpus directory | yes |
+| `corpus_<label>/` | the synthetic corpus, see section 3 | no, large |
+| `dct_realeccs_trimmed.json` | the 138 empirical EC3 datasets, as extracted | yes |
+| `empirical_<label>.json` | the prepared empirical arm, written by `src/empirical.py` | yes |
 
-The analysed set is `DATA_all` minus the two exclusion lists: exactly 10,000
-datasets, sizes 4 to 749, median 62.
+**Retired at the end of Stage 2a, kept on disk as the pre-regeneration record:**
+`DATA_all.json`, `datasets_outliers.json`, `datasets_trimto10k.json` and
+`combos.txt`. Nothing reads them any more. Byte-identical copies with verified
+checksums are in `data/baseline_frozen/`; see `data/INPUTS.sha256`.
+
+The analysed set is now the corpus minus the probe set: exactly 10,000
+datasets, sizes 3 to 9,999, stratified 2,500 per stratum over 3-9, 10-99,
+100-999 and 1000-9999, plus a 50-dataset probe set at 10,000 to 100,000 that is
+excluded from every aggregate.
+
+`dct_realeccs_trimmed.json` is read-only and irreplaceable: the EC3 directory
+the extraction read no longer exists on this machine, so it is the only
+surviving record of the empirical arm, and it is already post-cleaning. See
+`reports/MANUSCRIPT_discrepancies.md` entry 26.
 
 ## 6. Output tables
 
@@ -188,6 +230,12 @@ commit message, and `SHA256SUMS.txt` updated.
 | `plca/PLCA_seeded_neccs1000.csv.gz` | the first reproducible pLCA result, kept to separate the effect of seeding from the effect of the sample-size change |
 | `plca/PLCA_seeded_neccs10000.csv.gz` | the configuration the manuscript states |
 
+Stage 2a renamed `mode_count_est` to `modality_index` and added `crit_bw_1`.
+The recomputation tests map the old name back and drop the new columns before
+comparing, so every column the fixtures and the current code share is still
+checked value for value. All 8 pass, which is the proof that the rename and the
+addition moved nothing.
+
 **Tolerance** is `rtol = 1e-6`. The environment that produced the original
 tables was lost, so the fixtures cannot be reproduced bit for bit. Measured
 agreement under the pinned environment: metric columns 1.3e-14, Normal and KDE
@@ -204,6 +252,10 @@ the worst observed value.
 | `test_determinism.py` | 7 | same seed reproduces, different seeds differ, global numpy state neither affects nor is consumed, rng is required, the seed=0 collapse is gone, output contract |
 | `test_customstats.py` | 17 | hand-computed quantiles, order invariance with and without ties, moments against scipy, both bandwidth formulas, Wasserstein identities |
 | `test_notebooks.py` | 10 | every code cell parses, no global numpy randomness, exactly one Generator per notebook |
+| `test_components.py` | 48 | moment targets hit exactly, infeasible targets refused not approximated, every accepted component inverts its own CDF, the four families partition the Pearson plane |
+| `test_mixture.py` | 9 | the parent CDF matches a 400,000-draw sample, the market-weighted parent is a real population object, coupling 0 collapses the two parents, inverse-CDF sampling agrees with the truncation loop it replaced, overlap is symmetric and monotone in separation |
+| `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
+| `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch
 script silently dropped the final line of any cell whose source did not end in

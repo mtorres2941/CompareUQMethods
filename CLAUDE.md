@@ -212,7 +212,7 @@ regenerates again afterward, doubles the verification work for no gain.
 |---|---|---|
 | **0 DONE** | Inventory, dependency map, refactor plan, baseline code and analysis assessments. `reports/HANDOFF_stage-0.md` | Any change to analysis logic |
 | **1 DONE** | Pinned environment, regression fixtures, persisted pLCA table, seeding machinery, correctness fixes, thin notebooks over a tested `src/`. Exactly two intended number-moving changes: neccs 1,000 to 10,000, and the wbeci assignment moved inside the loop. `reports/HANDOFF_stage-1.md` | Regeneration, and every methodological judgment call. Amendment A3 settled normalization: unweighted mean, code stands, text is wrong |
-| **2a** | Generator audit: seeding collapse, Dirichlet concentration mismatch, stale docstring, the truncation loop, power transform, reflection, component overlap, mode counting, the 27.5 percent filter, mode-level market share, the coverage table that becomes Table 1. Then regenerate, once | Changing the fitting methods, changing the scoring target, or sweeping anything that 2h owns |
+| **2a DONE** | Generator audit: seeding collapse, Dirichlet concentration mismatch, stale docstring, the truncation loop, power transform, reflection, component overlap, mode counting, the 27.5 percent filter, mode-level market share, the coverage table that becomes Table 1. Then regenerate, once | Changing the fitting methods, changing the scoring target, or sweeping anything that 2h owns |
 | **2b** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE | Adding new families for robustness (2h), or rescoring against a parent (2c) |
 | **2c** | The evaluation target: score synthetic against the known parent, cross-validate the empirical 138, decompose location versus definitional error, report regret distributions. Overlap area alongside W1 | The pLCA construction (2e) and the flip-probability threshold (2d) |
 | **2d** | Decompose the uniform-to-variable W1 into location and shape, define the named relative measure, calibrate flip probability against relative W1, report the 1, 5 and 10 percent crossings | Building companion decision metrics (2g) |
@@ -379,3 +379,68 @@ rather than in conversation.
 - Commit in logical units so any result change can be bisected.
 - `refs/` is gitignored: it holds copyrighted publisher PDFs and large
   third-party datasets, kept locally only.
+
+16. **2026-09-11, Stage 2a. Dirichlet concentration is alpha = 1 in both
+    arms.** `[AUTHOR]` The empirical arm used 5 and the synthetic arm 1, on the
+    exact dimension the paper is about. Correcting the empirical arm more than
+    doubles the mean uniform-to-variable W1 across the 138 datasets, 0.0594 to
+    0.1329. Note for the manuscript: alpha is the Dirichlet CONCENTRATION
+    parameter, so a smaller alpha gives MORE dispersed market shares and the
+    measured weighting effect goes UP. It is still a lower bound on reality, as
+    a flat Dirichlet at n = 100 gives an expected top share of 5.2 percent
+    against the 63.75 percent Marsh, Hattam and Allen (2025) report for
+    Rest-of-World BOF steel.
+17. **2026-09-11, Stage 2a. The +1 buffer is removed.** `[AUTHOR]` Undocumented,
+    asymmetric between the arms, and it compressed the coefficient of
+    variation in 28.8 percent of datasets by more than 1 percent.
+18. **2026-09-11, Stage 2a. The truncation loop, the power transform and the
+    reflection are removed.** `[AUTHOR]` Sampling is now direct inverse-CDF
+    from a mixture truncated at POPULATION quantiles. Skewness is a component
+    moment target and left skew comes from reflected one-sided families, so
+    the parent CDF is closed form. Verified against 400,000 draws.
+19. **2026-09-11, Stage 2a. Dataset size is stratified**, 2,500 each over 3-9,
+    10-99, 100-999 and 1000-9999, with a 50-dataset probe set at 10,000 to
+    100,000 held outside every aggregate. `[AUTHOR]`
+20. **2026-09-11, Stage 2a. The 27.5 percent metric-outlier filter is
+    dropped**, replaced by a validity-only filter. `[AUTHOR]` It preferentially
+    removed high weight_outliers datasets (0.83 pooled sd difference), capped
+    n at 749 via 824 removals on size alone, and flagged 14 datasets on a
+    column that is 1.0 by construction.
+21. **2026-09-11, Stage 2a. Market share attaches at the mode level**, with a
+    coupling parameter that reduces to the old uncoupled behaviour at 0.
+    `[AUTHOR]` Both weighting schemes now have a population to be right or
+    wrong about.
+22. **2026-09-11, Stage 2a. Components are moment-targeted Johnson-system and
+    Pearson families.** `[DELEGATED, 2a chose]` Johnson SU above the lognormal
+    line, lognormal on it, beta-prime between the gamma and lognormal lines,
+    beta below the gamma line. Each has a closed-form CDF and exact moments, so
+    a component is specified by (mean, sd, skewness, kurtosis) and solved for.
+    Targets that cannot be met are reported, never approximated.
+23. **2026-09-11, Stage 2a. Modality is Silverman's critical bandwidth**, not
+    Hartigan's dip. `[DELEGATED, 2a chose]` Decision 11 left the choice to 2a
+    and required a statistic rather than a p-value; `crit_bw_1` is reported in
+    units of the data's standard deviation and the bootstrap level is kept as a
+    secondary diagnostic. `mode_count_est` is renamed `modality_index`, which
+    is what it measures: across the 138 empirical datasets it spans only 1.000
+    to 1.159, so as a count it is constant at 1, while Silverman finds 27 of
+    them multimodal.
+24. **2026-09-11, Stage 2a. Empirical cleaning gains a multiplicative low-end
+    bound only.** `[DELEGATED, 2a chose]` Decision 12 left the form to 2a. The
+    high end was already trimmed additively when the surviving file was
+    written and the EC3 source directory no longer exists, so a symmetric
+    re-clean would trim the same tail twice. Removes 342 of 107,523 values,
+    0.318 percent; ReadyMix's minimum moves from 3.1e-17 of its mean to 0.265.
+25. **2026-09-11, Stage 2a. Overlap and spread are specified generation
+    targets, solved for per dataset.** `[DELEGATED, 2a chose]` Average pairwise
+    component overlap after Maitra and Melnykov (2010), and the coefficient of
+    variation of the parent. Both replace quantities that were previously
+    accidents of the location and scale ranges, and both are reported against
+    what was asked for.
+26. **2026-09-11, Stage 2a. `generate_dontread` is retired.** `[AUTHOR]` A
+    corpus is a named, dated directory carrying its seed, configuration, git
+    commit and library versions. Nothing is overwritten; the notebooks only
+    read, via the tracked pointer `data/processed/CORPUS.json`.
+27. **2026-09-11, Stage 2a. `mode_share_alpha` stays at 10.** `[RECOMMENDED]`
+    Kept so this stage changes one thing at a time. It leaves mode dominance
+    almost constant (at k = 2 the larger mode holds 0.501 to 0.760 of the
+    points). Stage 2h should sweep it; alpha = 1 is the obvious other end.
