@@ -543,3 +543,33 @@ rather than in conversation.
     it all made it worse, so the cost is structural rather than a tuning
     artifact. Related, same cause: 6.5 percent of the corpus has six or more
     modes against an empirical 0.7 percent. **Owner: 2h.**
+38. **2026-09-12, Stage 2a-2. Modality is steered by VISIBLE modes, not by
+    Silverman's test.** `[AUTHOR]` `modality.n_modes_visible` counts local
+    maxima of a Scott's-bandwidth KDE with a prominence threshold of 5 percent
+    of the peak. It is the author's original `estimate_maxima` with the
+    continuous index replaced by a count, and Stage 2a's decision 23 to drop
+    that metric entirely was too broad: the defect was the readout, not the
+    idea. Silverman's critical bandwidth stays as a reported characteristic.
+
+    The cost of getting this wrong was most of Stage 2a-2. Both measures agree
+    that about half the empirical datasets are multimodal by Silverman, but
+    94.9 percent of them have exactly ONE visible mode, because their structure
+    is shoulders on a right-skewed body rather than separated humps. Tuning
+    against Silverman drove the component overlap down through five
+    configurations, each of which looked like an improvement on the statistics
+    being watched and made the corpus visibly worse. The author reported the
+    shapes were wrong three times before the right measure was computed.
+39. **2026-09-12, Stage 2a-2. Stage 2a's overlap range [0.3, 1.4] is restored**,
+    reversing decisions 36 and its successors within this stage. `[AUTHOR]`
+    Visible-mode total variation against the empirical arm: 0.280 at
+    [1e-2.5, 0.9], 0.022 at [0.3, 1.4]. Every characteristic improved, and
+    `w_v_uw_wasserstein`, the paper's central quantity, went from 0.550 to
+    0.131 standardized W1. Stage 2a had this right.
+40. **2026-09-12, Stage 2a-2. Components must have a bounded density.**
+    `[AUTHOR]` beta with a < 1 or b < 1 and beta-prime with a < 1 are J-shaped:
+    ordinary moments, infinite density at an endpoint, drawn as spikes. 11.3
+    percent of components were shaped that way. Refused and redrawn.
+41. **2026-09-12, Stage 2a-2. Draft corpora at 1,000 datasets for iteration.**
+    `[AUTHOR]` `python corpus.py <label> 1000`, 110 s against 850 s. The label
+    records it. A draft must never be used for a paper number.
+

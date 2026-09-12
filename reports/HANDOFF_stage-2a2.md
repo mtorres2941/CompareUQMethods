@@ -10,8 +10,12 @@
 | Commit | Label |
 |---|---|
 | `c159c51` Rebuild the empirical arm from raw values, cleaned symmetrically | **MOVES NUMBERS** |
-| `ede8e2b` Retune the generator against the new empirical arm; weight the objective | config only |
-| this commit: regenerate, re-freeze, document | **MOVES NUMBERS** |
+| `ede8e2b` Retune against the new arm; weight the objective | config only |
+| `1b45ca2` Regenerate as corpus_2026-09-12c; re-freeze the empirical fixture | **MOVES NUMBERS** |
+| `c6b8c31` Control the minimum ADJACENT overlap, not the average; draft at 1,000 | **MOVES NUMBERS** |
+| `1cba830` Score every characteristic equally; pick the range against noise | **MOVES NUMBERS** |
+| `a0eb90f` Refuse spike-shaped components; show both arms in one figure | **MOVES NUMBERS** |
+| this commit: count VISIBLE modes, restore Stage 2a's overlap range | **MOVES NUMBERS** |
 
 ## 2. What was asked
 
@@ -258,108 +262,133 @@ there, as the prompt directs.
 
 ## 4. Numbers that moved
 
-Every empirical characteristic moved; section 3.6 is that summary. The corpus
-was regenerated, so every synthetic number moved too. Nothing downstream of
-either had been computed against `corpus_2026-09-12b`, which is why reopening
-generation was cheap here and will not be again.
+Every empirical characteristic moved (section 3.6) and the corpus was
+regenerated several times. Nothing downstream had been computed against any of
+them, which is why reopening generation was cheap.
 
-### 4.1 The corpus
+### 4.1 The corpus, and the fact that it is a draft
 
-`corpus_2026-09-12c`, seed 42, 10,000 datasets plus a 50-dataset probe set, 0
-failed parents, 0 rejected by the validity filter, 847 s. `CORPUS.json` points
-at it. `corpus_2026-09-12b` stays on disk as the comparison.
+**`corpus_2026-09-12i_draft1k` is active and is a DRAFT at 1,000 datasets.** The
+paper needs a full 10,000 regeneration once the generator is settled. Drafts are
+built with `python corpus.py <label> 1000`, 110 s against 850 s, and every
+downstream check is three to five times faster. The label says `draft1k` and
+`runmeta.json` carries `n_corpus`, so a draft cannot be mistaken for a paper
+corpus.
 
-### 4.2 The acceptance test, which FAILS as written
+### 4.2 The mistake that cost this stage, and how it was found
 
-The stage was asked for a corpus that matches the new empirical data at least as
-well as `corpus_2026-09-12b` matched the old, with modality closer. It does not.
+The retune was steered by the **Silverman** mode-count distribution, which the
+new empirical arm puts at 49.3 percent unimodal against the old arm's 81.9. To
+match it, the component overlap range was driven down from Stage 2a's
+[0.3, 1.4] to as low as [1e-3.0, 0.5], through five configurations.
 
-| empirical arm | corpus | weighted objective | mean W1 | mode TV | unimodal |
-|---|---|---|---|---|---|
-| old | 2026-09-12b | **0.3204** | 0.3537 | **0.0376** | 86.8 vs 83.3 |
-| old | 2026-09-12c | 0.4883 | 0.5793 | 0.3334 | 50.0 vs 83.3 |
-| new | 2026-09-12b | 0.4998 | 0.4949 | 0.3758 | 86.8 vs 49.3 |
-| new | 2026-09-12c | **0.4589** | 0.5618 | **0.0991** | 50.0 vs 49.3 |
+**Every one of those was a regression, and the statistics being watched said
+otherwise.** Silverman's critical-bandwidth test detects structure at ANY
+bandwidth, including fine structure that never appears in a plot. The empirical
+datasets it calls multimodal are single right-skewed humps to look at: **94.9
+percent of them have exactly one mode visible in a default-bandwidth KDE.** The
+corpus was therefore rebuilt out of clearly separated humps in order to match a
+count that, in real data, comes from something else.
 
-Reference 0.3204 and mode TV 0.0376; achieved 0.4589 and 0.0991. Both worse.
+The author reported the shapes were wrong three times, from the figures. Each
+time the response was to compute another statistic of the same kind, all of
+which reported the corpus as fine. What finally caught it was counting the modes
+a reader can see:
 
-Read against a FIXED target the retune plainly worked: on the new arm the
-objective goes 0.4998 to 0.4589 and the mode-count total variation 0.3758 to
-0.0991. What fails is the comparison against the old pairing, and the reason is
-that **the old arm was an easier target.** Having been trimmed at the high end
-it is more compressed: log10 coefficient-of-variation spread 0.2913 against
-0.3752, maximum skewness 4.62 against 20.65. A corpus can sit closer to a
-compressed target. The criterion therefore measures the difficulty of the target
-as well as the quality of the fit.
+| visible modes | empirical | corpus at [1e-2.5, 0.9] |
+|---|---|---|
+| 1 | 94.3% | 58.9% |
+| 2 | 5.7% | 38.4% |
+| 3 | 0% | 2.8% |
 
-**That is an explanation, not a pass.** The criterion is not met and the corpus
-should not be described as meeting it.
+`modality.n_modes_visible` is that measure: local maxima of a Scott's-bandwidth
+KDE, keeping peaks whose prominence is at least 5 percent of the tallest. It is
+**the author's original `estimate_maxima` with one change**, a prominence
+threshold in place of a continuous index. Stage 2a rejected that metric for
+spanning only 1.000 to 1.159 across the empirical datasets, which is a real
+defect in the readout; rejecting the whole idea and moving to a different
+question was the error. The right arrangement is to tune against the visible
+count and keep Silverman as a reported characteristic.
 
-### 4.3 What got better and what got worse, on the new arm
+### 4.3 Restoring Stage 2a's overlap range, and what it recovered
 
-Standardized W1 per characteristic, full corpus, `corpus_2026-09-12b` to
-`corpus_2026-09-12c`, both scored against the new empirical arm:
+Sweep on the 2026-08 arm, scoring both modality measures:
 
-| characteristic | 12b | 12c | change |
+| overlap range | objective | visible TV | visible unimodal (emp 94.9%) |
 |---|---|---|---|
-| `fit_lognorm_SW` | 0.865 | 1.921 | **+1.056 worse** |
-| `w_v_uw_wasserstein` | 0.155 | 0.550 | **+0.395 worse** |
-| `weight_outliers` | 0.347 | 0.370 | +0.023 worse |
-| `skewness` | 0.634 | 0.642 | +0.008 worse |
-| `n` | 0.181 | 0.181 | 0.000 |
-| `kurtosis` | 0.301 | 0.299 | -0.002 better |
-| `coeffvar` | 0.395 | 0.314 | -0.081 better |
-| `entropy` | 0.619 | 0.497 | -0.122 better |
-| `crit_bw_1` | 0.695 | 0.524 | -0.171 better |
-| `fit_norm_SW` | 0.757 | 0.319 | -0.437 better |
-| mode-count TV | 0.376 | 0.099 | **-0.277 much better** |
+| [1e-2.5, 0.9] | 0.4584 | 0.280 | 66.8% |
+| [0.05, 1.0] | 0.4754 | 0.273 | 67.6% |
+| [0.15, 1.4] | 0.4486 | 0.074 | 87.4% |
+| **[0.3, 1.4], Stage 2a's** | 0.4504 | **0.022** | 92.7% |
+| [0.5, 2.0] | 0.4475 | 0.029 | 97.8% |
 
-**`w_v_uw_wasserstein` is the row that should worry the author most.** It is the
-uniform-to-variable Wasserstein distance, the paper's central quantity, and the
-retune made it match the empirical distribution substantially worse: the
-synthetic interquartile range is 0.256 against an empirical 0.138, so the corpus
-now overstates how much reweighting moves a dataset. It carried a weight of 1.0
-in the objective because the prompt asked for modality and the coefficient of
-variation to be weighted above the others and it is neither. **That was a
-faithful reading of the instruction and may still be the wrong objective for
-this paper.** Raising its weight and re-running the loop is cheap; regenerating
-afterward is not. It is the first thing to settle before this corpus is used.
+The four objectives span 2 percent, inside the seed-to-seed noise measured in
+`p10_config_noise.py`, so the objective does not choose between them and the
+visible-mode distribution does. [0.3, 1.4] restored.
 
-### 4.4 Modality, and how precisely it can be matched at all
+Full draft corpus against the 136 empirical datasets, standardized W1:
 
-Full corpus against the new arm: 50.0 percent unimodal synthetic against 49.3
-empirical, mode-count total variation 0.0991.
-
-Two caveats:
-
-- **The empirical figure itself carries estimator noise of a few points.**
-  Silverman's test is a bootstrap, and the same 136 datasets read 49.3 percent
-  unimodal at 100 bootstrap replicates and 45.6 percent at 60, which is what
-  notebook 1 uses. Matching modality to within about 2 points is therefore at
-  the resolution of the measurement, not beyond it.
-- **The corpus puts 5.6 percent of datasets at six or more modes against an
-  empirical 0.7 percent.** Same cause as the lognormality loss. Owner: 2h.
-
-### 4.5 One thing that is NOT wrong, checked because it looked wrong
-
-The dataset-examples figure shows many panels that read as a needle plus an
-empty tail, which is the "unrealistic spikes" failure Stage 2a hit once before.
-Measured, it is not happening, and the corpus is if anything the opposite:
-
-| arm | median concentration | share below 0.10 | tail gap p90 |
+| characteristic | 12c | draft1k_f | **draft1k_i** |
 |---|---|---|---|
-| empirical (136) | 0.346 | 8.5% | 8.38 |
-| corpus 2026-09-12b | 0.446 | 0.0% | 1.44 |
-| corpus 2026-09-12c | 0.619 | 0.0% | 1.69 |
+| `fit_lognorm_SW` | 1.921 | 1.181 | **0.840** |
+| `fit_norm_SW` | 0.319 | — | 0.783 |
+| `crit_bw_1` | 0.524 | — | 0.715 |
+| `entropy` | 0.497 | — | 0.640 |
+| `skewness` | 0.642 | — | 0.617 |
+| `coeffvar` | 0.314 | — | 0.387 |
+| `kurtosis` | 0.299 | — | 0.303 |
+| `weight_outliers` | 0.370 | — | 0.288 |
+| `n` | 0.181 | — | 0.180 |
+| `w_v_uw_wasserstein` | 0.550 | 0.453 | **0.131** |
+| **mean W1** | 0.562 | 0.508 | **0.488** |
+| visible-mode TV | — | — | **0.003** |
 
-Concentration is the interdecile range over the full range, so low means a
-needle inside a long support. The synthetic datasets are LESS needle-like than
-the real ones, and the new corpus less than the old. The apparent spikes in the
-figure are its x-axis, which is set by the parent's truncation bounds rather
-than by where the data sit. `audits/stage2a2/p8_spikiness.py`.
+`w_v_uw_wasserstein` is the paper's central quantity and it is now the best-
+matched characteristic in the set.
 
-**The figure is misleading and should be fixed**, because it will mislead a
-reviewer the same way. Owner: 3.
+### 4.4 Three generator defects fixed along the way
+
+1. **Components with an unbounded density.** beta with a < 1 or b < 1, and
+   beta-prime with a < 1, are J-shaped: ordinary moments, infinite density at an
+   endpoint, and they draw as vertical spikes. 11.3 percent of all components
+   were shaped like that. `components.has_bounded_density` refuses them;
+   `solve_component` returns `unbounded_density` so the target is redrawn and
+   counted. Zero remain.
+2. **No floor on mode width.** `min_mode_sd_frac = 0.15` requires the narrowest
+   component to be at least that fraction of the parent's standard deviation.
+   Before it, 29.3 percent of parents with overlap under 0.01 had a mode under
+   10 percent of the dataset spread. It is a judgment, not a measurement: there
+   is no reliable empirical target, because 39.7 percent of empirical datasets
+   sit on `gmm_em_1d`'s reg = 1e-6 variance floor. **Owner: 2h to sweep.**
+3. **`_Affine.std` was wrong by up to a factor of three**, returning `scale`
+   rather than `scale * sd(shape)`. The mode-width floor was applied to the
+   wrong quantity for one iteration. Caught by comparing `std()` against the
+   requested sd.
+
+### 4.5 The dataset-examples figure now compares like with like
+
+It previously drew the synthetic PARENT DENSITY, exact and sharp, against a
+reader's memory of real data, which is only ever seen smoothed. It now shows a
+KDE of the values for both arms, the parent density as a thin line where one
+exists, and a row of empirical datasets underneath.
+
+Measured, the synthetic data was never the spikier arm: peak-to-median KDE
+height has an empirical median of 5.9, a 95th percentile of 222 and a maximum of
+5e39, against a synthetic median of 3.0 and a maximum of 33.
+
+### 4.6 Two hypotheses tested and rejected, recorded so they are not retried
+
+- **Making the synthetic truncation multiplicative** to match the empirical
+  rule. It is incompatible with the additive shift that controls the
+  coefficient of variation: as the shift grows, q3/q1 tends to 1 and the bounds
+  collapse onto the interquartile range. Truncated mass rose from a median of
+  0.149 to 0.247 and the achieved coefficient of variation went to 0.000.
+  Reverted; `trunc_rule` keeps both and its docstring holds the numbers.
+- **Empirical multimodality as a duplicate-value artifact.** EC3 categories
+  contain many identical declarations, so tied values were a plausible cause.
+  They are not: collapsing exact ties moves the multimodal share from 52.3 to
+  51.5 percent, and datasets with under 5 percent ties are as multimodal (47.9)
+  as those with over 20 percent (52.9).
 
 ## 5. Open questions and flags
 
@@ -388,23 +417,18 @@ reviewer the same way. Owner: 3.
 
 ### Needing the author's decision, in priority order
 
-1. **`w_v_uw_wasserstein` got substantially worse in the retune**, 0.155 to
-   0.550 standardized W1, and it is the paper's central quantity. The corpus now
-   overstates how much reweighting moves a dataset: synthetic interquartile
-   range 0.256 against an empirical 0.138. It carried weight 1.0 because the
-   prompt asked for modality and the coefficient of variation to be weighted
-   above the others and it is neither. Raising its weight and re-running the
-   tuning loop costs about ten minutes; regenerating afterward costs about
-   twenty-five. **Settle this before anything is built on this corpus.**
-2. **The acceptance criterion is not met**, section 4.2. The explanation, that
-   the old arm was an easier target, is in that section, but the criterion as
-   written fails and the corpus should not be described as meeting it.
-3. **An intermediate configuration exists and was not chosen.** Overlap lower
-   bound 1e-1.5 gives objective 0.4524, mode TV 0.167, 63 percent unimodal and
-   `fit_lognorm_SW` 1.518, against the chosen 0.4261, 0.088, 49.5 percent and
-   1.828. If the lognormality and weighting-effect losses matter more than
-   matching the mode count exactly, that is the corpus to build instead. Both
-   are one regeneration away.
+1. **Regenerate at 10,000 once the author is satisfied with the generator.**
+   The active corpus is a 1,000-dataset draft. Nothing downstream should be run
+   against it.
+2. **The tuning objective now scores both modality measures.** `n_modes_visible`
+   is the one to steer by; `n_modes_silverman` stays as a reported
+   characteristic. Any future sweep that optimises the Silverman distribution
+   alone will repeat this stage's mistake.
+3. **`min_mode_sd_frac = 0.15` is a judgment with no empirical anchor**, for the
+   reason in 4.4. **Owner: 2h.**
+4. **The acceptance criterion as written was not met by `corpus_2026-09-12c`**
+   and the four-way table in `TABLE_2a2_FourWayComparison.csv` is from that
+   corpus, so it is stale. It should be re-run against the final corpus.
 
 ### New in Stage 2a-2
 

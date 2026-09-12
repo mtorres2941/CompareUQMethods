@@ -87,8 +87,8 @@ class GeneratorConfig:
     rng.integers(1, 6)."""
 
     # ---- component separation, as overlap ----------------------------------
-    overlap_log10_lo: float = -2.5
-    overlap_log10_hi: float = np.log10(0.9)
+    overlap_log10_lo: float = np.log10(0.3)
+    overlap_log10_hi: float = np.log10(1.4)
     """Target average pairwise overlap, drawn log-uniformly in this range and
     then solved for by moving the component locations (Maitra and Melnykov
     2010, step 3).
@@ -122,36 +122,41 @@ class GeneratorConfig:
     the [0.3, 1.4] range that had been tuned in. Two independent measurements
     say the same thing, and both were wrong before for the same reason.
 
-    Measured sweep of the range, targeting the MINIMUM ADJACENT overlap, on the
-    2026-08 arm, scored with EQUAL weight on every characteristic:
+    THIS IS STAGE 2A'S ORIGINAL RANGE, RESTORED. Stage 2a-2 lowered it, through
+    several values down to 1e-3.0, and every one of those was a regression. The
+    reason is worth stating plainly because it cost a whole stage.
 
-        range              objective   mode TV   unimodal   fit_lognorm_SW
-        [1e-1.5, 0.9]        0.4748     0.216      69.5%        1.047
-        [1e-2.0, 0.9]        0.4541     0.112      59.3%        1.052
-        [1e-2.5, 0.9]        0.4595     0.065      53.6%        1.256   <- chosen
-        [1e-2.5, 0.5]        0.4713     0.065      55.3%        1.343
-        [1e-3.0, 0.5]        0.4707     0.033      50.7%        1.342
-        [1e-3.5, 0.5]        0.4624     0.043      45.5%        1.396
+    The retune was steered by the SILVERMAN mode-count distribution, which the
+    2026-08 empirical arm puts at 49.3 percent unimodal. Driving the overlap
+    down did match that. But Silverman's critical-bandwidth test detects
+    structure at ANY bandwidth, including fine structure that never appears in
+    a plot, and the empirical datasets that it calls multimodal are single
+    right-skewed humps to look at: 94.9 percent of them have exactly one mode
+    visible in a default-bandwidth KDE. So the corpus was rebuilt out of clearly
+    separated humps in order to match a count that, in the real data, comes from
+    something else entirely.
 
-    THOSE ARE SINGLE-DRAW NUMBERS AND MOST OF THE DIFFERENCES BETWEEN THEM ARE
-    NOISE. Re-scoring the top three at three generator seeds each
-    (audits/stage2a2/p10_config_noise.py) gives:
+    Sweep on the 2026-08 arm, scoring both measures (modality.n_modes_visible
+    and modality.n_modes_silverman):
 
-        range            objective mean +/- sd   mode TV mean +/- sd
-        [1e-2.0, 0.9]        0.4569 +/- 0.0089      0.129 +/- 0.016
-        [1e-2.5, 0.9]        0.4623 +/- 0.0054      0.098 +/- 0.029
-        [1e-3.0, 0.5]        0.4731 +/- 0.0054      0.040 +/- 0.013
+        range              objective   visible TV   visible unimodal
+        [1e-2.5, 0.9]        0.4584       0.280          66.8%
+        [0.05, 1.0]          0.4754       0.273          67.6%
+        [0.15, 1.4]          0.4486       0.074          87.4%
+        [0.3, 1.4]           0.4504       0.022          92.7%   <- chosen
+        [0.5, 2.0]           0.4475       0.029          97.8%
 
-    The typical within-configuration standard deviation is 0.0066, so the top
-    two are not separable on the objective (they differ by 0.0054) while
-    [1e-3.0, 0.5] is genuinely worse, by about 2.5 standard deviations. Given a
-    tie, the mode-count distribution breaks it, and [1e-2.5, 0.9] matches it
-    better than [1e-2.0, 0.9].
+    against an empirical 94.9 percent visible-unimodal. [0.5, 2.0] scores
+    marginally better on the objective and overshoots to 97.8; [0.3, 1.4] is the
+    closest match on the measure that corresponds to what the data look like,
+    and the four objectives span 2 percent, which is inside the seed-to-seed
+    noise measured in audits/stage2a2/p10_config_noise.py.
 
-    The mode-count total variation is itself noisy, sd 0.029 against differences
-    of 0.03 to 0.13, so a single draw cannot rank two configurations on modality
-    either: [1e-2.5, 0.9] read 0.065, 0.108 and 0.121 on three seeds. Any future
-    sweep that reports a mode TV from one draw is reporting noise.
+    The lesson, recorded because it is the expensive one: a modality statistic
+    that is matched can coexist with a modality mismatch that is obvious in a
+    figure, and only the measure taken at the bandwidth a reader sees will catch
+    it. Tune against n_modes_visible; keep n_modes_silverman as a
+    characteristic, not as a steering signal.
 
         An earlier sweep of the lower bound while targeting the AVERAGE overlap is
     kept for the record, because it is what made the average's inadequacy

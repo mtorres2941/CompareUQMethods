@@ -1,0 +1,58 @@
+weights: all characteristics 1.0, mode_tv 1.0
+source:  data/raw/ec3_raw_ecc_2026-08-14.csv.gz
+measuring the empirical arm ...
+  136 datasets, 49.3% unimodal by Silverman, 94.9% with one VISIBLE mode
+
+=== current default  (440 datasets, 86s) ===
+  weighted objective   0.4584
+  mean W1 unweighted   0.5069
+  mode-count TV        0.1512
+  Silverman unimodal  empirical  49.3%   synthetic  64.1%
+  VISIBLE   unimodal  empirical  94.9%   synthetic  66.8%   TV 0.280
+  coeffvar W1 0.356   skewness W1 0.673   crit_bw_1 W1 0.577
+  worst characteristic fit_lognorm_SW (1.181)
+
+=== overlap 0.3-1.4 (Stage 2a)  (440 datasets, 58s) ===
+  weighted objective   0.4504
+  mean W1 unweighted   0.4988
+  mode-count TV        0.3946
+  Silverman unimodal  empirical  49.3%   synthetic  88.7%
+  VISIBLE   unimodal  empirical  94.9%   synthetic  92.6%   TV 0.022
+  coeffvar W1 0.377   skewness W1 0.612   crit_bw_1 W1 0.719
+  worst characteristic fit_lognorm_SW (0.826)
+
+=== overlap 0.15-1.4  (440 datasets, 62s) ===
+  weighted objective   0.4486
+  mean W1 unweighted   0.4932
+  mode-count TV        0.3766
+  Silverman unimodal  empirical  49.3%   synthetic  86.9%
+  VISIBLE   unimodal  empirical  94.9%   synthetic  87.4%   TV 0.074
+  coeffvar W1 0.389   skewness W1 0.601   crit_bw_1 W1 0.715
+  worst characteristic fit_lognorm_SW (0.946)
+
+=== overlap 0.05-1.0  (440 datasets, 75s) ===
+  weighted objective   0.4754
+  mean W1 unweighted   0.5224
+  mode-count TV        0.2074
+  Silverman unimodal  empirical  49.3%   synthetic  69.8%
+  VISIBLE   unimodal  empirical  94.9%   synthetic  67.6%   TV 0.273
+  coeffvar W1 0.374   skewness W1 0.739   crit_bw_1 W1 0.633
+  worst characteristic fit_lognorm_SW (1.076)
+
+=== overlap 0.5-2.0  (440 datasets, 50s) ===
+  weighted objective   0.4475
+  mean W1 unweighted   0.4915
+  mode-count TV        0.4265
+  Silverman unimodal  empirical  49.3%   synthetic  91.9%
+  VISIBLE   unimodal  empirical  94.9%   synthetic  97.8%   TV 0.029
+  coeffvar W1 0.378   skewness W1 0.602   crit_bw_1 W1 0.727
+  worst characteristic fit_norm_SW (0.778)
+wrote outputs/tables/stage2a/TABLE_2a_TuningSweep.csv  (5 rows)
+
+=== summary ===
+                    config  mean_w1_unweighted  weighted_objective  mode_tv  visible_tv  unimodal_visible_synthetic  unimodal_visible_empirical  unimodal_empirical  unimodal_synthetic   worst_metric  worst_w1  coeffvar_w1  skewness_w1  crit_bw_1_w1  n_datasets
+           current default              0.5069              0.4584   0.1512      0.2802                      0.6683                      0.9485              0.4926              0.6415 fit_lognorm_SW    1.1814       0.3562       0.6733        0.5768         440
+overlap 0.3-1.4 (Stage 2a)              0.4988              0.4504   0.3946      0.0221                      0.9265                      0.9485              0.4926              0.8873 fit_lognorm_SW    0.8259       0.3775       0.6123        0.7194         440
+          overlap 0.15-1.4              0.4932              0.4486   0.3766      0.0744                      0.8741                      0.9485              0.4926              0.8692 fit_lognorm_SW    0.9464       0.3885       0.6008        0.7152         440
+          overlap 0.05-1.0              0.5224              0.4754   0.2074      0.2729                      0.6756                      0.9485              0.4926              0.6976 fit_lognorm_SW    1.0764       0.3739       0.7390        0.6325         440
+           overlap 0.5-2.0              0.4915              0.4475   0.4265      0.0294                      0.9779                      0.9485              0.4926              0.9191    fit_norm_SW    0.7779       0.3779       0.6023        0.7268         440

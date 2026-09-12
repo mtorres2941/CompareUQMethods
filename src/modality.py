@@ -234,3 +234,56 @@ def fit_mixture_bic(x, rng, kmax=5):
     if best is None:
         return 1, np.ones(1), np.array([np.mean(x)]), np.array([np.std(x)])
     return best[1], best[2], best[3], best[4]
+
+
+# ---------------------------------------------------------------------------
+# Modes you can see, as distinct from modes a test can detect.
+# ---------------------------------------------------------------------------
+def n_modes_visible(x, prominence=0.05, grid_n=512):
+    """Count local maxima of a default-bandwidth KDE, by prominence.
+
+    This is deliberately NOT Silverman's critical-bandwidth test, and the two
+    answer different questions. Silverman asks whether the data are multimodal
+    at ANY bandwidth, and is sensitive to fine structure that never appears in
+    a plot. This asks how many humps a reader sees in the density they would
+    actually be shown.
+
+    They disagree, and the disagreement is the point. On the 2026-08 empirical
+    arm, Silverman calls 52 percent of the datasets multimodal while 94.3
+    percent have exactly one VISIBLE mode: real ECC categories are single
+    right-skewed humps carrying real but small-scale structure. A corpus tuned
+    to match the Silverman distribution can therefore be built out of clearly
+    separated humps and still report a good match, which is exactly what
+    happened through Stage 2a-2: matched on Silverman, 58.9 percent visible-
+    unimodal against an empirical 94.3.
+
+    `prominence` is the height a peak must clear above the higher of the two
+    valleys flanking it, as a fraction of the tallest peak. 0.05 keeps the
+    shoulders a reader would call a second hump and drops ripple.
+    """
+    from scipy.stats import gaussian_kde
+    from scipy.signal import argrelextrema
+
+    x = np.asarray(x, float)
+    x = x[np.isfinite(x)]
+    if len(x) < 8 or np.std(x) <= 0:
+        return 1
+    try:
+        kde = gaussian_kde(x)
+    except Exception:
+        return 1
+    grid = np.linspace(x.min(), x.max(), grid_n)
+    y = kde(grid)
+    idx = argrelextrema(y, np.greater)[0]
+    if len(idx) == 0:
+        return 1
+    peak = y.max()
+    if peak <= 0:
+        return 1
+    kept = 0
+    for i in idx:
+        left = y[:i].min() if i > 0 else y[i]
+        right = y[i + 1:].min() if i < len(y) - 1 else y[i]
+        if (y[i] - max(left, right)) / peak >= prominence:
+            kept += 1
+    return max(kept, 1)
