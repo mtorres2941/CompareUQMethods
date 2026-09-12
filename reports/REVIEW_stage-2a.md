@@ -9,6 +9,22 @@ do if you only do two.
 
 ---
 
+## Read this first
+
+**The corpus has a known defect and should not be used for analysis yet.** A
+third to a half of the multimodal datasets are unrealistic spikes, because
+component separation is controlled by the AVERAGE pairwise overlap, which
+barely constrains the modes that actually touch once there are more than two of
+them. It is confirmed, the mechanism is written up, and the fix needs one
+decision from you. See "START HERE" in `reports/HANDOFF_stage-2a.md` section 5.
+
+Look at `outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png`
+before anything else. Ten datasets per size stratum. The unimodal ones look
+right; judge the multimodal ones for yourself.
+
+Everything below still applies to the machinery, which is sound and tested.
+Only the setting of one generation parameter is wrong.
+
 ## Pass 1: the claims, before any code (20 min)
 
 Read `reports/HANDOFF_stage-2a.md`. It is written to be read alone.

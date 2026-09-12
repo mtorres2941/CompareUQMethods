@@ -283,6 +283,59 @@ and computes both directions of a pair together.
 | `weighted_quantile` must stay fixed before Silverman in 2h | 2h | STILL OPEN |
 | Entry 13, support (0, inf), needs author confirmation | - | **STILL OPEN.** Stage 2a built on it |
 
+### START HERE: the multimodal datasets are not realistic
+
+**This is the one thing that should be fixed before anything else, and the
+corpus should not be used for analysis until it is.**
+
+The author inspected the generated datasets and said the multimodal examples
+looked wrong: the modes are too narrow and too far apart to be real material
+categories. That is correct, it is now confirmed, and the mechanism is known.
+
+**The mechanism.** Component separation is controlled by the AVERAGE pairwise
+overlap, which is Maitra and Melnykov's `omega-bar`. With more than two modes
+that average is dominated by the pairs that are far apart, so it barely
+constrains the pairs that actually touch. Measured on real parents from the
+configuration:
+
+```
+k=5  average 0.0113   pairs: [0.1134, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+k=5  average 0.0010   pairs: [0.0054, 0.0022, 0.0012, 0.0007, 0.0001, ...]
+k=4  average 0.0292   pairs: [0.1726, 0.0026, 0.0001, 0.0001, 0, 0]
+k=4  average 0.0745   pairs: [0.4470, 0, 0, 0, 0, 0]
+```
+
+One pair blends and the rest are disjoint, so the average sits near zero and
+the solver, trying to hit a target of a few hundredths, pushes every mode into
+a near-delta. Raising the target does not help: it is the wrong summary.
+
+**Where to see it.** `outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png`,
+ten datasets per size stratum. The unimodal ones look like real ECC data,
+right-skewed with a sensible spread. Roughly a third to a half of the
+multimodal ones are spikes. Panels (d) and (e) of
+`CompareUQMethods_FIG_DemonstrateDataGeneration.png` show the same thing.
+
+**The fix, which needs an author decision.** Maitra and Melnykov offer the
+MAXIMUM pairwise overlap, `omega-check`, as an alternative controlling
+characteristic for exactly this reason, and `src/mixture.py` already computes
+the full pairwise matrix, so either is one line in `solve_spread_for_overlap`.
+Three candidates, in order of preference:
+
+1. **Control the maximum pairwise overlap.** Closest to the published method,
+   guarantees at least one pair genuinely blends, and is what Maitra and
+   Melnykov recommend when the average is uninformative.
+2. **Control the mean overlap between ADJACENT modes only**, ordering
+   components by location. Most directly matches what the eye judges.
+3. Keep the average but bound the component standard deviation from below
+   relative to the location spread. Cruder, and it fights the overlap solve.
+
+Whichever is chosen, re-run the empirical comparison in
+`audits/stage2a/a7_overlap_and_modality.py` under the SAME statistic before
+setting its range, because the empirical target of median 0.0330 was measured
+as an average and is not comparable to a maximum.
+
+**Then regenerate, and look at the stratum figure again before anything else.**
+
 ### New in Stage 2a
 
 - **The empirical extraction cannot be reproduced.** The directory notebook 1's
@@ -397,20 +450,26 @@ versus profile-likelihood versus gamma, and W1-optimal fitting alongside MLE.
 
 Three things to know first:
 
-1. **All three notebooks now run end to end against the new corpus.** Done at
-   the end of this stage, so Stage 2b does not inherit an untested pipeline.
-   Notebook 1 executes clean and writes Table 1, the coverage tables and the
-   coverage figure. Notebook 2 executes clean and writes the W1 tables.
-   Notebook 3 was smoke-tested at `COMPAREUQ_SMOKE_COMBOS=20`, which caught a
-   real `NameError` (`nmats` was defined in the combos cell that Stage 2a
-   replaced), and then run in full.
+1. **Notebook 1 runs clean end to end. Notebooks 2 and 3 have NOT been run,
+   deliberately.** They were executed once during this stage and the author
+   stopped it, correctly: data generation was not settled, so their results
+   would have been withdrawn anyway. Their output tables were restored from the
+   fixtures and the full test suite is green at 126 passing.
 
-   **The regression fixtures under `tests/fixtures/` are still pinned to the
-   pre-regeneration corpus and now fail on purpose.** Re-freezing them is
-   deliberately left to Stage 2b rather than done here, because 2b changes the
-   lognormal and will move the same numbers again; freezing twice is wasted
-   work. `tests/test_regression.py` is the only failing file and the reason is
-   recorded in its docstring.
+   Two things were learned from that aborted run and are worth keeping:
+
+   - **Notebook 3 has a real defect that smoke mode catches in seconds.**
+     `nmats` was defined in the cell that used to build `combos.txt`; replacing
+     that cell left it undefined and the pLCA loop raised a `NameError`. Fixed.
+     Always run `COMPAREUQ_SMOKE_COMBOS=20` first.
+   - **The pipeline does work end to end.** On the corpus as it stood, notebook
+     2 ranked the six methods identically on both arms, with KDE plus variable
+     weighting first (median W1 0.071 synthetic, 0.132 empirical) and normal
+     plus uniform weighting last. That is a sanity check, not a result.
+
+   The regression fixtures are still pinned to the pre-regeneration corpus.
+   Re-freezing them belongs to Stage 2b, because 2b changes the lognormal and
+   will move the same numbers again.
 2. **The parent is available.** `corpus.load_parents()` returns, per dataset,
    everything needed to rebuild its CDF exactly. Stage 2c depends on this;
    Stage 2b can use it to ask whether a lognormal fit is recovering the parent
@@ -418,6 +477,42 @@ Three things to know first:
 3. **The datasets are bigger.** Stratum 4 runs to n = 9,996 where the old
    corpus stopped at 749, so notebook 2's fitting and notebook 3's pLCA will
    both be slower than their Stage 1 timings.
+
+## 7b. Author review of notebook 1, and what it changed
+
+The author reviewed notebook 1 at the end of the stage. Ten points, all acted
+on. Two of them changed the analysis, not just the presentation.
+
+**Presentation, and the standard now expected of the notebooks.** All changelog
+language is gone: the notebooks do not mention stages, what was removed, or old
+versus new anything. They read as a final report describing the method as it
+stands. Ten dead cells were deleted. The seed is 42.
+
+**Two substantive changes.**
+
+- **The modes of a typical dataset were too narrow and too far apart.** The
+  author saw it in the generation figure before it showed up in any statistic.
+  Measured: the achieved overlap had a median of 0.0222 against an empirical
+  fitted median of 0.0330. The overlap lower bound moved from 1e-4 to 1e-3.5,
+  bringing the achieved quartiles to 0.0042, 0.0303 and 0.1675 against an
+  empirical 0.0034, 0.0330 and 0.1247. **This is the second time visual
+  inspection caught a centring problem that range-coverage statistics did not**,
+  the first being the coefficient of variation.
+- **Generation is now visible in the notebook.** The author's objection was
+  that generation happened entirely inside `src/` and could not be reviewed.
+  The computation stays in `src/`, where it is tested, but notebook 1 now
+  generates a dataset start to finish with every defining parameter printed,
+  and plots ten datasets from each size stratum against the distribution each
+  was drawn from. If that is still not enough, the next step is to move the
+  body of `draw_parent` into the notebook, at the cost of it no longer being
+  covered by tests.
+
+**Standing lesson for later stages:** a figure showing what the data look like
+caught three problems that nine metric-coverage statistics reported as fine:
+the coefficient of variation centring, the overlap centring, and the
+average-overlap parameterization itself. All nine coverage percentages read
+100 percent while a third of the multimodal datasets were spikes. **Produce the
+picture before the table, and look at it.**
 
 ## 8. Stage 2a assessment against the Stage 0 baseline
 
