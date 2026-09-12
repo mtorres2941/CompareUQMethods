@@ -397,10 +397,20 @@ versus profile-likelihood versus gamma, and W1-optimal fitting alongside MLE.
 
 Three things to know first:
 
-1. **Notebooks 2 and 3 have not been run against the new corpus.** They are
-   rewired and parse, but the fitting and pLCA fixtures are still pinned to the
-   pre-regeneration corpus. Running them and re-freezing is the first task.
-   Use `COMPAREUQ_SMOKE_COMBOS=20` first.
+1. **All three notebooks now run end to end against the new corpus.** Done at
+   the end of this stage, so Stage 2b does not inherit an untested pipeline.
+   Notebook 1 executes clean and writes Table 1, the coverage tables and the
+   coverage figure. Notebook 2 executes clean and writes the W1 tables.
+   Notebook 3 was smoke-tested at `COMPAREUQ_SMOKE_COMBOS=20`, which caught a
+   real `NameError` (`nmats` was defined in the combos cell that Stage 2a
+   replaced), and then run in full.
+
+   **The regression fixtures under `tests/fixtures/` are still pinned to the
+   pre-regeneration corpus and now fail on purpose.** Re-freezing them is
+   deliberately left to Stage 2b rather than done here, because 2b changes the
+   lognormal and will move the same numbers again; freezing twice is wasted
+   work. `tests/test_regression.py` is the only failing file and the reason is
+   recorded in its docstring.
 2. **The parent is available.** `corpus.load_parents()` returns, per dataset,
    everything needed to rebuild its CDF exactly. Stage 2c depends on this;
    Stage 2b can use it to ask whether a lognormal fit is recovering the parent

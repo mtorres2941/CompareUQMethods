@@ -222,7 +222,7 @@ regenerates again afterward, doubles the verification work for no gain.
 | **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **Also the figure SIZE problem: several figures declare a `figsize` of roughly 94 by 55 inches and come out at 50 to 98 megapixels. 2a deleted 15 stale figures (115 MB) but did not touch the live ones, which are all from the pre-regeneration corpus and will be rebuilt anyway** | Changing any number |
-| **4** (optional) | README and Zenodo re-deposit. **Also the `.git` history rewrite if the author wants it: 391 MB, about 190 MB of it six large figure and table blobs re-stored whole on every change. Deleting working-tree files does not reclaim this; only `git filter-repo` does, and it rewrites every commit hash** | Anything analytical |
+| **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
 Items already known to be open and owned by a named stage, so that none of them
 reads as a fresh discovery: the bandwidth rule and its KL1/KL2 inconsistency
@@ -444,3 +444,18 @@ rather than in conversation.
     Kept so this stage changes one thing at a time. It leaves mode dominance
     almost constant (at k = 2 the larger mode holds 0.501 to 0.760 of the
     points). Stage 2h should sweep it; alpha = 1 is the obvious other end.
+28. **2026-09-11, Stage 2a. The repository size is accepted; no history
+    rewrite.** `[AUTHOR]` `.git` is 391 MB, about 190 MB of it large figure and
+    table blobs re-stored whole on every change. The author's decision, given
+    directly: "I don't care too much about too big of a git repo." Deleting the
+    15 stale figures (115 MB off the working tree) is treated as sufficient.
+    A `git filter-repo` rewrite is NOT to be attempted: it would rewrite every
+    commit hash and break the Zenodo deposit, for a benefit the author has said
+    they do not want. Stage 4 should not revisit this unless the author raises
+    it.
+29. **2026-09-11, Stage 2a. The coverage figure is accepted.** `[AUTHOR]`
+    `outputs/figures/CompareUQMethods_FIG_MetricCoverage.png`, reviewed and
+    approved: "That output figure looks good to me." The underlying coverage
+    result stands: 100 percent of the 138 empirical datasets fall inside the
+    synthetic range on all nine statistical metrics, 99.3 percent on dataset
+    size. The two named exceptions are ReadyMix (n = 77,439) and Elevators.

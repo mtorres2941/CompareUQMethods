@@ -75,7 +75,7 @@ class GeneratorConfig:
     rng.integers(1, 6)."""
 
     # ---- component separation, as overlap ----------------------------------
-    overlap_log10_lo: float = -4.0
+    overlap_log10_lo: float = -3.5
     overlap_log10_hi: float = np.log10(0.75)
     """Target average pairwise overlap, drawn log-uniformly in this range and
     then solved for by moving the component locations (Maitra and Melnykov
@@ -229,7 +229,7 @@ class GeneratorConfig:
     are the parent's rather than one realized sample's."""
 
     # ---- reproducibility ---------------------------------------------------
-    seed: int = 20260911
+    seed: int = 42
     max_component_retries: int = 12
     """A moment target can be infeasible or numerically degenerate. The
     generator redraws the target that many times and records how often it had
