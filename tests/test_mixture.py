@@ -169,7 +169,13 @@ def test_overlap_matches_the_definition_counted_directly():
     worst = 0.0
     errors = []
     checked = 0
-    for _ in range(12):
+    # 30 trials, not 12. Since components.has_bounded_density began refusing
+    # J-shaped beta and beta-prime solutions, about 45 percent of drawn moment
+    # targets are rejected, so fewer components survive per trial and 12 trials
+    # no longer accumulate the 15 pairs this test requires of itself. Raising
+    # the trial count keeps the anti-vacuity guard doing its job; lowering the
+    # guard would have hidden the change instead.
+    for _ in range(30):
         comps = []
         for _ in range(int(rng.integers(2, 5))):
             skew = rng.uniform(-3, 3)
