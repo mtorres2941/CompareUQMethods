@@ -76,3 +76,27 @@ data. The checksums below pin the specific bytes produced on this machine.
 f86f1f2b7694a24b8f2fd10f847cabc368aa7eb790c7cde59a5a1a023e6521de  data/processed/corpus_2026-09-11c/combos.csv
 a28f1f30998d08bfba0ed7cd9bc420461774050b55bfb1a8234bf56801d383e9  data/processed/corpus_2026-09-11c/runmeta.json
 6d067a382f9595cc3b59a051bf613cbd80020e2bf8adbaf166118b03cf6db4f3  data/processed/CORPUS.json
+
+## Appended 2026-09-12
+
+`corpus_2026-09-12` supersedes `corpus_2026-09-11c`. It was regenerated at the
+author's request with seed 42, and with the component overlap range widened so
+the achieved overlap distribution matches the empirical one through its body.
+10,000 datasets plus a 50-dataset probe set, 0 failed parents, 0 rejected.
+
+NOTE: `data/processed/CORPUS.json` is a POINTER to the active corpus and
+changes whenever the active corpus changes. Its row above pinned the value it
+held on 2026-09-11 and is expected to fail after any switch. It should not have
+been pinned; the rows that matter are the corpus artifacts themselves.
+
+KNOWN DEFECT in this corpus, written up in reports/HANDOFF_stage-2a.md under
+"START HERE": a third to a half of the multimodal datasets are unrealistic
+spikes, because component separation is controlled by the AVERAGE pairwise
+overlap, which barely constrains the modes that actually touch once there are
+more than two. Do not use this corpus for analysis until that is settled.
+
+979e8a756278a77df558e511cdda88eae2d4d044eb185c4ee0eb8b34f04efe3a  data/processed/corpus_2026-09-12/values.parquet
+cf1f0f562c60518dc6f9283cb0e452706688c067b2ecef324a7ba6efd80f6f5b  data/processed/corpus_2026-09-12/metrics.parquet
+a01fa4615b4d6a60b47d52bb2329519c6f670ff29fabe2a880af73a605eb137b  data/processed/corpus_2026-09-12/parents.json.gz
+5185310fed9657acf780ac6883d1e4cf95bd013857283afd96574c31757076d6  data/processed/corpus_2026-09-12/combos.csv
+3ff6221249a5aebaa1aa0534e82440a7d158c4c2ce79b6d394ca7d1d2e577992  data/processed/corpus_2026-09-12/runmeta.json

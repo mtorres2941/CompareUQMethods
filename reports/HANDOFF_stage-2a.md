@@ -443,10 +443,32 @@ as an average and is not comparable to a maximum.
 **Not touched:** `data/processed/DATA_all.json`, `dct_realeccs_trimmed.json`,
 `combos.txt`, `datasets_*.json`, the pLCA fixtures, and the manuscript.
 
+## 6b. State at the end of the session
+
+| Item | State |
+|---|---|
+| Branch | `stage-2a-generator`, working tree clean, 20 commits |
+| Tests | 126 passing |
+| Active corpus | `corpus_2026-09-12`, seed 42, 10,000 + 50 probe, 0 rejected |
+| Notebook 1 | runs clean end to end; all its figures under 1 MB |
+| Notebooks 2 and 3 | not run, deliberately; notebook 3's `nmats` defect is fixed |
+| Fixtures | `TABLE_EmpiricalECCMetrics.xlsx` re-frozen; the two W1 tables still pinned to the pre-regeneration corpus, for Stage 2b |
+| `outputs/figures` | 86 MB, down from 269 MB |
+| Baseline | `data/baseline_frozen/` verifies 8/8 |
+| `data/INPUTS.sha256` | 18 of 19 rows verify. `CORPUS.json` fails by design: it is a pointer to the active corpus and should never have been pinned |
+
 ## 7. Next stage
 
-**Stage 2b, the lognormal.** Threshold pathology, the +0.5 offset, two-parameter
-versus profile-likelihood versus gamma, and W1-optimal fitting alongside MLE.
+**Not Stage 2b yet.** Finish Stage 2a first: the multimodal realism defect at
+the top of section 5 needs one decision and one regeneration, and the corpus
+should not be analysed until it is settled. Expect roughly an hour: pick the
+overlap statistic, re-measure the empirical target under it, regenerate (15
+minutes), and look at
+`outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png` again.
+
+**Then Stage 2b, the lognormal.** Threshold pathology, the +0.5 offset,
+two-parameter versus profile-likelihood versus gamma, and W1-optimal fitting
+alongside MLE.
 
 Three things to know first:
 
