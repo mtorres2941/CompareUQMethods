@@ -1,0 +1,34 @@
+weights: {'crit_bw_1': 3.0, 'coeffvar': 3.0, 'modality_index': 2.0, 'n': 0.25}, mode_tv 3.0, everything else 1.0
+source:  data/raw/ec3_raw_ecc_2026-08-14.csv.gz
+measuring the empirical arm ...
+  136 datasets, 49.3% unimodal
+
+=== current default  (440 datasets, 75s) ===
+  weighted objective   0.4261
+  mean W1 unweighted   0.5294
+  mode-count TV        0.0879
+  unimodal   empirical  49.3%   synthetic  49.5%
+  coeffvar W1 0.265   skewness W1 0.540   crit_bw_1 W1 0.485
+  worst characteristic fit_lognorm_SW (1.828)
+
+per characteristic:
+            metric  weight  w1_standardized    ks  empirical_median  synthetic_median  median_shift_in_sd
+    fit_lognorm_SW   1.000            1.828 0.456             0.937             0.856              -1.373
+w_v_uw_wasserstein   1.000            0.629 0.208             0.119             0.131               0.084
+          skewness   1.000            0.540 0.364             2.060             0.920              -0.350
+         crit_bw_1   3.000            0.485 0.333             0.852             0.623              -0.358
+           entropy   1.000            0.477 0.202             2.931             2.959               0.028
+   weight_outliers   1.000            0.354 0.262             0.057             0.013              -0.702
+       fit_norm_SW   1.000            0.273 0.181             0.756             0.832               0.360
+          coeffvar   3.000            0.265 0.246             0.782             0.601              -0.112
+          kurtosis   1.000            0.264 0.405             5.758             1.103              -0.074
+                 n   0.250            0.179 0.230            53.000            99.500               0.006
+
+mode counts:
+ modes  empirical  synthetic
+     1      0.493      0.495
+     2      0.397      0.309
+     3      0.096      0.101
+     4      0.007      0.024
+     5      0.000      0.005
+     6      0.007      0.065

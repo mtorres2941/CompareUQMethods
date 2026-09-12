@@ -24,7 +24,7 @@ CompareUQMethods/
 │   ├── genconfig.py           every generation parameter (Stage 2a)
 │   ├── generator.py           parent -> dataset, plus the validity filter
 │   ├── corpus.py              generate, write and read a named corpus
-│   ├── empirical.py           prepare the 138 empirical EC3 datasets
+│   ├── empirical.py           prepare the empirical EC3 datasets
 │   ├── modality.py            Silverman critical bandwidth (Stage 2a)
 │   ├── customstats.py         weighted statistics, distances, bandwidths
 │   ├── datageneration.py      legacy generation helpers, empirical cleaning
@@ -180,36 +180,54 @@ optimizations: NB1 about 20 s, NB2 about 75 s, NB3 about 11 min at
 |---|---|---|
 | `CORPUS.json` | names the active corpus directory | yes |
 | `corpus_<label>/` | the synthetic corpus, see section 3 | no, large |
-| `dct_realeccs_trimmed.json` | the 138 empirical EC3 datasets, as extracted | yes |
-| `empirical_<label>.json` | the prepared empirical arm, written by `src/empirical.py` | yes |
+| `raw/ec3_raw_ecc_<pull date>.csv.gz` | the raw empirical ECC extract, one row per EPD | yes |
+| `dct_realeccs_trimmed.json` | SUPERSEDED. The 2026-03 EC3 pull the manuscript reports | yes |
+| `empirical_<label>.json` | a prepared empirical arm, written by `src/empirical.py` | yes |
 
 **Retired at the end of Stage 2a, kept on disk as the pre-regeneration record:**
 `DATA_all.json`, `datasets_outliers.json`, `datasets_trimto10k.json` and
 `combos.txt`. Nothing reads them any more. Byte-identical copies with verified
 checksums are in `data/baseline_frozen/`; see `data/INPUTS.sha256`.
 
-The analysed set is now the corpus minus the probe set: exactly 10,000
-datasets, sizes 3 to 9,999, stratified 2,500 per stratum over 3-9, 10-99,
-100-999 and 1000-9999, plus a 50-dataset probe set at 10,000 to 100,000 that is
-excluded from every aggregate.
+The analysed set is the corpus minus the probe set: exactly 10,000 datasets,
+sizes 3 to 9,999, stratified 2,500 per stratum over 3-9, 10-99, 100-999 and
+1000-9999, plus a 50-dataset probe set at 10,000 to 100,000 that is excluded
+from every aggregate.
 
-`dct_realeccs_trimmed.json` is treated as read-only: it is the record of the
-2026-03 EC3 pull the current manuscript reports, and it is stored
-POST-cleaning, already trimmed additively at the high end.
+### The empirical arm
 
-A fresh pull can be taken at any time and is the recommended next step: the API
-key and a documented procedure are in `../EPDsFromEC3`, and
-`../EPDsFromEC3/PULLING_EPDS.md` describes three ways a paginated pull fails
-while reporting success. Working from raw values would also allow the cleaning
-rule to be applied symmetrically. See `reports/MANUSCRIPT_discrepancies.md`
-entry 26.
+`src/empirical.py` reads a frozen, dated raw extract under `data/raw/`. Raw
+means no outlier rule has been applied to it, which is what lets the cleaning
+rule treat both ends of the distribution the same way. An ECC is the declared
+GWP divided by the declared unit, each value converted by its own unit, with
+each category restricted to the declared-unit type most of its products use.
+
+Cleaning is a multiplicative 3 x IQR bound in log space, applied at BOTH ends.
+An ECC is strictly positive and right skewed, so the additive form is the wrong
+shape: `Q1 - 3*IQR` is negative in most categories and never binds, which
+removes high outliers while leaving values orders of magnitude below the mean.
+A category is kept only if at least three values survive, which is why the arm
+holds 136 categories and not the 138 that were extracted.
+
+**The EC3 API is not reachable from this account.** It returns HTTP 403,
+"Direct API access is not allowed for private or restricted accounts"; the key
+is recognized, the account permission is not. The current extract is a slice of
+the consolidated store at `../EPDsFromEC3/store`, pulled 2026-08-13/14 through
+the LucidLCA wrapper. `../EPDsFromEC3/PULLING_EPDS.md` documents three ways a
+paginated pull fails while reporting success, and must be read before writing
+anything that talks to that API.
+
+To build a new extract once access is restored, adapt
+`audits/stage2a2/p1_build_raw_extract.py`, which refuses to overwrite an
+existing dated file, then validate it with `p2_validate_extract.py` and
+`p3_diagnose_changes.py` before pointing `src/empirical.SOURCE` at it.
 
 ## 6. Output tables
 
 | File | Written by | Shape |
 |---|---|---|
-| `TABLE_EmpiricalECCMetrics.xlsx` | NB1 | 138 x 20 |
-| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 138 x 26 |
+| `TABLE_EmpiricalECCMetrics.xlsx` | NB1 | 136 x 22 |
+| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 136 x 28 |
 | `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 10,000 x 26 |
 | `TABLE_PLCAResults.csv` | NB3 | 60,000 x 43 |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |
@@ -228,7 +246,7 @@ commit message, and `SHA256SUMS.txt` updated.
 
 | Fixture | Pins |
 |---|---|
-| `TABLE_EmpiricalECCMetrics.xlsx` | the 20 metrics for the 138 empirical datasets |
+| `TABLE_EmpiricalECCMetrics.xlsx` | the metrics for the empirical datasets |
 | `TABLE_EmpiricalECCMetricsAndW1.xlsx` | those metrics plus the six W1 scores |
 | `TABLE_SyntheticECCMetricsAndW1.xlsx` | metrics and W1 for the 10,000 synthetic datasets |
 | `SHA256SUMS.txt` | checksums, so a fixture cannot be edited silently |

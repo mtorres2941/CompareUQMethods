@@ -5,9 +5,15 @@ configuration rather than from a tuning history. This module is that
 configuration. `DEFAULT` is the one the corpus is generated from; the fields
 are the only things a sweep in Stage 2h needs to vary.
 
-Where a range derives from a measured property of the 138 empirical ECC
-datasets, the docstring for that field says which. The audit tables under
-`outputs/tables/stage2a/` hold the measurements.
+Where a range derives from a measured property of the empirical ECC datasets,
+the docstring for that field says which. The audit tables under
+`outputs/tables/stage2a/` and `outputs/tables/stage2a2/` hold the measurements.
+
+Every empirical figure quoted below was remeasured in Stage 2a-2 against the
+2026-08 raw extract. The 2026-03 figures the ranges were originally set from
+were distorted: that file had been trimmed additively at the high end before it
+was stored, which cuts the right tail of every dataset and so understates the
+spread, the skewness and the multimodality of the real data.
 
 Nothing here is a tuning knob in the sense the removed steps were. The power
 transform `data ** rng.uniform(0.9, 4.0)` and the 25 percent reflection existed
@@ -32,8 +38,8 @@ class Stratum:
 
 
 # Equal allocation across four size strata, so every size regime is estimated
-# with the same precision. The empirical sizes run 3 to 77,548 with a median of
-# 37, and a single log-uniform draw either leaves the large regime too sparse to
+# with the same precision. The empirical sizes run 3 to 86,770 with a median of
+# 53, and a single log-uniform draw either leaves the large regime too sparse to
 # analyse or lets large datasets dominate every aggregate. Because equal
 # allocation does not match the empirical size distribution, every headline
 # aggregate is reported twice: per stratum, and reweighted by the empirical
@@ -47,18 +53,24 @@ STRATA = (
 
 # The probe set sits OUTSIDE the corpus and is excluded from every aggregate.
 # Its only job is to establish whether results have plateaued by n = 10 ** 4.
-# Six empirical datasets exceed 9,999, reaching 77,548, and they include the two
-# largest and most carbon-significant materials.
+# One empirical dataset exceeds 9,999, ReadyMix at 86,770, and it is the largest
+# and most carbon-significant material category in the set.
 PROBE = Stratum('probe_10k_100k', 10_000, 100_000, 50)
 
-# Share of the 138 empirical datasets falling in each stratum, measured in
-# audits/stage2a/a5_empirical_envelope.py. Used for post-stratification
-# reweighting, never for generation.
+# Share of the empirical datasets falling in each stratum, measured in
+# audits/stage2a2/p6_empirical_envelope.py on the 2026-08 arm. Used for
+# post-stratification reweighting, never for generation.
+#
+# These moved when the empirical extract was rebuilt from raw values: the
+# smallest stratum fell from 0.2246 to 0.0956 and the second rose from 0.4928 to
+# 0.5588, because categories the old additive high-end trim had cut to a handful
+# of values now keep more of them. A further 0.0074 of the arm sits above 9,999
+# and is covered by the probe set rather than by a stratum.
 EMPIRICAL_STRATUM_SHARE = {
-    's1_3_9': 31 / 138,
-    's2_10_99': 68 / 138,
-    's3_100_999': 33 / 138,
-    's4_1000_9999': 5 / 138,
+    's1_3_9': 13 / 136,
+    's2_10_99': 76 / 136,
+    's3_100_999': 40 / 136,
+    's4_1000_9999': 6 / 136,
 }
 
 
@@ -75,47 +87,57 @@ class GeneratorConfig:
     rng.integers(1, 6)."""
 
     # ---- component separation, as overlap ----------------------------------
-    overlap_log10_lo: float = np.log10(0.3)
+    overlap_log10_lo: float = -2.5
     overlap_log10_hi: float = np.log10(1.4)
     """Target average pairwise overlap, drawn log-uniformly in this range and
     then solved for by moving the component locations (Maitra and Melnykov
     2010, step 3).
 
-    The range is HIGH deliberately: components are meant to merge. Overlap is
-    the probability that a value drawn from one mode would be attributed to
-    another, so a target near 1 means the modes are barely distinguishable, and
-    that is what a real material category usually looks like when it has
-    several production routes of similar carbon intensity.
+    Overlap is the probability that a value drawn from one mode would be
+    attributed to another, so a target near 1 means the modes are barely
+    distinguishable and a target near 1e-3 means they are separate clusters.
 
-    This is the single most consequential parameter in the configuration and it
-    is set by matching a DISTRIBUTION, not a range. The quantity that matters
-    is how many modes a dataset appears to have, measured by Silverman's test:
+    This is the single most consequential parameter in the configuration, and it
+    is set against a DISTRIBUTION rather than a range. Two independent
+    measurements of the empirical arm set it, and they agree.
 
-        modes     empirical (138)    synthetic
-        1              83.3%           87.5%
-        2              15.2%           11.3%
-        3               1.4%            1.2%
-        4 or more       0.0%            0.0%
+    The first is the overlap itself. Fitting a BIC-selected Gaussian mixture to
+    each empirical dataset and computing the same Maitra-Melnykov overlap from
+    the fit puts both arms on one footing. On the 2026-08 arm that gives
+    quartiles 0.0020, 0.0474 and 0.1078, a 95th percentile of 0.2671 and a
+    maximum of 0.5956. The range above brackets that with margin at both ends.
 
-    Targeting low overlap instead breaks this badly and breaks it quietly.
-    Every range-coverage statistic still reads 100 percent, because the
-    modality metrics stay inside the empirical range; only their distribution
-    is wrong. At a lower bound of 1e-3.5 the corpus was 55 percent multimodal
-    against an empirical 17 percent, with 9.7 percent of it showing six or more
-    modes, which never occurs in the empirical data. Measured sweep of the
-    lower bound, mean Wasserstein-1 distance across all ten characteristics and
-    the total variation distance of the mode-count distribution:
+    The second is how many modes a dataset appears to have, by Silverman's test.
+    Empirical, on 136 datasets: 49.3 percent unimodal, 39.7 bimodal, 9.6
+    trimodal, 1.4 with four or more.
 
-        lower bound   mean W1   mode TV   unimodal share
-        1e-3.5          0.613     0.430       44%
-        1e-2.0          0.517     0.348       49%
-        1e-1.5          0.411     0.226       61%
-        1e-1.0          0.360     0.175       66%
-        0.3 to 1.4      0.352     0.049       88%
+    HISTORY, because this parameter has now been wrong in both directions and
+    the reason is instructive. Stage 2a set it to [0.3, 1.4], reasoning that
+    components should merge, and tuned that against an empirical arm which was
+    81.9 percent unimodal. That figure was itself an artifact: the 2026-03
+    extract had been trimmed additively at the high end before it was stored,
+    which cuts the right tail and suppresses the modality the test can see. On
+    raw 2026-08 data cleaned symmetrically the empirical arm is 49.3 percent
+    unimodal, and the fitted empirical overlap distribution sits ENTIRELY BELOW
+    the [0.3, 1.4] range that had been tuned in. Two independent measurements
+    say the same thing, and both were wrong before for the same reason.
 
-    Higher overlap also improves the goodness-of-fit characteristics, because
-    merged components produce the smooth right-skewed shape that real ECC data
-    have: fit_lognorm_SW falls from 1.69 to 0.54.
+    Measured sweep of the lower bound on the 2026-08 arm, at the coefficient of
+    variation centre below, reporting the weighted objective, the mode-count
+    total variation distance and the unimodal share:
+
+        lower bound   objective   mode TV   unimodal
+        0.3 (2a)        0.4953      0.358      85.1%
+        1e-1.5          0.4524      0.167      63.1%
+        1e-2.5          0.4261      0.088      49.5%
+
+    THE COST, stated because it is real. Driving the lower bound down improves
+    every weighted characteristic but makes the corpus less lognormal-looking
+    than the data: fit_lognorm_SW rises from 0.93 to 1.83 standardized W1. Real
+    ECC datasets manage to be 49 percent multimodal while still having a median
+    Shapiro-lognormal statistic of 0.937, so their modes are gentle shoulders on
+    a lognormal body rather than separate clusters. The generator reproduces the
+    mode COUNT without reproducing that gentleness.
 
     See audits/stage2a/b5_tune_configuration.py, which is the script that
     produced these numbers and the one to re-run after any change."""
@@ -126,13 +148,21 @@ class GeneratorConfig:
     """Component skewness target, drawn uniformly.
 
     Deliberately asymmetric. Real ECC datasets are predominantly right skewed
-    (the 138 empirical datasets have a median skewness of 1.055 and run from
-    -1.44 to 4.62), and a symmetric component range produces a corpus with a
-    median skewness near zero, which is not what the data look like. The range
-    keeps a substantial negative arm anyway, because the corpus has to contain
-    left-skewed datasets for a generalizability claim even though the empirical
-    set has few. A MIXTURE can be more skewed than any of its components, and
-    small-sample noise widens the realized range further."""
+    (the 2026-08 empirical arm has a median dataset skewness of 2.06, a 95th
+    percentile of 8.15 and a range of -1.24 to 20.65), and a symmetric component
+    range produces a corpus with a median skewness near zero, which is not what
+    the data look like. The range keeps a substantial negative arm anyway,
+    because the corpus has to contain left-skewed datasets for a generalizability
+    claim even though the empirical set has few. A MIXTURE can be more skewed
+    than any of its components, and small-sample noise widens the realized range
+    further.
+
+    Raising the upper bound to 14 was tried in Stage 2a-2 and rejected: it made
+    the corpus skewness distribution WORSE, not better (standardized W1 0.540 to
+    0.631), because the components then need placing further apart to hit their
+    overlap target and the mixture stops looking like the data. The empirical
+    median moved from 1.055 to 2.06 when the arm was rebuilt from raw values, and
+    the mixture reaches that without a wider component range."""
 
     comp_exkurt_lo: float = -1.2
     comp_exkurt_hi: float = 60.0
@@ -171,10 +201,10 @@ class GeneratorConfig:
     It gives modes near-equal shares and so leaves mode dominance almost
     constant across the corpus: at k = 2 the larger mode holds between 0.501
     and 0.760 of the points, median 0.569, and at k = 5 the smallest mode never
-    falls below 0.086. Kept at 10 here so that this stage changes one thing at
-    a time and the new corpus stays comparable to the old on this axis; Stage
-    2h owns the sweep, and alpha = 1 is the obvious other end. See
-    outputs/tables/stage2a/TABLE_2a_ModeShares.csv."""
+    falls below 0.086. Kept at 10 through Stage 2a-2 as well, so that the
+    retune changes the separation of the modes and not also how many points
+    land in each; Stage 2h owns the sweep, and alpha = 1 is the obvious other
+    end. See outputs/tables/stage2a/TABLE_2a_ModeShares.csv."""
 
     # ---- market share, Part 3 ----------------------------------------------
     market_share_alpha: float = 1.0
@@ -195,54 +225,69 @@ class GeneratorConfig:
     market-weighted parent is the mixture sum_k v_k f_k. Swept."""
 
     # ---- spread, as a target rather than a side effect ---------------------
-    cv_log10_mean: float = 0.011
-    cv_log10_sd: float = 0.2913 * 2.0
+    cv_log10_mean: float = 0.211
+    cv_log10_sd: float = 0.3752 * 2.0
     cv_log10_lo: float = np.log10(0.004)
-    cv_log10_hi: float = np.log10(3.2)
+    cv_log10_hi: float = np.log10(16.0)
     """Target coefficient of variation of the population parent, drawn from a
     normal in log10 truncated to [lo, hi], and then solved for exactly.
 
-    The spread comes from the 138 empirical datasets, whose log10 coefficient
-    of variation has a standard deviation of 0.2913; it is DOUBLED here, which
-    is what "margin beyond the empirical envelope" means: the corpus reaches
-    about twice as far in each direction as the real data do.
+    The spread comes from the empirical datasets, whose log10 coefficient of
+    variation has a standard deviation of 0.3752 on the 2026-08 arm; it is
+    DOUBLED here, which is what "margin beyond the empirical envelope" means:
+    the corpus reaches about twice as far in each direction as the real data do.
 
-    The centre is NOT the empirical centre. It is set 0.24 dex above it,
-    because this is a target for the POPULATION coefficient of variation while
-    the characteristic being matched is the SAMPLE one, and the sample value of
-    a right-skewed distribution runs systematically low: a finite sample rarely
-    contains the far tail. The offset was measured, not assumed. Before it, the
-    synthetic sample coefficient of variation sat at about 0.57 times the
-    empirical value at every percentile from the 1st to the 99th, a clean
-    multiplicative shift. Sweeping the centre upward: +0.12 dex gives a mean W1
-    of 0.347, +0.24 gives 0.337, +0.36 gives 0.339.
+    The centre is NOT the empirical centre. It sits above it, because this is a
+    target for the POPULATION coefficient of variation while the characteristic
+    being matched is the SAMPLE one, and the sample value of a right-skewed
+    distribution runs systematically low: a finite sample rarely contains the far
+    tail. The offset was measured, not assumed.
 
-    A log-UNIFORM draw over the same range was tried first and rejected. It
-    gives even coverage of every regime, which is attractive for the
-    metric-versus-W1 modelling in Stage 2f, but its geometric centre is 0.113
-    and the corpus came out with a median coefficient of variation of 0.071
-    against an empirical 0.600. Range coverage was 98.6 percent and the corpus
-    still did not look like the data, which is the actual requirement.
+    All three of these numbers moved when the empirical arm was rebuilt from raw
+    values in Stage 2a-2, and they moved a long way, because the 2026-03 extract
+    had been trimmed additively at the high end before it was stored and the
+    right tail is what carries the spread:
+
+                                 2026-03 arm   2026-08 arm
+        median coefficient of variation  0.600        0.782
+        log10 standard deviation        0.2913       0.3752
+        maximum                           2.40        13.40
+
+    The upper truncation was raised from 3.2 to 16 for the same reason: at 3.2 it
+    no longer bracketed the empirical maximum, so the draw was being clipped
+    inside the range the corpus is meant to cover with margin. The lower bound of
+    0.004 still sits below the empirical minimum of 0.0081.
+
+    Measured sweep of the centre on the 2026-08 arm, reporting the standardized
+    W1 of the coefficient of variation and the weighted objective:
+
+        centre        coeffvar W1   objective
+        0.011 (2a)       0.391        0.5087
+        0.211            0.265        0.4261
+        0.361            0.253        0.4400
+
+    0.211 is kept rather than 0.361: the two are within 0.012 on the
+    characteristic being targeted, and the higher centre is worse overall,
+    because pushing the mixture further from the origin costs skewness and
+    lognormality.
 
     This is the parameter that replaces the removed power transform. That step
     raised every value to a power drawn from U(0.9, 4.0) with an inline comment
     saying the purpose was to align with empirical ECC data; its actual job was
-    to manufacture spread, and nothing else in the generator produced any. With
-    it gone and nothing in its place, the first Stage 2a regeneration came out
-    with a median coefficient of variation of 0.049 against an empirical 0.600,
-    which is not a corpus with margin around the empirical data, it is a
-    different population.
+    to manufacture spread, and nothing else in the generator produced any. The
+    difference is that this is a named distributional property with a target,
+    solved for and reported, not a knob whose effect is discovered afterwards.
+    For data on (0, inf) normalized to mean 1, the coefficient of variation is
+    set by how far the distribution sits from the origin relative to its own
+    spread, and shifting a mixture changes its mean while leaving its standard
+    deviation alone, so the solution is a single bisection on the shift.
 
-    The difference from the power transform is that this is a named
-    distributional property with a target, solved for and reported, not a knob
-    whose effect is discovered afterwards. For data on (0, inf) normalized to
-    mean 1, the coefficient of variation is set by how far the distribution
-    sits from the origin relative to its own spread, and shifting a mixture
-    changes its mean while leaving its standard deviation alone, so the
-    solution is a single bisection on the shift.
-
-    The range brackets the 138 empirical datasets, which run from 0.0066 to
-    2.40, with margin at both ends."""
+    A log-UNIFORM draw over the same range was tried in Stage 2a and rejected: it
+    gives even coverage of every regime, which is attractive for the
+    metric-versus-W1 modelling in Stage 2f, but the corpus came out with a median
+    coefficient of variation of 0.071 against an empirical 0.600. Range coverage
+    was 98.6 percent and the corpus still did not look like the data, which is
+    the actual requirement."""
 
     max_low_tail_truncated: float = 0.15
     """The largest share of the parent's probability the generator may discard

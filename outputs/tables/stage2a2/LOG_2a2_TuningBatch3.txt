@@ -1,0 +1,62 @@
+weights: {'crit_bw_1': 3.0, 'coeffvar': 3.0, 'modality_index': 2.0, 'n': 0.25}, mode_tv 3.0, everything else 1.0
+source:  data/raw/ec3_raw_ecc_2026-08-14.csv.gz
+measuring the empirical arm ...
+  136 datasets, 49.3% unimodal
+
+=== current default  (440 datasets, 52s) ===
+  weighted objective   0.5087
+  mean W1 unweighted   0.5009
+  mode-count TV        0.3992
+  unimodal   empirical  49.3%   synthetic  89.2%
+  coeffvar W1 0.391   skewness W1 0.677   crit_bw_1 W1 0.702
+  worst characteristic fit_lognorm_SW (0.933)
+
+=== C baseline  (440 datasets, 73s) ===
+  weighted objective   0.4261
+  mean W1 unweighted   0.5294
+  mode-count TV        0.0879
+  unimodal   empirical  49.3%   synthetic  49.5%
+  coeffvar W1 0.265   skewness W1 0.540   crit_bw_1 W1 0.485
+  worst characteristic fit_lognorm_SW (1.828)
+
+=== F C + comp_skew to 14  (433 datasets, 76s) ===
+  weighted objective   0.4511
+  mean W1 unweighted   0.5525
+  mode-count TV        0.1092
+  unimodal   empirical  49.3%   synthetic  47.3%
+  coeffvar W1 0.314   skewness W1 0.631   crit_bw_1 W1 0.489
+  worst characteristic fit_lognorm_SW (1.797)
+
+=== G C + overlap hi 0.6  (440 datasets, 79s) ===
+  weighted objective   0.4377
+  mean W1 unweighted   0.5432
+  mode-count TV        0.1264
+  unimodal   empirical  49.3%   synthetic  42.3%
+  coeffvar W1 0.252   skewness W1 0.522   crit_bw_1 W1 0.466
+  worst characteristic fit_lognorm_SW (1.993)
+
+=== H C + position_skew 8  (440 datasets, 71s) ===
+  weighted objective   0.4632
+  mean W1 unweighted   0.5740
+  mode-count TV        0.1120
+  unimodal   empirical  49.3%   synthetic  49.4%
+  coeffvar W1 0.268   skewness W1 0.575   crit_bw_1 W1 0.525
+  worst characteristic fit_lognorm_SW (2.126)
+
+=== I C + skew14 + ovhi 0.6  (435 datasets, 78s) ===
+  weighted objective   0.4772
+  mean W1 unweighted   0.5933
+  mode-count TV        0.1146
+  unimodal   empirical  49.3%   synthetic  40.5%
+  coeffvar W1 0.304   skewness W1 0.655   crit_bw_1 W1 0.507
+  worst characteristic fit_lognorm_SW (2.192)
+wrote outputs/tables/stage2a/TABLE_2a_TuningSweep.csv  (6 rows)
+
+=== summary ===
+                 config  mean_w1_unweighted  weighted_objective  mode_tv  unimodal_empirical  unimodal_synthetic   worst_metric  worst_w1  coeffvar_w1  skewness_w1  crit_bw_1_w1  n_datasets
+        current default              0.5009              0.5087   0.3992              0.4926              0.8918 fit_lognorm_SW    0.9333       0.3908       0.6774        0.7024         440
+             C baseline              0.5294              0.4261   0.0879              0.4926              0.4952 fit_lognorm_SW    1.8283       0.2654       0.5397        0.4854         440
+  F C + comp_skew to 14              0.5525              0.4511   0.1092              0.4926              0.4732 fit_lognorm_SW    1.7970       0.3135       0.6311        0.4894         433
+   G C + overlap hi 0.6              0.5432              0.4377   0.1264              0.4926              0.4227 fit_lognorm_SW    1.9927       0.2519       0.5217        0.4663         440
+  H C + position_skew 8              0.5740              0.4632   0.1120              0.4926              0.4941 fit_lognorm_SW    2.1261       0.2678       0.5746        0.5255         440
+I C + skew14 + ovhi 0.6              0.5933              0.4772   0.1146              0.4926              0.4049 fit_lognorm_SW    2.1923       0.3042       0.6547        0.5071         435

@@ -7,7 +7,7 @@ is read from. The one-off measurements that characterize the OLD generator stay
 in `audits/stage2a/`, because they describe code that no longer exists.
 
 The question every function here answers is the one the author set: do the
-synthetic datasets look like the 138 empirical ECC datasets, as measured by the
+synthetic datasets look like the empirical ECC datasets, as measured by the
 statistical metrics, with margin on both sides so a generalizability claim is
 supportable? Margin means the synthetic range extends beyond the empirical
 range at both ends, including into regions the empirical set does not occupy at
@@ -248,15 +248,15 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical):
     rows = [
         ('Number of mixture components, k',
          f'integer uniform on [{cfg.k_min}, {cfg.k_max}]',
-         'a BIC-selected Gaussian mixture is multimodal in 79.0 pct of the 138 '
+         'a BIC-selected Gaussian mixture is multimodal in 86.0 pct of the '
          'empirical datasets',
          f'{min(ks)} to {max(ks)}, mean {np.mean(ks):.2f}'),
         ('Average pairwise component overlap',
          f'log-uniform on [{10 ** cfg.overlap_log10_lo:.0e}, '
          f'{10 ** cfg.overlap_log10_hi:.2f}], solved for by moving the '
          'component locations',
-         'empirical fitted overlap: median 0.0218, 95th pct 0.4528, max 0.6719; '
-         'the shipped synthetic corpus had a median of 0.0037',
+         'empirical fitted overlap: quartiles 0.0020, 0.0474 and 0.1078, '
+         '95th pct 0.2671, max 0.5956',
          f'median {np.median(ov_a):.4f}, 95th pct {np.percentile(ov_a, 95):.4f}, '
          f'max {np.max(ov_a):.4f}'),
         ('Coefficient of variation of the parent',
@@ -265,7 +265,7 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical):
          f'[{10 ** cfg.cv_log10_lo:.3g}, {10 ** cfg.cv_log10_hi:.3g}], solved '
          'for by placing the mixture relative to zero',
          f'centred on the empirical distribution, whose log10 coefficient of '
-         f'variation has mean -0.2641 and sd 0.2913; the sd is DOUBLED for '
+         f'variation has mean -0.1257 and sd 0.3752; the sd is DOUBLED for '
          f'margin. Empirical range {_clean(emp["coeffvar"]).min():.4g} to '
          f'{_clean(emp["coeffvar"]).max():.4g}',
          f'target met exactly in {ok * 100:.1f} pct; achieved '

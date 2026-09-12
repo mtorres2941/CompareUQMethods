@@ -86,7 +86,7 @@ Datasets with outlier metadata values (IQR ± 1.5 × IQR per metric) are flagged
 
 **Key outputs:** `DATA_all.json`, `dct_realeccs_trimmed.json`, `datasets_outliers.json`, `datasets_trimto10k.json`, `combos.txt`
 
-> **Note on raw EC3 data:** The empirical data pull from EC3 requires access to a local directory of pre-downloaded EC3 CSV files (`EPDsFromEC3/EPD_AllOfEC3/`), which is not included in this repository. This step is only needed to regenerate `dct_realeccs_trimmed.json` from scratch. The processed file is already included in `data/processed/`, so Notebooks 2 and 3 can be run without it.
+> **Note on the empirical EC3 data:** The empirical arm reads a frozen, dated raw extract at `data/raw/ec3_raw_ecc_<pull date>.csv.gz`, which IS included in this repository and is checksummed in `data/INPUTS.sha256` alongside its query and pull date. Nothing has to be re-pulled to reproduce the analysis, which is the point: EC3's contents change over time, so an archived extract is reproducible where a live query is not. Note also that EC3 now gates direct API access to business accounts, so a fresh pull is not available to every reader.
 
 ---
 
