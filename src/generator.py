@@ -20,6 +20,7 @@ analysed at all. Nothing is filtered for being statistically unusual.
 """
 
 import numpy as np
+from scipy import stats
 
 import components as C
 import genconfig as G
@@ -53,6 +54,19 @@ def probe_sizes(cfg, rng):
 
 
 # --------------------------------------------------------------------------
+def _truncated_normal(rng, mean, sd, lo, hi):
+    """One draw from N(mean, sd) conditioned to [lo, hi], by inverse CDF.
+
+    Inverse CDF rather than reject-and-redraw so the number of random values
+    consumed does not depend on where the draw lands, which keeps a run
+    reproducible from its seed regardless of the bounds.
+    """
+    a = stats.norm.cdf((lo - mean) / sd)
+    b = stats.norm.cdf((hi - mean) / sd)
+    u = a + (b - a) * rng.uniform()
+    return float(mean + sd * stats.norm.ppf(np.clip(u, 1e-12, 1 - 1e-12)))
+
+
 def _draw_component_targets(cfg, k, rng):
     """Draw k (skewness, excess kurtosis, sd) targets, retrying the ones that
     cannot be met. Returns targets, solved components, and a status record."""
@@ -92,7 +106,8 @@ def draw_parent(cfg, n, rng):
         return None, dict(status='component_targets_exhausted', statuses=statuses)
 
     # unit-spaced ordinates; the spread multiplier is what the overlap solve moves
-    z = np.sort(rng.uniform(0.0, 1.0, k)) if k > 1 else np.zeros(1)
+    z = (np.sort(rng.uniform(0.0, 1.0, k)) ** cfg.position_skew
+         if k > 1 else np.zeros(1))
 
     def build(c):
         comps = []
@@ -131,7 +146,8 @@ def draw_parent(cfg, n, rng):
     q_low = M.mixture_quantile(comps, pi, cfg.max_low_tail_truncated)
     shift_min = max(0.0, 1e-4 * span - q_low)
 
-    cv_target = float(10 ** rng.uniform(cfg.cv_log10_lo, cfg.cv_log10_hi))
+    cv_target = float(10 ** _truncated_normal(
+        rng, cfg.cv_log10_mean, cfg.cv_log10_sd, cfg.cv_log10_lo, cfg.cv_log10_hi))
 
     def parent_at(sh):
         # The COMPONENTS move with the bounds. Truncating the unshifted mixture

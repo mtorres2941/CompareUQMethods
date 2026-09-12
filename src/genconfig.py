@@ -114,6 +114,23 @@ class GeneratorConfig:
     the feasible boundary skewness ** 2 - 2 plus a margin. -1.2 is the uniform
     distribution, the platykurtic limit of any unimodal shape."""
 
+    position_skew: float = 5.0
+    """How component locations are spread between the two ends of the mixture.
+
+    Locations are placed at z ** position_skew for z uniform on (0, 1), before
+    the overlap solve scales the whole arrangement. At 1 the components sit
+    uniformly across the range; above 1 they cluster toward the low end with
+    the occasional far-out one, which is what a material category looks like
+    when most products are similar and a few are much more carbon intensive.
+
+    It matters because it, not the component shapes, sets the typical
+    achievable coefficient of variation. Components spread uniformly over a
+    range of width c give a mixture with mean about c/2 and standard deviation
+    about c/3.5, so a coefficient of variation near 0.57 whatever the
+    components are. That is why 47 percent of targets were unreachable at
+    position_skew = 1, and why the corpus came out centred at 0.24 against an
+    empirical 0.600."""
+
     comp_sd_log10_lo: float = -0.7
     comp_sd_log10_hi: float = 0.3
     """Component standard deviations, drawn log-uniformly relative to a common
@@ -152,10 +169,27 @@ class GeneratorConfig:
     market-weighted parent is the mixture sum_k v_k f_k. Swept."""
 
     # ---- spread, as a target rather than a side effect ---------------------
+    cv_log10_mean: float = -0.2641
+    cv_log10_sd: float = 0.2913 * 2.0
     cv_log10_lo: float = np.log10(0.004)
     cv_log10_hi: float = np.log10(3.2)
-    """Target coefficient of variation of the population parent, drawn
-    log-uniformly in this range and then solved for exactly.
+    """Target coefficient of variation of the population parent, drawn from a
+    normal in log10 truncated to [lo, hi], and then solved for exactly.
+
+    The centre and spread come from the 138 empirical datasets, whose log10
+    coefficient of variation has mean -0.2641 and standard deviation 0.2913,
+    a median coefficient of variation of 0.544. The standard deviation is
+    DOUBLED, which is what "margin beyond the empirical envelope" means here:
+    the corpus is centred where the real data are and reaches roughly twice as
+    far in each direction, so a generalizability claim has something to stand
+    on.
+
+    A log-UNIFORM draw over the same range was tried first and rejected. It
+    gives even coverage of every regime, which is attractive for the
+    metric-versus-W1 modelling in Stage 2f, but its geometric centre is 0.113
+    and the corpus came out with a median coefficient of variation of 0.071
+    against an empirical 0.600. Range coverage was 98.6 percent and the corpus
+    still did not look like the data, which is the actual requirement.
 
     This is the parameter that replaces the removed power transform. That step
     raised every value to a power drawn from U(0.9, 4.0) with an inline comment
