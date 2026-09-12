@@ -55,6 +55,10 @@ PROCESSED = ROOT / "data" / "processed"
 RTOL = 1e-6
 ATOL = 1e-12
 
+# The seed every notebook uses. The empirical weights are drawn from it, so the
+# frozen empirical table is only reproducible at this value.
+NOTEBOOK_SEED = 42
+
 # Stage 2a renamed one metric and added another. `mode_count_est` became
 # `modality_index`, which is what it measures: a continuous KDE-based modality
 # index, not a count. `crit_bw_1`, Silverman's critical bandwidth, is new.
@@ -230,27 +234,26 @@ def test_output_table_matches_fixture(name):
 # ----------------------------------------------------------------------------
 
 def test_empirical_metrics_recomputed():
-    """Drive empirical_metadata directly and compare to the frozen table."""
+    """Drive the empirical preparation path directly and compare to the frozen
+    table.
+
+    This recomputes through `empirical.prepare`, which is what notebook 1 runs:
+    log-space trimming of near-zero values, then flat-Dirichlet weights from the
+    notebook's seed, then division by the unweighted mean. Reading the stored
+    weights out of `dct_realeccs_trimmed.json` instead, as an earlier version
+    did, tested a path nothing uses any more.
+    """
+    import empirical
     from customstats import empirical_metadata
 
-    raw = load_json("dct_realeccs_trimmed.json")
     expected = pd.read_excel(FIXTURES / "TABLE_EmpiricalECCMetrics.xlsx", index_col=0)
 
-    computed = {}
-    for material in raw:
-        data = np.array(raw[material]["data"], dtype=float)
-        weights = np.array(raw[material]["weights"], dtype=float)
-        data = data / np.mean(data)
-        try:
-            computed[material] = empirical_metadata(data, weights)
-        except Exception:
-            # NB1 cell 12 swallows failures with a bare except and drops the
-            # material. Reproduced here so the row sets line up.
-            continue
+    # the notebook passes a spawned sub-stream, so this must too
+    datasets, _ = empirical.prepare(np.random.default_rng(NOTEBOOK_SEED).spawn(1)[0])
+    computed = {mat: empirical_metadata(x, w) for mat, (x, w) in datasets.items()}
 
     actual = pd.DataFrame(computed).T.loc[expected.index]
-    expected, actual = align_to_fixture(actual, expected)
-    compare_frames(expected, actual, "empirical metrics recomputed")
+    compare_frames(expected, actual[expected.columns], "empirical metrics recomputed")
 
 
 def test_synthetic_fits_and_w1_recomputed():

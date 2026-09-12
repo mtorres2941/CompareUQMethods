@@ -52,6 +52,14 @@ def prepare(rng, path=SOURCE, alpha=DIRICHLET_ALPHA, mult=CLEAN_IQR_MULT,
             min_n=3):
     """Clean, weight and normalize. Returns (datasets, report).
 
+    Pass a DEDICATED generator, `rng.spawn(1)[0]`, not the notebook's shared
+    one. The weights drawn here would otherwise depend on how many random
+    values had been consumed before this function was called, so adding a
+    figure earlier in the notebook would silently change every empirical
+    metric. A spawned generator depends only on how many times `spawn` has been
+    called, which makes the empirical datasets reproducible independently of
+    what else the notebook does.
+
     `datasets[mat]` is (values, weights) with values divided by their
     unweighted mean, matching the synthetic path exactly (decision 6).
     """
