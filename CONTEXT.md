@@ -197,12 +197,12 @@ excluded from every aggregate.
 2026-03 EC3 pull the current manuscript reports, and it is stored
 POST-cleaning, already trimmed additively at the high end.
 
-That snapshot cannot be recovered, because EC3's contents change as
-declarations are added and expire. A FRESH pull can be taken at any time: the
-API key and a documented procedure are in `../EPDsFromEC3`, and
+A fresh pull can be taken at any time and is the recommended next step: the API
+key and a documented procedure are in `../EPDsFromEC3`, and
 `../EPDsFromEC3/PULLING_EPDS.md` describes three ways a paginated pull fails
-silently. Whether to re-pull and apply the cleaning rule symmetrically from raw
-values is an open question; see `reports/MANUSCRIPT_discrepancies.md` entry 26.
+while reporting success. Working from raw values would also allow the cleaning
+rule to be applied symmetrically. See `reports/MANUSCRIPT_discrepancies.md`
+entry 26.
 
 ## 6. Output tables
 

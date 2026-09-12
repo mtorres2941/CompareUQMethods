@@ -204,11 +204,9 @@ def clean_empirical_low_end(data, mult=3.0):
     applying a log-space high bound on top of that would trim the same tail
     twice.
 
-    This is a limitation of the stored file, NOT of the data source. A fresh
-    EC3 pull would allow the symmetric rule to be applied to raw values, and
-    that pull can be taken at any time: the API key and the documented
-    procedure are in ../EPDsFromEC3. Whether to re-pull and clean
-    symmetrically is an open question recorded in
+    This is a limitation of the stored file, not of the data source. A fresh
+    EC3 pull allows the symmetric rule on raw values and is the recommended
+    next step; the API key and procedure are in ../EPDsFromEC3. See
     reports/MANUSCRIPT_discrepancies.md entry 26.
     """
     data = np.asarray(data, float)

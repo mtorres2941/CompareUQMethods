@@ -271,15 +271,16 @@ claim. See entries 3, 4 and 6.
 | **Fix** | **Text.** Report the sensitivity. See `outputs/tables/stage2a/TABLE_2a_EmpiricalCleaningSensitivity.csv`. |
 | **Status** | Open. Text. |
 
-## 26. The stored empirical file is post-cleaning, and a fresh pull is available
+## 26. Pull fresh EC3 data
 
 | | |
 |---|---|
-| **Code** | Notebook 1's empirical branch reads `'../../EPDsFromEC3/EPD_AllOfEC3'`, a path that does not exist. The working copy of that project is at `../EPDsFromEC3` and its EPD store has moved on to a different layout. |
-| **What is and is not reproducible** | The 2026-03 pull itself is not recoverable, because EC3's contents change as declarations are added and expire. The EXTRACTION is fully reproducible: the API key and a documented procedure live in `../EPDsFromEC3/PULLING_EPDS.md`, and a fresh pull can be taken whenever wanted. **An earlier version of this entry claimed the extraction could not be reproduced. That was wrong.** |
-| **Consequence, and it changed a decision** | `dct_realeccs_trimmed.json` is stored POST-cleaning, already trimmed additively at the high end. Stage 2a therefore applied only a multiplicative LOW-end bound, to avoid trimming the same tail twice. That reasoning is sound for the stored file but it is not a reason to stop there: a fresh pull would allow the symmetric log-space rule to be applied to raw values, which is the rule the cleaning sensitivity analysis says is better behaved. |
-| **Fix** | **Decide whether to re-pull.** If yes, apply the symmetric rule from raw and re-run the empirical arm; the cleaning sensitivity in `outputs/tables/stage2a/TABLE_2a_EmpiricalCleaningSensitivity.csv` says this moves `fit_norm_SW` by about 1.5 sd and `entropy` by about 1.4 sd, so it is not cosmetic. If no, state in the paper that the empirical arm begins from a stored cleaned file and give its date. Either way the dead path in notebook 1 should be corrected. |
-| **Status** | Open, and it affects both the empirical results and the Zenodo deposit. |
+| **Code** | Notebook 1's empirical branch reads `'../../EPDsFromEC3/EPD_AllOfEC3'`, a path that does not exist. The working copy of that project is at `../EPDsFromEC3` and its EPD store has moved to a different layout. That path is dead code and should be corrected or removed. |
+| **What the analysis currently uses** | `dct_realeccs_trimmed.json`, a stored 2026-03 pull, already trimmed additively at the high end before it was written. Because it is stored post-cleaning, Stage 2a could only apply a multiplicative bound to the LOW end; applying one to the high end would trim the same tail twice. |
+| **Fix** | **Take a fresh EC3 pull and use it.** The API key and a documented procedure are in `../EPDsFromEC3`, and `PULLING_EPDS.md` records three ways a paginated pull fails while reporting success. With raw values in hand, apply the symmetric log-space cleaning rule, which the sensitivity analysis prefers: the choice of rule moves `fit_norm_SW` by about 1.5 standard deviations and `entropy` by about 1.4, so it is not cosmetic. Record the pull date and the store manifest alongside the result. |
+| **Note** | There is no reason to try to reconstruct the 2026-03 snapshot. The analysis is being redone and decision 5 already accepts that the manuscript's numbers are invalidated, so current data is what is wanted. (It could be approximated by filtering on `date_of_issue` and `date_validity_ends`, but nothing needs it.) |
+| **Consequence** | Re-pulling moves every empirical number, including the headline uniform-versus-variable W1. That is expected and acceptable; it needs to happen once, deliberately, and be recorded. |
+| **Status** | Open. Recommended action, needs the author's go-ahead because it moves every empirical number. |
 
 ## 27. Component separation was far outside the empirical range
 

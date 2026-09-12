@@ -25,10 +25,10 @@ The output is written to a new, dated file. dct_realeccs_trimmed.json is never
 overwritten: it is one of the eight files in data/INPUTS.sha256 and is the
 record of the 2026-03 EC3 pull the current manuscript reports.
 
-That pull is not recoverable, because EC3's contents change as declarations are
-added and expire. The EXTRACTION is entirely reproducible: the API key and the
-documented procedure are in ../EPDsFromEC3, and a fresh pull can be taken at
-any time. The two are different claims and only the first one holds.
+A fresh pull can be taken at any time: the API key and the documented procedure
+are in ../EPDsFromEC3. Doing so is the recommended next step, because the
+stored file is already cleaned and so cannot have a different cleaning rule
+applied to it. See reports/MANUSCRIPT_discrepancies.md entry 26.
 """
 
 import json
