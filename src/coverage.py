@@ -436,3 +436,69 @@ def modality_comparison(empirical_datasets, synthetic_values, synthetic_ids,
                              empirical_share=float((emp > 1).mean()),
                              synthetic_share=float((syn > 1).mean()))
     return out, emp, syn
+
+
+# --------------------------------------------------------------------------
+def axis_scale_for(values, decade_threshold=2.0):
+    """Pick an x-axis scale for a characteristic. Returns (scale, kwargs).
+
+    Three kinds of characteristic need three different treatments, and the
+    comparison figure contains all three:
+
+      log      strictly positive and spanning more than `decade_threshold`
+               decades. Dataset size runs 3 to 9,978 and coefficient of
+               variation spans 3.7 decades; on a linear axis both collapse
+               against the left edge.
+      symlog   signed and heavy tailed. Skewness runs -53.6 to 143.6 and
+               excess kurtosis -5.99 to 6,421, so a handful of small datasets
+               set the axis and everything else is a spike at zero. symlog
+               keeps every value visible, compresses the tails, and unlike
+               clipping does not hide the disagreement that lives in them.
+      linear   everything else.
+    """
+    v = np.asarray([x for x in np.ravel(values) if np.isfinite(x)], float)
+    if v.size == 0:
+        return 'linear', {}
+    pos = v[v > 0]
+    span = (np.log10(pos.max() / pos.min()) if pos.size and pos.min() > 0 else 0.0)
+    if v.min() > 0 and span > decade_threshold:
+        return 'log', {}
+    if v.min() < 0:
+        mag = np.abs(v[v != 0])
+        if mag.size and np.log10(mag.max() / max(np.percentile(mag, 5), 1e-12)) > decade_threshold:
+            return 'symlog', {'linthresh': float(max(np.percentile(mag, 25), 1e-6))}
+    return 'linear', {}
+
+
+def ecdf(values):
+    """Step coordinates for an empirical CDF, ready to plot."""
+    v = np.sort(np.asarray([x for x in np.ravel(values) if np.isfinite(x)], float))
+    if v.size == 0:
+        return np.array([]), np.array([])
+    return v, np.arange(1, v.size + 1) / v.size
+
+
+def symlog_ticks(values, linthresh, max_per_side=3):
+    """A small, well-separated set of ticks for a symlog axis.
+
+    Matplotlib's SymmetricalLogLocator places a tick on each decade plus one at
+    the linear threshold, which collide at small panel sizes: excess kurtosis
+    spans -6 to 6,421 and the labels around zero overlap into illegibility.
+    This returns zero plus a few decades per side, chosen from the data range.
+    """
+    v = np.asarray([x for x in np.ravel(values) if np.isfinite(x)], float)
+    if v.size == 0:
+        return [0.0]
+    ticks = [0.0]
+    for sign in (1.0, -1.0):
+        side = v[v * sign > 0] * sign
+        if side.size == 0:
+            continue
+        top = int(np.floor(np.log10(side.max())))
+        bottom = int(np.ceil(np.log10(max(linthresh, side.min()))))
+        if top < bottom:
+            continue
+        decades = list(range(bottom, top + 1))
+        step = max(1, int(np.ceil(len(decades) / max_per_side)))
+        ticks += [sign * 10.0 ** d for d in decades[::step]]
+    return sorted(set(ticks))
