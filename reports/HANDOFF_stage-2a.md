@@ -197,8 +197,11 @@ the median dataset's support at 0.65 of its own mean.
 100 percent on every metric, but median coefficient of variation **0.071**.
 Covering a range is not the requirement; sitting where the data sit is.
 
-**`corpus_2026-09-11c`** (15.3 min) is the corpus in use. 10,000 datasets plus
-50 probe datasets, **0 failed parents, 0 rejected by the validity filter**.
+**`corpus_2026-09-11c`** (15.3 min) was the corpus at that point, and was in
+turn superseded twice: by `corpus_2026-09-12` when the seed changed to 42, and
+by **`corpus_2026-09-12b`, which is the corpus in use**, after the
+multimodality tuning in section 5. All are 10,000 datasets plus 50 probe
+datasets with 0 failed parents and 0 rejected by the validity filter.
 The fixes were to centre the target coefficient of variation on the empirical
 distribution rather than draw it log-uniformly, and to cluster component
 locations toward the low end (`position_skew = 5`), which is what actually
@@ -380,7 +383,7 @@ characteristic is better at the current setting.
   a literal-path scan reports as an orphan.
 - **The remaining 21 figures are all from the PRE-REGENERATION corpus** and are
   wrong as of this stage. They will be overwritten when notebooks 2 and 3 run
-  against `corpus_2026-09-11c`. Only
+  against `corpus_2026-09-12b`. Only
   `CompareUQMethods_FIG_MetricCoverage.png/.pdf` is current.
 - **The figures are enormous for a reason that is not dpi.** Measured:
 
@@ -460,13 +463,15 @@ before writing anything that talks to that API.
 
 | Item | State |
 |---|---|
-| Branch | `stage-2a-generator`, working tree clean, 20 commits |
+| Branch | `stage-2a-generator`, working tree clean, 27 commits |
 | Tests | 126 passing |
-| Active corpus | `corpus_2026-09-12`, seed 42, 10,000 + 50 probe, 0 rejected |
-| Notebook 1 | runs clean end to end; all its figures under 1 MB |
-| Notebooks 2 and 3 | not run, deliberately; notebook 3's `nmats` defect is fixed |
-| Fixtures | `TABLE_EmpiricalECCMetrics.xlsx` re-frozen; the two W1 tables still pinned to the pre-regeneration corpus, for Stage 2b |
-| `outputs/figures` | 86 MB, down from 269 MB |
+| Active corpus | `corpus_2026-09-12b`, seed 42, 10,000 + 50 probe, 0 failed parents, 0 rejected |
+| Generator tuning | mean W1 across the ten characteristics 0.354; modes 88.4 / 9.7 / 1.5 percent against an empirical 81.9 / 14.5 / 2.9 |
+| Notebook 1 | runs clean end to end against the active corpus |
+| Notebooks 2 and 3 | NOT run against it. Notebook 3's `nmats` defect is fixed. This is Stage 2b's first task |
+| Fixtures | `TABLE_EmpiricalECCMetrics.xlsx` re-frozen and checksummed; the two W1 tables still pinned to the pre-regeneration corpus, for Stage 2b |
+| `outputs/tables` | `TABLE_PLCAResults.csv` is from the pre-regeneration corpus until notebook 3 runs |
+| `outputs/figures` |  86M, 21 files, down from 269 MB and 36 files. All written by notebook 1 are under 1 MB; the rest are from the pre-regeneration corpus |
 | Baseline | `data/baseline_frozen/` verifies 8/8 |
 | `data/INPUTS.sha256` | 18 of 19 rows verify. `CORPUS.json` fails by design: it is a pointer to the active corpus and should never have been pinned |
 

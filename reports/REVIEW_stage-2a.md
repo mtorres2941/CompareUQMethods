@@ -72,16 +72,15 @@ Then look at two things on disk:
   `empirical_covered` is 1.000 on all nine statistical metrics.
 
 **The honest weak spot to look at hardest:** the synthetic median coefficient
-of variation is 0.330 against an empirical 0.600. The ranges overlap fully and
-the synthetic corpus reaches further at both ends, but its centre of mass sits
-lower. I could not close that gap without breaking the `Q3 + 3*IQR` cleaning
-rule that the empirical data also obey. **If that bothers you, it is a real
-finding and Stage 2h should sweep `trunc_iqr_mult`.**
+of variation is 0.487 against an empirical 0.593, the largest remaining
+disagreement after modality. The `Q3 + 3*IQR` cleaning rule, which the
+empirical data also obey, caps how much right tail can survive. Stage 2h should
+sweep `trunc_iqr_mult`.
 
-Also worth your eye: `skewness` runs to -95 and +42 in the synthetic corpus
-against -1.4 to +4.6 empirically. That is small-sample noise at n = 3 to 9, not
-the generator inventing exotic shapes, but you should decide whether that much
-margin is what you want.
+Also worth your eye: skewness and kurtosis reach much further in the synthetic
+corpus than the empirical one. That is small-sample noise at n = 3 to 9 rather
+than the generator inventing exotic shapes, but you should decide whether that
+much margin is what you want.
 
 ---
 
@@ -99,16 +98,18 @@ and why, in prose, before any code.
    derives from, what the corpus achieved. The last column is read back from
    the per-dataset record, so a setting that was asked for and missed shows up.
 3. **`src/generator.py`**, function `draw_parent` - the 40 lines that build one
-   dataset's parent. The long comment block in the middle explains the two
-   wrong ways I placed the mixture before getting it right.
+   dataset's parent. The comment block in the middle explains the two wrong
+   ways the mixture was placed before this one.
 4. **`src/components.py`** - the docstring explains why four distribution
    families are needed rather than three.
 5. **`src/mixture.py`**, function `_pair_overlap` - only if you want to see the
    overlap calculation.
 
-**What to push on:** `position_skew = 5` and `cv_log10_sd = 0.2913 * 2.0` are
-the two parameters I chose by fitting to your empirical data rather than
-deriving from anything. They are the most arguable things in the stage.
+**What to push on:** `overlap_log10_lo/hi`, `cv_log10_mean`, `cv_log10_sd` and
+`position_skew` were all set by fitting to the empirical distributions with
+`audits/stage2a/b5_tune_configuration.py` rather than derived from anything.
+That is the intended process, but they are the most arguable numbers in the
+stage and the tuning loop is the thing to re-run if any of them look wrong.
 
 ---
 
