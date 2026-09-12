@@ -1,7 +1,7 @@
 metric_x,metric_y,empirical_covered,n_uncovered,uncovered
-coeffvar,skewness,1.0,0,
-coeffvar,crit_bw_1,0.9927536231884058,1,Elevators
+coeffvar,skewness,0.9855072463768116,2,Chairs|Elevators
+coeffvar,crit_bw_1,0.9710144927536232,4,Aggregates|AluminiumSuspensionAssembly|Chairs|Elevators
 skewness,kurtosis,1.0,0,
 n,w_v_uw_wasserstein,0.9927536231884058,1,ReadyMix
-entropy,weight_outliers,1.0,0,
-fit_norm_SW,fit_lognorm_SW,1.0,0,
+entropy,weight_outliers,0.9927536231884058,1,InsulatingGlazingUnits
+fit_norm_SW,fit_lognorm_SW,0.9710144927536232,4,Aggregates|AluminiumSuspensionAssembly|Chairs|Elevators

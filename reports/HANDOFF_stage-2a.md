@@ -283,72 +283,63 @@ and computes both directions of a pair together.
 | `weighted_quantile` must stay fixed before Silverman in 2h | 2h | STILL OPEN |
 | Entry 13, support (0, inf), needs author confirmation | - | **STILL OPEN.** Stage 2a built on it |
 
-### START HERE: the corpus is far too multimodal
+### The multimodality mismatch, found and fixed
 
-**Fix this before anything else. The corpus should not be analysed until it is
-settled.**
+**Resolved.** Recorded in full because the way it was missed matters more than
+the fix.
 
-The author asked why component separation was being controlled at all, since
-modes in real data are expected to overlap. The question exposed a bigger
-error, now measured.
+**What happened.** The author asked why multimodality was not being compared
+between the two arms, since that comparison is the point of the approach and
+was already part of the analysis. It was. The comparison figure,
+`CompareUQMethods_SUPP_GeneratedVsEmpiricalMetrics.png`, was generated, saved
+and committed, and its Modality Index panels showed the synthetic distribution
+running out to 3.5 against an empirical spike at 1.0. **The output was not
+examined.** This was not a missing feature or a missing metric; the structure
+of the analysis was correct and its result was ignored.
 
-**Modes actually present, by Silverman's test:**
+**What was wrong.** Modes present, by Silverman's test, before the fix:
+empirical 83.3 percent unimodal against synthetic 44.5 percent, with 9.7
+percent of the corpus showing six or more modes, which never occurs in the
+empirical data. Every range-coverage statistic read 100 percent throughout,
+because the modality characteristics sat inside the empirical range while their
+DISTRIBUTION was wrong.
 
-| Modes | Empirical (138) | Synthetic (sampled) |
-|---|---|---|
-| 1 | **83.3%** | 44.5% |
-| 2 | 15.2% | 31.9% |
-| 3 | 1.4% | 11.3% |
-| 4 or more | **0%** | 12.3% |
-| multimodal | **16.7%** | **55.5%** |
+**The fix.** Components are now meant to MERGE. Overlap moved from a log-uniform
+on [1e-3.5, 0.75] to [0.3, 1.4]. Heavily overlapping components produce one
+smooth right-skewed mode, which is what a material category with several
+production routes of similar intensity looks like. `k` stays uniform on 1 to 5
+per the author's instruction; with high overlap it becomes latent richness
+rather than visible modes. The coefficient-of-variation centre also moved up
+0.24 dex, because the target is a POPULATION value while the characteristic
+matched is the SAMPLE one, which runs low for right-skewed data.
 
-Real ECC datasets are overwhelmingly unimodal and none of the 138 has more than
-three modes. The corpus is 55 percent multimodal and 9.7 percent of it has six
-or more. This is the largest single mismatch between the two arms and it was
-not caught by any coverage statistic, because `modality_index` and `crit_bw_1`
-both fall inside the empirical range while their DISTRIBUTION is wrong.
+**Result on the full corpus** (`corpus_2026-09-12b`):
 
-**Three errors behind it, in order of size.**
+| | empirical | synthetic before | synthetic after |
+|---|---|---|---|
+| unimodal | 81.9% | 44.5% | 88.4% |
+| multimodal | 18.1% | 55.5% | 11.6% |
+| 4 or more modes | 0.7% | 12.3% | 0.4% |
+| mean W1 across characteristics | - | 0.613 | **0.354** |
+| worst characteristic | - | fit_lognorm_SW 1.69 | kurtosis 0.67 |
 
-1. **The wrong quantity was controlled.** What matters is how many modes a
-   dataset appears to have. Stage 2a controlled pairwise component overlap,
-   which is a property of the generator rather than of the data, and never
-   checked visible modality against the empirical arm until the author asked.
-2. **The empirical overlap target was an artifact of the measurement.** The
-   "empirical median overlap 0.0330" in
-   `outputs/tables/stage2a/TABLE_2a_OverlapComparison.csv` came from fitting
-   Gaussian mixtures by BIC. BIC adds a component only when it is separated
-   enough to pay for itself, so that procedure is biased toward reporting low
-   overlap. The generator was calibrated to a property of the fitting routine.
-   **Do not reuse that number.**
-3. **`k` is drawn uniformly on 1 to 5**, so 80 percent of datasets get two or
-   more components, against 17 percent of empirical datasets showing more than
-   one mode.
+**What was added so this is harder to repeat.**
 
-**The fix.** Keep the components: they are how the mixture produces skewness
-and heavy tails, and they are worth keeping as latent structure. Change what is
-targeted:
+- `coverage.distribution_comparison` scores every characteristic by the
+  Wasserstein-1 distance between the two distributions on the empirical scale,
+  plus a KS statistic. Range coverage is no longer the only summary.
+- `coverage.modality_comparison` reports the mode-count distribution of both
+  arms side by side.
+- Both are now cells in notebook 1, so the comparison is standard output rather
+  than something to remember to run.
+- `audits/stage2a/b5_tune_configuration.py` is the tuning loop: sample a
+  candidate configuration, score every characteristic against the 138 empirical
+  datasets, report the worst. **Re-run it after any generation change.**
 
-- Target **high** overlap, so components merge into a single visible mode.
-  Heavily overlapping components are what make a four-component mixture look
-  like one skewed hump, which is what a material category with several
-  production routes of similar intensity looks like.
-- Calibrate against the **83 / 15 / 1 mode distribution** measured above, not
-  against any overlap number. Silverman's test is already implemented in
-  `src/modality.py` and is fast enough to use inside a calibration loop
-  (0.8 ms per dataset, independent of n).
-- Once modality matches, component count stops needing to be right directly,
-  so `k` can stay uniform unless the calibration says otherwise.
-
-The average-versus-maximum overlap question that an earlier version of this
-section raised is now secondary. It is real - with more than two modes the
-average is dominated by the far-apart pairs, measured as
-`k=5 average 0.0113, pairs [0.1134, 0, 0, 0, 0, 0, 0, 0, 0, 0]` - but it only
-matters if overlap targeting is kept at all.
-
-**After regenerating, check
-`outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png` and the
-mode-count table above before looking at anything else.**
+**Still slightly off, and left for the author's judgment:** the corpus is now
+marginally UNDER-multimodal, 11.6 percent against 18.1. Nudging the overlap
+lower bound down a little would close it; it was left alone because every other
+characteristic is better at the current setting.
 
 ### New in Stage 2a
 
@@ -473,14 +464,7 @@ mode-count table above before looking at anything else.**
 
 ## 7. Next stage
 
-**Not Stage 2b yet.** Finish Stage 2a first: the multimodal realism defect at
-the top of section 5 needs one decision and one regeneration, and the corpus
-should not be analysed until it is settled. Expect roughly an hour: pick the
-overlap statistic, re-measure the empirical target under it, regenerate (15
-minutes), and look at
-`outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png` again.
-
-**Then Stage 2b, the lognormal.** Threshold pathology, the +0.5 offset,
+**Stage 2b, the lognormal.** Threshold pathology, the +0.5 offset,
 two-parameter versus profile-likelihood versus gamma, and W1-optimal fitting
 alongside MLE.
 

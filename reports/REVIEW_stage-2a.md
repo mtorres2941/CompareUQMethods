@@ -11,20 +11,23 @@ do if you only do two.
 
 ## Read this first
 
-**The corpus has a known defect and should not be used for analysis yet: it is
-far too multimodal.** 83.3 percent of the 138 empirical datasets have a single
-mode and none has more than three; the corpus is 55.5 percent multimodal and
-9.7 percent of it has six or more modes. No coverage statistic caught this,
-because the modality metrics fall inside the empirical range while their
-distribution is wrong. See "START HERE" in `reports/HANDOFF_stage-2a.md`
-section 5 for the three errors behind it and the fix.
+The generator is tuned by comparing the DISTRIBUTION of every statistical
+characteristic between the two arms, not by checking that the synthetic range
+contains the empirical values. Mean Wasserstein-1 distance across the ten
+characteristics is 0.354, in empirical standard deviations. Mode counts:
+81.9 / 14.5 / 2.9 percent for one, two and three modes empirically, against
+88.4 / 9.7 / 1.5 synthetic.
 
-Look at `outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png`
-before anything else. Ten datasets per size stratum. The unimodal ones look
-right; judge the multimodal ones for yourself.
+Three things to look at first, in this order:
 
-Everything below still applies to the machinery, which is sound and tested.
-Only the setting of one generation parameter is wrong.
+1. `outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png` - ten
+   datasets per size stratum, each against the distribution it came from.
+2. `outputs/tables/TABLE_DistributionComparison.csv` - every characteristic,
+   worst first.
+3. `outputs/tables/TABLE_ModalityComparison.csv` - mode counts, both arms.
+
+`audits/stage2a/b5_tune_configuration.py` is the tuning loop. Re-run it after
+any change to generation.
 
 ## Pass 1: the claims, before any code (20 min)
 
