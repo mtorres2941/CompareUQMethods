@@ -305,6 +305,43 @@ def _solve_betaprime(abs_skew, exkurt):
 # --------------------------------------------------------------------------
 # the public entry point
 # --------------------------------------------------------------------------
+#: A component whose density is unbounded at an endpoint is a spike, not a mode.
+#:
+#: beta with a < 1 has pdf -> infinity at its lower endpoint, b < 1 at its upper
+#: one, and beta-prime with a < 1 at zero. Such a component is J-shaped or
+#: U-shaped: it has a perfectly ordinary mean, standard deviation, skewness and
+#: kurtosis, and a density that goes to infinity. Placed in a mixture it draws as
+#: a vertical spike.
+#:
+#: This was found by the author looking at the generation figure, twice, after
+#: two rounds of audits missed it. The audits missed it because they measured the
+#: wrong things: value concentration (a J-shaped density still spreads its values
+#: across a range) and component standard deviation (finite and unremarkable for
+#: a J shape). Neither can see an unbounded density. In corpus_2026-09-12f_draft1k
+#: 11.3 percent of all components were J-shaped: 75.8 percent of the beta
+#: components and 84.5 percent of the beta-primes, the latter with a median
+#: shape parameter of 0.489.
+#:
+#: Requiring a >= 1 and b >= 1 restricts the reachable (skewness, kurtosis)
+#: region, so some targets become unreachable. That is handled the way every
+#: other unreachable target is: the status is returned, the caller redraws, and
+#: the count is recorded. Nothing is silently substituted.
+MIN_BOUNDED_SHAPE = 1.0
+
+
+def has_bounded_density(family, shape):
+    """Is this standardized shape's density finite everywhere?"""
+    if family == 'beta':
+        return shape[0] >= MIN_BOUNDED_SHAPE and shape[1] >= MIN_BOUNDED_SHAPE
+    if family == 'betaprime':
+        return shape[0] >= MIN_BOUNDED_SHAPE
+    if family == 'lognorm':
+        return True          # unimodal with pdf -> 0 at both ends
+    if family == 'johnsonsu':
+        return True          # support is the whole line, density bounded
+    return True
+
+
 def solve_component(skew, exkurt, mean=0.0, sd=1.0):
     """Return (family, shape, loc, scale, status) hitting the moment target.
 
@@ -320,6 +357,9 @@ def solve_component(skew, exkurt, mean=0.0, sd=1.0):
                                driving beta toward a U shape with a, b << 1
         unsolved               inside the feasible region but no solver
                                converged; the caller decides what to do
+        unbounded_density      a solution exists and its density is infinite at
+                               an endpoint, which draws as a spike rather than a
+                               mode. See has_bounded_density
 
     Nothing here silently substitutes a different target. A 'degenerate' or
     'unsolved' status is returned for the caller to record and act on, which is
@@ -348,11 +388,15 @@ def solve_component(skew, exkurt, mean=0.0, sd=1.0):
         got = _solve_betaprime(abs(skew), exkurt)
         if got is None:
             return None, None, None, None, 'unsolved'
+        if not has_bounded_density('betaprime', got):
+            return None, None, None, None, 'unbounded_density'
         return _place('betaprime', got, skew, mean, sd)
 
     got = _solve_beta(skew, exkurt)
     if got is None:
         return None, None, None, None, 'unsolved'
+    if not has_bounded_density('beta', got):
+        return None, None, None, None, 'unbounded_density'
     return _place('beta', got, 1.0, mean, sd)
 
 
@@ -450,6 +494,10 @@ class _Reflected:
     def ppf(self, q):
         return -self._d.isf(np.asarray(q, float))
 
+    def std(self):
+        # Reflection negates the mean and leaves the spread alone.
+        return float(np.sqrt(self._d.stats(moments='v')))
+
     def stats(self, moments='mv'):
         m, v = self._d.stats(moments='mv')
         return -float(m), float(v)
@@ -477,3 +525,16 @@ class _Affine:
     def ppf(self, q):
         return self.loc + self.scale * np.asarray(self._d.ppf(np.asarray(q, float)),
                                                   dtype=float)
+
+    def std(self):
+        # scale * sd(standardized shape). NOT `scale` on its own: the wrapped
+        # shape does not have unit variance, so the two differ by the shape's
+        # own spread, measured between 0.31 and 2.11 times across four sample
+        # targets. An earlier version returned abs(self.scale) and was wrong by
+        # up to a factor of three; it was caught by a one-line sanity check
+        # comparing the returned value against the requested standard
+        # deviation, which is worth keeping in mind for the other wrappers.
+        inner = self._d
+        sd = (inner.std() if hasattr(inner, 'std')
+              else np.sqrt(float(inner.stats(moments='v'))))
+        return abs(self.scale) * float(sd)

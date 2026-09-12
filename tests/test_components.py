@@ -43,7 +43,8 @@ def test_moment_target_is_hit_exactly(skew, exkurt):
     mean, sd = 3.25, 0.8
     fam, shape, loc, scale, status = C.solve_component(skew, exkurt, mean=mean, sd=sd)
     if status != 'ok':
-        assert status in ('infeasible_boundary', 'degenerate', 'unsolved')
+        assert status in ('infeasible_boundary', 'degenerate', 'unsolved',
+                          'unbounded_density')
         if status == 'infeasible_boundary':
             assert exkurt < skew ** 2 - 2 + C.BOUNDARY_MARGIN
         return
@@ -134,3 +135,46 @@ def test_gamma_line_is_consistent_with_the_gamma():
         _, _, skew, exkurt = stats.gamma.stats(a, moments='mvsk')
         assert float(C.gamma_excess_kurtosis(float(skew))) == pytest.approx(
             float(exkurt), rel=1e-9)
+
+
+# ---------------------------------------------------------------------------
+# A component must be a mode, not a spike.
+# ---------------------------------------------------------------------------
+
+def test_no_accepted_component_has_an_unbounded_density():
+    """A J-shaped or U-shaped component is a density singularity, not a mode.
+
+    beta with a < 1 or b < 1, and beta-prime with a < 1, have a density that
+    goes to infinity at an endpoint. Their mean, standard deviation, skewness
+    and kurtosis are all perfectly ordinary, which is why two rounds of audits
+    measuring exactly those quantities did not notice that 11.3 percent of the
+    corpus's components were shaped like that. It shows up immediately in a
+    density plot, and it is what the author saw.
+    """
+    rng = np.random.default_rng(0)
+    checked = 0
+    for _ in range(1500):
+        skew = float(rng.uniform(-4, 9))
+        exk = float(rng.uniform(-1.2, 60))
+        floor = skew ** 2 - 2.0 + C.BOUNDARY_MARGIN
+        if exk < floor:
+            exk = floor + 1e-9
+        fam, shape, loc, scale, status = C.solve_component(skew, exk)
+        if status != 'ok':
+            continue
+        checked += 1
+        assert C.has_bounded_density(fam, shape), (
+            f'{fam} shape={shape} accepted with an unbounded density '
+            f'(skew={skew:.3f}, exkurt={exk:.3f})')
+    assert checked > 200, f'only {checked} components accepted; test is vacuous'
+
+
+def test_bounded_density_predicate_is_right_about_the_families():
+    assert not C.has_bounded_density('beta', (0.5, 3.0))
+    assert not C.has_bounded_density('beta', (3.0, 0.5))
+    assert C.has_bounded_density('beta', (1.0, 1.0))
+    assert C.has_bounded_density('beta', (2.0, 5.0))
+    assert not C.has_bounded_density('betaprime', (0.5, 8.0))
+    assert C.has_bounded_density('betaprime', (1.0, 8.0))
+    assert C.has_bounded_density('lognorm', (0.4,))
+    assert C.has_bounded_density('johnsonsu', (-0.1, 1.0))

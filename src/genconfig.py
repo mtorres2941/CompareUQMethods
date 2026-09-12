@@ -329,6 +329,53 @@ class GeneratorConfig:
     percent of datasets unable to reach their target; 0.15 leaves the median
     dataset discarding 0.0002 of its mass and the 95th percentile 0.157."""
 
+    min_mode_sd_frac: float = 0.15
+    """Narrowest component standard deviation, as a fraction of the parent's
+    own standard deviation. A parent below this is redrawn.
+
+    This is a floor on how tight a mode may be RELATIVE TO THE DATASET IT SITS
+    IN, which is what makes a mode look like a spike in a density plot. An
+    absolute floor would be meaningless, since every dataset is divided by its
+    own mean and the spreads differ by orders of magnitude.
+
+    It exists because the author looked at the generation figure and said the
+    modes were unreasonably tight, twice. Two things were producing that, and
+    they are different:
+
+      - components with an UNBOUNDED density, beta with a < 1 or b < 1 and
+        beta-prime with a < 1, which are genuine singularities rather than
+        narrow modes. Those are refused outright in
+        components.has_bounded_density, not by this parameter.
+      - components that are legitimately narrow but placed far apart, which is
+        what this parameter catches.
+
+    Measured on corpus_2026-09-12g_draft1k, which had the singularities fixed
+    but no width floor, the narrowest mode as a fraction of the dataset's own
+    spread ran p01 0.040, p05 0.085, p25 0.210, median 0.475. It is entirely a
+    low-overlap effect, because the overlap solve moves the component LOCATIONS
+    and leaves their widths alone, so a low overlap target spreads fixed-width
+    components across a wider dataset:
+
+        achieved overlap   median ratio   share under 0.10
+        under 0.01             0.143           29.3%
+        0.01 to 0.03           0.218           15.1%
+        0.03 to 0.1            0.272            8.2%
+        0.1 to 0.3             0.442            0.6%
+        over 0.3               0.820            0.0%
+
+    Rejecting on the ratio is preferred to raising overlap_log10_lo because it
+    removes only the offending cases: a low-overlap parent whose components
+    happen to be wide is fine and is kept.
+
+    There is NO reliable empirical target for this. The comparable empirical
+    quantity has to come from a fitted mixture, and that estimate is
+    unusable here for two compounding reasons: gmm_em_1d floors every variance
+    at reg = 1e-6, and 39.7 percent of the empirical datasets sit exactly on
+    that floor because real EPD data contains piles of identical declarations,
+    which a Gaussian mixture answers with a degenerate component. So 0.15 is a
+    judgment, not a measurement, and it is recorded as one. Stage 2h should
+    sweep it."""
+
     # ---- truncation --------------------------------------------------------
     overlap_statistic: str = 'min_adjacent'
     """Which overlap statistic the spread solve holds to the target.
@@ -441,6 +488,11 @@ class GeneratorConfig:
 
     # ---- reproducibility ---------------------------------------------------
     seed: int = 42
+    max_parent_retries: int = 20
+    """How many times a parent may be redrawn when it is rejected for having a
+    mode narrower than `min_mode_sd_frac`. A rejection is a redraw of the whole
+    parent, not a nudge of the one that failed, so the accepted parents are a
+    clean conditional sample rather than a distorted one."""
     max_component_retries: int = 12
     """A moment target can be infeasible or numerically degenerate. The
     generator redraws the target that many times and records how often it had

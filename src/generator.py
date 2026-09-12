@@ -195,6 +195,23 @@ def draw_parent(cfg, n, rng):
     parent = M.MixtureParent(comps, pi, market, lo, hi, cfg.mode_coupling)
     m_fin, sd_fin = parent.truncated_moments()
     cv_achieved = (sd_fin / m_fin) if m_fin > 0 else np.nan
+
+    # A mode much narrower than the dataset it sits in draws as a spike. The
+    # overlap solve moves LOCATIONS and leaves component widths alone, so a low
+    # overlap target spreads fixed-width components over a wider parent and can
+    # produce exactly that. Reject and let the caller redraw; see
+    # genconfig.min_mode_sd_frac.
+    # No getattr fallback here. If a component cannot report its own standard
+    # deviation that is a defect to surface, not a NaN to skip the check with:
+    # an earlier version swallowed it and the floor silently never fired.
+    comp_sds = [float(d.std()) for d in parent.comps]
+    narrowest = min(comp_sds) if comp_sds and np.all(np.isfinite(comp_sds)) else np.nan
+    mode_sd_frac = (narrowest / sd_fin) if (sd_fin and sd_fin > 0) else np.nan
+    if np.isfinite(mode_sd_frac) and len(parent.comps) > 1 \
+            and mode_sd_frac < cfg.min_mode_sd_frac:
+        return None, dict(status='mode_too_narrow', k=k,
+                          mode_sd_frac=float(mode_sd_frac),
+                          overlap_achieved=overlap)
     record = dict(status='ok', k=k, overlap_target=target, overlap_achieved=overlap,
                   overlap_statistic=cfg.overlap_statistic,
                   overlap_avg=float(M.average_overlap(comps, pi)) if k > 1 else 0.0,
@@ -205,6 +222,8 @@ def draw_parent(cfg, n, rng):
                   components=specs, pi=pi.tolist(), market=market.tolist(),
                   shift=shift, lo=lo, hi=hi,
                   cv_target=cv_target, cv_achieved=cv_achieved,
+                  mode_sd_frac=float(mode_sd_frac) if np.isfinite(mode_sd_frac)
+                  else None,
                   cv_status=cv_status, shift_min=shift_min,
                   floor_ratio_achieved=(lo / m_fin) if m_fin > 0 else np.nan,
                   truncated_mass=parent.truncated_mass(),
@@ -274,6 +293,10 @@ class _Shifted:
     def ppf(self, q):
         return self._d.ppf(q) + self.shift
 
+    def std(self):
+        # A shift moves the distribution and leaves its spread alone.
+        return float(self._d.std())
+
 
 # --------------------------------------------------------------------------
 def draw_weights(parent, modes, cfg, rng):
@@ -309,7 +332,13 @@ def generate_dataset(cfg, n, rng):
     compute that and cannot compute a market-weighted mean. The divisor is in
     the record, so the parent is still exactly specified.
     """
-    parent, record = draw_parent(cfg, n, rng)
+    parent, record, parent_retries = None, None, 0
+    for parent_retries in range(cfg.max_parent_retries):
+        parent, record = draw_parent(cfg, n, rng)
+        if parent is not None:
+            break
+        if record.get('status') != 'mode_too_narrow':
+            break          # a real failure, not a rejected draw: do not retry
     if parent is None:
         return None, None, record
     x, modes = parent.sample(n, rng)
@@ -317,6 +346,7 @@ def generate_dataset(cfg, n, rng):
     record = dict(record)
     record['n'] = int(n)
     record['normalizer'] = parent.normalizer
+    record['parent_retries'] = int(parent_retries)
     record['mode_counts'] = np.bincount(modes, minlength=len(parent.comps)).tolist()
     return x, w, record
 
