@@ -536,6 +536,89 @@ read 100 percent throughout. **Produce the picture before the table, look at
 it, and check the DISTRIBUTION of each characteristic rather than only its
 range.**
 
+## 7c. Read this before starting Stage 2b
+
+Written for a session that has not seen any of the above. Read `reports/` in
+full first, then this.
+
+### Stage 2a is closed. Do not regenerate.
+
+`corpus_2026-09-12b` is settled and tuned. Regenerating changes every number
+downstream for no gain. The generator configuration in `src/genconfig.py` was
+arrived at by measurement and every field's docstring says which measurement.
+If a Stage 2b question seems to need a generation change, it is out of scope:
+write it in the handoff and carry on.
+
+### The failure that mattered most in this stage, so it is not repeated
+
+**The analysis compared the two arms correctly and the comparison was ignored.**
+The supplementary figure was generated, saved and committed with the
+multimodality mismatch plainly visible in its panels, and the coverage tables
+reported 100 percent because they measured the wrong thing. A corpus three
+times too multimodal shipped and was described as good.
+
+Three habits follow, and they are cheap:
+
+1. **Look at the output you just produced.** Open the figure. Read the table.
+   The author caught four separate problems this way and no statistic caught
+   any of them.
+2. **Compare DISTRIBUTIONS, not ranges.** "The empirical values fall inside the
+   synthetic range" reads 100 percent while the distribution sits somewhere
+   else entirely inside that range. `coverage.distribution_comparison` is the
+   right summary; it is already in notebook 1.
+3. **Test at 300 datasets before running 10,000.** The tuning loop
+   (`audits/stage2a/b5_tune_configuration.py`) scores a candidate in about 50
+   seconds. A full regeneration is 12 to 15 minutes. One full run in this stage
+   was launched with no prior check and wasted 32 minutes.
+
+### How the author works, and what they expect
+
+- **The notebooks are the analysis.** They must read as a final report:
+  no changelog language, no mention of stages, no "old" or "new" anything, no
+  commented-out blocks left lying around. Explain what the method IS.
+- **Plain language in the notebooks.** Short sentences saying what is happening
+  and why, before the code that does it.
+- **They will ask why something exists.** Those questions are not idle. In this
+  stage they exposed a 65 percent performance bug, an overlap calculation that
+  was wrong by 0.070 in absolute probability, a corpus that did not resemble
+  the data on its most important characteristic, and finally the fact that the
+  whole overlap parameterization was controlling the wrong quantity. **Treat a
+  question about a design choice as a likely defect report.**
+- **Do not restate the author's own design back to them as a discovery.** The
+  iterative tune-against-the-empirical-distribution loop is theirs and predates
+  this work.
+- Answer with measurements, not reassurance. If something is wrong, say which
+  number, by how much, and why.
+
+### The first three tasks of Stage 2b
+
+1. **Run notebooks 2 and 3 against `corpus_2026-09-12b`.** They have never been
+   run against the final corpus. Notebook 1 runs clean. Use
+   `COMPAREUQ_SMOKE_COMBOS=20` on notebook 3 first: it caught a real
+   `NameError` in this stage in seconds, where a full run takes 11 minutes to
+   fail. Expect both to be slower than their Stage 1 timings, because stratum 4
+   reaches n = 9,978 where the old corpus stopped at 749.
+2. **Re-freeze `TABLE_EmpiricalECCMetricsAndW1.xlsx` and
+   `TABLE_SyntheticECCMetricsAndW1.xlsx`**, which are still pinned to the
+   pre-regeneration corpus, and update `tests/fixtures/SHA256SUMS.txt`. Record
+   the deltas in the commit message.
+3. **Then the lognormal**: threshold pathology, the +0.5 offset, two-parameter
+   versus profile-likelihood versus gamma, W1-optimal fitting alongside MLE.
+
+`corpus.load_parents()` gives, per dataset, everything needed to rebuild the
+distribution it was drawn from. Stage 2c depends on that; Stage 2b can use it
+to ask whether a lognormal fit is recovering the parent or the sample.
+
+### Open items needing the author, carried into 2b
+
+| Item | Why it needs them |
+|---|---|
+| The corpus is marginally UNDER-multimodal, 11.6 percent against 18.1 | Nudging the overlap lower bound closes it at some cost to the other characteristics. A judgment call, not a defect |
+| Decision 13, ECC support is (0, inf) open at zero | Stated in conversation in Stage 1, never confirmed in a prompt, and Stage 2a built on it |
+| The empirical extraction cannot be reproduced | The EC3 directory notebook 1 read is gone; `dct_realeccs_trimmed.json` is post-cleaning. Affects the Zenodo deposit. Discrepancy entry 26 |
+| Whether more of the generator belongs in the notebook | The author objected that generation happened only in `src/`. Notebook 1 now generates and inspects visibly, but the body of `draw_parent` is still in `src/` where it is tested |
+| `TABLE_PLCAResults.csv` and 20 of 21 figures are from the old corpus | They are regenerated by task 1 above |
+
 ## 8. Stage 2a assessment against the Stage 0 baseline
 
 | Axis | Stage 0 | Stage 1 | Now | What changed |
@@ -550,9 +633,9 @@ range.**
 | Version control and hygiene | 4 | 8 | 8 | Baseline frozen and verified before any destructive step |
 | Statistical implementation judgment | 5 | 5 | 8 | Component shapes are moment targets, overlap and spread are specified and solved for, modality has a principled statistic, the parent is closed form |
 
-Three things in this stage were caught only because the author interrupted to
-ask why something was slow or what a number meant. The `brentq` bottleneck, the
-overlap accuracy bug behind it, and the fact that the first corpus did not
-resemble the empirical data on its most important metric were all surfaced that
-way. The lesson for later stages is to state what a number means and what it is
-being compared against at the time it is produced.
+Five things in this stage were caught only because the author interrupted to
+ask why something was slow, what a number meant, or why a parameter existed. The `brentq` bottleneck, the overlap accuracy bug behind it, the first corpus
+not resembling the empirical data on its coefficient of variation, the
+multimodal datasets looking wrong in a figure, and finally the overlap
+parameterization controlling the wrong quantity entirely. **No statistic
+produced in this stage caught any of them.** The lesson is in section 7c.
