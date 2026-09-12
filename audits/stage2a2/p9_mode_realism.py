@@ -29,8 +29,12 @@ objection contains two distinct claims.
                  0.0010 is the regularizer, not a measurement, and must not be
                  used as a target.
 
-  min_overlap    the SMALLEST pairwise overlap in the mixture, against the
-                 AVERAGE, which is what the generator controls. This is the
+  min_adj_overlap  the smallest overlap between ADJACENT components, against
+                 the average. Adjacent, not all pairs: in one dimension the
+                 outermost pair of a five-component mixture is legitimately far
+                 apart, so the all-pairs minimum reads 0.0000 on BOTH arms and
+                 cannot distinguish them. An earlier version of this script
+                 reported the all-pairs minimum and was useless for that reason. This is the
                  known defect recorded in data/INPUTS.sha256 for
                  corpus_2026-09-12: average pairwise overlap barely constrains
                  the modes that actually touch once k > 2, because a few
@@ -121,7 +125,9 @@ def bic_overlaps(x, rng, kmax=5):
         comps = [stats.norm(loc=m, scale=max(s, 1e-9)) for m, s in zip(mu, sd)]
         ovs = pairwise_overlaps(comps, np.asarray(pi, float))
         row.update(avg_overlap=float(np.mean(ovs)),
-                   min_overlap=float(np.min(ovs)))
+                   min_overlap=float(np.min(ovs)),
+                   min_adj_overlap=float(
+                       M.min_adjacent_overlap(comps, np.asarray(pi, float))))
     return row
 
 
@@ -170,8 +176,9 @@ if __name__ == '__main__':
     print(q(e.median_mode_cv, 'median mode CV'))
     if 'min_overlap' in e:
         m = e[e.k > 1]
-        print(q(m.min_overlap, 'smallest pairwise overlap'))
+        print(q(m.min_adj_overlap, 'smallest ADJACENT overlap'))
         print(q(m.avg_overlap, 'average pairwise overlap'))
+        print(q(m.min_overlap, '  (all-pairs min, uninformative)'))
     for thr in (0.05, 0.01):
         print(f'  share with a mode CV below {thr}: '
               f'{100*(e.min_mode_cv < thr).mean():5.1f}%')
@@ -199,11 +206,12 @@ if __name__ == '__main__':
         om = o[o.k > 1] if 'min_overlap' in o else o.iloc[0:0]
         if len(om):
             o = om
-            print(q(o.min_overlap, 'smallest pairwise overlap'))
+            print(q(o.min_adj_overlap, 'smallest ADJACENT overlap'))
             print(q(o.avg_overlap, 'average pairwise overlap'))
-            print('  by k, median smallest vs median average pairwise overlap:')
+            print('  by k, median smallest ADJACENT vs median average:')
             for kk, g in o.groupby('k'):
-                print(f'    k={kk}  n={len(g):>4}   min {g.min_overlap.median():.5f}'
+                print(f'    k={kk}  n={len(g):>4}   '
+                      f'min_adj {g.min_adj_overlap.median():.5f}'
                       f'   avg {g.avg_overlap.median():.5f}')
         s.to_csv(os.path.join(TABLES, f'TABLE_2a2_ModeRealism_{lab}.csv'),
                  index=False)

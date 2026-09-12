@@ -87,7 +87,7 @@ class GeneratorConfig:
     rng.integers(1, 6)."""
 
     # ---- component separation, as overlap ----------------------------------
-    overlap_log10_lo: float = -2.0
+    overlap_log10_lo: float = -2.5
     overlap_log10_hi: float = np.log10(0.9)
     """Target average pairwise overlap, drawn log-uniformly in this range and
     then solved for by moving the component locations (Maitra and Melnykov
@@ -122,14 +122,43 @@ class GeneratorConfig:
     the [0.3, 1.4] range that had been tuned in. Two independent measurements
     say the same thing, and both were wrong before for the same reason.
 
-    Measured sweep of the lower bound on the 2026-08 arm, at the coefficient of
-    variation centre below, reporting the weighted objective, the mode-count
-    total variation distance and the unimodal share:
+    Measured sweep of the range, targeting the MINIMUM ADJACENT overlap, on the
+    2026-08 arm, scored with EQUAL weight on every characteristic:
 
-        lower bound   objective   mode TV   unimodal
-        0.3 (2a)        0.4953      0.358      85.1%
-        1e-1.5          0.4524      0.167      63.1%
-        1e-2.5          0.4261      0.088      49.5%
+        range              objective   mode TV   unimodal   fit_lognorm_SW
+        [1e-1.5, 0.9]        0.4748     0.216      69.5%        1.047
+        [1e-2.0, 0.9]        0.4541     0.112      59.3%        1.052
+        [1e-2.5, 0.9]        0.4595     0.065      53.6%        1.256   <- chosen
+        [1e-2.5, 0.5]        0.4713     0.065      55.3%        1.343
+        [1e-3.0, 0.5]        0.4707     0.033      50.7%        1.342
+        [1e-3.5, 0.5]        0.4624     0.043      45.5%        1.396
+
+    THOSE ARE SINGLE-DRAW NUMBERS AND MOST OF THE DIFFERENCES BETWEEN THEM ARE
+    NOISE. Re-scoring the top three at three generator seeds each
+    (audits/stage2a2/p10_config_noise.py) gives:
+
+        range            objective mean +/- sd   mode TV mean +/- sd
+        [1e-2.0, 0.9]        0.4569 +/- 0.0089      0.129 +/- 0.016
+        [1e-2.5, 0.9]        0.4623 +/- 0.0054      0.098 +/- 0.029
+        [1e-3.0, 0.5]        0.4731 +/- 0.0054      0.040 +/- 0.013
+
+    The typical within-configuration standard deviation is 0.0066, so the top
+    two are not separable on the objective (they differ by 0.0054) while
+    [1e-3.0, 0.5] is genuinely worse, by about 2.5 standard deviations. Given a
+    tie, the mode-count distribution breaks it, and [1e-2.5, 0.9] matches it
+    better than [1e-2.0, 0.9].
+
+    The mode-count total variation is itself noisy, sd 0.029 against differences
+    of 0.03 to 0.13, so a single draw cannot rank two configurations on modality
+    either: [1e-2.5, 0.9] read 0.065, 0.108 and 0.121 on three seeds. Any future
+    sweep that reports a mode TV from one draw is reporting noise.
+
+        An earlier sweep of the lower bound while targeting the AVERAGE overlap is
+    kept for the record, because it is what made the average's inadequacy
+    visible: 0.3 gave 85.1 percent unimodal, 1e-1.5 gave 63.1 and 1e-2.5 gave
+    49.5, but the last of those reached the right mode COUNT by opening gaps,
+    and cost fit_lognorm_SW 1.828 and six-or-more modes in 6.5 percent of the
+    corpus against an empirical 0.7.
 
     THE COST, stated because it is real. Driving the lower bound down improves
     every weighted characteristic but makes the corpus less lognormal-looking

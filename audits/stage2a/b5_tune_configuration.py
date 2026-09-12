@@ -12,14 +12,18 @@ deliberately NOT the objective: it reads 100 percent while a distribution sits
 in the wrong place inside that range, which is exactly the failure this script
 exists to prevent.
 
-THE CHARACTERISTICS ARE NOT EQUALLY IMPORTANT, so the objective weights them.
-Averaging them treats `n`, which the strata fix by construction, as mattering as
-much as modality, which decides whether a KDE can beat a parametric fit at all.
-A lognormal cannot represent a second mode and a KDE can, so the mode-count
-distribution and the spread that separates modes are what the study's central
-comparison rests on; the goodness-of-fit characteristics are largely downstream
-of them. WEIGHTS names the weights and `score` reports the objective both
-weighted and unweighted, so the choice is visible rather than buried.
+EVERY CHARACTERISTIC COUNTS EQUALLY. The objective is the mean standardized
+distance across all of them, plus the mode-count term. The goal is that a
+synthetic dataset LOOKS LIKE an empirical one, and there is no characteristic it
+is acceptable to match badly in exchange for matching another well.
+
+This is a correction. An earlier version weighted modality and the coefficient
+of variation at 3, and it went wrong in the way weighted objectives do: the
+quantity the paper is actually built on, the uniform-to-variable Wasserstein
+distance, was not one of the privileged two, and it degraded twice while the
+weighted objective improved and reported progress. `score` still reports the
+objective and the unweighted mean separately, and WEIGHTS is still honoured if
+set, so a sweep can ask what a different weighting would do.
 
 The mode-count distribution enters as its own term rather than only through
 `crit_bw_1`, because it is the quantity being matched: the total variation
@@ -51,27 +55,28 @@ from customstats import empirical_metadata
 SEED = 42
 PER_STRATUM = 110          # 440 datasets, the pre-flight scale (see handoff 7c)
 
-#: Weight on each characteristic in the objective. Everything unnamed is 1.0.
+#: Weight on each characteristic in the objective. All equal.
 #:
-#: `crit_bw_1` is Silverman's critical bandwidth, the modality statistic, and
-#: `coeffvar` is the spread. Both are weighted 3. `modality_index` is the older
-#: continuous index kept alongside it and is weighted 2 rather than 3, because
-#: it and `crit_bw_1` measure the same property and weighting both at 3 would
-#: give modality six units of influence rather than three.
+#: An earlier version of this loop weighted modality and the coefficient of
+#: variation at 3 and everything else at 1, on the reasoning that they drive the
+#: KDE-versus-parametric comparison directly. The author overruled it: the goal
+#: is that the synthetic datasets LOOK LIKE the empirical ones, and there is no
+#: characteristic it is acceptable to match badly in exchange for matching
+#: another well. Weighting also hid a real regression, because the quantity the
+#: paper is actually built on, the uniform-to-variable Wasserstein distance, is
+#: neither of the two that were privileged, and it got worse twice while the
+#: weighted objective improved.
 #:
-#: `n` is weighted 0.25, not 0: the strata fix the size distribution by
-#: construction, so scoring it at full weight rewards nothing the configuration
-#: controls, but zeroing it would hide a stratum that failed to fill.
-WEIGHTS = {
-    'crit_bw_1': 3.0,
-    'coeffvar': 3.0,
-    'modality_index': 2.0,
-    'n': 0.25,
-}
+#: Kept as a dict rather than deleted so a sweep can still ask what happens
+#: under a different weighting, and so the history above is attached to the
+#: thing it describes.
+WEIGHTS = {}
 
-#: Weight on the mode-count total variation distance, on the same footing as a
-#: standardized W1. Equal to the modality statistic's weight.
-MODE_TV_WEIGHT = 3.0
+#: Weight on the mode-count total variation distance. The mode-count
+#: distribution is a characteristic like any other and is scored like one; it
+#: needs its own term only because it is a distribution over counts rather than
+#: a column of the metrics frame.
+MODE_TV_WEIGHT = 1.0
 
 
 def empirical_arm(rng_seed=SEED):
@@ -157,7 +162,8 @@ def report(name, cfg, emp_met, emp_modes, per_stratum=PER_STRATUM):
 
 
 if __name__ == '__main__':
-    print(f'weights: {WEIGHTS}, mode_tv {MODE_TV_WEIGHT}, everything else 1.0')
+    print(f'weights: all characteristics 1.0, mode_tv {MODE_TV_WEIGHT}'
+          + (f', overrides {WEIGHTS}' if WEIGHTS else ''))
     print(f'source:  {os.path.relpath(empirical.SOURCE, os.path.join(TABLES, "..", "..", ".."))}')
     print('measuring the empirical arm ...')
     emp_met, emp_modes = empirical_arm()
