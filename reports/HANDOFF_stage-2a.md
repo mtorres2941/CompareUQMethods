@@ -308,6 +308,30 @@ and computes both directions of a pair together.
 - **`position_skew = 5` is a calibrated parameter**, chosen by measurement
   against the empirical envelope. It is the single strongest control on the
   coefficient of variation. **Owner: 2h**, as a sweep.
+- **The repository is 391 MB of git history, and almost none of it is data.**
+  Measured at the end of this stage. The six largest blobs are 1200-dpi
+  figures and `TABLE_PLCAResults.csv`, each re-stored whole every time it
+  changed, totalling about 190 MB: 36.8 MB
+  `Supplement4_WassDistanceVsMetric_ALLMETRICS.png`, 32.2 and 30.0 MB for two
+  versions of `TABLE_PLCAResults.csv`, 31.3 and 30.8 MB for two versions of
+  `WassVsResultDiff.png`, 31.2 MB `SUPP_WassDistanceVsMetric_ALLMETRICS.png`.
+  Stage 1 already flagged this as deferred. It matters for the Zenodo deposit.
+  **Owner: 3 (figures) and 4 (deposit).**
+- **The corpus data are 192 MB and gitignored.** For the record, since the
+  growth surprised the author: the old `DATA_all.json` held 2,744,113 values in
+  121.5 MB of JSON, 44 bytes per value; the new corpus holds 12,876,931 values
+  in 192 MB of Parquet, 15 bytes per value. That is 4.7x more data in 1.6x the
+  space. The growth is the stratified design, not the format: stratum 4 alone
+  carries 9,781,710 of the values and the probe set another 2,015,051, where
+  the old corpus stopped at n = 749 against an empirical maximum of 77,548.
+  Storing values and weights as float32 would halve it, at the cost of about
+  seven significant digits and a perturbation to every W1 distance; **not done
+  without the author's decision.**
+- **An earlier version of the regeneration commit tracked the corpus data by
+  mistake**, adding about 600 MB. Caught, reverted, and garbage-collected; the
+  blobs are gone from the object database. `.gitignore` now covers
+  `corpus_*/values.parquet`, `metrics.parquet` and `parents.json.gz`, while the
+  provenance files stay tracked.
 - **Audit scripts read `data/baseline_frozen/`**, so they keep reporting the
   pre-regeneration baseline after regeneration.
 
