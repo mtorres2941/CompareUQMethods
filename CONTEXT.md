@@ -193,10 +193,16 @@ datasets, sizes 3 to 9,999, stratified 2,500 per stratum over 3-9, 10-99,
 100-999 and 1000-9999, plus a 50-dataset probe set at 10,000 to 100,000 that is
 excluded from every aggregate.
 
-`dct_realeccs_trimmed.json` is read-only and irreplaceable: the EC3 directory
-the extraction read no longer exists on this machine, so it is the only
-surviving record of the empirical arm, and it is already post-cleaning. See
-`reports/MANUSCRIPT_discrepancies.md` entry 26.
+`dct_realeccs_trimmed.json` is treated as read-only: it is the record of the
+2026-03 EC3 pull the current manuscript reports, and it is stored
+POST-cleaning, already trimmed additively at the high end.
+
+That snapshot cannot be recovered, because EC3's contents change as
+declarations are added and expire. A FRESH pull can be taken at any time: the
+API key and a documented procedure are in `../EPDsFromEC3`, and
+`../EPDsFromEC3/PULLING_EPDS.md` describes three ways a paginated pull fails
+silently. Whether to re-pull and apply the cleaning rule symmetrically from raw
+values is an open question; see `reports/MANUSCRIPT_discrepancies.md` entry 26.
 
 ## 6. Output tables
 

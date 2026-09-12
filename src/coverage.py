@@ -502,3 +502,52 @@ def symlog_ticks(values, linthresh, max_per_side=3):
         step = max(1, int(np.ceil(len(decades) / max_per_side)))
         ticks += [sign * 10.0 ** d for d in decades[::step]]
     return sorted(set(ticks))
+
+
+def plot_transform(scale, linthresh=None):
+    """Forward transform for plotting a characteristic on `scale`.
+
+    Densities are plotted on the TRANSFORMED values with the ticks labelled in
+    the original units, rather than by setting a matplotlib axis scale. A
+    density estimate on a log axis is otherwise computed in linear space and
+    then stretched, which distorts the shape; estimating it in the transformed
+    space is the correct operation. matplotlib also has no symlog-aware kernel
+    density, and skewness and kurtosis both need one because they are signed.
+
+    The symlog transform is asinh(x / 2t) / ln(10), which is linear near zero
+    and matches log10 for large |x|.
+    """
+    if scale == 'log':
+        return lambda x: np.log10(np.clip(np.asarray(x, float), 1e-300, None))
+    if scale == 'symlog':
+        t = max(float(linthresh or 1.0), 1e-12)
+        return lambda x: np.arcsinh(np.asarray(x, float) / (2 * t)) / np.log(10)
+    return lambda x: np.asarray(x, float)
+
+
+def tick_positions(values, scale, linthresh=None, max_ticks=6):
+    """(positions_in_transformed_space, labels_in_original_units)."""
+    v = np.asarray([x for x in np.ravel(values) if np.isfinite(x)], float)
+    f = plot_transform(scale, linthresh)
+    if v.size == 0:
+        return [], []
+    if scale == 'log':
+        pos = v[v > 0]
+        lo, hi = int(np.floor(np.log10(pos.min()))), int(np.ceil(np.log10(pos.max())))
+        decades = list(range(lo, hi + 1))
+        step = max(1, int(np.ceil(len(decades) / max_ticks)))
+        ticks = [10.0 ** d for d in decades[::step]]
+    elif scale == 'symlog':
+        ticks = symlog_ticks(v, linthresh, max_per_side=max(1, max_ticks // 2))
+    else:
+        return None, None                      # let matplotlib choose
+    labels = []
+    for t in ticks:
+        if t == 0:
+            labels.append('0')
+        elif abs(t) >= 1000 or (t != 0 and abs(t) < 0.01):
+            e = int(np.round(np.log10(abs(t))))
+            labels.append(('-' if t < 0 else '') + f'$10^{{{e}}}$')
+        else:
+            labels.append(f'{t:g}')
+    return [float(f(np.array([t]))[0]) for t in ticks], labels

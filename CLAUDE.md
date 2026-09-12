@@ -426,10 +426,17 @@ rather than in conversation.
     them multimodal.
 24. **2026-09-11, Stage 2a. Empirical cleaning gains a multiplicative low-end
     bound only.** `[DELEGATED, 2a chose]` Decision 12 left the form to 2a. The
-    high end was already trimmed additively when the surviving file was
-    written and the EC3 source directory no longer exists, so a symmetric
-    re-clean would trim the same tail twice. Removes 342 of 107,523 values,
-    0.318 percent; ReadyMix's minimum moves from 3.1e-17 of its mean to 0.265.
+    stored `dct_realeccs_trimmed.json` was already trimmed additively at the
+    high end when it was written, so a log-space high bound on top would trim
+    the same tail twice. Removes 342 of 107,523 values, 0.318 percent;
+    ReadyMix's minimum moves from 3.1e-17 of its mean to 0.265.
+    **Corrected 2026-09-12:** an earlier version of this entry said a symmetric
+    re-clean was impossible because the EC3 source no longer existed. That was
+    wrong. A fresh pull can be taken at any time (API key and procedure in
+    `../EPDsFromEC3`); the limitation is the stored file, not the data source.
+    Whether to re-pull and clean symmetrically is open, and the cleaning
+    sensitivity says the choice moves `fit_norm_SW` by about 1.5 standard
+    deviations. See `reports/MANUSCRIPT_discrepancies.md` entry 26.
 25. **2026-09-11, Stage 2a. Overlap and spread are specified generation
     targets, solved for per dataset.** `[DELEGATED, 2a chose]` Average pairwise
     component overlap after Maitra and Melnykov (2010), and the coefficient of

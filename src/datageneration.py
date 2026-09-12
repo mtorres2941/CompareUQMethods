@@ -199,13 +199,17 @@ def clean_empirical_low_end(data, mult=3.0):
     Decision 12 in CLAUDE.md records the multiplicative direction as the
     author's, with the specific filter left to this stage.
 
-    Only the LOW end is treated here, deliberately. The high end was already
-    trimmed additively when `dct_realeccs_trimmed.json` was written, and the
-    directory that extraction read no longer exists, so the empirical data
-    cannot be re-cleaned from source on this machine. Applying a log-space high
-    bound on top of the additive one would trim the same tail twice. A
-    symmetric re-clean needs a fresh EC3 extraction; see
-    reports/MANUSCRIPT_discrepancies.md.
+    Only the LOW end is treated here, because `dct_realeccs_trimmed.json` was
+    already trimmed additively at the high end when it was written, and
+    applying a log-space high bound on top of that would trim the same tail
+    twice.
+
+    This is a limitation of the stored file, NOT of the data source. A fresh
+    EC3 pull would allow the symmetric rule to be applied to raw values, and
+    that pull can be taken at any time: the API key and the documented
+    procedure are in ../EPDsFromEC3. Whether to re-pull and clean
+    symmetrically is an open question recorded in
+    reports/MANUSCRIPT_discrepancies.md entry 26.
     """
     data = np.asarray(data, float)
     pos = data[data > 0]

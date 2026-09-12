@@ -25,8 +25,11 @@ run from the repository root.
   2026-03-13. Produced by notebook 1 with `generate_dontread = True` under the
   lost `waterweed` kernel. Unseeded, so unreproducible.
 - `dct_realeccs_trimmed.json`: 138 empirical EC3 datasets. The weights were
-  drawn from an unseeded `np.random.dirichlet`, so these are also
-  unreproducible, though the underlying EC3 values are not.
+  drawn from an unseeded `np.random.dirichlet`, so this exact file is not
+  reproducible. The EXTRACTION is: the EC3 API key and a documented procedure
+  are in `../EPDsFromEC3`, and a fresh pull can be taken at any time. What
+  cannot be recovered is the 2026-03 snapshot, because EC3's contents change as
+  declarations are added and expire.
 - `datasets_outliers.json`, `datasets_trimto10k.json`, `combos.txt`: derived
   from the above. Deterministic given `DATA_all.json`, except `combos.txt`,
   which came from an unseeded shuffle.

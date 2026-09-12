@@ -248,7 +248,7 @@ claim. See entries 3, 4 and 6.
 | **Manuscript** | Treats each EC3 category as a set of independent product EPDs. |
 | **Measured in Stage 2a** | At EPD level there is nothing to deduplicate: 0 of 206,668 records share an `open_xpd_uuid` within their category, and no EPD appears in two of the 138 categories. But **55.00 percent of records share a (manufacturer, GWP per kg) pair with another record in the same category**, across 105 of 138 categories, and the top manufacturer holds a median 18.4 percent of a category, up to 73.0 percent. |
 | **Consequence** | The uniform-weighted empirical distribution the paper scores against is already implicitly weighted, by how many EPDs each manufacturer published. That bears directly on the paper's thesis about weighting: the "unweighted" baseline is not weight-free. |
-| **Caveat** | Measured on a 2026-08 EC3 pull, not the 2026-03 pull that produced the 138 datasets, whose source directory no longer exists on this machine. |
+| **Caveat** | Measured on a 2026-08 EC3 pull rather than the 2026-03 pull that produced the 138 datasets. EC3's contents change over time, so the shares will differ somewhat on any other pull; the finding that manufacturers are heavily duplicated is structural and will not. |
 | **Fix** | **Text at minimum.** State that the uniform-weighted baseline carries publication-frequency weighting. Whether to deduplicate is a methodological choice for a later stage. |
 | **Status** | Open. |
 
@@ -271,14 +271,15 @@ claim. See entries 3, 4 and 6.
 | **Fix** | **Text.** Report the sensitivity. See `outputs/tables/stage2a/TABLE_2a_EmpiricalCleaningSensitivity.csv`. |
 | **Status** | Open. Text. |
 
-## 26. The empirical extraction cannot be reproduced
+## 26. The stored empirical file is post-cleaning, and a fresh pull is available
 
 | | |
 |---|---|
-| **Code** | Notebook 1's empirical branch reads `'../../EPDsFromEC3/EPD_AllOfEC3'`. **That directory does not exist on this machine.** |
-| **Consequence** | `dct_realeccs_trimmed.json` is now the only surviving record of the empirical arm, and it is POST-cleaning, so the cleaning rules cannot be varied on the real data without a fresh EC3 extraction. That is why Stage 2a's cleaning sensitivity check was run on store-reconstructed datasets, and why only the low-end cleaning bound was changed: the high end was already trimmed additively and cannot be un-trimmed. |
-| **Fix** | **Code and deposit.** Either re-extract from EC3 and version the raw pull, or state plainly in the paper and the Zenodo deposit that the empirical arm begins from the cleaned file. The extraction path in the notebook should be corrected or removed, since as written it is dead code pointing at nothing. |
-| **Status** | Open, and it affects the Zenodo deposit. |
+| **Code** | Notebook 1's empirical branch reads `'../../EPDsFromEC3/EPD_AllOfEC3'`, a path that does not exist. The working copy of that project is at `../EPDsFromEC3` and its EPD store has moved on to a different layout. |
+| **What is and is not reproducible** | The 2026-03 pull itself is not recoverable, because EC3's contents change as declarations are added and expire. The EXTRACTION is fully reproducible: the API key and a documented procedure live in `../EPDsFromEC3/PULLING_EPDS.md`, and a fresh pull can be taken whenever wanted. **An earlier version of this entry claimed the extraction could not be reproduced. That was wrong.** |
+| **Consequence, and it changed a decision** | `dct_realeccs_trimmed.json` is stored POST-cleaning, already trimmed additively at the high end. Stage 2a therefore applied only a multiplicative LOW-end bound, to avoid trimming the same tail twice. That reasoning is sound for the stored file but it is not a reason to stop there: a fresh pull would allow the symmetric log-space rule to be applied to raw values, which is the rule the cleaning sensitivity analysis says is better behaved. |
+| **Fix** | **Decide whether to re-pull.** If yes, apply the symmetric rule from raw and re-run the empirical arm; the cleaning sensitivity in `outputs/tables/stage2a/TABLE_2a_EmpiricalCleaningSensitivity.csv` says this moves `fit_norm_SW` by about 1.5 sd and `entropy` by about 1.4 sd, so it is not cosmetic. If no, state in the paper that the empirical arm begins from a stored cleaned file and give its date. Either way the dead path in notebook 1 should be corrected. |
+| **Status** | Open, and it affects both the empirical results and the Zenodo deposit. |
 
 ## 27. Component separation was far outside the empirical range
 
