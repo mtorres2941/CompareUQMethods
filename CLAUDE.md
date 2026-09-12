@@ -129,6 +129,12 @@ several define methods this analysis implements directly.
   from those tables, never from in-memory state.
 - All randomness comes from an explicitly passed Generator, never from global
   numpy state.
+- Be concise. Answer the question asked, at the length the answer needs. Do not
+  restate what a commit message, a handoff or a table already says; point at it.
+  When a task is done, the status line is the whole report - no closing summary,
+  no re-emphasis, no "one thing worth noting". If something genuinely matters
+  and is not written down, that is a defect in the document, so fix the document
+  rather than narrating around it.
 
 ---
 
