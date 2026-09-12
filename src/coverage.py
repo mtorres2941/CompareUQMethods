@@ -240,6 +240,9 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical):
                 else f'{np.percentile(a, lo):.3g} to {np.percentile(a, hi):.3g}')
 
     emp = empirical
+    # Column access is by bracket throughout: DataFrame.kurtosis is a pandas
+    # METHOD, so emp.kurtosis silently returns the method rather than the
+    # column and fails later with an unrelated-looking AttributeError.
     nstat = pd.to_numeric(emp['n'])
     ok = float(np.mean([s == 'ok' for s in cv_status]))
     rows = [
@@ -257,25 +260,35 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical):
          f'median {np.median(ov_a):.4f}, 95th pct {np.percentile(ov_a, 95):.4f}, '
          f'max {np.max(ov_a):.4f}'),
         ('Coefficient of variation of the parent',
-         f'log-uniform on [{10 ** cfg.cv_log10_lo:.3g}, '
-         f'{10 ** cfg.cv_log10_hi:.3g}], solved for by placing the mixture '
-         'relative to zero',
-         f'empirical dataset coefficient of variation '
-         f'{_clean(emp.coeffvar).min():.4g} to {_clean(emp.coeffvar).max():.4g}',
+         f'normal in log10 with mean {cfg.cv_log10_mean:.4f} and sd '
+         f'{cfg.cv_log10_sd:.4f}, truncated to '
+         f'[{10 ** cfg.cv_log10_lo:.3g}, {10 ** cfg.cv_log10_hi:.3g}], solved '
+         'for by placing the mixture relative to zero',
+         f'centred on the empirical distribution, whose log10 coefficient of '
+         f'variation has mean -0.2641 and sd 0.2913; the sd is DOUBLED for '
+         f'margin. Empirical range {_clean(emp["coeffvar"]).min():.4g} to '
+         f'{_clean(emp["coeffvar"]).max():.4g}',
          f'target met exactly in {ok * 100:.1f} pct; achieved '
          f'{rng_of(cv_a)}'),
         ('Component skewness target',
          f'uniform on [{cfg.comp_skew_lo}, {cfg.comp_skew_hi}]',
-         f'empirical dataset skewness {_clean(emp.skewness).min():.3g} to '
-         f'{_clean(emp.skewness).max():.3g}, median '
-         f'{_clean(emp.skewness).median():.3g}',
+         f'empirical dataset skewness {_clean(emp["skewness"]).min():.3g} to '
+         f'{_clean(emp["skewness"]).max():.3g}, median '
+         f'{_clean(emp["skewness"]).median():.3g}',
          rng_of(comp_skew)),
         ('Component excess kurtosis target',
          f'uniform on [{cfg.comp_exkurt_lo}, {cfg.comp_exkurt_hi}], lifted to '
          'the feasible boundary skewness ** 2 - 2',
-         f'empirical dataset excess kurtosis {_clean(emp.kurtosis).min():.3g} '
-         f'to {_clean(emp.kurtosis).max():.3g}',
+         f'empirical dataset excess kurtosis {_clean(emp["kurtosis"]).min():.3g} '
+         f'to {_clean(emp["kurtosis"]).max():.3g}',
          rng_of(comp_exk)),
+        ('Component location spread (position_skew)',
+         f'locations at z ** {cfg.position_skew} for z uniform on (0, 1), '
+         'before the overlap solve scales them',
+         'clusters components toward the low end with the occasional far-out '
+         'one. It, not the component shapes, sets the achievable coefficient '
+         'of variation: uniform spacing pins it near 0.57',
+         f'{cfg.position_skew}'),
         ('Component standard deviation, relative',
          f'log-uniform on [{10 ** cfg.comp_sd_log10_lo:.3g}, '
          f'{10 ** cfg.comp_sd_log10_hi:.3g}]',

@@ -1,0 +1,92 @@
+{
+  "created_utc": "2026-09-12T00:37:19+00:00",
+  "seed": 20260911,
+  "config": {
+    "strata": [
+      {
+        "name": "s1_3_9",
+        "n_lo": 3,
+        "n_hi": 9,
+        "n_datasets": 2500
+      },
+      {
+        "name": "s2_10_99",
+        "n_lo": 10,
+        "n_hi": 99,
+        "n_datasets": 2500
+      },
+      {
+        "name": "s3_100_999",
+        "n_lo": 100,
+        "n_hi": 999,
+        "n_datasets": 2500
+      },
+      {
+        "name": "s4_1000_9999",
+        "n_lo": 1000,
+        "n_hi": 9999,
+        "n_datasets": 2500
+      }
+    ],
+    "probe": {
+      "name": "probe_10k_100k",
+      "n_lo": 10000,
+      "n_hi": 100000,
+      "n_datasets": 50
+    },
+    "k_min": 1,
+    "k_max": 5,
+    "overlap_log10_lo": -4.0,
+    "overlap_log10_hi": -0.12493873660829995,
+    "comp_skew_lo": -3.0,
+    "comp_skew_hi": 8.0,
+    "comp_exkurt_lo": -1.2,
+    "comp_exkurt_hi": 60.0,
+    "position_skew": 5.0,
+    "comp_sd_log10_lo": -0.7,
+    "comp_sd_log10_hi": 0.3,
+    "mode_share_alpha": 10.0,
+    "market_share_alpha": 1.0,
+    "point_weight_alpha": 1.0,
+    "mode_coupling": 1.0,
+    "cv_log10_mean": -0.2641,
+    "cv_log10_sd": 0.5826,
+    "cv_log10_lo": -2.3979400086720375,
+    "cv_log10_hi": 0.505149978319906,
+    "max_low_tail_truncated": 0.15,
+    "trunc_iqr_mult": 3.0,
+    "seed": 20260911,
+    "max_component_retries": 12
+  },
+  "git_commit": "a6a971cae179230448f2263c17d2415ea5952b4f",
+  "git_working_tree_dirty": true,
+  "python": "3.11.16",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "pandas": "3.0.5",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "label": "2026-09-11c",
+  "n_requested": 10050,
+  "n_written": 10050,
+  "n_corpus": 10000,
+  "n_probe": 50,
+  "include_probe": true,
+  "n_failed_parent": 0,
+  "n_invalid": 0,
+  "invalid_reasons": {},
+  "component_retries_total": 17705,
+  "overlap_status_counts": {
+    "ok": 6715,
+    "single_component": 1974,
+    "clipped_min_overlap": 1124,
+    "clipped_max_overlap": 172,
+    "tolerance_not_met": 65
+  },
+  "wall_seconds": 917.4,
+  "files": {
+    "metrics.parquet": 2071126,
+    "parents.json.gz": 3540243,
+    "values.parquet": 201161545
+  }
+}

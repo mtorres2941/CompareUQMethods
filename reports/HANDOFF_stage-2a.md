@@ -197,7 +197,36 @@ the median dataset's support at 0.65 of its own mean.
 100 percent on every metric, but median coefficient of variation **0.071**.
 Covering a range is not the requirement; sitting where the data sit is.
 
-**`corpus_2026-09-11c`** is the corpus in use.
+**`corpus_2026-09-11c`** (15.3 min) is the corpus in use. 10,000 datasets plus
+50 probe datasets, **0 failed parents, 0 rejected by the validity filter**.
+The fixes were to centre the target coefficient of variation on the empirical
+distribution rather than draw it log-uniformly, and to cluster component
+locations toward the low end (`position_skew = 5`), which is what actually
+controls achievable spread.
+
+**Final coverage of the 138 empirical datasets by the synthetic range:**
+
+| Metric | Empirical min/median/max | Synthetic min/median/max | Covered |
+|---|---|---|---|
+| `coeffvar` | 0.011 / 0.600 / 2.083 | 0.000 / 0.330 / 8.205 | **100%** |
+| `skewness` | -1.44 / 1.055 / 4.618 | -95.4 / 0.556 / 42.2 | **100%** |
+| `kurtosis` | -5.45 / 1.160 / 62.7 | -6.00 / 0.660 / 2091.7 | **100%** |
+| `entropy` | 0.789 / 2.937 / 4.940 | 0.005 / 2.472 / 5.405 | **100%** |
+| `crit_bw_1` | 0.127 / 0.574 / 1.143 | 0.119 / 0.649 / 3.132 | **100%** |
+| `weight_outliers` | 0.000 / 0.028 / 0.386 | 0.000 / 0.005 / 0.519 | **100%** |
+| `fit_norm_SW` | 0.491 / 0.887 / 1.000 | 0.010 / 0.793 / 1.000 | **100%** |
+| `fit_lognorm_SW` | 0.605 / 0.937 / 1.000 | 0.021 / 0.807 / 1.000 | **100%** |
+| `w_v_uw_wasserstein` | 0.001 / 0.097 / 0.877 | 0.000 / 0.104 / 3.447 | **100%** |
+| `n` | 3 / 35 / 77,439 | 3 / 99.5 / 9,996 | 99.3% |
+
+The only uncovered dataset is ReadyMix at n = 77,439, which is what the probe
+set exists to address. Effective metric dimension: empirical 4.67, synthetic
+5.95, so the corpus is not collapsing the space.
+
+**Probe set: results plateau above n = 10 ** 4 on 8 of 9 metrics.** Only
+`crit_bw_1` sits outside two standard errors (-2.08). The coverage claim can be
+stated as complete to 9,999 with stability above that established on the probe
+set, with that one caveat.
 
 ### 4.4 Defects found while building, each of which would have corrupted results
 

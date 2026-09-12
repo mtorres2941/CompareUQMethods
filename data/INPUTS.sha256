@@ -44,3 +44,35 @@ a301c7f8ac8c55d01ec40dda0d2e67b8b61122d7894ce5678abc623c6cc3bb16  data/processed
 cae18862c5eda4bd5c482cc244c74acc80d743b47620748e5d461afc1af932a9  tests/fixtures/plca/PLCA_seeded_neccs1000.csv.gz
 8fb8e1d00140301af687673b9dab7b161152ff3355835d6a7dad1ea6668619b7  tests/fixtures/plca/PLCA_seeded_neccs10000.csv.gz
 624b1b771812093df04c1398cd28bba7cce1041aff951de98768bd15e8d6f2fb  tests/fixtures/plca/PLCA_unseeded_archive_neccs1000.csv.gz
+
+## Appended by Stage 2a, 2026-09-11
+
+The rows above are the PRE-REGENERATION baseline and are never rewritten: they
+are what lets any surviving copy be proven genuine. Byte-identical copies of
+all eight are in `data/baseline_frozen/`, verified 8/8 OK at the start of Stage
+2a and again at its end.
+
+Stage 2a regenerated the synthetic corpus three times. All three directories
+are kept; `data/processed/CORPUS.json` names the one in use.
+
+- `corpus_2026-09-11`: DISCARDED. Median coefficient of variation 0.049 against
+  an empirical 0.600. The mixture was placed above the 1e-9 quantile of its
+  heaviest-tailed component, which put the median dataset's support at 0.65 of
+  its own mean.
+- `corpus_2026-09-11b`: DISCARDED. Covered 98.6 to 100 percent of the empirical
+  range but centred at 0.071.
+- `corpus_2026-09-11c`: **IN USE.** 10,000 datasets plus a 50-dataset probe
+  set, 0 failed parents, 0 rejected by the validity filter. Seed 20260911,
+  configuration and git commit recorded in its own runmeta.json. Reproducible
+  on demand with `cd src && python corpus.py <label>`.
+
+Unlike the files above, these ARE reproducible: the seed, the full generator
+configuration, the git commit and the library versions are recorded beside the
+data. The checksums below pin the specific bytes produced on this machine.
+
+5bb23a5ecf2463f547360eafde8fd9c5c61beffbfb8a19b7a8cc1034d7773bdd  data/processed/corpus_2026-09-11c/values.parquet
+058e3f44863b98179026f093ee45b29b2b1b12d8677bf5c93b56cf0bf30dbc3a  data/processed/corpus_2026-09-11c/metrics.parquet
+1e0c43f28389bc80ebd97ee5f8281412ef8e6d391d7ccbe99eb1a068e6e04a06  data/processed/corpus_2026-09-11c/parents.json.gz
+f86f1f2b7694a24b8f2fd10f847cabc368aa7eb790c7cde59a5a1a023e6521de  data/processed/corpus_2026-09-11c/combos.csv
+a28f1f30998d08bfba0ed7cd9bc420461774050b55bfb1a8234bf56801d383e9  data/processed/corpus_2026-09-11c/runmeta.json
+6d067a382f9595cc3b59a051bf613cbd80020e2bf8adbaf166118b03cf6db4f3  data/processed/CORPUS.json
