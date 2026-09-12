@@ -103,3 +103,31 @@ cf1f0f562c60518dc6f9283cb0e452706688c067b2ecef324a7ba6efd80f6f5b  data/processed
 a01fa4615b4d6a60b47d52bb2329519c6f670ff29fabe2a880af73a605eb137b  data/processed/corpus_2026-09-12/parents.json.gz
 5185310fed9657acf780ac6883d1e4cf95bd013857283afd96574c31757076d6  data/processed/corpus_2026-09-12/combos.csv
 3ff6221249a5aebaa1aa0534e82440a7d158c4c2ce79b6d394ca7d1d2e577992  data/processed/corpus_2026-09-12/runmeta.json
+
+## Appended by Stage 2a-2, 2026-09-12: the empirical arm becomes reproducible
+
+The empirical arm previously read `dct_realeccs_trimmed.json`, a 2026-03 EC3
+pull stored POST-cleaning. It is superseded but not deleted: it is the record of
+the data the current manuscript reports, and the rows above still pin it.
+
+`data/raw/ec3_raw_ecc_2026-08-14.csv.gz` replaces it as the input. It is RAW,
+which is the point: no outlier rule has been applied to it, so the cleaning rule
+can be applied symmetrically. One row per EPD, with the provenance needed to
+audit any value. Its `_runmeta.json` records the query, the pull dates, the
+source checksum and the ECC definition.
+
+**It is not an API pull, and it could not be.** The EC3 API returns HTTP 403 for
+this account, "Direct API access is not allowed for private or restricted
+accounts". The key is recognized; the account permission is not. The file is a
+slice of the consolidated EPD store at `../EPDsFromEC3/store`, whose 138-category
+records were pulled on 2026-08-13 and 2026-08-14 through the correctly-
+paginating LucidLCA wrapper: five months newer than the 2026-03 data, and raw.
+Restoring API access and re-pulling is an open item; see
+`reports/HANDOFF_stage-2a2.md`.
+
+Freezing it here is what makes the empirical arm reproducible at all. An API
+pull is not reproducible by a reader even when it works, because EC3's contents
+change; an archived, checksummed extract is.
+
+ef5db3c414c4e813fb8f528adb21c3e557720129502ca497dc49120d878e8be1  data/raw/ec3_raw_ecc_2026-08-14.csv.gz
+ac886aa3792dc1f4075d1a26dec699fc3f3474f8c8085ff6531855d651d2fcf7  data/raw/ec3_raw_ecc_2026-08-14_runmeta.json

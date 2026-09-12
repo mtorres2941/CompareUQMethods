@@ -182,40 +182,34 @@ def random_logcount(rng, lo=4, hi=1_000, n=1):
 
 
 ########################################################################
-def clean_empirical_low_end(data, mult=3.0):
-    """Remove near-zero empirical ECC values with a MULTIPLICATIVE bound.
+def clean_empirical_symmetric(data, mult=3.0):
+    """Trim extreme empirical ECC values with a MULTIPLICATIVE bound at both ends.
 
-    The extraction trims at Q1 - 3 * IQR and Q3 + 3 * IQR. The low bound is
-    negative in 128 of the 138 empirical datasets, so it never binds: high
-    outliers are removed and near-zero values are not. `ReadyMix` retains a
-    value at 3.1e-17 of its mean, which is a data error rather than a product,
-    and 39 of the 138 datasets hold a value below 1 percent of their mean.
+    An ECC is strictly positive and right skewed, so an additive interquartile
+    rule is the wrong shape for it. `Q1 - mult * IQR` is negative in 128 of the
+    138 categories, which means the low bound never binds: high outliers are
+    removed and near-zero values are not. The 2026-03 extraction did exactly
+    that, and `ReadyMix` kept a value at 3.1e-17 of its mean, which is a data
+    error rather than a product.
 
-    In log space the same rule is a ratio rather than a difference and does
-    bind. A value is kept when
+    In log space the same rule is a ratio rather than a difference, and it binds
+    at both ends. A value is kept when
 
-        log(x) > Q1(log x) - mult * IQR(log x)
+        Q1(log x) - mult * IQR(log x)  <  log(x)  <  Q3(log x) + mult * IQR(log x)
 
     Decision 12 in CLAUDE.md records the multiplicative direction as the
-    author's, with the specific filter left to this stage.
-
-    Only the LOW end is treated here, because `dct_realeccs_trimmed.json` was
-    already trimmed additively at the high end when it was written, and
-    applying a log-space high bound on top of that would trim the same tail
-    twice.
-
-    This is a limitation of the stored file, not of the data source. A fresh
-    EC3 pull allows the symmetric rule on raw values and is the recommended
-    next step; the API key and procedure are in ../EPDsFromEC3. See
-    reports/MANUSCRIPT_discrepancies.md entry 26.
+    author's. Stage 2a could only apply it to the low end, because the file it
+    had was already trimmed additively at the high end and a second high bound
+    would have trimmed the same tail twice. Stage 2a-2 works from raw values, so
+    the rule applies to both ends as intended.
     """
     data = np.asarray(data, float)
-    pos = data[data > 0]
-    if len(pos) < 4:
+    data = data[np.isfinite(data) & (data > 0)]
+    if len(data) < 4:
         return data
-    L = np.log(pos)
+    L = np.log(data)
     l1, l3 = np.quantile(L, [0.25, 0.75])
     li = l3 - l1
     if li <= 0:
         return data
-    return data[(data > 0) & (np.log(np.where(data > 0, data, 1e-300)) > l1 - mult * li)]
+    return data[(L > l1 - mult * li) & (L < l3 + mult * li)]

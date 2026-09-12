@@ -290,3 +290,51 @@ claim. See entries 3, 4 and 6.
 | **Measured in Stage 2a** | The old generator placed components a mean of **6.46 pooled standard deviations apart** (median 6.01, up to 20.95), producing well-separated clusters. Fitting a BIC-selected Gaussian mixture to every dataset and computing the Maitra-Melnykov pairwise overlap on the same footing gives an empirical median overlap of 0.0218 against a shipped synthetic median of 0.0037: the synthetic datasets had about **six times less mode overlap** than the empirical ones at the median. |
 | **Fix** | **Code, done in Stage 2a.** Overlap is now a generation parameter, drawn log-uniformly on [1e-4, 0.75], which covers the empirical maximum of 0.6719 with margin. |
 | **Status** | Resolved in code. The manuscript should report the overlap distribution, and Table 1 gives it. |
+
+---
+
+## New, found during Stage 2a-2
+
+## 28. The empirical arm is 136 categories, not 138
+
+| | |
+|---|---|
+| **Manuscript** | States 138 empirical ECC datasets throughout, and the count appears in figure captions and in the abstract's framing of the empirical arm. |
+| **Code** | The 2026-08 extract, cleaned symmetrically and filtered to categories retaining at least three values, yields **136**. `Siding` retains 1 value and `SinglePlyOther` retains 2. Both losses are expiry: `Siding` holds 29 records in the store slice of which 1 is still valid at the pull date, and only 14 of the 29 carry a parseable declared unit. |
+| **Fix** | **Text.** Replace 138 with 136 everywhere, and state the inclusion threshold (at least three values after cleaning) so the number is derivable rather than asserted. |
+| **Status** | Open. Text edit, but it appears in many places. |
+
+## 29. The empirical characteristics were substantially an artifact of the cleaning rule
+
+| | |
+|---|---|
+| **Manuscript** | Reports the empirical statistical characteristics as properties of the EC3 data, and the synthetic corpus is justified by covering them. |
+| **Measured in Stage 2a-2** | The 2026-03 file was trimmed additively at the high end before it was stored, which removes right tail. Re-extracting raw values and applying the multiplicative rule symmetrically moves the empirical characteristics a long way: |
+| | median coefficient of variation **0.600 to 0.782**; log10 standard deviation of it 0.2913 to 0.3752; maximum 2.40 to 13.40 |
+| | median skewness **1.055 to 2.060**; maximum 4.618 to 20.65 |
+| | median excess kurtosis **1.160 to 5.758**; maximum 62.7 to 475.2 |
+| | median dataset size 37 to 53 |
+| | share of datasets Silverman's test calls unimodal **81.9 percent to 49.3 percent** |
+| **Consequence** | Every statement in the manuscript about what real ECC datasets look like was measured on data whose right tail had been cut. The multimodality figure is the one that matters most: the paper's central comparison is between a KDE, which can represent a second mode, and parametric fits, which cannot, and the empirical prevalence of multimodality roughly doubled. |
+| **Caveat, and it is not small** | Part of the movement is the newer pull rather than the cleaning rule; the two are separated in `reports/HANDOFF_stage-2a2.md` and in `outputs/tables/stage2a2/TABLE_2a2_FourWayComparison.csv`. |
+| **Fix** | **Text.** Every empirical characteristic number is replaced. State the cleaning rule precisely, in log space and symmetric, and report its sensitivity from `TABLE_2a2_CleaningSensitivity.csv`. |
+| **Status** | Open. Supersedes the numbers in entries 25 and 27. |
+
+## 30. The EC3 API is no longer reachable from this account
+
+| | |
+|---|---|
+| **Manuscript** | Describes the empirical data as extracted from the EC3 API. |
+| **Measured in Stage 2a-2** | A request returns HTTP 403 with "Direct API access is not allowed for private or restricted accounts. Please use a business account or reach out to support@buildingtransparency.org". The key is recognized; `check_api_token` distinguishes this from a bad key. The empirical arm is therefore built from a frozen local extract of a 2026-08-13/14 pull rather than a live one. |
+| **Consequence** | For the reader this is an improvement, not a loss: the archived, checksummed extract in `data/raw/` is reproducible where an API pull is not. The manuscript should cite the archived file and its pull date rather than implying the reader can re-run the query. |
+| **Fix** | **Text.** State the pull date, the archive, and that EC3 access is now gated. |
+| **Status** | Open. Also an author action if a business account is wanted. |
+
+## 31. Some EC3 categories span several orders of magnitude and are not one population
+
+| | |
+|---|---|
+| **Measured in Stage 2a-2** | With the right tail no longer cut, `PowerCabling` runs from 1.7e-05 to 242 times its own mean over 400 values, `Aggregates` from 3.2e-06 to 265 over 385, and `Insulation` from 3.0e-04 to 99 over 666. Their coefficients of variation are 13.4, 10.3 and 7.8 against a median of 0.78 across the 136. |
+| **Consequence** | These are not outliers the cleaning rule failed to catch; the log-space interquartile range of such a category is genuinely enormous, so a 3 x IQR bound is very permissive on it. They are EC3 categories holding products that are not comparable, cable of different gauges being the clearest case. They dominate the upper tail of every characteristic and therefore stretch the envelope the synthetic corpus is asked to cover. |
+| **Fix** | **Undecided, and it needs a decision.** Either accept them as real heterogeneity a practitioner would encounter, or exclude categories whose spread shows they are not one product population, and say which rule was used. Doing nothing is also a choice and should be stated as one. |
+| **Status** | Open. Flagged for the author; no stage owns it yet. |
