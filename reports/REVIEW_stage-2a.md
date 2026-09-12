@@ -11,12 +11,13 @@ do if you only do two.
 
 ## Read this first
 
-**The corpus has a known defect and should not be used for analysis yet.** A
-third to a half of the multimodal datasets are unrealistic spikes, because
-component separation is controlled by the AVERAGE pairwise overlap, which
-barely constrains the modes that actually touch once there are more than two of
-them. It is confirmed, the mechanism is written up, and the fix needs one
-decision from you. See "START HERE" in `reports/HANDOFF_stage-2a.md` section 5.
+**The corpus has a known defect and should not be used for analysis yet: it is
+far too multimodal.** 83.3 percent of the 138 empirical datasets have a single
+mode and none has more than three; the corpus is 55.5 percent multimodal and
+9.7 percent of it has six or more modes. No coverage statistic caught this,
+because the modality metrics fall inside the empirical range while their
+distribution is wrong. See "START HERE" in `reports/HANDOFF_stage-2a.md`
+section 5 for the three errors behind it and the fix.
 
 Look at `outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png`
 before anything else. Ten datasets per size stratum. The unimodal ones look

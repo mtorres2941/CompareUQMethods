@@ -283,58 +283,72 @@ and computes both directions of a pair together.
 | `weighted_quantile` must stay fixed before Silverman in 2h | 2h | STILL OPEN |
 | Entry 13, support (0, inf), needs author confirmation | - | **STILL OPEN.** Stage 2a built on it |
 
-### START HERE: the multimodal datasets are not realistic
+### START HERE: the corpus is far too multimodal
 
-**This is the one thing that should be fixed before anything else, and the
-corpus should not be used for analysis until it is.**
+**Fix this before anything else. The corpus should not be analysed until it is
+settled.**
 
-The author inspected the generated datasets and said the multimodal examples
-looked wrong: the modes are too narrow and too far apart to be real material
-categories. That is correct, it is now confirmed, and the mechanism is known.
+The author asked why component separation was being controlled at all, since
+modes in real data are expected to overlap. The question exposed a bigger
+error, now measured.
 
-**The mechanism.** Component separation is controlled by the AVERAGE pairwise
-overlap, which is Maitra and Melnykov's `omega-bar`. With more than two modes
-that average is dominated by the pairs that are far apart, so it barely
-constrains the pairs that actually touch. Measured on real parents from the
-configuration:
+**Modes actually present, by Silverman's test:**
 
-```
-k=5  average 0.0113   pairs: [0.1134, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-k=5  average 0.0010   pairs: [0.0054, 0.0022, 0.0012, 0.0007, 0.0001, ...]
-k=4  average 0.0292   pairs: [0.1726, 0.0026, 0.0001, 0.0001, 0, 0]
-k=4  average 0.0745   pairs: [0.4470, 0, 0, 0, 0, 0]
-```
+| Modes | Empirical (138) | Synthetic (sampled) |
+|---|---|---|
+| 1 | **83.3%** | 44.5% |
+| 2 | 15.2% | 31.9% |
+| 3 | 1.4% | 11.3% |
+| 4 or more | **0%** | 12.3% |
+| multimodal | **16.7%** | **55.5%** |
 
-One pair blends and the rest are disjoint, so the average sits near zero and
-the solver, trying to hit a target of a few hundredths, pushes every mode into
-a near-delta. Raising the target does not help: it is the wrong summary.
+Real ECC datasets are overwhelmingly unimodal and none of the 138 has more than
+three modes. The corpus is 55 percent multimodal and 9.7 percent of it has six
+or more. This is the largest single mismatch between the two arms and it was
+not caught by any coverage statistic, because `modality_index` and `crit_bw_1`
+both fall inside the empirical range while their DISTRIBUTION is wrong.
 
-**Where to see it.** `outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png`,
-ten datasets per size stratum. The unimodal ones look like real ECC data,
-right-skewed with a sensible spread. Roughly a third to a half of the
-multimodal ones are spikes. Panels (d) and (e) of
-`CompareUQMethods_FIG_DemonstrateDataGeneration.png` show the same thing.
+**Three errors behind it, in order of size.**
 
-**The fix, which needs an author decision.** Maitra and Melnykov offer the
-MAXIMUM pairwise overlap, `omega-check`, as an alternative controlling
-characteristic for exactly this reason, and `src/mixture.py` already computes
-the full pairwise matrix, so either is one line in `solve_spread_for_overlap`.
-Three candidates, in order of preference:
+1. **The wrong quantity was controlled.** What matters is how many modes a
+   dataset appears to have. Stage 2a controlled pairwise component overlap,
+   which is a property of the generator rather than of the data, and never
+   checked visible modality against the empirical arm until the author asked.
+2. **The empirical overlap target was an artifact of the measurement.** The
+   "empirical median overlap 0.0330" in
+   `outputs/tables/stage2a/TABLE_2a_OverlapComparison.csv` came from fitting
+   Gaussian mixtures by BIC. BIC adds a component only when it is separated
+   enough to pay for itself, so that procedure is biased toward reporting low
+   overlap. The generator was calibrated to a property of the fitting routine.
+   **Do not reuse that number.**
+3. **`k` is drawn uniformly on 1 to 5**, so 80 percent of datasets get two or
+   more components, against 17 percent of empirical datasets showing more than
+   one mode.
 
-1. **Control the maximum pairwise overlap.** Closest to the published method,
-   guarantees at least one pair genuinely blends, and is what Maitra and
-   Melnykov recommend when the average is uninformative.
-2. **Control the mean overlap between ADJACENT modes only**, ordering
-   components by location. Most directly matches what the eye judges.
-3. Keep the average but bound the component standard deviation from below
-   relative to the location spread. Cruder, and it fights the overlap solve.
+**The fix.** Keep the components: they are how the mixture produces skewness
+and heavy tails, and they are worth keeping as latent structure. Change what is
+targeted:
 
-Whichever is chosen, re-run the empirical comparison in
-`audits/stage2a/a7_overlap_and_modality.py` under the SAME statistic before
-setting its range, because the empirical target of median 0.0330 was measured
-as an average and is not comparable to a maximum.
+- Target **high** overlap, so components merge into a single visible mode.
+  Heavily overlapping components are what make a four-component mixture look
+  like one skewed hump, which is what a material category with several
+  production routes of similar intensity looks like.
+- Calibrate against the **83 / 15 / 1 mode distribution** measured above, not
+  against any overlap number. Silverman's test is already implemented in
+  `src/modality.py` and is fast enough to use inside a calibration loop
+  (0.8 ms per dataset, independent of n).
+- Once modality matches, component count stops needing to be right directly,
+  so `k` can stay uniform unless the calibration says otherwise.
 
-**Then regenerate, and look at the stratum figure again before anything else.**
+The average-versus-maximum overlap question that an earlier version of this
+section raised is now secondary. It is real - with more than two modes the
+average is dominated by the far-apart pairs, measured as
+`k=5 average 0.0113, pairs [0.1134, 0, 0, 0, 0, 0, 0, 0, 0, 0]` - but it only
+matters if overlap targeting is kept at all.
+
+**After regenerating, check
+`outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png` and the
+mode-count table above before looking at anything else.**
 
 ### New in Stage 2a
 
@@ -529,12 +543,14 @@ stands. Ten dead cells were deleted. The seed is 42.
   body of `draw_parent` into the notebook, at the cost of it no longer being
   covered by tests.
 
-**Standing lesson for later stages:** a figure showing what the data look like
-caught three problems that nine metric-coverage statistics reported as fine:
-the coefficient of variation centring, the overlap centring, and the
-average-overlap parameterization itself. All nine coverage percentages read
-100 percent while a third of the multimodal datasets were spikes. **Produce the
-picture before the table, and look at it.**
+**Standing lesson for later stages:** a figure showing what the data look like,
+and one question about why a parameter existed at all, caught four problems that nine metric-coverage statistics reported as fine:
+the coefficient of variation centring, the overlap centring, the
+average-overlap parameterization, and finally the fact that overlap was the
+wrong quantity to control in the first place. All nine coverage percentages
+read 100 percent throughout. **Produce the picture before the table, look at
+it, and check the DISTRIBUTION of each characteristic rather than only its
+range.**
 
 ## 8. Stage 2a assessment against the Stage 0 baseline
 
