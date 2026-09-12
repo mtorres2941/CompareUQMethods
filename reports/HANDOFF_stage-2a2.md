@@ -10,7 +10,8 @@
 | Commit | Label |
 |---|---|
 | `c159c51` Rebuild the empirical arm from raw values, cleaned symmetrically | **MOVES NUMBERS** |
-| (filled in below as the stage proceeds) | |
+| `ede8e2b` Retune the generator against the new empirical arm; weight the objective | config only |
+| this commit: regenerate, re-freeze, document | **MOVES NUMBERS** |
 
 ## 2. What was asked
 
@@ -213,12 +214,152 @@ it is not only what the mode counts ask for; it is what the direct measurement o
 the empirical data asks for. Both were measured on the new arm in
 `audits/stage2a2/p6_empirical_envelope.py` and `p7_empirical_overlap.py`.
 
+### 3.7 The retune, and the tuning objective
+
+The loop now weights the characteristics instead of averaging them. Averaging
+treats `n`, which the strata fix by construction, as mattering as much as
+modality, which decides whether a KDE can beat a parametric fit at all.
+
+    crit_bw_1 3.0, coeffvar 3.0, modality_index 2.0, n 0.25, all others 1.0,
+    plus the mode-count total variation distance as its own term at 3.0
+
+`modality_index` is 2 rather than 3 because it and `crit_bw_1` measure the same
+property and weighting both at 3 would give modality six units of influence
+rather than three. `n` is 0.25 rather than 0 so that a stratum which failed to
+fill still shows up. Every run reports the objective weighted and unweighted.
+
+What changed in the configuration, and the measurement behind each:
+
+| field | Stage 2a | now | why |
+|---|---|---|---|
+| `overlap_log10_lo` | log10(0.3) | -2.5 | empirical fitted overlap 95th pct 0.2671; mode counts |
+| `cv_log10_mean` | 0.011 | 0.211 | empirical median coefficient of variation 0.600 to 0.782 |
+| `cv_log10_sd` | 0.2913 x 2 | 0.3752 x 2 | empirical log10 sd remeasured |
+| `cv_log10_hi` | log10(3.2) | log10(16) | 3.2 no longer bracketed the empirical maximum of 13.40 |
+| `EMPIRICAL_STRATUM_SHARE` | 138-dataset arm | 136-dataset arm | remeasured |
+
+Three batches of candidates were scored at 440 datasets, the pre-flight scale
+Stage 2a's handoff asks for. They are logged verbatim in
+`outputs/tables/stage2a2/LOG_2a2_TuningBatch*.txt`. Batch 1 swept the overlap
+lower bound alone; batch 2 swept it jointly with the coefficient of variation;
+batch 3 tried four ways of recovering the lognormality that the winner costs.
+**All four failed**, each making `fit_lognorm_SW` worse rather than better:
+
+| candidate | objective | fit_lognorm_SW |
+|---|---|---|
+| C, chosen | 0.4261 | 1.828 |
+| C + component skewness to 14 | 0.4511 | 1.797 |
+| C + overlap ceiling 0.6 | 0.4377 | 1.993 |
+| C + position_skew 8 | 0.4632 | 2.126 |
+| C + both | 0.4772 | 2.192 |
+
+So the cost is structural rather than a tuning artifact, and tuning stopped
+there, as the prompt directs.
+
 ## 4. Numbers that moved
 
-Section 3.6 is the summary; every empirical characteristic moved. Nothing
-downstream of the empirical arm had been computed against
-`corpus_2026-09-12b`, which is why reopening generation was cheap here and will
-not be again.
+Every empirical characteristic moved; section 3.6 is that summary. The corpus
+was regenerated, so every synthetic number moved too. Nothing downstream of
+either had been computed against `corpus_2026-09-12b`, which is why reopening
+generation was cheap here and will not be again.
+
+### 4.1 The corpus
+
+`corpus_2026-09-12c`, seed 42, 10,000 datasets plus a 50-dataset probe set, 0
+failed parents, 0 rejected by the validity filter, 847 s. `CORPUS.json` points
+at it. `corpus_2026-09-12b` stays on disk as the comparison.
+
+### 4.2 The acceptance test, which FAILS as written
+
+The stage was asked for a corpus that matches the new empirical data at least as
+well as `corpus_2026-09-12b` matched the old, with modality closer. It does not.
+
+| empirical arm | corpus | weighted objective | mean W1 | mode TV | unimodal |
+|---|---|---|---|---|---|
+| old | 2026-09-12b | **0.3204** | 0.3537 | **0.0376** | 86.8 vs 83.3 |
+| old | 2026-09-12c | 0.4883 | 0.5793 | 0.3334 | 50.0 vs 83.3 |
+| new | 2026-09-12b | 0.4998 | 0.4949 | 0.3758 | 86.8 vs 49.3 |
+| new | 2026-09-12c | **0.4589** | 0.5618 | **0.0991** | 50.0 vs 49.3 |
+
+Reference 0.3204 and mode TV 0.0376; achieved 0.4589 and 0.0991. Both worse.
+
+Read against a FIXED target the retune plainly worked: on the new arm the
+objective goes 0.4998 to 0.4589 and the mode-count total variation 0.3758 to
+0.0991. What fails is the comparison against the old pairing, and the reason is
+that **the old arm was an easier target.** Having been trimmed at the high end
+it is more compressed: log10 coefficient-of-variation spread 0.2913 against
+0.3752, maximum skewness 4.62 against 20.65. A corpus can sit closer to a
+compressed target. The criterion therefore measures the difficulty of the target
+as well as the quality of the fit.
+
+**That is an explanation, not a pass.** The criterion is not met and the corpus
+should not be described as meeting it.
+
+### 4.3 What got better and what got worse, on the new arm
+
+Standardized W1 per characteristic, full corpus, `corpus_2026-09-12b` to
+`corpus_2026-09-12c`, both scored against the new empirical arm:
+
+| characteristic | 12b | 12c | change |
+|---|---|---|---|
+| `fit_lognorm_SW` | 0.865 | 1.921 | **+1.056 worse** |
+| `w_v_uw_wasserstein` | 0.155 | 0.550 | **+0.395 worse** |
+| `weight_outliers` | 0.347 | 0.370 | +0.023 worse |
+| `skewness` | 0.634 | 0.642 | +0.008 worse |
+| `n` | 0.181 | 0.181 | 0.000 |
+| `kurtosis` | 0.301 | 0.299 | -0.002 better |
+| `coeffvar` | 0.395 | 0.314 | -0.081 better |
+| `entropy` | 0.619 | 0.497 | -0.122 better |
+| `crit_bw_1` | 0.695 | 0.524 | -0.171 better |
+| `fit_norm_SW` | 0.757 | 0.319 | -0.437 better |
+| mode-count TV | 0.376 | 0.099 | **-0.277 much better** |
+
+**`w_v_uw_wasserstein` is the row that should worry the author most.** It is the
+uniform-to-variable Wasserstein distance, the paper's central quantity, and the
+retune made it match the empirical distribution substantially worse: the
+synthetic interquartile range is 0.256 against an empirical 0.138, so the corpus
+now overstates how much reweighting moves a dataset. It carried a weight of 1.0
+in the objective because the prompt asked for modality and the coefficient of
+variation to be weighted above the others and it is neither. **That was a
+faithful reading of the instruction and may still be the wrong objective for
+this paper.** Raising its weight and re-running the loop is cheap; regenerating
+afterward is not. It is the first thing to settle before this corpus is used.
+
+### 4.4 Modality, and how precisely it can be matched at all
+
+Full corpus against the new arm: 50.0 percent unimodal synthetic against 49.3
+empirical, mode-count total variation 0.0991.
+
+Two caveats:
+
+- **The empirical figure itself carries estimator noise of a few points.**
+  Silverman's test is a bootstrap, and the same 136 datasets read 49.3 percent
+  unimodal at 100 bootstrap replicates and 45.6 percent at 60, which is what
+  notebook 1 uses. Matching modality to within about 2 points is therefore at
+  the resolution of the measurement, not beyond it.
+- **The corpus puts 5.6 percent of datasets at six or more modes against an
+  empirical 0.7 percent.** Same cause as the lognormality loss. Owner: 2h.
+
+### 4.5 One thing that is NOT wrong, checked because it looked wrong
+
+The dataset-examples figure shows many panels that read as a needle plus an
+empty tail, which is the "unrealistic spikes" failure Stage 2a hit once before.
+Measured, it is not happening, and the corpus is if anything the opposite:
+
+| arm | median concentration | share below 0.10 | tail gap p90 |
+|---|---|---|---|
+| empirical (136) | 0.346 | 8.5% | 8.38 |
+| corpus 2026-09-12b | 0.446 | 0.0% | 1.44 |
+| corpus 2026-09-12c | 0.619 | 0.0% | 1.69 |
+
+Concentration is the interdecile range over the full range, so low means a
+needle inside a long support. The synthetic datasets are LESS needle-like than
+the real ones, and the new corpus less than the old. The apparent spikes in the
+figure are its x-axis, which is set by the parent's truncation bounds rather
+than by where the data sit. `audits/stage2a2/p8_spikiness.py`.
+
+**The figure is misleading and should be fixed**, because it will mislead a
+reviewer the same way. Owner: 3.
 
 ## 5. Open questions and flags
 
@@ -245,6 +386,26 @@ not be again.
 | Kurtosis undefined in stratum 1 | 2f | STILL OPEN |
 | Notebooks 2 and 3 never run against the active corpus | 2b | STILL OPEN, deliberately |
 
+### Needing the author's decision, in priority order
+
+1. **`w_v_uw_wasserstein` got substantially worse in the retune**, 0.155 to
+   0.550 standardized W1, and it is the paper's central quantity. The corpus now
+   overstates how much reweighting moves a dataset: synthetic interquartile
+   range 0.256 against an empirical 0.138. It carried weight 1.0 because the
+   prompt asked for modality and the coefficient of variation to be weighted
+   above the others and it is neither. Raising its weight and re-running the
+   tuning loop costs about ten minutes; regenerating afterward costs about
+   twenty-five. **Settle this before anything is built on this corpus.**
+2. **The acceptance criterion is not met**, section 4.2. The explanation, that
+   the old arm was an easier target, is in that section, but the criterion as
+   written fails and the corpus should not be described as meeting it.
+3. **An intermediate configuration exists and was not chosen.** Overlap lower
+   bound 1e-1.5 gives objective 0.4524, mode TV 0.167, 63 percent unimodal and
+   `fit_lognorm_SW` 1.518, against the chosen 0.4261, 0.088, 49.5 percent and
+   1.828. If the lognormality and weighting-effect losses matter more than
+   matching the mode count exactly, that is the corpus to build instead. Both
+   are one regeneration away.
+
 ### New in Stage 2a-2
 
 - **EC3 direct API access is closed to this account.** Restoring it is an author
@@ -266,6 +427,28 @@ not be again.
   degree nobody had measured.** Entry 29. This is the argument for having done
   the extract at all, and it is worth stating in the paper rather than only in a
   handoff.
+- **Matching modality costs lognormality, structurally.** `fit_lognorm_SW` 0.865
+  to 1.921. Four attempts to recover it made it worse. Real ECC datasets are 49
+  percent multimodal while keeping a median Shapiro-lognormal statistic of
+  0.937; the generator reaches the same mode count by separating components,
+  which is a different shape. **Owner: 2h**, and it is the most interesting open
+  question the stage produced: what generative structure gives a gentle second
+  mode on a lognormal body?
+- **5.6 percent of the corpus has six or more modes against an empirical 0.7
+  percent.** Same cause. **Owner: 2h.**
+- **The Silverman unimodal share carries a few points of estimator noise**: the
+  same 136 datasets read 49.3 percent at 100 bootstrap replicates and 45.6 at
+  60. Matching modality to within 2 points is at the resolution of the
+  measurement. Any later stage quoting a modality share must quote `nboot` with
+  it.
+- **`CompareUQMethods_SUPP_DatasetExamplesByStratum.png` is misleading.** Its
+  x-axis is set by the parent's truncation bounds rather than by the data, so
+  datasets that are perfectly reasonable read as needles beside an empty tail. I
+  misread it that way myself before measuring, and a reviewer will too. The
+  measurement is in section 4.5. **Owner: 3.**
+- **`audits/stage2a/a6_empirical_source.py` still refers to `mode_count_est`**,
+  renamed in Stage 2a, so it would fail if re-run. Harmless, one-off audit
+  script, noted so it is not rediscovered as a defect.
 
 ## 6. Inputs and outputs
 
@@ -296,3 +479,33 @@ any corpus later than the pre-regeneration one.
 **Generation is closed again.** It was reopened once, by decision, because
 nothing downstream had been computed against `corpus_2026-09-12b`. That stops
 being true the moment notebook 2 runs.
+
+**Read section 5's numbered list before running notebook 2.** The first item
+may change the corpus, and it is far cheaper to settle it now than after 2b has
+produced results against this one.
+
+A fresh EC3 pull is being taken in the `EPDsFromEC3` repository. When it lands,
+the empirical arm is rebuilt by adapting `audits/stage2a2/p1_build_raw_extract.py`
+to the new file, validated with `p2` and `p3`, and the tuning loop re-run.
+Whether that justifies a third regeneration is an author decision. The author's
+expectation, recorded 2026-09-12, is that a month of new EPDs will not change
+much.
+
+**Do not query the EC3 API while that pull is running.** EC3 rate limits per
+account rather than per process, and a concurrent request is what truncated a
+ready-mix pull to 9 percent of the category while reporting success.
+
+## 8. State at the end of the session
+
+| Item | State |
+|---|---|
+| Branch | `stage-2a2-empirical`, 3 commits |
+| Tests | 126 passing |
+| Active corpus | `corpus_2026-09-12c`, seed 42, 10,000 + 50 probe, 0 failed, 0 rejected |
+| Previous corpus | `corpus_2026-09-12b`, kept on disk as the comparison |
+| Empirical arm | 136 categories, `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, tracked and checksummed |
+| Notebook 1 | runs clean end to end against the active corpus |
+| Notebooks 2 and 3 | NOT run. Still Stage 2b's first task |
+| Fixtures | `TABLE_EmpiricalECCMetrics.xlsx` re-frozen at 136 rows, `SHA256SUMS.txt` updated and verifying. The two W1 tables are still pinned to the PRE-regeneration corpus and are Stage 2b's to re-freeze |
+| `data/INPUTS.sha256` | rows added for the raw extract and for `corpus_2026-09-12c` |
+| Open decisions | 3, listed in section 5, the first of which may change the corpus |

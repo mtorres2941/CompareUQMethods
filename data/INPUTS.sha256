@@ -131,3 +131,26 @@ change; an archived, checksummed extract is.
 
 ef5db3c414c4e813fb8f528adb21c3e557720129502ca497dc49120d878e8be1  data/raw/ec3_raw_ecc_2026-08-14.csv.gz
 ac886aa3792dc1f4075d1a26dec699fc3f3474f8c8085ff6531855d651d2fcf7  data/raw/ec3_raw_ecc_2026-08-14_runmeta.json
+
+## Appended by Stage 2a-2, 2026-09-12: corpus_2026-09-12c
+
+`corpus_2026-09-12c` supersedes `corpus_2026-09-12b` and is the active corpus.
+It was regenerated once, at the end of Stage 2a-2, after the empirical arm was
+rebuilt from raw values and the configuration retuned against it. Seed 42,
+10,000 datasets plus a 50-dataset probe set, 0 failed parents, 0 rejected by the
+validity filter, 847 s.
+
+`corpus_2026-09-12b` is NOT deleted. It is the comparison that makes the
+four-way table in `reports/HANDOFF_stage-2a2.md` possible: both corpora scored
+against both empirical arms, so the movement caused by the new data can be told
+apart from the movement caused by the retune.
+
+The corpus was generated from commit `ede8e2b` with a dirty working tree. The
+only uncommitted file was `CLAUDE.md`, documentation, and no code or
+configuration differed from that commit.
+
+c134bb2bb2d74113e1cb61c35351c3825ec78800e99d4450effc436d8745e185  data/processed/corpus_2026-09-12c/values.parquet
+63b2a72d866dd0224f2a9f24bbfcc7de6db613712c2aab3e9f792af59f505e33  data/processed/corpus_2026-09-12c/metrics.parquet
+ee0230bf0ac1495a91e0438ef46fe2d8e31fe7d2e49cec17a1b88da80344f71d  data/processed/corpus_2026-09-12c/parents.json.gz
+eee5ee586cbcc59f855240b192944520ec0774547a73da8dfae378b5a65567ae  data/processed/corpus_2026-09-12c/runmeta.json
+feb8e00f4a8b9ac32eb17aa2cb33aa7f00ad15c2f437a5ac927925cdcec19728  data/processed/corpus_2026-09-12c/combos.csv

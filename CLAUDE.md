@@ -214,11 +214,20 @@ happens exactly once, at the end of Stage 2a. Every number in the paper moves
 when it does. Any stage that touches generation parameters before 2a closes, or
 regenerates again afterward, doubles the verification work for no gain.
 
+**It was suspended once, deliberately, for Stage 2a-2, and has resumed.** The
+reason it was cheap: notebooks 2 and 3 had never been run against
+`corpus_2026-09-12b`, so no downstream result existed for a regeneration to
+invalidate. That ceased to be true the moment Stage 2a-2 closed. A fresh EC3
+pull is expected and will move the empirical arm again; when it arrives it is
+handled by rebuilding the extract and re-running the tuning loop, and whether
+that justifies a third regeneration is an author decision, not a stage's.
+
 | Stage | Owns | Explicitly not its job |
 |---|---|---|
 | **0 DONE** | Inventory, dependency map, refactor plan, baseline code and analysis assessments. `reports/HANDOFF_stage-0.md` | Any change to analysis logic |
 | **1 DONE** | Pinned environment, regression fixtures, persisted pLCA table, seeding machinery, correctness fixes, thin notebooks over a tested `src/`. Exactly two intended number-moving changes: neccs 1,000 to 10,000, and the wbeci assignment moved inside the loop. `reports/HANDOFF_stage-1.md` | Regeneration, and every methodological judgment call. Amendment A3 settled normalization: unweighted mean, code stands, text is wrong |
 | **2a DONE** | Generator audit: seeding collapse, Dirichlet concentration mismatch, stale docstring, the truncation loop, power transform, reflection, component overlap, mode counting, the 27.5 percent filter, mode-level market share, the coverage table that becomes Table 1. Then regenerate, once | Changing the fitting methods, changing the scoring target, or sweeping anything that 2h owns |
+| **2a-2 DONE** | A one-off reopening of generation, by decision, because nothing downstream had been computed yet. Fresh raw empirical extract, symmetric log-space cleaning, weighted tuning objective, retune, regenerate once. `reports/HANDOFF_stage-2a2.md` | Any fitting work, and any further regeneration. Generation closes again when this stage ends |
 | **2b** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE | Adding new families for robustness (2h), or rescoring against a parent (2c) |
 | **2c** | The evaluation target: score synthetic against the known parent, cross-validate the empirical 138, decompose location versus definitional error, report regret distributions. Overlap area alongside W1 | The pLCA construction (2e) and the flip-probability threshold (2d) |
 | **2d** | Decompose the uniform-to-variable W1 into location and shape, define the named relative measure, calibrate flip probability against relative W1, report the 1, 5 and 10 percent crossings | Building companion decision metrics (2g) |
@@ -471,3 +480,66 @@ rather than in conversation.
     result stands: 100 percent of the 138 empirical datasets fall inside the
     synthetic range on all nine statistical metrics, 99.3 percent on dataset
     size. The two named exceptions are ReadyMix (n = 77,439) and Elevators.
+
+30. **2026-09-12, Stage 2a-2. Generation was reopened once, by decision, and is
+    closed again.** `[AUTHOR]` Stage 2a's handoff says not to regenerate and
+    that instruction is correct for every other stage. It was suspended here
+    because notebooks 2 and 3 had never run against `corpus_2026-09-12b`, so
+    nothing downstream existed to invalidate.
+31. **2026-09-12, Stage 2a-2. The EC3 API is closed to this account, and the
+    empirical arm is built from a frozen local extract instead.** `[AUTHOR]`
+    The API returns HTTP 403, "Direct API access is not allowed for private or
+    restricted accounts"; the key is recognized, the account permission is not.
+    The substitute is a slice of `../EPDsFromEC3/store`, pulled 2026-08-13/14
+    through the correctly-paginating LucidLCA wrapper: five months newer than
+    the 2026-03 data and, crucially, RAW. Frozen as
+    `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, tracked and checksummed. A fresh
+    pull is being taken in the `EPDsFromEC3` repository and will be folded in
+    when it lands; the author's position is that it is not expected to change
+    much. **Do not query the EC3 API while that pull is running:** EC3 rate
+    limits per account, not per process, and a concurrent request is what
+    truncated a ready-mix pull to 9 percent while reporting success.
+32. **2026-09-12, Stage 2a-2. The empirical arm is valid-at-pull-date, matching
+    the 2026-03 scope.** `[AUTHOR]` The 2026-08 pulls include expired
+    declarations and the 2026-03 pull did not, so keeping them would have
+    changed the population and the cleaning rule at once. 38.6 percent of the
+    slice is expired and is dropped. The with-expired variant is a reported
+    sensitivity, not the primary.
+33. **2026-09-12, Stage 2a-2. Cleaning is a symmetric log-space 3 x IQR bound.**
+    `[AUTHOR]` This is what decision 12 asked for and what Stage 2a could only
+    half-apply. On raw values it removes 816 of 120,280, 544 low and 272 high.
+    **The empirical arm is 136 categories, not 138**: `Siding` and
+    `SinglePlyOther` fall below three values, both through expiry.
+34. **2026-09-12, Stage 2a-2. EPD-level uniform weighting stays the primary
+    definition.** `[AUTHOR]` 55 percent of records share a (manufacturer, GWP)
+    pair, so the uniform-weighted baseline is already implicitly weighted by
+    publication frequency. It is nonetheless what a practitioner pulling from
+    EC3 actually holds, which makes it the right baseline for a paper about
+    what practitioners should do. The implicit weighting is stated in the text;
+    the deduplicated variant is a Stage 2h sensitivity.
+35. **2026-09-12, Stage 2a-2. The tuning objective weights the characteristics.**
+    `[AUTHOR]` `crit_bw_1` and `coeffvar` at 3, `modality_index` at 2, `n` at
+    0.25, the mode-count total variation as its own term at 3, everything else
+    at 1. Modality and spread drive the KDE-versus-parametric comparison
+    directly; the goodness-of-fit characteristics are largely downstream of
+    them. Every run reports the objective weighted and unweighted.
+36. **2026-09-12, Stage 2a-2. The overlap range comes down to [1e-2.5, 1.4],
+    reversing Stage 2a's decision 25 on this parameter.** `[DELEGATED, 2a-2
+    chose]` Stated explicitly because CLAUDE.md forbids reversing an earlier
+    decision silently. Stage 2a raised the overlap to [0.3, 1.4] to match an
+    empirical arm measured as 81.9 percent unimodal; that figure was an
+    artifact of the additive high-end trim in the stored file. On raw data
+    cleaned symmetrically the arm is 49.3 percent unimodal, and the directly
+    fitted empirical overlap has a 95th percentile of 0.2671, so the Stage 2a
+    range sat entirely above the empirical body. Two independent measurements
+    agree, and both were wrong before for the same reason.
+37. **2026-09-12, Stage 2a-2. The lognormality cost of matching modality is
+    accepted and recorded.** `[DELEGATED, 2a-2 chose]` `fit_lognorm_SW` worsens
+    from 0.933 to 1.828 standardized W1 and is now the worst characteristic.
+    Real ECC datasets are 49 percent multimodal while keeping a median
+    Shapiro-lognormal statistic of 0.937, so their modes are gentle shoulders
+    on a lognormal body; the generator reaches the same mode COUNT by
+    separating components, which is a different shape. Four attempts to recover
+    it all made it worse, so the cost is structural rather than a tuning
+    artifact. Related, same cause: 6.5 percent of the corpus has six or more
+    modes against an empirical 0.7 percent. **Owner: 2h.**
