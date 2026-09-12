@@ -366,3 +366,73 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical):
     ]
     return pd.DataFrame(rows, columns=['parameter', 'configured',
                                        'empirical_basis', 'synthetic_achieved'])
+
+
+# --------------------------------------------------------------------------
+def distribution_comparison(empirical, synthetic, metrics=ALL_METRICS):
+    """Compare the DISTRIBUTION of each characteristic between the two arms.
+
+    Range coverage answers "does the synthetic span contain the empirical
+    values", which is a weak question: it reads 100 percent while the synthetic
+    distribution sits somewhere else entirely inside that span. This answers
+    the question the tuning actually turns on, which is whether the two
+    distributions have the same shape.
+
+    `w1_standardized` is the Wasserstein-1 distance between the two
+    distributions after both are put on the empirical distribution's scale, so
+    it is in units of empirical standard deviations and comparable across
+    characteristics. `ks` is the Kolmogorov-Smirnov statistic. Roughly: below
+    0.1 the two are hard to tell apart, above 0.3 they are visibly different.
+    """
+    from scipy import stats as _st
+    rows = []
+    for m in metrics:
+        if m not in empirical or m not in synthetic:
+            continue
+        e, s = _clean(empirical[m]), _clean(synthetic[m])
+        if len(e) < 5 or len(s) < 5:
+            continue
+        sd = e.std()
+        scale = sd if sd > 0 else 1.0
+        rows.append(dict(
+            metric=m,
+            empirical_median=float(e.median()), synthetic_median=float(s.median()),
+            empirical_iqr=float(e.quantile(.75) - e.quantile(.25)),
+            synthetic_iqr=float(s.quantile(.75) - s.quantile(.25)),
+            median_shift_in_sd=float((s.median() - e.median()) / scale),
+            w1_standardized=float(_st.wasserstein_distance(e / scale, s / scale)),
+            ks=float(_st.ks_2samp(e, s).statistic),
+        ))
+    out = pd.DataFrame(rows)
+    return out.sort_values('w1_standardized', ascending=False).reset_index(drop=True)
+
+
+def modality_comparison(empirical_datasets, synthetic_values, synthetic_ids,
+                        rng, nboot=60, kmax=6):
+    """Distribution of the NUMBER OF MODES in each arm, by Silverman's test.
+
+    The metric that matters most and the one the corpus gets most wrong. A
+    modality index that falls inside the empirical range can still have
+    completely the wrong distribution, which is exactly what happened.
+    """
+    import modality as _md
+    emp = np.array([_md.n_modes_silverman(x, rng=rng, nboot=nboot, kmax=kmax)
+                    for x, _ in empirical_datasets.values()])
+    syn = []
+    for ds, g in synthetic_values.groupby('dataset_id', observed=True):
+        if str(ds) not in synthetic_ids:
+            continue
+        x = g['value'].to_numpy()
+        if len(x) >= 4:
+            syn.append(_md.n_modes_silverman(x, rng=rng, nboot=nboot, kmax=kmax))
+    syn = np.array(syn)
+    rows = []
+    for k in range(1, kmax + 2):
+        rows.append(dict(modes=(f'{k}' if k <= kmax else f'{kmax}+'),
+                         empirical_share=float((emp == k).mean()),
+                         synthetic_share=float((syn == k).mean())))
+    out = pd.DataFrame(rows)
+    out.loc[len(out)] = dict(modes='multimodal',
+                             empirical_share=float((emp > 1).mean()),
+                             synthetic_share=float((syn > 1).mean()))
+    return out, emp, syn

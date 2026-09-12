@@ -75,24 +75,50 @@ class GeneratorConfig:
     rng.integers(1, 6)."""
 
     # ---- component separation, as overlap ----------------------------------
-    overlap_log10_lo: float = -3.5
-    overlap_log10_hi: float = np.log10(0.75)
+    overlap_log10_lo: float = np.log10(0.3)
+    overlap_log10_hi: float = np.log10(1.4)
     """Target average pairwise overlap, drawn log-uniformly in this range and
     then solved for by moving the component locations (Maitra and Melnykov
-    2010, step 3). Overlap replaces the old locs ~ U(5, 20) with
-    scales ~ U(0.2, 1.5), which placed components tens of standard deviations
-    apart and so produced well-separated clusters rather than the partially
-    merged shoulders real material categories show.
+    2010, step 3).
 
-    The upper end is set from measurement, not taste. Fitting a BIC-selected
-    Gaussian mixture to each of the 138 empirical datasets and computing the
-    same overlap functional gives a median of 0.0218, a 95th percentile of
-    0.4528 and a maximum of 0.6719; the same estimator on the shipped synthetic
-    corpus gives a median of 0.0037, about six times less overlap than the
-    empirical data at the median. 0.75 covers the empirical maximum with
-    margin. A log-uniform draw over [1e-4, 0.75] has median 0.0087, which
-    brackets the empirical median from below. See
-    outputs/tables/stage2a/TABLE_2a_OverlapComparison.csv."""
+    The range is HIGH deliberately: components are meant to merge. Overlap is
+    the probability that a value drawn from one mode would be attributed to
+    another, so a target near 1 means the modes are barely distinguishable, and
+    that is what a real material category usually looks like when it has
+    several production routes of similar carbon intensity.
+
+    This is the single most consequential parameter in the configuration and it
+    is set by matching a DISTRIBUTION, not a range. The quantity that matters
+    is how many modes a dataset appears to have, measured by Silverman's test:
+
+        modes     empirical (138)    synthetic
+        1              83.3%           87.5%
+        2              15.2%           11.3%
+        3               1.4%            1.2%
+        4 or more       0.0%            0.0%
+
+    Targeting low overlap instead breaks this badly and breaks it quietly.
+    Every range-coverage statistic still reads 100 percent, because the
+    modality metrics stay inside the empirical range; only their distribution
+    is wrong. At a lower bound of 1e-3.5 the corpus was 55 percent multimodal
+    against an empirical 17 percent, with 9.7 percent of it showing six or more
+    modes, which never occurs in the empirical data. Measured sweep of the
+    lower bound, mean Wasserstein-1 distance across all ten characteristics and
+    the total variation distance of the mode-count distribution:
+
+        lower bound   mean W1   mode TV   unimodal share
+        1e-3.5          0.613     0.430       44%
+        1e-2.0          0.517     0.348       49%
+        1e-1.5          0.411     0.226       61%
+        1e-1.0          0.360     0.175       66%
+        0.3 to 1.4      0.352     0.049       88%
+
+    Higher overlap also improves the goodness-of-fit characteristics, because
+    merged components produce the smooth right-skewed shape that real ECC data
+    have: fit_lognorm_SW falls from 1.69 to 0.54.
+
+    See audits/stage2a/b5_tune_configuration.py, which is the script that
+    produced these numbers and the one to re-run after any change."""
 
     # ---- component shapes, as moment targets -------------------------------
     comp_skew_lo: float = -3.0
@@ -169,20 +195,27 @@ class GeneratorConfig:
     market-weighted parent is the mixture sum_k v_k f_k. Swept."""
 
     # ---- spread, as a target rather than a side effect ---------------------
-    cv_log10_mean: float = -0.2641
+    cv_log10_mean: float = 0.011
     cv_log10_sd: float = 0.2913 * 2.0
     cv_log10_lo: float = np.log10(0.004)
     cv_log10_hi: float = np.log10(3.2)
     """Target coefficient of variation of the population parent, drawn from a
     normal in log10 truncated to [lo, hi], and then solved for exactly.
 
-    The centre and spread come from the 138 empirical datasets, whose log10
-    coefficient of variation has mean -0.2641 and standard deviation 0.2913,
-    a median coefficient of variation of 0.544. The standard deviation is
-    DOUBLED, which is what "margin beyond the empirical envelope" means here:
-    the corpus is centred where the real data are and reaches roughly twice as
-    far in each direction, so a generalizability claim has something to stand
-    on.
+    The spread comes from the 138 empirical datasets, whose log10 coefficient
+    of variation has a standard deviation of 0.2913; it is DOUBLED here, which
+    is what "margin beyond the empirical envelope" means: the corpus reaches
+    about twice as far in each direction as the real data do.
+
+    The centre is NOT the empirical centre. It is set 0.24 dex above it,
+    because this is a target for the POPULATION coefficient of variation while
+    the characteristic being matched is the SAMPLE one, and the sample value of
+    a right-skewed distribution runs systematically low: a finite sample rarely
+    contains the far tail. The offset was measured, not assumed. Before it, the
+    synthetic sample coefficient of variation sat at about 0.57 times the
+    empirical value at every percentile from the 1st to the 99th, a clean
+    multiplicative shift. Sweeping the centre upward: +0.12 dex gives a mean W1
+    of 0.347, +0.24 gives 0.337, +0.36 gives 0.339.
 
     A log-UNIFORM draw over the same range was tried first and rejected. It
     gives even coverage of every regime, which is attractive for the
