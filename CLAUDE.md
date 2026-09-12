@@ -221,8 +221,8 @@ regenerates again afterward, doubles the verification work for no gain.
 | **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
 | **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
-| **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check | Changing any number |
-| **4** (optional) | README and Zenodo re-deposit | Anything analytical |
+| **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **Also the figure SIZE problem: several figures declare a `figsize` of roughly 94 by 55 inches and come out at 50 to 98 megapixels. 2a deleted 15 stale figures (115 MB) but did not touch the live ones, which are all from the pre-regeneration corpus and will be rebuilt anyway** | Changing any number |
+| **4** (optional) | README and Zenodo re-deposit. **Also the `.git` history rewrite if the author wants it: 391 MB, about 190 MB of it six large figure and table blobs re-stored whole on every change. Deleting working-tree files does not reclaim this; only `git filter-repo` does, and it rewrites every commit hash** | Anything analytical |
 
 Items already known to be open and owned by a named stage, so that none of them
 reads as a fresh discovery: the bandwidth rule and its KL1/KL2 inconsistency

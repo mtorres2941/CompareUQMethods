@@ -308,6 +308,30 @@ and computes both directions of a pair together.
 - **`position_skew = 5` is a calibrated parameter**, chosen by measurement
   against the empirical envelope. It is the single strongest control on the
   coefficient of variation. **Owner: 2h**, as a sweep.
+- **15 stale figures deleted, 115 MB.** They were left by earlier naming
+  conventions (`FIG2_`, `FIG4_`, `Supplement2_`, `Supplement4_`,
+  `ScatterPlot_UQResults_All`) and no live notebook cell writes any of them.
+  `outputs/figures` went from 269 MB to 154 MB. Verified before deleting that
+  `TABLE_PLCAResults.csv` is NOT stale: it is written through a variable, which
+  a literal-path scan reports as an orphan.
+- **The remaining 21 figures are all from the PRE-REGENERATION corpus** and are
+  wrong as of this stage. They will be overwritten when notebooks 2 and 3 run
+  against `corpus_2026-09-11c`. Only
+  `CompareUQMethods_FIG_MetricCoverage.png/.pdf` is current.
+- **The figures are enormous for a reason that is not dpi.** Measured:
+
+  | Size | Pixels | Mpx | dpi | File |
+  |---|---|---|---|---|
+  | 31.3 MB | 9540 x 10230 | 97.6 | 1200 | `WassVsResultDiff.png` |
+  | 31.2 MB | 9988 x 6587 | 65.8 | **default 100** | `SUPP_WassDistanceVsMetric_ALLMETRICS.png` |
+  | 23.4 MB | 8948 x 10410 | 93.1 | 300 | `SUPP_ScatterPlot_UQResults_All.png` |
+  | 9.6 MB | 9409 x 5501 | 51.8 | **default 100** | `SUPP_KSTestStripAndRank.png` |
+
+  Three of those four are at the DEFAULT dpi of 100, which means the `figsize`
+  is being declared at about 94 by 55 INCHES. A journal figure is 3.5 in for a
+  single column or 7.5 in full width; at 300 dpi that is 2,250 px. These are
+  four times too wide and twenty times too many pixels. Reducing dpi alone will
+  not fix it; the `figsize` calls are the problem. **Owner: 3.**
 - **The repository is 391 MB of git history, and almost none of it is data.**
   Measured at the end of this stage. The six largest blobs are 1200-dpi
   figures and `TABLE_PLCAResults.csv`, each re-stored whole every time it
@@ -317,6 +341,15 @@ and computes both directions of a pair together.
   `WassVsResultDiff.png`, 31.2 MB `SUPP_WassDistanceVsMetric_ALLMETRICS.png`.
   Stage 1 already flagged this as deferred. It matters for the Zenodo deposit.
   **Owner: 3 (figures) and 4 (deposit).**
+
+  Note that deleting files from the working tree does NOT shrink `.git`:
+  `outputs/figures` fell from 269 MB to 154 MB in this stage and `.git` stayed
+  at exactly 391 MB, because every version ever committed is still in the
+  object database. Only a history rewrite (`git filter-repo`) reclaims it, and
+  that rewrites every commit hash, which breaks any existing clone and has to
+  be reconciled with the Zenodo deposit. **That is an explicit author decision,
+  not a cleanup task**, and it is best done once, immediately before the
+  Stage 4 re-deposit, after Stage 3 has settled the final figure set.
 - **The corpus data are 192 MB and gitignored.** For the record, since the
   growth surprised the author: the old `DATA_all.json` held 2,744,113 values in
   121.5 MB of JSON, 44 bytes per value; the new corpus holds 12,876,931 values
