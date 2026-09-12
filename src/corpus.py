@@ -244,10 +244,39 @@ def as_dict(values):
 
 
 # --------------------------------------------------------------------------
+def scaled_config(cfg, n_total, n_probe=None):
+    """The same configuration at a smaller corpus size, for iteration.
+
+    Every stratum is scaled by the same factor, so the design is unchanged and
+    only the precision of each estimate drops. A draft corpus is for deciding
+    whether the GENERATOR is right; the full corpus is for the paper's numbers.
+    Generating 10,000 datasets to answer a question that 1,000 answers is about
+    twelve wasted minutes per iteration, plus three to five times the cost of
+    every downstream check.
+
+    The label must record it. `runmeta.json` carries n_corpus, so a draft cannot
+    be mistaken for the real thing after the fact, but the directory name is
+    what a reader sees first.
+    """
+    k = len(cfg.strata)
+    per = max(1, int(round(n_total / k)))
+    strata = tuple(G.Stratum(st.name, st.n_lo, st.n_hi, per) for st in cfg.strata)
+    probe = cfg.probe
+    if n_probe is not None:
+        probe = G.Stratum(probe.name, probe.n_lo, probe.n_hi, int(n_probe))
+    return cfg.replace(strata=strata, probe=probe)
+
+
 if __name__ == '__main__':
     label = sys.argv[1] if len(sys.argv) > 1 else datetime.now().strftime('%Y%m%d')
-    print(f'generating corpus {label} with seed {G.DEFAULT.seed} ...')
-    d = generate_corpus(G.DEFAULT, label)
+    cfg = G.DEFAULT
+    if len(sys.argv) > 2:
+        n_total = int(sys.argv[2])
+        cfg = scaled_config(cfg, n_total, n_probe=max(5, n_total // 200))
+        print(f'DRAFT SIZE: {cfg.n_datasets} datasets, '
+              f'{cfg.probe.n_datasets} probe. Not a corpus for the paper.')
+    print(f'generating corpus {label} with seed {cfg.seed} ...')
+    d = generate_corpus(cfg, label)
     with open(os.path.join(d, 'runmeta.json')) as f:
         meta = json.load(f)
     print(json.dumps({k: v for k, v in meta.items() if k != 'config'}, indent=2))

@@ -87,8 +87,8 @@ class GeneratorConfig:
     rng.integers(1, 6)."""
 
     # ---- component separation, as overlap ----------------------------------
-    overlap_log10_lo: float = -2.5
-    overlap_log10_hi: float = np.log10(1.4)
+    overlap_log10_lo: float = -2.0
+    overlap_log10_hi: float = np.log10(0.9)
     """Target average pairwise overlap, drawn log-uniformly in this range and
     then solved for by moving the component locations (Maitra and Melnykov
     2010, step 3).
@@ -301,6 +301,110 @@ class GeneratorConfig:
     dataset discarding 0.0002 of its mass and the 95th percentile 0.157."""
 
     # ---- truncation --------------------------------------------------------
+    overlap_statistic: str = 'min_adjacent'
+    """Which overlap statistic the spread solve holds to the target.
+
+    'average' is the Maitra-Melnykov average pairwise overlap and is what Stage
+    2a and Stage 2a-2 used. 'min_adjacent' is the smallest overlap between
+    NEIGHBOURING components.
+
+    The average stops constraining what a reader of a density plot sees once
+    there are more than two components: a couple of heavily overlapping pairs
+    carry the average while another pair sits at zero, so a mixture can report
+    an average overlap of 0.09 and still show two sharp peaks with empty space
+    between them. Measured on corpus_2026-09-12c, which targeted the average:
+
+        k    median smallest pairwise overlap    median average
+        2                 0.00094                    0.00094
+        3                 0.00000                    0.02793
+        4                 0.00000                    0.06046
+        5                 0.00000                    0.09082
+
+    This was recorded as a known defect of corpus_2026-09-12 in
+    data/INPUTS.sha256 and then reintroduced by the Stage 2a-2 retune, which
+    lowered the average-overlap target to match the mode-count distribution and
+    so pushed the already-unconstrained pairs further apart. Controlling the
+    minimum adjacent overlap targets the gaps directly.
+
+    Neighbouring rather than all pairs: in one dimension the outermost pair of a
+    five-component mixture is legitimately far apart, and the empirical arm
+    shows the same thing, with a median smallest all-pairs overlap of 0.0000.
+    The all-pairs minimum therefore cannot distinguish the two arms; the
+    adjacent minimum can."""
+
+    trunc_rule: str = 'additive'
+    """Whether the population truncation bounds are additive or multiplicative.
+
+    'additive' is max(Q1 - mult * IQR, 0) and Q3 + mult * IQR, the rule the old
+    generator used and the one the empirical arm used before Stage 2a-2.
+    'log' is the same rule in log space, lo = Q1 / (Q3/Q1) ** mult and
+    hi = Q3 * (Q3/Q1) ** mult.
+
+    The empirical arm moved to the multiplicative rule in Stage 2a-2, because an
+    ECC is strictly positive and right skewed and the additive lower bound is
+    therefore negative in most categories and never binds. The synthetic arm was
+    left on the additive rule in that stage, which is a defect: it left the two
+    arms truncated by different rules on a dimension the study is about, in the
+    same way the Dirichlet concentration differed between the arms before Stage
+    2a. The notebook text claiming "the same rule applied to the empirical data"
+    was false for the whole of Stage 2a-2.
+
+    The practical difference is entirely at the low end. Under the additive rule
+    the synthetic parent keeps its full left tail down to the positivity floor;
+    under the log rule the left tail is cut at a fixed ratio below the first
+    quartile. That is the region the lognormal offset in Stage 2b exists to
+    handle, so the two stages interact.
+
+    IT IS SET TO 'additive', AND THE REASON IS A FAILED ATTEMPT WORTH RECORDING.
+    'log' was made the default in Stage 2a-2 and reverted the same day, because
+    a multiplicative truncation is incompatible with using an additive SHIFT as
+    the coefficient-of-variation control. The shift is what places the mixture
+    relative to zero, and as it grows the quartile ratio q3/q1 tends to 1, so
+    the multiplicative bounds q1 / r ** mult and q3 * r ** mult converge onto
+    the interquartile range itself. Measured on 100 datasets: truncated mass
+    rose from a median of 0.149 to 0.247, essentially exactly the lower
+    quartile, and the achieved coefficient of variation collapsed to 0.000 with
+    only 5 percent of targets met against 38 percent under the additive rule.
+    Raising trunc_iqr_mult to 5 or 8 does not help, because the collapse is in
+    r rather than in mult.
+
+    So the two arms ARE truncated by different rules, and the notebook must say
+    so rather than claiming otherwise. That is defensible on its own terms - the
+    empirical rule removes suspected data errors from an observed sample, while
+    this defines the support of a parent distribution, and they are not the same
+    operation - but it is a difference, not an equivalence.
+
+    What the difference actually costs is measured and is confined to large
+    datasets. Minimum over mean, synthetic against empirical, by size:
+
+        n            synthetic median   empirical median   empirical count
+        3 to 9              0.387              0.349              13
+        10 to 99            0.109              0.129              76
+        100 to 999          0.0218             0.0382             40
+        1000 and up         0.00088            0.187               6
+
+    The unstratified comparison looks far worse than this - 34.5 percent of
+    synthetic datasets below 0.01 against 11.8 percent empirically - but that is
+    mostly the equal-allocation design, which puts 25 percent of the corpus at
+    n >= 1000 against 4.4 percent of the empirical arm. The real discrepancy is
+    the last row, and the empirical side of it is six datasets.
+
+    Fixing it properly means matching the left-tail SHAPE, not adding a floor: a
+    sample minimum is about the 1/n quantile, so a corpus that matches min/mean
+    at n = 50 and not at n = 5000 has the wrong tail, and no single lower bound
+    repairs that across sizes. Owner: 2h."""
+
+    min_q1_over_iqr: float = 0.05
+    """Positivity floor for the log truncation rule, as a multiple of the
+    interquartile range: the shift must leave Q1 >= this times IQR.
+
+    It replaces `max_low_tail_truncated` when `trunc_rule` is 'log'. Under the
+    multiplicative rule the lower bound is positive whenever Q1 is, so a
+    separate tail-mass budget is unnecessary and this single condition does the
+    whole job. Small values allow a large coefficient of variation, because they
+    let the distribution sit close to the origin; 0.05 is loose enough not to
+    bind on the spread while keeping the first quartile clear of zero."""
+
     trunc_iqr_mult: float = 3.0
     """Bounds are max(Q1 - mult * IQR, 0) and Q3 + mult * IQR of the POPULATION
     mixture. Same rule as the old generator; what changed is that the quantiles

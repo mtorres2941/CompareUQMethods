@@ -117,7 +117,8 @@ def draw_parent(cfg, n, rng):
 
     if k > 1:
         target = float(10 ** rng.uniform(cfg.overlap_log10_lo, cfg.overlap_log10_hi))
-        comps, overlap, ov_status = M.solve_spread_for_overlap(build, target)
+        comps, overlap, ov_status = M.solve_spread_for_overlap(
+            build, target, statistic=cfg.overlap_statistic)
     else:
         target, overlap, ov_status = 0.0, 0.0, 'single_component'
         comps, _ = build(0.0)
@@ -129,33 +130,56 @@ def draw_parent(cfg, n, rng):
     # Shifting a distribution changes its mean and leaves its standard
     # deviation alone, so the shift IS the coefficient of variation: for a
     # parent normalized to mean 1, cv(s) = sd(s) / mean(s), decreasing in s.
-    # The target is drawn from the configuration and solved for by bisection,
-    # subject to a floor that keeps essentially no probability below zero.
+    # The target is drawn from the configuration and solved for by bisection.
     #
-    # Two earlier attempts got this wrong in instructive ways. Shifting above
+    # Three earlier attempts got this wrong in instructive ways. Shifting above
     # the 1e-9 quantile of the heaviest-tailed component put the median
     # dataset's support at 0.65 of its own mean and drove the median
     # coefficient of variation to 0.049. Shifting so that Q1 - 3 * IQR landed
     # on zero capped it near 0.5 whatever the component shapes, because it
     # forces the mean to about 3.5 * IQR with the upper bound at 7 * IQR.
     # Neither is a statement about the data; both are artifacts of choosing a
-    # shift for a reason unrelated to what the shift controls.
+    # shift for a reason unrelated to what the shift controls. The third was
+    # keeping the ADDITIVE interquartile rule here while the empirical arm
+    # moved to the multiplicative one, which left the two arms truncated
+    # differently on a dimension the study is about; see below.
+    #
+    # Quartiles TRANSLATE under a shift, so both truncation rules can be
+    # evaluated at any shift from the unshifted quartiles alone, and the
+    # bisection stays cheap.
+    q1_0 = M.mixture_quantile(comps, pi, 0.25)
+    q3_0 = M.mixture_quantile(comps, pi, 0.75)
     lo0_raw, hi0 = M.population_truncation_bounds(comps, pi, cfg.trunc_iqr_mult,
                                                   clip_at_zero=False)
     span = hi0 - lo0_raw
-    q_low = M.mixture_quantile(comps, pi, cfg.max_low_tail_truncated)
-    shift_min = max(0.0, 1e-4 * span - q_low)
+
+    if cfg.trunc_rule == 'log':
+        # The multiplicative rule needs a strictly positive first quartile,
+        # which is also exactly the condition for its lower bound to be
+        # positive, so positivity is enforced here rather than by a separate
+        # tail-mass budget.
+        shift_min = max(0.0, cfg.min_q1_over_iqr * (q3_0 - q1_0) - q1_0)
+    else:
+        q_low = M.mixture_quantile(comps, pi, cfg.max_low_tail_truncated)
+        shift_min = max(0.0, 1e-4 * span - q_low)
 
     cv_target = float(10 ** _truncated_normal(
         rng, cfg.cv_log10_mean, cfg.cv_log10_sd, cfg.cv_log10_lo, cfg.cv_log10_hi))
+
+    def bounds_at(sh):
+        """Truncation bounds of the mixture shifted by sh."""
+        if cfg.trunc_rule == 'log':
+            b = M.log_truncation_bounds(q1_0 + sh, q3_0 + sh, cfg.trunc_iqr_mult)
+            if b is not None:
+                return b
+        return max(lo0_raw + sh, 1e-9 * span), hi0 + sh
 
     def parent_at(sh):
         # The COMPONENTS move with the bounds. Truncating the unshifted mixture
         # to shifted bounds is a different distribution, and doing that made
         # the solve miss its target by 59 percent at the median.
         cs = [_Shifted(d, sh) for d in comps] if sh > 0 else comps
-        h = hi0 + sh
-        lo = max(lo0_raw + sh, 1e-9 * span)
+        lo, h = bounds_at(sh)
         return M.MixtureParent(cs, pi, market, lo, h, cfg.mode_coupling)
 
     def cv_at(sh):
@@ -166,12 +190,17 @@ def draw_parent(cfg, n, rng):
     if shift > 0:
         comps = [_Shifted(d, shift) for d in comps]
 
-    hi = hi0 + shift
-    lo = max(lo0_raw + shift, 1e-9 * span)
+    lo, hi = bounds_at(shift)
+
     parent = M.MixtureParent(comps, pi, market, lo, hi, cfg.mode_coupling)
     m_fin, sd_fin = parent.truncated_moments()
     cv_achieved = (sd_fin / m_fin) if m_fin > 0 else np.nan
     record = dict(status='ok', k=k, overlap_target=target, overlap_achieved=overlap,
+                  overlap_statistic=cfg.overlap_statistic,
+                  overlap_avg=float(M.average_overlap(comps, pi)) if k > 1 else 0.0,
+                  overlap_min_adjacent=float(M.min_adjacent_overlap(comps, pi))
+                  if k > 1 else 0.0,
+                  trunc_rule=cfg.trunc_rule,
                   overlap_status=ov_status, component_retries=retries,
                   components=specs, pi=pi.tolist(), market=market.tolist(),
                   shift=shift, lo=lo, hi=hi,

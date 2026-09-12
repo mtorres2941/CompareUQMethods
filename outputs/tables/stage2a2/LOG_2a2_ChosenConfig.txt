@@ -3,32 +3,32 @@ source:  data/raw/ec3_raw_ecc_2026-08-14.csv.gz
 measuring the empirical arm ...
   136 datasets, 49.3% unimodal
 
-=== current default  (440 datasets, 75s) ===
-  weighted objective   0.4261
-  mean W1 unweighted   0.5294
-  mode-count TV        0.0879
-  unimodal   empirical  49.3%   synthetic  49.5%
-  coeffvar W1 0.265   skewness W1 0.540   crit_bw_1 W1 0.485
-  worst characteristic fit_lognorm_SW (1.828)
+=== current default  (440 datasets, 89s) ===
+  weighted objective   0.4243
+  mean W1 unweighted   0.4882
+  mode-count TV        0.1124
+  unimodal   empirical  49.3%   synthetic  59.3%
+  coeffvar W1 0.352   skewness W1 0.602   crit_bw_1 W1 0.554
+  worst characteristic fit_lognorm_SW (1.052)
 
 per characteristic:
             metric  weight  w1_standardized    ks  empirical_median  synthetic_median  median_shift_in_sd
-    fit_lognorm_SW   1.000            1.828 0.456             0.937             0.856              -1.373
-w_v_uw_wasserstein   1.000            0.629 0.208             0.119             0.131               0.084
-          skewness   1.000            0.540 0.364             2.060             0.920              -0.350
-         crit_bw_1   3.000            0.485 0.333             0.852             0.623              -0.358
-           entropy   1.000            0.477 0.202             2.931             2.959               0.028
-   weight_outliers   1.000            0.354 0.262             0.057             0.013              -0.702
-       fit_norm_SW   1.000            0.273 0.181             0.756             0.832               0.360
-          coeffvar   3.000            0.265 0.246             0.782             0.601              -0.112
-          kurtosis   1.000            0.264 0.405             5.758             1.103              -0.074
-                 n   0.250            0.179 0.230            53.000            99.500               0.006
+    fit_lognorm_SW   1.000            1.052 0.355             0.937             0.884              -0.909
+          skewness   1.000            0.602 0.414             2.060             0.854              -0.371
+       fit_norm_SW   1.000            0.599 0.374             0.756             0.880               0.593
+         crit_bw_1   3.000            0.554 0.364             0.852             0.574              -0.434
+           entropy   1.000            0.549 0.279             2.931             3.533               0.594
+          coeffvar   3.000            0.352 0.303             0.782             0.554              -0.141
+w_v_uw_wasserstein   1.000            0.349 0.156             0.119             0.130               0.079
+   weight_outliers   1.000            0.340 0.240             0.057             0.019              -0.613
+          kurtosis   1.000            0.306 0.416             5.758             1.278              -0.071
+                 n   0.250            0.180 0.252            53.000            99.500               0.006
 
 mode counts:
  modes  empirical  synthetic
-     1      0.493      0.495
-     2      0.397      0.309
-     3      0.096      0.101
-     4      0.007      0.024
-     5      0.000      0.005
-     6      0.007      0.065
+     1      0.493      0.593
+     2      0.397      0.316
+     3      0.096      0.072
+     4      0.007      0.017
+     5      0.000      0.002
+     6      0.007      0.000

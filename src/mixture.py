@@ -386,14 +386,91 @@ def average_overlap(comps, pi, grid_n=120):
     iu = np.triu_indices(k, 1)
     return float(np.mean(om[iu]))
 
+def min_adjacent_overlap(comps, pi, grid_n=120):
+    """Smallest overlap between NEIGHBOURING components, by location.
 
-def solve_spread_for_overlap(build, target, lo=1e-4, hi=1e4, tol=1e-3, grid_n=120):
-    """Find the location spread giving the requested average overlap.
+    The quantity to control, in place of the average, once k > 2.
+
+    Average pairwise overlap is what Maitra and Melnykov parameterize and what
+    this generator targeted through Stage 2a-2, and for k = 2 the two are the
+    same number. Beyond that the average stops constraining the thing a reader
+    of a density plot actually sees. With five components, a couple of heavily
+    overlapping pairs carry the average while another pair sits at zero, so a
+    mixture can hit an average overlap of 0.09 and still show two sharp peaks
+    with empty space between them. Measured on corpus_2026-09-12c, the median
+    SMALLEST pairwise overlap is 0.00000 at k = 3, 4 and 5 while the median
+    average is 0.028, 0.060 and 0.091.
+
+    Neighbouring rather than all pairs, because in one dimension the outermost
+    pair of a five-component mixture is legitimately far apart; that is not what
+    makes a density look wrong. What makes it look wrong is a GAP, and a gap is
+    a consecutive pair with no overlap. The empirical arm agrees: its smallest
+    pairwise overlap has a median of 0.0000 too, because of exactly this
+    outermost-pair effect, so the all-pairs minimum cannot distinguish the two
+    arms and the adjacent minimum can.
+
+    Components are ordered by median rather than by mean, because a component
+    with heavy skew and finite-but-huge kurtosis can have a mean far outside its
+    own body.
+    """
+    k = len(comps)
+    if k < 2:
+        return 0.0
+    order = np.argsort([float(d.ppf(0.5)) for d in comps])
+    om = pairwise_overlap(comps, pi, grid_n)
+    return float(min(om[order[i], order[i + 1]] for i in range(k - 1)))
+
+
+def overlap_statistic(comps, pi, statistic='average', grid_n=120):
+    """Dispatch for the quantity the spread solve targets."""
+    if statistic == 'average':
+        return average_overlap(comps, pi, grid_n)
+    if statistic == 'min_adjacent':
+        return min_adjacent_overlap(comps, pi, grid_n)
+    raise ValueError(f'unknown overlap statistic {statistic!r}')
+
+
+def log_truncation_bounds(q1, q3, mult):
+    """Multiplicative interquartile bounds, the rule the empirical arm uses.
+
+    In log space the interquartile rule is a ratio rather than a difference:
+
+        lo = exp(log q1 - mult * (log q3 - log q1)) = q1 / (q3 / q1) ** mult
+        hi = exp(log q3 + mult * (log q3 - log q1)) = q3 * (q3 / q1) ** mult
+
+    Both bounds are strictly positive whenever q1 is, so no clip at zero is
+    needed, which is the whole reason for preferring it: the ADDITIVE form of
+    the same rule has a lower bound of q1 - mult * (q3 - q1), which is negative
+    for any right-skewed distribution on the positive half line and therefore
+    never binds. `src/datageneration.clean_empirical_symmetric` applies exactly
+    this rule to the empirical data, so the two arms are now truncated the same
+    way. Through Stage 2a-2 they were not: the empirical arm was multiplicative
+    and the synthetic arm additive.
+
+    Quantiles translate under a shift, so a caller solving for a shift can pass
+    `q1 + shift` and `q3 + shift` rather than recomputing the mixture quantiles
+    at every step.
+    """
+    if not (q1 > 0) or not (q3 > q1):
+        return None
+    r = q3 / q1
+    return q1 / r ** mult, q3 * r ** mult
+
+
+
+def solve_spread_for_overlap(build, target, lo=1e-4, hi=1e4, tol=1e-3,
+                             grid_n=120, statistic='average'):
+    """Find the location spread giving the requested overlap.
 
     `build(c)` returns the component list at spread multiplier c, with c small
     meaning the components sit on top of one another (overlap near its maximum)
-    and c large meaning they are far apart (overlap near zero). Average overlap
-    is monotone decreasing in c, so a bisection is enough.
+    and c large meaning they are far apart (overlap near zero). Both overlap
+    statistics are monotone decreasing in c, so a bisection is enough.
+
+    `statistic` selects what is held to the target: 'average' is the
+    Maitra-Melnykov average pairwise overlap, and 'min_adjacent' is the smallest
+    overlap between neighbouring components. See min_adjacent_overlap for why
+    the average stops being the right quantity once k > 2.
 
     This is Maitra and Melnykov's step 3, with the roles of scale and location
     exchanged: they hold locations fixed and scale the covariances, which for
@@ -405,7 +482,7 @@ def solve_spread_for_overlap(build, target, lo=1e-4, hi=1e4, tol=1e-3, grid_n=12
     """
     def f(c):
         comps, pi = build(c)
-        return average_overlap(comps, pi, grid_n)
+        return overlap_statistic(comps, pi, statistic, grid_n)
 
     f_lo, f_hi = f(lo), f(hi)
     if target > f_lo:
