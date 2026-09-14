@@ -320,15 +320,15 @@ claim. See entries 3, 4 and 6.
 | **Fix** | **Text.** Every empirical characteristic number is replaced. State the cleaning rule precisely, in log space and symmetric, and report its sensitivity from `TABLE_2a2_CleaningSensitivity.csv`. |
 | **Status** | Open. Supersedes the numbers in entries 25 and 27. |
 
-## 30. The EC3 API is no longer reachable from this account
+## 30. The empirical data is an archived extract, and should be cited as one
 
 | | |
 |---|---|
 | **Manuscript** | Describes the empirical data as extracted from the EC3 API. |
-| **Measured in Stage 2a-2** | A request returns HTTP 403 with "Direct API access is not allowed for private or restricted accounts. Please use a business account or reach out to support@buildingtransparency.org". The key is recognized; `check_api_token` distinguishes this from a bad key. The empirical arm is therefore built from a frozen local extract of a 2026-08-13/14 pull rather than a live one. |
-| **Consequence** | For the reader this is an improvement, not a loss: the archived, checksummed extract in `data/raw/` is reproducible where an API pull is not. The manuscript should cite the archived file and its pull date rather than implying the reader can re-run the query. |
-| **Fix** | **Text.** State the pull date, the archive, and that EC3 access is now gated. |
-| **Status** | Open. Also an author action if a business account is wanted. |
+| **Code** | The empirical arm reads `data/raw/ec3_raw_ecc_<pull date>.csv.gz`, a frozen extract of the consolidated EPD store, pulled 2026-08-13/14 and checksummed in `data/INPUTS.sha256` with its query and pull dates. |
+| **Consequence** | For a reader this is an improvement: EC3's contents change as declarations are issued and expire, so a live query is not reproducible while an archived extract is. |
+| **Fix** | **Text.** Cite the archived file and its pull date rather than implying the reader can re-run the query and obtain the same data. |
+| **Status** | Open. Text edit. |
 
 ## 31. Some EC3 categories span several orders of magnitude and are not one population
 

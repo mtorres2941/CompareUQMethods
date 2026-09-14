@@ -486,19 +486,20 @@ rather than in conversation.
     that instruction is correct for every other stage. It was suspended here
     because notebooks 2 and 3 had never run against `corpus_2026-09-12b`, so
     nothing downstream existed to invalidate.
-31. **2026-09-12, Stage 2a-2. The EC3 API is closed to this account, and the
-    empirical arm is built from a frozen local extract instead.** `[AUTHOR]`
-    The API returns HTTP 403, "Direct API access is not allowed for private or
-    restricted accounts"; the key is recognized, the account permission is not.
-    The substitute is a slice of `../EPDsFromEC3/store`, pulled 2026-08-13/14
-    through the correctly-paginating LucidLCA wrapper: five months newer than
-    the 2026-03 data and, crucially, RAW. Frozen as
-    `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, tracked and checksummed. A fresh
-    pull is being taken in the `EPDsFromEC3` repository and will be folded in
-    when it lands; the author's position is that it is not expected to change
-    much. **Do not query the EC3 API while that pull is running:** EC3 rate
-    limits per account, not per process, and a concurrent request is what
-    truncated a ready-mix pull to 9 percent while reporting success.
+31. **2026-09-12, Stage 2a-2. The empirical arm is built from a frozen local
+    extract of the 2026-08 EC3 store.** `[AUTHOR]` A slice of
+    `../EPDsFromEC3/store`, pulled 2026-08-13/14 through the correctly-
+    paginating LucidLCA wrapper: five months newer than the 2026-03 data and,
+    crucially, RAW. Frozen as `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, tracked
+    and checksummed, which is what makes the empirical arm reproducible from a
+    clean clone.
+
+    A fresh pull was running in the `EPDsFromEC3` repository at the same time.
+    It is folded in by pointing `audits/stage2a2/p1_build_raw_extract.py` at the
+    new file; the author's position is that it is not expected to change much,
+    and whether it justifies another regeneration is theirs to call. **Do not
+    query the EC3 API while a pull is running there:** EC3 rate limits per
+    account, not per process.
 32. **2026-09-12, Stage 2a-2. The empirical arm is valid-at-pull-date, matching
     the 2026-03 scope.** `[AUTHOR]` The 2026-08 pulls include expired
     declarations and the 2026-03 pull did not, so keeping them would have

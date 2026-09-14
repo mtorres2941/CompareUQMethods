@@ -212,13 +212,12 @@ removes high outliers while leaving values orders of magnitude below the mean.
 A category is kept only if at least three values survive, which is why the arm
 holds 136 categories and not the 138 that were extracted.
 
-**The EC3 API is not reachable from this account.** It returns HTTP 403,
-"Direct API access is not allowed for private or restricted accounts"; the key
-is recognized, the account permission is not. The current extract is a slice of
-the consolidated store at `../EPDsFromEC3/store`, pulled 2026-08-13/14 through
-the LucidLCA wrapper. `../EPDsFromEC3/PULLING_EPDS.md` documents three ways a
-paginated pull fails while reporting success, and must be read before writing
-anything that talks to that API.
+The current extract is a slice of the consolidated store at
+`../EPDsFromEC3/store`, pulled 2026-08-13/14 through the LucidLCA wrapper.
+`../EPDsFromEC3/PULLING_EPDS.md` documents three ways a paginated pull fails
+while reporting success, and must be read before writing anything that talks to
+that API. Note also that EC3 rate limits per ACCOUNT rather than per process, so
+nothing should query it while a pull is running in another repository.
 
 To build a new extract once access is restored, adapt
 `audits/stage2a2/p1_build_raw_extract.py`, which refuses to overwrite an

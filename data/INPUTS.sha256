@@ -116,13 +116,12 @@ can be applied symmetrically. One row per EPD, with the provenance needed to
 audit any value. Its `_runmeta.json` records the query, the pull dates, the
 source checksum and the ECC definition.
 
-**It is not an API pull, and it could not be.** The EC3 API returns HTTP 403 for
-this account, "Direct API access is not allowed for private or restricted
-accounts". The key is recognized; the account permission is not. The file is a
-slice of the consolidated EPD store at `../EPDsFromEC3/store`, whose 138-category
-records were pulled on 2026-08-13 and 2026-08-14 through the correctly-
-paginating LucidLCA wrapper: five months newer than the 2026-03 data, and raw.
-Restoring API access and re-pulling is an open item; see
+It is a frozen slice of the consolidated EPD store at `../EPDsFromEC3/store`,
+whose 138-category records were pulled on 2026-08-13 and 2026-08-14 through the
+correctly-paginating LucidLCA wrapper: five months newer than the 2026-03 data,
+and raw. A live pull was not taken inside this stage because one was already
+running in the EPDsFromEC3 repository, and EC3 rate limits per account rather
+than per process. Folding in a newer pull is an open item; see
 `reports/HANDOFF_stage-2a2.md`.
 
 Freezing it here is what makes the empirical arm reproducible at all. An API

@@ -1,10 +1,9 @@
 """Build a frozen, dated raw ECC extract for the 138 empirical categories.
 
-WHY THIS IS NOT AN API PULL. The EC3 API returns HTTP 403 for this account:
-"Direct API access is not allowed for private or restricted accounts." The key
-is recognized; the account permission is not. Nothing on this machine can take
-a fresh pull until Building Transparency enables API access. See section 1 of
-reports/HANDOFF_stage-2a2.md.
+WHY THIS READS A STORE RATHER THAN THE API. The author's decision: a fresh pull
+was already running in the EPDsFromEC3 repository, and EC3 rate limits per
+account rather than per process, so a second client would have risked truncating
+it. See ../EPDsFromEC3/PULLING_EPDS.md section 1.
 
 The substitute is the consolidated EPD store at ../EPDsFromEC3/store, whose
 138-category slice was pulled on 2026-08-13 and 2026-08-14 through the
@@ -154,8 +153,7 @@ if __name__ == '__main__':
         built_on=dt.date.today().isoformat(),
         source=os.path.relpath(STORE, ROOT),
         source_sha256=hashlib.sha256(open(STORE, 'rb').read()).hexdigest(),
-        api_pull_attempted=True,
-        api_pull_result='HTTP 403: direct API access not allowed for this account',
+        source_kind='frozen slice of the consolidated EPD store, not a live pull',
         query=('EC3 store slice: material_query in the 138 categories of '
                'dct_realeccs_trimmed.json, most recent pull_date per category, '
                'date_validity_ends > pull_date'),

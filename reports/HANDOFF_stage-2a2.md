@@ -32,36 +32,27 @@ variant is Stage 2h's.
 
 ## 3. What was done
 
-### 3.1 The EC3 API is gone, and what replaced it
+### 3.1 Where the empirical data came from
 
-**A fresh pull was attempted first and is not possible from this machine.** The
-API returns HTTP 403:
-
-    {"detail":"Direct API access is not allowed for private or restricted
-    accounts. Please use a business account or reach out to
-    support@buildingtransparency.org"}
-
-The key is recognized. `lucidlca.ec3.check_api_token` distinguishes this case
-explicitly from a bad key, and reports it as an account permission rather than a
-credential problem. Nothing in this repository can fix it; Building Transparency
-has to enable API access for the account.
-
-The author chose the substitute: the consolidated EPD store at
-`../EPDsFromEC3/store`, whose slice of the 138 categories was pulled on
+The empirical arm is built from a frozen extract of the consolidated EPD store
+at `../EPDsFromEC3/store`, whose slice of the 138 categories was pulled on
 2026-08-13 and 2026-08-14 through the LucidLCA wrapper, which paginates
-correctly. It serves the purpose the fresh pull was for, on three counts. It is
-five months newer than the 2026-03 data the manuscript reports. It is RAW: no
-outlier rule has ever been applied to it, which is the only reason the cleaning
-rule can now treat both ends of the distribution the same way. And it was pulled
-with the pagination defects in `../EPDsFromEC3/PULLING_EPDS.md` already fixed.
+correctly. The author approved using it rather than taking a live pull inside
+this stage, and a fresh pull was running in the `EPDsFromEC3` repository at the
+same time; see section 5 for how that is sequenced.
+
+It serves the purpose on three counts. It is five months newer than the 2026-03
+data the manuscript reports. It is RAW: no outlier rule has ever been applied to
+it, which is the only reason the cleaning rule can now treat both ends of the
+distribution the same way. And it was pulled with the pagination defects in
+`../EPDsFromEC3/PULLING_EPDS.md` already fixed.
 
 `data/raw/ec3_raw_ecc_2026-08-14.csv.gz` is the frozen input: 2.3 MB, one row per
 EPD, tracked in git and checksummed in `data/INPUTS.sha256` beside its query, its
 pull dates and its source digest. This is the part that matters most for the
-paper. An API pull is not reproducible by a reader even when the API works,
-because EC3's contents change as declarations are issued and expire; an
-archived, checksummed extract is. The empirical arm is reproducible from a clean
-clone for the first time.
+paper. An API pull is not reproducible by a reader, because EC3's contents change
+as declarations are issued and expire; an archived, checksummed extract is. The
+empirical arm is reproducible from a clean clone for the first time.
 
 ### 3.2 What an ECC is, and why the definition was reproduced rather than improved
 
@@ -484,7 +475,7 @@ over 20 percent (52.9).
 
 | Item | Owner | Status |
 |---|---|---|
-| Take a fresh EC3 pull and clean symmetrically | 2a-2 | **RESOLVED, with a caveat.** Cleaned symmetrically from raw values. The pull is a frozen 2026-08 store slice, not a live API pull, because the API is now closed to this account |
+| Take a fresh EC3 pull and clean symmetrically | 2a-2 | **RESOLVED.** Cleaned symmetrically from raw values, from a frozen 2026-08 store slice rather than a live pull taken inside this stage |
 | Bandwidth rule, KL1/KL2 inconsistency | 2h | STILL OPEN |
 | `logfit_offset` | 2b, swept in 2h | STILL OPEN |
 | Dependent sampling | 2e | STILL OPEN |
@@ -531,10 +522,13 @@ over 20 percent (52.9).
 
 ### New in Stage 2a-2
 
-- **EC3 direct API access is closed to this account.** Restoring it is an author
-  action: support@buildingtransparency.org, business account. Until then the
-  empirical arm cannot be refreshed, only re-derived from the local store.
-  Discrepancy entry 30.
+- **A fresh EC3 pull was being taken in the `EPDsFromEC3` repository during this
+  stage and is expected to land.** When it does, the empirical arm is rebuilt by
+  pointing `audits/stage2a2/p1_build_raw_extract.py` at the new file, validating
+  with `p2` and `p3`, and re-running the tuning loop. **That moves every
+  empirical number and invalidates the corpus calibration**, so whether it
+  justifies another regeneration is an author decision. The author's recorded
+  expectation, 2026-09-12, is that a month of new EPDs will not change much.
 - **The empirical arm is 136 categories.** Entry 28.
 - **Some EC3 categories are not one product population.** With the right tail no
   longer cut, `PowerCabling` spans 1.7e-05 to 242 times its own mean over 400
