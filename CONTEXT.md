@@ -121,6 +121,26 @@ near-zero values rather than the threshold pathology. See discrepancy entries
 `FAMILIES` also holds `lognormal_2p`, `lognormal_offset` and `gamma`, which are
 reported alongside rather than used: `audits/stage2b/r5_family_comparison.py`.
 
+### The bandwidth, and why W1 cannot choose it
+
+`BW_METHOD = 'scott'`. `customstats.weighted_bw` also offers `'silverman'`, the
+rule the author's KL2 paper uses, and `'silverman_guarded'`, added in Stage 2b.
+
+**W1 falls monotonically as the KDE bandwidth shrinks**, to about 2 percent of
+any standard rule, because a KDE with a vanishing bandwidth IS the empirical
+distribution it is scored against. So W1 cannot choose a bandwidth and cannot
+arbitrate between methods of different flexibility. Use leave-one-out
+likelihood cross-validation for that; `audits/stage2b/r9_bandwidth.py` has it.
+
+**Silverman's rule breaks at SMALL n, not on small interquartile ranges.** Where
+`(IQR/1.34)/sd` is smallest -- heavy-tailed categories with a tight core -- it
+beats Scott on held-out likelihood every time, and flooring the robust scale
+makes things worse. Where it fails is n = 3 to 10, because the quartiles are
+interpolated between two order statistics. `'silverman_guarded'` uses Silverman
+above `SILVERMAN_MIN_NEFF = 30` effective observations and Scott below it, beats
+both pure rules on held-out likelihood, and repairs the worst cases.
+Discrepancy entry 45. **Stage 2h owns the decision to switch.**
+
 ### Fitting by the criterion we score by
 
 `fit_family(name, x, w, method='w1')` minimizes W1 directly instead of the

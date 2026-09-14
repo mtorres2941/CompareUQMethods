@@ -781,7 +781,13 @@ def weighted_quantile(X, W, x, output='perc2val'):
 ################################################################################################################
 ################################################################################################################
 
-def weighted_bw(X, W, bw_method='silverman'):
+#: Below this effective sample size the interquartile range is too noisy to be
+#: used as a scale estimate, and `bw_method='silverman_guarded'` falls back to
+#: Scott's rule. See `weighted_bw` for the measurement behind the value.
+SILVERMAN_MIN_NEFF = 30.0
+
+
+def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
     """
     Calculates bandwidth using Silverman's or Scott's method, adjusted for weighted data.
 
@@ -791,13 +797,59 @@ def weighted_bw(X, W, bw_method='silverman'):
         Data values.
     W : array_like
         Weights for each data point.
-    bw_method : str
-        'silverman' or 'scott'
+    bw_method : {'scott', 'silverman', 'silverman_guarded'}
+        'scott'      1.06 * sd * n_eff ** -0.2, Scott (1992).
+        'silverman'  0.9 * min(sd, IQR/1.34) * n_eff ** -0.2, Silverman's robust
+                     rule of thumb.
+        'silverman_guarded'  Silverman above `min_neff`, Scott below it. See
+                     WHY THE GUARD below.
+    min_neff : float
+        Effective sample size below which 'silverman_guarded' uses Scott.
 
     Returns
     -------
     bw : float
         Bandwidth estimate (scalar)
+
+    Notes
+    -----
+    WHY THE GUARD, measured in `audits/stage2b/r9_bandwidth.py` over 149
+    empirical and 800 synthetic datasets, both weightings.
+
+    Silverman's `min(sd, IQR/1.34)` bounds the scale estimate from ABOVE, which
+    is what stops a few outliers inflating the bandwidth. That part works, and
+    it works hardest exactly where it looks most alarming: on the heavy-tailed
+    categories where `(IQR/1.34)/sd` falls below 0.2, the robust rule beats
+    Scott on held-out likelihood in 100 percent of cases. A tight core with
+    extreme outliers is real structure, and shrinking the bandwidth to fit it is
+    correct.
+
+    WHERE IT ACTUALLY BREAKS IS SMALL n, and for a different reason. The
+    interquartile range is a consistent but inefficient estimator of scale --
+    its asymptotic relative efficiency under normality is about 37 percent, so
+    its standard error is roughly 1.6 times the sample standard deviation's --
+    and at n = 3 to 10 the quartiles are interpolated between two order
+    statistics. When that estimate lands low the bandwidth collapses and the
+    density becomes a set of spikes. Leave-one-out likelihood detects it;
+    Wasserstein-1 does not, because W1 rewards a KDE for approaching the
+    empirical distribution it is scored against.
+
+    Measured share of fits where Silverman beats Scott on held-out likelihood,
+    empirical arm, by dataset size: n 3-9, 12.5 percent; 10-99, 40.5 percent;
+    100-999, 80.8 percent; 1000 and above, 63.6 percent.
+
+    THE THRESHOLD is calibrated on held-out likelihood, NOT on the W1 the study
+    scores by, so it is not tuned to its own criterion. Mean leave-one-out
+    log-likelihood on the empirical arm: always-Scott -0.773, always-Silverman
+    -0.855, guarded at n_eff >= 20 -0.725, at 30 **-0.720**, at 50 -0.728. The
+    guarded rule beats BOTH pure rules, and it repairs the worst cases: the 5th
+    percentile of held-out log-likelihood goes from -2.053 under pure Silverman
+    to -1.616.
+
+    Decision 9 in CLAUDE.md is unaffected: these labels are Scott (1992) and
+    Silverman's robust rule of thumb, and `scipy.stats.gaussian_kde` uses the
+    same two words for different formulas. Never describe the method by pointing
+    at a scipy keyword.
     """
     X = np.array(X).flatten()
     W = np.array(W).flatten()
@@ -819,8 +871,14 @@ def weighted_bw(X, W, bw_method='silverman'):
         bw = 0.9 * np.min([std, iqr/1.34]) * n_eff**-0.2
     elif bw_method=='scott':
         bw = 1.06 * std * n_eff**-0.2
+    elif bw_method=='silverman_guarded':
+        if n_eff >= min_neff:
+            bw = 0.9 * np.min([std, iqr/1.34]) * n_eff**-0.2
+        else:
+            bw = 1.06 * std * n_eff**-0.2
     else:
-        raise ValueError(f'bw_method must be silverman or scott instead of {bw_method}')
+        raise ValueError(f"bw_method must be 'scott', 'silverman' or "
+                         f"'silverman_guarded' instead of {bw_method}")
     
     return bw
 

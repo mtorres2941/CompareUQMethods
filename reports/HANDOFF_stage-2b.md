@@ -864,3 +864,51 @@ and must resolve the KL1 / KL2 / this-paper inconsistency; Stage 2c owns the
 evaluation target and is the only thing that can settle mechanism 3. **Both were
 already on the roadmap; what is new is that the paper's central claim now turns
 on them.**
+
+### 4.12 The bandwidth rule, resolved: where Silverman breaks and the guarded fix
+
+Added after the author said they would switch to Silverman if its small-sample
+failure could be fixed defensibly. Discrepancy entry 45.
+`audits/stage2b/r9_bandwidth.py`.
+
+**The referee had to change first.** W1 cannot choose a bandwidth (section 4.11,
+mechanism 3), so the comparison uses **leave-one-out likelihood cross-
+validation**, which penalizes a collapsed bandwidth where W1 rewards it.
+
+**The failure is not where it looks.** `(IQR/1.34)/sd` below 0.2 happens on
+large, heavy-tailed categories -- `PowerCabling` 0.008 at n = 400, `Aggregates`
+0.078 at n = 384 -- and on exactly those **Silverman beats Scott on held-out
+likelihood 100 percent of the time**. Flooring the robust scale at sd/3 makes
+things WORSE. A tight core with extreme outliers is real structure.
+
+**It breaks at small n**, where the interquartile range is interpolated between
+two order statistics. Share of fits where Silverman beats Scott on the referee,
+empirical arm: **n 3-9, 12.5 percent**; 10-99, 40.5; 100-999, 80.8; >= 1000,
+63.6. The exactly-zero-IQR case is only 0.35 percent of fits and was already
+guarded; the damage comes from the near-miss cases just above it.
+
+**The fix is a minimum effective sample size**, not a floor on the scale:
+`weighted_bw(..., 'silverman_guarded')`, `SILVERMAN_MIN_NEFF = 30`, using the
+Kish effective sample size because a concentrated Dirichlet draw can leave three
+effective observations in a 200-value dataset.
+
+| empirical arm, both weightings | mean LOO | median LOO | p05 LOO | mean W1 |
+|---|---|---|---|---|
+| always Scott | -0.773 | -0.896 | -1.622 | 0.268 |
+| always Silverman | -0.855 | -0.843 | **-2.053** | **0.151** |
+| **guarded at n_eff >= 30** | **-0.720** | **-0.808** | -1.616 | 0.178 |
+
+**The guarded rule beats both pure rules on the referee and repairs the tail.**
+The threshold is calibrated on held-out likelihood and NOT on W1, so it is not
+tuned to the criterion the study scores by; W1 still prefers pure Silverman, and
+that is W1's undersmoothing bias rather than evidence.
+
+**It does not cost the KDE the comparison.** Empirical, variable weighting,
+mean / median / p90 / max W1: KDE-guarded 0.155 / 0.084 / 0.353 / **1.29**
+against the three-parameter lognormal 0.178 / 0.122 / 0.371 / 1.58 and the
+two-parameter 0.230 / 0.148 / 0.475 / 3.97. **The KDE wins on every summary
+including the worst decile and the worst case, on both arms.**
+
+**NOT ADOPTED.** `BW_METHOD` is still `'scott'`. Switching it is one constant
+and moves every number in the paper. **Author decision; Stage 2h owns the
+sweep.**
