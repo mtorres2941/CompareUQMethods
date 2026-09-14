@@ -38,11 +38,33 @@ PEWT = [f"{pe}, {wt}" for pe in PE_METHODS for wt in WT_METHODS]
 # datasets. The fixed value is nonetheless arbitrary and is under review.
 LOGFIT_OFFSET = 0.5
 
-# 1.06 * sigma * n_eff ** -0.2, which is Scott (1992). Note that
-# scipy.stats.gaussian_kde uses the words 'scott' and 'silverman' for different
-# formulas: its 'scott' carries no 1.06 factor. Do not describe the method by
-# pointing at a scipy keyword.
-BW_METHOD = "scott"
+# The KDE bandwidth rule. Author decision, 2026-09-14: Silverman's robust rule
+# of thumb, guarded by a minimum EFFECTIVE sample size.
+#
+#   'scott'              1.06 * sigma * n_eff ** -0.2, Scott (1992). What this
+#                        study used through Stage 2a.
+#   'silverman'          0.9 * min(sigma, IQR/1.34) * n_eff ** -0.2. The rule
+#                        Torres et al. (2026), the KL2 paper, uses and defends.
+#   'silverman_guarded'  Silverman above customstats.SILVERMAN_MIN_NEFF = 30
+#                        effective observations, Scott below it.
+#
+# WHY GUARDED, and the reason is not the one it looks like. Silverman's
+# min(sigma, IQR/1.34) protects against outliers inflating the bandwidth, and it
+# works hardest exactly where it looks most alarming: on the heavy-tailed
+# categories where (IQR/1.34)/sigma falls below 0.2 it beats Scott on held-out
+# likelihood 100 percent of the time. It fails at SMALL n, where the quartiles
+# are interpolated between two order statistics and a low estimate collapses the
+# bandwidth into a set of spikes. Guarding on effective sample size beats BOTH
+# pure rules on leave-one-out likelihood and repairs the worst cases.
+#
+# THE THRESHOLD IS CALIBRATED ON HELD-OUT LIKELIHOOD, NOT ON W1, deliberately:
+# W1 falls monotonically as the bandwidth shrinks, so it cannot choose one.
+# See customstats.weighted_bw, audits/stage2b/r9_bandwidth.py, entry 45.
+#
+# Note that scipy.stats.gaussian_kde uses the words 'scott' and 'silverman' for
+# different formulas: its 'scott' carries no 1.06 factor. Do not describe the
+# method by pointing at a scipy keyword. Decision 9.
+BW_METHOD = "silverman_guarded"
 
 # The scoring grid runs from 0 to max(data) + this many standard deviations.
 SCORE_GRID_POINTS = 1_000
@@ -67,7 +89,7 @@ def fit_pewt_models(x, weights_variable, logfit_offset=LOGFIT_OFFSET,
     logfit_offset : float
         Positive shift applied before the lognormal fit, undone in the fitted
         location, so the model has support (-logfit_offset, inf).
-    bw_method : {'scott', 'silverman'}
+    bw_method : {'scott', 'silverman', 'silverman_guarded'}
         Passed to customstats.weighted_bw.
 
     Returns

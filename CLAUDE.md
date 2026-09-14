@@ -826,3 +826,31 @@ rather than in conversation.
     a rank-1 frequency out of three in the same column as one out of four, and
     every headline metric is a frequency over ranks among exactly four
     materials. 2,499 pLCAs, not 2,500.
+
+54. **2026-09-14, Stage 2b. The KDE bandwidth is Silverman's robust rule, guarded
+    by a minimum EFFECTIVE sample size.** `[AUTHOR]` `BW_METHOD =
+    'silverman_guarded'`, `customstats.SILVERMAN_MIN_NEFF = 30`. This resolves
+    the KL1 / KL2 / this-paper inconsistency of decision 9 and entry 10 in favour
+    of the rule Torres et al. (2026) uses and defends.
+
+    **The guard is on sample size, not on the interquartile range, and that is
+    the opposite of where the problem looks.** Where `(IQR/1.34)/sd` is smallest
+    -- heavy-tailed categories with a tight core, `PowerCabling` at 0.008 with
+    n = 400 -- Silverman beats Scott on held-out likelihood 100 percent of the
+    time, and flooring the robust scale makes things WORSE. It fails at n = 3 to
+    10, where the quartiles are interpolated between two order statistics. The
+    guard uses the KISH EFFECTIVE sample size, because a concentrated Dirichlet
+    draw can leave three effective observations in a 200-value dataset.
+
+    **The threshold is calibrated on leave-one-out likelihood, NOT on W1**, and
+    that distinction has to survive into the manuscript: W1 falls monotonically
+    as the bandwidth shrinks, so it cannot choose a bandwidth and would have
+    picked a rule that produces spikes. Entry 45, handoff sections 4.11 and 4.12.
+
+    **Numbers.** Empirical `KDE, Variable` mean W1 0.2507 to 0.1699, median
+    0.1487 to 0.0984; synthetic 0.1017 to 0.0874 and 0.0635 to 0.0390. Only the
+    two KDE columns move; Lognormal and Normal are bit-identical, and in the
+    pLCA they move by exactly zero.
+
+    **The manuscript owes an explanation of the minimum sample size.** It is a
+    stated methodological choice with a number in it, and a reviewer will ask.
