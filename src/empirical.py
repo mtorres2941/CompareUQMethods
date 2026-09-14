@@ -35,6 +35,9 @@ Three choices are applied here, and each moves numbers.
    split may never read the ECC values. Pass `split=False` to recover the
    unsplit arm for comparison.
 
+5. A record that cannot be a physical product is REMOVED, by an external
+   ceiling and never by a distributional one. See `MASS_ECC_CEILING`. Stage 2b.
+
 A population is kept only if at least `min_n` values survive cleaning. That
 threshold, not the extraction, is what decides how many datasets the empirical
 arm holds, so the count is reported rather than assumed.
@@ -67,6 +70,41 @@ DIRICHLET_ALPHA = 1.0
 CLEAN_IQR_MULT = 3.0
 MIN_N = 3
 
+#: Declared-unit type for which an external upper bound on the ECC exists.
+MASS_UNIT_TYPE = 'weight'
+
+#: Physical-plausibility ceiling on a MASS-declared ECC, in kgCO2e per kg of
+#: product. Author decision, 2026-09-14.
+#:
+#: WHY THE BOUND IS EXTERNAL. This study measures the dispersion and modality of
+#: ECC datasets. A ceiling read off the arm's own quantiles, standard deviations
+#: or visible gaps would therefore be circular in exactly the way a
+#: dispersion-based category split would have been; see decision 46 and
+#: `categorysplit`. The bound below comes from material science and is applied
+#: only where such a bound exists.
+#:
+#: WHAT IT IS ANCHORED ON. Published cradle-to-gate embodied-carbon inventories
+#: for building products report coefficients of order 0.1 to 15 kgCO2e/kg, the
+#: highest being primary aluminium, which the Inventory of Carbon and Energy
+#: (ICE) database v3.0 (Jones and Hammond, Circular Ecology, 2019) places near
+#: 13 kgCO2e/kg; EC3's own published ranges for its material categories sit
+#: inside the same envelope. A stoichiometric check bounds the same quantity
+#: from a different direction and needs no database at all: combusting pure
+#: carbon yields 3.67 kg CO2 per kg of carbon, so 25 kgCO2e per kg of DELIVERED
+#: PRODUCT already requires burning about 6.8 kg of pure carbon for each
+#: kilogram shipped, and 100 kgCO2e/kg requires about 27 kg.
+#:
+#: The ceiling is set at 100 rather than at 25 deliberately. It is four times
+#: the most generous defensible figure for a real product, so it cannot be
+#: mistaken for a tuned threshold, and it still catches the known cases by two
+#: orders of magnitude: two Elevators EPDs declared per kilogram report 20,812
+#: and 21,945 kgCO2e/kg, and 87 Cement records report a per-tonne GWP against a
+#: 1 kg declared unit, a factor-of-1,000 declaration error.
+#:
+#: Measured effect, `audits/stage2b/r1_plausibility.py`: 115 of 117,807 raw
+#: records, 11 of 117,090 CLEANED values, and no dataset lost.
+MASS_ECC_CEILING = 100.0
+
 
 #: The frozen record metadata the split rules read: the product name and
 #: description, the declared concrete strength, and the EC3 category path. The
@@ -78,7 +116,7 @@ METADATA = os.path.join(RAW, 'ec3_record_metadata_2026-08-14.csv.gz')
 #: identifies a category that is a residual bin rather than a product.
 CATEGORY_TREE = os.path.join(RAW, 'ec3_category_tree_2026-08-14.csv')
 
-SPLIT_COLS = ['open_xpd_uuid', 'material_query', 'ecc']
+SPLIT_COLS = ['open_xpd_uuid', 'material_query', 'ecc', 'du_type']
 META_COLS = ['open_xpd_uuid', 'name', 'description',
              'concrete_compressive_strength_28d_value']
 
@@ -102,20 +140,73 @@ def split_report(path=SOURCE):
     return categorysplit.assign(load_records(path), category_tree())[1]
 
 
-def load_raw(path=SOURCE, split=SPLIT):
+def implausible(df, ceiling=MASS_ECC_CEILING, unit_type=MASS_UNIT_TYPE):
+    """Records that cannot be a physical product, as a boolean mask.
+
+    Applied only to the declared-unit type for which an external bound exists.
+    For volume, area, length and item declarations there is no comparably tight
+    published bound, so none is invented: those extremes are REPORTED for author
+    review instead, by `audits/stage2b/r1_plausibility.py`, and left in the arm.
+
+    See `MASS_ECC_CEILING` for where the number comes from and why it may not be
+    read off the data.
+    """
+    return (df.du_type == unit_type) & (df.ecc > ceiling)
+
+
+def labelled_records(path=SOURCE, split=SPLIT):
+    """Every raw record with the dataset it belongs to and whether it is kept.
+
+    `dataset` is NaN for a record the split rules discard, and `implausible`
+    marks a record the external ceiling removes. Nothing is filtered here, so
+    both decisions stay visible to anything that wants to audit them.
+    """
+    df = load_records(path)
+    if split:
+        labels, _ = categorysplit.assign(df, category_tree())
+        df = df.assign(dataset=labels)
+    else:
+        df = df.assign(dataset=df.material_query)
+    return df.assign(implausible=implausible(df))
+
+
+def implausible_report(path=SOURCE, split=SPLIT):
+    """One row per dataset that loses records to the ceiling, with what it lost."""
+    df = labelled_records(path, split)
+    df = df[df.dataset.notna() & df.implausible]
+    if df.empty:
+        return pd.DataFrame(columns=['dataset', 'n_implausible',
+                                     'lowest_dropped', 'highest_dropped'])
+    return (df.groupby('dataset')
+            .agg(n_implausible=('ecc', 'size'), lowest_dropped=('ecc', 'min'),
+                 highest_dropped=('ecc', 'max'))
+            .reset_index().sort_values('n_implausible', ascending=False))
+
+
+def load_raw(path=SOURCE, split=SPLIT, ceiling=True):
     """The raw ECC values per dataset, uncleaned. Returns (values, split_report).
 
     With `split=True` the categories are resolved into specifiable products:
     EC3 residual bins are dropped, concrete is split by specified compressive
     strength and insulation by material type. See `src/categorysplit.py`.
+
+    With `ceiling=True` the physically implausible mass-declared records are
+    removed first; see `MASS_ECC_CEILING`. It runs BEFORE cleaning, because a
+    record that is a declaration error by three orders of magnitude should not
+    be setting the interquartile range that the cleaning rule is computed from.
+    Pass `ceiling=False` to recover the arm as it stood at the end of Stage 2a-3.
     """
     df = load_records(path)
     if not split:
+        if ceiling:
+            df = df[~implausible(df)]
         return ({mat: g.ecc.to_numpy(float)
                  for mat, g in df.groupby('material_query', sort=True)},
                 pd.DataFrame())
     labels, report = categorysplit.assign(df, category_tree())
     df = df.assign(dataset=labels).dropna(subset=['dataset'])
+    if ceiling:
+        df = df[~implausible(df)]
     return ({ds: g.ecc.to_numpy(float)
              for ds, g in df.groupby('dataset', sort=True)}, report)
 
@@ -140,7 +231,7 @@ def _dataset_rng(base, name):
 
 
 def prepare(rng, path=SOURCE, alpha=DIRICHLET_ALPHA, mult=CLEAN_IQR_MULT,
-            min_n=MIN_N, split=SPLIT):
+            min_n=MIN_N, split=SPLIT, ceiling=True):
     """Clean, weight and normalize. Returns (datasets, report).
 
     Pass a DEDICATED generator, `rng.spawn(1)[0]`, not the notebook's shared
@@ -160,17 +251,24 @@ def prepare(rng, path=SOURCE, alpha=DIRICHLET_ALPHA, mult=CLEAN_IQR_MULT,
     of that dataset. The randomness still traces to `rng`, which supplies the
     base entropy; see `_dataset_rng`.
 
+    `ceiling=True` removes the physically implausible mass-declared records
+    before cleaning; see `MASS_ECC_CEILING`. `n_before` in the report is the
+    count AFTER that removal, and `n_implausible` says how many it took.
+
     `datasets[mat]` is (values, weights) with values divided by their
     unweighted mean.
     """
-    raw, _ = load_raw(path, split=split)
+    raw, _ = load_raw(path, split=split, ceiling=ceiling)
+    dropped = (implausible_report(path, split).set_index('dataset').n_implausible
+               if ceiling else pd.Series(dtype=int))
     base = int(rng.integers(0, 2 ** 63))
     out, report = {}, []
     for mat in sorted(raw):
         data = raw[mat]
         kept = clean_empirical_symmetric(data, mult)
         removed = len(data) - len(kept)
-        row = dict(material=mat, n_before=len(data), n_after=len(kept),
+        row = dict(material=mat, n_implausible=int(dropped.get(mat, 0)),
+                   n_before=len(data), n_after=len(kept),
                    n_removed=removed,
                    n_removed_low=int((data < kept.min()).sum()) if len(kept) else 0,
                    n_removed_high=int((data > kept.max()).sum()) if len(kept) else 0,
@@ -205,11 +303,14 @@ def write(datasets, report, label, out_root=PROCESSED, meta_extra=None):
         source_meta=source_meta(),
         dirichlet_alpha=DIRICHLET_ALPHA, clean_iqr_mult=CLEAN_IQR_MULT,
         clean_rule='multiplicative log-space IQR, both ends',
+        mass_ecc_ceiling=MASS_ECC_CEILING,
+        mass_unit_type=MASS_UNIT_TYPE,
         min_n=MIN_N,
         n_materials=len(datasets),
         n_values_before=int(sum(r['n_before'] for r in report)),
         n_values_after=int(sum(r['n_after'] for r in report)),
         n_values_removed=int(sum(r['n_removed'] for r in report)),
+        n_values_implausible=int(sum(r.get('n_implausible', 0) for r in report)),
         n_materials_dropped=int(sum(r['status'] != 'ok' for r in report)),
         report=report,
     )

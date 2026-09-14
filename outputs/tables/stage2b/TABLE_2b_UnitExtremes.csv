@@ -1,0 +1,81 @@
+du_type,end,dataset,name,declared_unit_raw,gwp_raw,ecc,ecc_unit,ratio_to_category_median,open_xpd_uuid
+area,highest,BlanketInsulation [mineral wool],S-P-04882 Ceramic Fiber Blanket,1.0 m2,2300 kgCO2e,2300.0,kgco2e/m2,1564.4724139099417,ec3cguhm
+area,highest,SinglePlyPVC,Atlas,1 m^2,2028.5595 kgCO2e,2028.5595,kgco2e/m2,391.4519985967098,ec34r0mz
+area,highest,GlazedDoors,XT66 RDD TG 2m x 2.18m Triple-glazed rebated double door,1 m2,1060 kgCO2e,1060.0,kgco2e/m2,15.223260810824193,ec3tt658
+area,highest,WallFinishes,Chant,1 m^2,1034.0406 kgCO2e,1034.0406,kgco2e/m2,68.70701661129569,ec3a1x2w
+area,highest,TranslucentWallAndRoofAssemblies,X-AOV / Access Hatch - Glass Lid,1 m^2,1020 kgCO2e,1020.0,kgco2e/m2,9.902912621359222,ec38c51t
+area,highest,GlazedDoors,XT66 RDD DG 2m x 2.18m Double-glazed rebated double door,1 m2,1000 kgCO2e,1000.0,kgco2e/m2,14.361566802664333,ec3yfng6
+area,highest,TranslucentWallAndRoofAssemblies,X-AOV / Access Hatch - Insulated Solid Lid,1 m^2,925 kgCO2e,925.0,kgco2e/m2,8.980582524271844,ec3xj9k4
+area,highest,TranslucentWallAndRoofAssemblies,X-AOV / Access Hatch - Dome Lid,1 m^2,842 kgCO2e,842.0,kgco2e/m2,8.174757281553399,ec3k1e97
+area,highest,CurtainWalls,"Closed Cavity Facade EWS01 of ""Holland Park"" Oslo",1.0 m2,804.5484152 kgCO2e,804.5484152,kgco2e/m2,5.730709042515223,ec3fm77y
+area,highest,DoorsAndFrames,KTV Atrium Flex,6.6 m2,4962.953 kgCO2e,751.9625757575759,kgco2e/m2,8.725488231115987,ec38xxdk
+area,lowest,Carpet,Flor Modular Carpet on CQuest BioX - Pending Review Against Flooring PCR,1 m2,0.0058 kgCO2e,0.0058,kgco2e/m2,0.0006561085972850678,ec32hehn
+area,lowest,Carpet,Interface Americas Carpet on CQuest BioX,1 m2,0.0058 kgCO2e,0.0058,kgco2e/m2,0.0006561085972850678,ec3yuxhe
+area,lowest,Carpet,Flor Modular Carpet on Glasbac - Pending Review Against Flooring PCR,1 m2,0.00428 kgCO2e,0.00428,kgco2e/m2,0.0004841628959276018,ec36f0xz
+area,lowest,Carpet,Interface Americas Carpet on Glasbac - Pending Review Against Flooring PCR,1 m2,0.00428 kgCO2e,0.00428,kgco2e/m2,0.0004841628959276018,ec3defrb
+area,lowest,Carpet,Asia Pacific Thailand Glasbac,1 m2,0.0034 kgCO2e,0.0034,kgco2e/m2,0.0003846153846153846,ec307gpp
+area,lowest,Carpet,Asia Pacific Australia CushionBac RE - Pending Review Against Flooring PCR,1 m²,0.00291 kgCO2e,0.00291,kgco2e/m2,0.0003291855203619909,ec3muwyz
+area,lowest,SprayedInsulation,#split SealTite Pro One Zero,1 m²,0.0006873 kgCO2e,0.0006873,kgco2e/m2,0.00023618556701030926,ec3ua3cy
+area,lowest,SprayedInsulation,#split SealTite Pro Open Cell,1 m²,0.0006873 kgCO2e,0.0006873,kgco2e/m2,0.00023618556701030926,ec3w3pj5
+area,lowest,Gypsum,#file_is_missing Falcon COREX Green,1 m2,0.000418 kgCO2e,0.000418,kgco2e/m2,0.0001641192737843065,ec3bm4d1
+area,lowest,WallPanels,Ecophon Hygiene Advance,1 m²,2.46E-05 kgCO2e,2.46e-05,kgco2e/m2,9.979716024340772e-07,ec353g04
+length,highest,PowerCabling,THHN/THWN-2 High Speed (HS),1 m,14300 kgCO2e,363.21980386130593,kgco2e/in,6066.861413837278,ec367pxc
+length,highest,PowerCabling,96 SMF OPGW,1 m,5130 kgCO2e,130.301929636958,kgco2e/in,2176.4335002087573,ec3fczg5
+length,highest,PowerCabling,"Component EPD Surnadal: PVC insulated stranded conductor Building Cable H07V-R (FK, PN) PN 1,5",0.02 m,4.345679028 kgCO2e,5.519009385294932,kgco2e/in,92.18402941222057,ec3r29rn
+length,highest,PowerCabling,Three Core AL/XLPE/SWA/LLDPE Medium Voltage Electricity Distribution Cables for 19/33KV,1 km,151000 kgCO2e,3.8353979288851185,kgco2e/in,64.06266248177825,ec394rgf
+length,highest,PowerCabling,Single Core AL/XLPE/CWS/HDPE High Voltage Electricity Distribution Cables for 87/150-KV,1 km,145000 kgCO2e,3.6829980111810743,kgco2e/in,61.51712622422414,ec3jmn9q
+length,highest,DataCabling,S-P-12397 High Voltage Single Core Underground Cable 145kV,1.0 m,142.00398 kgCO2e,3.6068991442744625,kgco2e/in,142.61785244679072,ec3920rr
+length,highest,PowerCabling,AAC- All Alumninum Conductor Bare,1 m,120 kgCO2e,3.047998354080889,kgco2e/in,50.91072515108205,ec3q2ucw
+length,highest,PowerCabling,Single Core AL/XLPE/CWS/HDPE Medium Voltage Electricity Distribution Cables for 76/132-KV,1 km,111000 kgCO2e,2.8193984775248224,kgco2e/in,47.0924207647509,ec3g2hsk
+length,highest,Openings,"Garde-corps barreaudé filant - modèle EKRIT, barreaudage 50x70",1.0 m,111 kgCO2e,2.819398477524822,kgco2e/in,1.9088564058469477,ec3m0tmd
+length,highest,DataCabling,Energy absorbing terminals,1.0 m,91.7 kgCO2e,2.3291787422434793,kgco2e/in,92.0964121524672,ec3m6jw4
+length,lowest,PowerCabling,TECK90 1/0 AWG/3C + 6 AWG GRD 1kV,1 km,3.54 kgCO2e,8.991595144538622e-05,kgco2e/in,0.0015018663919569204,ec30nr3n
+length,lowest,DataCabling,Indoor Riser Distribution Cable,1 m,0.00346 kgCO2e,8.788395254266562e-05,kgco2e/in,0.0034749573178575405,ec3bwm57
+length,lowest,PowerCabling,TECK90 6 AWG/2C + 8 AWG GRD 1kV,1 km,3.42 kgCO2e,8.686795309130533e-05,kgco2e/in,0.0014509556668058383,ec3fqw3k
+length,lowest,PowerCabling,DURALOX 1/0 AWG/4C + 6 AWG GRD 1kV,1 km,3.04 kgCO2e,7.721595830338251e-05,kgco2e/in,0.0012897383704940785,ec3tmrh4
+length,lowest,PowerCabling,DURALOX 1/0 AWG/3C + 6 AWG GRD 1kV,1 km,2.89 kgCO2e,7.340596036078141e-05,kgco2e/in,0.001226099964055226,ec3dwedw
+length,lowest,PowerCabling,"N-LINE FX 90 2x1,5 DOWNLIGHT 16-100",1000 m,2.77 kgCO2e,7.035796200670051e-05,kgco2e/in,0.0011751892389041437,ec32g036
+length,lowest,PowerCabling,TECK90 750 kcmil/3C + 2 AWG GRD 1kV,1 km,2.43 kgCO2e,6.172196667013801e-05,kgco2e/in,0.0010309421843094117,ec3tu8tj
+length,lowest,DataCabling,Corning SMF-28 Ultra Optical Fiber (242 µm),1 m,0.00185 kgCO2e,4.6989974625413707e-05,kgco2e/in,0.0018579974098371244,ec3tdd7j
+length,lowest,PowerCabling,PHEASANT/ACSS/MA3/E3X,1 km,1.36 kgCO2e,3.4543981346250075e-05,kgco2e/in,0.0005769882183789299,ec3k06a6
+length,lowest,PowerCabling,1127 KCMIL 37 AAAC,1 km,1 kgCO2e,2.539998628400741e-05,kgco2e/in,0.00042425604292568376,ec3eab0h
+vol,highest,ReadyMix [4000-4999 psi],444MRWR,1 m^3,109292.19 kgCO2e,109292.19,kgco2e/m3,326.83071172248805,wapy4cc6
+vol,highest,ReadyMix [4000-4999 psi],260,1 m^3,97858.79 kgCO2e,97858.79,kgco2e/m3,292.6399222488038,wapx0cg4
+vol,highest,ReadyMix [<3000 psi],CO921,1 m^3,24132.39556 kgCO2e,24132.39556,kgco2e/m3,93.5364168992248,waph7zu0
+vol,highest,ReadyMix [4000-4999 psi],CDOT45888-1,1 m^3,20259.6675 kgCO2e,20259.6675,kgco2e/m3,60.58513008373206,wap4br43
+vol,highest,ReadyMix [4000-4999 psi],CDOT45879-1,1 m3,16686.1587 kgCO2e,16686.1587,kgco2e/m3,49.89879994019139,wap6mtgd
+vol,highest,ReadyMix [4000-4999 psi],CDOT45878-1,1 m^3,16686.1587 kgCO2e,16686.1587,kgco2e/m3,49.89879994019139,wapg4dhg
+vol,highest,ReadyMix [4000-4999 psi],CDOT45880-1,1 m^3,14564.31746 kgCO2e,14564.31746,kgco2e/m3,43.553580921052635,wapqe6ss
+vol,highest,ReadyMix [4000-4999 psi],40050,1 m^3,10846.08211 kgCO2e,10846.08211,kgco2e/m3,32.434456070574164,waprf2dg
+vol,highest,ReadyMix [3000-3999 psi],30055,1 m^3,10808.74838 kgCO2e,10808.74838,kgco2e/m3,36.52399152403285,wapwq4am
+vol,highest,ReadyMix [3000-3999 psi],CO35908,1 m^3,8530.759321 kgCO2e,8530.759321,kgco2e/m3,28.826407108365697,wap2y6xu
+vol,lowest,WoodFraming,HTC-P2P Timber Connector,1.0 m3,8.9856 kgCO2e,8.9856,kgco2e/m3,0.0932116182572614,ec3ex7p6
+vol,lowest,SheathingPanels,S-P-07464 Plywood,1.0 m3,7.07 kgCO2e,7.07,kgco2e/m3,0.02480701754385965,ec32ttu6
+vol,lowest,ReadyMix [>=6000 psi],Mix 1558008,1 m3,6.5 kgCO2e,6.5,kgco2e/m3,0.01649746192893401,ec3ena5a
+vol,lowest,NonStructuralWood,Decorated Particleboard,1 m3,0.66 kgCO2e,0.66,kgco2e/m3,0.001590103559147914,ec3z506s
+vol,lowest,CMU [<3000 psi],Brennix Brandskyddsmassa,1.0 m3,0.3139941054 kgCO2e,0.3139941054,kgco2e/m3,0.001252089265400351,ec30s3h6
+vol,lowest,CementGrout,"S-P-11753 Termokir Primers (PR Series), Termokir PR 008 - Powder Primer for Gypsum Blocks",1.0 m^3,0.19 kgCO2e,0.19,kgco2e/m3,0.0006129032258064516,ec3ubfx3
+vol,lowest,ReadyMix [strength not stated],S-P-09777 ECOBATCH® MOBISPA-MOBITECH mobile concrete plant,1.0 m3,0.04597719651 kgCO2e,0.04597719651,kgco2e/m3,0.0001630397039361702,ec3a0186
+vol,lowest,ReadyMix [3000-3999 psi],CAH05P6Y,1 m3,0.0395 kgCO2e,0.0395,kgco2e/m3,0.00013347499770360066,ec363un6
+vol,lowest,ReadyMix [strength not stated],C20 - Blinding,1 m³,0.00158 kgCO2e,0.00158,kgco2e/m3,5.602836879432624e-06,ec3rfa9e
+vol,lowest,ReadyMix [strength not stated],"Low-carbon concrete ""slagrete70(intensity=40 or less)""",180000.0 m^3,200.4 kgCO2e,0.0011133333333333,kgco2e/m3,3.947990543735106e-06,ec3jymh7
+weight,highest,RebarSteel,Steel reinforcing bar,1.0 t,2350001521 kgCO2e,2590430.1766135097,kgco2e/kg,3062745.1759174624,ec336nj4
+weight,highest,AluminiumExtrusions,ExpandaMull,0.001 kg,22.574 kgCO2e,22574.0,kgco2e/kg,4041.8979409131603,ec38k4xh
+weight,highest,Elevators,S-P-11541 GEN2 MACHINE ROOM ELEVATOR,1.0 kg,21945.2 kgCO2e,21945.2,kgco2e/kg,149178.62072544242,ec3mnkz1
+weight,highest,Elevators,S-P-11542 OTIS GEN3 MACHINE ROOM ELEVATOR,1.0 kg,20812.4 kgCO2e,20812.4,kgco2e/kg,141478.0966218671,ec3c6eaq
+weight,highest,RebarSteel,test oldPdf 1,1 kg,4180.865 kgCO2e,4180.865,kgco2e/kg,4943.1651258217435,wap225yd
+weight,highest,RebarSteel,SikaFiber® - Micro Synthetic Fibers,1.0 kg,3179.3 kgCO2e,3179.3,kgco2e/kg,3758.9840582092634,ec35ja26
+weight,highest,WireMeshSteel,Wire Rod(Building materials),1.0 kg,2400 kgCO2e,2400.0,kgco2e/kg,1290.3225806451612,ec3yrnj2
+weight,highest,Cement,Brentkalk VK (CL 90-Q),1.0 kg,1064.693037 kgCO2e,1064.693037,kgco2e/kg,1613.171268181818,ec3ugr1r
+weight,highest,Cement,S-P-07467 Portland cement CEM I 42.5 N; CEM I 42.5 R and CEM II/A-S 42.5 N by Krasnoselskstroymateri,1.0 kg,1045 kgCO2e,1045.0,kgco2e/kg,1583.3333333333333,ec37hxf0
+weight,highest,Cement,Brentkalk NFK (CL 90-Q),1.0 kg,1032.491742 kgCO2e,1032.491742,kgco2e/kg,1564.381427272727,ec3893sd
+weight,lowest,Hollow,"Norstal - hollow sections (CFRHS, CFCHS, HFRHS, HFCHS, etc.)",1 kg,6.61E-05 kgCO2e,6.61e-05,kgco2e/kg,3.610214943537342e-05,ec3jdcug
+weight,lowest,Grouting,Dalsan Maxitek Gypsum Based Plaster,1 kg,1.161E-05 kgCO2e,1.161e-05,kgco2e/kg,2.9232051298995983e-05,ec34n98c
+weight,lowest,Aggregates,Construction Aggregate,1 metric ton,0.0098 kgCO2e,9.8e-06,kgco2e/kg,0.0014100719424460432,ec352knj
+weight,lowest,Grouting,ALÇITEK - Projection Gypsum Plaster,1 kg,7.63E-06 kgCO2e,7.63e-06,kgco2e/kg,1.9211072472983577e-05,ec3jhce9
+weight,lowest,Aggregates,Construction Aggregate,1 metric ton,0.00437 kgCO2e,4.37e-06,kgco2e/kg,0.0006287769784172662,ec3253sx
+weight,lowest,MetalStairs,Solid stairs,1000 kg,0.0021 kgCO2e,2.1e-06,kgco2e/kg,7.191780821917808e-07,ec3nbbhb
+weight,lowest,PrecastConcrete,Prefabricated Sandwich Wall Elements with Lightweight Aggregated Outer Panel Biobetong II PLUS,1 t,0.00168 kgCO2e,1.8518808e-06,kgco2e/kg,7.378225841037048e-06,ec3ju44d
+weight,lowest,Asphalt,Asphalt mixtures from Halmstad asphalt plant – Biskopstorp,1 t,2.5E-05 kgCO2e,2.7557749999999997e-08,kgco2e/kg,4.173159229542035e-07,ec3hxj4k
+weight,lowest,Cement,Type I/II Cement,1 metric ton,1.86E-05 kgCO2e,1.86e-08,kgco2e/kg,2.8181818181818182e-08,ec3gxzer
+weight,lowest,Asphalt,Asphalt mixtures from Mora asphalt plant – Grönsberg,1000 kg,2.9E-06 kgCO2e,2.9000000000000003e-09,kgco2e/kg,4.3915638126015015e-08,ec31dpep
