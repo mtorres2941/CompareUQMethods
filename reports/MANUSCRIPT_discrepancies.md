@@ -346,7 +346,7 @@ claim. See entries 3, 4 and 6.
 
 ---
 
-## CURRENT CANONICAL NUMBERS, as of Stage 2a-3 closing, 2026-09-14
+## CURRENT CANONICAL NUMBERS, as of Stage 2b closing, 2026-09-14
 
 **Read this before working from any entry below.** Entries are appended and never
 rewritten, so an older one may quote a figure that a later stage has moved. This
@@ -365,8 +365,8 @@ live.** Where such an entry says "the 138 empirical datasets", the count is now
 | **datasets** | **149** |
 | drawn from | 138 EC3 categories queried; 136 retained at least 3 values after cleaning; 121 survived the residual-bin rule; splitting concrete and insulation brings it to 149 |
 | source | `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, a frozen archived extract, pulled 2026-08-13/14, checksummed in `data/INPUTS.sha256` |
-| ECC values after cleaning | 117,090 |
-| cleaning | multiplicative 3 x IQR in LOG space, both ends |
+| ECC values after cleaning | **117,079** (117,090 before the Stage 2b plausibility ceiling) |
+| cleaning | multiplicative 3 x IQR in LOG space, both ends, after an external plausibility ceiling of 100 kgCO2e/kg on mass-declared records (entry 35) |
 | weighting | flat Dirichlet, alpha = 1, keyed by dataset name |
 | normalization | each dataset divided by its own UNWEIGHTED mean |
 
@@ -374,12 +374,12 @@ Per-dataset characteristics, median / min / max:
 
 | characteristic | median | min | max |
 |---|---|---|---|
-| coefficient of variation | 0.667 | 0.006 | 14.341 |
-| skewness | 1.549 | -2.408 | 28.357 |
-| excess kurtosis | 3.716 | -3.627 | 835.32 |
-| entropy | 2.991 | 0.197 | 4.883 |
+| coefficient of variation | 0.667 | 0.006 | **13.404** |
+| skewness | 1.539 | -2.408 | **21.000** |
+| excess kurtosis | 3.702 | -3.627 | **525.17** |
+| entropy | 2.967 | 0.233 | 4.883 |
 | weight of outliers | 0.041 | 0.000 | 0.352 |
-| `fit_norm_SW` | 0.847 | 0.032 | 0.997 |
+| `fit_norm_SW` | 0.850 | 0.039 | 0.997 |
 | `fit_lognorm_SW` | 0.947 | 0.759 | 1.000 |
 | `w_v_uw_wasserstein` | 0.094 | 0.001 | 0.730 |
 | `crit_bw_1` | 0.710 | 0.215 | 4.176 |
@@ -401,6 +401,22 @@ Match against the 149-dataset arm: mean standardized W1 across the ten
 characteristics **0.2326**; visible-mode total variation **0.0128**. Worst
 characteristic `fit_lognorm_SW` at 0.386, then `entropy` 0.321, `fit_norm_SW`
 0.286, `coeffvar` 0.274.
+
+### What Stage 2b changed, and the numbers it adds
+
+| | |
+|---|---|
+| **empirical values** | 117,090 to **117,079**, and six datasets move. Entry 35 |
+| **pLCAs** | **2,499, not 2,500**, over groups of four covering 9,996 of 9,999 datasets. Entry 39 |
+| **W1, empirical, mean rank over the six methods** | `Lognormal, Variable` **2.09**, `KDE, Variable` 2.74, `Lognormal, Uniform` 3.34, `KDE, Uniform` 3.52, `Normal, Variable` 4.21, `Normal, Uniform` 5.11 |
+| **W1, synthetic, mean rank** | `KDE, Variable` **2.12**, `Lognormal, Variable` 2.19, `Normal, Variable` 3.64, `KDE, Uniform` 3.93, `Lognormal, Uniform` 4.17, `Normal, Uniform` 4.95 |
+| **W1, empirical, mean** | `Lognormal, Variable` 0.178, `Lognormal, Uniform` 0.211, `KDE, Variable` 0.251, `KDE, Uniform` 0.286, `Normal, Variable` 0.436, `Normal, Uniform` 0.490 |
+| **W1, synthetic, mean** | `Lognormal, Variable` 0.0988, `KDE, Variable` 0.1017, `Lognormal, Uniform` 0.1676, `KDE, Uniform` 0.1711, `Normal, Variable` 0.1724, `Normal, Uniform` 0.2187 |
+| **the lognormal** | 3-parameter, threshold by profile likelihood, guard at 0.25 weighted standard deviations below min(x); the +0.5 offset is retired. Entries 37, 40, 43 |
+| **the support** | (0, inf) open at zero, every method truncated and renormalized, sampling by inverse CDF. Decision 13, confirmed |
+
+**The empirical W1 values above are NOT comparable to anything in the manuscript**,
+which reports the same quantity in raw category units. Entry 41.
 
 ### What Stage 2a-3 changed, entry by entry
 

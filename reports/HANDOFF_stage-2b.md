@@ -36,7 +36,15 @@ the arithmetic.
 |---|---|
 | `aa446f5` Remove physically implausible mass-declared records | **MOVES NUMBERS** |
 | `e004db4` Run all three notebooks against corpus_2026-09-14d, and re-freeze the fixtures | **MOVES NUMBERS** |
-| (this commit) Fit the lognormal by profile likelihood, on the settled support | **MOVES NUMBERS** |
+| `da27c1a` Fit the lognormal by profile likelihood, on the settled support (0, inf) | **MOVES NUMBERS** |
+| this commit: the handoff | records only |
+
+**All three notebooks were run to completion twice**, once at `e004db4` with the
+Stage 1 fitting to isolate the corpus change, and once at `da27c1a` with the
+Stage 2b fitting to isolate the method change. That is what makes any number
+that moves bisectable to one decision. `e004db4`'s
+`outputs/tables/TABLE_PLCAResults.csv` is the Stage 1 method against the new
+corpus, and it is the comparison every pLCA figure in section 4.10 is against.
 
 ## 2. What was asked
 
@@ -695,3 +703,65 @@ alone. The general lesson, and it applies to every method this study scores:
 pLCA is not.** Stage 2c owns the evaluation target and should decide whether W1
 alone is enough; Stage 2g owns the downstream metrics and inherits the same
 question from the other end.
+
+### 4.10 What the fitting change did to the pLCA
+
+Two full pLCA runs, 2,499 groups x 6 methods x 4 datasets = 59,976 rows each,
+the same seed and the same corpus, differing only in the fitting method.
+
+**The Normal and the KDE moved by exactly the Monte Carlo floor and no more.**
+Mean absolute movement in `eci_rank_1`, the headline metric: `KDE, Uniform`
+0.0048, `KDE, Variable` 0.0046, `Normal, Uniform` 0.0047, `Normal, Variable`
+0.0045, against a Monte Carlo standard error of 0.0047 at `neccs = 10000`
+(discrepancy entry 17). Those two methods are the same distributions as before;
+what changed is that the draws come from an inverse CDF rather than from
+rejection, so they are different draws from the same distribution. **That is the
+cleanest available confirmation that the truncation is a restatement and not a
+new model.**
+
+**The Lognormal moved by about 3.5 times the floor**, 0.0166 and 0.0163, which is
+the refit. `eci_rank_1`'s standard deviation across datasets moves 0.1128 to
+0.1202 for `Lognormal, Variable` and is flat everywhere else.
+
+**And the tail check, which is section 4.9's defect seen from the pLCA end:**
+
+| `eci_std`, `Lognormal, Uniform` | Stage 1 | guard 0.01 | guard 0.25, shipped |
+|---|---|---|---|
+| median | 0.555 | 0.608 | 0.553 |
+| 99th percentile | 0.924 | **33.1** | 1.198 |
+| maximum | 1.558 | **532.3** | 1.911 |
+| `eci_mean` maximum | 1.236 | **9.567** | 1.220 |
+
+## 8. The stage's own assessment
+
+The reference point is `reports/HANDOFF_stage-0.md` section 8, which is not
+edited.
+
+**Analysis quality: better, and for a reason worth naming.** The stage set out to
+fix the lognormal and found four things that were wrong in ways nobody had
+looked for: the Methods text describes a fit the code has never performed; the
+empirical W1 column was in raw category units for the whole of Stage 1; the pLCA
+had been silently dropping three datasets; and a model can pass the study's own
+goodness-of-fit criterion while being unusable as the sampler the study then
+makes it. Three of the four were found by reading code or by noticing an
+impossible number, not by a test.
+
+**Code quality: better in the part that was touched, and one duplication was
+found and removed that Stage 1 had missed.** `tests/test_regression.py` carried
+its own copy of the fitting block and of the scoring grid, so it could not have
+detected a change in the code it was meant to be guarding. It now drives
+`src/fitting.py`. The test count is 128 at the end of Stage 1 and 238 now.
+
+**What is NOT better.** `src/customstats.py` is still a flat module of mixed-era
+helpers with a commented-out import line at the top as its table of contents, and
+`weighted_lognorm_fit` is now dead weight in the production path. Notebook 2
+still carries no stored outputs. Neither is this stage's scope and both are
+recorded above.
+
+**The honest risk this stage leaves.** The lognormal's threshold is set by a
+guard rather than by the data for half the empirical arm. That is defensible and
+it is stated, but it is a heuristic in a paper whose contribution is a comparison
+of methods, and a reviewer who reads section 4.9 will ask why the three-parameter
+lognormal is used at all when gamma has no threshold, no pathology, no guard, and
+beats it on the guard-bound datasets. **Stage 2c should answer that question with
+the out-of-sample comparison rather than leaving it to the reviewer.**

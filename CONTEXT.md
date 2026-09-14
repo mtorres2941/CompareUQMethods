@@ -17,7 +17,7 @@ CompareUQMethods/
 ├── notebooks/
 │   ├── 01_CompareUQ_CreateData.ipynb    generate/read data, compute metrics
 │   ├── 02_CompareUQ_AnalyzeData.ipynb   fit 6 methods, score by W1/W2/KS
-│   └── 03_CompareUQ_PerformPLCA.ipynb   2,500 pLCAs, downstream results
+│   └── 03_CompareUQ_PerformPLCA.ipynb   2,499 pLCAs, downstream results
 ├── src/
 │   ├── components.py          moment-targeted component families (Stage 2a)
 │   ├── mixture.py             the truncated-mixture parent (Stage 2a)
@@ -248,10 +248,16 @@ where the pre-regeneration corpus stopped at 749.
 `combos.txt`. Nothing reads them any more. Byte-identical copies with verified
 checksums are in `data/baseline_frozen/`; see `data/INPUTS.sha256`.
 
-The analysed set is the corpus minus the probe set: exactly 10,000 datasets,
-sizes 3 to 9,999, stratified 2,500 per stratum over 3-9, 10-99, 100-999 and
-1000-9999, plus a 50-dataset probe set at 10,000 to 100,000 that is excluded
-from every aggregate.
+The analysed set is the corpus minus the probe set: **9,999 datasets, not
+10,000**, sizes 3 to 9,999, stratified 2,500 per stratum over 3-9, 10-99,
+100-999 and 1000-9999 except the second, which holds 2,499 because one parent
+failed to solve and was reported rather than approximated. Plus a 50-dataset
+probe set at 10,000 to 100,000 that is excluded from every aggregate.
+
+**It does not divide by four**, so the pLCA grouping is 2,499 groups covering
+9,996 datasets and three are held out. `corpus.describe_combos` names them and
+both notebooks print it; `corpus.make_combos` carries the reason a short last
+group would be worse.
 
 ### The empirical arm
 
@@ -340,9 +346,9 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 |---|---|---|
 | `TABLE_EmpiricalECCMetrics.xlsx` | NB1 | 149 x 22 |
 | `TABLE_EmpiricalCategorySplit.csv` | NB1 | one row per split population |
-| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 149 x 28, still 136 until NB2 is run |
-| `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 10,000 x 26 |
-| `TABLE_PLCAResults.csv` | NB3 | 60,000 x 43 |
+| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 149 x 28 |
+| `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 9,999 x 37 |
+| `TABLE_PLCAResults.csv` | NB3 | 59,976 x 43, which is 2,499 groups x 6 methods x 4 datasets |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
