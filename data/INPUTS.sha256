@@ -154,3 +154,27 @@ c134bb2bb2d74113e1cb61c35351c3825ec78800e99d4450effc436d8745e185  data/processed
 ee0230bf0ac1495a91e0438ef46fe2d8e31fe7d2e49cec17a1b88da80344f71d  data/processed/corpus_2026-09-12c/parents.json.gz
 eee5ee586cbcc59f855240b192944520ec0774547a73da8dfae378b5a65567ae  data/processed/corpus_2026-09-12c/runmeta.json
 feb8e00f4a8b9ac32eb17aa2cb33aa7f00ad15c2f437a5ac927925cdcec19728  data/processed/corpus_2026-09-12c/combos.csv
+
+## Appended by Stage 2a-2, 2026-09-13: corpus_2026-09-13b, the final corpus
+
+`corpus_2026-09-13b` is the corpus Stage 2b should use. 10,000 datasets plus a
+50-dataset probe set, seed 42, 0 failed parents, 0 rejected by the validity
+filter, 847 s. It is the first corpus generated with both arms cleaned by the
+same multiplicative log-space rule, with bounded-density components, and with
+the overlap solve targeting the minimum ADJACENT pairwise overlap.
+
+Match against the 136 empirical datasets: mean standardized W1 across the ten
+characteristics 0.275, and the VISIBLE mode distribution matching to a total
+variation of 0.007 (95.5 percent of synthetic datasets have one visible mode
+against an empirical 94.9).
+
+The earlier corpora of this stage are superseded and were all built with at
+least one defect since fixed. They stay on disk only as the record of the
+search: corpus_2026-09-12c (average-overlap target, additive truncation),
+and the 1,000-dataset drafts d, e, f, g, h and 2026-09-13a.
+
+c2a0d8b055f03ae24fc0d230b855cba859f3b204f52348dbbc5d0f8ddc544e8d  data/processed/corpus_2026-09-13b/values.parquet
+a8b9d10329dc9e5809b0d8b418bee99ba184953861b9847839b78a66d683de89  data/processed/corpus_2026-09-13b/metrics.parquet
+3dcf8b8b71bc40e4af85b1f1c5b2f6471e905bb29c2946f3e9c8aaa74a3a8c73  data/processed/corpus_2026-09-13b/parents.json.gz
+54a8e3d863daef5dcbe3376c72bde619d2f7de858e83f66f200ee2b65f6c1563  data/processed/corpus_2026-09-13b/runmeta.json
+00114603c8e780347774cee0fae549685fa56f6fadb099bbf5aa05a22a95575f  data/processed/corpus_2026-09-13b/combos.csv

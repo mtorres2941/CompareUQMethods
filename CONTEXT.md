@@ -25,7 +25,8 @@ CompareUQMethods/
 │   ├── generator.py           parent -> dataset, plus the validity filter
 │   ├── corpus.py              generate, write and read a named corpus
 │   ├── empirical.py           prepare the empirical EC3 datasets
-│   ├── modality.py            Silverman critical bandwidth (Stage 2a)
+│   ├── modality.py            Silverman critical bandwidth, and the VISIBLE
+│   │                          mode count that the generator is tuned against
 │   ├── customstats.py         weighted statistics, distances, bandwidths
 │   ├── datageneration.py      legacy generation helpers, empirical cleaning
 │   ├── fitting.py             the six PEWT fits and W1 scoring
@@ -33,6 +34,7 @@ CompareUQMethods/
 │   ├── funcs_unit_conversion.py  EC3 unit normalization
 │   └── dct_metriclabels.json  display labels for the 22 metrics
 ├── audits/stage2a/            one-off measurement scripts, see audits/README.md
+├── audits/stage2a2/           empirical extract and generator audits, see its README
 ├── data/processed/            inputs, see section 5
 ├── outputs/tables/            tidy results, see section 6
 ├── outputs/figures/           publication and supplementary figures
@@ -119,6 +121,7 @@ the notebooks only ever read. Regeneration is explicit:
 
 ```bash
 cd src && python corpus.py 2026-09-11          # writes data/processed/corpus_2026-09-11/
+cd src && python corpus.py <label> 1000        # a 1,000-dataset DRAFT, 80 s not 850
 python -c "import sys; sys.path.insert(0,'src'); import corpus; corpus.set_active('2026-09-11')"
 ```
 
@@ -221,6 +224,41 @@ To build a new extract once access is restored, adapt
 `audits/stage2a2/p1_build_raw_extract.py`, which refuses to overwrite an
 existing dated file, then validate it with `p2_validate_extract.py` and
 `p3_diagnose_changes.py` before pointing `src/empirical.SOURCE` at it.
+
+### Two modality measures, and which one to tune against
+
+`src/modality.py` provides both, and they answer different questions.
+
+- `n_modes_silverman` is Silverman's critical-bandwidth test: is the data
+  multimodal at ANY bandwidth. It is sensitive to fine structure that never
+  appears in a plot.
+- `n_modes_visible` counts local maxima of a Scott's-bandwidth KDE, keeping
+  peaks whose prominence is at least 5 percent of the tallest. It answers how
+  many humps a reader sees.
+
+**They disagree profoundly on real ECC data**: about half the empirical datasets
+are multimodal by Silverman, while 94.9 percent have exactly one visible mode.
+Their structure is shoulders on a right-skewed body, not separated humps.
+
+**Tune the generator against `n_modes_visible`.** Stage 2a-2 spent most of its
+length tuning against Silverman, which was already matched, while the visible
+distribution drifted to 58.9 percent unimodal against an empirical 94.3 and the
+corpus filled with separated humps. `n_modes_silverman` remains a reported
+characteristic and belongs in the metric set; it is not a steering signal.
+
+`n_modes_visible` is the author's original `estimate_maxima` with a prominence
+threshold in place of a continuous index. Stage 2a's decision 23 discarded that
+metric for spanning only 1.000 to 1.159 across the empirical datasets, which was
+a defect in the readout rather than in the idea.
+
+### Both arms are cleaned by the same rule
+
+`genconfig.trunc_rule = 'log'`. The synthetic parent is truncated at
+`Q1 / (Q3/Q1)**3` and `Q3 * (Q3/Q1)**3`, which is the rule
+`datageneration.clean_empirical_symmetric` applies to the empirical values. Do
+not let these diverge: when they did, the two arms' characteristics differed
+because of the cleaning and generator tuning was compensating for it. Restoring
+consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 
 ## 6. Output tables
 

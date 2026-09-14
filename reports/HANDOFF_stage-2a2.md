@@ -268,12 +268,48 @@ them, which is why reopening generation was cheap.
 
 ### 4.1 The corpus, and the fact that it is a draft
 
-**`corpus_2026-09-12i_draft1k` is active and is a DRAFT at 1,000 datasets.** The
-paper needs a full 10,000 regeneration once the generator is settled. Drafts are
-built with `python corpus.py <label> 1000`, 110 s against 850 s, and every
-downstream check is three to five times faster. The label says `draft1k` and
-`runmeta.json` carries `n_corpus`, so a draft cannot be mistaken for a paper
-corpus.
+**`corpus_2026-09-13b` is the corpus Stage 2b should use.** 10,000 datasets plus
+a 50-dataset probe set, seed 42, 0 failed parents, 0 rejected, 847 s. It is the
+first corpus with all of: both arms cleaned by the same multiplicative rule,
+bounded-density components, a minimum mode width, and the overlap solve
+targeting the minimum ADJACENT pairwise overlap.
+
+Drafts at 1,000 datasets are built with `python corpus.py <label> 1000`, 80 s
+against 850, and make every downstream check three to five times faster. The
+label carries `draft1k` and `runmeta.json` carries `n_corpus`, so a draft cannot
+be mistaken for a paper corpus. The 1,000-dataset draft of this configuration
+gave a mean W1 of 0.270 against the full corpus's 0.275, so drafts are
+representative at this scale.
+
+**Final match against the 136 empirical datasets, full corpus:**
+
+| characteristic | standardized W1 |
+|---|---|
+| `fit_norm_SW` | 0.499 |
+| `entropy` | 0.397 |
+| `coeffvar` | 0.368 |
+| `skewness` | 0.365 |
+| `fit_lognorm_SW` | 0.256 |
+| `weight_outliers` | 0.251 |
+| `n` | 0.181 |
+| `kurtosis` | 0.159 |
+| `crit_bw_1` | 0.139 |
+| `w_v_uw_wasserstein` | 0.137 |
+| **mean** | **0.275** |
+
+Visible modes: 95.5 percent of synthetic datasets have exactly one against an
+empirical 94.9, total variation 0.007.
+
+**Two things about this corpus that a later stage should know.** 45 percent of
+overlap targets record `clipped_max_overlap`, because the target range reaches
+1.4 while the minimum-adjacent statistic cannot exceed about 1; the effective
+overlap distribution is therefore compressed at the top. And the achieved
+minimum-adjacent overlap has a median of 0.48 against an empirical fitted
+overlap median of 0.047. That gap is not chased, for the same reason the mode
+widths are not: the empirical fitted overlap comes from a BIC mixture and 39.7
+percent of the empirical datasets sit on its variance floor, so it is not a
+trustworthy target. The measure that is trustworthy, the visible-mode
+distribution, matches to 0.007.
 
 ### 4.2 The mistake that cost this stage, and how it was found
 
@@ -467,24 +503,31 @@ over 20 percent (52.9).
 | Kurtosis undefined in stratum 1 | 2f | STILL OPEN |
 | Notebooks 2 and 3 never run against the active corpus | 2b | STILL OPEN, deliberately |
 
-### Needing the author's decision, in priority order
+### Needing the author's decision
 
-0. **The generator is settled as far as this stage can take it.** Mean W1 across
-   the ten characteristics is 0.270 and the visible-mode distribution matches to
-   a total variation of 0.006. The remaining worst characteristic is
-   `fit_norm_SW` at 0.490.
-1. **Regenerate at 10,000 once the author is satisfied with the generator.**
-   The active corpus is a 1,000-dataset draft. Nothing downstream should be run
-   against it.
-2. **The tuning objective now scores both modality measures.** `n_modes_visible`
-   is the one to steer by; `n_modes_silverman` stays as a reported
-   characteristic. Any future sweep that optimises the Silverman distribution
-   alone will repeat this stage's mistake.
-3. **`min_mode_sd_frac = 0.15` is a judgment with no empirical anchor**, for the
-   reason in 4.4. **Owner: 2h.**
-4. **The acceptance criterion as written was not met by `corpus_2026-09-12c`**
-   and the four-way table in `TABLE_2a2_FourWayComparison.csv` is from that
-   corpus, so it is stale. It should be re-run against the final corpus.
+1. **`min_mode_sd_frac = 0.15` is a judgment with no empirical anchor.** The
+   comparable empirical quantity needs a fitted mixture and 39.7 percent of the
+   empirical datasets sit exactly on `gmm_em_1d`'s reg = 1e-6 variance floor, so
+   there is nothing reliable to calibrate against. **Owner: 2h to sweep.**
+2. **Some EC3 categories are not one product population** (see below). Whether
+   to keep them, exclude them, or state the limitation is unresolved and no
+   stage owns it.
+3. **Decision 13, ECC support is (0, inf) open at zero**, has still never been
+   confirmed in a prompt, and three stages have now built on it.
+
+### Settled in this stage, recorded so they are not reopened
+
+- **Both arms are cleaned by the same multiplicative log-space rule.** Section
+  4.6. This was the largest single improvement in the stage and it was raised
+  by the author three times before it was rechecked.
+- **Tune against `n_modes_visible`, not `n_modes_silverman`.** Section 4.2.
+  Silverman stays as a reported characteristic. Any future sweep that optimises
+  the Silverman distribution alone will repeat this stage's central mistake.
+- **The overlap range is Stage 2a's [0.3, 1.4].** Section 4.3. Every value this
+  stage tried below it was a regression.
+- **Components must have a bounded density.** Section 4.4.
+- **The objective weights every characteristic equally.** Weighting hid a real
+  regression in the paper's central quantity for two rounds.
 
 ### New in Stage 2a-2
 
@@ -507,13 +550,12 @@ over 20 percent (52.9).
   degree nobody had measured.** Entry 29. This is the argument for having done
   the extract at all, and it is worth stating in the paper rather than only in a
   handoff.
-- **Matching modality costs lognormality, structurally.** `fit_lognorm_SW` 0.865
-  to 1.921. Four attempts to recover it made it worse. Real ECC datasets are 49
-  percent multimodal while keeping a median Shapiro-lognormal statistic of
-  0.937; the generator reaches the same mode count by separating components,
-  which is a different shape. **Owner: 2h**, and it is the most interesting open
-  question the stage produced: what generative structure gives a gentle second
-  mode on a lognormal body?
+- **"Matching modality costs lognormality" was a false conclusion, now
+  resolved.** It was recorded mid-stage when `fit_lognorm_SW` ran to 1.921. Both
+  causes have since been removed: the overlap range was wrong (section 4.3) and
+  the two arms were cleaned by different rules (section 4.6). `fit_lognorm_SW`
+  is now 0.285. There is no structural tradeoff between modality and
+  lognormality; there were two defects.
 - **5.6 percent of the corpus has six or more modes against an empirical 0.7
   percent.** Same cause. **Owner: 2h.**
 - **The Silverman unimodal share carries a few points of estimator noise**: the
@@ -552,40 +594,52 @@ comparison; notebooks 2 and 3; the manuscript.
 
 ## 7. Next stage
 
-Stage 2b, unchanged in scope, with one addition: its first task is still to run
-notebooks 2 and 3 against the active corpus, which have never been run against
-any corpus later than the pre-regeneration one.
+**Stage 2b, the lognormal.** Its first task is unchanged and is still the oldest
+outstanding item in the project: run notebooks 2 and 3 against the active
+corpus. They have never been run against any corpus later than the
+pre-regeneration one.
 
-**Generation is closed again.** It was reopened once, by decision, because
-nothing downstream had been computed against `corpus_2026-09-12b`. That stops
-being true the moment notebook 2 runs.
+**Generation is closed.** It was reopened once, by decision, because nothing
+downstream had been computed. That stops being true the moment notebook 2 runs.
 
-**Read section 5's numbered list before running notebook 2.** The first item
-may change the corpus, and it is far cheaper to settle it now than after 2b has
-produced results against this one.
+### Read this before touching the generator again
 
-A fresh EC3 pull is being taken in the `EPDsFromEC3` repository. When it lands,
-the empirical arm is rebuilt by adapting `audits/stage2a2/p1_build_raw_extract.py`
-to the new file, validated with `p2` and `p3`, and the tuning loop re-run.
-Whether that justifies a third regeneration is an author decision. The author's
-expectation, recorded 2026-09-12, is that a month of new EPDs will not change
-much.
+Four habits, each of which this stage learned the expensive way.
 
-**Do not query the EC3 API while that pull is running.** EC3 rate limits per
-account rather than per process, and a concurrent request is what truncated a
-ready-mix pull to 9 percent of the category while reporting success.
+1. **Tune against `n_modes_visible`.** Silverman's critical-bandwidth test and a
+   count of visible humps disagree profoundly on real ECC data: about half the
+   empirical datasets are multimodal by Silverman while 94.9 percent have
+   exactly one visible mode. A corpus can match the Silverman distribution
+   perfectly and look nothing like the data. Most of this stage was spent
+   discovering that.
+2. **Make the two arms identical wherever they can be.** The largest single
+   improvement in the stage, mean W1 0.488 to 0.270, came from cleaning both
+   arms with the same rule. Before that, several rounds of generator tuning were
+   compensating for a difference created by the cleaning. If the arms differ in
+   any operation, that difference will be attributed to the generator.
+3. **Check a candidate configuration against seed noise before believing it.**
+   `audits/stage2a2/p10_config_noise.py`. The within-configuration standard
+   deviation of the objective is 0.0066 and of the mode-count total variation
+   0.029, against between-configuration differences of the same size. Several
+   choices earlier in this stage were made on a single draw and were noise.
+4. **Open the figure.** Every real defect in this stage was found by the author
+   looking at a picture, and none by the audits, which repeatedly reported the
+   corpus as fine while measuring the wrong quantity: value concentration and
+   component standard deviation cannot see an unbounded density, and Silverman
+   modality cannot see a visible-mode mismatch.
 
-## 8. State at the end of the session
+### What the audits are for
 
-| Item | State |
+| script | answers |
 |---|---|
-| Branch | `stage-2a2-empirical`, 3 commits |
-| Tests | 126 passing |
-| Active corpus | `corpus_2026-09-12c`, seed 42, 10,000 + 50 probe, 0 failed, 0 rejected |
-| Previous corpus | `corpus_2026-09-12b`, kept on disk as the comparison |
-| Empirical arm | 136 categories, `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, tracked and checksummed |
-| Notebook 1 | runs clean end to end against the active corpus |
-| Notebooks 2 and 3 | NOT run. Still Stage 2b's first task |
-| Fixtures | `TABLE_EmpiricalECCMetrics.xlsx` re-frozen at 136 rows, `SHA256SUMS.txt` updated and verifying. The two W1 tables are still pinned to the PRE-regeneration corpus and are Stage 2b's to re-freeze |
-| `data/INPUTS.sha256` | rows added for the raw extract and for `corpus_2026-09-12c` |
-| Open decisions | 3, listed in section 5, the first of which may change the corpus |
+| `audits/stage2a2/p1_build_raw_extract.py` | builds a frozen raw EC3 extract; refuses to overwrite |
+| `p2_validate_extract.py` | attrition, duplication, per-category comparison |
+| `p3_diagnose_changes.py` | why a category grew, shrank or moved |
+| `p4_cleaning_report.py` | what the cleaning rule does, and its sensitivity |
+| `p5_four_way.py` | both corpora against both empirical arms |
+| `p6_empirical_envelope.py` | the empirical measurements genconfig cites |
+| `p7_empirical_overlap.py` | empirical component overlap, for the overlap range |
+| `p8_spikiness.py` | needle-in-a-long-support, both arms, same estimator |
+| `p9_mode_realism.py` | mode widths and adjacent-pair gaps, both arms |
+| `p10_config_noise.py` | is a difference between configurations real |
+| `audits/stage2a/b5_tune_configuration.py` | the tuning loop. Re-run after ANY generation change |
