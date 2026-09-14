@@ -62,3 +62,6 @@ refs/
 # from named third parties, and this repository is public and Zenodo-archived.
 # Remove this rule only for a clean copy with comments resolved and accepted.
 outputs/manuscript/
+
+# Derived mode-count caches (audits/stage2a3/q3). Rebuilt from the corpus.
+outputs/tables/stage2a3/CACHE_modality_*.npz

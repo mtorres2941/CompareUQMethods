@@ -2,7 +2,8 @@ material,n_modes
 AccessFlooring,1
 AccessFlooringPedestals,1
 AcousticalCeilings,2
-Aggregates,3
+Aggregates [1 kg],2
+Aggregates [1000 kg],1
 Aluminium,2
 AluminiumBillets,2
 AluminiumExtrusions,2
@@ -10,7 +11,7 @@ AluminiumSheetGoods,1
 AluminiumSiding,1
 AluminiumSuspensionAssembly,1
 Asphalt,1
-BackingAndUnderlay,1
+BackingAndUnderlay,2
 BituminousRoofing,2
 BlanketFacing,2
 BlanketInsulation,1
@@ -20,33 +21,36 @@ Brick,3
 CMU,1
 CableTrays,2
 Carpet,1
-CastDecksAndUnderlayment,1
+CastDecksAndUnderlayment,2
 CeilingPanel,2
 Cement,2
 CementBoard,1
 CementGrout,2
 CementitiousMaterials,2
 CementitiousSheathingBoard,1
-Chairs,4
-Cladding,2
+Chairs [1 kg],1
+Chairs [1000 kg],2
+Cladding,3
 Coil,2
-ColdFormedSteel,2
+ColdFormedSteel,1
 CompositeLumber,1
-CompositionSiding,1
+CompositionSiding,2
 Concrete,2
-ConcreteAdmixtures,2
+ConcreteAdmixtures [1 kg],2
+ConcreteAdmixtures [1000 kg],1
 ConcretePaving,1
 Countertops,2
 CurtainWalls,3
-DampproofingAndWaterproofing,3
+DampproofingAndWaterproofing,2
 DataCabling,3
 DeckingBoards,1
-DeckingSteel,2
+DeckingSteel,1
 DemountablePartitionTrack,1
 DemountablePartitions,1
 DoorsAndFrames,2
 Electrical,1
-Elevators,2
+Elevators [1 kg],1
+Elevators [1 t],2
 FenestrationAccessories,2
 FenestrationFraming,2
 FiberCementSiding,2
@@ -59,13 +63,14 @@ FlowableFill,2
 FoamedInPlace,2
 Furnishings,1
 GlazedDoors,2
-Grouting,2
+Grouting [1 kg],2
+Grouting [1000 kg],2
 Gypsum,3
 GypsumSheathingBoard,1
 HeavyTimber,2
 Hollow,2
 HotRolled,2
-InsulatedRoofPanels,2
+InsulatedRoofPanels,1
 InsulatedWallPanels,2
 InsulatingGlazingUnits,1
 Insulation,2
@@ -87,14 +92,16 @@ Mortar,2
 NetworkingCableTrays,1
 NetworkingRaceways,1
 NonStructuralWood,3
-OilPatch,2
-OpenWebMembranes,2
+OilPatch,3
+OpenWebMembranes,1
 Openings,1
 OtherFlooring,1
 PaintingAndCoating,2
 PlateSteel,1
 PostTensioningSteel,1
-PowerCabling,3
+PowerCabling [0.65 m],2
+PowerCabling [1 km],4
+PowerCabling [1 m],3
 PrecastConcrete,1
 ProcessedNonInsulatingGlassPanes,1
 ReadyMix,1
@@ -112,13 +119,13 @@ SinglePlyTPO,1
 SprayedInsulation,2
 Steel,6
 SteelSuspensionAssembly,2
-StoneCladding,2
-StorageFurniture,1
+StoneCladding,1
+StorageFurniture,2
 StructuralSteel,2
 SupplementaryCementitiousMaterials,1
 Tables,2
 ThermalMoistureProtection,1
-TileGrout,2
+TileGrout,3
 Timber,1
 TranslucentWallAndRoofAssemblies,1
 UnitSkylights,1

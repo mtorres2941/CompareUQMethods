@@ -3,8 +3,7 @@
   "built_on": "2026-09-12",
   "source": "../EPDsFromEC3/store/epd_index.csv.gz",
   "source_sha256": "a06b5c6dbc84a9931b7ef2223e7e5df773c1a1fac31674b3253ae348163b3027",
-  "api_pull_attempted": true,
-  "api_pull_result": "HTTP 403: direct API access not allowed for this account",
+  "source_kind": "frozen slice of the consolidated EPD store at ../EPDsFromEC3/store, not a live API pull. A live pull was not taken because one was already running in that repository and EC3 rate limits per account. Direct API access is available to this account; an earlier note here said it was closed, which was wrong (Stage 2a-3).",
   "query": "EC3 store slice: material_query in the 138 categories of dct_realeccs_trimmed.json, most recent pull_date per category, date_validity_ends > pull_date",
   "pull_dates": [
     "2026-08-13",
