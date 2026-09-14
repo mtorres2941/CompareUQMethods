@@ -649,8 +649,56 @@ to leave whole as rarely specified: `Aggregates`, `Chairs`, `Elevators`,
 the coverage gap sits on categories the study already flags as not one product.
 
 Not acted on here, deliberately: it is not this stage's scope and acting on it
-would mean a fourth regeneration on a question nobody has decided. **Discrepancy
-entry 34. Unassigned. Raise it before Stage 2b runs notebook 2.**
+would mean a fourth regeneration on a question nobody has decided.
+
+**THE DECISION, stated as three options.** Earlier versions of this entry said
+"undecided and it needs one" without saying what was on offer, which is a defect
+in the document rather than a hard question.
+
+| option | what it means | cost |
+|---|---|---|
+| **A. Change the text** (recommended) | State coverage as measured and name the exceptions. The claim becomes: the corpus covers the empirical characteristic space with margin except at the extreme upper tail of dispersion, where 5 of 149 datasets sit beyond it, and above 9,999 values per dataset, which the probe set covers by design | nothing; no regeneration |
+| B. Widen the generator and regenerate a fourth time | The synthetic sample coefficient of variation tops out at 2.58 with only 8 of 9,999 datasets above 2.0, against an empirical maximum of 14.34. Closing that is not a parameter tweak: it needs the generator to make genuinely heavier-tailed populations, which moves every characteristic distribution | one regeneration plus a full revalidation, and it changes every number again |
+| C. Exclude the uncovered categories | Drops `Aggregates`, `Chairs`, `Elevators`, `Grouting`, `PowerCabling` from the arm | reads the ECC values to decide inclusion, and biases the arm toward low dispersion on the exact dimension the study measures. Advised against |
+
+**Why A is recommended.** The five datasets uncovered on dispersion are exactly
+the categories the study already identifies as not one product and leaves whole
+for that reason. The exception therefore falls where the paper has already told
+the reader to expect trouble, and it can be written as one sentence that
+strengthens the account rather than weakening it. The three uncovered on `n` are
+decision 19 working as designed: the corpus stops at 9,999 values and the probe
+set covers above it.
+
+**Discrepancy entry 34 carries the same table. Raise it before Stage 2b runs
+notebook 2.**
+
+### 4.3b Is further retuning worth anything? No.
+
+Four retunes were scored in this stage and **not one moved the objective by as
+much as one seed-to-seed standard deviation**, which is 0.0066 from
+`audits/stage2a2/p10_config_noise.py`:
+
+| retune | objective | movement |
+|---|---|---|
+| `cv_log10_sd` 0.3752 to 0.3536, at 440 datasets | 0.2307 to 0.2274 | -0.0033, 0.5 sd |
+| `cv_log10_sd` to 0.3919 alone, at 440 | 0.2125 to 0.2186 | +0.0061 WORSE, 0.9 sd |
+| `cv_log10_sd` and `cv_log10_mean` together, at 440 | 0.2125 to 0.2118 | -0.0007, 0.1 sd |
+| the same pair, full corpus against the resolved arm | 0.2037 to 0.2075 | +0.0038 WORSE, 0.6 sd |
+
+**The tuning has reached its noise floor.** A later stage that reopens generation
+to chase the objective will be fitting noise. The reason to have retuned at all
+is defensibility, not performance: a parameter must cite a measurement of the arm
+actually in use, and `corpus_2026-09-14b`'s did not.
+
+**A deeper question, flagged and not acted on.** The objective matches the SHAPE
+of the synthetic characteristic distribution to the empirical one. The study's
+purpose is different: to span the characteristic space with MARGIN, so that
+conclusions about UQ method performance generalize past the categories EC3
+happens to hold. Those two goals pull in opposite directions, because matching
+the empirical distribution concentrates the corpus where real data is dense and
+therefore under-samples the edges a generalizability claim rests on. Section 4.3a
+is that tension showing up as a measured failure. **Owner: 2f**, which already
+owns the multivariate model of where each method wins.
 
 ### 4.4 Configuration
 
@@ -706,7 +754,7 @@ and re-freezing it is Stage 2b's first task. 128 tests pass.
 | Fold in a newer EC3 pull | 2a-2 | **RESOLVED.** No. Decision 44, the arm is frozen |
 | EC3 API is closed to this account | 2a-2 | **RESOLVED.** It is not. Decision 45 |
 
-| Coverage claim is false at the top of the coefficient of variation | **UNASSIGNED** | **OPEN, and it is the one item that could require reopening generation.** Section 4.3a, entry 34 |
+| Coverage claim is false at the top of the coefficient of variation | **AUTHOR** | **OPEN.** Three options tabled in section 4.3a and entry 34; A is recommended and costs nothing |
 | A single Dirichlet realization moves per-dataset weighted metrics a long way | 2h | OPEN. Section 4.1, entry 32 |
 | Four EC3 parent categories are kept as residual bins because no child is in the arm | - | OPEN as a stated limitation: `PrecastConcrete`, `FireAndSmokeProtection`, `PaintingAndCoating`, `Openings` |
 | `CementGrout`, `FlowableFill`, `OilPatch` carry a strength field and are not split | - | OPEN by choice; one tuple in `categorysplit.CONCRETE` changes it |

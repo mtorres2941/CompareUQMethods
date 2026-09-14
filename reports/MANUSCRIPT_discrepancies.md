@@ -374,5 +374,24 @@ claim. See entries 3, 4 and 6.
 | **Manuscript** | Claims the synthetic corpus covers the region of characteristic space the empirical datasets occupy and extends beyond it on every side, which is what licenses generalizing the study's conclusions past the sampled categories. CLAUDE.md decision 29 records 100 percent coverage on all nine statistical characteristics, approved from `CompareUQMethods_FIG_MetricCoverage.png`. |
 | **Measured in Stage 2a-3** | That figure was measured on the Stage 2a empirical arm, whose maximum coefficient of variation was 2.40. Stage 2a-2 rebuilt the arm from raw values and the maximum became 13.40; nothing re-checked coverage. **Empirical datasets have a coefficient of variation the corpus never reaches**, remeasured on the 149-dataset arm: the arm maximum is 14.34 (`PowerCabling`), `Insulation` 6.05, `ConcreteAdmixtures [1 kg]` 3.56, `Grouting [1 kg]` 3.24, `DampproofingAndWaterproofing` 2.50, `WallFinishes` 2.20, against a synthetic maximum of 2.18. Two more are uncovered on `fit_norm_SW`, and `ReadyMix` on `n` by the deliberate 9,999 ceiling of decision 19. |
 | **Cause** | Not the draw range, which reaches 16. The coefficient of variation is a POPULATION target while the characteristic measured is the SAMPLE value, which runs low on a right-skewed distribution; only 41.7 percent of targets are met. |
-| **Fix** | **Undecided, and it needs one.** Either reopen generation to raise the offset or fix the solve, or state the limitation plainly: the corpus covers the empirical characteristic space with margin except at the top of the coefficient of variation, where four of the six uncovered datasets are categories that are not one product population. |
-| **Status** | Open, unassigned, and it is the one open item that could require reopening generation. Decision 29 and the coverage figure must be revisited either way. |
+| **Fix** | See the three options below. |
+| **Status** | Open, awaiting the author's choice of A, B or C. Decision 29 and `CompareUQMethods_FIG_MetricCoverage.png` must be revisited whichever is chosen. |
+
+**THE DECISION, stated as three options.** Earlier versions of this entry said
+"undecided and it needs one" without saying what was on offer, which is a defect
+in the document rather than a hard question.
+
+| option | what it means | cost |
+|---|---|---|
+| **A. Change the text** (recommended) | State coverage as measured and name the exceptions. The claim becomes: the corpus covers the empirical characteristic space with margin except at the extreme upper tail of dispersion, where 5 of 149 datasets sit beyond it, and above 9,999 values per dataset, which the probe set covers by design | nothing; no regeneration |
+| B. Widen the generator and regenerate a fourth time | The synthetic sample coefficient of variation tops out at 2.58 with only 8 of 9,999 datasets above 2.0, against an empirical maximum of 14.34. Closing that is not a parameter tweak: it needs the generator to make genuinely heavier-tailed populations, which moves every characteristic distribution | one regeneration plus a full revalidation, and it changes every number again |
+| C. Exclude the uncovered categories | Drops `Aggregates`, `Chairs`, `Elevators`, `Grouting`, `PowerCabling` from the arm | reads the ECC values to decide inclusion, and biases the arm toward low dispersion on the exact dimension the study measures. Advised against |
+
+**Why A is recommended.** The five datasets uncovered on dispersion are exactly
+the categories the study already identifies as not one product and leaves whole
+for that reason. The exception therefore falls where the paper has already told
+the reader to expect trouble, and it can be written as one sentence that
+strengthens the account rather than weakening it. The three uncovered on `n` are
+decision 19 working as designed: the corpus stops at 9,999 values and the probe
+set covers above it.
+
