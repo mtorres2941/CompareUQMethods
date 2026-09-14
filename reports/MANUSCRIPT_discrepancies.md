@@ -375,7 +375,7 @@ claim. See entries 3, 4 and 6.
 | **Measured in Stage 2a-3** | That figure was measured on the Stage 2a empirical arm, whose maximum coefficient of variation was 2.40. Stage 2a-2 rebuilt the arm from raw values and the maximum became 13.40; nothing re-checked coverage. **Empirical datasets have a coefficient of variation the corpus never reaches**, remeasured on the 149-dataset arm: the arm maximum is 14.34 (`PowerCabling`), `Insulation` 6.05, `ConcreteAdmixtures [1 kg]` 3.56, `Grouting [1 kg]` 3.24, `DampproofingAndWaterproofing` 2.50, `WallFinishes` 2.20, against a synthetic maximum of 2.18. Two more are uncovered on `fit_norm_SW`, and `ReadyMix` on `n` by the deliberate 9,999 ceiling of decision 19. |
 | **Cause** | Not the draw range, which reaches 16. The coefficient of variation is a POPULATION target while the characteristic measured is the SAMPLE value, which runs low on a right-skewed distribution; only 41.7 percent of targets are met. |
 | **Fix** | See the three options below. |
-| **Status** | Open, awaiting the author's choice of A, B or C. Decision 29 and `CompareUQMethods_FIG_MetricCoverage.png` must be revisited whichever is chosen. |
+| **Status** | **DECIDED 2026-09-14: option A** (CLAUDE.md decision 48). B and C are declined. What remains is a TEXT edit: restate the coverage claim as measured, name the exceptions, and rebuild `CompareUQMethods_FIG_MetricCoverage.png`. Decision 29 is corrected in place. |
 
 **THE DECISION, stated as three options.** Earlier versions of this entry said
 "undecided and it needs one" without saying what was on offer, which is a defect

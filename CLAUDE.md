@@ -482,11 +482,15 @@ rather than in conversation.
     it.
 29. **2026-09-11, Stage 2a. The coverage figure is accepted.** `[AUTHOR]`
     `outputs/figures/CompareUQMethods_FIG_MetricCoverage.png`, reviewed and
-    approved: "That output figure looks good to me." The underlying coverage
-    result stands: 100 percent of the 138 empirical datasets fall inside the
-    synthetic range on all nine statistical metrics, 99.3 percent on dataset
-    size. The two named exceptions are ReadyMix (n = 77,439) and Elevators.
+    approved: "That output figure looks good to me."
 
+    **THE COVERAGE RESULT RECORDED HERE IS NO LONGER TRUE, corrected by decision
+    48.** It said 100 percent of the 138 empirical datasets fell inside the
+    synthetic range on all nine statistical metrics. That was measured on the
+    Stage 2a arm, whose maximum coefficient of variation was 2.40. Stage 2a-2
+    rebuilt the arm from raw values and the maximum became 13.40, and nothing
+    re-checked coverage until Stage 2a-3. It is now 11 uncovered dataset-metric
+    pairs of 1,490. The figure must be rebuilt and the claim restated.
 30. **2026-09-12, Stage 2a-2. Generation was reopened once, by decision, and is
     closed again.** `[AUTHOR]` Stage 2a's handoff says not to regenerate and
     that instruction is correct for every other stage. It was suspended here
@@ -674,3 +678,31 @@ rather than in conversation.
     the resolved arm, marginally WORSE and inside the 0.0066 seed noise; it is
     kept because the alternative corpus's parameters cite an arm that was
     withdrawn.** See `reports/HANDOFF_stage-2a3.md` section 4.3.
+
+48. **2026-09-14, Stage 2a-3. The corpus is accepted as matching the empirical
+    arm well enough, and the coverage shortfall is stated in the text rather
+    than engineered away.** `[AUTHOR]` "If you think the synthetic datasets
+    match the empirical datasets well enough, let's just move on."
+
+    The judgment behind it: mean standardized W1 across the ten characteristics
+    is 0.2326 and the VISIBLE mode distribution, which the generator is steered
+    by, matches to a total variation of 0.0128. The one real gap is the upper
+    tail of dispersion, and `audits/stage2a3/q5_dispersion_reach.py` shows it is
+    not reachable by any parameter: eight candidates move the achieved sample
+    coefficient of variation from 1.65 to at most 2.15 against an empirical
+    14.34, and none puts a single dataset above 3. Closing it would be a
+    generator REDESIGN, heavier-tailed parents or a different truncation rule.
+
+    It is also the right thing to state rather than chase, because the five
+    uncovered datasets are `Aggregates`, `PowerCabling`, `Grouting`, `Elevators`
+    and `Chairs`: exactly the categories decision 46 could not resolve into
+    products. What the corpus cannot reach is the shape of a contaminated EC3
+    category, not the shape of a material.
+
+    **This is option A of the three tabled in `MANUSCRIPT_discrepancies.md`
+    entry 34.** Options B, generator redesign, and C, excluding the uncovered
+    categories, are declined. The manuscript owes a restated coverage claim and
+    a rebuilt Figure `CompareUQMethods_FIG_MetricCoverage.png`; decision 29 is
+    corrected in place. **Generation is closed and no further retuning is
+    warranted: four retunes in Stage 2a-3 all moved the objective by less than
+    one seed-to-seed standard deviation and two made it worse.**

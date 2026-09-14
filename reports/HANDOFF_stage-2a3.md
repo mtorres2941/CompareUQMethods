@@ -783,7 +783,7 @@ and re-freezing it is Stage 2b's first task. 128 tests pass.
 | Fold in a newer EC3 pull | 2a-2 | **RESOLVED.** No. Decision 44, the arm is frozen |
 | EC3 API is closed to this account | 2a-2 | **RESOLVED.** It is not. Decision 45 |
 
-| Coverage claim is false at the top of the coefficient of variation | **AUTHOR** | **OPEN.** Three options tabled in section 4.3a and entry 34; A is recommended and costs nothing |
+| Coverage claim is false at the top of the coefficient of variation | manuscript | **RESOLVED as option A**, decision 48. Not an analysis change: the text restates the claim and the coverage figure is rebuilt. Entry 34 |
 | A single Dirichlet realization moves per-dataset weighted metrics a long way | 2h | OPEN. Section 4.1, entry 32 |
 | Four EC3 parent categories are kept as residual bins because no child is in the arm | - | OPEN as a stated limitation: `PrecastConcrete`, `FireAndSmokeProtection`, `PaintingAndCoating`, `Openings` |
 | `CementGrout`, `FlowableFill`, `OilPatch` carry a strength field and are not split | - | OPEN by choice; one tuple in `categorysplit.CONCRETE` changes it |
@@ -873,24 +873,43 @@ the superseded corpora.
 
 ## 7. Next stage
 
-**Stage 2b, the lognormal.** Its first task is unchanged and is now the oldest
-outstanding item in the project by a wide margin: **run notebooks 2 and 3
-against `corpus_2026-09-14b`**, and re-freeze
-`tests/fixtures/TABLE_EmpiricalECCMetricsAndW1.xlsx` and
-`TABLE_SyntheticECCMetricsAndW1.xlsx` in the same commit that moves them.
+**Stage 2b, the lognormal.** Its first task is unchanged and is now by a wide
+margin the oldest outstanding item in the project: **run notebooks 2 and 3
+against `corpus_2026-09-14d`**, which `data/processed/CORPUS.json` already points
+at, and re-freeze `tests/fixtures/TABLE_EmpiricalECCMetricsAndW1.xlsx` and
+`TABLE_SyntheticECCMetricsAndW1.xlsx` in the same commit that moves them. Both
+are still pinned to the 136-dataset pre-split arm and will move a long way.
 
-**BOTH INPUTS ARE NOW CLOSED.** Generation was reopened here by the stated
-criterion, used once, and is closed. The empirical arm is frozen at the 2026-08
-extract by decision 44. Nothing after this stage moves either one.
+Expect roughly 11 minutes for notebook 3 at `neccs = 10000`. Use
+`COMPAREUQ_SMOKE_COMBOS=20` first; CONTEXT.md section 4 says why.
+
+**BOTH INPUTS ARE CLOSED, AND SO IS TUNING.**
+
+- The empirical extract is frozen at the 2026-08 pull, decision 44.
+- The category rules are settled, decision 46.
+- Generation is closed. It was reopened three times in this stage because the
+  arm changed under it; that cannot happen again.
+- **No further retuning is warranted**, decision 48. Four retunes here all moved
+  the objective by less than one seed-to-seed standard deviation and two made it
+  worse. A later stage chasing the objective will be fitting noise. Section 4.3b.
+
+**What Stage 2b inherits that is NOT its job.** The coverage shortfall is a text
+edit, decision 48 and entry 34. The Dirichlet weight-realization sensitivity is
+2h, entry 32. `min_q1_over_iqr` at 0.05 is a measured partial improvement and is
+2h's parameter, section 4.3a.
 
 ### Read this before touching the generator or the arm again
 
-The four habits in `reports/HANDOFF_stage-2a2.md` section 7 all still hold, and
-this stage adds a fifth.
+The four habits in `reports/HANDOFF_stage-2a2.md` section 7 still hold. This
+stage adds two.
 
 5. **A change to the LIST of datasets is a change to every dataset, unless the
    randomness is keyed by identity.** Splitting six categories moved the
    weighted metrics of 130 untouched ones, because the weights were drawn in
-   iteration order. This is the same failure as cleaning the two arms by
-   different rules: an incidental difference gets attributed to the change under
-   study. Anything that is drawn per dataset should be keyed by the dataset.
+   iteration order. Anything drawn per dataset should be keyed by the dataset.
+6. **Do not screen material categories on dispersion.** This stage's first
+   attempt did, and split on the declared unit, and both were wrong. The
+   question is whether a category is one thing a specifier could name, not
+   whether it is tight: splitting `ReadyMix` by compressive strength moves its
+   coefficient of variation from 0.29 to only 0.27 and is still obviously right.
+   Decision 46.
