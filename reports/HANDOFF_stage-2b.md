@@ -11,7 +11,7 @@ listed here rather than left to be found in section 4.
 
 | | finding | where |
 |---|---|---|
-| 1 | **The KDE is not the best method on the empirical arm, and was not before this stage either.** Under maximum likelihood three of five parametric families beat it; fitted by W1, all five do. On the synthetic corpus the properly fitted lognormal now beats it on mean W1 too, and the KDE's lead is down to the median. The paper cannot say "KDE fits best" without saying on which arm and by which summary | 4.5, entries 40 and 42 |
+| 1 | **The KDE is not the best method on the empirical arm, and was not before this stage either.** Under maximum likelihood three of five parametric families beat it; fitted by W1, all five do. **But two of the three reasons are defects in how the comparison is specified, not facts about kernel density estimation** -- the corpus over-represents the large datasets where the KDE wins, and this paper uses Scott's bandwidth where the author's own KL2 paper uses Silverman, which beats Scott on 100 percent of the empirical arm. **Read section 4.11 and entry 44 before quoting finding 1 anywhere** | 4.5, 4.11, entries 40, 42, 44 |
 | 2 | **The empirical W1 values the manuscript reports are in the raw unit of each category.** Stage 1 scored the empirical arm on UNNORMALIZED values while reporting normalized metrics beside them. Mean 9.38 against 0.48 now. The RANKS are unaffected; the VALUES cannot be converted and must come from the rerun | 4.6, entry 41 |
 | 3 | **The +0.5 offset was patching near-zero values, not the threshold pathology**, and the two-parameter lognormal is not the simple replacement: it is the worst of the three lognormals. The profile-likelihood three-parameter fit is what stands | 4.4, entries 37 and 40 |
 | 4 | **The plausibility ceiling moved the tuning objective by 1.10 seed-to-seed standard deviations, marginally outside the gate.** Nothing was regenerated, which is the instruction. Section 4.2 says why 1.10 sd overstates it and what the author has to decide, if anything | 4.2 |
@@ -515,10 +515,14 @@ list only by being marked resolved, with the reason.
 
 ### New in Stage 2b
 
-- **THE KDE IS NOT THE BEST METHOD ON THE EMPIRICAL ARM.** Section 4.5, entries
-  40 and 42. **This is the one item here that changes what the paper concludes**,
-  and it needs an author decision about how to frame the result. It was already
-  true before this stage; refitting the lognormal did not create it.
+- **THE KDE IS NOT THE BEST METHOD ON THE EMPIRICAL ARM, AND TWO OF THE THREE
+  REASONS ARE FIXABLE DEFECTS IN THE COMPARISON.** Sections 4.5 and 4.11,
+  entries 40, 42 and 44. **This is the one item here that changes what the paper
+  concludes.** It was already true before this stage; refitting the lognormal did
+  not create it. But the corpus over-represents the large datasets where the KDE
+  wins, and this paper uses Scott's bandwidth where KL2 uses Silverman, which
+  beats Scott on 100 percent of the empirical arm. **The claim is not refuted;
+  it is currently undetermined, and 2h and 2c determine it.**
 - **The empirical W1 values in the manuscript are in raw category units.**
   Section 4.7, entry 41. Text must take the new numbers from the rerun; they
   cannot be converted.
@@ -594,6 +598,12 @@ extract, the manuscript.
 roadmap anticipated, and two of its items are now load-bearing rather than
 optional.
 
+0. **THE PAPER'S CENTRAL CLAIM NOW TURNS ON 2c AND 2h.** Section 4.11. Whether
+   kernel density estimation is the better method is currently undetermined,
+   because the criterion rewards undersmoothing and the bandwidth rule in use is
+   not the one the author's own KL2 paper defends. **Do 2c and 2h before the
+   discussion section is written, and treat the bandwidth as part of the method
+   under test rather than as a fixed setting.**
 1. **Repeat the family comparison OUT OF SAMPLE.** Section 4.5 says every
    parametric family beats the KDE on the empirical arm once fitted by W1. W1 is
    an in-sample criterion with no complexity penalty and the families run from 2
@@ -765,3 +775,92 @@ of methods, and a reviewer who reads section 4.9 will ask why the three-paramete
 lognormal is used at all when gamma has no threshold, no pathology, no guard, and
 beats it on the guard-bound datasets. **Stage 2c should answer that question with
 the out-of-sample comparison rather than leaving it to the reviewer.**
+
+### 4.11 WHY the KDE loses, which matters more than that it does
+
+Added after the author asked. Section 4.5 says the KDE is not the best-fitting
+method on the empirical arm. That is a statement about numbers.
+**`audits/stage2b/r8_why_kde_loses.py` is the diagnosis, and two of the three
+mechanisms are defects in how the comparison is SPECIFIED rather than facts
+about kernel density estimation.** Discrepancy entry 44.
+
+**1. Dataset size, and the two arms do not actually disagree.**
+
+Mean rank of `KDE, Variable`, by size band:
+
+| band | empirical datasets | empirical rank | synthetic rank |
+|---|---|---|---|
+| n 3-9 | 20 | 3.60 | 3.03 |
+| n 10-99 | 79 | 2.77 | 2.43 |
+| n 100-999 | 39 | 2.54 | 1.75 |
+| n >= 1000 | 11 | **1.64** | **1.28** |
+
+The KDE improves monotonically with n on both arms and the lognormal degrades
+(`Lognormal, Variable` empirical: 2.55, 1.76, 2.08, 3.64). At n >= 1000 on the
+EMPIRICAL arm the two KDE methods are first and second, 1.36 and 1.64.
+
+**The corpus puts 25 percent of its datasets above n = 1,000 and the empirical
+arm has 7.4 percent.** Reweighting the corpus to the empirical size mix:
+
+| method | corpus, equal allocation | corpus, reweighted | empirical, observed |
+|---|---|---|---|
+| `Lognormal, Variable` | 2.185 | **2.017** | 2.087 |
+| `KDE, Variable` | 2.123 | 2.250 | 2.738 |
+
+**The arms agree once the size mix is matched.** Equal allocation across strata
+is a precision choice, not a claim about how common each size is, and
+`coverage.post_stratified` already exists for exactly this. **No stage had
+applied it to the W1 results.**
+
+**2. The bandwidth rule, and this study does not use the author's own.**
+
+`BW_METHOD = 'scott'` is `1.06 * sd * n_eff ** -0.2`. On the empirical arm under
+variable weights its median bandwidth is **0.56 of the data's standard
+deviation**. A Gaussian KDE inflates the fitted variance by
+`sqrt(1 + (h/sd)^2)`, so that is 15 percent of spread the data does not have,
+and it is why the fitted KDE puts a mean of 9.4 percent of its mass below zero
+on an arm whose support is (0, inf).
+
+Silverman's robust rule, `0.9 * min(sd, IQR/1.34) * n_eff ** -0.2`, gives 0.33
+and 5.2 percent:
+
+| variable weighting, 149 datasets | Scott | Silverman | lognormal |
+|---|---|---|---|
+| mean W1 | 0.2507 | **0.1228** | 0.1778 |
+| median W1 | 0.1487 | **0.0765** | 0.1220 |
+| beats the lognormal on | 33.6 pct | **81.2 pct** | - |
+
+**Silverman beats Scott on 100 percent of the 149 datasets under variable
+weighting**, 95.3 percent under uniform. **Torres et al. (2026), the author's
+own KL2 paper, uses Silverman and justifies it explicitly. This paper uses
+Scott.** Decision 9 and entry 10 already record the inconsistency; this is what
+it costs.
+
+**3. The criterion rewards undersmoothing, which confounds mechanism 2.**
+
+W1 over the empirical arm as the bandwidth shrinks, as a multiple of Scott's:
+
+| x1.0 | x0.5 | x0.25 | x0.1 | x0.05 | x0.02 | x0.01 |
+|---|---|---|---|---|---|---|
+| 0.2507 | 0.1365 | 0.0824 | 0.0497 | **0.0415** | 0.0444 | 0.0686 |
+
+The minimizing multiple is 0.02 for 95 of 149 datasets and 0.01 for 26 more.
+W1 keeps falling to a few percent of any standard rule, because a KDE with a
+vanishing bandwidth IS the empirical distribution it is being scored against;
+it turns back up only at 0.01, and that is the 1,000-point grid running out of
+resolution rather than a real optimum.
+
+**So W1 cannot arbitrate between methods of different flexibility, and the
+Silverman result above is partly just "Silverman is smaller".**
+
+**What survives the confound, and it is the part to build on.** Scott
+oversmooths this data badly, and **the KDE still loses to the lognormal under
+Scott even though the criterion is biased in the KDE's favour.** What is NOT
+established is the size of the KDE's disadvantage, or whether it has one at all
+under a defensible bandwidth and a criterion with a complexity penalty.
+
+**Nothing here is adopted and no default changes.** Stage 2h owns the bandwidth
+and must resolve the KL1 / KL2 / this-paper inconsistency; Stage 2c owns the
+evaluation target and is the only thing that can settle mechanism 3. **Both were
+already on the roadmap; what is new is that the paper's central claim now turns
+on them.**
