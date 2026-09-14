@@ -121,32 +121,118 @@ cellulose, wood fibre, phenolic and aerogel: **350 of 666 records match exactly
 one type, 311 match none and 5 match more than one.** Splitting on that would
 leave 47 percent of the category unassigned.
 
+#### 3.1b Which axis actually makes a category homogeneous
+
+`audits/stage2a3/q4_split_axis_evidence.py`,
+`outputs/tables/stage2a3/TABLE_2a3_SplitAxisEvidence.csv`. The test is not
+whether a field exists but whether splitting on it reduces the WITHIN-dataset
+coefficient of variation. A split that leaves the dispersion where it was has
+not separated anything, whatever the field is called. Two author hypotheses were
+tested; one holds and one does not, and the refutation is the more useful.
+
+**Concrete by 28-day compressive strength: the field is real, the effect is
+small.** `ReadyMix`, 86,995 records, strength stated on 89.9 percent:
+
+| class | records | CV |
+|---|---|---|
+| whole category | 86,995 | **0.29** |
+| <3000 psi | 3,968 | 0.30 |
+| 3000-3999 | 20,797 | 0.25 |
+| 4000-4999 | 31,124 | 0.24 |
+| 5000-5999 | 14,400 | 0.24 |
+| >=6000 psi | 7,906 | 0.25 |
+| unstated | 8,800 | 0.47 |
+| **record-weighted within-class** | | **0.27** |
+
+0.29 to 0.27. Strength class explains almost none of `ReadyMix`'s spread,
+because each dataset is normalized to its own mean and the ECC of concrete
+scales with strength, so normalization removes most of the between-class
+difference before it is measured. The other seven concrete categories behave the
+same way: `Shotcrete` 0.21 to 0.19, `ConcretePaving` 0.26 to 0.23, `CMU` 0.34 to
+0.33, `CementGrout` 0.37 to 0.32, `FlowableFill` 0.83 to 0.84, which is worse.
+
+The case for splitting concrete by strength is therefore NOT that the category
+is heterogeneous. It is that a specifier picks a strength class, so a
+strength-class dataset is a more faithful unit of analysis for a pLCA. That is a
+real argument and it is the author's; it is just not a dispersion argument, and
+the study's characteristic distributions will barely move if it is applied.
+
+**Insulation by material type: REFUTED.** The author's hypothesis was EPS, XPS,
+cellulose and so on. Matched against name and description:
+
+| type | records | CV |
+|---|---|---|
+| whole category | 666 | **7.65** |
+| **MineralWool** | **342** | **6.78** |
+| XPS | 36 | 0.87 |
+| PIR/PUR | 21 | 1.69 |
+| EPS | 14 | 1.13 |
+| unclassified | 228 | 1.80 |
+
+Mineral wool alone, more than half the category, still has a coefficient of
+variation of 6.78. Material type does not separate this category.
+
+**Insulation by declared THICKNESS: that is the axis.** The category is declared
+per square metre, and emissions per square metre scale with thickness:
+
+| band | records | CV |
+|---|---|---|
+| whole category | 666 | **7.65** |
+| <40 mm | 33 | 1.10 |
+| 40-79 mm | 67 | 1.56 |
+| 80-119 mm | 109 | 0.98 |
+| 120-199 mm | 107 | 0.78 |
+| >=200 mm | 72 | 0.60 |
+| **no thickness in the name** | **278** | **6.91** |
+
+Every band with a stated thickness is between 0.60 and 1.56. All of the
+dispersion is in the 278 records whose thickness cannot be parsed. The extremes
+say the same thing directly: the smallest value is "1 m2 silicate coating
+(110 g/m2)" at 0.0003 of the category mean and the largest is a stone wool
+mattress at 99 times it. **A coating and a 320 mm board are both "insulation per
+square metre" and are not the same quantity.**
+
+Two problems with using it. The thickness comes from a REGULAR EXPRESSION over
+the product name, not a field: the store's `thickness_value` is populated for
+ZERO of these 666 records. And it parses for only 388 of 666, leaving a
+278-record residual at 6.91, which is no better than where we started.
+
+**What EC3's own children already achieve.** The four child categories are
+separate datasets in the arm and are all well behaved: `BoardInsulation` 335
+records CV 1.19, `BlanketInsulation` 319 records CV 1.18, `BlownInsulation` 24
+records CV 1.05, `FoamedInPlace` 16 records CV 1.68. 694 records of insulation,
+already clean, already in the arm. The 666-record parent is the bin EC3 did not
+classify, and it is the only badly behaved insulation dataset.
+
 #### The recommendation
 
-1. **Drop the 15 parent-node residual datasets whose children are in the arm.**
-   Metadata only, no judgment, no text, and it removes the worst offender. It is
-   not a split: a parent node is not a product category, and its products are
-   already represented by its children. The arm becomes **121 datasets**.
-2. **Do NOT split the concrete categories by strength**, despite the field being
-   there. `ReadyMix`'s coefficient of variation is **0.29** against an arm median
-   of 0.82: after each dataset is normalized to its own mean it is one of the
-   TIGHTEST categories in the arm, because ECC scales with strength and
-   normalization removes most of that. Splitting the eight categories by strength
-   class would produce 47 datasets from 8, making concrete about a quarter of the
-   whole arm, and would split categories that show no evidence of needing it.
-   That is the over-zealousness the author warned against, quantified.
-3. **Leave the remaining high-dispersion categories whole and state the
-   limitation.** After the parent drop, `Aggregates`, `PowerCabling`, `Grouting`,
-   `Chairs`, `ConcreteAdmixtures` and `Elevators` remain above a coefficient of
-   variation of 3. None is a parent node and none has a populated product-type
-   field; their heterogeneity is EC3 misclassification visible only in free-text
-   names. The alternative to leaving them is to EXCLUDE them, which is an
-   inclusion criterion rather than a split, but it reads the values to decide and
-   it would bias the arm toward low dispersion, on the exact dimension the study
-   measures. That trade is the author's to make.
+Superseded by the measurements in 3.1b. Revised, and each item now carries the
+number that decides it:
 
-**Nothing in 1 to 3 is implemented.** It needs the author's decision, and it
-moves every empirical number when it lands.
+1. **`ReadyMix` by strength class, if the author wants the unit of analysis to
+   match a specification choice.** 6 datasets from 1, arm 136 to 141. It is
+   cheap, it is a structured field at 89.9 percent, and it is confined to the
+   highest-volume material rather than applied to all eight concrete categories,
+   which would make concrete a quarter of the arm. Be clear in the text about
+   what it buys: 0.29 to 0.27, not a homogeneity fix.
+2. **`Insulation`: the parent is EC3's unclassified bin, and the clean insulation
+   data is already in the arm.** Three options, with what each costs:
+   (a) drop the parent, keeping the four children, 694 records at CV 1.05 to
+   1.19, arm 136 to 135 and 666 records discarded;
+   (b) split by thickness parsed from the product name, giving five bands at CV
+   0.60 to 1.56 plus a 278-record residual still at 6.91, arm 136 to 141;
+   (c) leave it, and state that one dataset in the arm pools a 110 g/m2 coating
+   with a 320 mm board.
+   **Recommended: (a).** It needs no text parsing, discards only the bin EC3
+   itself could not classify, and insulation stays represented by four datasets.
+3. **The other 14 parent-node residual datasets**: same argument, same choice,
+   and the author has said `PowerCabling`, `Grouting`, `Chairs` and
+   `ConcreteAdmixtures` are not worth touching because they are rarely specified.
+   `Steel` (576 records, CV 1.57), `CeilingPanel` (240, 1.71), `Cladding` (135,
+   1.07) and `Masonry` (35, 1.86) are the ones that matter by volume.
+
+**Nothing is implemented.** It needs the author's decision and it moves every
+empirical number when it lands.
 
 ### 3.2 The screen
 

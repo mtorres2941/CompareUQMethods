@@ -1,0 +1,87 @@
+category,axis,group,records,cleaned_n,cv
+ReadyMix,compressive strength class,(whole category),86995,86770,0.2909862371972895
+ReadyMix,compressive strength class,<3000 psi,3968,3936,0.29818607306230793
+ReadyMix,compressive strength class,3000-3999,20797,20763,0.24744890829154403
+ReadyMix,compressive strength class,4000-4999,31124,31082,0.24239460594655854
+ReadyMix,compressive strength class,5000-5999,14400,14394,0.24407319406844283
+ReadyMix,compressive strength class,>=6000 psi,7906,7888,0.2541632786504212
+ReadyMix,compressive strength class,unstated,8800,8777,0.46794596323778265
+ReadyMix,compressive strength class,WITHIN-GROUP MEAN,86995,86770,0.2702757073378076
+CementGrout,compressive strength class,(whole category),3771,3764,0.3662396407519489
+CementGrout,compressive strength class,<3000 psi,276,275,0.3307460186202548
+CementGrout,compressive strength class,3000-3999,1155,1153,0.30712664866035044
+CementGrout,compressive strength class,4000-4999,1042,1041,0.27309420897304987
+CementGrout,compressive strength class,5000-5999,584,583,0.406266100338446
+CementGrout,compressive strength class,>=6000 psi,428,428,0.32411519108818365
+CementGrout,compressive strength class,unstated,286,285,0.46973396306994475
+CementGrout,compressive strength class,WITHIN-GROUP MEAN,3771,3764,0.3290336972974475
+FlowableFill,compressive strength class,(whole category),2008,2008,0.8322066121399452
+FlowableFill,compressive strength class,<3000 psi,1840,1840,0.8668754256316701
+FlowableFill,compressive strength class,3000-3999,39,39,0.1406495716378841
+FlowableFill,compressive strength class,4000-4999,34,32,0.09232172377725092
+FlowableFill,compressive strength class,5000-5999,6,5,0.0982269633935748
+FlowableFill,compressive strength class,>=6000 psi,6,6,0.3228130526190125
+FlowableFill,compressive strength class,unstated,83,83,0.6041469242842392
+FlowableFill,compressive strength class,WITHIN-GROUP MEAN,2008,2008,0.8259663937482773
+Shotcrete,compressive strength class,(whole category),1670,1669,0.2089396486114565
+Shotcrete,compressive strength class,<3000 psi,4,4,0.2826168874758954
+Shotcrete,compressive strength class,3000-3999,183,183,0.21489194563472153
+Shotcrete,compressive strength class,4000-4999,652,651,0.16567627684395717
+Shotcrete,compressive strength class,5000-5999,471,471,0.2029194402488408
+Shotcrete,compressive strength class,>=6000 psi,264,264,0.19975488765646499
+Shotcrete,compressive strength class,unstated,96,96,0.257134871576212
+Shotcrete,compressive strength class,WITHIN-GROUP MEAN,1670,1669,0.1925142266005398
+CMU,compressive strength class,(whole category),492,486,0.338022915415229
+CMU,compressive strength class,<3000 psi,276,273,0.3565572233244061
+CMU,compressive strength class,3000-3999,138,138,0.2834436520406127
+CMU,compressive strength class,4000-4999,18,18,0.2842967263887409
+CMU,compressive strength class,5000-5999,9,8,0.12299535967602196
+CMU,compressive strength class,>=6000 psi,8,8,0.2675863012889987
+CMU,compressive strength class,unstated,43,39,0.2474234433974676
+CMU,compressive strength class,WITHIN-GROUP MEAN,492,486,0.3188984599264177
+ConcretePaving,compressive strength class,(whole category),383,381,0.2594217856316243
+ConcretePaving,compressive strength class,<3000 psi,32,32,0.22401988761428276
+ConcretePaving,compressive strength class,3000-3999,108,108,0.21594242389701807
+ConcretePaving,compressive strength class,4000-4999,161,160,0.2311927133118799
+ConcretePaving,compressive strength class,5000-5999,42,42,0.2598456288714429
+ConcretePaving,compressive strength class,>=6000 psi,2,2,
+ConcretePaving,compressive strength class,unstated,38,38,0.6179860712019094
+ConcretePaving,compressive strength class,WITHIN-GROUP MEAN,383,381,0.26810063008607615
+OilPatch,compressive strength class,(whole category),282,282,1.2010741420322921
+OilPatch,compressive strength class,<3000 psi,121,121,1.8465662881884393
+OilPatch,compressive strength class,3000-3999,45,44,0.26187031477631806
+OilPatch,compressive strength class,4000-4999,38,38,0.23712991941156877
+OilPatch,compressive strength class,5000-5999,32,32,0.6514798982201788
+OilPatch,compressive strength class,>=6000 psi,23,23,0.5245109894594943
+OilPatch,compressive strength class,unstated,23,23,0.3198378003890476
+OilPatch,compressive strength class,WITHIN-GROUP MEAN,282,282,1.0115129201713913
+Concrete,compressive strength class,(whole category),213,211,0.2880482602536177
+Concrete,compressive strength class,<3000 psi,11,11,0.48623034251281333
+Concrete,compressive strength class,3000-3999,44,44,0.19429169472410251
+Concrete,compressive strength class,4000-4999,88,87,0.23381559179540992
+Concrete,compressive strength class,5000-5999,45,44,0.24421784879097078
+Concrete,compressive strength class,>=6000 psi,11,10,0.10658503885327253
+Concrete,compressive strength class,unstated,14,14,0.2933689621344243
+Concrete,compressive strength class,WITHIN-GROUP MEAN,213,211,0.23884726679485474
+Insulation,material type (from text),(whole category),666,666,7.647790759359962
+Insulation,material type (from text),Cellulose,2,2,
+Insulation,material type (from text),EPS,14,14,1.1321061385505726
+Insulation,material type (from text),MineralWool,342,342,6.781964480819721
+Insulation,material type (from text),Other,4,4,1.0872216712179303
+Insulation,material type (from text),PIR_PUR,21,21,1.6869879359182542
+Insulation,material type (from text),WoodFibre,2,2,
+Insulation,material type (from text),XPS,36,36,0.8730725946037937
+Insulation,material type (from text),unclassified,245,245,1.7735134454410924
+Insulation,material type (from text),WITHIN-GROUP MEAN,666,666,4.291538337247752
+Insulation,declared thickness (from text),(whole category),666,666,7.647790759359962
+Insulation,declared thickness (from text),<40 mm,33,33,1.1026793079046215
+Insulation,declared thickness (from text),40-79,67,67,1.5644220684519499
+Insulation,declared thickness (from text),80-119,109,109,0.9807244852422649
+Insulation,declared thickness (from text),120-199,107,107,0.7788277718999611
+Insulation,declared thickness (from text),>=200 mm,72,72,0.6029626148460173
+Insulation,declared thickness (from text),no thickness in name,278,278,6.91089072628625
+Insulation,declared thickness (from text),WITHIN-GROUP MEAN,666,666,3.4475663159284187
+BoardInsulation,(EC3 child of Insulation),(whole category),335,335,1.188395687667173
+BlanketInsulation,(EC3 child of Insulation),(whole category),319,318,1.1789650952168675
+BlownInsulation,(EC3 child of Insulation),(whole category),24,24,1.0523881920240972
+FoamedInPlace,(EC3 child of Insulation),(whole category),16,16,1.6756198013580665
