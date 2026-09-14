@@ -218,11 +218,12 @@ def test_empirical_metrics_recomputed():
 def test_synthetic_fits_and_w1_recomputed():
     """Drive the PRODUCTION fitting and scoring path on a deterministic slice.
 
-    This calls the same functions notebooks 2 and 3 call, rather than a copy of
-    them. That is what makes it a change detector: an edit to the fitting method
-    fails here without a notebook being run.
+    This calls `fitting.fit_pewt` and `fitting.score_all_models`, the same
+    functions notebooks 2 and 3 call, rather than a copy of them. That is what
+    makes it a change detector: an edit to the fitting method fails here without
+    a notebook being run.
     """
-    from fitting import fit_pewt_models, score_all
+    from fitting import fit_pewt, score_all_models
 
     expected_full = pd.read_excel(
         FIXTURES / "TABLE_SyntheticECCMetricsAndW1.xlsx", index_col=0
@@ -233,10 +234,10 @@ def test_synthetic_fits_and_w1_recomputed():
     rows = {}
     for name in sample:
         x, weights = data[name]
-        models = fit_pewt_models(x, weights)
+        models, _ = fit_pewt(x, weights)
         # Every model is scored against the VARIABLE-weighted empirical CDF,
         # including the uniform-weighted fits.
-        rows[name] = score_all(models, x, weights)
+        rows[name] = score_all_models(models, x, weights)
 
     actual = pd.DataFrame(rows).T
     expected = expected_full.loc[sample, PEWT]

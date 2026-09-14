@@ -188,15 +188,27 @@ def report(d, label):
                             )).to_string(float_format=lambda v: f'{v:.2f}'))
 
 
-def main(n_synth):
+def main(n_synth, redo_truncation=True):
+    """`redo_truncation=False` reuses the stored truncation table.
+
+    The truncation comparison covers the normal and the KDE only and is by far
+    the most expensive part of this script, because it integrates exactly on a
+    20,001-point lattice against datasets of up to 31,025 values. Nothing about
+    the lognormal can change it, so a rerun that only moves the lognormal should
+    not pay for it again.
+    """
     os.makedirs(TABLES, exist_ok=True)
+    tpath = os.path.join(TABLES, 'TABLE_2b_TruncationEffect.csv')
+    if not redo_truncation and not os.path.exists(tpath):
+        raise SystemExit(f'{tpath} not present; run with redo_truncation=True first')
     rows, trows = [], []
 
     ds, _ = empirical.prepare(np.random.default_rng(SEED).spawn(1)[0])
     print(f'empirical arm: {len(ds)} datasets', flush=True)
     for i, (name, (x, w)) in enumerate(ds.items()):
         rows += one_dataset(name, x, w, 'empirical')
-        trows += truncation_rows(name, x, w, 'empirical')
+        if redo_truncation:
+            trows += truncation_rows(name, x, w, 'empirical')
         if (i + 1) % 25 == 0:
             print(f'  {i+1}/{len(ds)}', flush=True)
 
@@ -206,14 +218,20 @@ def main(n_synth):
     print(f'synthetic: {len(syn)} datasets sampled from the corpus', flush=True)
     for i, (name, (x, w)) in enumerate(syn.items()):
         rows += one_dataset(name, x, w, 'synthetic')
-        trows += truncation_rows(name, x, w, 'synthetic')
+        if redo_truncation:
+            trows += truncation_rows(name, x, w, 'synthetic')
         if (i + 1) % 250 == 0:
             print(f'  {i+1}/{len(syn)}', flush=True)
 
     d = pd.DataFrame(rows)
     d.to_csv(os.path.join(TABLES, 'TABLE_2b_FamilyComparison.csv'), index=False)
-    t = pd.DataFrame(trows)
-    t.to_csv(os.path.join(TABLES, 'TABLE_2b_TruncationEffect.csv'), index=False)
+    if redo_truncation:
+        t = pd.DataFrame(trows)
+        t.to_csv(tpath, index=False)
+    else:
+        t = pd.read_csv(tpath)
+        print('truncation table reused from disk; it does not depend on the '
+              'lognormal', flush=True)
 
     for arm in ('empirical', 'synthetic'):
         report(d[d.arm == arm], f'{arm.upper()} ARM')
@@ -260,4 +278,5 @@ def main(n_synth):
 
 
 if __name__ == '__main__':
-    main(int(sys.argv[1]) if len(sys.argv) > 1 else N_SYNTH)
+    main(int(sys.argv[1]) if len(sys.argv) > 1 else N_SYNTH,
+         redo_truncation=('--reuse-truncation' not in sys.argv))

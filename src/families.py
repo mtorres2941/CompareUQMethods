@@ -292,8 +292,50 @@ def _lognorm3_profile_at(x, w, gamma):
 
 #: How far below min(x) the threshold grid must stay, as a fraction of the
 #: weighted standard deviation. See `fit_lognorm3_profile` for why a guard is
-#: required rather than optional.
-PROFILE_DELTA_LO_FRAC = 0.01
+#: required rather than optional, and THE GUARD IS NOT COSMETIC, below, for why
+#: this value and not a smaller one.
+#:
+#: THE GUARD IS NOT COSMETIC. Stage 2b set it to 0.01 first, on the reasoning
+#: that a guard only has to stop the divergence. It does stop the divergence,
+#: and it leaves a model that is unusable as a generative distribution: where
+#: the profile likelihood has no interior maximum, the threshold is driven onto
+#: the guard, sigma goes to roughly 1.8 to 2.3, and the fitted lognormal matches
+#: the BODY of the data while carrying an enormous right tail. W1 does not see
+#: that tail -- it is a distance between CDFs and a thin far tail costs little --
+#: but the pLCA SAMPLES from these models, and a model with a standard deviation
+#: of 3,000 on data whose standard deviation is 0.6 dominates any Monte Carlo it
+#: enters. It was found in the pLCA results, not in the fit scores.
+#:
+#: Swept over both arms; `outputs/tables/stage2b/TABLE_2b_ProfileGuardSweep.csv`.
+#: `max_sd` is the largest standard deviation of any fitted model, on data whose
+#: own standard deviation is near 0.6:
+#:
+#:   frac   empirical max_sd / mean W1     synthetic max_sd / mean W1
+#:   0.01        3281 / 0.1815                  5345 / 0.1037
+#:   0.05          77 / 0.1699                    99 / 0.0995
+#:   0.10          18 / 0.1691                    19 / 0.0979
+#:   0.25         3.4 / 0.1778                   2.9 / 0.0975
+#:   0.50         1.9 / 0.1941                   1.5 / 0.1010
+#:   1.00         1.7 / 0.2203                   1.3 / 0.1087
+#:
+#: 0.25 is THE SMALLEST GUARD AT WHICH NO FITTED MODEL HAS A VARIANCE THE DATA
+#: CANNOT SUPPORT -- zero datasets above a standard deviation of 5 on either
+#: arm, against 20.1 percent of the empirical arm at 0.01. W1 is flat from 0.05
+#: to 0.25 and better there than at 0.01 on both arms, so the choice costs
+#: nothing on the study's own criterion. It is chosen on the bounded-variance
+#: criterion rather than on W1 precisely so that it is not a number tuned to the
+#: score it is then judged by.
+#:
+#: WHAT IT MEANS WHEN IT BINDS, and the paper has to say this. At 0.25 the guard
+#: determines the threshold for 48 percent of empirical fits and 30 percent of
+#: synthetic ones, which is to say: for about half the empirical datasets the
+#: likelihood does not identify a threshold at all, and it is set at a fixed
+#: fraction of a standard deviation below the smallest observation. That is a
+#: SCALE-AWARE version of exactly the heuristic `fitting.LOGFIT_OFFSET` was, and
+#: it should be described as one rather than presented as an estimate.
+#:
+#: Stage 2h sweeps it, where the roadmap had it sweeping the offset.
+PROFILE_DELTA_LO_FRAC = 0.25
 #: How far below min(x) the grid reaches, in the same units. Far enough that the
 #: normal limit is inside the interval rather than beyond its edge.
 PROFILE_DELTA_HI_FRAC = 1000.0

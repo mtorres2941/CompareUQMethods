@@ -297,3 +297,28 @@ def test_scoring_grid_upper_bound_is_what_the_docstring_says():
     spread = max(np.std(x), FT.weighted_std(x, w))
     assert np.isclose(FT.score_grid_open(x, w)[-1],
                       x.max() + FT.SCORE_GRID_STD_MULTIPLE * spread)
+
+
+def test_profile_fit_is_a_usable_generative_distribution():
+    """The fitted lognormal must have a variance the data could support.
+
+    This is the test that would have caught the defect Stage 2b found in the
+    pLCA results rather than in the fit scores. With the guard at 0.01 standard
+    deviations, a profile with no interior maximum drove the threshold onto the
+    guard, sigma to roughly 2, and the fitted model's standard deviation to
+    thousands on data whose own standard deviation is near 0.6. W1 does not see
+    that -- a thin far tail costs almost nothing in a distance between CDFs --
+    but the pLCA samples from these models.
+
+    The bound of 20 is deliberately loose. It is not a calibration; it is the
+    difference between a heavy-tailed model and an unusable one.
+    """
+    for kind in SHAPES:
+        for n in (8, 40, 200):
+            x, w = sample(kind, n, 300 + n)
+            m, p = FT.fit_family('lognormal_3p', x, w, 'mle')
+            draws = m.ppf(np.linspace(1e-9, 1 - 1e-9, 20_001))
+            data_sd = float(np.std(x))
+            assert np.std(draws) < 20 * max(data_sd, 0.1), (
+                f'{kind} n={n}: fitted sd {np.std(draws):.4g} against a data sd '
+                f'of {data_sd:.4g}, status {p["status"]}')

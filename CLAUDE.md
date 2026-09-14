@@ -243,7 +243,7 @@ and generation is closed; neither input moves again.
 | **2a DONE** | Generator audit: seeding collapse, Dirichlet concentration mismatch, stale docstring, the truncation loop, power transform, reflection, component overlap, mode counting, the 27.5 percent filter, mode-level market share, the coverage table that becomes Table 1. Then regenerate, once | Changing the fitting methods, changing the scoring target, or sweeping anything that 2h owns |
 | **2a-2 DONE** | A one-off reopening of generation, by decision, because nothing downstream had been computed yet. Fresh raw empirical extract, symmetric log-space cleaning, weighted tuning objective, retune, regenerate once. `reports/HANDOFF_stage-2a2.md` | Any fitting work, and any further regeneration. Generation closes again when this stage ends |
 | **2a-3 DONE** | Resolve the EC3 categories into specifiable products, on record metadata only: drop EC3 residual bins, split concrete by specified strength, split insulation by material type. Arm 136 to 149. Regenerate as `corpus_2026-09-14d`. Two record corrections. Found that the coverage claim is false. `reports/HANDOFF_stage-2a3.md` | Any fitting work. It is the LAST pre-2b stage: nothing after it reopens generation or the empirical extract |
-| **2b** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE | Adding new families for robustness (2h), or rescoring against a parent (2c) |
+| **2b DONE** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE. Also the plausibility ceiling, the support (0, inf), and the first end-to-end run of notebooks 2 and 3. `reports/HANDOFF_stage-2b.md` | Adding new families for robustness (2h), or rescoring against a parent (2c) |
 | **2c** | The evaluation target: score synthetic against the known parent, cross-validate the empirical 138, decompose location versus definitional error, report regret distributions. Overlap area alongside W1 | The pLCA construction (2e) and the flip-probability threshold (2d) |
 | **2d** | Decompose the uniform-to-variable W1 into location and shape, define the named relative measure, calibrate flip probability against relative W1, report the 1, 5 and 10 percent crossings | Building companion decision metrics (2g) |
 | **2e** | pLCA construction: common random numbers across UQ methods, sweep materials per pLCA over 2 to 12, resample groupings, dominant-MUI variant, bootstrap intervals on every headline percentage and NRMSE | Changing what the headline metric is (2g) |
@@ -256,11 +256,12 @@ and generation is closed; neither input moves again.
 
 Items already known to be open and owned by a named stage, so that none of them
 reads as a fresh discovery: the bandwidth rule and its KL1/KL2 inconsistency
-(2h); `logfit_offset` (2b, swept in 2h); the "Mode Count" label naming a
+(2h); `logfit_offset` (RESOLVED in 2b, retired; the profile-likelihood guard `PROFILE_DELTA_LO_FRAC` is what 2h sweeps in its place); the "Mode Count" label naming a
 continuous modality index (2a); the 27.5 percent filter and its n cap at 749
 (2a); the variance-inflation exponent and the reflection step (2a);
 Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue` (2f); dependent
-sampling (2e); overlap area alongside W1 (2c); the `(1-capecc)` divisor (2g);
+sampling (2e); overlap area alongside W1 (2c); the scoring grid's zero
+(RESOLVED in 2b); the `(1-capecc)` divisor (2g);
 `weighted_quantile` order dependence (fixed in Stage 1 Phase 3, and it must
 stay fixed before any switch to Silverman in 2h).
 
@@ -727,3 +728,101 @@ rather than in conversation.
     corrected in place. **Generation is closed and no further retuning is
     warranted: four retunes in Stage 2a-3 all moved the objective by less than
     one seed-to-seed standard deviation and two made it worse.**
+
+49. **2026-09-14, Stage 2b. Physically implausible records are removed by an
+    EXTERNAL bound, on mass-declared categories only.** `[AUTHOR]`
+    `empirical.MASS_ECC_CEILING = 100.0` kgCO2e/kg, applied before cleaning.
+
+    **The bound may not be read off the data.** This study measures dispersion
+    and modality, so a ceiling taken from the arm's own quantiles, standard
+    deviations or visible gaps would be circular in the same way a
+    dispersion-based split would have been (decision 46). It is anchored on
+    published embodied-carbon inventories, where the highest building-product
+    coefficients are of order 13 kgCO2e/kg for primary aluminium (ICE v3.0), and
+    cross-checked stoichiometrically: 100 kgCO2e per kg of delivered product
+    needs about 27 kg of pure carbon burned per kilogram shipped. Set at 100
+    rather than 25 so it cannot be read as a tuned threshold. **The ICE figure
+    is from the analyst's knowledge and `refs/` holds no copy; verify it against
+    the source before it goes in the paper.**
+
+    Applied ONLY where an external bound exists. For volume, area, length and
+    item declarations there is none, so none is invented: the ten highest and
+    ten lowest records per unit type are REPORTED for author review in
+    `outputs/tables/stage2b/TABLE_2b_UnitExtremes.csv`, and left in the arm.
+
+    **Both gates were checked.** The catch is 115 of 117,807 raw records, which
+    is 11 of 117,090 cleaned values, 0.0094 percent against a 0.1 percent
+    stop-and-report threshold: PASSED. The calibration gate did NOT pass, and
+    nothing was done about it, which is the instruction: the tuning objective
+    moved 0.2075 to 0.2147, or 1.10 of the 0.0066 generator seed-to-seed
+    standard deviation. Generation stays closed (decisions 47 and 48) and
+    reopening it is an author decision. See section 4.2 of the Stage 2b handoff
+    for why 1.10 sd overstates it.
+50. **2026-09-14, Stage 2b. Decision 13 is CONFIRMED and IMPLEMENTED: the
+    support is (0, inf), open at zero.** `[AUTHOR]` Every one of the six methods
+    is now an explicit truncation of its parent to (0, inf), renormalized,
+    exposing pdf, cdf, ppf and inverse-CDF sampling. `src/families.py`.
+
+    Sampling is by inverse CDF and never by rejection. The two give the same
+    distribution; what rejection cannot do is take ONE uniform variate per
+    material per iteration, which is what the common-random-numbers scheme of
+    Stage 2e needs. `rvs_from_uniform` is that entry point.
+
+    **This moved almost nothing, and that is itself the finding.** The Stage 1
+    grid started at exactly zero, so the normal and the KDE were ALREADY being
+    scored truncated and renormalized; making it explicit changes the scored
+    values by 0.000, and opening the grid at zero moves them by 0.1 to 0.4
+    percent of the median. What was wrong was the description, not the
+    arithmetic: the manuscript describes an untruncated normal. Discrepancy
+    entry 18 is resolved and the grid, not the sampler, is what changed.
+51. **2026-09-14, Stage 2b. The lognormal is the three-parameter fit with the
+    threshold chosen by PROFILE LIKELIHOOD, and `LOGFIT_OFFSET` is retired.**
+    `[AUTHOR]` The likelihood of a three-parameter lognormal is unbounded as the
+    threshold approaches the smallest observation, so the global MLE does not
+    exist; the author named the treatment wanted and it is implemented in
+    `families.fit_lognorm3_profile`.
+
+    Two measured results that a later stage must not reverse by forgetting:
+    **the two-parameter lognormal is NOT the simple answer** -- it is the worst
+    of the three lognormals and worse than gamma -- and **the offset was
+    patching near-zero values, not the threshold pathology**, which the Stage 1
+    code could not have exhibited because it never estimated a threshold.
+    Entries 37 and 40.
+
+    **The guard is not cosmetic, and setting it too close to `min(x)` produced
+    a model that scored well and was unusable.** At 0.01 of a standard deviation
+    the fits with no interior maximum reached a model standard deviation of
+    3,281 on data whose own is 0.6, because W1 barely charges for a thin far
+    tail while the pLCA samples from it. Found in the pLCA results, not in the
+    fit scores. `PROFILE_DELTA_LO_FRAC = 0.25`, the smallest guard at which no
+    fitted model on either arm exceeds five times the data's standard deviation;
+    it also improves mean W1 on both arms. Chosen on the bounded-variance
+    criterion and NOT on W1, so that it is not tuned to the score it is judged
+    by. Handoff section 4.9, entry 43.
+
+    At 0.25 the guard determines the threshold for **48 percent of empirical
+    fits**, so for about half the arm the likelihood does not identify a
+    threshold and it is set a fixed fraction of a standard deviation below the
+    smallest observation. **The paper must describe that as a scale-aware
+    version of the heuristic the offset was, not as an estimate.** Reported per
+    fit in `params[...]['status']`. **Stage 2h sweeps
+    `PROFILE_DELTA_LO_FRAC` where it would have swept the offset.**
+52. **2026-09-14, Stage 2b. Maximum likelihood stays the study's estimator, and
+    W1-optimal fitting is reported ALONGSIDE it.** `[RECOMMENDED]`
+    `fitting.FIT_METHOD = 'mle'`. Maximum likelihood is what a practitioner
+    would do; direct W1 minimization is the fair-comparison control that answers
+    the objection that the parametric families were judged by a rule they were
+    never fitted under. Both are implemented and both are reported.
+
+    **It matters: on the empirical arm every parametric family beats the KDE
+    once fitted by W1, and three of five beat it even under maximum
+    likelihood.** Entry 42. **2c owes the out-of-sample version** before any of
+    it goes in the paper, because W1 is an in-sample criterion with no
+    complexity penalty and the families differ in flexibility.
+53. **2026-09-14, Stage 2b. The pLCA remainder is held out, named, and printed.**
+    `[DELEGATED, 2b chose]` The corpus holds 9,999 datasets, so it does not
+    divide by four. Every group stays at exactly four and `dataset813`,
+    `dataset2876` and `dataset7985` are in no pLCA. A short last group would put
+    a rank-1 frequency out of three in the same column as one out of four, and
+    every headline metric is a frequency over ranks among exactly four
+    materials. 2,499 pLCAs, not 2,500.
