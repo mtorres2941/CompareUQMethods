@@ -299,7 +299,7 @@ claim. See entries 3, 4 and 6.
 
 | | |
 |---|---|
-| **Manuscript** | States 138 empirical ECC datasets throughout, and the count appears in figure captions and in the abstract's framing of the empirical arm. |
+| **Manuscript** | States 138 empirical ECC datasets throughout, and the count appears in figure captions and in the abstract's framing of the empirical arm. **The current count is 149; see CURRENT CANONICAL NUMBERS above.** |
 | **Code** | The 2026-08 extract, cleaned symmetrically and filtered to categories retaining at least three values, yields **136**. `Siding` retains 1 value and `SinglePlyOther` retains 2. Both losses are expiry: `Siding` holds 29 records in the store slice of which 1 is still valid at the pull date, and only 14 of the 29 carry a parseable declared unit. |
 | **Fix** | **Text.** Replace 138 with 136 everywhere, and state the inclusion threshold (at least three values after cleaning) so the number is derivable rather than asserted. |
 | **SUPERSEDED by Stage 2a-3** | The arm is now **149 datasets**. The 136 categories are resolved into specifiable products: 15 EC3 residual bins dropped, concrete split by specified compressive strength, insulation by material type. `outputs/tables/TABLE_EmpiricalCategorySplit.csv` is what makes 149 derivable. |
@@ -342,6 +342,86 @@ claim. See entries 3, 4 and 6.
 | **What the text must say** | The three rules; that EC3 records no subcategory on any of these EPDs, `category_key` equalling the queried category for all 123,060, so the tree's parent/child relation rather than a per-record field is what identifies a residual bin; that "type not stated" is a real dataset of insulation EPDs whose name does not state a material, 131 of 335 board records; that thickness was tested and rejected because it parses for only 96 of 335; and the four parent categories KEPT because no child of theirs is in the arm, whose heterogeneity is a limitation. |
 | **Effect on the envelope** | Median coefficient of variation 0.757 to 0.667, median excess kurtosis 5.49 to 3.72, median skewness 1.73 to 1.55, Silverman unimodal share 49.3 to 55.7 percent, maximum dataset size 86,770 to 31,025. The visible-mode distribution moves by 0.0045. |
 | **Status** | Resolved in code. Text owes the three rules, the framing above, and the table. |
+
+
+---
+
+## CURRENT CANONICAL NUMBERS, as of Stage 2a-3 closing, 2026-09-14
+
+**Read this before working from any entry below.** Entries are appended and never
+rewritten, so an older one may quote a figure that a later stage has moved. This
+block is the single place to check what a number currently is. Anything here
+beats anything below it.
+
+**Every entry from 1 to 27 was written against the 2026-03 empirical data and the
+pre-regeneration corpus. Treat their NUMBERS as historical and their ARGUMENTS as
+live.** Where such an entry says "the 138 empirical datasets", the count is now
+149 and the values differ; the point the entry is making usually still stands.
+
+### The empirical arm
+
+| | |
+|---|---|
+| **datasets** | **149** |
+| drawn from | 138 EC3 categories queried; 136 retained at least 3 values after cleaning; 121 survived the residual-bin rule; splitting concrete and insulation brings it to 149 |
+| source | `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, a frozen archived extract, pulled 2026-08-13/14, checksummed in `data/INPUTS.sha256` |
+| ECC values after cleaning | 117,090 |
+| cleaning | multiplicative 3 x IQR in LOG space, both ends |
+| weighting | flat Dirichlet, alpha = 1, keyed by dataset name |
+| normalization | each dataset divided by its own UNWEIGHTED mean |
+
+Per-dataset characteristics, median / min / max:
+
+| characteristic | median | min | max |
+|---|---|---|---|
+| coefficient of variation | 0.667 | 0.006 | 14.341 |
+| skewness | 1.549 | -2.408 | 28.357 |
+| excess kurtosis | 3.716 | -3.627 | 835.32 |
+| entropy | 2.991 | 0.197 | 4.883 |
+| weight of outliers | 0.041 | 0.000 | 0.352 |
+| `fit_norm_SW` | 0.847 | 0.032 | 0.997 |
+| `fit_lognorm_SW` | 0.947 | 0.759 | 1.000 |
+| `w_v_uw_wasserstein` | 0.094 | 0.001 | 0.730 |
+| `crit_bw_1` | 0.710 | 0.215 | 4.176 |
+| modality index | 1.004 | 1.000 | 1.074 |
+| dataset size n | 50 | 3 | 31,025 |
+
+Modality, and **quote `nboot` whenever quoting the Silverman share**: 55.7 percent
+unimodal by Silverman's critical-bandwidth test at nboot = 100; by VISIBLE modes,
+95.3 percent have one, 4.0 percent two, 0.7 percent three or more.
+
+### The synthetic corpus
+
+`corpus_2026-09-14d`, seed 42. **9,999 datasets, not 10,000** (one parent failed
+to solve and was reported rather than approximated), plus a 50-dataset probe set
+held outside every aggregate. Stratified 2,500 per stratum over n = 3-9, 10-99,
+100-999 and 1000-9999.
+
+Match against the 149-dataset arm: mean standardized W1 across the ten
+characteristics **0.2326**; visible-mode total variation **0.0128**. Worst
+characteristic `fit_lognorm_SW` at 0.386, then `entropy` 0.321, `fit_norm_SW`
+0.286, `coeffvar` 0.274.
+
+### What Stage 2a-3 changed, entry by entry
+
+| entry | status |
+|---|---|
+| 28, dataset count | **149**, superseding 136 and 138 |
+| 31, categories that are not one product | RESOLVED by three metadata rules; see the entry for the framing the text must use |
+| 32, Dirichlet weight sensitivity | NEW, open, owner 2h |
+| 33, EC3 records no subcategory | NEW, one sentence for the data section |
+| 34, coverage claim is false | NEW, **decided: option A**, needs a text edit and a rebuilt figure |
+| 29, empirical characteristics | its 2026-08 numbers are superseded by the table above |
+| 25, 27, cleaning and overlap | arguments live, numbers historical |
+
+### The three things the manuscript owes that are NOT yet written anywhere else
+
+1. **The dataset count is 149 and it appears throughout**, including figure
+   captions and the abstract's framing.
+2. **The coverage claim must be restated** and
+   `outputs/figures/CompareUQMethods_FIG_MetricCoverage.png` rebuilt. Entry 34.
+3. **The category resolution must be described**, and described as a question of
+   what a dataset MEANS rather than as a dispersion fix. Entry 31.
 
 ---
 
