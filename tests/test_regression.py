@@ -37,7 +37,6 @@ it tolerates a compiler or library change but still catches any real change in
 method.
 """
 
-import json
 import sys
 from pathlib import Path
 
@@ -93,18 +92,15 @@ TABLE_NAMES = [
     "TABLE_SyntheticECCMetricsAndW1.xlsx",
 ]
 
-# Fitting constants, matching NB2 cells 12 and 20 and NB3 cell 15.
-PE_METHODS = ["Normal", "Lognormal", "KDE"]
-WT_METHODS = ["Uniform", "Variable"]
-PEWT = [f"{pe}, {wt}" for pe in PE_METHODS for wt in WT_METHODS]
-LOGFIT_OFFSET = 0.5
-SCORE_GRID_POINTS = 1_000
-SCORE_GRID_STD_MULTIPLE = 10
-BW_METHOD = "scott"
+# The six method labels, imported from the production module rather than
+# restated. An earlier version of this file carried its own copy of the fitting
+# block and its own copy of the scoring grid, which is the same duplication
+# Stage 1 removed from the notebooks: a test that reimplements the code it is
+# testing cannot detect a change in that code.
+from fitting import PEWT  # noqa: E402
 
-# Number of synthetic datasets to recompute in the independent check. The full
-# set of 10,000 takes about 30 s; a deterministic slice keeps the suite quick
-# while still covering every code path.
+# Number of synthetic datasets to recompute in the independent check. A
+# deterministic slice keeps the suite quick while still covering every code path.
 N_SYNTHETIC_SAMPLE = 500
 
 
@@ -135,55 +131,18 @@ def compare_frames(expected, actual, label):
     )
 
 
-def fit_pewt(x, weights_variable):
-    """Fit all six PEWT models to one dataset.
+def load_active_corpus():
+    """{dataset: (values, weights)} for the corpus the notebooks actually read.
 
-    Mirrors NB2 cell 12 exactly. When the Phase 4 consolidation lands this
-    should be replaced by a call to the shared src implementation, so that the
-    test drives production code rather than a copy of it.
+    Stage 2b repointed this from `DATA_all.json`, the retired pre-regeneration
+    baseline, to `data/processed/CORPUS.json`'s active corpus. The fixtures are
+    now produced from that corpus, so recomputing from `DATA_all.json` compared
+    two different datasets and could only ever fail.
     """
-    from scipy.stats import gaussian_kde, lognorm, norm
+    import corpus
 
-    from customstats import weighted_bw, weighted_lognorm_fit, weighted_std
-
-    weights_uniform = np.ones_like(x) / len(x)
-    models = {}
-    for weights, wt in zip([weights_uniform, weights_variable], WT_METHODS):
-        mean = np.sum(x * weights) / np.sum(weights)
-        models[f"Normal, {wt}"] = norm(loc=mean, scale=weighted_std(x, weights))
-
-        shape, loc, scale = weighted_lognorm_fit(
-            x + LOGFIT_OFFSET, weights=weights, method="MLE"
-        )
-        models[f"Lognormal, {wt}"] = lognorm(
-            s=shape, loc=loc - LOGFIT_OFFSET, scale=scale
-        )
-
-        bandwidth = weighted_bw(x, weights, bw_method=BW_METHOD)
-        kde = gaussian_kde(x, bw_method=1.0, weights=weights)
-        kde.set_bandwidth(bandwidth / (kde.covariance ** 0.5)[0][0])
-        models[f"KDE, {wt}"] = kde
-    return models
-
-
-def score_w1(model, data, weights):
-    """Wasserstein-1 between a fitted model and the weighted empirical data.
-
-    Mirrors NB2 cell 32. The model is discretized onto a uniform grid from 0 to
-    max(data) + 10 standard deviations, which implicitly truncates it at zero
-    and renormalizes. That matches the rejection sampling used in NB3.
-    """
-    from customstats import wasserstein1_weighted, weighted_std
-
-    std = np.max([np.std(data), weighted_std(data, weights)])
-    grid = np.linspace(0, np.max(data) + SCORE_GRID_STD_MULTIPLE * std,
-                       SCORE_GRID_POINTS)
-    return wasserstein1_weighted(data, grid, weights, model.pdf(grid))
-
-
-def load_json(name):
-    with open(PROCESSED / name) as handle:
-        return json.load(handle)
+    metrics, values, _ = corpus.load_corpus()
+    return corpus.as_dict(values)
 
 
 # ----------------------------------------------------------------------------
@@ -257,26 +216,31 @@ def test_empirical_metrics_recomputed():
 
 
 def test_synthetic_fits_and_w1_recomputed():
-    """Drive the fitting and scoring path directly on a deterministic slice."""
+    """Drive the PRODUCTION fitting and scoring path on a deterministic slice.
+
+    This calls the same functions notebooks 2 and 3 call, rather than a copy of
+    them. That is what makes it a change detector: an edit to the fitting method
+    fails here without a notebook being run.
+    """
+    from fitting import fit_pewt_models, score_all
+
     expected_full = pd.read_excel(
         FIXTURES / "TABLE_SyntheticECCMetricsAndW1.xlsx", index_col=0
     )
-
-    data_all = load_json("DATA_all.json")
+    data = load_active_corpus()
     sample = list(expected_full.index[:N_SYNTHETIC_SAMPLE])
 
     rows = {}
     for name in sample:
-        x = np.array(data_all[name]["data"], dtype=float)
-        weights = np.array(data_all[name]["weights"], dtype=float)
-        models = fit_pewt(x, weights)
-        # Every PEWT model is scored against the variable-weighted empirical
-        # CDF, including the uniform-weighted fits.
-        rows[name] = {p: score_w1(models[p], x, weights) for p in PEWT}
+        x, weights = data[name]
+        models = fit_pewt_models(x, weights)
+        # Every model is scored against the VARIABLE-weighted empirical CDF,
+        # including the uniform-weighted fits.
+        rows[name] = score_all(models, x, weights)
 
     actual = pd.DataFrame(rows).T
     expected = expected_full.loc[sample, PEWT]
-    compare_frames(expected, actual, "synthetic W1 recomputed")
+    compare_frames(expected, actual[PEWT], "synthetic W1 recomputed")
 
 
 def test_synthetic_metrics_recomputed():
@@ -286,18 +250,21 @@ def test_synthetic_metrics_recomputed():
     expected_full = pd.read_excel(
         FIXTURES / "TABLE_SyntheticECCMetricsAndW1.xlsx", index_col=0
     )
-    metric_columns = [c for c in expected_full.columns if c not in PEWT]
-
-    data_all = load_json("DATA_all.json")
+    data = load_active_corpus()
     sample = list(expected_full.index[:N_SYNTHETIC_SAMPLE])
 
-    rows = {}
-    for name in sample:
-        x = np.array(data_all[name]["data"], dtype=float)
-        weights = np.array(data_all[name]["weights"], dtype=float)
-        rows[name] = empirical_metadata(x, weights)
-
+    rows = {name: empirical_metadata(*data[name]) for name in sample}
     actual = pd.DataFrame(rows).T
-    expected = expected_full.loc[sample, metric_columns]
-    expected, actual = align_to_fixture(actual, expected)
-    compare_frames(expected, actual, "synthetic metrics recomputed")
+
+    # The fixture also carries the generation record -- stratum, k, the overlap
+    # solve, the normalizer -- which is written by the corpus and not by
+    # empirical_metadata. Compare the statistical characteristics, and assert
+    # that every one of them is still produced so a dropped metric cannot pass
+    # as an absent column.
+    shared = [c for c in actual.columns if c in expected_full.columns]
+    assert len(shared) == len(actual.columns), (
+        f"metrics no longer in the fixture: "
+        f"{sorted(set(actual.columns) - set(expected_full.columns))}"
+    )
+    compare_frames(expected_full.loc[sample, shared], actual[shared],
+                   "synthetic metrics recomputed")

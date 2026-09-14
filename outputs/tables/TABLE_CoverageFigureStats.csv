@@ -1,7 +1,7 @@
 metric_x,metric_y,empirical_covered,n_uncovered,uncovered
-coeffvar,skewness,0.959731543624161,6,Aggregates|Chairs|ConcreteAdmixtures|Elevators|Grouting|PowerCabling
-coeffvar,crit_bw_1,0.9463087248322147,8,AcousticalCeilings|Aggregates|Chairs|DampproofingAndWaterproofing|Elevators|Grouting|PowerCabling|WallFinishes
+coeffvar,skewness,0.9664429530201343,5,Aggregates|Chairs|ConcreteAdmixtures|Grouting|PowerCabling
+coeffvar,crit_bw_1,0.9664429530201343,5,Aggregates|Chairs|DampproofingAndWaterproofing|Grouting|PowerCabling
 skewness,kurtosis,0.9790209790209791,3,Aggregates|ConcreteAdmixtures|PowerCabling
 n,w_v_uw_wasserstein,0.9798657718120806,3,ReadyMix [3000-3999 psi]|ReadyMix [4000-4999 psi]|ReadyMix [5000-5999 psi]
-entropy,weight_outliers,0.9798657718120806,3,Aggregates|InsulatingGlazingUnits|PowerCabling
+entropy,weight_outliers,0.9865771812080537,2,InsulatingGlazingUnits|PowerCabling
 fit_norm_SW,fit_lognorm_SW,0.9664429530201343,5,Aggregates|Chairs|ConcreteAdmixtures|Grouting|PowerCabling

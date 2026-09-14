@@ -31,6 +31,9 @@ CompareUQMethods/
 │   │                          mode count that the generator is tuned against
 │   ├── customstats.py         weighted statistics, distances, bandwidths
 │   ├── datageneration.py      legacy generation helpers, empirical cleaning
+│   ├── families.py            the support (0, inf), the parametric families,
+│   │                          the weighted KDE with a CDF, and the
+│   │                          estimators (Stage 2b)
 │   ├── fitting.py             the six PEWT fits and W1 scoring
 │   ├── datavisualization.py   one colour helper
 │   ├── funcs_unit_conversion.py  EC3 unit normalization
@@ -38,6 +41,7 @@ CompareUQMethods/
 ├── audits/stage2a/            one-off measurement scripts, see audits/README.md
 ├── audits/stage2a2/           empirical extract and generator audits, see its README
 ├── audits/stage2a3/           the category split and the envelope it moved
+├── audits/stage2b/            the plausibility ceiling and the lognormal
 ├── data/processed/            inputs, see section 5
 ├── outputs/tables/            tidy results, see section 6
 ├── outputs/figures/           publication and supplementary figures
@@ -54,47 +58,85 @@ be tested; narrative and display belong in the notebook.
 ## 2. The fitting interface
 
 `src/fitting.py` is the single implementation. It replaced three verbatim
-copies in Stage 1.
+copies in Stage 1. `src/families.py` holds the distributions it fits.
 
 ```python
-from fitting import fit_pewt_models, score_w1, score_all, score_grid, PEWT
+from fitting import fit_pewt, score_all_models, score_grid_open, PEWT
 
-models = fit_pewt_models(x, weights_variable)   # -> dict of 6 fitted models
-w1     = score_all(models, x, weights_variable) # -> dict of 6 W1 distances
+models, params = fit_pewt(x, weights_variable)      # 6 fitted models
+w1 = score_all_models(models, x, weights_variable)  # 6 W1 distances
 ```
 
 | Label | Probability estimation | Weights |
 |---|---|---|
 | `Normal, Uniform` | weighted mean and standard deviation | equal |
 | `Normal, Variable` | same | supplied |
-| `Lognormal, Uniform` | weighted MLE on `x + LOGFIT_OFFSET`, location shifted back | equal |
+| `Lognormal, Uniform` | 3-parameter lognormal, threshold by profile likelihood | equal |
 | `Lognormal, Variable` | same | supplied |
 | `KDE, Uniform` | Gaussian KDE at `weighted_bw(..., BW_METHOD)` | equal |
 | `KDE, Variable` | same | supplied |
 
-Every model exposes `.pdf()`. The KDE objects are `scipy.stats.gaussian_kde`;
-the others are frozen scipy distributions.
+### The support is (0, inf), open at zero
 
-Two module constants carry the methodological choices that are under review in
-Stage 2:
+Decision 13, confirmed by the author in the Stage 2b prompt. **Every model is
+an explicit truncation of its parent to (0, inf), renormalized**, and every one
+of the six exposes the same interface:
 
-- `LOGFIT_OFFSET = 0.5`. The data are shifted before the lognormal fit and the
-  location shifted back, which is a 3-parameter lognormal with the threshold
-  fixed at -0.5 rather than estimated. It exists because near-zero values drag
-  the log-space mean down and inflate sigma, collapsing the fitted mode toward
-  zero. See `reports/MANUSCRIPT_discrepancies.md` entry 6.
-- `BW_METHOD = 'scott'`, meaning `1.06 * sigma * n_eff ** -0.2`, which is
-  Scott (1992). **`scipy.stats.gaussian_kde` uses the words 'scott' and
-  'silverman' for different formulas**: its `'scott'` carries no 1.06 factor
-  and its `'silverman'` is approximately this project's `'scott'`. Never
-  describe the method by pointing at a scipy keyword. See entry 10.
+    .pdf(x)  .cdf(x)  .ppf(q)  .rvs(size, random_state)  .rvs_from_uniform(u)
+
+Before Stage 2b the normal and the KDE were one object when JUDGED and another
+when APPLIED: the scoring grid started at zero, so they were implicitly
+truncated without anything saying so, and the pLCA rejected non-positive draws,
+so they were truncated there too by a different mechanism. The two agreed, but
+neither was written down and nothing would have caught them drifting apart.
+
+**Sampling is by inverse CDF and never by rejection.** They give the same
+distribution, but Stage 2e's common random numbers need ONE uniform variate per
+material per iteration pushed through every method's inverse CDF, and rejection
+sampling consumes an unpredictable number of variates per draw.
+`rvs_from_uniform` is that entry point. `WeightedKDE` exists because
+`scipy.stats.gaussian_kde` offers a density and a resampler and no CDF; its
+density matches gaussian_kde to machine precision and its CDF is the closed-form
+weighted sum of normal CDFs, so the KDE that is scored is the KDE that is
+sampled.
+
+### The lognormal
+
+`LOGNORMAL_FAMILY = 'lognormal_3p'`, the three-parameter lognormal whose
+threshold is chosen by profile likelihood over a closed interval bounded
+strictly below `min(x)`, taking the interior local maximum. **The likelihood of
+a three-parameter lognormal is unbounded**: as the threshold approaches the
+smallest observation from below, one term of the density diverges while the
+others stay bounded, so the global MLE does not exist and a naive optimizer
+returns whatever it stopped at. `families.fit_lognorm3_profile` carries the
+treatment and the guard; the guard is reported per fit in `params[...]['status']`
+and is swept in Stage 2h.
+
+`LOGFIT_OFFSET = 0.5` and `fit_pewt_models` are the Stage 1 method, kept so the
+change from it can be measured. What the offset actually was: a three-parameter
+lognormal with the threshold fixed at -0.5 and never estimated, patching
+near-zero values rather than the threshold pathology. See discrepancy entries
+37, 38 and 40 and `audits/stage2b/r4_lognormal_offset.py`.
+
+`FAMILIES` also holds `lognormal_2p`, `lognormal_offset` and `gamma`, which are
+reported alongside rather than used: `audits/stage2b/r5_family_comparison.py`.
+
+### Fitting by the criterion we score by
+
+`fit_family(name, x, w, method='w1')` minimizes W1 directly instead of the
+likelihood, starting from the MLE fit so it can never score worse. Every
+parametric family in this study is estimated by maximum likelihood and judged by
+W1, which are different criteria, so a family could lose the comparison because
+it was never fitted under the rule it is judged by. `FIT_METHOD = 'mle'` is the
+study's method; the W1-optimal results are reported beside it, not instead.
 
 **Scoring.** Every model is scored against the **variable-weighted** empirical
-CDF, including the uniform-weighted fits. The model is discretized onto a
-1,000-point grid running from 0 to `max(x) + 10 * sd`, so it is implicitly
-truncated at zero and renormalized. That matches the rejection sampling in the
-pLCA, which discards non-positive draws, so the model scored is the model
-sampled.
+CDF, including the uniform-weighted fits. `score_grid_open` is 1,000 points from
+`hi / 1000` to `hi = max(x) + 10 * spread`, **open at zero**: the lower bound is
+the first point of the grid's own lattice, chosen that way so that it is not a
+new free parameter. The lattice is LINEAR, so its resolution near zero is the
+same for every dataset; on a dataset spanning several orders of magnitude that
+is coarse, which is unchanged from Stage 1 and belongs to Stage 2c.
 
 ## 3. Seeding and caching
 
@@ -173,12 +215,21 @@ previously only surfaced eleven minutes into a full execution.
 
 Smoke mode validates the pLCA loop, the results table and the inter-method
 distance cell. The correlation and figure cells further down assume every
-dataset appears in some pLCA, which is only true in a full run, so they are
-expected to fail under smoke mode. **Smoke results must never be committed.**
+dataset appears in some pLCA, which is only true of the datasets the GROUPING
+covers, so they are expected to fail under smoke mode. **Smoke results must
+never be committed.**
+
+Stage 2b found that the same assumption also broke a FULL run, because the
+corpus no longer divides by four: cell 37 indexed `df_resultstd` by every
+dataset in the corpus while the results covered the 9,996 the grouping reaches,
+and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
+`df_stds.index`. `corpus.describe_combos` names the held-out datasets and both
+notebooks print it, so the remainder is stated rather than inferred.
 
 Approximate runtimes on a 2026 laptop, all three notebooks, after the Stage 1
-optimizations: NB1 about 20 s, NB2 about 75 s, NB3 about 11 min at
-`neccs = 10000`.
+optimizations: NB1 about 80 s, NB2 about 160 s, NB3 about 19 min at `neccs = 10000`.
+All three roughly doubled in Stage 2b, because stratum 4 now reaches n = 9,996
+where the pre-regeneration corpus stopped at 749.
 
 ## 5. Input data
 
@@ -341,6 +392,7 @@ the worst observed value.
 | `test_components.py` | 48 | moment targets hit exactly, infeasible targets refused not approximated, every accepted component inverts its own CDF, the four families partition the Pearson plane |
 | `test_mixture.py` | 9 | the parent CDF matches a 400,000-draw sample, the market-weighted parent is a real population object, coupling 0 collapses the two parents, inverse-CDF sampling agrees with the truncation loop it replaced, overlap is symmetric and monotone in separation |
 | `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
+| `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbours on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch

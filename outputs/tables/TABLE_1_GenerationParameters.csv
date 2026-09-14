@@ -1,9 +1,9 @@
 parameter,configured,empirical_basis,synthetic_achieved
 "Number of mixture components, k","integer uniform on [1, 5]",a BIC-selected Gaussian mixture is multimodal in 86.0 pct of the empirical datasets,"1 to 5, mean 3.02"
 Average pairwise component overlap,"log-uniform on [3e-01, 1.40], solved for by moving the component locations","empirical fitted overlap: quartiles 0.0020, 0.0474 and 0.1078, 95th pct 0.2671, max 0.5956","median 0.4370, 95th pct 0.7928, max 1.0000"
-Coefficient of variation of the parent,"normal in log10 with mean 0.1290 and sd 0.7838, truncated to [0.004, 16], solved for by placing the mixture relative to zero","centred on the empirical distribution, whose log10 coefficient of variation has mean -0.1257 and sd 0.3752; the sd is DOUBLED for margin. Empirical range 0.006201 to 14.34",target met exactly in 42.7 pct; achieved 0.00405 to 1.45
-Component skewness target,"uniform on [-3.0, 8.0]","empirical dataset skewness -2.41 to 28.4, median 1.55",-3 to 4.79
-Component excess kurtosis target,"uniform on [-1.2, 60.0], lifted to the feasible boundary skewness ** 2 - 2",empirical dataset excess kurtosis -3.63 to 835,-1.09 to 60
+Coefficient of variation of the parent,"normal in log10 with mean 0.1290 and sd 0.7838, truncated to [0.004, 16], solved for by placing the mixture relative to zero","centred on the empirical distribution, whose log10 coefficient of variation has mean -0.1257 and sd 0.3752; the sd is DOUBLED for margin. Empirical range 0.006201 to 13.4",target met exactly in 42.7 pct; achieved 0.00405 to 1.45
+Component skewness target,"uniform on [-3.0, 8.0]","empirical dataset skewness -2.41 to 21, median 1.54",-3 to 4.79
+Component excess kurtosis target,"uniform on [-1.2, 60.0], lifted to the feasible boundary skewness ** 2 - 2",empirical dataset excess kurtosis -3.63 to 525,-1.09 to 60
 Component location spread (position_skew),"locations at z ** 5.0 for z uniform on (0, 1), before the overlap solve scales them","clusters components toward the low end with the occasional far-out one. It, not the component shapes, sets the achievable coefficient of variation: uniform spacing pins it near 0.57",5.0
 "Component standard deviation, relative","log-uniform on [0.2, 2]",scale is unidentified: every dataset is divided by its own unweighted mean,0.2 to 2
 Component family,"Johnson SU, lognormal, beta-prime or beta, chosen by which Pearson region the moment target falls in",not a free choice: the family follows from the skewness and kurtosis target,"johnsonsu 97.5 pct, betaprime 1.7 pct, beta 0.9 pct"

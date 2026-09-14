@@ -477,3 +477,72 @@ strengthens the account rather than weakening it. The three uncovered on `n` are
 decision 19 working as designed: the corpus stops at 9,999 values and the probe
 set covers above it.
 
+
+---
+
+## New, found during Stage 2b
+
+## 35. Physically implausible records were in the empirical arm
+
+| | |
+|---|---|
+| **Manuscript** | Describes the empirical ECC datasets as the EPDs EC3 holds for each material category, cleaned by an interquartile rule. It does not say that any record was removed for being physically impossible, because none was. |
+| **Measured in Stage 2b** | 115 of the 117,807 raw records reaching the arm declare a mass-based ECC above 100 kgCO2e per kg of product. The largest is a `RebarSteel` EPD at 2.59e6 kgCO2e/kg; two `Elevators` EPDs report 20,812 and 21,945; and 87 `Cement` records report a per-tonne GWP against a 1 kg declared unit, which is a factor-of-1,000 declaration error. |
+| **Fix** | **Code, done in Stage 2b.** `empirical.MASS_ECC_CEILING = 100.0`, applied to mass-declared records only, before cleaning. Author decision, 2026-09-14. |
+| **The framing the text must use** | **The bound is EXTERNAL and the paper has to say so.** This study measures the dispersion and modality of ECC distributions, so a ceiling read off the arm's own quantiles, standard deviations or visible gaps would be circular in exactly the way a dispersion-based category split would have been (decision 46). The bound comes from published embodied-carbon inventories, where the highest building-product coefficients are of order 13 kgCO2e/kg for primary aluminium (ICE v3.0), and is cross-checked stoichiometrically: 100 kgCO2e per kg of delivered product requires burning about 27 kg of pure carbon per kilogram shipped. It is set at 100 rather than at 25 so that it cannot be read as a tuned threshold, and it still catches the known cases by two orders of magnitude. **VERIFY THE ICE FIGURE against the source before it goes in the paper**; `refs/` holds no copy of ICE and the number above is from the analyst's knowledge, not from a document in this repository. |
+| **Effect** | 11 of 117,090 cleaned values, 0.0094 percent, against a stop-and-report gate of 0.1 percent. No dataset lost; the arm stays at 149. Six datasets change: `Aggregates` unweighted coefficient of variation 13.601 to 6.424, `Chairs` 3.904 to 2.927, `Elevators` 3.159 to 1.838, `SteelSuspensionAssembly` 0.178 to 0.155, `Cement` 0.428 to 0.424, `AluminiumExtrusions` 0.842 to 0.818. The arm's maximum weighted coefficient of variation falls from 14.341 to 13.404 and its maximum excess kurtosis from 835.3 to 525.2. Arm-level medians move by at most 0.024 on any characteristic. |
+| **What it does to the coverage claim, entry 34** | Improves it, without being aimed at it. Uncovered dataset-metric pairs fall from 11 of 1,490 to 10, and the uncovered-on-dispersion list from five datasets to four: `Elevators` is now inside the synthetic range. The remaining four are `PowerCabling` 13.40, `Aggregates` 7.11, `Grouting` 4.17 and `Chairs` 2.89 against a synthetic maximum of 2.58. |
+| **A correction to entry 34 and to the canonical block** | Both attribute the arm's maximum coefficient of variation, 14.341, to `PowerCabling`. It was `Aggregates`; `PowerCabling` was second at 13.404. The list of uncovered categories was right, the attribution was not. |
+| **Status** | Resolved in code. Text owes the rule, the external anchor, and the restated coverage list. |
+
+## 36. The extraction discards carbon-negative products, by construction
+
+| | |
+|---|---|
+| **Manuscript** | Reports the empirical arm as the EPDs EC3 holds for each category, with no statement that any part of the GWP range is excluded. |
+| **Measured in Stage 2b** | The extraction keeps only records with a strictly positive ECC. That excludes **270 records across 57 of the 138 queried categories: 48 reporting exactly zero and 222 reporting a negative GWP.** The largest groups are `Carpet` 44, `Timber` 18, `DampproofingAndWaterproofing` 16, `BlanketInsulation` 16, `CMU` 13, `Insulation` 11. |
+| **Why it matters** | Some of these are real. Biobased products can be legitimately carbon negative over a cradle-to-gate boundary that credits biogenic uptake, and the biobased categories are exactly where the negatives cluster: `Timber` 18, `WoodFlooring` 7, `MassTimber` 5, `NonStructuralWood` 4, `WoodDoors` 4, `CompositeLumber` 3, `HeavyTimber` 2, `WoodFraming` 1. Others are plainly errors, such as `SheathingPanels` at -12,105 kgCO2e/m3. The filter does not distinguish them. |
+| **Consequence** | The empirical arm is truncated at zero by construction, so it cannot exhibit a left tail crossing zero and no conclusion about the lower tail of an ECC distribution generalizes to biobased products. This sits directly beside decision 13, which settles the support at (0, inf) open at zero: the two are consistent, but the paper currently states neither. |
+| **Fix** | **Text, one or two sentences**, in the data section and beside the support statement. **This is a COUNT and not a change**: the filter is unaltered and the arm is unaffected. |
+| **Status** | Open. Text. Measured in `audits/stage2b/r1_plausibility.py`, table `outputs/tables/stage2b/TABLE_2b_NonPositiveGWP.csv`. |
+
+## 37. The Methods text contradicts itself on the lognormal, and neither statement is what runs
+
+| | |
+|---|---|
+| **Manuscript** | Says in one place that shape, location and scale are all estimated, and in another that location is held at zero. |
+| **Code** | Neither. `customstats.weighted_lognorm_fit` returns `loc = 0.0` unconditionally -- its own docstring says "Location parameter (always 0 in this fit)" -- and optimizes over (sigma, mu) only. `fitting.fit_pewt_models` then builds `lognorm(s, loc = 0 - LOGFIT_OFFSET, scale)`. **The fitted threshold is a CONSTANT of -0.5, set by hand and never estimated.** The family in use is a three-parameter lognormal with two free parameters and a hand-set threshold. |
+| **A consequence worth stating separately** | Because the threshold is never estimated, the unbounded-likelihood pathology cannot arise in the Stage 1 code: there is no optimizer over the threshold for it to break. The pathology is real and it is a property of the three-parameter fit the Methods text CLAIMS, not of the two-parameter fit the code performs. So the offset was not patching it. |
+| **Fix** | **Both.** Code: Stage 2b replaces the fit; see entry 38. Text: state the family and the estimator that actually run, and state the parameter count plainly, because W1 is an in-sample criterion with no complexity penalty and the families differ in flexibility. |
+| **Status** | Resolved in code by Stage 2b. Text owes a rewritten paragraph. |
+
+## 38. A second finding in the same function: the "MLE" branch re-derives a closed form
+
+| | |
+|---|---|
+| **Code** | `customstats.weighted_lognorm_fit` offers an "MLE" branch that hands `scipy.optimize.minimize` the weighted lognormal negative log-likelihood, and a "MoM" branch that computes the weighted mean and standard deviation of `log x`. For a lognormal those are THE SAME ESTIMATOR: the weighted MLE of (mu, sigma) is exactly the weighted mean and standard deviation in log space. The "MoM" label is a misnomer and the optimizer is re-deriving, numerically, a quantity available in closed form. |
+| **Measured** | On `Cement` the two branches agree to 0.000e+00 in both parameters. |
+| **Consequence** | Not a wrong number, but it is why `tests/fixtures` needed `rtol = 4.3e-08` on the lognormal W1 column while every other column agreed to 1.3e-14: the convergence path of the optimizer moves between scipy versions, so the only non-reproducible number in the whole fixture set came from an optimizer that was not needed. |
+| **Fix** | **Code, done in Stage 2b.** `families.fit_lognorm2_mle` is the closed form, and the lognormal in production no longer calls the legacy function at all. |
+| **Status** | Resolved in code. No text consequence beyond entry 37. |
+
+## 39. The pLCA grouping silently dropped three datasets
+
+| | |
+|---|---|
+| **Manuscript** | States 2,500 probabilistic LCAs over disjoint groups of four datasets drawn from 10,000. |
+| **Code** | `corpus.make_combos` truncates with `ids[:len(ids) // nmats * nmats]`. The active corpus holds **9,999** datasets, not 10,000, because one parent failed to solve and was reported rather than approximated (decision 22 working as intended). So the grouping is **2,499 groups of four covering 9,996 datasets, and three datasets -- `dataset813`, `dataset2876`, `dataset7985` -- are in no pLCA at all.** Nothing said so. |
+| **Fix** | **Code and text, done in Stage 2b.** The remainder is still held out, which is the right choice and is now argued rather than implied: every downstream rank metric is a rank among exactly four materials and the headline result is a frequency over those ranks, so one short group would leave `eci_rank_4` undefined for it and would put a rank-1 frequency of 1/3 in the same column as one of 1/4. `corpus.describe_combos` names the held-out datasets and both notebooks print it. |
+| **Text owed** | "2,500 pLCAs" becomes "2,499", and the three held-out datasets are named or the exclusion is stated. |
+| **Status** | Resolved in code. Text owes the count. |
+
+## 41. The empirical arm was scored on UNNORMALIZED values
+
+| | |
+|---|---|
+| **Manuscript** | Reports Wasserstein-1 distances for the empirical datasets alongside the synthetic ones, on a common axis, and reports means across the empirical arm. |
+| **Measured in Stage 2b** | The Stage 1 empirical W1 column was computed on the RAW ECC values, not on the values divided by their unweighted mean, while the metrics table beside it in the same file WAS computed on normalized values. `WindTurbines` carries `Normal, Uniform` = 164.26 in `tests/fixtures/TABLE_EmpiricalECCMetricsAndW1.xlsx` against a `mean_uw` of exactly 1.0 in the adjacent column. Reproduced exactly: scoring the stored `dct_realeccs_trimmed.json` values as they sit gives 164.263, and 164.263 / 910.7 = 0.1804, which is the normalized value. The mean of that column across the arm is 9.38, against 0.48 now. |
+| **Consequence** | Every empirical W1 MAGNITUDE was in the raw unit of its own category, so a concrete dataset at roughly 400 kgCO2e/m3 and a cement dataset at roughly 0.75 kgCO2e/kg were reported on the same axis three orders of magnitude apart for reasons that have nothing to do with fit quality. Any mean or median W1 across the empirical arm was effectively a magnitude-weighted average, and the empirical arm could not be compared with the synthetic arm at all. |
+| **What it does NOT affect** | **The per-dataset RANKING of the six methods.** W1 is exactly linear in a rescaling of the data and all six models are fitted to the same values, so scaling multiplies all six scores by the same constant and the within-dataset order is untouched. Reported mean RANKS are therefore sound; reported W1 VALUES are not. |
+| **Fix** | **Already fixed in code, as a side effect.** Stage 2a-2 rebuilt the empirical path so notebook 2 reads from `empirical.prepare`, which divides each dataset by its own unweighted mean. Nothing recorded that this also corrected the scale of the W1 column, which is why it is written down here. |
+| **Status** | Resolved in code. **Text owes a replacement of every empirical W1 value**, and the new numbers are not a rescaling of the old ones by any single constant, so they cannot be converted -- they have to come from the rerun. Mean W1 across the 149 datasets is now `Normal, Uniform` 0.484, `Normal, Variable` 0.431, `Lognormal, Uniform` 0.206, `Lognormal, Variable` 0.178, `KDE, Uniform` 0.278, `KDE, Variable` 0.243. |

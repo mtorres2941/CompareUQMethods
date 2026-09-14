@@ -320,12 +320,56 @@ def make_combos(metrics, rng, nmats=4, corpus_only=True):
     grouping always belongs to a named corpus. The probe set is excluded: its
     only job is to test whether results plateau above n = 10 ** 4, and it must
     stay out of every aggregate.
+
+    THE REMAINDER IS HELD OUT, AND IT IS NAMED. `corpus_2026-09-14d` holds
+    9,999 datasets rather than 10,000, because one parent failed to solve and
+    was reported rather than approximated (decision 22), so the corpus no longer
+    divides by four. Every group is exactly `nmats` datasets and the leftover
+    `len(ids) % nmats` are excluded from the pLCA entirely.
+
+    A short last group is the alternative and it is wrong here. Every downstream
+    rank metric -- `eci_rank_1` through `eci_rank_4`, and the two reduction-rank
+    families -- is a rank among exactly four materials, and the headline result
+    is a FREQUENCY over those ranks. One group of three would leave
+    `eci_rank_4` undefined for that group and would make a rank-1 frequency of
+    1/3 comparable with one of 1/4 in the same aggregate. Dropping the remainder
+    costs three datasets of 9,999; keeping it would put a different estimand in
+    the same column.
+
+    `combos_holdout` names which datasets were held out. Do not read the
+    remainder off an integer division somewhere downstream: report it.
     """
     m = metrics[~metrics.is_probe] if (corpus_only and 'is_probe' in metrics) else metrics
     ids = np.array(sorted(m['dataset'].astype(str)))
     rng.shuffle(ids)
     ids = ids[:len(ids) // nmats * nmats]
     return ids.reshape(-1, nmats)
+
+
+def combos_holdout(metrics, combos, corpus_only=True):
+    """The corpus datasets that no pLCA group contains, sorted.
+
+    See `make_combos` for why the remainder is held out rather than forming a
+    short last group.
+    """
+    m = metrics[~metrics.is_probe] if (corpus_only and 'is_probe' in metrics) else metrics
+    ids = set(m['dataset'].astype(str))
+    return sorted(ids - set(np.asarray(combos).astype(str).ravel()))
+
+
+def describe_combos(metrics, combos, corpus_only=True):
+    """One line stating the grouping, so the remainder cannot fall out silently."""
+    held = combos_holdout(metrics, combos, corpus_only)
+    n_groups, nmats = np.asarray(combos).shape
+    m = metrics[~metrics.is_probe] if (corpus_only and 'is_probe' in metrics) else metrics
+    line = (f'{n_groups:,} pLCA groups, every one of {nmats} datasets, '
+            f'covering {n_groups * nmats:,} of {len(m):,} corpus datasets')
+    if held:
+        line += (f'\nheld out of the pLCA grouping ({len(held)}, the remainder '
+                 f'of {len(m):,} / {nmats}): ' + ', '.join(held))
+    else:
+        line += '\nno dataset is excluded'
+    return line
 
 
 def write_combos(directory, combos):

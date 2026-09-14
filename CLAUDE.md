@@ -374,14 +374,26 @@ rather than in conversation.
     - **[RECOMMENDED]** IQR in log space. On ReadyMix it keeps 77,439 of 77,548
       values with bounds [90.6, 1240]. 2a chooses the final form, including
       whether synthetic generation needs a matching floor.
-13. **2026-09-11, Stage 1. Support is (0, inf), open at zero.**
+13. **2026-09-11, Stage 1. Support is (0, inf), open at zero. CONFIRMED BY THE
+    AUTHOR 2026-09-14, in the Stage 2b prompt. NO LONGER AN OPEN ITEM.**
     - **[AUTHOR]** "I think it's (0, infinity), rather than [0, infinity) since
-      we shouldn't accept zero as an input."
-    - **Reach, flagged for confirmation.** This constrains the lognormal and
-      gamma fits in 2b and the W1 evaluation grid in 2c. It was stated in
-      conversation rather than in a prompt, so 2b or 2c should confirm it with
-      the author before building on it. The pLCA rejection sampling already
-      enforces it; the scoring grid starting at exactly 0 does not.
+      we shouldn't accept zero as an input." Confirmed: "Support is settled:
+      every method lives on (0, inf), open at zero."
+    - **What the confirmation settled.** Stage 1 flagged this as a reach because
+      it was stated in conversation rather than in a prompt, and four stages
+      built on it unconfirmed. It is now an author decision in writing and stops
+      being carried forward. It also fixes the inconsistency Stage 1 found, and
+      says WHICH SIDE moves: the GRID changes, not the sampler. Zero is excluded
+      rather than included, because an ECC of exactly zero is not admissible.
+    - **What Stage 2b implemented from it.** `src/families.py`. All six methods
+      are explicit truncations to (0, inf), renormalized, each exposing pdf, cdf,
+      ppf and inverse-CDF sampling, so the object that is SCORED is the object
+      that is SAMPLED. Sampling is by inverse CDF and not by rejection, because
+      the common-random-numbers scheme Stage 2e installs needs one uniform
+      variate per material per iteration mapped through every method's inverse
+      CDF, which rejection sampling cannot supply. The scoring grid's lower bound
+      is the first point of its own lattice above zero; see
+      `fitting.score_grid_open` for why that and not an invented epsilon.
 14. **2026-09-11, Stage 1. Dataset size range and the n filter.** Owned by 2a.
     - **[AUTHOR]** "I like the idea of extending to 10,000 for the sample size.
       I also agree with exempting n from the outlier filter."
