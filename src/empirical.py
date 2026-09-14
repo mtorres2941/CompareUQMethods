@@ -57,6 +57,18 @@ RAW = os.path.join(ROOT, 'data', 'raw')
 #: The frozen raw extract the analysis reads. A dated file, never overwritten.
 SOURCE = os.path.join(RAW, 'ec3_raw_ecc_2026-08-14.csv.gz')
 
+#: Whether a category that is not one product population is split into the
+#: populations its record metadata identifies.
+#:
+#: FALSE as of 2026-09-14. The Stage 2a-3 split used the DECLARED UNIT as the
+#: axis and the author rejected it: a declaration per kilogram against one per
+#: tonne is a declaration convention, not a different product. The machinery in
+#: `src/categorysplit.py` is kept and the axis question is open; see
+#: `reports/HANDOFF_stage-2a3.md` section 3.1a for what the record metadata can
+#: and cannot support. Until an axis is chosen, the arm is the 136 unsplit
+#: categories.
+SPLIT = False
+
 DIRICHLET_ALPHA = 1.0
 CLEAN_IQR_MULT = 3.0
 MIN_N = 3
@@ -79,7 +91,7 @@ def load_records(path=SOURCE):
     return pd.read_csv(path, usecols=SPLIT_COLS, low_memory=False)
 
 
-def load_raw(path=SOURCE, split=True):
+def load_raw(path=SOURCE, split=SPLIT):
     """The raw ECC values per dataset, uncleaned. Returns (values, split_report).
 
     With `split=True` a category that the Stage 2a-3 screen selects and that its
@@ -117,7 +129,7 @@ def _dataset_rng(base, name):
 
 
 def prepare(rng, path=SOURCE, alpha=DIRICHLET_ALPHA, mult=CLEAN_IQR_MULT,
-            min_n=MIN_N, split=True):
+            min_n=MIN_N, split=SPLIT):
     """Clean, weight and normalize. Returns (datasets, report).
 
     Pass a DEDICATED generator, `rng.spawn(1)[0]`, not the notebook's shared

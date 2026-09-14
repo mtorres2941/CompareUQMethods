@@ -1,5 +1,31 @@
 # HANDOFF stage-2a-3 - Split the heterogeneous categories, and check the envelope
 
+## 0. STATUS, read this first
+
+**THE SPLIT WAS APPLIED AND THEN WITHDRAWN. THE ARM IS 136 UNSPLIT CATEGORIES.**
+`empirical.SPLIT` is False. Sections 3.1 to 3.8 below describe the split as it
+was built and are kept because the measurements in them are the evidence for
+whatever replaces it; **section 3.1a is the part a later stage should act on.**
+
+The axis was the DECLARED UNIT, and the author rejected it on review, 2026-09-14:
+"Separating by declared unit doesn't quite seem reasonable. Why is it strange
+that some aggregates might be declared per 1 kg and some per 1000 kg? That still
+might be the same material." That is correct, and this stage's own evidence
+already said so: where the split appeared to work it was because the declaration
+convention happened to CORRELATE with contamination, and the one category where
+the correlation failed, `ConcreteAdmixtures`, was flagged as "the weakest of the
+six" and kept anyway because the rule was uniform. A uniform rule on the wrong
+axis is still the wrong axis.
+
+**What survives and is worth keeping:** the constraint (metadata only, never the
+values), the axis survey in 3.1 and 3.1a, the screen, `q1`'s verification of the
+extract, the weight rekeying of 3.5, the corpus, and the coverage finding in 4.3,
+which is the most consequential thing this stage found and is independent of the
+split.
+
+**What is still open:** which axis, if any. Section 3.1a gives the candidates
+with numbers and a recommendation.
+
 ## 1. Stage and branch
 
 - Stage: 2a-3, split the EC3 categories that are not one product population
@@ -48,6 +74,79 @@ so the comparison is at round-trip precision rather than bitwise.
 | **B. Declared unit TYPE** | **ALREADY APPLIED.** The extraction restricts each category to the unit type most of its products use, so every dataset in the arm holds one unit type by construction. 106 of 138 categories contain records of another type, but those 2,780 records were dropped when the extract was built. Reinstating them would change what an ECC is and would add about 126 mostly tiny datasets; it would not divide any existing population |
 | **C. Declared unit SCALE** | **THE AXIS THAT WORKS.** The declared quantity converted to the unit type's canonical unit, expressed as a RATIO to the way most of the category declares itself, and banded in groups of three decades, which is one SI prefix step. See section 3.3a for why the ratio is not optional |
 | D. A product-type field | **NOT AVAILABLE.** All 106 store columns were searched for the screened categories. Nothing is populated for 90 percent or more of records with more than one level except declarer attributes: program operator, PCR, jurisdiction, plant specificity, uncertainty factor. A declarer is not a product population |
+
+### 3.1a WHAT THE METADATA CAN ACTUALLY SUPPORT, and the recommendation
+
+Measured after the declared-unit axis was withdrawn, on the 2026-08 store slice.
+This is the section a later stage should act on.
+
+**The EC3 category tree is the finding.** `../EPDsFromEC3/store/category_tree.csv`
+holds 104 nodes with parents, children and a leaf flag, and it was not consulted
+when the split was built. **19 of the 136 categories are NON-LEAF nodes**: their
+records are EPDs that EC3 placed at the parent rather than in any child, which
+makes them residual mixtures BY CONSTRUCTION rather than product populations. For
+15 of the 19, the children are already separate datasets in the arm.
+
+| parent | n | CV | children in the arm |
+|---|---|---|---|
+| `Insulation` | 666 | **7.65** | `BlanketInsulation`, `BlownInsulation`, `BoardInsulation`, `FoamedInPlace` |
+| `Masonry` | 35 | 1.86 | `Brick` |
+| `CeilingPanel` | 240 | 1.71 | `AcousticalCeilings` |
+| `Steel` | 576 | 1.57 | 4 of 7 |
+| `StructuralSteel` | 105 | 1.35 | `HollowSections` |
+| `Aluminium` | 181 | 1.14 | `AluminiumExtrusions` |
+| `Cladding` | 135 | 1.07 | 4 of 4 |
+| `MembraneRoofing` | 168 | 0.82 | 3 of 3 |
+| `Finishes`, `Flooring`, `ManufacturingInputs`, `CementitiousMaterials`, `ColdFormedSteel`, `ThermalMoistureProtection`, `Concrete` | 4 to 213 | 0.29 to 0.76 | yes |
+| `PaintingAndCoating`, `FireAndSmokeProtection`, `Openings`, `PrecastConcrete` | 12 to 546 | 0.41 to 1.36 | **none queried** |
+
+`Insulation` is the worst dataset in the arm and it is a parent whose four
+children are all already present. That is the author's own example, and the tree
+answers it without any text matching.
+
+**Structured product properties.** One field qualifies, and it is the author's
+other example. `concrete_compressive_strength_28d` is populated on 90 to 96
+percent of records in eight categories (`ReadyMix` 86,995 records at 89.9
+percent, `CementGrout`, `FlowableFill`, `Shotcrete`, `CMU`, `ConcretePaving`,
+`OilPatch`, `Concrete`), in psi, clustering on the standard classes 3000, 3500,
+4000, 4500, 5000 and 6000. The only other broadly populated field is
+`density_value`, at 80 percent or more in 21 categories, and it is a poor axis:
+density is a consequence of the material rather than a specification choice, and
+where the declared unit is volume it partly determines the ECC, so splitting on
+it edges toward splitting on the values.
+
+**Free text.** `name` is always present and `description` on 87 percent. Tested
+on `Insulation` with a keyword list for mineral wool, EPS, XPS, PIR/PUR,
+cellulose, wood fibre, phenolic and aerogel: **350 of 666 records match exactly
+one type, 311 match none and 5 match more than one.** Splitting on that would
+leave 47 percent of the category unassigned.
+
+#### The recommendation
+
+1. **Drop the 15 parent-node residual datasets whose children are in the arm.**
+   Metadata only, no judgment, no text, and it removes the worst offender. It is
+   not a split: a parent node is not a product category, and its products are
+   already represented by its children. The arm becomes **121 datasets**.
+2. **Do NOT split the concrete categories by strength**, despite the field being
+   there. `ReadyMix`'s coefficient of variation is **0.29** against an arm median
+   of 0.82: after each dataset is normalized to its own mean it is one of the
+   TIGHTEST categories in the arm, because ECC scales with strength and
+   normalization removes most of that. Splitting the eight categories by strength
+   class would produce 47 datasets from 8, making concrete about a quarter of the
+   whole arm, and would split categories that show no evidence of needing it.
+   That is the over-zealousness the author warned against, quantified.
+3. **Leave the remaining high-dispersion categories whole and state the
+   limitation.** After the parent drop, `Aggregates`, `PowerCabling`, `Grouting`,
+   `Chairs`, `ConcreteAdmixtures` and `Elevators` remain above a coefficient of
+   variation of 3. None is a parent node and none has a populated product-type
+   field; their heterogeneity is EC3 misclassification visible only in free-text
+   names. The alternative to leaving them is to EXCLUDE them, which is an
+   inclusion criterion rather than a split, but it reads the values to decide and
+   it would bias the arm toward low dispersion, on the exact dimension the study
+   measures. That trade is the author's to make.
+
+**Nothing in 1 to 3 is implemented.** It needs the author's decision, and it
+moves every empirical number when it lands.
 
 ### 3.2 The screen
 

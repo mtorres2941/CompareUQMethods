@@ -1,5 +1,28 @@
 """Split EC3 categories that are not one product population, on metadata only.
 
+SUSPENDED, 2026-09-14. THE DECLARED-UNIT AXIS BELOW WAS REJECTED BY THE AUTHOR
+AND IS NOT APPLIED. `empirical.SPLIT` is False, so the arm is the 136 unsplit
+categories. The module is kept, not deleted, because the screen, the axis survey
+and the audits behind them are the evidence for whatever replaces it.
+
+Why it was rejected, in the author's words: "Separating by declared unit doesn't
+quite seem reasonable. Why is it strange that some aggregates might be declared
+per 1 kg and some per 1000 kg? That still might be the same material. That's
+definitely not enough information to say it's something different."
+
+That is correct, and this module's own evidence already said so. The declared
+unit is a DECLARATION CONVENTION, not a product property. Where the split
+appeared to work it was because the convention happened to CORRELATE with
+contamination -- Aggregates declared per kilogram are mostly adhesives and
+screeds, Chairs per tonne are mostly asphalt -- and a correlate is not a
+criterion. The one category where the correlation failed, ConcreteAdmixtures,
+was flagged in the Stage 2a-3 handoff as "the weakest of the six" and kept
+anyway, on the reasoning that the rule was applied uniformly. A uniform rule on
+the wrong axis is still the wrong axis.
+
+What the axis survey found, and it is the input to whatever replaces this:
+see `reports/HANDOFF_stage-2a3.md` section 3.1a.
+
 Stage 2a-3. Discrepancy entry 31 recorded that a handful of EC3 categories span
 several orders of magnitude and hold products that are not comparable. The
 author's decision is to treat those as the separate populations they are,
