@@ -131,6 +131,15 @@ several define methods this analysis implements directly.
   numpy state.
 - Be concise. Answer the question asked, at the length the answer needs. Do not
   restate what a commit message, a handoff or a table already says; point at it.
+- **All communication between sessions goes through the handoff and discrepancy
+  files, never through chat.** When a session ends, the author's job is to hand
+  the next session a FILE, nothing else. Do not also summarise that file's
+  contents back to the author as chat text: it reads as a separate set of
+  instructions they have to act on, and it makes the file look incomplete. If
+  something belongs in the next session's hands, it goes in the file; if it is
+  already in the file, saying it again in chat is noise. The test before ending a
+  stage is "could the author hand over these files and say nothing", and if the
+  answer is no, the file is what needs fixing.
   When a task is done, the status line is the whole report - no closing summary,
   no re-emphasis, no "one thing worth noting". If something genuinely matters
   and is not written down, that is a defect in the document, so fix the document
