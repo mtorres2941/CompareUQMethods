@@ -572,4 +572,24 @@ rather than in conversation.
 41. **2026-09-12, Stage 2a-2. Draft corpora at 1,000 datasets for iteration.**
     `[AUTHOR]` `python corpus.py <label> 1000`, 110 s against 850 s. The label
     records it. A draft must never be used for a paper number.
+42. **2026-09-13, Stage 2a-2. Both arms are trimmed by the same multiplicative
+    log-space rule.** `[AUTHOR]` `trunc_rule = 'log'` with
+    `min_q1_over_iqr = 0.5`. The author raised this three times before it was
+    rechecked, and was right each time: trimming the two arms by different rules
+    put a difference between them on a dimension the study is about.
+
+    The claim that a multiplicative rule could not work was false. It rested on
+    an assertion that q3/q1 tends to 1 under the shift so the bounds collapse
+    onto the interquartile range; in fact the multiplicative bound converges to
+    the additive one from above and never collapses. What actually failed was
+    `MixtureParent.truncated_moments`, which integrated on a uniform grid and
+    returned sd = 0 whenever the truncation bounds were wide relative to the
+    body. It now integrates on the components' own quantiles. That bug was
+    latent under the additive rule and would have bitten any Stage 2h sweep of
+    `trunc_iqr_mult`.
+
+    Effect: mean W1 across the ten characteristics fell from 0.488 to 0.270,
+    with every characteristic improving. Several earlier rounds of generator
+    tuning in this stage were compensating for a difference created by the
+    inconsistent cleaning.
 

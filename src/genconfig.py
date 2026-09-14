@@ -413,7 +413,7 @@ class GeneratorConfig:
     The all-pairs minimum therefore cannot distinguish the two arms; the
     adjacent minimum can."""
 
-    trunc_rule: str = 'additive'
+    trunc_rule: str = 'log'
     """Whether the population truncation bounds are additive or multiplicative.
 
     'additive' is max(Q1 - mult * IQR, 0) and Q3 + mult * IQR, the rule the old
@@ -436,55 +436,66 @@ class GeneratorConfig:
     quartile. That is the region the lognormal offset in Stage 2b exists to
     handle, so the two stages interact.
 
-    IT IS SET TO 'additive', AND THE REASON IS A FAILED ATTEMPT WORTH RECORDING.
-    'log' was made the default in Stage 2a-2 and reverted the same day, because
-    a multiplicative truncation is incompatible with using an additive SHIFT as
-    the coefficient-of-variation control. The shift is what places the mixture
-    relative to zero, and as it grows the quartile ratio q3/q1 tends to 1, so
-    the multiplicative bounds q1 / r ** mult and q3 * r ** mult converge onto
-    the interquartile range itself. Measured on 100 datasets: truncated mass
-    rose from a median of 0.149 to 0.247, essentially exactly the lower
-    quartile, and the achieved coefficient of variation collapsed to 0.000 with
-    only 5 percent of targets met against 38 percent under the additive rule.
-    Raising trunc_iqr_mult to 5 or 8 does not help, because the collapse is in
-    r rather than in mult.
+    BOTH ARMS USE THE MULTIPLICATIVE RULE. They must: an ECC is strictly
+    positive and right skewed in both arms, and trimming the two by different
+    rules would put a difference between them on a dimension the study is about,
+    in the same way the Dirichlet concentration differed before Stage 2a.
 
-    So the two arms ARE truncated by different rules, and the notebook must say
-    so rather than claiming otherwise. That is defensible on its own terms - the
-    empirical rule removes suspected data errors from an observed sample, while
-    this defines the support of a parent distribution, and they are not the same
-    operation - but it is a difference, not an equivalence.
+    An earlier attempt in Stage 2a-2 set this to 'log', appeared to fail, and
+    was reverted with a docstring asserting that a multiplicative truncation is
+    incompatible with using an additive shift to control the coefficient of
+    variation, because q3/q1 tends to 1 as the shift grows and the bounds
+    collapse onto the interquartile range. THAT WAS WRONG, in two ways, and the
+    author pushed back on it three times before it was rechecked.
 
-    What the difference actually costs is measured and is confined to large
-    datasets. Minimum over mean, synthetic against empirical, by size:
+    First the algebra: as the shift grows, q1 / (q3/q1) ** mult converges to
+    q1 - mult * IQR, so the multiplicative rule converges to the additive one
+    from ABOVE and never collapses. Verified numerically over shifts from 0.6 to
+    1000.
 
-        n            synthetic median   empirical median   empirical count
-        3 to 9              0.387              0.349              13
-        10 to 99            0.109              0.129              76
-        100 to 999          0.0218             0.0382             40
-        1000 and up         0.00088            0.187               6
+    Second the real cause: `MixtureParent.truncated_moments` integrated on a
+    UNIFORM grid over [0, hi - lo], which silently fails when the bounds are
+    wide relative to the body. Under the log rule hi reached about 5,000 while
+    the mass sat near 1, so a 4,001-point grid put roughly one node on the whole
+    distribution, the survival function read as zero everywhere and the variance
+    clamped to exactly 0. Every parent then reported sd = 0, the
+    coefficient-of-variation solve concluded no shift could reach any target,
+    and 93 percent clipped. The grid now uses the components' own quantiles.
+    That bug was latent under the additive rule, whose upper bound sits a few
+    interquartile ranges from the body, and it would have bitten any Stage 2h
+    sweep that raised trunc_iqr_mult.
 
-    The unstratified comparison looks far worse than this - 34.5 percent of
-    synthetic datasets below 0.01 against 11.8 percent empirically - but that is
-    mostly the equal-allocation design, which puts 25 percent of the corpus at
-    n >= 1000 against 4.4 percent of the empirical arm. The real discrepancy is
-    the last row, and the empirical side of it is six datasets.
+    With it fixed the multiplicative rule is BETTER than the additive one on
+    this generator: 41.7 percent of coefficient-of-variation targets met against
+    37.5, and a median truncated mass of 0.097 against 0.154."""
 
-    Fixing it properly means matching the left-tail SHAPE, not adding a floor: a
-    sample minimum is about the 1/n quantile, so a corpus that matches min/mean
-    at n = 50 and not at n = 5000 has the wrong tail, and no single lower bound
-    repairs that across sizes. Owner: 2h."""
-
-    min_q1_over_iqr: float = 0.05
+    min_q1_over_iqr: float = 0.5
     """Positivity floor for the log truncation rule, as a multiple of the
     interquartile range: the shift must leave Q1 >= this times IQR.
 
     It replaces `max_low_tail_truncated` when `trunc_rule` is 'log'. Under the
     multiplicative rule the lower bound is positive whenever Q1 is, so a
     separate tail-mass budget is unnecessary and this single condition does the
-    whole job. Small values allow a large coefficient of variation, because they
-    let the distribution sit close to the origin; 0.05 is loose enough not to
-    bind on the spread while keeping the first quartile clear of zero."""
+    whole job.
+
+    It is also what sets how wide the multiplicative bounds can get, because it
+    caps the quartile ratio: at the floor, q3/q1 = 1 + 1/min_q1_over_iqr. At
+    0.05 that is 21, which is the 95th percentile of the empirical ratio and
+    sends the upper bound to about 9,000 times Q3. At 0.5 it is 3, which sits
+    at the empirical median of 2.48. The empirical distribution of q3/q1 is
+    p05 1.33, p25 1.69, median 2.48, p75 3.80, p95 20.3, so 0.5 places the
+    tightest synthetic parents where most real datasets are.
+
+    Measured effect on the generator, at trunc_iqr_mult = 3:
+
+        min_q1_over_iqr   CV targets met   median truncated mass   median hi
+             0.05              45.8%              0.209              1270
+             0.5               41.7%              0.097                16
+             1.0               35.0%              0.064              8.06
+             2.0               18.3%              0.038              6.17
+
+    0.5 keeps more of the parent than the additive rule did (0.154) while
+    meeting more of its targets (37.5 percent)."""
 
     trunc_iqr_mult: float = 3.0
     """Bounds are max(Q1 - mult * IQR, 0) and Q3 + mult * IQR of the POPULATION

@@ -192,8 +192,33 @@ class MixtureParent:
         times the span, which left the normalized values identical to float
         precision and the datasets rejected as degenerate.
         """
-        y = np.linspace(0.0, self.hi - self.lo, grid_n)
-        x = self.lo + y
+        # The nodes are the COMPONENTS' OWN QUANTILES, not a uniform grid.
+        #
+        # A uniform grid over [0, hi - lo] silently fails when the truncation
+        # bounds are wide relative to the body, because the body then gets
+        # almost no nodes. With hi - lo about 4,800 and the mass near 1, a
+        # 4,001-point uniform grid has a spacing of 1.2 and lands roughly one
+        # node on the entire distribution: the survival function reads as zero
+        # everywhere, e1 and e2 collapse, and the variance clamps to exactly 0.
+        # That reported sd = 0 for every parent, which made the
+        # coefficient-of-variation solve believe no shift could ever reach its
+        # target and clip 93 percent of them.
+        #
+        # The additive truncation rule never triggered it, because its upper
+        # bound sits a few interquartile ranges from the body. Any wider rule
+        # does, so this was a live trap for the multiplicative rule and for any
+        # Stage 2h sweep that raises trunc_iqr_mult.
+        #
+        # Quantile nodes put resolution where the probability is, by
+        # construction, and cost one ppf evaluation per component.
+        probs = np.linspace(0.0, 1.0, max(grid_n // max(len(self.comps), 1), 64))
+        nodes = [np.asarray(d.ppf(np.clip(probs, 1e-12, 1 - 1e-12)), float)
+                 for d in self.comps]
+        x = np.unique(np.concatenate(nodes + [np.array([self.lo, self.hi])]))
+        x = x[(x >= self.lo) & (x <= self.hi)]
+        if len(x) < 8 or not np.all(np.isfinite(x)):
+            x = np.linspace(self.lo, self.hi, grid_n)
+        y = x - self.lo
         F = np.zeros_like(x)
         for wk, d, mk in zip(self.pi_trunc, self.comps, self._mass):
             lo_k = float(d.cdf(self.lo))

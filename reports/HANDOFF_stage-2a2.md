@@ -376,19 +376,71 @@ Measured, the synthetic data was never the spikier arm: peak-to-median KDE
 height has an empirical median of 5.9, a 95th percentile of 222 and a maximum of
 5e39, against a synthetic median of 3.0 and a maximum of 33.
 
-### 4.6 Two hypotheses tested and rejected, recorded so they are not retried
+### 4.6 BOTH ARMS ARE CLEANED BY THE SAME RULE, and this was the largest single
+### improvement in the stage
 
-- **Making the synthetic truncation multiplicative** to match the empirical
-  rule. It is incompatible with the additive shift that controls the
-  coefficient of variation: as the shift grows, q3/q1 tends to 1 and the bounds
-  collapse onto the interquartile range. Truncated mass rose from a median of
-  0.149 to 0.247 and the achieved coefficient of variation went to 0.000.
-  Reverted; `trunc_rule` keeps both and its docstring holds the numbers.
-- **Empirical multimodality as a duplicate-value artifact.** EC3 categories
-  contain many identical declarations, so tied values were a plausible cause.
-  They are not: collapsing exact ties moves the multimodal share from 52.3 to
-  51.5 percent, and datasets with under 5 percent ties are as multimodal (47.9)
-  as those with over 20 percent (52.9).
+`trunc_rule = 'log'`. The synthetic parent is truncated at
+`Q1 / (Q3/Q1) ** 3` and `Q3 * (Q3/Q1) ** 3`, the multiplicative interquartile
+rule, which is exactly what `datageneration.clean_empirical_symmetric` applies
+to the empirical values.
+
+Earlier in this stage the synthetic arm was left on the ADDITIVE rule and the
+docstring asserted that a multiplicative one could not work, because q3/q1 tends
+to 1 as the shift grows so the bounds collapse onto the interquartile range.
+**That was wrong twice over, and the author had to raise it three times before
+it was rechecked.**
+
+- The algebra says the opposite. `q1 / (q3/q1) ** mult` converges to
+  `q1 - mult * IQR`, so the multiplicative rule approaches the additive one from
+  ABOVE and never collapses. Verified over shifts from 0.6 to 1000.
+- The actual cause was a latent bug in `MixtureParent.truncated_moments`, which
+  integrated on a UNIFORM grid over `[0, hi - lo]`. Under the log rule `hi`
+  reached about 5,000 while the mass sat near 1, so a 4,001-point grid put about
+  one node on the whole distribution: the survival function read as zero, and
+  the variance clamped to exactly 0. Every parent reported sd = 0, so the
+  coefficient-of-variation solve concluded no shift could reach any target and
+  clipped 93 percent of them. The grid now uses the components' own quantiles.
+  The bug was invisible under the additive rule, whose upper bound sits close to
+  the body, and it would have bitten any Stage 2h sweep of `trunc_iqr_mult`.
+
+`min_q1_over_iqr` moved from 0.05 to 0.5, which caps the quartile ratio at the
+positivity floor at 3 rather than 21. The empirical `q3/q1` distribution is p05
+1.33, p25 1.69, median 2.48, p75 3.80, p95 20.3, so 3 sits at the empirical
+median.
+
+With both arms on the same rule the multiplicative form is also simply better
+for the generator: 41.7 percent of coefficient-of-variation targets met against
+37.5, and a median truncated mass of 0.097 against 0.154.
+
+**Result, full draft corpus against the 136 empirical datasets:**
+
+| characteristic | additive arms | **shared log rule** |
+|---|---|---|
+| `fit_norm_SW` | 0.783 | **0.490** |
+| `entropy` | 0.640 | **0.383** |
+| `coeffvar` | 0.387 | 0.360 |
+| `skewness` | 0.617 | **0.350** |
+| `fit_lognorm_SW` | 0.840 | **0.285** |
+| `weight_outliers` | 0.288 | 0.232 |
+| `n` | 0.180 | 0.180 |
+| `kurtosis` | 0.303 | **0.160** |
+| `crit_bw_1` | 0.715 | **0.151** |
+| `w_v_uw_wasserstein` | 0.131 | **0.112** |
+| **mean W1** | 0.488 | **0.270** |
+| visible-mode TV | 0.003 | 0.006 |
+
+Mean W1 nearly halved and every characteristic improved. In hindsight the reason
+is obvious: cleaning the two arms by different rules made their characteristics
+differ BECAUSE OF THE CLEANING, and several rounds of generator tuning were
+compensating for a difference that should never have existed.
+
+### 4.7 One hypothesis tested and rejected, recorded so it is not retried
+
+**Empirical multimodality as a duplicate-value artifact.** EC3 categories contain
+many identical declarations, so tied values were a plausible cause. They are
+not: collapsing exact ties moves the multimodal share from 52.3 to 51.5 percent,
+and datasets with under 5 percent ties are as multimodal (47.9) as those with
+over 20 percent (52.9).
 
 ## 5. Open questions and flags
 
@@ -417,6 +469,10 @@ height has an empirical median of 5.9, a 95th percentile of 222 and a maximum of
 
 ### Needing the author's decision, in priority order
 
+0. **The generator is settled as far as this stage can take it.** Mean W1 across
+   the ten characteristics is 0.270 and the visible-mode distribution matches to
+   a total variation of 0.006. The remaining worst characteristic is
+   `fit_norm_SW` at 0.490.
 1. **Regenerate at 10,000 once the author is satisfied with the generator.**
    The active corpus is a 1,000-dataset draft. Nothing downstream should be run
    against it.
