@@ -10,7 +10,8 @@
 | Commit | Label |
 |---|---|
 | `41eb7ae` Split the EC3 categories that are not one product population | **MOVES NUMBERS** |
-| this commit: retune `cv_log10_sd`, regenerate as `corpus_2026-09-14b` | **MOVES NUMBERS** |
+| `0011913` Retune `cv_log10_sd`, regenerate as `corpus_2026-09-14b` | **MOVES NUMBERS** |
+| this commit: make the input manifest verify | records only |
 
 ## 2. What was asked
 
@@ -324,7 +325,16 @@ was 2.40. Stage 2a-2 rebuilt the arm from raw values and the maximum became
 | `cv_log10_sd` | 0.3752 x 2 | 0.3536 x 2 | arm log10 sd of the coefficient of variation |
 | `EMPIRICAL_STRATUM_SHARE` | 13/76/40/6 of 136 | 15/81/40/6 of 143 | share of the arm in each size stratum; post-stratification only |
 
-### 4.5 Fixtures
+### 4.5 The input manifest verifies again
+
+`shasum -a 256 -c data/INPUTS.sha256`, the command the manifest documents, had
+two rows that failed by design and now has none. `data/processed/CORPUS.json` is
+a POINTER that changes with the active corpus and the manifest's own note
+already said it should not have been pinned; the superseded runmeta row is the
+one this stage corrected. Both are COMMENTED OUT rather than deleted, so the
+values stay on the record. No baseline row was touched.
+
+### 4.6 Fixtures
 
 `tests/fixtures/TABLE_EmpiricalECCMetrics.xlsx` re-frozen, 136 to 143 rows, with
 `SHA256SUMS.txt` updated in the same commit. Both changes above move it.

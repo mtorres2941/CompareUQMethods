@@ -78,7 +78,12 @@ data. The checksums below pin the specific bytes produced on this machine.
 1e0c43f28389bc80ebd97ee5f8281412ef8e6d391d7ccbe99eb1a068e6e04a06  data/processed/corpus_2026-09-11c/parents.json.gz
 f86f1f2b7694a24b8f2fd10f847cabc368aa7eb790c7cde59a5a1a023e6521de  data/processed/corpus_2026-09-11c/combos.csv
 a28f1f30998d08bfba0ed7cd9bc420461774050b55bfb1a8234bf56801d383e9  data/processed/corpus_2026-09-11c/runmeta.json
-6d067a382f9595cc3b59a051bf613cbd80020e2bf8adbaf166118b03cf6db4f3  data/processed/CORPUS.json
+# RETIRED by Stage 2a-3, 2026-09-14, not deleted. CORPUS.json is a POINTER and
+# changes whenever the active corpus changes, so pinning it made
+# `shasum -a 256 -c data/INPUTS.sha256` fail by design. The note below already
+# said it should not have been pinned. Commented out rather than removed so the
+# value it held on 2026-09-11 stays on the record:
+# 6d067a382f9595cc3b59a051bf613cbd80020e2bf8adbaf166118b03cf6db4f3  data/processed/CORPUS.json
 
 ## Appended 2026-09-12
 
@@ -130,7 +135,10 @@ pull is not reproducible by a reader even when it works, because EC3's contents
 change; an archived, checksummed extract is.
 
 ef5db3c414c4e813fb8f528adb21c3e557720129502ca497dc49120d878e8be1  data/raw/ec3_raw_ecc_2026-08-14.csv.gz
-ac886aa3792dc1f4075d1a26dec699fc3f3474f8c8085ff6531855d651d2fcf7  data/raw/ec3_raw_ecc_2026-08-14_runmeta.json
+# SUPERSEDED by the row at the end of this file. The runmeta carried a false
+# `api_pull_result: HTTP 403`; Stage 2a-3 removed it. No byte of the extract
+# changed. Commented out so the verification command does not fail by design:
+# ac886aa3792dc1f4075d1a26dec699fc3f3474f8c8085ff6531855d651d2fcf7  data/raw/ec3_raw_ecc_2026-08-14_runmeta.json
 
 ## Appended by Stage 2a-2, 2026-09-12: corpus_2026-09-12c
 
