@@ -217,10 +217,15 @@ regenerates again afterward, doubles the verification work for no gain.
 **It was suspended once, deliberately, for Stage 2a-2, and has resumed.** The
 reason it was cheap: notebooks 2 and 3 had never been run against
 `corpus_2026-09-12b`, so no downstream result existed for a regeneration to
-invalidate. That ceased to be true the moment Stage 2a-2 closed. A fresh EC3
-pull is expected and will move the empirical arm again; when it arrives it is
-handled by rebuilding the extract and re-running the tuning loop, and whether
-that justifies a third regeneration is an author decision, not a stage's.
+invalidate. That ceased to be true the moment Stage 2a-2 closed.
+
+**Stage 2a-3 reopened it once more, by the stated criterion it was given rather
+than by judgment, and closed it again.** Splitting the empirical arm moved the
+tuning objective by 1.72 seed-to-seed standard deviations, past the threshold,
+so exactly one generation parameter was retuned and the corpus regenerated once
+as `corpus_2026-09-14b`. Notebooks 2 and 3 still had not run, so again nothing
+downstream was invalidated. **That was the last time.** The empirical arm is
+frozen by decision 44 and generation is closed; neither input moves again.
 
 | Stage | Owns | Explicitly not its job |
 |---|---|---|
@@ -228,6 +233,7 @@ that justifies a third regeneration is an author decision, not a stage's.
 | **1 DONE** | Pinned environment, regression fixtures, persisted pLCA table, seeding machinery, correctness fixes, thin notebooks over a tested `src/`. Exactly two intended number-moving changes: neccs 1,000 to 10,000, and the wbeci assignment moved inside the loop. `reports/HANDOFF_stage-1.md` | Regeneration, and every methodological judgment call. Amendment A3 settled normalization: unweighted mean, code stands, text is wrong |
 | **2a DONE** | Generator audit: seeding collapse, Dirichlet concentration mismatch, stale docstring, the truncation loop, power transform, reflection, component overlap, mode counting, the 27.5 percent filter, mode-level market share, the coverage table that becomes Table 1. Then regenerate, once | Changing the fitting methods, changing the scoring target, or sweeping anything that 2h owns |
 | **2a-2 DONE** | A one-off reopening of generation, by decision, because nothing downstream had been computed yet. Fresh raw empirical extract, symmetric log-space cleaning, weighted tuning objective, retune, regenerate once. `reports/HANDOFF_stage-2a2.md` | Any fitting work, and any further regeneration. Generation closes again when this stage ends |
+| **2a-3 DONE** | Split the EC3 categories that are not one product population, on record metadata only; measure the empirical envelope before and after; apply the stated noise criterion, which fired, so retune one field and regenerate once as `corpus_2026-09-14b`. Two record corrections. `reports/HANDOFF_stage-2a3.md` | Any fitting work. It is the LAST pre-2b stage: nothing after it reopens generation or the empirical extract |
 | **2b** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE | Adding new families for robustness (2h), or rescoring against a parent (2c) |
 | **2c** | The evaluation target: score synthetic against the known parent, cross-validate the empirical 138, decompose location versus definitional error, report regret distributions. Overlap area alongside W1 | The pLCA construction (2e) and the flip-probability threshold (2d) |
 | **2d** | Decompose the uniform-to-variable W1 into location and shape, define the named relative measure, calibrate flip probability against relative W1, report the 1, 5 and 10 percent crossings | Building companion decision metrics (2g) |
@@ -495,11 +501,10 @@ rather than in conversation.
     clean clone.
 
     A fresh pull was running in the `EPDsFromEC3` repository at the same time.
-    It is folded in by pointing `audits/stage2a2/p1_build_raw_extract.py` at the
-    new file; the author's position is that it is not expected to change much,
-    and whether it justifies another regeneration is theirs to call. **Do not
-    query the EC3 API while a pull is running there:** EC3 rate limits per
-    account, not per process.
+    **Whether to fold it in is now settled: no. See decision 44.** The arm is
+    frozen at this extract for the remainder of the project. **Do not query the
+    EC3 API while a pull is running there:** EC3 rate limits per account, not
+    per process. Access itself is open; see decision 45.
 32. **2026-09-12, Stage 2a-2. The empirical arm is valid-at-pull-date, matching
     the 2026-03 scope.** `[AUTHOR]` The 2026-08 pulls include expired
     declarations and the 2026-03 pull did not, so keeping them would have
@@ -594,3 +599,32 @@ rather than in conversation.
     tuning in this stage were compensating for a difference created by the
     inconsistent cleaning.
 
+
+43. **2026-09-13, Stage 2a-3. A category that is not one product population is
+    SPLIT, on record metadata only.** `[AUTHOR]` The empirical arm is **143
+    datasets drawn from 136 categories**, which replaces 136 and which the
+    manuscript states. Six categories split; see `src/categorysplit.py` and
+    `reports/HANDOFF_stage-2a3.md` section 3.
+
+    **The constraint that makes it publishable:** a split may read only metadata
+    carried on the EPD record, never the ECC values. This study measures the
+    modality, dispersion and skewness of ECC distributions, so splitting a
+    category because its values look bimodal and then reporting that ECC
+    datasets are unimodal is circular. The coefficient of variation appears only
+    as a SCREEN selecting which categories are examined; it never decides where
+    a boundary falls.
+44. **2026-09-13, Stage 2a-3. The empirical arm is FROZEN at the 2026-08
+    extract for the remainder of the project.** `[AUTHOR]` This closes the
+    open item in decision 31 and in the Stage 2a-2 handoff, which left folding
+    in a newer EC3 pull undecided. The answer is no. The extract is archived,
+    checksummed and reproducible from a clean clone, and one further month of
+    declarations will not move the characteristic distributions enough to
+    justify re-invalidating the calibration. If the arm is refreshed at all it
+    will be once, deliberately, before submission, as an author decision.
+45. **2026-09-13, Stage 2a-3. Direct EC3 API access is NOT closed to this
+    account.** `[AUTHOR]` Decision 31 as originally written said it was, on one
+    403 response to one request with a stale key. A working key has since been
+    set. Corrected in the decision, in `CONTEXT.md`, in
+    `data/raw/ec3_raw_ecc_2026-08-14_runmeta.json` and in
+    `reports/MANUSCRIPT_discrepancies.md` entry 30. It changes nothing about
+    decision 44: the arm is frozen by choice, not by access.

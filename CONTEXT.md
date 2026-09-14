@@ -24,6 +24,8 @@ CompareUQMethods/
 │   ├── genconfig.py           every generation parameter (Stage 2a)
 │   ├── generator.py           parent -> dataset, plus the validity filter
 │   ├── corpus.py              generate, write and read a named corpus
+│   ├── categorysplit.py       split a category that is not one product
+│   │                          population, on metadata only (Stage 2a-3)
 │   ├── empirical.py           prepare the empirical EC3 datasets
 │   ├── modality.py            Silverman critical bandwidth, and the VISIBLE
 │   │                          mode count that the generator is tuned against
@@ -35,6 +37,7 @@ CompareUQMethods/
 │   └── dct_metriclabels.json  display labels for the 22 metrics
 ├── audits/stage2a/            one-off measurement scripts, see audits/README.md
 ├── audits/stage2a2/           empirical extract and generator audits, see its README
+├── audits/stage2a3/           the category split and the envelope it moved
 ├── data/processed/            inputs, see section 5
 ├── outputs/tables/            tidy results, see section 6
 ├── outputs/figures/           publication and supplementary figures
@@ -146,7 +149,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 125 tests, about 90 seconds
+python -m pytest tests/          # 128 tests, about 90 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -184,6 +187,7 @@ optimizations: NB1 about 20 s, NB2 about 75 s, NB3 about 11 min at
 | `CORPUS.json` | names the active corpus directory | yes |
 | `corpus_<label>/` | the synthetic corpus, see section 3 | no, large |
 | `raw/ec3_raw_ecc_<pull date>.csv.gz` | the raw empirical ECC extract, one row per EPD | yes |
+| `raw/ec3_record_metadata_<pull date>.csv.gz` | per-record metadata for the split audit, NOT an analysis input | yes |
 | `dct_realeccs_trimmed.json` | SUPERSEDED. The 2026-03 EC3 pull the manuscript reports | yes |
 | `empirical_<label>.json` | a prepared empirical arm, written by `src/empirical.py` | yes |
 
@@ -209,8 +213,20 @@ Cleaning is a multiplicative 3 x IQR bound in log space, applied at BOTH ends.
 An ECC is strictly positive and right skewed, so the additive form is the wrong
 shape: `Q1 - 3*IQR` is negative in most categories and never binds, which
 removes high outliers while leaving values orders of magnitude below the mean.
-A category is kept only if at least three values survive, which is why the arm
-holds 136 categories and not the 138 that were extracted.
+A dataset is kept only if at least three values survive, which is why 136 of the
+138 extracted categories are retained.
+
+**The arm is 143 datasets drawn from those 136 categories.** Six categories hold
+more than one product population and are split into thirteen, on the declared
+unit recorded on the EPD. `src/categorysplit.py` holds the screen, the axis and
+the binding constraint: a split may read only record metadata, never the ECC
+values, because this study measures the modality and dispersion of ECC
+distributions and splitting on those would be circular. Stage 2a-3, decision 43.
+
+Each dataset's Dirichlet weights are keyed by its NAME, not by its position in
+the iteration, so adding or splitting a category does not perturb the weights of
+every dataset after it alphabetically. That coupling was real: before the change,
+splitting six categories moved every weighted metric of 130 untouched datasets.
 
 The current extract is a slice of the consolidated store at
 `../EPDsFromEC3/store`, pulled 2026-08-13/14 through the LucidLCA wrapper.
@@ -219,7 +235,9 @@ while reporting success, and must be read before writing anything that talks to
 that API. Note also that EC3 rate limits per ACCOUNT rather than per process, so
 nothing should query it while a pull is running in another repository.
 
-To build a new extract once access is restored, adapt
+**The extract is frozen for the remainder of the project** (decision 44). The
+procedure below is recorded for the one deliberate pre-submission refresh, if
+the author calls for it, and for nothing else. To build a new extract, adapt
 `audits/stage2a2/p1_build_raw_extract.py`, which refuses to overwrite an
 existing dated file, then validate it with `p2_validate_extract.py` and
 `p3_diagnose_changes.py` before pointing `src/empirical.SOURCE` at it.
@@ -263,8 +281,9 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 
 | File | Written by | Shape |
 |---|---|---|
-| `TABLE_EmpiricalECCMetrics.xlsx` | NB1 | 136 x 22 |
-| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 136 x 28 |
+| `TABLE_EmpiricalECCMetrics.xlsx` | NB1 | 143 x 22 |
+| `TABLE_EmpiricalCategorySplit.csv` | NB1 | one row per split population |
+| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 143 x 28, still 136 until NB2 is run |
 | `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 10,000 x 26 |
 | `TABLE_PLCAResults.csv` | NB3 | 60,000 x 43 |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |

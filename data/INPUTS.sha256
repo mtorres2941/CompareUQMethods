@@ -121,8 +121,9 @@ whose 138-category records were pulled on 2026-08-13 and 2026-08-14 through the
 correctly-paginating LucidLCA wrapper: five months newer than the 2026-03 data,
 and raw. A live pull was not taken inside this stage because one was already
 running in the EPDsFromEC3 repository, and EC3 rate limits per account rather
-than per process. Folding in a newer pull is an open item; see
-`reports/HANDOFF_stage-2a2.md`.
+than per process. Folding in a newer pull was an open item and is now CLOSED:
+by the author's decision of 2026-09-13 the empirical arm is frozen at this
+extract for the remainder of the project. See CLAUDE.md decision 44.
 
 Freezing it here is what makes the empirical arm reproducible at all. An API
 pull is not reproducible by a reader even when it works, because EC3's contents
@@ -177,3 +178,64 @@ a8b9d10329dc9e5809b0d8b418bee99ba184953861b9847839b78a66d683de89  data/processed
 3dcf8b8b71bc40e4af85b1f1c5b2f6471e905bb29c2946f3e9c8aaa74a3a8c73  data/processed/corpus_2026-09-13b/parents.json.gz
 54a8e3d863daef5dcbe3376c72bde619d2f7de858e83f66f200ee2b65f6c1563  data/processed/corpus_2026-09-13b/runmeta.json
 00114603c8e780347774cee0fae549685fa56f6fadb099bbf5aa05a22a95575f  data/processed/corpus_2026-09-13b/combos.csv
+
+## Appended by Stage 2a-3, 2026-09-13: the record metadata sidecar
+
+`data/raw/ec3_record_metadata_2026-08-14.csv.gz` carries the per-record metadata
+that the frozen ECC extract does not: the EC3 category path, the declared unit
+and its type for EVERY usable record including the 2,780 outside each category's
+majority unit type, and the product name. It exists so the category-split
+decision in `src/categorysplit.py` can be audited without the store, and so the
+finding that EC3 carries no subcategory for these records is verifiable.
+
+It is NOT an analysis input. `src/empirical.py` reads only the frozen ECC
+extract, which already carries every field the split uses. Built and verified by
+`audits/stage2a3/q1_rebuild_slice.py`, which reconstructs the 2026-08 store
+slice and refuses to write unless the majority-unit subset reproduces the frozen
+extract record for record: 120,280 of 120,280 identical ids and categories, ECC
+agreeing to a worst relative difference of 8.9e-13 (the frozen file is CSV text,
+so the comparison is at round-trip precision, not bitwise).
+
+Frozen because the store is append-only and has moved on: the slice is
+recoverable only while the 2026-08-13/14 rows remain in it.
+
+CORRECTION to `ec3_raw_ecc_2026-08-14_runmeta.json`, same stage. It carried
+`api_pull_result: HTTP 403`, asserting that direct EC3 API access was closed to
+this account. That was wrong: the key in use at the time was stale and a working
+key has since been set. The false fields are removed and `source_kind` now says
+what is true. No byte of the extract changed, so its own checksum is unchanged;
+the runmeta's checksum below supersedes the one above.
+
+fefbf4a6dbe573e233e4e800cb0134710ed0d1c52ddecd5360c0d43f8940af4e  data/raw/ec3_record_metadata_2026-08-14.csv.gz
+7bad5ef1a4b1f5d23455b1a1e1af5f6c1664d1aaebdbd27098288911cb0d9ec4  data/raw/ec3_raw_ecc_2026-08-14_runmeta.json
+
+## Appended by Stage 2a-3, 2026-09-14: corpus_2026-09-14b
+
+`corpus_2026-09-14b` supersedes `corpus_2026-09-13b` and is the active corpus.
+10,000 datasets plus a 50-dataset probe set, seed 42, 0 failed parents, 0
+rejected by the validity filter, 862 s.
+
+It exists because splitting the empirical arm moved the tuning objective by
+1.72 seed-to-seed standard deviations, which is the criterion Stage 2a-3 was
+given for reopening generation. Exactly one generation parameter changed:
+`cv_log10_sd`, from 0.3752 x 2 to 0.3536 x 2, which is the arm's log10 standard
+deviation of the coefficient of variation remeasured on the split arm. Nothing
+else was retuned, because no other cited measurement moved.
+
+Match against the 143 empirical datasets, mean standardized W1 across the ten
+characteristics 0.252 against `corpus_2026-09-13b`'s 0.262; weighted objective
+0.2256 against 0.2352; visible-mode total variation 0.0036. Every
+characteristic improved except `w_v_uw_wasserstein`, which moved 0.0015 worse.
+
+`corpus_2026-09-13b` is NOT deleted. It is the comparison that makes the
+four-way table in `reports/HANDOFF_stage-2a3.md` possible.
+
+The corpus was generated from commit `25d0937` with a dirty working tree; the
+uncommitted changes are the Stage 2a-3 work committed immediately after, and
+`src/genconfig.py` differed from that commit by the one field above.
+
+b6f25d1ce2f76cc6cd2f3be2f70cf5f5134b2220666f082e05d29b4479f442fb  data/processed/corpus_2026-09-14b/values.parquet
+3b9738e9ef96a94cd82f737b45007dc37c04af870acee8fa59b7c4ece21a1a2a  data/processed/corpus_2026-09-14b/metrics.parquet
+9618d815d54498f9029cf0b10700fcbf0b651a627396b9982aa0c47080c9c2ba  data/processed/corpus_2026-09-14b/parents.json.gz
+2f647948760278b5937b0be3879035e615220d3556f4b63f9e3fa581dc57e081  data/processed/corpus_2026-09-14b/runmeta.json
+427ab3217b910f0bc74803805782d95f8522a98395b90eb297e3d1209e0de4f7  data/processed/corpus_2026-09-14b/combos.csv

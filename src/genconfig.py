@@ -64,13 +64,20 @@ PROBE = Stratum('probe_10k_100k', 10_000, 100_000, 50)
 # These moved when the empirical extract was rebuilt from raw values: the
 # smallest stratum fell from 0.2246 to 0.0956 and the second rose from 0.4928 to
 # 0.5588, because categories the old additive high-end trim had cut to a handful
-# of values now keep more of them. A further 0.0074 of the arm sits above 9,999
+# of values now keep more of them. A further 0.0070 of the arm sits above 9,999
 # and is covered by the probe set rather than by a stratum.
+#
+# Remeasured in Stage 2a-3 on the SPLIT arm, 143 datasets drawn from 136
+# categories: splitting six categories into thirteen adds small datasets, so the
+# smallest stratum rises from 0.0956 to 0.1049 and the third falls from 0.2941
+# to 0.2797. This is a post-stratification weight and NOT a generation
+# parameter, so updating it moves reported aggregates but requires no
+# regeneration.
 EMPIRICAL_STRATUM_SHARE = {
-    's1_3_9': 13 / 136,
-    's2_10_99': 76 / 136,
-    's3_100_999': 40 / 136,
-    's4_1000_9999': 6 / 136,
+    's1_3_9': 15 / 143,
+    's2_10_99': 81 / 143,
+    's3_100_999': 40 / 143,
+    's4_1000_9999': 6 / 143,
 }
 
 
@@ -260,16 +267,30 @@ class GeneratorConfig:
 
     # ---- spread, as a target rather than a side effect ---------------------
     cv_log10_mean: float = 0.211
-    cv_log10_sd: float = 0.3752 * 2.0
+    cv_log10_sd: float = 0.3536 * 2.0
     cv_log10_lo: float = np.log10(0.004)
     cv_log10_hi: float = np.log10(16.0)
     """Target coefficient of variation of the population parent, drawn from a
     normal in log10 truncated to [lo, hi], and then solved for exactly.
 
     The spread comes from the empirical datasets, whose log10 coefficient of
-    variation has a standard deviation of 0.3752 on the 2026-08 arm; it is
-    DOUBLED here, which is what "margin beyond the empirical envelope" means:
-    the corpus reaches about twice as far in each direction as the real data do.
+    variation has a standard deviation of 0.3536 on the 2026-08 arm as split in
+    Stage 2a-3; it is DOUBLED here, which is what "margin beyond the empirical
+    envelope" means: the corpus reaches about twice as far in each direction as
+    the real data do.
+
+    It was 0.3752 through Stage 2a-2, measured on the same extract UNSPLIT.
+    Splitting the six categories that are not one product population narrows the
+    arm's spread, because the widest categories were the heterogeneous ones: the
+    maximum coefficient of variation falls from 14.34 to 11.20. This is the ONLY
+    generation parameter whose cited measurement moved when the arm was split.
+
+    Honest note on how much it is worth. Updating it improves the tuning
+    objective from 0.2307 to 0.2274 at the 440-dataset pre-flight scale, a
+    movement of 0.0033 against a seed-to-seed standard deviation of 0.0066
+    measured in audits/stage2a2/p10_config_noise.py. That is HALF the noise: the
+    change is adopted because it is the measurement the parameter cites, not
+    because the improvement is distinguishable from a different seed.
 
     The centre is NOT the empirical centre. It sits above it, because this is a
     target for the POPULATION coefficient of variation while the characteristic
@@ -286,6 +307,9 @@ class GeneratorConfig:
         median coefficient of variation  0.600        0.782
         log10 standard deviation        0.2913       0.3752
         maximum                           2.40        13.40
+
+    Remeasured again in Stage 2a-3 on the split arm, 143 datasets: median 0.768,
+    log10 standard deviation 0.3536, maximum 11.20.
 
     The upper truncation was raised from 3.2 to 16 for the same reason: at 3.2 it
     no longer bracketed the empirical maximum, so the draw was being clipped

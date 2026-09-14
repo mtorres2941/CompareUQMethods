@@ -302,7 +302,8 @@ claim. See entries 3, 4 and 6.
 | **Manuscript** | States 138 empirical ECC datasets throughout, and the count appears in figure captions and in the abstract's framing of the empirical arm. |
 | **Code** | The 2026-08 extract, cleaned symmetrically and filtered to categories retaining at least three values, yields **136**. `Siding` retains 1 value and `SinglePlyOther` retains 2. Both losses are expiry: `Siding` holds 29 records in the store slice of which 1 is still valid at the pull date, and only 14 of the 29 carry a parseable declared unit. |
 | **Fix** | **Text.** Replace 138 with 136 everywhere, and state the inclusion threshold (at least three values after cleaning) so the number is derivable rather than asserted. |
-| **Status** | Open. Text edit, but it appears in many places. |
+| **SUPERSEDED by Stage 2a-3** | The arm is now **143 datasets drawn from 136 categories**: six categories hold more than one product population and are split into thirteen. 143 is the number every per-dataset statement should use; 136 is the number of EC3 categories the arm was drawn from. Both belong in the text, and the split table (`outputs/tables/TABLE_EmpiricalCategorySplit.csv`) is what makes 143 derivable. |
+| **Status** | Open. Text edit, but it appears in many places. The number to write is 143 datasets from 136 categories. |
 
 ## 29. The empirical characteristics were substantially an artifact of the cleaning rule
 
@@ -336,5 +337,41 @@ claim. See entries 3, 4 and 6.
 |---|---|
 | **Measured in Stage 2a-2** | With the right tail no longer cut, `PowerCabling` runs from 1.7e-05 to 242 times its own mean over 400 values, `Aggregates` from 3.2e-06 to 265 over 385, and `Insulation` from 3.0e-04 to 99 over 666. Their coefficients of variation are 13.4, 10.3 and 7.8 against a median of 0.78 across the 136. |
 | **Consequence** | These are not outliers the cleaning rule failed to catch; the log-space interquartile range of such a category is genuinely enormous, so a 3 x IQR bound is very permissive on it. They are EC3 categories holding products that are not comparable, cable of different gauges being the clearest case. They dominate the upper tail of every characteristic and therefore stretch the envelope the synthetic corpus is asked to cover. |
-| **Fix** | **Undecided, and it needs a decision.** Either accept them as real heterogeneity a practitioner would encounter, or exclude categories whose spread shows they are not one product population, and say which rule was used. Doing nothing is also a choice and should be stated as one. |
-| **Status** | Open. Flagged for the author; no stage owns it yet. |
+| **Fix** | **RESOLVED in Stage 2a-3, by the author's decision to split rather than exclude.** A stated screen selects the seven categories whose cleaned unweighted coefficient of variation exceeds 3.0, four times the arm median of 0.77 and above its 95th percentile of 2.7. Six of the seven are split on record metadata, into thirteen populations; one, `Insulation`, could not be and is left whole. **The split reads only metadata, never the ECC values**, which is what keeps a paper about modality and dispersion from arguing in a circle; see `src/categorysplit.py` and CLAUDE.md decision 43. |
+| **What the text must say** | The screen, its threshold and why; the axis (the declared unit recorded on the EPD) and why the other two candidate axes were unavailable, which is a finding about EC3 rather than about this analysis: EC3 carries no subcategory for these records, `category_key` equalling the queried category for all 123,060 of them, and each dataset already holds one declared-unit type by construction. Then the split table, and `Insulation` named as the category that could not be split, with the reason. |
+| **Effect on the envelope** | Small. Maximum coefficient of variation 14.34 to 11.20, maximum skewness 28.36 to 14.03, maximum excess kurtosis 835 to 201; the medians of every characteristic move by less than 0.11, and the visible-mode distribution by 0.0025. |
+| **Status** | Resolved in code. Text owes the screen, the axis, the table and the `Insulation` exception. |
+
+---
+
+## New, found during Stage 2a-3
+
+## 32. A single Dirichlet weight realization moves the per-dataset metrics a long way
+
+| | |
+|---|---|
+| **Manuscript** | Reports per-dataset weighted characteristics, `w_v_uw_wasserstein` above all, as properties of the dataset. |
+| **Measured in Stage 2a-3** | They are properties of the dataset AND of the one Dirichlet draw that produced its weights. Redrawing the weights of the same 136 datasets from the same distribution, changing nothing else, moves `w_v_uw_wasserstein` by up to **1.02** in absolute terms, `coeffvar` by up to 4.09, `skewness` by up to 9.88 and excess kurtosis by up to 366. Every UNWEIGHTED column is bit-identical across the two realizations, which is the proof that the values did not change and only the weights did. |
+| **How it was found** | Splitting six categories shifted the position of every later category in the draw order, and the weighted metrics of 130 untouched datasets moved. The weights are now keyed by dataset name rather than by iteration order, so a dataset's weights are a property of that dataset; after the change, splitting moves the 130 shared datasets by exactly zero. |
+| **Consequence** | Any per-dataset weighted number in the paper is one draw from a distribution whose spread has never been reported. The AGGREGATE distribution across the arm is far more stable than any single dataset's value, and that is what the study actually rests on, but the distinction is not currently made in the text. |
+| **Fix** | **Text, and an analysis decision that belongs to Stage 2h**, which already owns "multiple weight realizations". Report the arm-level characteristic distributions rather than per-dataset weighted values, or report per-dataset values with an interval over weight realizations. |
+| **Status** | Open. Owner: 2h for the analysis, text once 2h reports. |
+
+## 33. EC3 carries no subcategory for these records, and that is worth one sentence
+
+| | |
+|---|---|
+| **Measured in Stage 2a-3** | Across all 123,060 usable records in the 138 queried categories, `category_key` equals the queried category and the finer `category` field is empty throughout. There is no EC3 subcategory to group products by. Exhaustive search of all 106 store columns for the seven screened categories found no product-type field populated for 90 percent or more of records with more than one level; the only such fields are declarer attributes (program operator, PCR, jurisdiction, plant specificity, uncertainty factor). |
+| **Consequence** | A reader will reasonably ask why heterogeneous categories were not split on product type. The answer is that EC3 does not record one for these products, not that it was not tried. |
+| **Fix** | **Text, one or two sentences**, in the data section, and it strengthens rather than weakens the account: it is why the declared unit is the axis used, and why `Insulation` is left whole. |
+| **Status** | Open. Text. |
+
+## 34. The coverage claim is false at the top of the coefficient of variation
+
+| | |
+|---|---|
+| **Manuscript** | Claims the synthetic corpus covers the region of characteristic space the empirical datasets occupy and extends beyond it on every side, which is what licenses generalizing the study's conclusions past the sampled categories. CLAUDE.md decision 29 records 100 percent coverage on all nine statistical characteristics, approved from `CompareUQMethods_FIG_MetricCoverage.png`. |
+| **Measured in Stage 2a-3** | That figure was measured on the Stage 2a empirical arm, whose maximum coefficient of variation was 2.40. Stage 2a-2 rebuilt the arm from raw values and the maximum became 13.40; nothing re-checked coverage. **Six of the 143 empirical datasets have a coefficient of variation the corpus never reaches**: `PowerCabling [1 m]` 11.20, `Insulation` 6.05, `ConcreteAdmixtures [1 kg]` 3.56, `Grouting [1 kg]` 3.24, `DampproofingAndWaterproofing` 2.50, `WallFinishes` 2.20, against a synthetic maximum of 2.18. Two more are uncovered on `fit_norm_SW`, and `ReadyMix` on `n` by the deliberate 9,999 ceiling of decision 19. |
+| **Cause** | Not the draw range, which reaches 16. The coefficient of variation is a POPULATION target while the characteristic measured is the SAMPLE value, which runs low on a right-skewed distribution; only 41.7 percent of targets are met. |
+| **Fix** | **Undecided, and it needs one.** Either reopen generation to raise the offset or fix the solve, or state the limitation plainly: the corpus covers the empirical characteristic space with margin except at the top of the coefficient of variation, where four of the six uncovered datasets are categories that are not one product population. |
+| **Status** | Open, unassigned, and it is the one open item that could require reopening generation. Decision 29 and the coverage figure must be revisited either way. |
