@@ -1,7 +1,7 @@
 metric_x,metric_y,empirical_covered,n_uncovered,uncovered
-coeffvar,skewness,0.965034965034965,5,Aggregates [1000 kg]|ConcreteAdmixtures [1 kg]|Grouting [1 kg]|Insulation|PowerCabling [1 m]
-coeffvar,crit_bw_1,0.9300699300699301,10,AcousticalCeilings|ConcreteAdmixtures [1 kg]|DampproofingAndWaterproofing|DataCabling|Grouting [1 kg]|Insulation|PowerCabling [1 km]|PowerCabling [1 m]|StructuralSteel|WallFinishes
+coeffvar,skewness,0.9577464788732394,6,Aggregates [1000 kg]|ConcreteAdmixtures [1 kg]|DampproofingAndWaterproofing|Grouting [1 kg]|Insulation|PowerCabling [1 m]
+coeffvar,crit_bw_1,0.9295774647887324,10,AcousticalCeilings|ConcreteAdmixtures [1 kg]|DampproofingAndWaterproofing|DataCabling|Grouting [1 kg]|Insulation|PowerCabling [1 km]|PowerCabling [1 m]|StructuralSteel|WallFinishes
 skewness,kurtosis,1.0,0,
-n,w_v_uw_wasserstein,0.993006993006993,1,ReadyMix
-entropy,weight_outliers,0.993006993006993,1,Mirrors
-fit_norm_SW,fit_lognorm_SW,0.965034965034965,5,ConcreteAdmixtures [1 kg]|Grouting [1 kg]|Insulation|PowerCabling [1 m]|StructuralSteel
+n,w_v_uw_wasserstein,0.9929577464788732,1,ReadyMix
+entropy,weight_outliers,0.9929577464788732,1,Mirrors
+fit_norm_SW,fit_lognorm_SW,0.9436619718309859,8,Aggregates [1 kg]|Brick|ConcreteAdmixtures [1 kg]|Grouting [1 kg]|Insulation|PowerCabling [1 m]|StructuralSteel|WallFinishes

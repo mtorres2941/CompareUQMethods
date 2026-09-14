@@ -216,9 +216,10 @@ removes high outliers while leaving values orders of magnitude below the mean.
 A dataset is kept only if at least three values survive, which is why 136 of the
 138 extracted categories are retained.
 
-**The arm is 143 datasets drawn from those 136 categories.** Six categories hold
-more than one product population and are split into thirteen, on the declared
-unit recorded on the EPD. `src/categorysplit.py` holds the screen, the axis and
+**The arm is 142 datasets drawn from those 136 categories.** Six categories hold
+more than one product population and are split into twelve, on the declared unit
+recorded on the EPD, banded as a RATIO to the way most of the category declares
+itself. `src/categorysplit.py` holds the screen, the axis and
 the binding constraint: a split may read only record metadata, never the ECC
 values, because this study measures the modality and dispersion of ECC
 distributions and splitting on those would be circular. Stage 2a-3, decision 43.
@@ -281,9 +282,9 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 
 | File | Written by | Shape |
 |---|---|---|
-| `TABLE_EmpiricalECCMetrics.xlsx` | NB1 | 143 x 22 |
+| `TABLE_EmpiricalECCMetrics.xlsx` | NB1 | 142 x 22 |
 | `TABLE_EmpiricalCategorySplit.csv` | NB1 | one row per split population |
-| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 143 x 28, still 136 until NB2 is run |
+| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 142 x 28, still 136 until NB2 is run |
 | `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 10,000 x 26 |
 | `TABLE_PLCAResults.csv` | NB3 | 60,000 x 43 |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |

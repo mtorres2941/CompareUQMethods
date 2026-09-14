@@ -67,17 +67,16 @@ PROBE = Stratum('probe_10k_100k', 10_000, 100_000, 50)
 # of values now keep more of them. A further 0.0070 of the arm sits above 9,999
 # and is covered by the probe set rather than by a stratum.
 #
-# Remeasured in Stage 2a-3 on the SPLIT arm, 143 datasets drawn from 136
-# categories: splitting six categories into thirteen adds small datasets, so the
-# smallest stratum rises from 0.0956 to 0.1049 and the third falls from 0.2941
-# to 0.2797. This is a post-stratification weight and NOT a generation
-# parameter, so updating it moves reported aggregates but requires no
-# regeneration.
+# Remeasured in Stage 2a-3 on the SPLIT arm, 142 datasets drawn from 136
+# categories: splitting six categories into twelve adds small datasets, so the
+# second stratum rises from 0.5588 to 0.5704 and the third falls from 0.2941 to
+# 0.2817. This is a post-stratification weight and NOT a generation parameter,
+# so updating it moves reported aggregates but requires no regeneration.
 EMPIRICAL_STRATUM_SHARE = {
-    's1_3_9': 15 / 143,
-    's2_10_99': 81 / 143,
-    's3_100_999': 40 / 143,
-    's4_1000_9999': 6 / 143,
+    's1_3_9': 14 / 142,
+    's2_10_99': 81 / 142,
+    's3_100_999': 40 / 142,
+    's4_1000_9999': 6 / 142,
 }
 
 
@@ -274,8 +273,9 @@ class GeneratorConfig:
     normal in log10 truncated to [lo, hi], and then solved for exactly.
 
     The spread comes from the empirical datasets, whose log10 coefficient of
-    variation has a standard deviation of 0.3536 on the 2026-08 arm as split in
-    Stage 2a-3; it is DOUBLED here, which is what "margin beyond the empirical
+    variation has a standard deviation of 0.3519 on the 2026-08 arm as split in
+    Stage 2a-3, and 0.3536 as measured before the scale band was corrected,
+    which is the value used; it is DOUBLED here, which is what "margin beyond the empirical
     envelope" means: the corpus reaches about twice as far in each direction as
     the real data do.
 
@@ -308,8 +308,11 @@ class GeneratorConfig:
         log10 standard deviation        0.2913       0.3752
         maximum                           2.40        13.40
 
-    Remeasured again in Stage 2a-3 on the split arm, 143 datasets: median 0.768,
-    log10 standard deviation 0.3536, maximum 11.20.
+    Remeasured again in Stage 2a-3 on the split arm, 142 datasets: median 0.767,
+    log10 standard deviation 0.3519, maximum 8.96. The value below is 0.3536,
+    measured before the scale band was corrected to a ratio; the 0.0017
+    difference is far inside the seed-to-seed noise and is not chased, because
+    doing so would mean a third regeneration for nothing.
 
     The upper truncation was raised from 3.2 to 16 for the same reason: at 3.2 it
     no longer bracketed the empirical maximum, so the draw was being clipped

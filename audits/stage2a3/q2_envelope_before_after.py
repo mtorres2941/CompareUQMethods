@@ -91,9 +91,9 @@ def main():
     before.to_csv(os.path.join(TABLES, 'TABLE_2a3_EnvelopeUnsplit.csv'))
     after.to_csv(os.path.join(TABLES, 'TABLE_2a3_EnvelopeSplit.csv'))
 
-    tab = pd.DataFrame({'unsplit (136)': summarise(before),
-                        'split (143)': summarise(after)})
-    tab['change'] = tab['split (143)'] - tab['unsplit (136)']
+    a, b = f'unsplit ({len(before)})', f'split ({len(after)})'
+    tab = pd.DataFrame({a: summarise(before), b: summarise(after)})
+    tab['change'] = tab[b] - tab[a]
     tab.index.name = 'quantity'
     tab.to_csv(os.path.join(TABLES, 'TABLE_2a3_EnvelopeBeforeAfter.csv'))
     pd.set_option('display.width', 120)

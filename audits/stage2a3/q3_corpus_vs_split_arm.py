@@ -109,8 +109,9 @@ def main(label):
     print(f'corpus {label}: {len(met):,} datasets\n', flush=True)
 
     rows, detail = [], []
-    for name, split in [('unsplit (136)', False), ('split (143)', True)]:
+    for split in [False, True]:
         emet, emodes, evis = arm(split)
+        name = f'{"split" if split else "unsplit"} ({len(emet)})'
         d, s = objective(emet, emodes, evis, met, modes, vis)
         rows.append(dict(empirical_arm=name, n_datasets=len(emet), **s))
         detail.append(d.assign(empirical_arm=name))
@@ -119,10 +120,11 @@ def main(label):
     out.to_csv(os.path.join(TABLES, f'TABLE_2a3_CorpusVsBothArms_{label}.csv'),
                index=False)
     per = pd.concat(detail)
+    arms = list(out.empirical_arm)
     wide = per.pivot(index='metric', columns='empirical_arm',
                      values='w1_standardized')
-    wide['change'] = wide['split (143)'] - wide['unsplit (136)']
-    wide = wide.sort_values('split (143)', ascending=False)
+    wide['change'] = wide[arms[1]] - wide[arms[0]]
+    wide = wide.sort_values(arms[1], ascending=False)
     wide.to_csv(os.path.join(TABLES, f'TABLE_2a3_PerCharacteristic_{label}.csv'))
 
     pd.set_option('display.width', 200)

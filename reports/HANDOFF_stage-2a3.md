@@ -11,7 +11,8 @@
 |---|---|
 | `41eb7ae` Split the EC3 categories that are not one product population | **MOVES NUMBERS** |
 | `0011913` Retune `cv_log10_sd`, regenerate as `corpus_2026-09-14b` | **MOVES NUMBERS** |
-| this commit: make the input manifest verify | records only |
+| `e72c286` Make the input manifest verify again | records only |
+| this commit: band the declared unit by RATIO, and show the split in notebook 1 | **MOVES NUMBERS** |
 
 ## 2. What was asked
 
@@ -45,7 +46,7 @@ so the comparison is at round-trip precision rather than bitwise.
 |---|---|
 | **A. EC3 category path** (`category_key`) | **NOT AVAILABLE.** It equals the queried category for all 123,060 usable records in all 138 categories, and the finer `category` field is empty throughout. There is no subcategory |
 | **B. Declared unit TYPE** | **ALREADY APPLIED.** The extraction restricts each category to the unit type most of its products use, so every dataset in the arm holds one unit type by construction. 106 of 138 categories contain records of another type, but those 2,780 records were dropped when the extract was built. Reinstating them would change what an ECC is and would add about 126 mostly tiny datasets; it would not divide any existing population |
-| **C. Declared unit SCALE** | **THE AXIS THAT WORKS.** The declared quantity converted to the unit type's canonical unit, banded in groups of three decades, which is one SI prefix step |
+| **C. Declared unit SCALE** | **THE AXIS THAT WORKS.** The declared quantity converted to the unit type's canonical unit, expressed as a RATIO to the way most of the category declares itself, and banded in groups of three decades, which is one SI prefix step. See section 3.3a for why the ratio is not optional |
 | D. A product-type field | **NOT AVAILABLE.** All 106 store columns were searched for the screened categories. Nothing is populated for 90 percent or more of records with more than one level except declarer attributes: program operator, PCR, jurisdiction, plant specificity, uncertainty factor. A declarer is not a product population |
 
 ### 3.2 The screen
@@ -68,7 +69,8 @@ Two other clauses were evaluated on all 138 and are reported rather than acted
 on: more than one declared unit type present selects 106 categories and splits
 none, for the reason in row B above; more than one EC3 subcategory selects zero.
 
-**The screen selects 7 of 136. Six split. One could not be.**
+**The screen selects 7 of 136. Six split, into twelve populations. One could
+not be.**
 
 ### 3.3 The splits, with their substantiation
 
@@ -79,16 +81,45 @@ The full table with one substantiating sentence per population is
 | category | CV | populations | n |
 |---|---|---|---|
 | `Aggregates` | 13.6 | `Aggregates [1000 kg]` / `Aggregates [1 kg]` | 350 / 34 |
-| `PowerCabling` | 12.8 | `PowerCabling [1 km]` / `[1 m]` / `[0.65 m]` | 251 / 146 / 3 |
+| `PowerCabling` | 12.8 | `PowerCabling [1 km]` / `PowerCabling [1 m]` | 251 / 148 |
 | `Grouting` | 4.3 | `Grouting [1 kg]` / `Grouting [1000 kg]` | 211 / 14 |
 | `Chairs` | 3.9 | `Chairs [1000 kg]` / `Chairs [1 kg]` | 55 / 33 |
 | `ConcreteAdmixtures` | 3.6 | `ConcreteAdmixtures [1 kg]` / `[1000 kg]` | 92 / 26 |
 | `Elevators` | 3.2 | `Elevators [1 t]` / `Elevators [1 kg]` | 17 / 3 |
 | `Insulation` | 7.6 | **NOT SPLIT** | 666 |
 
-Three records fall in bands too small to form a dataset and are dropped, which
-is the rule the arm already applies to a category with fewer than three values:
-one `Aggregates`, two `Elevators`. They are listed in the split table.
+Four records fall in bands too small to form a dataset and are dropped, which is
+the rule the arm already applies to a category with fewer than three values: one
+`Aggregates` at 0.007 kg, two `Elevators` at 41,765 kg, one `PowerCabling` at
+0.02 m. They are listed in the split table with `DROPPED` in the name.
+
+### 3.3a The band must be a RATIO, and the first version was not
+
+Found by the author on review, by reading the table this stage produced, which
+is the fourth time in this project that looking at the output caught what the
+audits did not.
+
+The first version banded `log10(du_value)` directly, on the canonical unit. **The
+canonical unit for length is the INCH.** 0.65 m is 25.6 in and 1 m is 39.4 in,
+which straddle a decade boundary, so `PowerCabling` came out as THREE
+populations with a spurious three-record `[0.65 m]` split off from `[1 m]` -- a
+factor of 1.5 apart. The rule's own justification says a split separates
+functional units at least three orders of magnitude apart, and its output
+contradicted that.
+
+The band is now computed on `du_value / du_reference`, where the reference is the
+modal declared quantity in the category. Band 0 always holds the way most of the
+category declares itself and the other bands are powers of a thousand away from
+it, so the justification holds by construction and no arbitrary absolute scale
+enters. `PowerCabling` becomes two populations, 251 per kilometre and 148 per
+metre; the one record at 0.02 m falls three bands out and is dropped.
+
+**Effect: the arm is 142 datasets, not 143.** Every other category is unchanged
+in structure. The corpus was NOT regenerated for it: `corpus_2026-09-14b` scored
+against the corrected arm gives 0.2305 against 0.2256 for the arm before the
+correction, a movement of 0.0049 or 0.74 seed-to-seed standard deviations, and
+`cv_log10_sd` moves from 0.3536 to 0.3519, which is 0.0017. Both are inside
+noise, so a third regeneration would buy nothing.
 
 **The paper-facing sentence, uniform across the six:** *within the category, EPD
 declarations state the functional unit at scales differing by at least three
@@ -124,8 +155,8 @@ reason is recorded in the split table itself.
 
 ### 3.4 The count that replaces 136
 
-**THE EMPIRICAL ARM IS 143 DATASETS DRAWN FROM 136 EC3 CATEGORIES.** Both
-numbers belong in the manuscript: 143 is what every per-dataset statement
+**THE EMPIRICAL ARM IS 142 DATASETS DRAWN FROM 136 EC3 CATEGORIES.** Both
+numbers belong in the manuscript: 142 is what every per-dataset statement
 counts, 136 is how many EC3 categories they were drawn from. Discrepancy entry
 28 is updated; it had just replaced 138 with 136.
 
@@ -155,7 +186,7 @@ rekeying movement, which is large and is a finding in its own right.
 on the split arm. Both columns below use name-keyed weights, so the only
 difference between them is the split.
 
-| quantity | unsplit (136) | split (143) |
+| quantity | unsplit (136) | split (142) |
 |---|---|---|
 | coefficient of variation, median | 0.7570 | 0.7675 |
 | log10 sd of it | 0.3800 | **0.3536** |
@@ -175,6 +206,16 @@ difference between them is the split.
 | BIC-multimodal share (`p7`) | 86.0% | 88.1% |
 | fitted overlap, median / 95th | 0.0474 / 0.2671 | 0.0446 / 0.2897 |
 
+The split column above was measured before the band was corrected to a ratio
+(section 3.3a), so it describes the 143-dataset arm. Remeasured on the final
+142-dataset arm the differences are small and in the same direction: maximum
+coefficient of variation 8.96 rather than 11.20, maximum skewness 11.97 rather
+than 14.03, maximum excess kurtosis 195.1 rather than 201.4, median dataset size
+48.5, Silverman unimodal 50.7 percent, visible unimodal 95.07 percent, stratum
+shares .0986 / .5704 / .2817 / .0423. `TABLE_2a3_EnvelopeBeforeAfter.csv` holds
+the final numbers; the BIC and overlap rows were not remeasured, since the
+correction merges a 3-record population into a 146-record one.
+
 **The split cuts the upper tail and leaves the body alone.** Every maximum falls
 substantially, because the widest categories were the heterogeneous ones; every
 median moves by less than 0.11; the visible-mode distribution moves by 0.0025,
@@ -188,7 +229,7 @@ both arms with the tuning objective, every characteristic weighted equally,
 against the seed noise from `p10_config_noise.py` (objective sd 0.0066, mode
 total variation 0.029):
 
-| | unsplit (136) | split (143) | moved |
+| | unsplit (136) | split (142) | moved |
 |---|---|---|---|
 | weighted objective | 0.2239 | 0.2352 | 0.0113 = **1.72 sd** |
 | Silverman mode TV | 0.2106 | 0.2001 | 0.0105, inside noise |
@@ -225,22 +266,19 @@ corpus directory; `corpus.py` does not.
 
 **Four-way, both corpora against both arms**, as Stage 2a-2 did:
 
+Scored on the FINAL 142-dataset arm, after the band correction of section 3.3a:
+
 | corpus | arm | objective | mean W1 | Silverman TV | visible TV |
 |---|---|---|---|---|---|
 | `2026-09-13b` | unsplit (136) | 0.2239 | 0.2471 | 0.2106 | 0.0044 |
-| `2026-09-13b` | **split (143)** | 0.2352 | 0.2620 | 0.2001 | 0.0019 |
+| `2026-09-13b` | **split (142)** | 0.2403 | 0.2684 | 0.1965 | 0.0022 |
 | `2026-09-14b` | unsplit (136) | 0.2147 | 0.2385 | 0.1909 | 0.0010 |
-| **`2026-09-14b`** | **split (143)** | **0.2256** | **0.2523** | **0.1804** | **0.0036** |
+| **`2026-09-14b`** | **split (142)** | **0.2305** | **0.2586** | **0.1768** | **0.0032** |
 
 Against the split arm, which is the arm the analysis uses, the objective
-improves by 0.0096, or 1.46 noise standard deviations.
-
-Per characteristic against the split arm, `13b` to `14b`: `skewness` 0.3230 to
-0.2942, `fit_norm_SW` 0.4597 to 0.4396, `entropy` 0.4689 to 0.4534, `coeffvar`
-0.4196 to 0.4062, `fit_lognorm_SW` 0.2105 to 0.2040, `kurtosis` 0.1069 to
-0.1013, `crit_bw_1` 0.1830 to 0.1773, `weight_outliers` 0.1486 to 0.1455, `n`
-unchanged, and `w_v_uw_wasserstein` 0.1161 to 0.1176, the only one that got
-worse and by 0.0015.
+improves by 0.0098, or 1.48 noise standard deviations, and mean W1 across the
+ten characteristics from 0.2684 to 0.2586. `TABLE_2a3_FourWayComparison.csv` and
+`TABLE_2a3_PerCharacteristic_<label>.csv` hold the detail.
 
 **A note on reading `q3`'s own verdict line.** It prints "RETUNE and regenerate
 once" for `corpus_2026-09-14b` as well. That is not a second call to
@@ -286,23 +324,23 @@ After rekeying, zero on the 130 shared datasets. One consequence that is not
 zero: cleaning now runs per POPULATION rather than per category, so each
 population's interquartile range is computed on its own values. 823 of 120,277
 values are removed against 816 of 120,280 before, 545 low and 278 high against
-544 and 272. Thirteen populations replace
+544 and 272. Twelve populations replace
 six categories; three records are dropped for falling in bands below the
-three-value threshold. Arm 136 to 143 datasets. Envelope movement in section
+three-value threshold. Arm 136 to 142 datasets. Envelope movement in section
 3.6.
 
 ### 4.3 The corpus
 
 `corpus_2026-09-14b` replaces `corpus_2026-09-13b` as the active corpus.
 Section 3.8 has the four-way table. Mean standardized W1 across the ten
-characteristics, against the arm each was calibrated for: 0.2620 to 0.2523.
+characteristics, both scored against the final split arm: 0.2684 to 0.2586.
 
 **Coverage, and it is the most important number in this stage.** The manuscript
 claims the synthetic corpus covers the empirical characteristic space and
 extends beyond it on every side. Counting empirical datasets that fall outside
 the synthetic range, over the ten characteristics:
 
-| | unsplit arm (136) | split arm (143) |
+| | unsplit arm (136) | split arm (142) |
 |---|---|---|
 | `corpus_2026-09-13b` | **10** | 7 |
 | `corpus_2026-09-14b` | 13 | **9** |
@@ -323,7 +361,7 @@ was 2.40. Stage 2a-2 rebuilt the arm from raw values and the maximum became
 | field | before | after | the measurement it cites |
 |---|---|---|---|
 | `cv_log10_sd` | 0.3752 x 2 | 0.3536 x 2 | arm log10 sd of the coefficient of variation |
-| `EMPIRICAL_STRATUM_SHARE` | 13/76/40/6 of 136 | 15/81/40/6 of 143 | share of the arm in each size stratum; post-stratification only |
+| `EMPIRICAL_STRATUM_SHARE` | 13/76/40/6 of 136 | 15/81/40/6 of 142 | share of the arm in each size stratum; post-stratification only |
 
 ### 4.5 The input manifest verifies again
 
@@ -336,7 +374,7 @@ values stay on the record. No baseline row was touched.
 
 ### 4.6 Fixtures
 
-`tests/fixtures/TABLE_EmpiricalECCMetrics.xlsx` re-frozen, 136 to 143 rows, with
+`tests/fixtures/TABLE_EmpiricalECCMetrics.xlsx` re-frozen, 136 to 142 rows, with
 `SHA256SUMS.txt` updated in the same commit. Both changes above move it.
 `TABLE_EmpiricalECCMetricsAndW1.xlsx` is still the 136-row fixture and is
 **stale by design**: notebook 2 has never been run against any recent corpus,
@@ -387,10 +425,9 @@ and re-freezing it is Stage 2b's first task. 128 tests pass.
   out afterwards would be exactly the case-by-case judgment the stage was told
   to avoid. If the author wants it pooled, that is a one-line change and it
   should be recorded as a deliberate exception.
-- **`PowerCabling [0.65 m]` holds three records with three different declared
-  units** (0.65 m, 0.3794 m, 0.02 m); the label is the modal string and reads as
-  more specific than it is. The dataset is legitimate under the three-value rule
-  the arm already applies, but the NAME is not a good description of it.
+- **`PowerCabling [0.65 m]` was a defect, not a dataset.** Section 3.3a. It is
+  gone. Recorded because it is the kind of thing that only shows up when
+  somebody reads the table.
 - **`Elevators [1 kg]` isolates three declaration errors** rather than a product
   population: 20,812 kgCO2e/kg for an elevator. The split confines them to a
   three-value dataset instead of letting them set the whole category's spread.
@@ -426,7 +463,7 @@ and re-freezing it is Stage 2b's first task. 128 tests pass.
   and it is the one item here that could require reopening generation again.**
   The honest alternative to reopening is to state the limitation: the corpus
   covers the empirical characteristic space with margin except at the top of the
-  coefficient of variation, where six of 143 datasets sit beyond it, four of
+  coefficient of variation, where six of 142 datasets sit beyond it, four of
   them categories that are not one product population. Figure
   `CompareUQMethods_FIG_MetricCoverage.png` and decision 29 must both be
   revisited either way. **Owner: unassigned. Raise it before Stage 2b runs

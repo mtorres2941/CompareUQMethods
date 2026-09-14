@@ -601,10 +601,18 @@ rather than in conversation.
 
 
 43. **2026-09-13, Stage 2a-3. A category that is not one product population is
-    SPLIT, on record metadata only.** `[AUTHOR]` The empirical arm is **143
+    SPLIT, on record metadata only.** `[AUTHOR]` The empirical arm is **142
     datasets drawn from 136 categories**, which replaces 136 and which the
-    manuscript states. Six categories split; see `src/categorysplit.py` and
-    `reports/HANDOFF_stage-2a3.md` section 3.
+    manuscript states. Six categories split into twelve populations; see
+    `src/categorysplit.py` and `reports/HANDOFF_stage-2a3.md` section 3.
+
+    **The scale band is a RATIO to the way most of a category declares itself**,
+    not an absolute position on the canonical scale. The first version banded
+    `log10(du_value)` directly; because the canonical unit for length is the
+    INCH, 0.65 m and 1 m straddled a decade boundary and two cable declarations
+    a factor of 1.5 apart were assigned to different populations, contradicting
+    the rule's own justification. Caught on review by the author, who asked to
+    see the splits.
 
     **The constraint that makes it publishable:** a split may read only metadata
     carried on the EPD record, never the ECC values. This study measures the

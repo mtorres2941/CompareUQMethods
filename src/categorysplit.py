@@ -29,7 +29,8 @@ checked against the 2026-08 store slice, in this priority order:
      construction. 106 of 138 categories contain records of some other unit
      type, but those 2,780 records were dropped when the extract was built.
      Reinstating them would change what an ECC is, not split a population.
-  C. Declared unit SCALE, below. This is the axis that does work.
+  C. Declared unit SCALE, below, measured as a RATIO to the way most of the
+     category declares itself. This is the axis that does work.
 
 A fourth axis, a populated product-type field, was searched exhaustively over
 all 106 store columns for the screened categories. Nothing qualifies: the only
@@ -61,15 +62,33 @@ MIN_N = 3
 BAND_DECADES = 3
 
 
-def scale_band(du_value):
-    """The declared-unit scale band of a canonical declared quantity.
+def scale_band(du_value, reference):
+    """The declared-unit scale band, as a RATIO to the category's reference.
 
     `du_value` is the declared quantity already converted to the unit type's
-    canonical unit by `funcs_unit_conversion`, so it is comparable within a
-    category. Bands are centred on 1, 1e3, 1e-3 and so on.
+    canonical unit by `funcs_unit_conversion`. `reference` is the modal declared
+    quantity in the category, so band 0 always holds the way most of the
+    category declares itself and the other bands are powers of a thousand away
+    from it.
+
+    The band must be a ratio and not an absolute position, and the first version
+    of this function got that wrong. It banded `log10(du_value)` directly, and
+    the canonical unit for length is the INCH: 0.65 m is 25.6 in and 1 m is
+    39.4 in, which straddle a decade boundary, so two cable declarations a
+    factor of 1.5 apart were assigned to different populations. The rule
+    contradicted its own stated justification, which is that a split separates
+    functional units at least three orders of magnitude apart. Against a
+    reference the boundaries are ratios and the justification holds by
+    construction.
     """
-    dec = np.round(np.log10(np.asarray(du_value, float))).astype(int)
+    ratio = np.asarray(du_value, float) / float(reference)
+    dec = np.round(np.log10(ratio)).astype(int)
     return np.floor((dec + 1) / BAND_DECADES).astype(int)
+
+
+def _reference(du_value):
+    """The modal declared quantity in a category: how most of it declares."""
+    return pd.Series(np.asarray(du_value, float)).value_counts().index[0]
 
 
 def _clean_cv(values, mult=3.0):
@@ -102,7 +121,8 @@ def screen(records, cv_threshold=SCREEN_CV, mult=3.0):
     """
     rows = []
     for cat, g in records.groupby('material_query', sort=True):
-        bands = pd.Series(scale_band(g.du_value.to_numpy()))
+        ref = _reference(g.du_value.to_numpy())
+        bands = pd.Series(scale_band(g.du_value.to_numpy(), ref))
         viable = (bands.value_counts() >= MIN_N).sum()
         rows.append(dict(
             material=cat,
@@ -133,7 +153,8 @@ def assign(records, cv_threshold=SCREEN_CV, mult=3.0):
         row = scr.loc[cat]
         if not row.selected:
             continue
-        bands = pd.Series(scale_band(g.du_value.to_numpy()), index=g.index)
+        ref = _reference(g.du_value.to_numpy())
+        bands = pd.Series(scale_band(g.du_value.to_numpy(), ref), index=g.index)
         counts = bands.value_counts()
         viable = sorted(counts[counts >= MIN_N].index)
         if len(viable) < 2:
@@ -149,32 +170,44 @@ def assign(records, cv_threshold=SCREEN_CV, mult=3.0):
             continue
         units = {b: _unit_label(g.declared_unit_raw[bands == b]
                                 .value_counts().index[0]) for b in viable}
+        # The sentence is written against the LARGEST population, so every
+        # population of a category carries the same comparison and a reader is
+        # not asked to hold three pairwise statements in mind.
+        main = max(viable, key=lambda b: counts[b])
+        breakdown = ', '.join(f'{counts[b]} per {units[b]}' for b in viable)
         for b in viable:
             sel = g.index[bands == b]
             labels.loc[sel] = f'{cat} [{units[b]}]'
-            others = ', '.join(f'{counts[o]} per {units[o]}'
-                               for o in viable if o != b)
+            if b == main:
+                tail = (f'This is how most of the category declares itself and '
+                        f'is kept as its main population.')
+            else:
+                tail = (f'A declaration per {units[b]} is a different '
+                        f'functional unit from one per {units[main]}, so the '
+                        f'two are treated as separate populations rather than '
+                        f'pooled.')
             report.append(dict(
                 material=cat, field='declared_unit_raw', band=int(b),
                 population=f'{cat} [{units[b]}]', n=int(counts[b]),
                 cv=row.cv, split=True,
                 justification=(
                     f'{cat} declarations state the functional unit at scales '
-                    f'that differ by at least {BAND_DECADES} orders of '
-                    f'magnitude: {counts[b]} declare per {units[b]} against '
-                    f'{others}. A declaration per {units[b]} is a different '
-                    f'functional unit, so the groups are treated as separate '
-                    f'populations rather than pooled.')))
+                    f'differing by at least {BAND_DECADES} orders of magnitude '
+                    f'from the way most of the category declares itself, per '
+                    f'{units[main]}: {breakdown}. {tail}')))
         # Records in bands too small to form a dataset are dropped, which is
         # the rule the arm already applies to a category with under MIN_N
         # values. They are reported so the count is derivable.
         for b in sorted(counts[counts < MIN_N].index):
             sel = g.index[bands == b]
             labels.loc[sel] = None
+            u = _unit_label(g.declared_unit_raw[bands == b].value_counts().index[0])
             report.append(dict(
                 material=cat, field='declared_unit_raw', band=int(b),
-                population=f'{cat} [band {b}]', n=int(counts[b]), cv=row.cv,
+                population=f'{cat} [{u}] DROPPED', n=int(counts[b]), cv=row.cv,
                 split=True,
-                justification=(f'Dropped: fewer than {MIN_N} declarations at '
-                               f'this declared-unit scale.')))
+                justification=(
+                    f'Dropped: {counts[b]} declaration(s) per {u}, fewer than '
+                    f'the {MIN_N} a dataset needs. This is the same threshold '
+                    f'that drops a whole category with under {MIN_N} values.')))
     return labels, pd.DataFrame(report)
