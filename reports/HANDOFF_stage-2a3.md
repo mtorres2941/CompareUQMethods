@@ -658,7 +658,7 @@ in the document rather than a hard question.
 | option | what it means | cost |
 |---|---|---|
 | **A. Change the text** (recommended) | State coverage as measured and name the exceptions. The claim becomes: the corpus covers the empirical characteristic space with margin except at the extreme upper tail of dispersion, where 5 of 149 datasets sit beyond it, and above 9,999 values per dataset, which the probe set covers by design | nothing; no regeneration |
-| B. Widen the generator and regenerate a fourth time | The synthetic sample coefficient of variation tops out at 2.58 with only 8 of 9,999 datasets above 2.0, against an empirical maximum of 14.34. Closing that is not a parameter tweak: it needs the generator to make genuinely heavier-tailed populations, which moves every characteristic distribution | one regeneration plus a full revalidation, and it changes every number again |
+| B. Widen the generator and regenerate | **MEASURED AND NOT AVAILABLE AS A PARAMETER CHANGE.** Eight candidates were swept in `audits/stage2a3/q5_dispersion_reach.py`: raising the target centre by 0.4, the spread by 1.8x, the upper truncation to 60, and relaxing the quartile-ratio floor `min_q1_over_iqr` from 0.5 through 0.1, 0.05 to 0.01. **The achieved sample coefficient of variation moves from 1.65 to at most 2.15**, against an empirical maximum of 14.34, and NONE of the eight puts a single dataset above 3 | reaching the empirical tail needs heavier-tailed parents or a different truncation rule, which is a generator REDESIGN, not a retune and not one regeneration |
 | C. Exclude the uncovered categories | Drops `Aggregates`, `Chairs`, `Elevators`, `Grouting`, `PowerCabling` from the arm | reads the ECC values to decide inclusion, and biases the arm toward low dispersion on the exact dimension the study measures. Advised against |
 
 **Why A is recommended.** The five datasets uncovered on dispersion are exactly
@@ -668,6 +668,34 @@ the reader to expect trouble, and it can be written as one sentence that
 strengthens the account rather than weakening it. The three uncovered on `n` are
 decision 19 working as designed: the corpus stops at 9,999 values and the probe
 set covers above it.
+
+
+**Why B fails, measured rather than asserted.** The binding constraint is not the
+coefficient-of-variation target. It is the positivity floor of the log truncation
+rule, `min_q1_over_iqr`, which caps the parent's quartile ratio at
+`1 + 1/min_q1_over_iqr`. At the current 0.5 that is 3, the empirical MEDIAN
+quartile ratio, while the five uncovered categories have ratios of 4.5, 27.5,
+84.1, 101.3 and 284.6. Relaxing it to 0.01, a cap of 101, still reaches a maximum
+sample coefficient of variation of only 2.15. The synthetic datasets are also
+nowhere near the arithmetic ceiling of `sqrt(n-1)` that bounds any sample
+coefficient of variation, so this is the shape of the parents, not the sample
+size.
+
+**A real but partial win, handed to Stage 2h, which already owns
+`min_q1_over_iqr`.** Moving it from 0.5 to 0.05 improves the coefficient-of-
+variation distribution distance from 0.273 to 0.199 and the visible-mode total
+variation from 0.007 to 0.005, with the objective flat at 0.2126 against 0.2118.
+It does not close the tail, and this stage did not adopt it, because the roadmap
+assigns the parameter to 2h and adopting it would mean a fourth regeneration for
+a gain inside the noise. The numbers are in
+`outputs/tables/stage2a3/TABLE_2a3_DispersionReach.csv`.
+
+**A correction to section 4.3b.** That section says the matching objective and the
+coverage claim pull in opposite directions. For THIS failure they do not: the
+empirical arm has 6.0 percent of datasets above a coefficient of variation of 2
+and the corpus has 0.08 percent, so closing the gap would improve the match and
+the coverage together. The author raised exactly this point. What rules B out is
+feasibility, not a conflict of goals.
 
 **Discrepancy entry 34 carries the same table. Raise it before Stage 2b runs
 notebook 2.**
@@ -691,14 +719,15 @@ is defensibility, not performance: a parameter must cite a measurement of the ar
 actually in use, and `corpus_2026-09-14b`'s did not.
 
 **A deeper question, flagged and not acted on.** The objective matches the SHAPE
-of the synthetic characteristic distribution to the empirical one. The study's
-purpose is different: to span the characteristic space with MARGIN, so that
-conclusions about UQ method performance generalize past the categories EC3
-happens to hold. Those two goals pull in opposite directions, because matching
-the empirical distribution concentrates the corpus where real data is dense and
-therefore under-samples the edges a generalizability claim rests on. Section 4.3a
-is that tension showing up as a measured failure. **Owner: 2f**, which already
-owns the multivariate model of where each method wins.
+of the synthetic characteristic distribution to the empirical one, while the
+study also needs to span that space with MARGIN so conclusions generalize past
+the categories EC3 happens to hold. In general those can pull apart, because
+matching concentrates the corpus where real data is dense. **They do NOT pull
+apart on the coverage failure of section 4.3a**: there the corpus is short of the
+empirical upper tail on both counts at once, and closing it would improve the
+match and the coverage together. What rules that out is feasibility, measured in
+4.3a, not a conflict of goals. **Owner: 2f**, which already owns the multivariate
+model of where each method wins.
 
 ### 4.4 Configuration
 
