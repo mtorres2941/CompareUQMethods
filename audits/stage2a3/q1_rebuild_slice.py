@@ -35,11 +35,19 @@ STORE = os.path.abspath(os.path.join(ROOT, '..', 'EPDsFromEC3', 'store',
 OLD = os.path.join(ROOT, 'data', 'processed', 'dct_realeccs_trimmed.json')
 FROZEN = os.path.join(ROOT, 'data', 'raw', 'ec3_raw_ecc_2026-08-14.csv.gz')
 SIDECAR = os.path.join(ROOT, 'data', 'raw', 'ec3_record_metadata_2026-08-14.csv.gz')
+TREE_SRC = os.path.abspath(os.path.join(ROOT, '..', 'EPDsFromEC3', 'store',
+                                        'category_tree.csv'))
+TREE = os.path.join(ROOT, 'data', 'raw', 'ec3_category_tree_2026-08-14.csv')
 CUTOFF = '2026-08-14'
 
+#: `description` and the concrete strength are carried because the Stage 2a-3
+#: split rules read them; `category_key` is carried because it is the evidence
+#: that EC3 records no subcategory for any of these records.
+STRENGTH = 'concrete_compressive_strength_28d_value'
 USECOLS = ['material_query', 'pull_date', 'open_xpd_uuid', 'manufacturer',
            'declaration_type', 'date_of_issue', 'date_validity_ends',
-           'declared_unit_raw', 'gwp_raw', 'category_key', 'category', 'name']
+           'declared_unit_raw', 'gwp_raw', 'category_key', 'category', 'name',
+           'description', STRENGTH]
 
 
 def convert(value, unit):
@@ -123,11 +131,16 @@ if __name__ == '__main__':
     verify(usable)
 
     cols = ['open_xpd_uuid', 'material_query', 'category_key', 'category',
-            'name', 'declared_unit_raw', 'du_value', 'du_type',
-            'modal_du_type', 'ecc', 'pull_date']
+            'name', 'description', STRENGTH, 'declared_unit_raw', 'du_value',
+            'du_type', 'modal_du_type', 'ecc', 'pull_date']
     out = usable[cols].sort_values(['material_query', 'open_xpd_uuid'])
     out.to_csv(SIDECAR, index=False, compression='gzip')
+    import shutil
+    shutil.copyfile(TREE_SRC, TREE)
     print(f'\nwrote {os.path.relpath(SIDECAR, ROOT)}  ({len(out):,} rows)')
+    print(f'wrote {os.path.relpath(TREE, ROOT)}  (EC3 category hierarchy, '
+          f'frozen: the parent/child relation is what decides which categories '
+          f'are residual bins)')
     print(f'categories with >1 declared unit type: '
           f'{(out.groupby("material_query").du_type.nunique() > 1).sum()}')
     print(f'categories with >1 EC3 category_key  : '

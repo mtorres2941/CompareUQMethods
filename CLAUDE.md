@@ -219,13 +219,13 @@ reason it was cheap: notebooks 2 and 3 had never been run against
 `corpus_2026-09-12b`, so no downstream result existed for a regeneration to
 invalidate. That ceased to be true the moment Stage 2a-2 closed.
 
-**Stage 2a-3 reopened it once more, by the stated criterion it was given rather
-than by judgment, and closed it again.** Splitting the empirical arm moved the
-tuning objective by 1.72 seed-to-seed standard deviations, past the threshold,
-so exactly one generation parameter was retuned and the corpus regenerated once
-as `corpus_2026-09-14b`. Notebooks 2 and 3 still had not run, so again nothing
-downstream was invalidated. **That was the last time.** The empirical arm is
-frozen by decision 44 and generation is closed; neither input moves again.
+**Stage 2a-3 reopened it twice more and closed it again**, because the empirical
+arm changed twice inside that stage: once for a declared-unit split that the
+author then rejected, and once for the rules of decision 46 that stand.
+`corpus_2026-09-14d` is the result. Notebooks 2 and 3 still had not run, so again
+nothing downstream was invalidated. **That was the last time.** The empirical
+extract is frozen by decision 44, the category rules are settled by decision 46,
+and generation is closed; neither input moves again.
 
 | Stage | Owns | Explicitly not its job |
 |---|---|---|
@@ -233,7 +233,7 @@ frozen by decision 44 and generation is closed; neither input moves again.
 | **1 DONE** | Pinned environment, regression fixtures, persisted pLCA table, seeding machinery, correctness fixes, thin notebooks over a tested `src/`. Exactly two intended number-moving changes: neccs 1,000 to 10,000, and the wbeci assignment moved inside the loop. `reports/HANDOFF_stage-1.md` | Regeneration, and every methodological judgment call. Amendment A3 settled normalization: unweighted mean, code stands, text is wrong |
 | **2a DONE** | Generator audit: seeding collapse, Dirichlet concentration mismatch, stale docstring, the truncation loop, power transform, reflection, component overlap, mode counting, the 27.5 percent filter, mode-level market share, the coverage table that becomes Table 1. Then regenerate, once | Changing the fitting methods, changing the scoring target, or sweeping anything that 2h owns |
 | **2a-2 DONE** | A one-off reopening of generation, by decision, because nothing downstream had been computed yet. Fresh raw empirical extract, symmetric log-space cleaning, weighted tuning objective, retune, regenerate once. `reports/HANDOFF_stage-2a2.md` | Any fitting work, and any further regeneration. Generation closes again when this stage ends |
-| **2a-3 DONE** | Split the EC3 categories that are not one product population, on record metadata only; measure the empirical envelope before and after; apply the stated noise criterion, which fired, so retune one field and regenerate once as `corpus_2026-09-14b`. Two record corrections. `reports/HANDOFF_stage-2a3.md` | Any fitting work. It is the LAST pre-2b stage: nothing after it reopens generation or the empirical extract |
+| **2a-3 DONE** | Resolve the EC3 categories into specifiable products, on record metadata only: drop EC3 residual bins, split concrete by specified strength, split insulation by material type. Arm 136 to 149. Regenerate as `corpus_2026-09-14d`. Two record corrections. Found that the coverage claim is false. `reports/HANDOFF_stage-2a3.md` | Any fitting work. It is the LAST pre-2b stage: nothing after it reopens generation or the empirical extract |
 | **2b** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE | Adding new families for robustness (2h), or rescoring against a parent (2c) |
 | **2c** | The evaluation target: score synthetic against the known parent, cross-validate the empirical 138, decompose location versus definitional error, report regret distributions. Overlap area alongside W1 | The pLCA construction (2e) and the flip-probability threshold (2d) |
 | **2d** | Decompose the uniform-to-variable W1 into location and shape, define the named relative measure, calibrate flip probability against relative W1, report the 1, 5 and 10 percent crossings | Building companion decision metrics (2g) |
@@ -601,26 +601,16 @@ rather than in conversation.
 
 
 43. **2026-09-13, Stage 2a-3. A category that is not one product population is
-    SPLIT, on record metadata only.** `[AUTHOR]` The empirical arm is **142
-    datasets drawn from 136 categories**, which replaces 136 and which the
-    manuscript states. Six categories split into twelve populations; see
-    `src/categorysplit.py` and `reports/HANDOFF_stage-2a3.md` section 3.
+    resolved into the products it holds, on record metadata only.**
+    `[AUTHOR]` **SUPERSEDED IN ITS AXIS BY DECISION 46**, which is what is
+    implemented; the constraint below stands and is the reason the work is
+    defensible at all.
 
-    **The scale band is a RATIO to the way most of a category declares itself**,
-    not an absolute position on the canonical scale. The first version banded
-    `log10(du_value)` directly; because the canonical unit for length is the
-    INCH, 0.65 m and 1 m straddled a decade boundary and two cable declarations
-    a factor of 1.5 apart were assigned to different populations, contradicting
-    the rule's own justification. Caught on review by the author, who asked to
-    see the splits.
-
-    **The constraint that makes it publishable:** a split may read only metadata
-    carried on the EPD record, never the ECC values. This study measures the
-    modality, dispersion and skewness of ECC distributions, so splitting a
-    category because its values look bimodal and then reporting that ECC
-    datasets are unimodal is circular. The coefficient of variation appears only
-    as a SCREEN selecting which categories are examined; it never decides where
-    a boundary falls.
+    **A split may read only metadata carried on the EPD record or on EC3's
+    category tree, never the ECC values.** This study measures the modality,
+    dispersion and skewness of ECC distributions, so splitting a category
+    because its values look bimodal and then reporting that ECC datasets are
+    unimodal is circular.
 44. **2026-09-13, Stage 2a-3. The empirical arm is FROZEN at the 2026-08
     extract for the remainder of the project.** `[AUTHOR]` This closes the
     open item in decision 31 and in the Stage 2a-2 handoff, which left folding
@@ -636,3 +626,51 @@ rather than in conversation.
     `data/raw/ec3_raw_ecc_2026-08-14_runmeta.json` and in
     `reports/MANUSCRIPT_discrepancies.md` entry 30. It changes nothing about
     decision 44: the arm is frozen by choice, not by access.
+
+46. **2026-09-14, Stage 2a-3. The material categories are resolved into
+    SPECIFIABLE PRODUCTS, by three metadata rules. The arm is 149 datasets.**
+    `[AUTHOR]` This replaces the declared-unit axis of decision 43, which the
+    author rejected: "Separating by declared unit doesn't quite seem reasonable.
+    Why is it strange that some aggregates might be declared per 1 kg and some
+    per 1000 kg? That still might be the same material."
+
+    **The criterion is not dispersion.** The author's words: "This exercise isn't
+    about fixing dispersion at all, it's separating material categories
+    meaningfully." Splitting `ReadyMix` by compressive strength moves its
+    coefficient of variation only from 0.29 to 0.27 and is still right, because
+    4000 psi and 5000 psi concrete are different products and strength is the
+    primary characteristic a structural engineer specifies concrete by. A
+    dataset stands for one material choice in a pLCA, so the test is whether a
+    category is something a specifier could name. **A later stage must not
+    reintroduce a dispersion screen.**
+
+    1. **EC3 residual bins are dropped.** A non-leaf node of EC3's category tree
+       holds the EPDs EC3 did not place in any child, so it is a residual bin
+       rather than a product. 15 dropped where the children are in the arm,
+       including `Insulation` (666 records, CV 7.65) and `Steel` (576, 1.57).
+       This is what resolves insulation and steel, and the steel children are
+       exactly the distinctions a structural engineer draws. Four parents with
+       no child in the arm are KEPT, because dropping them would remove the
+       material; their heterogeneity is a stated limitation.
+    2. **Concrete is split by specified 28-day compressive strength**, a
+       structured EC3 field at 90 percent or more. `ReadyMix`, `Shotcrete`,
+       `ConcretePaving`, `CMU`. `CementGrout`, `FlowableFill` and `OilPatch`
+       carry the field but are not specified this way in building design and are
+       left whole.
+    3. **Insulation is split by material type** from the product name and
+       description, with a fixed declared pattern list. Records naming no
+       material become an explicit "type not stated" dataset rather than being
+       dropped, because that is 131 of 335 `BoardInsulation` records.
+
+    Thickness was tested as a fourth rule and rejected: it explains the
+    `Insulation` bin's spread, but that bin is dropped by rule 1 and thickness
+    parses for only 96 of 335 board records.
+47. **2026-09-14, Stage 2a-3. Generation reopened twice more and is now closed.**
+    `[AUTHOR]` Three corpora in this stage, against a standing rule of one,
+    because the empirical arm changed twice after the first. `corpus_2026-09-14d`
+    is active: 9,999 datasets, not 10,000, because one parent failed to solve and
+    was reported rather than approximated. Notebooks 2 and 3 had still never run,
+    so nothing downstream was invalidated. **The retune is worth -0.0038 against
+    the resolved arm, marginally WORSE and inside the 0.0066 seed noise; it is
+    kept because the alternative corpus's parameters cite an arm that was
+    withdrawn.** See `reports/HANDOFF_stage-2a3.md` section 4.3.

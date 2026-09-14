@@ -1,5 +1,5 @@
 stratum,n_datasets,n_min,n_max,n_median,undefined__n,undefined__coeffvar,undefined__skewness,undefined__kurtosis,undefined__entropy,undefined__crit_bw_1,undefined__weight_outliers,undefined__fit_norm_SW,undefined__fit_lognorm_SW,undefined__w_v_uw_wasserstein
 s1_3_9,2500,3,9,5.0,0.0,0.0,0.0,0.2448,0.0,0.0,0.0,0.0,0.0,0.0
-s2_10_99,2500,10,99,30.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+s2_10_99,2499,10,99,30.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
 s3_100_999,2500,100,999,312.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
 s4_1000_9999,2500,1001,9978,3245.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

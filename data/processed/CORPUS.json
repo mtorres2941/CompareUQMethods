@@ -1,4 +1,4 @@
 {
-  "active_corpus": "corpus_2026-09-14b",
+  "active_corpus": "corpus_2026-09-14d",
   "note": "Written by src/corpus.py. The notebooks read this to find the corpus; they never regenerate."
 }

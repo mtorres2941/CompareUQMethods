@@ -67,15 +67,18 @@ PROBE = Stratum('probe_10k_100k', 10_000, 100_000, 50)
 # of values now keep more of them. A further 0.0070 of the arm sits above 9,999
 # and is covered by the probe set rather than by a stratum.
 #
-# Stage 2a-3 briefly moved these to a 142-dataset split arm and moved them back
-# when the declared-unit split was withdrawn. The arm is the 136 unsplit
-# categories; see `empirical.SPLIT`. This is a post-stratification weight and
-# NOT a generation parameter, so it moves reported aggregates only.
+# Remeasured in Stage 2a-3 on the 149-dataset arm, after the categories were
+# resolved into specifiable products: EC3 residual bins dropped, concrete split
+# by specified compressive strength, insulation by material type. The smallest
+# stratum rises from 0.0956 to 0.1342, because splitting produces smaller
+# datasets, and three datasets now sit above 9,999 rather than one. This is a
+# post-stratification weight and NOT a generation parameter, so it moves
+# reported aggregates but requires no regeneration.
 EMPIRICAL_STRATUM_SHARE = {
-    's1_3_9': 13 / 136,
-    's2_10_99': 76 / 136,
-    's3_100_999': 40 / 136,
-    's4_1000_9999': 6 / 136,
+    's1_3_9': 20 / 149,
+    's2_10_99': 79 / 149,
+    's3_100_999': 39 / 149,
+    's4_1000_9999': 8 / 149,
 }
 
 
@@ -264,17 +267,16 @@ class GeneratorConfig:
     market-weighted parent is the mixture sum_k v_k f_k. Swept."""
 
     # ---- spread, as a target rather than a side effect ---------------------
-    cv_log10_mean: float = 0.211
-    cv_log10_sd: float = 0.3536 * 2.0
+    cv_log10_mean: float = 0.129
+    cv_log10_sd: float = 0.3919 * 2.0
     cv_log10_lo: float = np.log10(0.004)
     cv_log10_hi: float = np.log10(16.0)
     """Target coefficient of variation of the population parent, drawn from a
     normal in log10 truncated to [lo, hi], and then solved for exactly.
 
     The spread comes from the empirical datasets, whose log10 coefficient of
-    variation has a standard deviation of 0.3800 on the 2026-08 arm; the value
-    used is 0.3536, measured on a split arm that was later withdrawn, and the
-    note below says why it is not reverted; it is DOUBLED here, which is what "margin beyond the empirical
+    variation has a standard deviation of 0.3919 on the 2026-08 arm once its
+    categories are resolved into specifiable products (Stage 2a-3); it is DOUBLED here, which is what "margin beyond the empirical
     envelope" means: the corpus reaches about twice as far in each direction as
     the real data do.
 
@@ -307,13 +309,18 @@ class GeneratorConfig:
         log10 standard deviation        0.2913       0.3752
         maximum                           2.40        13.40
 
-    Stage 2a-3 set the value below, 0.3536, from a SPLIT arm that was
-    subsequently withdrawn; the unsplit arm reads 0.3800. The difference is worth
-    0.0033 in the tuning objective against a seed-to-seed standard deviation of
-    0.0066, so `corpus_2026-09-14b` matches the unsplit arm within noise and is
-    NOT regenerated for it. Reverting the number would mean a third regeneration
-    to recover half a noise unit. If an agreed category split is applied later,
-    remeasure and decide once.
+    Both numbers moved together in Stage 2a-3 when the categories were resolved
+    into specifiable products, and both track the same measurement. The arm's
+    log10 centre moved from -0.1387 to -0.2207, so the centre here moves by the
+    same 0.082 and KEEPS its measured offset of 0.350 above the arm; the arm's
+    log10 standard deviation moved from 0.3800 to 0.3919.
+
+    Honest note on the gain, as for every retune in this stage. At the
+    440-dataset pre-flight scale the objective goes 0.2125 to 0.2118, and moving
+    the standard deviation WITHOUT the centre makes it worse, 0.2186. The three
+    candidates span 0.0068, about one seed-to-seed standard deviation, so the
+    pair is adopted because it is what the parameters cite, not because the
+    improvement is measurable.
 
     The upper truncation was raised from 3.2 to 16 for the same reason: at 3.2 it
     no longer bracketed the empirical maximum, so the draw was being clipped

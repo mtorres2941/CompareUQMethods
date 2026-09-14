@@ -2,29 +2,37 @@
 
 ## 0. STATUS, read this first
 
-**THE SPLIT WAS APPLIED AND THEN WITHDRAWN. THE ARM IS 136 UNSPLIT CATEGORIES.**
-`empirical.SPLIT` is False. Sections 3.1 to 3.8 below describe the split as it
-was built and are kept because the measurements in them are the evidence for
-whatever replaces it; **section 3.1a is the part a later stage should act on.**
+**THE CATEGORIES ARE RESOLVED INTO SPECIFIABLE PRODUCTS. THE ARM IS 149
+DATASETS. THE ACTIVE CORPUS IS `corpus_2026-09-14d`.**
 
-The axis was the DECLARED UNIT, and the author rejected it on review, 2026-09-14:
-"Separating by declared unit doesn't quite seem reasonable. Why is it strange
-that some aggregates might be declared per 1 kg and some per 1000 kg? That still
-might be the same material." That is correct, and this stage's own evidence
-already said so: where the split appeared to work it was because the declaration
-convention happened to CORRELATE with contamination, and the one category where
-the correlation failed, `ConcreteAdmixtures`, was flagged as "the weakest of the
-six" and kept anyway because the rule was uniform. A uniform rule on the wrong
-axis is still the wrong axis.
+This stage tried three things and the third is the one that stands. Sections 3.1
+to 3.8 are the record of the first two and are kept because their measurements
+are what ruled them out; **section 3.1c is what was actually implemented.**
 
-**What survives and is worth keeping:** the constraint (metadata only, never the
-values), the axis survey in 3.1 and 3.1a, the screen, `q1`'s verification of the
-extract, the weight rekeying of 3.5, the corpus, and the coverage finding in 4.3,
-which is the most consequential thing this stage found and is independent of the
-split.
+| attempt | axis | outcome |
+|---|---|---|
+| 1 | declared unit, screened on the coefficient of variation | **REJECTED by the author.** A declaration per kilogram against one per tonne is a declaration convention, not a different product |
+| 2 | drop the EC3 residual bins only | **INCOMPLETE.** Right for insulation and steel, but it left concrete pooled and I argued against splitting it from the wrong statistic |
+| 3 | three rules: drop residual bins, split concrete by specified strength, split insulation by material type | **IMPLEMENTED** |
 
-**What is still open:** which axis, if any. Section 3.1a gives the candidates
-with numbers and a recommendation.
+**The criterion this stage was given was dispersion, and that was wrong.** The
+author's correction, 2026-09-14: "This exercise isn't about fixing dispersion at
+all, it's separating material categories meaningfully." Splitting `ReadyMix` by
+compressive strength moves its coefficient of variation only from 0.29 to 0.27
+and is still obviously right, because 4000 psi and 5000 psi concrete are
+different products and strength is the primary characteristic a structural
+engineer specifies concrete by. A dataset here stands for one material choice in
+a probabilistic LCA, so the test is whether a category is something a specifier
+could name, not whether it is tight. **Do not reintroduce a dispersion screen.**
+
+**The constraint that did survive all three attempts:** a split may read only
+metadata carried on the EPD record or on EC3's category tree, never the ECC
+values. That is what keeps a study of modality and dispersion from arguing in a
+circle.
+
+**Also found here and independent of any of it:** the coverage claim is false and
+has been since Stage 2a-2. Section 4.3, discrepancy entry 34. It is the most
+consequential thing in this stage and it is still unowned.
 
 ## 1. Stage and branch
 
@@ -204,7 +212,66 @@ records CV 1.05, `FoamedInPlace` 16 records CV 1.68. 694 records of insulation,
 already clean, already in the arm. The 666-record parent is the bin EC3 did not
 classify, and it is the only badly behaved insulation dataset.
 
-#### The recommendation
+#### 3.1c THE RULES AS IMPLEMENTED
+
+Settled with the author on 2026-09-14. `src/categorysplit.py`; the table is
+`outputs/tables/TABLE_EmpiricalCategorySplit.csv`, written by notebook 1, and
+notebook 1 cells 10 and 11 display it.
+
+**Rule 1, drop the residual bins.** A category that is a NON-LEAF node of EC3's
+category tree holds the EPDs EC3 did not place in any of its children, so it is a
+residual bin by construction rather than a product. Where those children are
+themselves categories in this arm, the material is already represented and the
+bin is dropped. **15 dropped, 2,473 records.** `Insulation` (666, CV 7.65),
+`Steel` (576, 1.57), `CeilingPanel` (240, 1.71), `Concrete` (213),
+`Aluminium` (181), `MembraneRoofing` (168), `Cladding` (135),
+`StructuralSteel` (105), `ColdFormedSteel` (67), `Masonry` (35),
+`CementitiousMaterials` (24), `Flooring` (17), `Finishes` (15),
+`ManufacturingInputs` (13), `ThermalMoistureProtection` (4).
+
+This is what answers insulation and steel at once, with no new machinery. The
+steel children already in the arm are exactly the distinctions the author named:
+`HotRolled`, `ColdFormedSteel`, `PlateSteel`, `Hollow`, `RebarSteel`,
+`DeckingSteel`, `WireMeshSteel`, `SteelSuspensionAssembly`, `Coil`. EAF against
+BOF is NOT available: `steel_making_route_eaf` is populated on 0.01 percent of
+records.
+
+**Four parents are KEPT** because no child of theirs is in the arm, so dropping
+them would remove the material from the study: `PrecastConcrete` (546),
+`FireAndSmokeProtection` (23), `PaintingAndCoating` (19), `Openings` (12). Their
+heterogeneity is a stated limitation.
+
+**Rule 2, concrete by specified 28-day compressive strength.** `ReadyMix`,
+`Shotcrete`, `ConcretePaving`, `CMU`, split at 3000, 4000, 5000 and 6000 psi,
+which cut between the standard classes rather than through them. Records with no
+stated strength become an explicit `[strength not stated]` dataset. **23 datasets
+from 4**, one population dropped for holding 2 records. `CementGrout`,
+`FlowableFill` and `OilPatch` carry the field just as well and are NOT split:
+they are not specified by strength in building design, and the author's
+instruction was to leave the rarely specified categories alone. `CONCRETE` in
+`categorysplit.py` is the one place to change that.
+
+**Rule 3, insulation by material type.** `BoardInsulation`, `BlanketInsulation`,
+`BlownInsulation`, `FoamedInPlace`, matched against the product name and
+description with the fixed pattern list in `MATERIAL_TYPES`. **13 datasets from
+4**, 9 populations dropped below three records. The largest groups are
+`BoardInsulation [type not stated]` 131, `BlanketInsulation [mineral wool]` 185,
+`BlanketInsulation [type not stated]` 129, `BoardInsulation [mineral wool]` 78.
+
+**"Type not stated" is kept as a dataset, not dropped.** It is 131 of 335
+`BoardInsulation` records and discarding it would lose 40 percent of the
+category. The paper has to say what it is: board insulation EPDs whose name and
+description do not state a material.
+
+**Thickness was tested and rejected**, which is the "as we are able" clause
+biting. It is the axis that explains the `Insulation` BIN's dispersion, every
+parsed band landing between 0.60 and 1.56 against the bin's 7.65, but that bin is
+dropped by rule 1, and on the remaining categories a thickness parses for only 96
+of 335 board and 150 of 319 blanket records; crossed with type it leaves 8 viable
+groups covering 73 of 335. The store's own `thickness_value` is populated for
+ZERO of these records.
+
+#### The recommendation that preceded them
 
 Superseded by the measurements in 3.1b. Revised, and each item now carries the
 number that decides it:
@@ -514,32 +581,76 @@ six categories; three records are dropped for falling in bands below the
 three-value threshold. Arm 136 to 142 datasets. Envelope movement in section
 3.6.
 
-### 4.3 The corpus
+### 4.3 The corpus, and an honest account of the third regeneration
 
-`corpus_2026-09-14b` replaces `corpus_2026-09-13b` as the active corpus.
-Section 3.8 has the four-way table. Mean standardized W1 across the ten
-characteristics, both scored against the final split arm: 0.2684 to 0.2586.
+**`corpus_2026-09-14d` is the corpus Stage 2b should use**, and
+`data/processed/CORPUS.json` points at it. Seed 42, 886 s, **9,999 datasets plus
+a 50-dataset probe set, not 10,000**: one parent failed to solve under the new
+coefficient-of-variation parameters and was reported rather than approximated,
+which is decision 22 working as intended. Every earlier corpus had
+`n_failed_parent` 0.
 
-**Coverage, and it is the most important number in this stage.** The manuscript
-claims the synthetic corpus covers the empirical characteristic space and
-extends beyond it on every side. Counting empirical datasets that fall outside
-the synthetic range, over the ten characteristics:
+Three corpora were generated in this stage, which is two more than the standing
+rule allows, and the reason is that the empirical arm changed twice after the
+first: `corpus_2026-09-14b` for the withdrawn declared-unit split, and
+`corpus_2026-09-14d` for the rules that stand. Notebooks 2 and 3 had still never
+run, so nothing downstream was invalidated by any of them.
 
-| | unsplit arm (136) | split arm (142) |
+| corpus | arm | objective | mean W1 | Silverman TV | visible TV |
+|---|---|---|---|---|---|
+| `2026-09-14b` | unsplit (136) | 0.2147 | 0.2385 | 0.1909 | 0.0010 |
+| `2026-09-14b` | resolved (149) | **0.2037** | 0.2296 | 0.1367 | 0.0115 |
+| `2026-09-14c_draft1k` | resolved (149) | 0.2013 | 0.2270 | 0.1406 | 0.0056 |
+| **`2026-09-14d`** | **resolved (149)** | **0.2075** | 0.2326 | 0.1513 | 0.0128 |
+
+**The retune made the match marginally WORSE, by 0.0038 or 0.58 seed-to-seed
+standard deviations, and it is kept anyway.** That needs saying plainly rather
+than buried. `corpus_2026-09-14b` scores better against the resolved arm, but its
+`cv_log10_sd` of 0.3536 was measured on the declared-unit split arm that was
+withdrawn and no longer exists; the resolved arm reads 0.3919. A parameter whose
+cited measurement is of a discarded arm cannot be defended in the paper. The
+difference is inside noise, the parameters now cite the arm actually in use, and
+that is the whole justification.
+
+**I misread the sign of this comparison once mid-stage** and told the author the
+corpus scored 0.2257 against the resolved arm when it scored 0.2037. The
+criterion in `q3` reports an absolute movement; the split arm was scoring BETTER,
+not worse, throughout. Corrected here and in the four-way table.
+
+### 4.3a Coverage, the most important finding in this stage
+
+The manuscript claims the synthetic corpus covers the empirical characteristic
+space and extends beyond it on every side. It does not, and it has not since
+Stage 2a-2. On the 149-dataset arm against `corpus_2026-09-14d`, counting
+empirical datasets outside the synthetic range over the ten characteristics:
+**11 uncovered dataset-metric pairs of 1,490.**
+
+| characteristic | uncovered | which |
 |---|---|---|
-| `corpus_2026-09-13b` | **10** | 7 |
-| `corpus_2026-09-14b` | 13 | **9** |
+| `coeffvar` | 5 | `Aggregates`, `Chairs`, `Elevators`, `Grouting`, `PowerCabling` |
+| `fit_norm_SW` | 3 | `Aggregates`, `Grouting`, `PowerCabling` |
+| `n` | 3 | the three largest `ReadyMix` strength classes, 20,848 to 31,067 values against a corpus ceiling of 9,999 |
 
-Net for this stage, 10 to 9. The split improves coverage, because the
-categories it separates were the extreme ones; the retune costs a little,
-because narrowing `cv_log10_sd` narrows the synthetic range.
+The arm's maximum coefficient of variation is 14.34, `PowerCabling`, against a
+synthetic maximum of 2.58. Decision 29 records 100 percent coverage; it was
+measured on the Stage 2a arm, whose maximum was 2.40. Stage 2a-2 rebuilt the arm
+from raw values, the maximum became 13.40, and nothing re-checked.
 
-**But coverage was already broken before this stage, and nobody had measured
-it.** Decision 29 records 100 percent coverage on all nine characteristics, and
-that was measured on the Stage 2a arm, whose maximum coefficient of variation
-was 2.40. Stage 2a-2 rebuilt the arm from raw values and the maximum became
-13.40, while the synthetic maximum is 2.58. The claim has been false since Stage
-2a-2 and this stage is the first to check it. See section 5.
+**The cause is not the draw range**, which reaches 16. The coefficient of
+variation is a POPULATION target while the characteristic measured is the SAMPLE
+value, which runs low on a right-skewed distribution; Stage 2a-2 recorded that
+only 41.7 percent of targets are met. The `n` failures are decision 19 working as
+designed, the corpus ceiling of 9,999 with a probe set above it, and splitting
+`ReadyMix` turned one uncovered dataset into three.
+
+The five categories failing on dispersion are exactly the ones the author chose
+to leave whole as rarely specified: `Aggregates`, `Chairs`, `Elevators`,
+`Grouting`, `PowerCabling`. That is worth saying in the paper, because it means
+the coverage gap sits on categories the study already flags as not one product.
+
+Not acted on here, deliberately: it is not this stage's scope and acting on it
+would mean a fourth regeneration on a question nobody has decided. **Discrepancy
+entry 34. Unassigned. Raise it before Stage 2b runs notebook 2.**
 
 ### 4.4 Configuration
 
@@ -591,9 +702,15 @@ and re-freezing it is Stage 2b's first task. 128 tests pass.
 | Figure sizes, git history | 3, 4 | STILL OPEN, untouched |
 | `audits/stage2a/a6_empirical_source.py` refers to `mode_count_est` | - | STILL OPEN, harmless |
 | Notebooks 2 and 3 never run against the active corpus | 2b | STILL OPEN, deliberately. **Now the oldest item in the project** |
-| Some EC3 categories are not one product population | 2a-3 | **RESOLVED.** Section 3.3. Six split, `Insulation` left whole with the reason recorded |
+| Some EC3 categories are not one product population | 2a-3 | **RESOLVED.** Section 3.1c and decision 46. Three metadata rules, arm 136 to 149 |
 | Fold in a newer EC3 pull | 2a-2 | **RESOLVED.** No. Decision 44, the arm is frozen |
 | EC3 API is closed to this account | 2a-2 | **RESOLVED.** It is not. Decision 45 |
+
+| Coverage claim is false at the top of the coefficient of variation | **UNASSIGNED** | **OPEN, and it is the one item that could require reopening generation.** Section 4.3a, entry 34 |
+| A single Dirichlet realization moves per-dataset weighted metrics a long way | 2h | OPEN. Section 4.1, entry 32 |
+| Four EC3 parent categories are kept as residual bins because no child is in the arm | - | OPEN as a stated limitation: `PrecastConcrete`, `FireAndSmokeProtection`, `PaintingAndCoating`, `Openings` |
+| `CementGrout`, `FlowableFill`, `OilPatch` carry a strength field and are not split | - | OPEN by choice; one tuple in `categorysplit.CONCRETE` changes it |
+| EAF against BOF steel is not available | - | CLOSED as infeasible: `steel_making_route_eaf` is populated on 0.01 percent of records |
 
 ### New in Stage 2a-3
 

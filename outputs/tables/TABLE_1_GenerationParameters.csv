@@ -1,20 +1,20 @@
 parameter,configured,empirical_basis,synthetic_achieved
-"Number of mixture components, k","integer uniform on [1, 5]",a BIC-selected Gaussian mixture is multimodal in 86.0 pct of the empirical datasets,"1 to 5, mean 3.01"
-Average pairwise component overlap,"log-uniform on [3e-01, 1.40], solved for by moving the component locations","empirical fitted overlap: quartiles 0.0020, 0.0474 and 0.1078, 95th pct 0.2671, max 0.5956","median 0.4297, 95th pct 0.7894, max 1.0000"
-Coefficient of variation of the parent,"normal in log10 with mean 0.2110 and sd 0.7072, truncated to [0.004, 16], solved for by placing the mixture relative to zero","centred on the empirical distribution, whose log10 coefficient of variation has mean -0.1257 and sd 0.3752; the sd is DOUBLED for margin. Empirical range 0.006201 to 14.34",target met exactly in 36.1 pct; achieved 0.00423 to 1.46
-Component skewness target,"uniform on [-3.0, 8.0]","empirical dataset skewness -2.2 to 28.4, median 1.73",-3 to 4.78
-Component excess kurtosis target,"uniform on [-1.2, 60.0], lifted to the feasible boundary skewness ** 2 - 2",empirical dataset excess kurtosis -5.17 to 835,-1.16 to 60
+"Number of mixture components, k","integer uniform on [1, 5]",a BIC-selected Gaussian mixture is multimodal in 86.0 pct of the empirical datasets,"1 to 5, mean 3.02"
+Average pairwise component overlap,"log-uniform on [3e-01, 1.40], solved for by moving the component locations","empirical fitted overlap: quartiles 0.0020, 0.0474 and 0.1078, 95th pct 0.2671, max 0.5956","median 0.4370, 95th pct 0.7928, max 1.0000"
+Coefficient of variation of the parent,"normal in log10 with mean 0.1290 and sd 0.7838, truncated to [0.004, 16], solved for by placing the mixture relative to zero","centred on the empirical distribution, whose log10 coefficient of variation has mean -0.1257 and sd 0.3752; the sd is DOUBLED for margin. Empirical range 0.006201 to 14.34",target met exactly in 42.7 pct; achieved 0.00405 to 1.45
+Component skewness target,"uniform on [-3.0, 8.0]","empirical dataset skewness -2.41 to 28.4, median 1.55",-3 to 4.79
+Component excess kurtosis target,"uniform on [-1.2, 60.0], lifted to the feasible boundary skewness ** 2 - 2",empirical dataset excess kurtosis -3.63 to 835,-1.09 to 60
 Component location spread (position_skew),"locations at z ** 5.0 for z uniform on (0, 1), before the overlap solve scales them","clusters components toward the low end with the occasional far-out one. It, not the component shapes, sets the achievable coefficient of variation: uniform spacing pins it near 0.57",5.0
-"Component standard deviation, relative","log-uniform on [0.2, 2]",scale is unidentified: every dataset is divided by its own unweighted mean,0.2 to 1.99
-Component family,"Johnson SU, lognormal, beta-prime or beta, chosen by which Pearson region the moment target falls in",not a free choice: the family follows from the skewness and kurtosis target,"johnsonsu 97.3 pct, betaprime 1.8 pct, beta 0.9 pct"
+"Component standard deviation, relative","log-uniform on [0.2, 2]",scale is unidentified: every dataset is divided by its own unweighted mean,0.2 to 2
+Component family,"Johnson SU, lognormal, beta-prime or beta, chosen by which Pearson region the moment target falls in",not a free choice: the family follows from the skewness and kurtosis target,"johnsonsu 97.5 pct, betaprime 1.7 pct, beta 0.9 pct"
 "Mode sampling-share concentration, Dirichlet alpha",10.0,not measurable: the empirical mode structure is latent. Swept in Stage 2h,"largest mode share, 5th to 95th pct 0.251 to 1"
-"Mode market-share concentration, Dirichlet alpha","1.0, flat","market shares are unavailable; the flat Dirichlet is the maximum-entropy prior. Marsh, Hattam and Allen (2025) report a real top share of 63.75 pct","largest market share, 5th to 95th pct 0.349 to 1"
+"Mode market-share concentration, Dirichlet alpha","1.0, flat","market shares are unavailable; the flat Dirichlet is the maximum-entropy prior. Marsh, Hattam and Allen (2025) report a real top share of 63.75 pct","largest market share, 5th to 95th pct 0.347 to 1"
 "Point weight concentration within a mode, Dirichlet alpha","1.0, flat",the same alpha in both arms; the empirical arm previously used 5,1.0
 Mode-to-point weight coupling,1.0,"0 reproduces the old uncoupled behaviour, in which the market-weighted distribution had no population object. Swept in Stage 2h",1.0
-Truncation bounds,"max(Q1 - 3.0 * IQR, 0) and Q3 + 3.0 * IQR of the population mixture","the empirical extraction trims at the same multiple, on the sample","probability mass removed: median 0.10513, 95th pct 0.1560, max 0.2102"
-Mass allowed below zero when placing the mixture,at most 0.15,"positivity is enforced by the truncation, so this limits how far a distribution may be pushed toward the origin for spread",median 0.10513 of the parent discarded
-Dataset size n,"2,500 datasets log-uniform within each of 3-9, 10-99, 100-999, 1000-9999","empirical n runs 3 to 86,770, median 53","3 to 9,978, median 99"
-"Probe set, outside the corpus","50 datasets log-uniform on [10,000, 100,000]","1 empirical datasets exceed 9,999, the largest 86,770","50 datasets, 10,349 to 99,878"
+Truncation bounds,"max(Q1 - 3.0 * IQR, 0) and Q3 + 3.0 * IQR of the population mixture","the empirical extraction trims at the same multiple, on the sample","probability mass removed: median 0.09589, 95th pct 0.1545, max 0.2017"
+Mass allowed below zero when placing the mixture,at most 0.15,"positivity is enforced by the truncation, so this limits how far a distribution may be pushed toward the origin for spread",median 0.09589 of the parent discarded
+Dataset size n,"2,500 datasets log-uniform within each of 3-9, 10-99, 100-999, 1000-9999","empirical n runs 3 to 31,025, median 50","3 to 9,978, median 100"
+"Probe set, outside the corpus","50 datasets log-uniform on [10,000, 100,000]","3 empirical datasets exceed 9,999, the largest 31,025","50 datasets, 10,349 to 99,878"
 Components dropped for falling outside truncation,dropped below 1e-9 of their own mass inside the bounds; both weight vectors renormalized,not applicable,0 components across 0 datasets
-Moment targets redrawn as infeasible or degenerate,up to 12 redraws per component,not applicable,"23,803 redraws over 30,063 components, 0.79 per component"
+Moment targets redrawn as infeasible or degenerate,up to 12 redraws per component,not applicable,"24,071 redraws over 30,218 components, 0.80 per component"
 Random seed,42,not applicable,recorded in runmeta.json beside the corpus

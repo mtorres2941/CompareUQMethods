@@ -57,53 +57,64 @@ RAW = os.path.join(ROOT, 'data', 'raw')
 #: The frozen raw extract the analysis reads. A dated file, never overwritten.
 SOURCE = os.path.join(RAW, 'ec3_raw_ecc_2026-08-14.csv.gz')
 
-#: Whether a category that is not one product population is split into the
-#: populations its record metadata identifies.
-#:
-#: FALSE as of 2026-09-14. The Stage 2a-3 split used the DECLARED UNIT as the
-#: axis and the author rejected it: a declaration per kilogram against one per
-#: tonne is a declaration convention, not a different product. The machinery in
-#: `src/categorysplit.py` is kept and the axis question is open; see
-#: `reports/HANDOFF_stage-2a3.md` section 3.1a for what the record metadata can
-#: and cannot support. Until an axis is chosen, the arm is the 136 unsplit
-#: categories.
-SPLIT = False
+#: Whether the material categories are resolved into specifiable products:
+#: EC3 residual bins dropped, concrete split by specified compressive strength,
+#: insulation split by material type. See `src/categorysplit.py` for all three
+#: rules and the constraint that they read only metadata, never the ECC values.
+SPLIT = True
 
 DIRICHLET_ALPHA = 1.0
 CLEAN_IQR_MULT = 3.0
 MIN_N = 3
 
 
-#: Columns the split needs. All are carried on the frozen extract itself, so
-#: splitting adds no new input: `du_value` is the declared quantity already
-#: converted to the unit type's canonical unit.
-SPLIT_COLS = ['material_query', 'ecc', 'declared_unit_raw', 'du_value',
-              'du_type']
+#: The frozen record metadata the split rules read: the product name and
+#: description, the declared concrete strength, and the EC3 category path. The
+#: ECC values themselves always come from SOURCE, never from here; this file is
+#: joined on `open_xpd_uuid` and carries no ECC the analysis uses.
+METADATA = os.path.join(RAW, 'ec3_record_metadata_2026-08-14.csv.gz')
+
+#: The frozen EC3 category hierarchy. Its parent/child relation is what
+#: identifies a category that is a residual bin rather than a product.
+CATEGORY_TREE = os.path.join(RAW, 'ec3_category_tree_2026-08-14.csv')
+
+SPLIT_COLS = ['open_xpd_uuid', 'material_query', 'ecc']
+META_COLS = ['open_xpd_uuid', 'name', 'description',
+             'concrete_compressive_strength_28d_value']
+
+
+def load_records(path=SOURCE, metadata=METADATA):
+    """The raw extract, one row per EPD, uncleaned, with the split metadata."""
+    df = pd.read_csv(path, usecols=SPLIT_COLS, low_memory=False)
+    meta = pd.read_csv(metadata, usecols=META_COLS, low_memory=False)
+    out = df.merge(meta, on='open_xpd_uuid', how='left', validate='one_to_one')
+    if len(out) != len(df):
+        raise ValueError('metadata join changed the record count')
+    return out
+
+
+def category_tree(path=CATEGORY_TREE):
+    return pd.read_csv(path)
 
 
 def split_report(path=SOURCE):
-    """One row per resulting population, with the field used and the reason."""
-    return categorysplit.assign(load_records(path))[1]
-
-
-def load_records(path=SOURCE):
-    """The raw extract, one row per EPD, uncleaned."""
-    return pd.read_csv(path, usecols=SPLIT_COLS, low_memory=False)
+    """One row per resulting population, with the rule, field and reason."""
+    return categorysplit.assign(load_records(path), category_tree())[1]
 
 
 def load_raw(path=SOURCE, split=SPLIT):
     """The raw ECC values per dataset, uncleaned. Returns (values, split_report).
 
-    With `split=True` a category that the Stage 2a-3 screen selects and that its
-    record metadata separates is returned as several datasets, named
-    `Category [1000 kg]` after the declared unit. See `src/categorysplit.py`.
+    With `split=True` the categories are resolved into specifiable products:
+    EC3 residual bins are dropped, concrete is split by specified compressive
+    strength and insulation by material type. See `src/categorysplit.py`.
     """
     df = load_records(path)
     if not split:
         return ({mat: g.ecc.to_numpy(float)
                  for mat, g in df.groupby('material_query', sort=True)},
                 pd.DataFrame())
-    labels, report = categorysplit.assign(df)
+    labels, report = categorysplit.assign(df, category_tree())
     df = df.assign(dataset=labels).dropna(subset=['dataset'])
     return ({ds: g.ecc.to_numpy(float)
              for ds, g in df.groupby('dataset', sort=True)}, report)
