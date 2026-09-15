@@ -218,3 +218,27 @@ def test_within_weighting_ranks_compare_only_the_estimation_methods():
         assert sorted(g.w1_rank_within) == [1.0, 2.0, 3.0]
     # The six-way rank is still available and still runs 1 to 6.
     assert C.add_ranks(scores, 'w1').w1_rank.between(1, 6).all()
+
+
+def test_relative_score_keeps_the_size_of_the_gap_that_a_rank_discards():
+    """Two datasets with identical RANKS and very different separations.
+
+    The relative column must tell them apart; the rank cannot. This is the
+    defect it exists to fix: at n < 10 the three estimation methods differ by a
+    median of 21 percent and a mean-rank curve implies a separation that is not
+    there.
+    """
+    scores = pd.DataFrame({
+        'arm': ['e'] * 6,
+        'dataset': ['tight'] * 3 + ['wide'] * 3,
+        'method': ['KDE, Variable', 'Lognormal, Variable', 'Normal, Variable'] * 2,
+        'w1': [0.100, 0.101, 0.102, 0.100, 0.500, 0.900],
+    })
+    out = C.add_relative(C.add_ranks(scores, 'w1'), 'w1')
+    tight = out[out.dataset == 'tight']
+    wide = out[out.dataset == 'wide']
+    assert sorted(tight.w1_rank) == sorted(wide.w1_rank), 'ranks are identical'
+    assert tight.w1_relative.max() - tight.w1_relative.min() < 0.05
+    assert wide.w1_relative.max() - wide.w1_relative.min() > 1.0
+    # A method that scores the average of the methods sits at exactly 1.0.
+    assert out.groupby('dataset').w1_relative.mean().eq(1.0).all()

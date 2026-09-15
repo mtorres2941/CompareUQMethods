@@ -864,6 +864,46 @@ this floor by sqrt(K) and is already its job (entry 32). **Stage 2c should score
 the synthetic arm against `MixtureParent.cdf(scheme='market')`, which has no
 draw noise at all** -- that is the clean fix and a further argument for doing it.
 
+### 4.15 Rank was the wrong readout at small n, and the figure now says so
+
+The author pressed on "the KDE is last below n = 10" a third time. Two answers.
+
+**What is it scored against?** The weighted empirical CDF of the data itself.
+Always, for all six methods, both arms, in sample and held out. **Nothing in
+Stage 2b is scored against the parent** -- that is Stage 2c's task and has not
+been run. So the small-n ordering is not an artifact of an inapplicable
+reference, which is what the author was checking.
+
+**Then why is it there?** It is real, it is stable across weight draws, and it
+is negligible. The median relative gap between the best and worst of the three
+estimation methods is **0.21 at n = 3-9** against **7.21 at n >= 1000**. Mean W1
+over the mean across methods, empirical arm:
+
+| band | KDE, Var | Lognormal, Var | Normal, Var |
+|---|---|---|---|
+| n 3-9 | 0.907 | 0.864 | **0.842** |
+| n 10-99 | 0.782 | **0.714** | 1.162 |
+| n 100-999 | **0.407** | 0.687 | 1.715 |
+| n >= 1000 | **0.256** | 0.820 | 1.885 |
+
+At n = 3-9 the three sit within about 8 percent of each other. **A mean-rank
+curve turns an 8 percent gap and a sevenfold gap into the same picture**, which
+is what made the small-n panel look alarming. Two further facts make the band
+almost vacuous: at n = 3-9 the profile lognormal is at its NORMAL LIMIT in 40
+percent of fits and at its guard in another 40, so two of the three methods are
+frequently the same object; and the weight-draw noise floor in that band is 0.21
+(section 4.14), the same size as the entire spread between methods.
+
+**Fixed in the figure, not just in the text.** `comparison.add_relative` adds
+`w1_relative`, and `CompareUQMethods_FIG_RankVsDatasetSize.png` now has three
+rows: rank in sample, SIZE OF THE GAP in sample, rank held out. The middle row
+is the one that answers this question, and it should be the one the paper uses.
+`tests/test_comparison.py` pins the property that motivates it: two datasets
+with identical ranks and very different separations must be distinguishable.
+
+**The rule this leaves for the text:** do not state a winner below about
+n = 100 without the relative figure beside it.
+
 ## 8. The stage's own assessment
 
 The reference point is `reports/HANDOFF_stage-0.md` section 8, which is not

@@ -658,3 +658,35 @@ set covers above it.
 | **And it changes how the headline should be stated** | `KDE, Variable` and `Lognormal, Variable` are within the draw noise of each other on MEAN RANK on the empirical arm -- 2.243 against 2.353 averaged over five realizations, and the lognormal edges ahead in one of the five. On WIN SHARE the KDE leads in every realization, 39 to 45 percent of datasets against 25 to 31 percent. **State the empirical result as a win share, not as a mean rank.** |
 | **Fix** | **Text and analysis.** Text: state the KDE claim as size-conditioned and as a win share; state the over-dispersion as the mechanism, because it is the honest reason a KDE needs data and it strengthens rather than weakens the account. Analysis: **Stage 2h should average over weight realizations**, which cuts this floor by sqrt(K), and **Stage 2c should score the synthetic arm against `scheme='market'`**, which has NO draw noise at all and is the clean fix. |
 | **Status** | Measured. Text owes the restatement; 2h and 2c own the analysis. |
+
+**A FOURTH POINT, and it is a defect in the READOUT rather than in the analysis.**
+The author pressed on the n < 10 result a third time and was right to. Scored --
+always, and this is worth stating because it was asked twice -- **against the
+weighted empirical CDF of the data itself, never against the parent**. So the
+small-n ranking is not an artifact of an inapplicable reference.
+
+What it IS: a real but negligible ordering, reported through a readout that
+hides how small it is. The median relative gap between the best and worst of the
+three estimation methods on the empirical arm is **0.21 at n = 3-9** and **7.21
+at n >= 1000**. A rank turns both into "1, 2, 3". Mean W1 divided by the mean
+across methods, empirical arm:
+
+| band | KDE, Var | Lognormal, Var | Normal, Var |
+|---|---|---|---|
+| n 3-9 | 0.907 | 0.864 | **0.842** |
+| n 10-99 | 0.782 | **0.714** | 1.162 |
+| n 100-999 | **0.407** | 0.687 | 1.715 |
+| n >= 1000 | **0.256** | 0.820 | 1.885 |
+
+At n = 3-9 all three sit between 0.84 and 0.91 of the dataset mean: **they are
+the same to within about 8 percent, and calling one of them "last" is reporting
+noise-scale structure as a result.** At n >= 1000 the KDE is at 0.256 against the
+normal's 1.885, a factor of seven. The mechanism behind the small-n ordering is
+still the over-dispersion above -- and at n = 3-9 the profile lognormal is AT its
+normal limit in 40 percent of fits and at its guard in another 40, so two of the
+three "methods" are the same object there.
+
+**Fix, done:** `comparison.add_relative` and a second row in
+`CompareUQMethods_FIG_RankVsDatasetSize.png` showing the size of the gap beside
+the rank. **The text must not state a winner below about n = 100 without the
+relative figure beside it.**
