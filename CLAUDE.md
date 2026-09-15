@@ -197,10 +197,21 @@ between them, and the following rules are binding:
 - **Never silently reverse an earlier stage's decision.** If a later stage
   finds an earlier decision wrong, say so explicitly in the handoff, name the
   stage and the decision, and state what changed.
-- The baseline assessments in `reports/HANDOFF_stage-0.md` section 8 are the
-  reference point for any later before-and-after comparison of code quality or
-  analysis quality. Do not edit them; later stages record their own assessment
-  in their own handoff.
+
+**Only the CURRENT stage's handoff is kept.** The handoffs for stages 0 through
+2a-3 were deleted on 2026-09-15, by the author's decision: this repository is
+published alongside the paper and a reader has no use for the editing process
+that produced it. What survives a stage is the decision log in this file, which
+carries every decision with its reason and its date, and the discrepancy file.
+Git history retains the deleted handoffs, so nothing is unrecoverable; they are
+simply not part of the deposit.
+
+This does not relax the first rule above. An open item still may not live only
+in a conversation: when a stage closes, its unresolved items move into the
+DECISION LOG or into `reports/MANUSCRIPT_discrepancies.md`, not into a file
+that is about to be deleted. The old "carried forward" list is replaced by that
+requirement, because a chain of handoffs that no longer exists cannot carry
+anything.
 
 ---
 
