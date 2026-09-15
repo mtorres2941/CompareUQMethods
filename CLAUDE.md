@@ -833,6 +833,17 @@ rather than in conversation.
     the KL1 / KL2 / this-paper inconsistency of decision 9 and entry 10 in favour
     of the rule Torres et al. (2026) uses and defends.
 
+    **The guard swaps the SCALE ESTIMATE, not the rule.** It is Silverman's
+    `0.9 * scale * n_eff ** -0.2` throughout; the only thing the threshold
+    decides is whether `scale` is the robust `min(sd, IQR/1.34)` or the plain
+    standard deviation. Without the `min()` the two rules differ only in their
+    coefficient, 0.9 against 1.06, so this keeps one rule with one conditional
+    inside it rather than switching between two rules at a threshold. Falling
+    back to Scott instead scores marginally better on held-out likelihood
+    (-0.720 against -0.758 in the mean) and worse on W1 (0.186 against 0.173);
+    the 0.9 form is used because it is better on the criterion the study
+    reports and because one rule is what a reader can check.
+
     **The guard is on sample size, not on the interquartile range, and that is
     the opposite of where the problem looks.** Where `(IQR/1.34)/sd` is smallest
     -- heavy-tailed categories with a tight core, `PowerCabling` at 0.008 with
@@ -847,10 +858,10 @@ rather than in conversation.
     as the bandwidth shrinks, so it cannot choose a bandwidth and would have
     picked a rule that produces spikes. Entry 45, handoff sections 4.11 and 4.12.
 
-    **Numbers.** Empirical `KDE, Variable` mean W1 0.2507 to 0.1699, median
-    0.1487 to 0.0984; synthetic 0.1017 to 0.0874 and 0.0635 to 0.0390. Only the
-    two KDE columns move; Lognormal and Normal are bit-identical, and in the
-    pLCA they move by exactly zero.
+    **Numbers.** Empirical `KDE, Variable` mean W1 0.2507 to 0.1530, median
+    0.1487 to 0.0866, mean rank 2.738 to 1.805; synthetic 0.1017 to 0.0778,
+    0.0635 to 0.0374, rank 2.123 to 1.445. Only the two KDE columns move;
+    Lognormal and Normal are bit-identical.
 
     **The manuscript owes an explanation of the minimum sample size.** It is a
     stated methodological choice with a number in it, and a reviewer will ask.

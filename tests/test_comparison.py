@@ -242,3 +242,23 @@ def test_relative_score_keeps_the_size_of_the_gap_that_a_rank_discards():
     assert wide.w1_relative.max() - wide.w1_relative.min() > 1.0
     # A method that scores the average of the methods sits at exactly 1.0.
     assert out.groupby('dataset').w1_relative.mean().eq(1.0).all()
+
+
+def test_point_style_keeps_both_arms_legible():
+    """A fixed alpha cannot serve 149 points and 9,999 at once."""
+    a_small, s_small = C.point_style(149)
+    a_big, s_big = C.point_style(9999)
+    assert a_small > a_big and s_small > s_big
+    for n in (3, 149, 9999, 10 ** 6):
+        a, s = C.point_style(n)
+        assert 0.0 < a <= 1.0 and s > 0
+
+
+def test_x_scale_is_chosen_by_characteristic_not_by_arm():
+    """Both arms must draw the same panel the same way to be comparable."""
+    emp = np.array([3.0, 50.0, 31025.0])
+    syn = np.array([3.0, 100.0, 9978.0])
+    assert C.x_scale_for('n', emp)[0] == C.x_scale_for('n', syn)[0] == 'log'
+    assert C.x_scale_for('entropy', emp)[0] == 'linear'
+    scale, linthresh = C.x_scale_for('kurtosis', np.array([-3.6, 0.5, 835.0]))
+    assert scale == 'symlog' and linthresh > 0

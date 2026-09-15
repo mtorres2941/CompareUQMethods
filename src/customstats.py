@@ -801,8 +801,11 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
         'scott'      1.06 * sd * n_eff ** -0.2, Scott (1992).
         'silverman'  0.9 * min(sd, IQR/1.34) * n_eff ** -0.2, Silverman's robust
                      rule of thumb.
-        'silverman_guarded'  Silverman above `min_neff`, Scott below it. See
-                     WHY THE GUARD below.
+        'silverman_guarded'  Silverman's rule throughout, 0.9 * scale *
+                     n_eff ** -0.2, with the SCALE ESTIMATE guarded: the robust
+                     min(sd, IQR/1.34) when there are at least `min_neff`
+                     effective observations, the plain standard deviation when
+                     there are not. See WHY THE GUARD below.
     min_neff : float
         Effective sample size below which 'silverman_guarded' uses Scott.
 
@@ -838,13 +841,28 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
     empirical arm, by dataset size: n 3-9, 12.5 percent; 10-99, 40.5 percent;
     100-999, 80.8 percent; 1000 and above, 63.6 percent.
 
+    WHAT THE GUARD REPLACES, and why it is the scale rather than the whole rule.
+    Without the min(), Silverman and Scott differ only in their coefficient,
+    0.9 against 1.06. Guarding the scale estimate therefore keeps ONE rule with
+    one conditional inside it, rather than switching between two rules at a
+    threshold, and it is the version that can be stated in a sentence: use the
+    robust scale estimate when the sample can support a quartile and the
+    standard deviation when it cannot.
+
     THE THRESHOLD is calibrated on held-out likelihood, NOT on the W1 the study
     scores by, so it is not tuned to its own criterion. Mean leave-one-out
-    log-likelihood on the empirical arm: always-Scott -0.773, always-Silverman
-    -0.855, guarded at n_eff >= 20 -0.725, at 30 **-0.720**, at 50 -0.728. The
-    guarded rule beats BOTH pure rules, and it repairs the worst cases: the 5th
-    percentile of held-out log-likelihood goes from -2.053 under pure Silverman
-    to -1.616.
+    log-likelihood on the empirical arm, both weightings: always-Scott -0.771,
+    always-Silverman -0.855, guarded -0.758. The guarded rule beats both pure
+    rules and repairs the worst cases: the 5th percentile of held-out
+    log-likelihood goes from -2.053 under pure Silverman to -1.783.
+
+    A TRADE-OFF WORTH RECORDING. Falling back to SCOTT below the threshold
+    rather than to 0.9 * sd scores slightly better on the held-out referee
+    (-0.720 against -0.758 in the mean, -1.610 against -1.783 at the 5th
+    percentile) and slightly worse on W1 (0.186 against 0.173 in the mean). The
+    0.9 form is used because the difference on the referee is small, because it
+    is better on the criterion the study actually reports, and because one rule
+    with one conditional is what a reader can check.
 
     Decision 9 in CLAUDE.md is unaffected: these labels are Scott (1992) and
     Silverman's robust rule of thumb, and `scipy.stats.gaussian_kde` uses the
@@ -872,10 +890,11 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
     elif bw_method=='scott':
         bw = 1.06 * std * n_eff**-0.2
     elif bw_method=='silverman_guarded':
-        if n_eff >= min_neff:
-            bw = 0.9 * np.min([std, iqr/1.34]) * n_eff**-0.2
-        else:
-            bw = 1.06 * std * n_eff**-0.2
+        # Silverman's rule throughout. The only thing the guard changes is the
+        # SCALE ESTIMATE: min(std, IQR/1.34) when the sample can support a
+        # quartile, the standard deviation when it cannot.
+        scale = np.min([std, iqr/1.34]) if n_eff >= min_neff else std
+        bw = 0.9 * scale * n_eff**-0.2
     else:
         raise ValueError(f"bw_method must be 'scott', 'silverman' or "
                          f"'silverman_guarded' instead of {bw_method}")

@@ -294,3 +294,40 @@ def bandwidth_comparison(datasets, arm, rules=('scott', 'silverman',
                     mass_below_zero=m.mass_below,
                     model_sd_ratio=model_sd_ratio(m, x, w)))
     return pd.DataFrame(rows)
+
+
+#: Characteristics whose values span orders of magnitude, so a linear x-axis
+#: puts almost every dataset in the leftmost sliver of the panel.
+LOG_X_CHARACTERISTICS = ('n', 'coeffvar', 'crit_bw_1')
+#: Characteristics that take both signs and so need a symmetric log axis.
+SYMLOG_X_CHARACTERISTICS = ('kurtosis', 'skewness')
+
+
+def point_style(n_points, alpha_budget=60.0, size_budget=900.0,
+                alpha_range=(0.03, 0.55), size_range=(1.0, 14.0)):
+    """Marker alpha and size for a scatter of `n_points`, so both arms read.
+
+    A fixed alpha that works for 149 points is invisible at 9,999 and a fixed
+    alpha that works for 9,999 hides the curve at 149. Both are set so that the
+    total ink is roughly constant, then clipped to a range that stays legible.
+    """
+    alpha = float(np.clip(alpha_budget / max(n_points, 1), *alpha_range))
+    size = float(np.clip(size_budget / max(n_points, 1), *size_range))
+    return alpha, size
+
+
+def x_scale_for(characteristic, values):
+    """('linear' | 'log' | 'symlog', linthresh) for one characteristic.
+
+    Chosen from the characteristic rather than from the data, so the same panel
+    is drawn the same way on both arms and the two figures can be laid side by
+    side.
+    """
+    v = np.asarray(values, float)
+    v = v[np.isfinite(v)]
+    if characteristic in LOG_X_CHARACTERISTICS and len(v) and v.min() > 0:
+        return 'log', None
+    if characteristic in SYMLOG_X_CHARACTERISTICS and len(v):
+        pos = np.abs(v[v != 0])
+        return 'symlog', (float(np.percentile(pos, 10)) if len(pos) else 1.0)
+    return 'linear', None

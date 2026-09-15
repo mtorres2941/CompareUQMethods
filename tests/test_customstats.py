@@ -225,15 +225,25 @@ def test_weighted_ecdf_steps():
 # ---------------------------------------------------------------------------
 # Stage 2b: the guarded Silverman bandwidth
 # ---------------------------------------------------------------------------
-def test_silverman_guarded_falls_back_to_scott_below_the_threshold():
-    """Small samples get Scott, large ones get Silverman, and nothing else."""
-    from customstats import SILVERMAN_MIN_NEFF, weighted_bw
+def test_silverman_guarded_swaps_the_scale_estimate_not_the_rule():
+    """One rule throughout: 0.9 * scale * n_eff ** -0.2.
+
+    Below the threshold the scale is the standard deviation; at or above it the
+    scale is the robust min(sd, IQR/1.34). The coefficient never changes, which
+    is what makes this a guarded Silverman rather than a switch between two
+    different rules.
+    """
+    from customstats import SILVERMAN_MIN_NEFF, weighted_bw, weighted_std
 
     rng = np.random.default_rng(0)
     for n in (3, 5, 12, 29):
         x = rng.lognormal(0.0, 0.7, n)
         w = np.ones(n) / n
-        assert weighted_bw(x, w, 'silverman_guarded') == weighted_bw(x, w, 'scott')
+        n_eff = 1.0 / np.sum((w / w.sum()) ** 2)
+        expected = 0.9 * weighted_std(x, w) * n_eff ** -0.2
+        assert weighted_bw(x, w, 'silverman_guarded') == pytest.approx(expected)
+        # and it is NOT Scott, which carries 1.06 rather than 0.9
+        assert weighted_bw(x, w, 'silverman_guarded') < weighted_bw(x, w, 'scott')
     for n in (int(SILVERMAN_MIN_NEFF), 60, 400):
         x = rng.lognormal(0.0, 0.7, n)
         w = np.ones(n) / n
@@ -249,15 +259,17 @@ def test_silverman_guarded_uses_effective_sample_size_not_raw_n():
     size, so the guard has to use the same quantity or it would trust quartiles
     that rest on three effective observations.
     """
-    from customstats import weighted_bw
+    from customstats import weighted_bw, weighted_std
 
     rng = np.random.default_rng(1)
     x = rng.lognormal(0.0, 0.7, 200)
     w = np.full(200, 1e-9)
     w[:4] = 0.25                      # n_eff is about 4 despite n = 200
     w = w / w.sum()
-    assert 1.0 / np.sum(w ** 2) < 10
-    assert weighted_bw(x, w, 'silverman_guarded') == weighted_bw(x, w, 'scott')
+    n_eff = 1.0 / np.sum(w ** 2)
+    assert n_eff < 10
+    assert weighted_bw(x, w, 'silverman_guarded') == pytest.approx(
+        0.9 * weighted_std(x, w) * n_eff ** -0.2)
 
 
 def test_silverman_guarded_never_collapses_the_bandwidth_at_small_n():

@@ -138,10 +138,11 @@ likelihood cross-validation for that; `audits/stage2b/r9_bandwidth.py` has it.
 `(IQR/1.34)/sd` is smallest -- heavy-tailed categories with a tight core -- it
 beats Scott on held-out likelihood every time, and flooring the robust scale
 makes things worse. Where it fails is n = 3 to 10, because the quartiles are
-interpolated between two order statistics. `'silverman_guarded'` uses Silverman
-above `SILVERMAN_MIN_NEFF = 30` effective observations and Scott below it, beats
-both pure rules on held-out likelihood, and repairs the worst cases.
-Discrepancy entry 45. **Stage 2h owns the decision to switch.**
+interpolated between two order statistics. `'silverman_guarded'` is Silverman's
+rule throughout, `0.9 * scale * n_eff ** -0.2`, with the SCALE ESTIMATE guarded:
+the robust `min(sd, IQR/1.34)` at or above `SILVERMAN_MIN_NEFF = 30` effective
+observations, the plain standard deviation below it. It beats both pure rules on
+held-out likelihood and repairs the worst cases.
 
 ### Three scores per fit, and why one is not enough
 
@@ -273,7 +274,7 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 notebooks print it, so the remainder is stated rather than inferred.
 
 Approximate runtimes on a 2026 laptop, all three notebooks, after the Stage 1
-optimizations: NB1 about 80 s, NB2 about 160 s, NB3 about 19 min at `neccs = 10000`.
+optimizations: NB1 about 80 s, NB2 about 14 min, NB3 about 18 min at `neccs = 10000`.
 All three roughly doubled in Stage 2b, because stratum 4 now reaches n = 9,996
 where the pre-regeneration corpus stopped at 749.
 
