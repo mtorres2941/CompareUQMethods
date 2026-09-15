@@ -798,6 +798,72 @@ the difference between the KDE and the lognormal into the bottom fifth of each
 panel. A log y-axis, or dropping the normal to a separate panel, would fix it.
 Not done, because which is better is a presentation choice.
 
+### 4.14 Two results the author refused, and why both refusals were right
+
+The author rejected two Stage 2b readings on sniff-test grounds. Both were
+correct to reject, and chasing them produced the most useful mechanism in the
+stage. `audits/stage2b/r10_small_n_and_weight_noise.py`, discrepancy entry 47.
+
+**"KDE converges to normal, so how would a normal ever beat it?"**
+
+It does not converge to the normal you would want. A Gaussian KDE is the data
+convolved with a kernel, so its variance is the data's PLUS `h^2`: it converges
+to `N(mean, sd^2 + h^2)`. With `h = 1.06 * sd * n_eff ** -0.2` the standard
+deviation is inflated **1.31x at n = 3, 1.20x at n = 10**, 1.085x at 100 and
+1.014x at 10,000, while the normal fit matches the standard deviation exactly.
+The measured `model_sd_ratio` tracks that to a percent or two: 1.201 at n = 3-9,
+1.103 at 10-99, 1.042 at 100-999, 1.015 above 1,000. **At small n the KDE is a
+systematically over-dispersed model and W1 charges it for that.** It is the
+bias-variance property of rule-of-thumb bandwidths, and it is the honest reason
+a KDE needs data.
+
+**A correction to how section 4.13 stated the result.** Ranked like for like,
+among the three ESTIMATION methods within variable weighting, **in sample the
+KDE is SECOND at n = 10-99, not last** (lognormal 1.46, KDE 1.81, normal 2.73).
+It is last only below n = 10. The held-out band at n = 10-99 puts the normal
+ahead, but **a held-out fit uses HALF the values**, so that band measures a KDE
+at n = 5 to 50 -- exactly where the over-dispersion is worst. The held-out
+small-n penalty is partly an artifact of halving n and it falls hardest on the
+method most sensitive to n.
+
+**"The values are pulled from a parent as though they're uniform, then fit with
+Dirichlet weights, so the weighted dataset doesn't align with the parent."**
+
+Half right, in the half that matters. `genconfig.mode_coupling = 1.0`, so market
+share attaches at the MODE level (decision 21) and the parent has a
+market-weighted version: on the synthetic arm the weighted data IS a sample from
+a real population. But the weights WITHIN a mode are a flat Dirichlet, and on
+the EMPIRICAL arm they are a flat Dirichlet throughout with no market
+information at all.
+
+**So the scoring target carries a noise floor, and nobody had measured it.** W1
+between the same values under two independent Dirichlet draws, empirical arm,
+median by band:
+
+| n 3-9 | n 10-99 | n 100-999 | n >= 1000 | overall |
+|---|---|---|---|---|
+| 0.2100 | 0.1499 | 0.0784 | 0.0061 | **0.1344** |
+
+against the best method's median W1 of **0.0984**. **The target's own noise is
+larger than the best method's score.**
+
+**What survives and what does not.** The aggregate survives: over five
+independent weight realizations the mean ranks move by at most 0.12 and places
+three to six never change. What does not survive is **size-banded claims below
+about n = 100**, where the floor of 0.15 exceeds the gaps between methods.
+
+**And it changes how the headline should be stated.** `KDE, Variable` and
+`Lognormal, Variable` are within the draw noise of each other on MEAN RANK on
+the empirical arm -- 2.243 against 2.353 over five realizations, with the
+lognormal ahead in one of five. On WIN SHARE the KDE leads in every realization,
+39 to 45 percent against 25 to 31 percent. **State the empirical result as a win
+share, not as a mean rank.**
+
+**Two handoffs.** Stage 2h should average over weight realizations, which cuts
+this floor by sqrt(K) and is already its job (entry 32). **Stage 2c should score
+the synthetic arm against `MixtureParent.cdf(scheme='market')`, which has no
+draw noise at all** -- that is the clean fix and a further argument for doing it.
+
 ## 8. The stage's own assessment
 
 The reference point is `reports/HANDOFF_stage-0.md` section 8, which is not
