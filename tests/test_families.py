@@ -116,6 +116,22 @@ def test_truncation_refuses_a_parent_with_no_admissible_mass():
 # ---------------------------------------------------------------------------
 # the KDE, as a distribution rather than a density plus a resampler
 # ---------------------------------------------------------------------------
+@pytest.mark.parametrize('n', [5, 50, 500, 3000])
+def test_weighted_kde_tabulation_matches_the_direct_kernel_sums(n):
+    """pdf, cdf and ppf all read one binned tabulation. It must match the sums.
+
+    Evaluating a kernel sum directly costs O(len(q) * n), and the analysis does
+    it on a 1,000-point grid for every dataset on both weighting schemes, with
+    datasets up to 9,996 values. The tabulation costs O(n + G log G) once.
+    """
+    x, w = sample('lognormal', n, 70 + n)
+    k = F.WeightedKDE(x, w, FT.weighted_bw(x, w, bw_method=FT.BW_METHOD))
+    q = np.linspace(1e-3, float(x.max()) * 2.0, 997)
+    assert np.max(np.abs(k.pdf(q) - k.pdf_exact(q))) < 1e-5
+    assert np.max(np.abs(k.cdf(q) - k.cdf_exact(q))) < 1e-5
+    assert np.all(np.diff(k.cdf(q)) >= -1e-12)
+
+
 def test_weighted_kde_density_matches_scipy():
     x, w = sample('lognormal', 300, 17)
     bw = FT.weighted_bw(x, w, bw_method=FT.BW_METHOD)
@@ -123,7 +139,10 @@ def test_weighted_kde_density_matches_scipy():
     ref = gaussian_kde(x, bw_method=1.0, weights=w)
     ref.set_bandwidth(bw / (ref.covariance ** 0.5)[0][0])
     q = np.linspace(0.01, 4.0, 97)
-    assert np.allclose(mine.pdf(q), ref.pdf(q), rtol=1e-10, atol=0)
+    # The direct sum is the definition and must match scipy exactly; the
+    # tabulated `pdf` matches it to interpolation accuracy.
+    assert np.allclose(mine.pdf_exact(q), ref.pdf(q), rtol=1e-10, atol=0)
+    assert np.allclose(mine.pdf(q), ref.pdf(q), atol=1e-5)
 
 
 @pytest.mark.parametrize('n', [5, 50, 500, 3000])
@@ -151,8 +170,8 @@ def test_weighted_kde_cdf_is_the_integral_of_its_own_density():
     k = F.WeightedKDE(x, w, FT.weighted_bw(x, w, bw_method=FT.BW_METHOD))
     g = np.linspace(-2.0, 8.0, 200_001)
     num = np.concatenate([[0.0], np.cumsum(
-        0.5 * (k.pdf(g)[1:] + k.pdf(g)[:-1]) * np.diff(g))])
-    assert np.allclose(num, k.cdf(g), atol=1e-6)
+        0.5 * (k.pdf_exact(g)[1:] + k.pdf_exact(g)[:-1]) * np.diff(g))])
+    assert np.allclose(num, k.cdf_exact(g), atol=1e-6)
 
 
 # ---------------------------------------------------------------------------

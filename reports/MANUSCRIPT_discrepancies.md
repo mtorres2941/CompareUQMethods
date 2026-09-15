@@ -690,3 +690,16 @@ three "methods" are the same object there.
 `CompareUQMethods_FIG_RankVsDatasetSize.png` showing the size of the gap beside
 the rank. **The text must not state a winner below about n = 100 without the
 relative figure beside it.**
+
+## 48. One synthetic dataset is missing because a rejected draw was treated as a failure
+
+| | |
+|---|---|
+| **Manuscript** | States 10,000 synthetic datasets, 2,500 in each of four size strata. |
+| **What is there** | **9,999**, with the second stratum holding 2,499. `dataset4647`, n = 16, was never written. |
+| **Why, reproduced exactly** | Replaying generation from the corpus seed: the draw failed with `component_targets_exhausted`, and all twelve component-solve attempts returned `unbounded_density` -- the moment targets drawn for one mixture component could only be met by a J-shaped beta or beta-prime, which is refused because such a component has infinite density at an endpoint and is drawn as a spike. |
+| **THE DEFECT** | `generator.generate_dataset` retries a failed parent draw up to twenty times, but only when the status is `mode_too_narrow`. Any other status breaks out immediately, under a comment reading "a real failure, not a rejected draw: do not retry". **`component_targets_exhausted` IS a rejected draw**: the targets are themselves random, and drawing new ones would almost certainly have succeeded. `corpus.generate_corpus` then skips the slot rather than refilling it, and the failure REASON is recorded nowhere -- `runmeta.json` carries the count and `invalid_datasets.json` stays empty. |
+| **What it is not** | It is not the principle that a target which cannot be met is reported rather than approximated. That principle is about not fudging a target; it does not require abandoning the slot. |
+| **Fix** | **Code, one line**: retry on `component_targets_exhausted` as well, and record the reason for any slot that is finally abandoned. The corpus would then hold exactly 10,000 and the pLCA would divide by four, which removes the three held-out datasets of entry 39 as well. |
+| **Cost** | **It requires regenerating the corpus**, which moves every downstream number. That is an author decision; generation is otherwise settled. |
+| **Status** | Diagnosed, not fixed. Awaiting a decision on whether to regenerate. |

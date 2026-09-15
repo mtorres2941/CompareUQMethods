@@ -331,3 +331,45 @@ def x_scale_for(characteristic, values):
         pos = np.abs(v[v != 0])
         return 'symlog', (float(np.percentile(pos, 10)) if len(pos) else 1.0)
     return 'linear', None
+
+
+def win_share_by_percentile(scores, characteristics, value='w1',
+                            frac=CURVE_WINDOW_FRAC):
+    """How often each method wins, against the PERCENTILE of a characteristic.
+
+    A rolling mean plotted against a characteristic's VALUE gives the sparse end
+    of a skewed characteristic as much axis as the dense middle, so a handful of
+    datasets can set the shape of a whole panel. Ranking the datasets and
+    plotting against percentile gives every dataset equal width.
+
+    A share also answers a question a mean cannot: not "which method is lower on
+    average" but "for datasets like this, how often is each one best". Its
+    uncertainty is the binomial one, about 0.5 / sqrt(window), which is reported
+    beside it rather than left implicit.
+
+    Returns one tidy row per (arm, characteristic, method, dataset) with the
+    percentile, the characteristic's value there, and the rolling win share.
+    """
+    out = []
+    for arm, g in scores.groupby('arm'):
+        wide = g.pivot_table(index='dataset', columns='method', values=value)
+        winner = wide.idxmin(axis=1)
+        window = curve_window(len(winner), frac)
+        for metric in characteristics.columns:
+            v = characteristics[metric].reindex(winner.index)
+            d = pd.DataFrame({'winner': winner, 'x': v})
+            d = d[np.isfinite(d.x)].sort_values('x')
+            if len(d) < 3:
+                continue
+            pct = np.linspace(0.0, 100.0, len(d))
+            for method in wide.columns:
+                share = ((d.winner == method).astype(float)
+                         .rolling(window, min_periods=1, center=True).mean())
+                out.append(pd.DataFrame(dict(
+                    arm=arm, characteristic=metric, method=method,
+                    dataset=d.index, percentile=pct, x=d.x.values,
+                    win_share=share.values, window=window)))
+    return (pd.concat(out, ignore_index=True) if out
+            else pd.DataFrame(columns=['arm', 'characteristic', 'method',
+                                       'dataset', 'percentile', 'x',
+                                       'win_share', 'window']))

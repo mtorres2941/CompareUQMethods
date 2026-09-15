@@ -262,3 +262,20 @@ def test_x_scale_is_chosen_by_characteristic_not_by_arm():
     assert C.x_scale_for('entropy', emp)[0] == 'linear'
     scale, linthresh = C.x_scale_for('kurtosis', np.array([-3.6, 0.5, 835.0]))
     assert scale == 'symlog' and linthresh > 0
+
+
+def test_win_share_sums_to_one_across_methods():
+    """Every dataset is won by exactly one method, so the bands stack to 1."""
+    rng = np.random.default_rng(7)
+    ds = {f'd{i}': dataset(40, 80 + i) for i in range(20)}
+    scores = C.score_methods(ds, rng, 'test', heldout=False)
+    chars = pd.DataFrame({'n': {k: len(v[0]) for k, v in ds.items()},
+                          'spread': {k: float(v[0].std()) for k, v in ds.items()}})
+    w = C.win_share_by_percentile(scores, chars)
+    assert set(w.characteristic) == {'n', 'spread'}
+    total = w.groupby(['characteristic', 'dataset']).win_share.sum()
+    assert np.allclose(total.to_numpy(), 1.0)
+    # percentile is a rank axis, so it always spans 0 to 100 regardless of the
+    # characteristic's own distribution
+    for _, g in w.groupby(['characteristic', 'method']):
+        assert g.percentile.min() == 0.0 and g.percentile.max() == 100.0
