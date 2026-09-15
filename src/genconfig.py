@@ -7,7 +7,7 @@ are the only things a sweep in Stage 2h needs to vary.
 
 Where a range derives from a measured property of the empirical ECC datasets,
 the docstring for that field says which. The audit tables under
-`outputs/tables/stage2a/` and `outputs/tables/stage2a2/` hold the measurements.
+The scripts under `audits/` hold the measurements and rewrite them on demand.
 
 Every empirical figure quoted below was remeasured in Stage 2a-2 against the
 2026-08 raw extract. The 2026-03 figures the ranges were originally set from
@@ -246,7 +246,7 @@ class GeneratorConfig:
     falls below 0.086. Kept at 10 through Stage 2a-2 as well, so that the
     retune changes the separation of the modes and not also how many points
     land in each; Stage 2h owns the sweep, and alpha = 1 is the obvious other
-    end. See outputs/tables/stage2a/TABLE_2a_ModeShares.csv."""
+    end. Measured by audits/stage2a/a7_overlap_and_modality.py."""
 
     # ---- market share, Part 3 ----------------------------------------------
     market_share_alpha: float = 1.0

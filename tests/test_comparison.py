@@ -279,3 +279,113 @@ def test_win_share_sums_to_one_across_methods():
     # characteristic's own distribution
     for _, g in w.groupby(['characteristic', 'method']):
         assert g.percentile.min() == 0.0 and g.percentile.max() == 100.0
+
+
+def test_win_share_orders_methods_best_first():
+    """The stack position must follow overall win share, best first.
+
+    A stacked plot drawn in that order puts the best-fitting method at the
+    bottom of every panel, so a reader can follow one band along the axis
+    instead of hunting for it between panels.
+    """
+    rng = np.random.default_rng(11)
+    ds = {f'd{i}': dataset(60, 120 + i) for i in range(24)}
+    scores = C.score_methods(ds, rng, 'test', heldout=False)
+    chars = pd.DataFrame({'n': {k: len(v[0]) for k, v in ds.items()}})
+    w = C.win_share_by_percentile(scores, chars)
+    pos = w.drop_duplicates('method').set_index('method').stack_position
+    wins = (scores.loc[scores.groupby('dataset').w1.idxmin()]
+            .method.value_counts().reindex(pos.index).fillna(0))
+    assert list(pos.sort_values().index) == list(wins.sort_values(
+        ascending=False).index)
+    assert sorted(pos.tolist()) == list(range(len(pos)))
+
+
+def test_symlog_ticks_stay_inside_a_small_panel():
+    """At most five decade labels, zero always among them, largest kept."""
+    rng = np.random.default_rng(0)
+    v = np.concatenate([rng.normal(0, 3, 500), rng.lognormal(2, 2, 9500)])
+    linthresh = float(np.percentile(np.abs(v[v != 0]), 10))
+    ticks = C.symlog_ticks(v, linthresh)
+
+    assert len(ticks) <= 5
+    assert 0.0 in ticks
+    assert np.all(np.diff(ticks) > 0)
+    # the decade that sets each axis limit is labelled
+    assert ticks.max() == 10.0 ** int(np.floor(np.log10(v.max())))
+    assert ticks.min() == -10.0 ** int(np.floor(np.log10(-v.min())))
+
+
+def test_symlog_ticks_handles_one_sided_and_empty_input():
+    assert C.symlog_ticks(np.array([]), 1.0).tolist() == [0.0]
+    one_sided = C.symlog_ticks(np.array([0.5, 2.0, 300.0]), 0.4)
+    assert one_sided.min() == 0.0
+    assert one_sided.max() == 100.0
+
+
+# ---------------------------------------------------------------------------
+# the per-characteristic supplement: pairing the two weightings, and the
+# headline share that goes in a panel title
+# ---------------------------------------------------------------------------
+
+def test_characteristic_pairs_groups_the_two_weightings():
+    pairs = C.characteristic_pairs(
+        ['coeffvar', 'coeffvar_uw', 'n', 'skewness_uw', 'skewness'])
+    assert pairs == [('coeffvar', 'coeffvar', 'coeffvar_uw'),
+                     ('n', 'n', None),
+                     ('skewness', 'skewness', 'skewness_uw')]
+
+
+def test_characteristic_pairs_keeps_a_uniform_only_characteristic():
+    """A characteristic present only as _uw still gets a row, with no partner.
+
+    Dropping it would silently remove a panel, which is the failure a reader
+    cannot see.
+    """
+    assert C.characteristic_pairs(['mean_uw']) == [('mean', None, 'mean_uw')]
+
+
+def _rank_curves(n=40, split=0.6):
+    """A curves table in the shape win_share_headline reads.
+
+    Method A is best below `split` on the characteristic and method B above it.
+    The characteristic is an even lattice rather than a random draw, so the
+    shares are exact and the test asserts arithmetic instead of a seed.
+    """
+    x = (np.arange(n) + 0.5) / n
+    rows = []
+    for i, xi in enumerate(x):
+        a_best = xi < split
+        for method, rank in (('A', 1 if a_best else 2),
+                             ('B', 2 if a_best else 1)):
+            rows.append(dict(arm='synthetic', characteristic='c',
+                             method=method, value='w1_rank',
+                             dataset=f'd{i}', x=xi, y=float(rank),
+                             y_smooth=float(rank)))
+    return pd.DataFrame(rows)
+
+
+def test_win_share_headline_counts_the_leader_and_both_tails():
+    curves = _rank_curves()
+    h = C.win_share_headline(curves, 'synthetic', 'c', frac=0.1)
+    assert h['method'] == 'A'
+    assert h['n'] == 40 and h['n_tail'] == 4
+    # A wins everything below 0.6 of the characteristic and nothing above it
+    assert h['overall'] == pytest.approx(0.6)
+    assert h['bottom'] == pytest.approx(1.0)
+    assert h['top'] == pytest.approx(0.0)
+
+
+def test_win_share_headline_returns_none_for_an_absent_characteristic():
+    curves = _rank_curves()
+    assert C.win_share_headline(curves, 'synthetic', 'not_a_metric') is None
+    assert C.win_share_headline(curves, 'empirical', 'c') is None
+
+
+def test_headline_sentence_is_plain_ascii_and_states_three_shares():
+    curves = _rank_curves()
+    h = C.win_share_headline(curves, 'synthetic', 'c', frac=0.1)
+    text = C.headline_sentence(h)
+    assert text.isascii()
+    assert text.count('%') == 3
+    assert C.headline_sentence(None) == ''
