@@ -1,4 +1,6 @@
 
+import warnings
+
 import numpy as np
 from scipy.integrate import cumulative_trapezoid
 import scipy.interpolate
@@ -85,6 +87,35 @@ def weighted_lognorm_fit(data, weights=None, method="MLE"):
 #     print(f"Fitted lognorm params: shape={s:.4f}, loc={loc:.4f}, scale={scale:.4f}")
 
 ########################################################################
+def _shapiro_statistic(x):
+    """`scipy.stats.shapiro`, with an honest p-value above n = 5000.
+
+    scipy's W statistic is exact at any n, but its p-value comes from Royston's
+    approximation, which is fitted only to n <= 5000; above that scipy warns
+    that the p-value may not be accurate. Several empirical categories run to
+    tens of thousands of records, so that warning fires on ordinary input.
+    Returning NaN says the same thing the warning says, in the return value
+    rather than on stderr. Only the statistic is used anywhere in this analysis,
+    by decision: a p-value at n = 77,548 measures the sample size, not the
+    departure from normality.
+    """
+    if len(x) <= 5000:
+        return stats.shapiro(x)
+
+    # scipy computes W exactly at any n and warns only that its Royston p-value
+    # is extrapolated past the range that approximation was fitted to. There is
+    # no statistic-only entry point, so the p-value is computed whether or not
+    # it is wanted; the narrowest available fix is to decline that one message
+    # and return NaN in its place, which is the same statement in the return
+    # value instead of on stderr.
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            'ignore', message='scipy.stats.shapiro: For N > 5000',
+            category=UserWarning)
+        res = stats.shapiro(x)
+    return res.statistic, np.nan
+
+
 def shapiro_wilk_weighted(x, weights=None):
     """
     Shapiro-Wilk test of normality, extended to handle sample weights.
@@ -142,9 +173,9 @@ def shapiro_wilk_weighted(x, weights=None):
     if n < 3:
         raise ValueError(f"n must be >= 3, got {n}.")
 
-    # No weights supplied -> exact scipy result (scipy enforces n <= 5000)
+    # No weights supplied -> exact scipy result
     if weights is None:
-        return stats.shapiro(x)
+        return _shapiro_statistic(x)
 
     w = np.asarray(weights, dtype=float).ravel()
     if w.shape != (n,):
@@ -158,7 +189,7 @@ def shapiro_wilk_weighted(x, weights=None):
 
     # Uniform weights -> exact scipy result
     if np.allclose(w, 1.0 / n):
-        return stats.shapiro(x)
+        return _shapiro_statistic(x)
 
     # Kish effective sample size (used for p-value, not the raw n)
     n_eff = max(3, min(5000, int(round(1.0 / (w ** 2).sum()))))
@@ -305,8 +336,16 @@ def empirical_metadata(data: np.ndarray, weights: np.ndarray, num_bins: int = 25
         metadata[f'crit_bw_1{label}'] = modality.critical_bandwidth(data, 1, W)
 
         # find the proportion of data classified as an outlier (farther than 1.5*IQR from the IQR)
+        #
+        # The quartiles are interpolated on the ECDF's real points. weighted_ecdf
+        # pads its arrays with -inf and +inf so that `func` extrapolates flat
+        # outside the data, and those sentinels are not data: when the smallest
+        # value carries more than a quarter of the weight, 0.25 falls in the
+        # padded first segment and q1 comes back as -inf, making the IQR NaN and
+        # every outlier comparison silently False. Interpolating on the interior
+        # clamps to the smallest observed value instead, which is the quartile.
         xcdf, ycdf, func = weighted_ecdf(data, W)
-        q1, q3 = np.interp([0.25, 0.75], ycdf, xcdf)
+        q1, q3 = np.interp([0.25, 0.75], ycdf[1:-1], xcdf[1:-1])
         iqr = q3-q1
         outliers_lo = np.array([(x, w) for (x, w) in zip(data, W) if x < q1-1.5*iqr])
         outliers_hi = np.array([(x, w) for (x, w) in zip(data, W) if x > q3+1.5*iqr])
