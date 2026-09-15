@@ -34,6 +34,7 @@ import gzip
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import time
@@ -195,6 +196,89 @@ def generate_corpus(cfg, label, out_root=PROCESSED, include_probe=True,
         json.dump(meta, f, indent=2)
     with open(os.path.join(out, 'invalid_datasets.json'), 'w') as f:
         json.dump(invalid, f, indent=2)
+    return out
+
+
+#: Columns of metrics.parquet that empirical_metadata does NOT produce. They are
+#: the generation record -- which stratum the dataset was drawn for, how the
+#: parent was solved, what was truncated -- and they are copied forward by a
+#: remetric rather than recomputed, because nothing about the draw changes.
+GENERATION_RECORD_COLUMNS = (
+    'dataset', 'stratum', 'is_probe', 'k', 'overlap_target', 'overlap_achieved',
+    'overlap_status', 'truncated_mass', 'normalizer', 'n_components_dropped',
+)
+
+
+def remetric_corpus(label, source=None, out_root=PROCESSED, progress=True):
+    """Recompute a corpus's statistical characteristics from its stored values.
+
+    This is NOT a regeneration and does not reopen generation. No dataset is
+    redrawn, no random number is consumed, and `values.parquet` is copied byte
+    for byte; only `metrics.parquet` is rebuilt, by running the CURRENT
+    `empirical_metadata` over the values already on disk. The generation record
+    columns come across unchanged from the source.
+
+    It exists because the corpus stores its characteristics at generation time
+    while the empirical arm computes them when notebook 1 runs. A correction to
+    the metric code therefore reaches one arm and not the other, and the two
+    arms would be measured by different code on a dimension the study reports.
+
+    A new directory is written rather than the source being edited, so the old
+    readout stays on disk next to the new one and the change can be diffed.
+    """
+    src = source or active_dir(out_root=out_root)
+    out = os.path.join(out_root, f'corpus_{label}')
+    if os.path.exists(out):
+        raise FileExistsError(f'{out} already exists. Pick a new label.')
+
+    old = pd.read_parquet(os.path.join(src, 'metrics.parquet'))
+    values = pd.read_parquet(os.path.join(src, 'values.parquet'))
+    with open(os.path.join(src, 'runmeta.json')) as f:
+        src_meta = json.load(f)
+
+    os.makedirs(out)
+    for fn in ('values.parquet', 'parents.json.gz', 'combos.csv',
+               'invalid_datasets.json'):
+        if os.path.exists(os.path.join(src, fn)):
+            shutil.copy2(os.path.join(src, fn), os.path.join(out, fn))
+
+    record = old[[c for c in GENERATION_RECORD_COLUMNS if c in old.columns]]
+    record = record.set_index('dataset')
+
+    t0 = time.time()
+    rows = []
+    groups = dict(tuple(values.groupby('dataset_id', observed=True)))
+    for i, ds in enumerate(old.dataset):
+        g = groups[ds]
+        m = empirical_metadata(g['value'].to_numpy(), g['weight'].to_numpy())
+        m['dataset'] = ds
+        rows.append(m)
+        if progress and (i + 1) % 1000 == 0:
+            print(f'  {i+1:>6} / {len(old)}   {time.time()-t0:6.0f}s', flush=True)
+
+    metrics = pd.DataFrame(rows).set_index('dataset').join(record).reset_index()
+    cols = ['dataset', 'stratum', 'is_probe'] + [c for c in metrics.columns
+                                                 if c not in ('dataset', 'stratum',
+                                                              'is_probe')]
+    metrics = metrics[cols]
+    metrics.to_parquet(os.path.join(out, 'metrics.parquet'), index=False,
+                       compression='zstd')
+
+    meta = dict(src_meta)
+    meta.update(
+        created_utc=datetime.now(timezone.utc).isoformat(timespec='seconds'),
+        label=label,
+        remetric_of=os.path.basename(src),
+        remetric_note='Characteristics recomputed from the stored values. No '
+                      'dataset was redrawn and values.parquet is a byte copy.',
+        git_commit=_git_commit(),
+        git_working_tree_dirty=_git_dirty(),
+        wall_seconds=round(time.time() - t0, 1),
+        files={fn: os.path.getsize(os.path.join(out, fn))
+               for fn in sorted(os.listdir(out))},
+    )
+    with open(os.path.join(out, 'runmeta.json'), 'w') as f:
+        json.dump(meta, f, indent=2)
     return out
 
 
