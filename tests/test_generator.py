@@ -1,13 +1,16 @@
-"""Tests for src/generator.py and src/genconfig.py."""
+"""Tests for src/generator.py, src/genconfig.py and src/corpus.py."""
+import json
 import os
 import sys
 
 import numpy as np
+import pandas as pd
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import genconfig as G  # noqa: E402
 import generator as GEN  # noqa: E402
+from customstats import empirical_metadata  # noqa: E402
 
 CFG = G.DEFAULT
 
@@ -228,3 +231,87 @@ def test_a_genuine_failure_is_not_retried():
     finally:
         GEN.draw_parent = real
     assert x is None and calls['n'] == 1
+
+
+# ---------------------------------------------------------------------------
+# remetric: recomputing a corpus's characteristics without redrawing it
+# ---------------------------------------------------------------------------
+
+def _tiny_corpus(root, label, rng):
+    """A corpus directory with the minimum a remetric needs to read."""
+    import corpus as C
+
+    out = os.path.join(root, f'corpus_{label}')
+    os.makedirs(out)
+    ids, vals, wts, rows = [], [], [], []
+    for i in range(6):
+        ds = f'dataset{i}'
+        n = 3 + 4 * i
+        x = np.abs(rng.lognormal(0.0, 0.6, n)) + 1e-3
+        x = x / x.mean()
+        w = rng.dirichlet(np.ones(n))
+        m = empirical_metadata(x, w)
+        m.update(dataset=ds, stratum='s1', is_probe=False, k=2,
+                 overlap_target=0.5, overlap_achieved=0.5,
+                 overlap_status='solved', truncated_mass=0.0,
+                 normalizer=1.0, n_components_dropped=0)
+        rows.append(m)
+        ids.append(np.full(n, ds)); vals.append(x); wts.append(w)
+    pd.DataFrame({'dataset_id': pd.Categorical(np.concatenate(ids)),
+                  'value': np.concatenate(vals),
+                  'weight': np.concatenate(wts)}).to_parquet(
+        os.path.join(out, 'values.parquet'), index=False)
+    metrics = pd.DataFrame(rows)
+    cols = ['dataset', 'stratum', 'is_probe'] + [c for c in metrics.columns
+                                                 if c not in ('dataset', 'stratum',
+                                                              'is_probe')]
+    metrics[cols].to_parquet(os.path.join(out, 'metrics.parquet'), index=False)
+    with open(os.path.join(out, 'runmeta.json'), 'w') as f:
+        json.dump({'label': label, 'seed': 1}, f)
+    return out
+
+
+def test_remetric_copies_the_data_and_only_rebuilds_the_characteristics(tmp_path):
+    """A remetric must be provably not a regeneration.
+
+    The datasets are the corpus. If a remetric could move a single value it
+    would be a regeneration under another name, and generation is closed.
+    """
+    import corpus as C
+
+    root = str(tmp_path)
+    src = _tiny_corpus(root, 'src', np.random.default_rng(7))
+    out = C.remetric_corpus('out', source=src, out_root=root, progress=False)
+
+    for fn in ('values.parquet', 'runmeta.json'):
+        assert os.path.exists(os.path.join(out, fn))
+    a = open(os.path.join(src, 'values.parquet'), 'rb').read()
+    b = open(os.path.join(out, 'values.parquet'), 'rb').read()
+    assert a == b, 'remetric changed the data'
+
+    old = pd.read_parquet(os.path.join(src, 'metrics.parquet'))
+    new = pd.read_parquet(os.path.join(out, 'metrics.parquet'))
+    assert list(old.columns) == list(new.columns)
+    assert list(old.dataset) == list(new.dataset)
+    # the generation record is carried across, not recomputed
+    for c in C.GENERATION_RECORD_COLUMNS:
+        pd.testing.assert_series_equal(old[c], new[c])
+    # and the characteristics agree, because the source was built with the
+    # same code: a remetric is a no-op until the metric code changes
+    shared = [c for c in old.columns if c not in C.GENERATION_RECORD_COLUMNS]
+    np.testing.assert_allclose(new[shared].to_numpy(float),
+                               old[shared].to_numpy(float), rtol=1e-12)
+
+    meta = json.load(open(os.path.join(out, 'runmeta.json')))
+    assert meta['remetric_of'] == os.path.basename(src)
+    assert meta['seed'] == 1, 'the source seed must be carried forward'
+
+
+def test_remetric_refuses_to_overwrite(tmp_path):
+    import corpus as C
+
+    root = str(tmp_path)
+    src = _tiny_corpus(root, 'src', np.random.default_rng(3))
+    C.remetric_corpus('out', source=src, out_root=root, progress=False)
+    with pytest.raises(FileExistsError):
+        C.remetric_corpus('out', source=src, out_root=root, progress=False)
