@@ -1,0 +1,275 @@
+"""Comparing the six UQ methods: the tidy score table, and the curves drawn from it.
+
+Stage 2b. These are the comparisons that belong to the PAPER, so they live here
+under test rather than in `audits/`, which is for one-off measurements that get
+decided once and never rerun. Notebook 2 calls these, writes the tables, and
+draws every figure from the tables on disk.
+
+THREE SCORES PER DATASET PER METHOD, and the second and third exist because the
+first has a known bias.
+
+  `w1`            Wasserstein-1 between the fitted model and the
+                  variable-weighted empirical CDF. The study's criterion, in
+                  sample, and what every reported number has always been.
+
+  `w1_heldout`    The same distance, but the model is fitted on half the values
+                  and scored against the other half, averaged over both
+                  directions and several splits. IN-SAMPLE W1 REWARDS
+                  FLEXIBILITY: it falls monotonically as a KDE bandwidth
+                  shrinks, because a KDE with a vanishing bandwidth IS the
+                  empirical distribution it is being scored against
+                  (`audits/stage2b/r8_why_kde_loses.py`). The families compared
+                  here run from 2 parameters to effectively n, so the in-sample
+                  number cannot settle the comparison on its own. Held-out W1
+                  keeps the same units and removes the reward.
+
+                  WHAT IT IS AND IS NOT FOR. It is the right instrument for
+                  comparing FAMILIES of different parameter counts. It is the
+                  WRONG one for choosing a bandwidth: measured over the
+                  empirical arm it turns at about 0.1 of Scott's bandwidth on
+                  the mean and 0.5 on the median, and the median moves only from
+                  0.233 to 0.243 across a 50-fold range. It removes most of
+                  W1's bandwidth sensitivity rather than replacing it with a
+                  sharp optimum. Leave-one-out likelihood is the sharp
+                  instrument for bandwidth, and decision 54 used it.
+
+  `model_sd_ratio`  The fitted model's own standard deviation over the data's.
+                  W1 is nearly blind to tail mass -- a thin far tail is a small
+                  area between two CDFs -- while the pLCA SAMPLES from these
+                  models. A lognormal that scored well and had a standard
+                  deviation of 3,000 got through Stage 2b's fit scores and was
+                  caught only in the pLCA results; see discrepancy entry 43.
+                  One column catches that class of failure.
+
+NOT scored against the known parent. The corpus stores the exact generating
+distribution in `parents.json.gz` and comparing fits to it is the cleanest test
+of all, but it is available on the SYNTHETIC arm only, so it cannot carry a
+comparison the paper has to make on both. Stage 2c owns it, and its job there is
+to confirm that held-out W1 behaves, not to become a third headline.
+"""
+
+import numpy as np
+import pandas as pd
+
+import fitting as FT
+
+#: Values below this cannot be split into two halves that both support a fit,
+#: so `w1_heldout` is not defined for them and is returned as NaN.
+HELDOUT_MIN_N = 10
+
+#: Random 50/50 splits per dataset. Both directions of each split are scored, so
+#: this is 2 * HELDOUT_REPEATS fits per dataset per method.
+HELDOUT_REPEATS = 2
+
+#: Rolling window for the characteristic curves, as a fraction of the number of
+#: datasets, so the same call works on a 149-dataset arm and a 9,999-dataset
+#: corpus. The Stage 1 figure hard-coded 501, which exceeds the whole empirical
+#: arm and would have drawn a flat line. The minimum is 15 rather than the 7 the
+#: fraction gives on 149 datasets, because below that the empirical curve is too
+#: jagged to read.
+CURVE_WINDOW_FRAC = 0.05
+CURVE_WINDOW_MIN = 15
+
+
+def model_sd_ratio(model, x, weights, npoints=20_001):
+    """The fitted model's standard deviation over the data's weighted one.
+
+    Near 1 means the model carries the spread the data has. Large means a tail
+    the data does not support, which W1 will not charge for and a Monte Carlo
+    will be dominated by.
+    """
+    sd = FT.weighted_std(x, weights)
+    if not sd > 0:
+        return np.nan
+    q = np.linspace(1e-9, 1.0 - 1e-9, npoints)
+    return float(np.std(model.ppf(q)) / sd)
+
+
+def heldout_w1_all(x, weights, rng, repeats=HELDOUT_REPEATS,
+                   min_n=HELDOUT_MIN_N, **fit_kw):
+    """Held-out W1 for ALL SIX methods at once, from the same splits.
+
+    Both halves are used as the fitting half in turn, and the result is the mean
+    over `2 * repeats` fits. The held-out half keeps its own weights,
+    renormalized, so the scoring target is the same weighted empirical CDF the
+    in-sample score uses, restricted to the values the model has not seen.
+
+    All six methods share each split, which matters twice: it is six times
+    cheaper than splitting per method, and it makes the comparison PAIRED, so a
+    difference between two methods is not confounded with a difference between
+    two random partitions.
+
+    Returns NaN below `min_n`, where a half cannot support a fit. That is the
+    honest answer rather than a number computed from two points, and it is why
+    the empirical arm's small categories are absent from this column.
+    """
+    x = np.asarray(x, dtype=float)
+    weights = np.asarray(weights, dtype=float)
+    n = len(x)
+    if n < min_n:
+        return {label: np.nan for label in FT.PEWT}
+    acc = {label: [] for label in FT.PEWT}
+    for _ in range(repeats):
+        order = rng.permutation(n)
+        halves = (order[: n // 2], order[n // 2:])
+        for fit_idx, score_idx in (halves, halves[::-1]):
+            xf, wf = x[fit_idx], weights[fit_idx]
+            xs, ws = x[score_idx], weights[score_idx]
+            if len(xf) < 3 or len(xs) < 3 or np.ptp(xf) <= 0:
+                continue
+            try:
+                models, _ = FT.fit_pewt(xf, wf / wf.sum(), **fit_kw)
+            except Exception:
+                continue
+            ws = ws / ws.sum()
+            grid = FT.score_grid_open(xs, ws)
+            for label in FT.PEWT:
+                try:
+                    acc[label].append(
+                        FT.score_w1_model(models[label], xs, ws, grid=grid))
+                except Exception:
+                    continue
+    return {label: (float(np.mean(v)) if v else np.nan)
+            for label, v in acc.items()}
+
+
+def heldout_w1(x, weights, label, rng, repeats=HELDOUT_REPEATS,
+               min_n=HELDOUT_MIN_N, **fit_kw):
+    """Held-out W1 for one method. See `heldout_w1_all`, which this calls."""
+    return heldout_w1_all(x, weights, rng, repeats, min_n, **fit_kw)[label]
+
+
+def score_methods(datasets, rng, arm, heldout=True, repeats=HELDOUT_REPEATS,
+                  progress=None, **fit_kw):
+    """Tidy scores for every dataset and every method. One row per pair.
+
+    `datasets` is {name: (values, weights)}, the shape both arms already use.
+    Columns: arm, dataset, n, method, w1, w1_heldout, model_sd_ratio.
+    """
+    rows = []
+    for i, (name, (x, w)) in enumerate(datasets.items()):
+        x = np.asarray(x, dtype=float)
+        w = np.asarray(w, dtype=float)
+        models, _ = FT.fit_pewt(x, w, **fit_kw)
+        grid = FT.score_grid_open(x, w)
+        ho = (heldout_w1_all(x, w, rng, repeats, **fit_kw) if heldout
+              else {label: np.nan for label in FT.PEWT})
+        for label in FT.PEWT:
+            rows.append(dict(
+                arm=arm, dataset=name, n=len(x), method=label,
+                w1=FT.score_w1_model(models[label], x, w, grid=grid),
+                w1_heldout=ho[label],
+                model_sd_ratio=model_sd_ratio(models[label], x, w)))
+        if progress and (i + 1) % progress == 0:
+            print(f'  {i + 1}/{len(datasets)}', flush=True)
+    return pd.DataFrame(rows)
+
+
+def weighting_of(method):
+    """'Uniform' or 'Variable' from a PEWT label."""
+    return method.split(', ')[1]
+
+
+def add_ranks(scores, value='w1', within_weighting=False, suffix=None):
+    """Rank the methods within each dataset, 1 = best. Scale-free by design.
+
+    W1 magnitudes vary by orders of magnitude across datasets, so a mean over
+    datasets is dominated by a handful of them. A rank is bounded by the number
+    of methods and answers the question the paper asks, which is which method
+    wins, not by how much.
+
+    `within_weighting=True` ranks the three probability-estimation methods
+    separately inside each weighting scheme, and IT IS THE ONLY HONEST WAY TO
+    READ A HELD-OUT SCORE HERE.
+
+    WHY. The market-share weights are an exchangeable Dirichlet draw, so they
+    carry no information that generalizes from one half of a dataset to the
+    other: the expected variable-weighted empirical CDF of a random half IS the
+    unweighted one. A variable-weighted fit is therefore fitted partly to the
+    weight realization of its own half, and a held-out score correctly penalizes
+    that -- which makes a held-out comparison BETWEEN weighting schemes a
+    statement about the Dirichlet draw rather than about weighting. Comparing
+    the three estimation methods inside a fixed weighting scheme is unaffected.
+
+    The in-sample comparison does not have this problem: there the weights are a
+    stated property of the dataset being described, not something being
+    predicted. Discrepancy entry 32 is the same issue seen from another angle.
+    """
+    suffix = suffix or f'{value}_rank'
+    keys = ['arm', 'dataset']
+    frame = scores.assign(_wt=scores.method.map(weighting_of))
+    if within_weighting:
+        keys = keys + ['_wt']
+    wide = frame.pivot_table(index=keys, columns='method', values=value)
+    ranks = wide.rank(axis=1).stack().rename(suffix).reset_index()
+    out = frame.merge(ranks, on=keys + ['method'], how='left')
+    return out.drop(columns='_wt')
+
+
+def curve_window(n_datasets, frac=CURVE_WINDOW_FRAC, minimum=CURVE_WINDOW_MIN):
+    """Rolling window scaled to the arm, always odd and at least `minimum`."""
+    w = max(minimum, int(round(frac * n_datasets)))
+    return w if w % 2 else w + 1
+
+
+def characteristic_curves(scores, characteristics, value='w1',
+                          frac=CURVE_WINDOW_FRAC):
+    """Smoothed `value` against each characteristic, per method, unbinned.
+
+    Returns one tidy row per (arm, characteristic, method, dataset) carrying the
+    characteristic's value, the raw score and the rolling mean of the score over
+    datasets ordered by that characteristic. A figure drawn from this shows
+    every dataset as a point and the trend as a line, which is what a binned
+    table cannot do: the crossover between two methods happens at a value, not
+    in a bin.
+
+    `characteristics` is a frame indexed by dataset name.
+    """
+    out = []
+    for arm, g in scores.groupby('arm'):
+        window = curve_window(g.dataset.nunique(), frac)
+        for metric in characteristics.columns:
+            vals = characteristics[metric]
+            for method, h in g.groupby('method'):
+                h = h.assign(x=h.dataset.map(vals)).dropna(subset=['x', value])
+                h = h[np.isfinite(h.x) & np.isfinite(h[value])].sort_values('x')
+                if len(h) < 3:
+                    continue
+                out.append(pd.DataFrame(dict(
+                    arm=arm, characteristic=metric, method=method,
+                    value=value, dataset=h.dataset.values, x=h.x.values,
+                    y=h[value].values,
+                    y_smooth=h[value].rolling(window, min_periods=1,
+                                              center=True).mean().values)))
+    return (pd.concat(out, ignore_index=True) if out
+            else pd.DataFrame(columns=['arm', 'characteristic', 'method',
+                                       'value', 'dataset', 'x', 'y',
+                                       'y_smooth']))
+
+
+def bandwidth_comparison(datasets, arm, rules=('scott', 'silverman',
+                                               'silverman_guarded')):
+    """W1 for the two KDE methods under each bandwidth rule. One row per fit.
+
+    The bandwidth rule is a stated methodological decision (CLAUDE.md decision
+    54), so the paper has to show what it does. Note that W1 alone cannot choose
+    a rule -- it falls monotonically as the bandwidth shrinks -- which is why
+    the rule was chosen on held-out likelihood in
+    `audits/stage2b/r9_bandwidth.py` and why `model_sd_ratio` is reported here
+    beside it.
+    """
+    rows = []
+    for name, (x, w) in datasets.items():
+        x = np.asarray(x, dtype=float)
+        w = np.asarray(w, dtype=float)
+        for wt, ww in (('Uniform', FT.uniform_weights(x)), ('Variable', w)):
+            for rule in rules:
+                m, p = FT.fit_kde(x, ww, bw_method=rule)
+                rows.append(dict(
+                    arm=arm, dataset=name, n=len(x), weighting=wt, rule=rule,
+                    bandwidth=p['bandwidth'],
+                    h_over_sd=p['bandwidth'] / FT.weighted_std(x, ww),
+                    w1=FT.score_w1_model(m, x, w),
+                    mass_below_zero=m.mass_below,
+                    model_sd_ratio=model_sd_ratio(m, x, w)))
+    return pd.DataFrame(rows)

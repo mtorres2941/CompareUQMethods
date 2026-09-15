@@ -35,6 +35,8 @@ CompareUQMethods/
 │   │                          the weighted KDE with a CDF, and the
 │   │                          estimators (Stage 2b)
 │   ├── fitting.py             the six PEWT fits and W1 scoring
+│   ├── comparison.py          the paper's method comparison: held-out W1, the
+│   │                          tail check, ranks and characteristic curves
 │   ├── datavisualization.py   one colour helper
 │   ├── funcs_unit_conversion.py  EC3 unit normalization
 │   └── dct_metriclabels.json  display labels for the 22 metrics
@@ -140,6 +142,30 @@ interpolated between two order statistics. `'silverman_guarded'` uses Silverman
 above `SILVERMAN_MIN_NEFF = 30` effective observations and Scott below it, beats
 both pure rules on held-out likelihood, and repairs the worst cases.
 Discrepancy entry 45. **Stage 2h owns the decision to switch.**
+
+### Three scores per fit, and why one is not enough
+
+`src/comparison.py`, called from notebook 2's final section, which is where the
+method comparison the PAPER makes now lives. Audits under `audits/` stay what
+they are: one-off measurements that get decided once.
+
+| column | what it is for |
+|---|---|
+| `w1` | the study's criterion, in sample. Every reported number has always been this |
+| `w1_heldout` | fitted on half the values, scored on the other half, both directions, several splits, **all six methods sharing each split so the comparison is paired**. In-sample W1 rewards flexibility and the families here run from 2 parameters to effectively n |
+| `model_sd_ratio` | the fitted model's standard deviation over the data's. W1 is nearly blind to tail mass and the pLCA SAMPLES from these models; entry 43 is the failure this catches |
+
+**Held-out W1 is for comparing FAMILIES, not for choosing a bandwidth.** It
+removes most of W1's bandwidth sensitivity rather than replacing it with a sharp
+optimum: measured on the empirical arm its median moves only from 0.233 to 0.243
+across a 50-fold bandwidth range. Leave-one-out likelihood is the sharp
+instrument for bandwidth and is what decision 54 used.
+
+**Not scored against the known parent.** The corpus stores the exact generating
+distribution in `parents.json.gz`, and that is the cleanest test of all, but it
+exists on the SYNTHETIC arm only, so it cannot carry a comparison the paper has
+to make on both. Stage 2c owns it, and its job there is to confirm that held-out
+W1 behaves rather than to become a third headline.
 
 ### Fitting by the criterion we score by
 
@@ -368,6 +394,10 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_EmpiricalCategorySplit.csv` | NB1 | one row per split population |
 | `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 149 x 28 |
 | `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 9,999 x 37 |
+| `TABLE_MethodScores.csv` | NB2 | one row per (arm, dataset, method): W1, held-out W1, both ranks, model-spread ratio |
+| `TABLE_MethodSummary.csv` | NB2 | the six methods by arm, the table to read first |
+| `TABLE_MethodCurves.csv.gz` | NB2 | every score against every characteristic, unbinned, with the rolling mean the figures draw |
+| `TABLE_BandwidthRules.csv` | NB2 | the two KDE methods under all three bandwidth rules |
 | `TABLE_PLCAResults.csv` | NB3 | 59,976 x 43, which is 2,499 groups x 6 methods x 4 datasets |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |
 
@@ -418,6 +448,7 @@ the worst observed value.
 | `test_components.py` | 48 | moment targets hit exactly, infeasible targets refused not approximated, every accepted component inverts its own CDF, the four families partition the Pearson plane |
 | `test_mixture.py` | 9 | the parent CDF matches a 400,000-draw sample, the market-weighted parent is a real population object, coupling 0 collapses the two parents, inverse-CDF sampling agrees with the truncation loop it replaced, overlap is symmetric and monotone in separation |
 | `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
+| `test_comparison.py` | 10 | held-out W1 is undefined below n = 10 rather than computed from two points, is worse than in-sample for the flexible method, and removes most of W1's bandwidth sensitivity without replacing it with a sharp optimum; the model-spread ratio catches a tail W1 does not; ranks are within-dataset and invariant to rescaling a dataset; the curve window scales to the arm instead of assuming the corpus; all six methods share each held-out split, so the comparison is paired |
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbours on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 

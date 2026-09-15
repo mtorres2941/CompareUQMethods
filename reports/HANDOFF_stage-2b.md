@@ -742,6 +742,62 @@ the refit. `eci_rank_1`'s standard deviation across datasets moves 0.1128 to
 | maximum | 1.558 | **532.3** | 1.911 |
 | `eci_mean` maximum | 1.236 | **9.567** | 1.220 |
 
+### 4.13 The review section in notebook 2, and what held-out W1 says
+
+Added after the author asked for the comparisons as figures rather than tables,
+and for the code to live in the notebook pipeline rather than in `audits/`.
+
+`src/comparison.py` (tested in `tests/test_comparison.py`, 11 tests) holds the
+computation; notebook 2's final section calls it, writes four tables and draws
+four figures FROM those tables. Three scores per fit: in-sample W1, held-out W1,
+and the fitted model's standard deviation over the data's.
+
+**The headline, and it is the same on both arms and in and out of sample: the
+KDE's advantage is a LARGE-DATASET advantage.** Held-out rank among the three
+estimation methods, within each weighting scheme:
+
+| n | empirical | synthetic |
+|---|---|---|
+| 10-99 | lognormal 1.49, normal 2.01, **KDE 2.49** | lognormal 1.67, normal 1.69, **KDE 2.63** |
+| 100-999 | lognormal 1.54, KDE 1.62, normal 2.85 | lognormal 1.57, KDE 1.77, normal 2.66 |
+| >= 1000 | **KDE 1.18**, lognormal 1.91, normal 2.91 | **KDE 1.18**, lognormal 1.90, normal 2.92 |
+
+In sample the crossover sits near n = 100; held out it moves right to roughly
+200 to 400, which is what a complexity penalty should do to a flexible method.
+**Nothing here overturns the KDE claim; it conditions it on dataset size.**
+
+**A confound found and contained.** On a six-way held-out ranking, uniform
+weighting appears to beat variable. It is an artifact: the weights are an
+exchangeable Dirichlet draw, so under them the expected variable-weighted
+empirical CDF of a random half IS the unweighted one, and a uniform-weighted fit
+is the better predictor of the held-out target by construction. **Held-out
+scores may only be compared within a weighting scheme.** The in-sample
+comparison is unaffected and the paper's weighting claim rests on it. Entry 46.
+
+**Held-out W1 is for families, not for bandwidths.** It removes most of W1's
+bandwidth sensitivity rather than replacing it with a sharp optimum: on the
+empirical arm its median moves only from 0.233 to 0.243 across a 50-fold
+bandwidth range. Leave-one-out likelihood is the sharp instrument and is what
+decision 54 used. Asserted in `tests/test_comparison.py`.
+
+**The figures that already existed, and what was wrong with them.**
+`CompareUQMethods_SUPP_WassDistanceVsMetric_ALLMETRICS.png` already plotted W1
+against every characteristic, unbinned, for all six methods -- but only for the
+SYNTHETIC arm, at 79.6 megapixels, with a hard-coded rolling window of 501 that
+exceeds the whole empirical arm, and its main-figure version (notebook 2 cell 63,
+eight selected characteristics) was commented out. The new figures are 0.5 to
+2.2 MB, cover both arms, and use a window that scales to the arm.
+
+**Four new figures**, all at dpi 300 and drawn from tables on disk:
+`FIG_W1VsCharacteristic_Empirical`, `FIG_W1VsCharacteristic_Synthetic`,
+`FIG_RankVsDatasetSize`, `FIG_BandwidthRule`.
+
+**One legibility point left for the author.** In the characteristic figures the
+normal's W1 blows up on high dispersion and sets the y-axis, which compresses
+the difference between the KDE and the lognormal into the bottom fifth of each
+panel. A log y-axis, or dropping the normal to a separate panel, would fix it.
+Not done, because which is better is a presentation choice.
+
 ## 8. The stage's own assessment
 
 The reference point is `reports/HANDOFF_stage-0.md` section 8, which is not
