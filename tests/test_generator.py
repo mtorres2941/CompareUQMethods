@@ -175,3 +175,56 @@ def test_zero_coupling_reproduces_uncoupled_weights():
     assert rec['k'] >= 1
     assert w.sum() == pytest.approx(1.0)
     assert GEN.validity_failures(x, w, 2000) == []
+
+
+def test_a_rejected_parent_draw_is_redrawn_rather_than_abandoned():
+    """Both rejection statuses must be retried, not just one.
+
+    The targets a parent is drawn from are random. A draw that lands on an
+    unusable combination is a rejected draw, and a fresh one almost always
+    succeeds; abandoning the slot leaves the corpus short of the size that was
+    asked for and the stratum counts disagreeing with the design.
+
+    Refusing to APPROXIMATE a target that cannot be met is a different thing and
+    is not affected.
+    """
+    assert 'mode_too_narrow' in GEN.REDRAWABLE
+    assert 'component_targets_exhausted' in GEN.REDRAWABLE
+
+    cfg = G.DEFAULT
+    calls = {'n': 0}
+    real = GEN.draw_parent
+
+    def flaky(c, n, rng):
+        calls['n'] += 1
+        if calls['n'] <= 3:
+            return None, dict(status='component_targets_exhausted',
+                              statuses=['unbounded_density'])
+        return real(c, n, rng)
+
+    GEN.draw_parent = flaky
+    try:
+        x, w, rec = GEN.generate_dataset(cfg, 40, np.random.default_rng(0))
+    finally:
+        GEN.draw_parent = real
+    assert x is not None, 'a redrawable rejection must not abandon the dataset'
+    assert calls['n'] == 4
+    assert rec['parent_retries'] == 3
+
+
+def test_a_genuine_failure_is_not_retried():
+    """A status that is not a rejected draw must still stop immediately."""
+    cfg = G.DEFAULT
+    calls = {'n': 0}
+    real = GEN.draw_parent
+
+    def broken(c, n, rng):
+        calls['n'] += 1
+        return None, dict(status='something_structural')
+
+    GEN.draw_parent = broken
+    try:
+        x, w, rec = GEN.generate_dataset(cfg, 40, np.random.default_rng(0))
+    finally:
+        GEN.draw_parent = real
+    assert x is None and calls['n'] == 1
