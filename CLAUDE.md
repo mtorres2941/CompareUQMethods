@@ -865,3 +865,38 @@ rather than in conversation.
 
     **The manuscript owes an explanation of the minimum sample size.** It is a
     stated methodological choice with a number in it, and a reviewer will ask.
+
+55. **2026-09-15. The corpus is regenerated as `corpus_2026-09-15` and holds
+    10,000 datasets.** `[AUTHOR]` "I'm fine regenerating the corpus. It
+    shouldn't move the downstream numbers too much if we've done our job right."
+    It did not.
+
+    **The cause was a rejected draw treated as a failure.** One parent draw
+    failed with `component_targets_exhausted` -- the skewness and kurtosis drawn
+    for a component could only be met by a J-shaped density, which is refused --
+    and `generate_dataset` retried only when the status was `mode_too_narrow`.
+    The component targets are themselves random, so a fresh draw is the right
+    response. `generator.REDRAWABLE` now names both statuses, and
+    `corpus.generate_corpus` records the REASON for any slot it does abandon,
+    which it previously counted without explaining.
+
+    Refusing to APPROXIMATE a target that cannot be met is a different principle
+    and is untouched.
+
+    **What moved.** The random stream diverges from the redraw onward, so about
+    half the datasets are different draws. Mean W1 by method changes in the
+    fourth decimal, mean rank by at most 0.007, median coefficient of variation
+    0.5018 to 0.5032. That stability IS the result: it says the generator is
+    stationary and no single dataset was carrying a conclusion. The empirical
+    arm is bit-identical.
+
+    **The pLCA is 2,500 groups covering all 10,000 datasets**, so the three
+    held-out datasets are gone and the manuscript's "2,500 pLCAs" is correct
+    again.
+56. **2026-09-15. `outputs/` is written by the notebooks and by nothing else.**
+    `[AUTHOR]` "Everything should be traceable back to the notebooks. The
+    notebooks should reproduce the entirety of this analysis." Two figures dated
+    2026-03 had no producer anywhere in the repository and were deleted; one
+    figure had been written by a scratch script and its code is now a notebook
+    cell. **Audit scripts may write only under `outputs/tables/<audit>/`, never
+    to `outputs/figures/` or the top level of `outputs/tables/`.**

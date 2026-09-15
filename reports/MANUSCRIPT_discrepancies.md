@@ -548,9 +548,9 @@ set covers above it.
 |---|---|
 | **Manuscript** | States 2,500 probabilistic LCAs over disjoint groups of four datasets drawn from 10,000. |
 | **Code** | `corpus.make_combos` truncates with `ids[:len(ids) // nmats * nmats]`. The active corpus holds **9,999** datasets, not 10,000, because one parent failed to solve and was reported rather than approximated (decision 22 working as intended). So the grouping is **2,499 groups of four covering 9,996 datasets, and three datasets -- `dataset813`, `dataset2876`, `dataset7985` -- are in no pLCA at all.** Nothing said so. |
-| **Fix** | **Code and text, done in Stage 2b.** The remainder is still held out, which is the right choice and is now argued rather than implied: every downstream rank metric is a rank among exactly four materials and the headline result is a frequency over those ranks, so one short group would leave `eci_rank_4` undefined for it and would put a rank-1 frequency of 1/3 in the same column as one of 1/4. `corpus.describe_combos` names the held-out datasets and both notebooks print it. |
-| **Text owed** | "2,500 pLCAs" becomes "2,499", and the three held-out datasets are named or the exclusion is stated. |
-| **Status** | Resolved in code. Text owes the count. |
+| **Fix** | **RESOLVED 2026-09-15 at source.** The corpus now holds 10,000 datasets (entry 48), so it divides by four and the grouping covers every one of them: **2,500 pLCAs, nothing held out**, which is what the manuscript already says. `corpus.describe_combos` still names any held-out datasets and both notebooks still print the line, so a future corpus that does not divide cannot fail silently. |
+| **Text owed** | Nothing. "2,500 pLCAs" is correct again. |
+| **Status** | Resolved. |
 
 ## 40. The lognormal is refitted, and it changes which method wins on the empirical arm
 
@@ -702,4 +702,4 @@ relative figure beside it.**
 | **What it is not** | It is not the principle that a target which cannot be met is reported rather than approximated. That principle is about not fudging a target; it does not require abandoning the slot. |
 | **Fix** | **Code, one line**: retry on `component_targets_exhausted` as well, and record the reason for any slot that is finally abandoned. The corpus would then hold exactly 10,000 and the pLCA would divide by four, which removes the three held-out datasets of entry 39 as well. |
 | **Cost** | **It requires regenerating the corpus**, which moves every downstream number. That is an author decision; generation is otherwise settled. |
-| **Status** | Diagnosed, not fixed. Awaiting a decision on whether to regenerate. |
+| **Status** | **RESOLVED 2026-09-15.** The author authorized the regeneration. `generator.REDRAWABLE` now names both rejection statuses, `corpus.generate_corpus` records the reason for any slot it does abandon, and `corpus_2026-09-15` holds **10,000 datasets, 0 failed parents**. The pLCA is now 2,500 groups covering all 10,000, so entry 39's three held-out datasets are gone too. **The aggregates barely moved**, which is the check that the generator is stationary: mean W1 by method changes in the fourth decimal (KDE/Variable 0.0778 to 0.0776), mean rank by at most 0.007, median coefficient of variation 0.5018 to 0.5032. The empirical arm is bit-identical. |

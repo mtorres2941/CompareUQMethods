@@ -115,6 +115,7 @@ def generate_corpus(cfg, label, out_root=PROCESSED, include_probe=True,
     ids, vals, wts = [], [], []
     metric_rows, records = [], {}
     n_failed_parent = 0
+    failed_parents = {}
     invalid = {}
     retries_total = 0
 
@@ -122,7 +123,13 @@ def generate_corpus(cfg, label, out_root=PROCESSED, include_probe=True,
         ds = f'dataset{i}'
         x, w, rec = GEN.generate_dataset(cfg, int(n), rng)
         if x is None:
+            # Record WHY, not just that it happened. A count alone leaves the
+            # next reader with a corpus that is short by one and no way to find
+            # out what went wrong with it.
             n_failed_parent += 1
+            failed_parents[ds] = dict(n=int(n), stratum=str(st),
+                                      status=rec.get('status'),
+                                      statuses=rec.get('statuses'))
             continue
         fails = GEN.validity_failures(x, w, int(n))
         if fails:
@@ -175,6 +182,7 @@ def generate_corpus(cfg, label, out_root=PROCESSED, include_probe=True,
         n_probe=int(metrics.is_probe.sum()),
         include_probe=include_probe,
         n_failed_parent=n_failed_parent,
+        failed_parents=failed_parents,
         n_invalid=len(invalid),
         invalid_reasons=_count_reasons(invalid),
         component_retries_total=int(retries_total),

@@ -323,6 +323,24 @@ def draw_weights(parent, modes, cfg, rng):
     return w / w.sum()
 
 
+#: Parent-draw outcomes that are a REJECTED DRAW rather than a failure, so a
+#: fresh draw of the random targets is the right response.
+#:
+#:   mode_too_narrow             a mode came out narrower than min_mode_sd_frac
+#:   component_targets_exhausted the skewness and excess kurtosis drawn for a
+#:                               component could only be met by a J-shaped
+#:                               density, which is refused because it has
+#:                               infinite density at an endpoint and is drawn
+#:                               as a spike
+#:
+#: Both describe targets that happened to land somewhere unusable. The targets
+#: are themselves random, so drawing new ones almost always succeeds; abandoning
+#: the slot instead leaves the corpus one dataset short of what was asked for,
+#: and the stratum counts then disagree with the design. Refusing to APPROXIMATE
+#: a target that cannot be met is a different thing and still holds.
+REDRAWABLE = frozenset({'mode_too_narrow', 'component_targets_exhausted'})
+
+
 def generate_dataset(cfg, n, rng):
     """One synthetic ECC dataset. Returns (values, weights, record).
 
@@ -337,8 +355,8 @@ def generate_dataset(cfg, n, rng):
         parent, record = draw_parent(cfg, n, rng)
         if parent is not None:
             break
-        if record.get('status') != 'mode_too_narrow':
-            break          # a real failure, not a rejected draw: do not retry
+        if record.get('status') not in REDRAWABLE:
+            break          # not a rejected draw: retrying cannot help
     if parent is None:
         return None, None, record
     x, modes = parent.sample(n, rng)
