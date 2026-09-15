@@ -299,8 +299,34 @@ def bandwidth_comparison(datasets, arm, rules=('scott', 'silverman',
 #: Characteristics whose values span orders of magnitude, so a linear x-axis
 #: puts almost every dataset in the leftmost sliver of the panel.
 LOG_X_CHARACTERISTICS = ('n', 'coeffvar', 'crit_bw_1')
+#: The suffix a characteristic carries when it was measured on the
+#: UNIFORM-weighted version of the dataset. Without it, the characteristic was
+#: measured on the variable-weighted version.
+UNIFORM_SUFFIX = '_uw'
 #: Characteristics that take both signs and so need a symmetric log axis.
 SYMLOG_X_CHARACTERISTICS = ('kurtosis', 'skewness')
+
+
+def base_characteristic(name):
+    """`coeffvar_uw` -> `coeffvar`. The characteristic without its weighting."""
+    return (name[:-len(UNIFORM_SUFFIX)]
+            if name.endswith(UNIFORM_SUFFIX) else name)
+
+
+def base_label(label):
+    """Strip the trailing weighting tag from a metric label.
+
+    The stored labels end in `(Var)` or `(Uni)` because the overview figures
+    show the two as separate panels and need to say which is which. A
+    per-characteristic figure says it once in the column headers instead, so
+    repeating it in the title and on all four x axes is noise. Newlines in the
+    stored label are flattened, because these are used in running text.
+    """
+    text = ' '.join(str(label).split())
+    for tag in (' (Var)', ' (Uni)'):
+        if text.endswith(tag):
+            return text[:-len(tag)]
+    return text
 
 
 def point_style(n_points, alpha_budget=60.0, size_budget=900.0,
@@ -325,12 +351,53 @@ def x_scale_for(characteristic, values):
     """
     v = np.asarray(values, float)
     v = v[np.isfinite(v)]
+    # Match on the base name, so `coeffvar` and `coeffvar_uw` get the SAME
+    # axis. Keying off the full name put the two weightings of one
+    # characteristic on a log and a linear axis, which makes the pair
+    # impossible to read side by side -- and the pair is the comparison.
+    characteristic = base_characteristic(characteristic)
     if characteristic in LOG_X_CHARACTERISTICS and len(v) and v.min() > 0:
         return 'log', None
     if characteristic in SYMLOG_X_CHARACTERISTICS and len(v):
         pos = np.abs(v[v != 0])
         return 'symlog', (float(np.percentile(pos, 10)) if len(pos) else 1.0)
     return 'linear', None
+
+
+def symlog_ticks(values, linthresh, max_ticks=5):
+    """Decade tick positions for a symmetric-log axis, thinned to fit a panel.
+
+    Matplotlib's default symlog locator puts a tick on every decade on both
+    sides of zero AND on the linear region's edges. In a panel three inches
+    wide that is a dozen labels, and the ones either side of zero overlap each
+    other because the linear region is narrow by construction. Here the ticks
+    are the decades the data actually spans, on each side, thinned by a common
+    stride until at most `max_ticks` remain including zero.
+    """
+    v = np.asarray(values, float)
+    v = v[np.isfinite(v)]
+    if not len(v):
+        return np.array([0.0])
+
+    def decades(side):
+        m = np.abs(side).max() if len(side) else 0.0
+        if m <= linthresh:
+            return []
+        lo = int(np.ceil(np.log10(linthresh)))
+        hi = int(np.floor(np.log10(m)))
+        return list(range(lo, hi + 1))
+
+    pos = decades(v[v > 0])
+    neg = decades(v[v < 0])
+    for stride in range(1, 9):
+        # Thin from the outside in, so the largest decade on each side -- the
+        # one that sets the axis limit -- is always labelled.
+        kept_pos = pos[::-1][::stride][::-1]
+        kept_neg = neg[::-1][::stride][::-1]
+        if 1 + len(kept_pos) + len(kept_neg) <= max_ticks:
+            break
+    ticks = [-10.0 ** k for k in kept_neg[::-1]] + [0.0] + [10.0 ** k for k in kept_pos]
+    return np.array(ticks)
 
 
 def win_share_by_percentile(scores, characteristics, value='w1',
@@ -347,14 +414,21 @@ def win_share_by_percentile(scores, characteristics, value='w1',
     uncertainty is the binomial one, about 0.5 / sqrt(window), which is reported
     beside it rather than left implicit.
 
+    Methods come back ordered by overall win share on that arm, best FIRST, so
+    a stacked plot drawn in that order puts the best-fitting method at the
+    bottom and the reader can follow one band along the axis.
+
     Returns one tidy row per (arm, characteristic, method, dataset) with the
-    percentile, the characteristic's value there, and the rolling win share.
+    percentile, the characteristic's value there, the rolling win share and the
+    method's stack position.
     """
     out = []
     for arm, g in scores.groupby('arm'):
         wide = g.pivot_table(index='dataset', columns='method', values=value)
         winner = wide.idxmin(axis=1)
         window = curve_window(len(winner), frac)
+        order = (winner.value_counts().reindex(wide.columns).fillna(0)
+                 .sort_values(ascending=False).index.tolist())
         for metric in characteristics.columns:
             v = characteristics[metric].reindex(winner.index)
             d = pd.DataFrame({'winner': winner, 'x': v})
@@ -362,14 +436,97 @@ def win_share_by_percentile(scores, characteristics, value='w1',
             if len(d) < 3:
                 continue
             pct = np.linspace(0.0, 100.0, len(d))
-            for method in wide.columns:
+            for position, method in enumerate(order):
                 share = ((d.winner == method).astype(float)
                          .rolling(window, min_periods=1, center=True).mean())
                 out.append(pd.DataFrame(dict(
                     arm=arm, characteristic=metric, method=method,
                     dataset=d.index, percentile=pct, x=d.x.values,
-                    win_share=share.values, window=window)))
+                    win_share=share.values, window=window,
+                    stack_position=position)))
     return (pd.concat(out, ignore_index=True) if out
             else pd.DataFrame(columns=['arm', 'characteristic', 'method',
                                        'dataset', 'percentile', 'x',
-                                       'win_share', 'window']))
+                                       'win_share', 'window',
+                                       'stack_position']))
+
+
+def characteristic_pairs(characteristics):
+    """Group characteristic names into (base, variable_name, uniform_name).
+
+    A characteristic is measured twice, once on each weighting of the same
+    dataset, and the two are named `x` and `x_uw`. Reading them side by side is
+    the comparison the study is about, so they belong in one figure rather than
+    in two panels several rows apart. Three characteristics have no pair -- the
+    dataset size is the same under either weighting, the unweighted mean is 1.0
+    by construction, and the uniform-to-variable W1 is a single quantity
+    describing the pair itself -- and they come back with `uniform_name` None.
+
+    Returns a list of (base, variable_name_or_None, uniform_name_or_None),
+    ordered by base name.
+    """
+    names = set(characteristics)
+    bases = {}
+    for name in names:
+        base = (name[:-len(UNIFORM_SUFFIX)]
+                if name.endswith(UNIFORM_SUFFIX) else name)
+        bases.setdefault(base, [None, None])
+        bases[base][1 if name.endswith(UNIFORM_SUFFIX) else 0] = name
+    return [(base, var, uni) for base, (var, uni) in sorted(bases.items())]
+
+
+def win_share_headline(curves, arm, characteristic, rank_value='w1_rank',
+                       frac=0.1):
+    """The leading method's win share overall and in each tail decile.
+
+    This is the figure's caption reduced to numbers. It is counted, not
+    smoothed: the share is the fraction of datasets on which that method has
+    rank 1, over all datasets and then over the lowest and highest `frac` of
+    them by the characteristic. The rolling curve a panel draws is a smoothed
+    version of the same quantity, so the two agree in the middle and the
+    counted one is what a reader can check against the table.
+
+    Returns None when the characteristic is not on that arm, and otherwise a
+    dict with the method, the three shares and the dataset count behind each.
+    """
+    g = curves[(curves.arm == arm) & (curves.characteristic == characteristic)
+               & (curves.value == rank_value)]
+    if not len(g):
+        return None
+    wide = g.pivot_table(index='dataset', columns='method', values='y')
+    x = g.drop_duplicates('dataset').set_index('dataset')['x']
+    best = wide.idxmin(axis=1)
+    order = best.value_counts()
+    if not len(order):
+        return None
+    leader = order.index[0]
+
+    x = x.reindex(best.index)
+    ok = np.isfinite(x)
+    best, x = best[ok], x[ok]
+    n = len(best)
+    if n < 3:
+        return None
+    k = max(1, int(round(frac * n)))
+    by_x = x.sort_values().index
+
+    def share(index):
+        return float((best.reindex(index) == leader).mean())
+
+    return dict(method=leader, overall=share(best.index),
+                bottom=share(by_x[:k]), top=share(by_x[-k:]),
+                n=n, n_tail=k)
+
+
+def headline_sentence(headline):
+    """One plain sentence stating the three shares, for a figure subtitle.
+
+    The characteristic is not named: this goes under a title that already names
+    it, and repeating it there is what made the line too long to fit.
+    """
+    if headline is None:
+        return ''
+    return (f"{headline['method']} is best on {headline['overall']:.0%} of "
+            f"datasets overall, {headline['bottom']:.0%} in the lowest decile "
+            f"and {headline['top']:.0%} in the highest "
+            f"(n = {headline['n']:,}, decile = {headline['n_tail']:,})")
