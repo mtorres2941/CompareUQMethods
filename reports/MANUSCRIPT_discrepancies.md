@@ -346,7 +346,7 @@ claim. See entries 3, 4 and 6.
 
 ---
 
-## CURRENT CANONICAL NUMBERS, as of Stage 2b closing, 2026-09-14
+## CURRENT CANONICAL NUMBERS, as of Stage 2c closing, 2026-09-16
 
 **Read this before working from any entry below.** Entries are appended and never
 rewritten, so an older one may quote a figure that a later stage has moved. This
@@ -392,31 +392,65 @@ unimodal by Silverman's critical-bandwidth test at nboot = 100; by VISIBLE modes
 
 ### The synthetic corpus
 
-`corpus_2026-09-14d`, seed 42. **9,999 datasets, not 10,000** (one parent failed
-to solve and was reported rather than approximated), plus a 50-dataset probe set
+**`corpus_2026-09-15b`, seed 42, 10,000 datasets**, plus a 50-dataset probe set
 held outside every aggregate. Stratified 2,500 per stratum over n = 3-9, 10-99,
-100-999 and 1000-9999.
+100-999 and 1000-9999. Decision 55 regenerated it and decision 58 recomputed its
+characteristics without redrawing anything; **the "9,999, not 10,000" of
+`corpus_2026-09-14d` no longer applies and the pLCA is 2,500 groups again.**
 
-Match against the 149-dataset arm: mean standardized W1 across the ten
-characteristics **0.2326**; visible-mode total variation **0.0128**. Worst
-characteristic `fit_lognorm_SW` at 0.386, then `entropy` 0.321, `fit_norm_SW`
-0.286, `coeffvar` 0.274.
+Match against the empirical arm at the time of tuning: mean standardized W1
+across the ten characteristics **0.2326**; visible-mode total variation
+**0.0128**. Against the 147-dataset arm the weighted objective reads 0.2425, and
+**decision 63 explains why that is a standardization artifact and not a reason to
+retune.**
+
+**The parent of every dataset is recoverable exactly**, by replaying the
+generator: `corpus.rebuild_parents`, cached as `parents_spec.json.gz`. Decision
+64. It is not stored in `parents.json.gz`, which holds only how each parent was
+asked for.
 
 ### What Stage 2b changed, and the numbers it adds
+
+**READ THE STAGE 2c BLOCK BELOW FIRST.** Three rows in this table are twice
+superseded -- by the bandwidth switch of decision 54 and by the arm and corpus
+changes of decisions 55 and 61 -- and every W1 in it is against the CIRCULAR
+in-sample target that Stage 2c replaced.
 
 | | |
 |---|---|
 | **empirical values** | 117,090 to **117,079**, and six datasets move. Entry 35 |
 | **pLCAs** | **2,499, not 2,500**, over groups of four covering 9,996 of 9,999 datasets. Entry 39 |
-| **W1, empirical, mean rank over the six methods** | `Lognormal, Variable` **2.09**, `KDE, Variable` 2.74, `Lognormal, Uniform` 3.34, `KDE, Uniform` 3.52, `Normal, Variable` 4.21, `Normal, Uniform` 5.11 |
-| **W1, synthetic, mean rank** | `KDE, Variable` **2.12**, `Lognormal, Variable` 2.19, `Normal, Variable` 3.64, `KDE, Uniform` 3.93, `Lognormal, Uniform` 4.17, `Normal, Uniform` 4.95 |
-| **W1, empirical, mean** | `Lognormal, Variable` 0.178, `Lognormal, Uniform` 0.211, `KDE, Variable` 0.251, `KDE, Uniform` 0.286, `Normal, Variable` 0.436, `Normal, Uniform` 0.490 |
-| **W1, synthetic, mean** | `Lognormal, Variable` 0.0988, `KDE, Variable` 0.1017, `Lognormal, Uniform` 0.1676, `KDE, Uniform` 0.1711, `Normal, Variable` 0.1724, `Normal, Uniform` 0.2187 |
+| **W1, empirical, mean rank over the six methods** | `Lognormal, Variable` **2.09**, `KDE, Variable` 2.74, `Lognormal, Uniform` 3.34, `KDE, Uniform` 3.52, `Normal, Variable` 4.21, `Normal, Uniform` 5.11. **SUPERSEDED as a headline by Stage 2c: these are IN-SAMPLE numbers against a circular target, and they predate the guarded Silverman bandwidth. See the Stage 2c block below.** |
+| **W1, synthetic, mean rank** | `KDE, Variable` **2.12**, `Lognormal, Variable` 2.19, `Normal, Variable` 3.64, `KDE, Uniform` 3.93, `Lognormal, Uniform` 4.17, `Normal, Uniform` 4.95. **SUPERSEDED, same two reasons.** In sample on the current corpus and bandwidth: `KDE, Variable` 1.45, `Lognormal, Variable` 2.48, `KDE, Uniform` 3.81, `Normal, Variable` 3.86, `Lognormal, Uniform` 4.36, `Normal, Uniform` 5.05 |
+| **W1, empirical, mean** | `Lognormal, Variable` 0.178, `Lognormal, Uniform` 0.211, `KDE, Variable` 0.251, `KDE, Uniform` 0.286, `Normal, Variable` 0.436, `Normal, Uniform` 0.490. **SUPERSEDED TWICE: these are SCOTT-bandwidth numbers on the 149-dataset arm.** Under the guarded Silverman rule of decision 54 and the 147-dataset arm of decision 61 the in-sample means are `KDE, Variable` **0.1397**, `Lognormal, Variable` 0.1672, `KDE, Uniform` 0.1748, `Lognormal, Uniform` 0.1975, `Normal, Variable` 0.3586, `Normal, Uniform` 0.3957. And in-sample is the circular target; see the Stage 2c block |
+| **W1, synthetic, mean** | `Lognormal, Variable` 0.0988, `KDE, Variable` 0.1017, `Lognormal, Uniform` 0.1676, `KDE, Uniform` 0.1711, `Normal, Variable` 0.1724, `Normal, Uniform` 0.2187. **SUPERSEDED: Scott bandwidth, and `corpus_2026-09-14d`.** Under the guarded Silverman rule on `corpus_2026-09-15b`: `KDE, Variable` **0.0776**, `Lognormal, Variable` 0.0986, `KDE, Uniform` 0.1612, `Lognormal, Uniform` 0.1673, `Normal, Variable` 0.1723, `Normal, Uniform` 0.2188 |
 | **the lognormal** | 3-parameter, threshold by profile likelihood, guard at 0.25 weighted standard deviations below min(x); the +0.5 offset is retired. Entries 37, 40, 43 |
 | **the support** | (0, inf) open at zero, every method truncated and renormalized, sampling by inverse CDF. Decision 13, confirmed |
 
 **The empirical W1 values above are NOT comparable to anything in the manuscript**,
 which reports the same quantity in raw category units. Entry 41.
+
+### What Stage 2c changed, and these are the numbers to quote
+
+**The in-sample scores above are against a circular target and are kept only as
+the "before".** Every headline below is on a target the model has not seen.
+
+| | |
+|---|---|
+| **synthetic, W1 against the parent, mean** | `KDE, Uniform` **0.1228**, `Lognormal, Uniform` 0.1306, `KDE, Variable` 0.1639, `Lognormal, Variable` 0.1699, `Normal, Uniform` 0.2103, `Normal, Variable` 0.2368 |
+| **synthetic, mean rank against the parent** | `KDE, Uniform` **2.03**, `KDE, Variable` 2.96, `Lognormal, Uniform` 3.00, `Lognormal, Variable` 3.72, `Normal, Uniform` 4.48, `Normal, Variable` 4.81 |
+| **empirical, cross-validated W1, mean** | `Lognormal, Uniform` **0.2908**, `Lognormal, Variable` 0.3088, `KDE, Uniform` 0.3214, `KDE, Variable` 0.3411, `Normal, Variable` 0.4739, `Normal, Uniform` 0.4810. **127 of the 147 datasets reach n = 10.** The third decimal moves with the random splits; see entry 54 |
+| **the two arms disagree about the FAMILY, and the criterion plus the size mix explain the sign** | Entry 54. What both agree on: the KDE loses at n = 10-99 and wins at n >= 1000 |
+| **weighting, on the common market parent** | A coin flip overall -- variable wins 51.1 pct (normal), 54.6 (lognormal), 54.2 (KDE) -- and a size effect underneath: for the KDE, 39.0 pct at n = 3-9 and 75.8 pct at n >= 1000. Entry 55 |
+| **the definitional share of a uniform method's in-sample score** | **61.9 pct** on the empirical arm, 85.2 pct on the synthetic. Entry 55 |
+| **regret, synthetic against the parent, mean** | `KDE, Uniform` **0.0290**, `Lognormal, Uniform` 0.0368, then the variable pair, then the normals. At p95 the lognormal is tighter, 0.1281 against 0.1506. Empirical, cross-validated: `Lognormal, Uniform` **0.0244** and the tightest p95. Entry 56 |
+| **empirical size shares** | 20 / 78 / 38 / 8 over 147, plus three above n = 9,999. Entry 62 |
+| **the KDE's advantage is a SHAPE advantage, not a modality one** | Entry 57 |
+| **the three-parameter lognormal is indistinguishable from gamma on real data** | Entry 59 |
+
+**Every aggregate is reported equally allocated AND reweighted to the empirical
+size mix**, and the reweighting flips the corpus's family verdict on the mean
+while leaving it on the rank. Entry 62.
 
 ### What Stage 2a-3 changed, entry by entry
 
@@ -802,20 +836,21 @@ relative figure beside it.**
 
 | | |
 |---|---|
-| **Numbers** | Synthetic arm, mean W1. In sample: `KDE, Variable` 0.0776 best, `Normal, Uniform` 0.2188 worst. **Against the parent: `KDE, Uniform` 0.1228 best and `KDE, Variable` falls to third at 0.1639.** Win share moves from `KDE, Variable` 0.706 in sample to `KDE, Uniform` 0.515 against the parent. Empirical arm, cross-validated: `Lognormal, Uniform` 0.2910 best, `KDE, Variable` fourth at 0.3467, against an in-sample ordering that put `KDE, Variable` first at 0.1397. |
-| **The disagreement** | Out of sample the two arms give **different answers about the family**, and both differences survive a paired bootstrap over datasets. Against the parent the KDE beats the lognormal by 0.0078 (uniform) and 0.0060 (variable), winning 72 and 70 percent of datasets. Cross-validated on the empirical arm the lognormal beats the KDE by 0.0313 and 0.0335, with the KDE winning only 39 and 31 percent. |
+| **Numbers** | Synthetic arm, mean W1. In sample: `KDE, Variable` 0.0776 best, `Normal, Uniform` 0.2188 worst. **Against the parent: `KDE, Uniform` 0.1228 best and `KDE, Variable` falls to third at 0.1639.** Win share moves from `KDE, Variable` 0.706 in sample to `KDE, Uniform` 0.515 against the parent. Empirical arm, cross-validated: `Lognormal, Uniform` **0.2908** best, `Lognormal, Variable` 0.3088, `KDE, Uniform` 0.3214, `KDE, Variable` fourth at 0.3411, against an in-sample ordering that put `KDE, Variable` first at 0.1471. Within a weighting scheme the lognormal's cross-validated win share is 0.496 (uniform) and 0.598 (variable) against the KDE's 0.331 and 0.197. |
+| **The disagreement** | Out of sample the two arms give **different answers about the family**, and both differences survive a paired bootstrap over datasets. Against the parent the KDE beats the lognormal by +0.0078 [+0.0064, +0.0092] (uniform) and +0.0060 [+0.0043, +0.0076] (variable), winning 72.1 and 70.2 percent of datasets. Cross-validated on the empirical arm the lognormal beats the KDE by 0.0306 [-0.0479, -0.0138] and 0.0323 [-0.0495, -0.0156], with the KDE winning only 41.7 and 32.3 percent. |
 | **Why, and it is not a contradiction** | Removing one difference at a time, uniform weighting: parent, equal allocation **+0.0078**; the same corpus CROSS-VALIDATED instead **-0.0034**, because a cross-validation half measures the KDE at n/2 and its advantage is a large-n advantage; reweighted to the empirical size mix **-0.0127**; the empirical arm itself **-0.0321**. **The criterion and the size mix account for the SIGN.** A factor of about two in magnitude does not, and that is a genuine corpus-to-arm difference rather than an artifact of how either is read. |
 | **What every arm and criterion agrees on** | The SHAPE. The KDE loses to the lognormal at n = 10-99 and wins at n >= 1000, on the parent, cross-validated on either arm, and in sample. |
 | **Fix** | **Text.** The paper cannot state a single winner. It must state the size dependence, report both arms on their own non-circular criterion, and say which criterion and which size mix each number comes from. |
-| **Status** | Open. **This is the paper's central claim and it is now conditioned rather than settled.** `audits/evaluation_target.py` section 3c reproduces the reconciliation. |
+| **A note on which numbers to quote** | The SYNTHETIC scores are deterministic. The cross-validated ones move in the third decimal with the random splits: notebook 2 and `audits/evaluation_target.py` use independent streams and read 0.2908 against 0.2910, 0.3088 against 0.3132, 0.3214 against 0.3223, 0.3411 against 0.3467. **Quote notebook 2's**, which are in `TABLE_TargetComparison.csv`. No ordering and no conclusion differs between them. |
+| **Status** | Open. **This is the paper's central claim and it is now conditioned rather than settled.** `audits/evaluation_target.py` section 3c reproduces the reconciliation, which is one coherent computation from that script and so uses its own split stream throughout. |
 
 ## 55. "Variable weighting improves fit" was true by construction, and on a common target it is a size effect
 
 | | |
 |---|---|
 | **Manuscript** | Reports that variable weighting improves goodness of fit. |
-| **Why it was circular** | Every model, including the three uniform-weighted ones, is scored against the VARIABLE-weighted empirical CDF. A uniform-weighted model is therefore charged a distance no estimation method can remove. Decomposed: on the empirical arm the definitional term is **0.1119**, identical for all three uniform-weighted methods, and it is **64 percent** of `KDE, Uniform`'s total score and 57 percent of `Lognormal, Uniform`'s. On the synthetic arm it is 0.1373, and 85 percent of `KDE, Uniform`'s total. **Ranking the six against their OWN weighting scheme reverses the conclusion**: `KDE, Uniform` goes from rank 3 to rank 1 and `KDE, Variable` from 1 to 2, on both arms. |
-| **The uncircular answer** | On the synthetic arm both weighting schemes can be scored against ONE target, the market-weighted parent, which is the population a pLCA of what gets built is a statement about. There a uniform-weighted model pays a BIAS and a variable-weighted model pays VARIANCE from the noisy Dirichlet weights. **Overall it is a coin flip**: variable weighting wins on 51.1 percent of datasets for the normal, 54.6 for the lognormal, 54.2 for the KDE, and the paired bootstrap interval straddles zero for the lognormal and the KDE. **It is strongly size dependent and distinguishable in every band**: for the KDE, variable weighting is worse by 0.0395 at n = 3-9 and better by 0.0571 at n >= 1000; it wins 39 percent of datasets in the smallest band and 76 percent in the largest. The two parents are 0.0828 apart on average before any fitting, which is the floor a uniform-weighted method cannot beat. |
+| **Why it was circular** | Every model, including the three uniform-weighted ones, is scored against the VARIABLE-weighted empirical CDF. A uniform-weighted model is therefore charged a distance no estimation method can remove. Decomposed: on the empirical arm the definitional term is **0.1119**, identical for all three uniform-weighted methods, and it is **61.9 percent** of `KDE, Uniform`'s total score and 56.2 percent of `Lognormal, Uniform`'s. On the synthetic arm it is 0.1373, and 85.2 percent of `KDE, Uniform`'s total. **Ranking the six against their OWN weighting scheme reverses the conclusion**: `KDE, Uniform` goes from rank 3 to rank 1 and `KDE, Variable` from 1 to 2, on both arms. |
+| **The uncircular answer** | On the synthetic arm both weighting schemes can be scored against ONE target, the market-weighted parent, which is the population a pLCA of what gets built is a statement about. There a uniform-weighted model pays a BIAS and a variable-weighted model pays VARIANCE from the noisy Dirichlet weights. **Overall it is a coin flip**: variable weighting wins on 51.1 percent of datasets for the normal, 54.6 for the lognormal, 54.2 for the KDE, and the paired bootstrap interval straddles zero for the lognormal and the KDE. **It is strongly size dependent and distinguishable in every band**: for the KDE, variable weighting is worse by 0.0395 at n = 3-9 and better by 0.0571 at n >= 1000; it wins 39.0 percent of datasets in the smallest band and 75.8 percent in the largest. The lognormal shows the same pattern more strongly, -0.0580 to +0.0451, winning 33.6 percent then 77.7. The two parents are 0.0828 apart on average before any fitting, which is the floor a uniform-weighted method cannot beat. |
 | **The empirical arm cannot answer this** | Its weights are an exchangeable flat Dirichlet draw with no market information, so the expected variable-weighted CDF of a random half IS the unweighted one and a uniform-weighted fit is the better cross-validated predictor by construction. That is a property of the synthetic weights, not a finding about weighting. **A cross-validated score may be compared across estimation methods within one weighting scheme and never across weighting schemes.** |
 | **Fix** | **Text, and it changes a claim.** Variable weighting does not improve fit in general; it helps when there are enough data points to estimate the reweighted distribution and hurts when there are not, with the crossover around n = 100. |
 | **Status** | Open. `TABLE_WeightingDecomposition.csv`, `TABLE_WeightingOnCommonTarget.csv`. |
@@ -826,7 +861,7 @@ relative figure beside it.**
 |---|---|
 | **Why** | A win share answers "how often is this method best". A practitioner will use ONE method on every dataset, so the question is what that costs when it is not the best one, and a method that is second by a hair everywhere is a better default than one that wins half the time and is catastrophic on the rest. |
 | **Numbers, synthetic arm against the parent** | Mean regret: `KDE, Uniform` 0.0290, `Lognormal, Uniform` 0.0368, `KDE, Variable` 0.0702, `Lognormal, Variable` 0.0762, `Normal, Uniform` 0.1166, `Normal, Variable` 0.1431. **The upper tail reverses two of them**: at the 95th percentile `Lognormal, Uniform` is 0.1281 against `KDE, Uniform`'s 0.1506, and the worst case is 0.86 against 1.26. `KDE, Uniform` is the best method on 51.6 percent of datasets and the lognormal on 16.4. |
-| **Numbers, empirical arm cross-validated** | Mean regret: `Lognormal, Uniform` 0.0248, `Lognormal, Variable` 0.0470, `KDE, Uniform` 0.0561, `KDE, Variable` 0.0805, then the two normals near 0.21. |
+| **Numbers, empirical arm cross-validated** | Mean regret: `Lognormal, Uniform` **0.0244**, `Lognormal, Variable` 0.0425, `KDE, Uniform` 0.0550, `KDE, Variable` 0.0748, then `Normal, Variable` 0.2075 and `Normal, Uniform` 0.2147. `Lognormal, Uniform` is the best method on 33.1 percent of datasets and has the tightest p95, 0.0953 against `KDE, Uniform`'s 0.2411. |
 | **Fix** | **Text.** Report the regret distribution, not only the win rate. The sentence the numbers support is that the KDE has the lower mean cost and the lognormal the tighter worst case. |
 | **Status** | Open. `TABLE_Regret.csv`, and `CompareUQMethods_FIG_Regret.png`. |
 

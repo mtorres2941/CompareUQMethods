@@ -18,7 +18,7 @@ Four results change what the paper says.
    sign, a factor of two in magnitude is a genuine corpus-to-arm difference, and
    **what every arm and every criterion agrees on is that the KDE loses at
    n = 10-99 and wins at n >= 1000.** Section 4.3.
-2. **"Variable weighting improves fit" was 64 percent definitional on the
+2. **"Variable weighting improves fit" was 62 percent definitional on the
    empirical arm.** On a common target it is a coin flip overall and a size
    effect underneath: for the KDE, variable weighting is worse by 0.0395 at
    n = 3-9 and better by 0.0571 at n >= 1000. Section 4.4.
@@ -164,12 +164,19 @@ each. Mean W1:
 
 | method | in sample | cross-validated | CV median | CV rank within weighting | CV win share within weighting |
 |---|---|---|---|---|---|
-| `Lognormal, Uniform` | 0.1975 | **0.2910** | 0.2654 | **1.598** | **0.543** |
-| `Lognormal, Variable` | 0.1672 | 0.3132 | 0.2585 | **1.567** | **0.567** |
-| `KDE, Uniform` | 0.1748 | 0.3223 | 0.2633 | 1.874 | 0.284 |
-| `KDE, Variable` | **0.1397** | 0.3467 | 0.2915 | 2.079 | 0.189 |
-| `Normal, Variable` | 0.3586 | 0.4761 | 0.3887 | 2.354 | 0.244 |
-| `Normal, Uniform` | 0.3957 | 0.4793 | 0.3387 | 2.528 | 0.173 |
+| `Lognormal, Uniform` | 0.1990 | **0.2908** | 0.2580 | **1.646** | **0.496** |
+| `Lognormal, Variable` | 0.1687 | 0.3088 | 0.2621 | **1.551** | **0.598** |
+| `KDE, Uniform` | 0.1806 | 0.3214 | 0.2709 | 1.827 | 0.331 |
+| `KDE, Variable` | **0.1471** | 0.3411 | 0.2927 | 2.024 | 0.197 |
+| `Normal, Variable` | 0.3619 | 0.4739 | 0.3637 | 2.425 | 0.205 |
+| `Normal, Uniform` | 0.3990 | 0.4810 | 0.3484 | 2.528 | 0.173 |
+
+**These are notebook 2's numbers and they are the canonical ones.**
+`audits/evaluation_target.py` runs the same computation on an independent split
+stream and gets 0.2910, 0.3132, 0.3223, 0.3467, 0.4761, 0.4793. **The third
+decimal of a cross-validated mean moves with the splits; the ordering and every
+conclusion below do not.** The synthetic numbers are deterministic and agree
+exactly between the two.
 
 **The split noise is the same size as the spread between methods.** Median spread
 between the best and worst method on a dataset 0.1200; median split-to-split
@@ -185,11 +192,14 @@ Positive means the KDE is better.
 
 | | uniform | variable |
 |---|---|---|
-| synthetic, against the parent | **+0.0078** [+0.0064, +0.0092] | **+0.0060** [+0.0044, +0.0076] |
-| empirical, cross-validated | **-0.0313** [-0.0503, -0.0138] | **-0.0335** [-0.0521, -0.0164] |
+| synthetic, against the parent | **+0.0078** [+0.0064, +0.0092] | **+0.0060** [+0.0043, +0.0076] |
+| empirical, cross-validated | **-0.0306** [-0.0479, -0.0138] | **-0.0323** [-0.0495, -0.0156] |
 
-Both intervals exclude zero, so the disagreement is not noise. Removing one
-difference at a time, uniform weighting:
+Both intervals exclude zero, so the disagreement is not noise. The chain below is
+one coherent computation from `audits/evaluation_target.py`, which cross-validates
+a 2,000-dataset corpus sample that notebook 2 does not; its empirical step reads
+-0.0321 against the notebook's -0.0306, which is the split-stream difference of
+section 4.2. Removing one difference at a time, uniform weighting:
 
 | step | KDE minus lognormal |
 |---|---|
@@ -229,11 +239,11 @@ charged a distance no estimation method can remove:
 
 | arm | method | total | own scheme | definitional | definitional share |
 |---|---|---|---|---|---|
-| empirical | `KDE, Uniform` | 0.1748 | **0.1164** | 0.1119 | **64.0 pct** |
-| empirical | `Lognormal, Uniform` | 0.1975 | 0.1595 | 0.1119 | 56.7 pct |
-| empirical | `Normal, Uniform` | 0.3957 | 0.3801 | 0.1119 | 28.3 pct |
-| synthetic | `KDE, Uniform` | 0.1611 | **0.0574** | 0.1373 | **85.3 pct** |
-| synthetic | `Lognormal, Uniform` | 0.1680 | 0.0888 | 0.1373 | 81.7 pct |
+| empirical | `KDE, Uniform` | 0.1806 | **0.1164** | 0.1119 | **61.9 pct** |
+| empirical | `Lognormal, Uniform` | 0.1990 | 0.1595 | 0.1119 | 56.2 pct |
+| empirical | `Normal, Uniform` | 0.3990 | 0.3801 | 0.1119 | 28.0 pct |
+| synthetic | `KDE, Uniform` | 0.1612 | **0.0574** | 0.1373 | **85.2 pct** |
+| synthetic | `Lognormal, Uniform` | 0.1673 | 0.0888 | 0.1373 | 82.1 pct |
 
 The definitional term is identical for all three uniform-weighted methods
 because it is a property of the weights alone. **Ranking the six against their
@@ -248,20 +258,23 @@ six estimate the same thing, mean W1 over 10,000 datasets:
 
 Paired, variable minus uniform, positive = variable better:
 
-| family | mean difference | interval | variable wins |
-|---|---|---|---|
-| Normal | -0.0076 | [-0.0108, -0.0044] | 51.1 pct |
-| Lognormal | -0.0026 | [-0.0053, 0.0000] | 54.6 pct |
-| KDE | +0.0025 | [-0.0007, +0.0056] | 54.2 pct |
+| family | mean difference | interval | variable wins | distinguishable |
+|---|---|---|---|---|
+| Normal | -0.0076 | [-0.0107, -0.0045] | 51.1 pct | yes, and it is WORSE |
+| Lognormal | -0.0026 | [-0.0054, +0.0002] | 54.6 pct | no |
+| KDE | +0.0025 | [-0.0008, +0.0057] | 54.2 pct | no |
 
 **Overall it is a coin flip. By size band, for the KDE, it is not:**
 
 | band | difference | interval | variable wins |
 |---|---|---|---|
-| n 3-9 | -0.0395 | [-0.0475, -0.0315] | 39.0 pct |
-| n 10-99 | -0.0298 | [-0.0378, -0.0221] | 42.8 pct |
-| n 100-999 | +0.0223 | [+0.0178, +0.0265] | 59.0 pct |
-| n >= 1000 | +0.0571 | [+0.0540, +0.0603] | 75.8 pct |
+| n 3-9 | -0.0395 | [-0.0473, -0.0317] | 39.0 pct |
+| n 10-99 | -0.0298 | [-0.0375, -0.0224] | 42.8 pct |
+| n 100-999 | +0.0223 | [+0.0179, +0.0264] | 59.0 pct |
+| n >= 1000 | +0.0571 | [+0.0539, +0.0604] | 75.8 pct |
+
+The lognormal shows the same pattern more strongly, -0.0580 at n = 3-9 to
++0.0451 at n >= 1000, and every band is distinguishable for both families.
 
 Decision 65, entry 55.
 
@@ -280,9 +293,11 @@ Synthetic, against the parent, 10,000 datasets:
 | `Normal, Uniform` | 0.1166 | 0.0741 | 0.2796 | 0.3621 | 1.4910 | 0.037 |
 | `Normal, Variable` | 0.1431 | 0.0891 | 0.3270 | 0.4551 | 3.3246 | 0.024 |
 
-Empirical, cross-validated, 127 datasets: `Lognormal, Uniform` 0.0248,
-`Lognormal, Variable` 0.0470, `KDE, Uniform` 0.0561, `KDE, Variable` 0.0805,
-`Normal, Variable` 0.2099, `Normal, Uniform` 0.2131.
+Empirical, cross-validated, 127 datasets, mean / p95 / zero share:
+`Lognormal, Uniform` 0.0244 / 0.0953 / 0.331, `Lognormal, Variable`
+0.0425 / 0.1454 / 0.150, `KDE, Uniform` 0.0550 / 0.2411 / 0.268,
+`KDE, Variable` 0.0748 / 0.2702 / 0.047, `Normal, Variable`
+0.2075 / 0.7192 / 0.055, `Normal, Uniform` 0.2147 / 0.7061 / 0.150.
 
 **The sentence the numbers support is that the KDE has the lower mean cost and
 the lognormal the tighter worst case.** Entry 56.
@@ -524,6 +539,17 @@ cite those entries. Git history retains it.
 
 **Not touched:** the generator's algorithm, `genconfig`'s generation parameters,
 the empirical extract, the fitting families, the corpus, and the manuscript.
+
+**NOTEBOOK 3 WAS NOT RE-RUN, and it does not need to be.** Nothing on the numeric
+path changed: `fitting.py`, `families.py`, `customstats.py` and `empirical.py`
+are untouched in this stage, and the diffs to `components.py`, `generator.py`
+and `mixture.py` add a `spec` method and an optional constructor tag and remove
+nothing. Notebook 3 calls none of `comparison.score_methods`, `recovery` or
+`EMPIRICAL_STRATUM_SHARE`. The regression fixtures pass unchanged. So
+`TABLE_PLCAResults.csv` is bit-identical to the Stage 2b run and the pLCA
+results in it still stand. **Notebook 1 SHOULD be re-run** before any figure is
+taken from it, because `coverage.post_stratified` moves in the fourth decimal;
+see section 4.11.
 
 ---
 

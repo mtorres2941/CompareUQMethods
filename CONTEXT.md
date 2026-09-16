@@ -37,6 +37,10 @@ CompareUQMethods/
 │   ├── fitting.py             the six PEWT fits and W1 scoring
 │   ├── comparison.py          the paper's method comparison: held-out W1, the
 │   │                          tail check, ranks and characteristic curves
+│   ├── recovery.py            the evaluation target (Stage 2c): W1 against the
+│   │                          known parent, cross-validation, the
+│   │                          fit-versus-definitional split, regret,
+│   │                          post-stratification, the paired bootstrap
 │   ├── datavisualization.py   one colour helper
 │   ├── funcs_unit_conversion.py  EC3 unit normalization
 │   └── dct_metriclabels.json  display labels for the 22 metrics
@@ -292,7 +296,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 281 tests, about 90 seconds
+python -m pytest tests/          # 322 tests, about 95 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -327,10 +331,12 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 `df_stds.index`. `corpus.describe_combos` names the held-out datasets and both
 notebooks print it, so the remainder is stated rather than inferred.
 
-Approximate runtimes on a 2026 laptop, all three notebooks, after the Stage 1
-optimizations: NB1 about 80 s, NB2 about 6.5 min, NB3 about 10 min at `neccs = 10000`.
-All three roughly doubled in Stage 2b, because stratum 4 now reaches n = 9,996
-where the pre-regeneration corpus stopped at 749.
+Approximate runtimes on a 2026 laptop: NB1 about 3 min, **NB2 about 35 min**,
+NB3 about 20 min at `neccs = 10000`. All three roughly doubled in Stage 2b,
+because stratum 4 now reaches n = 9,999 where the pre-regeneration corpus
+stopped at 749, and NB2 grew again in Stage 2c: the whole corpus is scored
+against its parent and the empirical arm is cross-validated at ten repeats.
+`COMPAREUQ_SMOKE_COMBOS` applies to NB3 only.
 
 ## 5. Input data
 
@@ -453,6 +459,16 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_MethodSummary.csv` | NB2 | the six methods by arm, the table to read first |
 | `TABLE_MethodCurves.csv.gz` | NB2 | every score against every characteristic, unbinned, with the rolling mean the figures draw |
 | `TABLE_BandwidthRules.csv` | NB2 | the two KDE methods under all three bandwidth rules |
+| `TABLE_TargetComparison.csv` | NB2 | **the Stage 2c table to read.** One row per (arm, dataset, method): the in-sample score, the recovery score against the parent it estimates and against the market parent, the cross-validated score with its spread across splits, the decomposition and the overlap area |
+| `TABLE_TargetSummary.csv` | NB2 | the six methods by arm, criterion and weighting scheme |
+| `TABLE_CrossValidatedScores.csv.gz` | NB2 | one row per (dataset, method, split, direction) |
+| `TABLE_CrossValidatedSummary.csv` | NB2 | the mean over splits and the spread across them |
+| `TABLE_PairedBootstrap.csv` | NB2 | whether a gap between two methods survives resampling the datasets |
+| `TABLE_WeightingDecomposition.csv` | NB2 | fit error against the definitional gap |
+| `TABLE_WeightingOnCommonTarget.csv` | NB2 | does variable weighting help, on the market parent, by size band |
+| `TABLE_Regret.csv` | NB2 | mean, median and upper tail of regret per method |
+| `TABLE_PostStratifiedScores.csv` | NB2 | every headline aggregate equally allocated and reweighted. **NOT `TABLE_PostStratified.csv`, which is NB1's and is about the dataset characteristics** |
+| `TABLE_ModalityConditioned.csv` | NB2 | the method comparison split by visible modality, within size band |
 | `TABLE_MethodWinShare.csv.gz` | NB2 | how often each method wins, against the percentile of each characteristic |
 | `TABLE_PLCAResults.csv` | NB3 | 59,976 x 43, which is 2,499 groups x 6 methods x 4 datasets |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |
@@ -505,6 +521,7 @@ the worst observed value.
 | `test_mixture.py` | 9 | the parent CDF matches a 400,000-draw sample, the market-weighted parent is a real population object, coupling 0 collapses the two parents, inverse-CDF sampling agrees with the truncation loop it replaced, overlap is symmetric and monotone in separation |
 | `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
 | `test_comparison.py` | 10 | held-out W1 is undefined below n = 10 rather than computed from two points, is worse than in-sample for the flexible method, and removes most of W1's bandwidth sensitivity without replacing it with a sharp optimum; the model-spread ratio catches a tail W1 does not; ranks are within-dataset and invariant to rescaling a dataset; the curve window scales to the arm instead of assuming the corpus; all six methods share each held-out split, so the comparison is paired |
+| `test_recovery.py` | 26 | the parent spec round-trips exactly and the overlap displacements are NOT in the generation record, which is why the replay exists; a recovery score is zero when the model IS the parent and rises as it moves away; the grid always covers the parent; the two weightings are scored against different parents; the tail charge catches a far tail the body score does not; cross-validation is undefined below n = 10, penalizes the flexible method relative to in sample, and is paired across methods; the decomposition satisfies its own inequality and the definitional term is identical across uniform methods and zero for variable ones; regret is zero for the winner; post-stratification moves an aggregate toward the common band and the empirical shares are measured not assumed; a win share only moves when the WINNER moves, which is why the empirical headline is stated as one; the paired bootstrap finds a real gap and not an imaginary one |
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbours on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 
