@@ -2,7 +2,7 @@
 
 ## 0. STATUS, read this first
 
-**THE ARM IS 147 DATASETS AND 116,768 VALUES, NOT 149 AND 117,079.** Two EC3
+**THE ARM IS 147 DATASETS AND 116,766 VALUES, NOT 149 AND 117,079.** Two EC3
 categories were found not to be one product population and were dropped; see
 section 4.18, which also carries the general finding about why a relative
 outlier filter could never have found them.
@@ -633,6 +633,38 @@ and log-space cleaning are both invariant under a constant rescale of a whole
 dataset, and the fixture regression passed unchanged before anything was
 re-frozen. `psi` and `rval` are kept deliberately: concrete is specified in psi,
 which is what decision 46's strength classes are named in. Decision 62.
+
+### 4.20 Two mislabelled records were holding up the arm's dispersion tail
+
+EC3 publishes a GWP per KILOGRAM alongside the declared-unit figure.
+`THHN/THWN-2 High Speed (HS)` declares 14,300 kgCO2e for one metre of ordinary
+building wire while publishing 4.017 kgCO2e/kg, which puts 3,560 kg of copper in
+one metre. The material is fine; the DECLARED UNIT is wrong, and the record's
+own two numbers say so with no reference to any other record. Two records go.
+Decision 63.
+
+**What two records did.** `PowerCabling` coefficient of variation **13.404 to
+2.030**, skewness 18.33 to 4.34, kurtosis 347.0 to 28.3. The ARM'S MAXIMUM
+coefficient of variation falls from **13.404 to 6.929** and moves to
+`Aggregates`. Coverage improves from 11 uncovered dataset-metric pairs of 1,490
+to **5 of 1,470**.
+
+**DECISION 48'S PREMISE IS PARTLY WITHDRAWN.** It accepted the coverage
+shortfall after finding no generator parameter could reach an empirical
+coefficient of variation of 14.34. That figure was inflated by these two
+records. The real target is 6.93 and the gap is about half what it was. The
+coverage claim and `CompareUQMethods_FIG_MetricCoverage.png` must be restated
+from the rebuilt tables and NOT from decision 48's numbers.
+
+**THE CALIBRATION APPEARS TO WORSEN AND THAT IS AN ARTIFACT. DO NOT RETUNE.**
+The weighted objective reads 0.2278 to 0.2425, nominally 2.2 seed-to-seed
+standard deviations. `coverage.distribution_comparison` divides by the EMPIRICAL
+STANDARD DEVIATION, and removing a coefficient of variation of 13.4 from 147
+values takes that denominator from 1.2554 to 0.7067. In ABSOLUTE terms the
+corpus matches the corrected arm BETTER on the characteristic driving the whole
+move: `coeffvar` absolute W1 0.3463 to 0.2690, a 22 percent improvement.
+`coeffvar` and `crit_bw_1` carry weight 3 (decision 35), which is why they set
+the headline. Full reasoning in decision 63.
 
 ## 5. Open questions and flags
 
