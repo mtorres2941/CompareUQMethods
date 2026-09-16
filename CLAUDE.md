@@ -262,7 +262,7 @@ and generation is closed; neither input moves again.
 | **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
 | **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
-| **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **Also the figure SIZE problem: several figures declare a `figsize` of roughly 94 by 55 inches and come out at 50 to 98 megapixels. 2a deleted 15 stale figures (115 MB) but did not touch the live ones, which are all from the pre-regeneration corpus and will be rebuilt anyway** | Changing any number |
+| **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
 Items already known to be open and owned by a named stage, so that none of them
@@ -981,5 +981,5 @@ rather than in conversation.
     conversation. An open item now lands in this decision log or in the
     discrepancy file. See the amended "Continuity across sessions" section.
 
-    Kept deliberately: `reports/baselines/TIMING_stage-0-baseline.md`, because
+    Kept deliberately: `reports/baselines/TIMING_baseline.md`, because
     the author wants a before-and-after comparison of the repository.
