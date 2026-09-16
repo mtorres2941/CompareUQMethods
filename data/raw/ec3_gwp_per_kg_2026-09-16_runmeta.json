@@ -1,0 +1,9 @@
+{
+  "built_on": "2026-09-16T20:13:47+00:00",
+  "purpose": "EC3 published GWP per KILOGRAM for the records of the frozen ECC extract. Used ONLY by empirical.internally_inconsistent, to test whether a record declared per volume, area or length implies a physically impossible mass. Frozen so the arm stays reproducible from a clean clone; the live store has moved on and its sha256 no longer matches the one the ECC extract records.",
+  "source": "../EPDsFromEC3/store/epd_index.csv.gz",
+  "source_sha256": "483cd26bb21eb256464aea003181ddaf1ee941f28be8e9bac87148061383b8d1",
+  "note": "Pulled from a LATER snapshot of the store than the ECC extract. That is acceptable for a consistency check on a per-EPD constant, and records absent from this file are simply not checked.",
+  "records": 116035,
+  "sha256": "3dae6c08b3d44cf80ba1dbc65c39056c271925859174b180688bfed9eb7a9f92"
+}

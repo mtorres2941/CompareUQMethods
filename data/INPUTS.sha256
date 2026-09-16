@@ -323,3 +323,9 @@ was computed from.
 74b6f01fdcc1bafe6e68b8656380aa02390eeef16cdc4130575efb9cc3f6c9c8  data/processed/corpus_2026-09-15/parents.json.gz
 d667fd180219c57b57d17e9652cfb66d78e5a293b5e933da95944f3479db29c8  data/processed/corpus_2026-09-15/runmeta.json
 427ab3217b910f0bc74803805782d95f8522a98395b90eb297e3d1209e0de4f7  data/processed/corpus_2026-09-15/combos.csv
+
+# EC3's published GWP per KILOGRAM for the extract's records, frozen
+# 2026-09-16. Read only by empirical.internally_inconsistent, which uses it
+# to test whether a record declared per volume, area or length implies a
+# physically impossible mass. Decision 63.
+3dae6c08b3d44cf80ba1dbc65c39056c271925859174b180688bfed9eb7a9f92  data/raw/ec3_gwp_per_kg_2026-09-16.csv.gz

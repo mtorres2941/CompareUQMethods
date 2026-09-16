@@ -171,6 +171,68 @@ def split_report(path=SOURCE):
     return categorysplit.assign(load_records(path), category_tree())[1]
 
 
+#: EC3's own published GWP per KILOGRAM, frozen for the extract's records. This
+#: is what makes the consistency check below possible: it is a second,
+#: independently published number on the same EPD.
+GWP_PER_KG = os.path.join(RAW, 'ec3_gwp_per_kg_2026-09-16.csv.gz')
+
+#: The range in which EC3's gwp_per_kg is itself believable, in kgCO2e/kg. A
+#: field of 0.0 or 1e-9 is a broken field, not a carbon-free product, and
+#: dividing by it manufactures an absurd implied mass from a perfectly good
+#: record. Four ReadyMix records at a wholly normal 372 to 451 kgCO2e/m3 were
+#: flagged that way before this guard existed.
+GWP_PER_KG_USABLE = (0.001, 100.0)
+
+#: Largest mass, in kg, that one declared unit of a building product can
+#: physically have. Not tuned: a cubic metre denser than 12,000 kg is denser
+#: than lead, a square metre massing 8,000 kg is a metre of solid steel, and no
+#: linear building element runs to 1,000 kg per metre.
+MAX_MASS_PER_UNIT = {'vol': 12000.0, 'area': 8000.0, 'length': 1000.0}
+
+#: Companion ceiling on the ECC itself, per declared-unit type. BOTH must be
+#: exceeded before a record is removed, and that is the whole design: two
+#: independently published numbers on one record must BOTH be impossible. The
+#: mass test alone would discard good records whose gwp_per_kg is broken; the
+#: ECC test alone is the per-unit ceiling that cannot be anchored externally,
+#: since a square metre of product has no general size. Together they identify a
+#: DECLARED-UNIT error, which is what these are.
+MAX_ECC_PER_UNIT = {'vol': 5000.0, 'area': 5000.0, 'length': 1000.0}
+
+
+def gwp_per_kg(path=GWP_PER_KG):
+    """EC3's published kgCO2e per kg, indexed by record."""
+    return pd.read_csv(path).set_index('open_xpd_uuid').gwp_per_kg_value
+
+
+def internally_inconsistent(df, path=GWP_PER_KG):
+    """Records whose declared unit contradicts their own published mass figure.
+
+    A record declared per cubic metre, square metre or metre carries a second
+    number EC3 publishes independently: the GWP per kilogram. Dividing one by
+    the other gives the mass that one declared unit would have to have. When
+    that mass is physically impossible AND the ECC itself is beyond what the
+    unit can support, the DECLARED UNIT is wrong.
+
+    This is not a dispersion screen. It never looks at the other records, only
+    at two numbers on the same EPD and at physical limits fixed outside the
+    data. `THHN/THWN-2 High Speed (HS)` declares 14,300 kgCO2e for one metre of
+    ordinary building wire while publishing 4.017 kgCO2e/kg, which puts 3,560 kg
+    of copper in a single metre.
+
+    Records with no usable gwp_per_kg are simply not checked; the file covers
+    96.5 percent of the extract.
+    """
+    if 'du_type' not in df.columns or 'ecc' not in df.columns:
+        return pd.Series(False, index=df.index)
+    per_kg = df.open_xpd_uuid.map(gwp_per_kg(path))
+    lo, hi = GWP_PER_KG_USABLE
+    usable = per_kg.between(lo, hi)
+    implied = df.ecc / per_kg.where(usable)
+    mass_limit = df.du_type.map(MAX_MASS_PER_UNIT)
+    ecc_limit = df.du_type.map(MAX_ECC_PER_UNIT)
+    return ((implied > mass_limit) & (df.ecc > ecc_limit)).fillna(False)
+
+
 def implausible(df, ceiling=MASS_ECC_CEILING, unit_type=MASS_UNIT_TYPE):
     """Records that cannot be a physical product, as a boolean mask.
 
@@ -231,6 +293,7 @@ def load_raw(path=SOURCE, split=SPLIT, ceiling=True):
     if not split:
         if ceiling:
             df = df[~implausible(df)]
+            df = df[~internally_inconsistent(df)]
         return ({mat: g.ecc.to_numpy(float)
                  for mat, g in df.groupby('material_query', sort=True)},
                 pd.DataFrame())
@@ -238,6 +301,7 @@ def load_raw(path=SOURCE, split=SPLIT, ceiling=True):
     df = df.assign(dataset=labels).dropna(subset=['dataset'])
     if ceiling:
         df = df[~implausible(df)]
+        df = df[~internally_inconsistent(df)]
     return ({ds: g.ecc.to_numpy(float)
              for ds, g in df.groupby('dataset', sort=True)}, report)
 

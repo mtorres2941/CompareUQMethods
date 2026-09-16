@@ -1,7 +1,7 @@
 metric_x,metric_y,empirical_covered,n_uncovered,uncovered
-coeffvar,skewness,0.9795918367346939,3,Aggregates|ConcreteAdmixtures|PowerCabling
-coeffvar,crit_bw_1,0.9795918367346939,3,Aggregates|DampproofingAndWaterproofing|PowerCabling
-skewness,kurtosis,0.9858156028368794,2,ConcreteAdmixtures|PowerCabling
+coeffvar,skewness,0.9863945578231292,2,Aggregates|ConcreteAdmixtures
+coeffvar,crit_bw_1,0.9795918367346939,3,AcousticalCeilings|Aggregates|DampproofingAndWaterproofing
+skewness,kurtosis,0.9929078014184397,1,ConcreteAdmixtures
 n,w_v_uw_wasserstein,0.9795918367346939,3,ReadyMix [3000-3999 psi]|ReadyMix [4000-4999 psi]|ReadyMix [5000-5999 psi]
-entropy,weight_outliers,0.9863945578231292,2,InsulatingGlazingUnits|PowerCabling
-fit_norm_SW,fit_lognorm_SW,0.9795918367346939,3,Aggregates|ConcreteAdmixtures|PowerCabling
+entropy,weight_outliers,0.9931972789115646,1,InsulatingGlazingUnits
+fit_norm_SW,fit_lognorm_SW,0.9795918367346939,3,Aggregates|ConcreteAdmixtures|DampproofingAndWaterproofing

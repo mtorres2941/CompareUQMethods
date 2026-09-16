@@ -51,7 +51,10 @@ ARM_VALUES_BEFORE = 117_090
 
 def arm_records():
     """Every raw record that reaches a dataset of the arm, with its unit type."""
-    raw = pd.read_csv(empirical.SOURCE, low_memory=False)
+    # Through empirical.fix_length_unit, so this sees the same ECC the arm does.
+    # Reading the frozen CSV directly bypassed it and reported length-declared
+    # products per INCH while the arm held them per metre.
+    raw = empirical.fix_length_unit(pd.read_csv(empirical.SOURCE, low_memory=False))
     recs = empirical.load_records()
     labels, _ = categorysplit.assign(recs, empirical.category_tree())
     recs = recs.assign(dataset=labels)
