@@ -65,3 +65,8 @@ outputs/manuscript/
 
 # Derived mode-count caches (audits/stage2a3/q3). Rebuilt from the corpus.
 outputs/tables/stage2a3/CACHE_modality_*.npz
+
+# Audit tables. The scripts under audits/ rewrite these on demand, and a script
+# is a better record of a measurement than the CSV it produces. 98 of these were
+# tracked and deleted on 2026-09-15; they are not tracked again.
+outputs/tables/audits/

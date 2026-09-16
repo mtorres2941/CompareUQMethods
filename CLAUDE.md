@@ -911,3 +911,75 @@ rather than in conversation.
     figure had been written by a scratch script and its code is now a notebook
     cell. **Audit scripts may write only under `outputs/tables/audits/`, never
     to `outputs/figures/` or the top level of `outputs/tables/`.**
+57. **2026-09-15. `weight_outliers` was measured from the ECDF's padding, and is
+    corrected on BOTH arms.** `[DELEGATED, chose to fix]` `weighted_ecdf` pads
+    its arrays with `-inf` and `+inf` so the interpolator it returns extrapolates
+    flat outside the data. `empirical_metadata` interpolated its quartiles on
+    those padded arrays, so whenever the smallest value carried more than a
+    quarter of the weight, `q1` came back as `-inf`, the interquartile range
+    became infinite, both outlier comparisons were silently False, and the
+    metric was reported as ZERO. Where both quartiles landed in the padding the
+    subtraction produced NaN, which is the warning that exposed it.
+
+    **It is a measurement fix, not a methodological change, and it is applied
+    identically to both arms.** Confined to small datasets: the largest affected
+    dataset has n = 39 and most have n = 3.
+
+        synthetic  weight_outliers      474/10000   0.0540 -> 0.0609
+        synthetic  weight_outliers_uw   163/10000   0.0526 -> 0.0580
+        empirical  weight_outliers        3/  149   0.0614 -> 0.0656
+        empirical  weight_outliers_uw     1/  149   0.0590 -> 0.0612
+
+    Both arms move the same way by a similar amount, so the arm-to-arm agreement
+    the generator was tuned against is essentially unchanged. **Generation stays
+    closed and nothing is retuned**, per decisions 47, 48 and 55. No W1 column
+    moves on either arm. The manuscript owes nothing here except the corrected
+    numbers; see `reports/MANUSCRIPT_discrepancies.md`.
+
+58. **2026-09-15. A corpus's characteristics can be RECOMPUTED without redrawing
+    it, and `corpus_2026-09-15b` is that and nothing more.** `[DELEGATED, chose]`
+    Read this before concluding that generation was reopened. **It was not.**
+
+    The empirical arm computes its characteristics when notebook 1 runs; the
+    synthetic arm stores them in `metrics.parquet` at generation time. So a
+    correction to the metric code reaches one arm and not the other, and the two
+    would be measured by DIFFERENT CODE on a dimension the study reports, which
+    is the failure decision 42 is about.
+
+    `corpus.remetric_corpus` reads the values already on disk, reruns the current
+    `empirical_metadata` over them, and copies the generation record forward. No
+    dataset is redrawn and no random number is consumed. A new directory is
+    written rather than the source edited, so the old readout stays on disk
+    beside the new one and the change is diffable.
+
+    **Verified, and the verification is the point:** `values.parquet`,
+    `parents.json.gz`, `combos.csv` and `invalid_datasets.json` are all BYTE
+    IDENTICAL between the two directories, the only columns that differ are the
+    two in decision 57, and notebook 3 then reproduced `TABLE_PLCAResults.csv`
+    byte for byte. A regeneration could not do any of that.
+
+    A later stage that needs a metric corrected uses this, not `generate_corpus`.
+
+59. **2026-09-15. The closed stages' handoffs and the audit TABLES are deleted,
+    and `audits/` is flat.** `[AUTHOR]` "People reading this repository don't
+    need to know anything about our editing process", and, on the audit tables,
+    "I don't know what any of these are for."
+
+    Deleted: `HANDOFF_stage-0` through `HANDOFF_stage-2a3`, `REVIEW_stage-2a.md`,
+    and the four `outputs/tables/stage2*` directories, 98 tables. `audits/` went
+    from 43 scripts in four stage-named directories to 18 in one flat directory,
+    each named for what it measures.
+
+    **The rule for keeping an audit script was whether something PERMANENT cites
+    its numbers** -- this decision log, `CONTEXT.md`, `src/`, or
+    `MANUSCRIPT_discrepancies.md` -- because that is what makes a decision
+    reproducible rather than asserted. A 12 KB script that rewrites its table on
+    demand is a better record than a 4 MB CSV, which is why the tables could go
+    and the scripts could not.
+
+    **What this does NOT relax:** nothing outstanding may live only in a
+    conversation. An open item now lands in this decision log or in the
+    discrepancy file. See the amended "Continuity across sessions" section.
+
+    Kept deliberately: `reports/baselines/TIMING_stage-0-baseline.md`, because
+    the author wants a before-and-after comparison of the repository.
