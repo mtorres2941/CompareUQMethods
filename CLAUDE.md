@@ -249,13 +249,13 @@ and generation is closed; neither input moves again.
 
 | Stage | Owns | Explicitly not its job |
 |---|---|---|
-| **0 DONE** | Inventory, dependency map, refactor plan, baseline code and analysis assessments. `reports/HANDOFF_stage-0.md` | Any change to analysis logic |
-| **1 DONE** | Pinned environment, regression fixtures, persisted pLCA table, seeding machinery, correctness fixes, thin notebooks over a tested `src/`. Exactly two intended number-moving changes: neccs 1,000 to 10,000, and the wbeci assignment moved inside the loop. `reports/HANDOFF_stage-1.md` | Regeneration, and every methodological judgment call. Amendment A3 settled normalization: unweighted mean, code stands, text is wrong |
+| **0 DONE** | Inventory, dependency map, refactor plan, baseline code and analysis assessments. Handoff deleted by decision 59 | Any change to analysis logic |
+| **1 DONE** | Pinned environment, regression fixtures, persisted pLCA table, seeding machinery, correctness fixes, thin notebooks over a tested `src/`. Exactly two intended number-moving changes: neccs 1,000 to 10,000, and the wbeci assignment moved inside the loop. Handoff deleted by decision 59 | Regeneration, and every methodological judgment call. Amendment A3 settled normalization: unweighted mean, code stands, text is wrong |
 | **2a DONE** | Generator audit: seeding collapse, Dirichlet concentration mismatch, stale docstring, the truncation loop, power transform, reflection, component overlap, mode counting, the 27.5 percent filter, mode-level market share, the coverage table that becomes Table 1. Then regenerate, once | Changing the fitting methods, changing the scoring target, or sweeping anything that 2h owns |
-| **2a-2 DONE** | A one-off reopening of generation, by decision, because nothing downstream had been computed yet. Fresh raw empirical extract, symmetric log-space cleaning, weighted tuning objective, retune, regenerate once. `reports/HANDOFF_stage-2a2.md` | Any fitting work, and any further regeneration. Generation closes again when this stage ends |
-| **2a-3 DONE** | Resolve the EC3 categories into specifiable products, on record metadata only: drop EC3 residual bins, split concrete by specified strength, split insulation by material type. Arm 136 to 149. Regenerate as `corpus_2026-09-14d`. Two record corrections. Found that the coverage claim is false. `reports/HANDOFF_stage-2a3.md` | Any fitting work. It is the LAST pre-2b stage: nothing after it reopens generation or the empirical extract |
-| **2b DONE** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE. Also the plausibility ceiling, the support (0, inf), and the first end-to-end run of notebooks 2 and 3. `reports/HANDOFF_stage-2b.md` | Adding new families for robustness (2h), or rescoring against a parent (2c) |
-| **2c** | The evaluation target: score synthetic against the known parent, cross-validate the empirical 138, decompose location versus definitional error, report regret distributions. Overlap area alongside W1 | The pLCA construction (2e) and the flip-probability threshold (2d) |
+| **2a-2 DONE** | A one-off reopening of generation, by decision, because nothing downstream had been computed yet. Fresh raw empirical extract, symmetric log-space cleaning, weighted tuning objective, retune, regenerate once. Handoff deleted by decision 59 | Any fitting work, and any further regeneration. Generation closes again when this stage ends |
+| **2a-3 DONE** | Resolve the EC3 categories into specifiable products, on record metadata only: drop EC3 residual bins, split concrete by specified strength, split insulation by material type. Arm 136 to 149. Regenerate as `corpus_2026-09-14d`. Two record corrections. Found that the coverage claim is false. Handoff deleted by decision 59 | Any fitting work. It is the LAST pre-2b stage: nothing after it reopens generation or the empirical extract |
+| **2b DONE** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE. Also the plausibility ceiling, the support (0, inf), and the first end-to-end run of notebooks 2 and 3. Handoff deleted at the close of 2c; its findings are decisions 49 to 58 and discrepancy entries 35 to 52 | Adding new families for robustness (2h), or rescoring against a parent (2c) |
+| **2c DONE** | The evaluation target: scored the synthetic arm against the known parent (recovered by replaying the generator, decision 64), cross-validated the empirical 147, the fit-versus-definitional decomposition, regret, post-stratification, overlap area, the gamma question, the bandwidth against the parent, and the scoring grid. `reports/HANDOFF_stage-2c.md` | The pLCA construction (2e) and the flip-probability threshold (2d). It did NOT split the uniform-to-variable W1 into location and shape, which is 2d's |
 | **2d** | Decompose the uniform-to-variable W1 into location and shape, define the named relative measure, calibrate flip probability against relative W1, report the 1, 5 and 10 percent crossings | Building companion decision metrics (2g) |
 | **2e** | pLCA construction: common random numbers across UQ methods, sweep materials per pLCA over 2 to 12, resample groupings, dominant-MUI variant, bootstrap intervals on every headline percentage and NRMSE | Changing what the headline metric is (2g) |
 | **2f** | Resolve Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue`, then the multivariate model of W1 and of which method wins, to cut the metric set to three to five survivors | Regenerating, or redesigning figures (3) |
@@ -272,7 +272,7 @@ continuous modality index (2a); the 27.5 percent filter and its n cap at 749
 (2a); the variance-inflation exponent and the reflection step (2a);
 Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue` (2f); dependent
 sampling (2e); overlap area alongside W1 (2c); the scoring grid's zero
-(RESOLVED in 2b); the `(1-capecc)` divisor (2g);
+(RESOLVED in 2b); the `(1-capecc)` divisor (2g); overlap area (RESOLVED in 2c, decision 69); W1's lack of a complexity penalty (RESOLVED in 2c, decisions 65 and 70); the linear scoring grid (RESOLVED in 2c, decision 72);
 `weighted_quantile` order dependence (fixed in Stage 1 Phase 3, and it must
 stay fixed before any switch to Silverman in 2h).
 
@@ -710,7 +710,7 @@ rather than in conversation.
     so nothing downstream was invalidated. **The retune is worth -0.0038 against
     the resolved arm, marginally WORSE and inside the 0.0066 seed noise; it is
     kept because the alternative corpus's parameters cite an arm that was
-    withdrawn.** See `reports/HANDOFF_stage-2a3.md` section 4.3.
+    withdrawn.** See `MANUSCRIPT_discrepancies.md` entry 34.
 
 48. **2026-09-14, Stage 2a-3. The corpus is accepted as matching the empirical
     arm well enough, and the coverage shortfall is stated in the text rather
@@ -777,8 +777,8 @@ rather than in conversation.
     nothing was done about it, which is the instruction: the tuning objective
     moved 0.2075 to 0.2147, or 1.10 of the 0.0066 generator seed-to-seed
     standard deviation. Generation stays closed (decisions 47 and 48) and
-    reopening it is an author decision. See section 4.2 of the Stage 2b handoff
-    for why 1.10 sd overstates it.
+    reopening it is an author decision. See `MANUSCRIPT_discrepancies.md`
+    entry 35 for why 1.10 sd overstates it.
 50. **2026-09-14, Stage 2b. Decision 13 is CONFIRMED and IMPLEMENTED: the
     support is (0, inf), open at zero.** `[AUTHOR]` Every one of the six methods
     is now an explicit truncation of its parent to (0, inf), renormalized,
@@ -819,7 +819,7 @@ rather than in conversation.
     fitted model on either arm exceeds five times the data's standard deviation;
     it also improves mean W1 on both arms. Chosen on the bounded-variance
     criterion and NOT on W1, so that it is not tuned to the score it is judged
-    by. Handoff section 4.9, entry 43.
+    by. Discrepancy entry 43.
 
     At 0.25 the guard determines the threshold for **48 percent of empirical
     fits**, so for about half the arm the likelihood does not identify a
@@ -877,7 +877,7 @@ rather than in conversation.
     **The threshold is calibrated on leave-one-out likelihood, NOT on W1**, and
     that distinction has to survive into the manuscript: W1 falls monotonically
     as the bandwidth shrinks, so it cannot choose a bandwidth and would have
-    picked a rule that produces spikes. Entry 45, handoff sections 4.11 and 4.12.
+    picked a rule that produces spikes. Discrepancy entries 44 and 45.
 
     **Numbers.** Empirical `KDE, Variable` mean W1 0.2507 to 0.1530, median
     0.1487 to 0.0866, mean rank 2.738 to 1.805; synthetic 0.1017 to 0.0778,
@@ -1159,3 +1159,187 @@ rather than in conversation.
     Stage 2a-2: a configuration that looks like an improvement on the statistic
     being watched while the corpus gets no better. **A later stage that sees the
     0.2425 and reaches for the tuner should read this paragraph first.**
+
+64. **2026-09-16, Stage 2c. The parent of a synthetic dataset is RECOVERED by
+    replaying the generator, because the corpus does not store enough to rebuild
+    it.** `[DELEGATED, 2c chose]` Read this before concluding that generation was
+    reopened. **It was not**, and the same reasoning as decision 58 applies.
+
+    `parents.json.gz` stores how a parent was ASKED for: each component's moment
+    targets, from which `components.solve_component` recovers its location and
+    scale deterministically, plus the global shift and the truncation bounds. It
+    does NOT store the displacement the overlap solve gave each component, which
+    is one solved scalar times k ordinates drawn from the generator's stream, and
+    one recorded overlap value cannot identify k - 1 displacements.
+    **CONTEXT.md's claim that the record was "enough to rebuild its CDF exactly"
+    was false.**
+
+    `corpus.rebuild_parents` replays the generation loop, which is deterministic
+    given the seed, and keeps the parent objects `generate_corpus` discarded. No
+    corpus is written, no dataset is redrawn, and no random number reaches a
+    result. **The replay is CHECKED, not trusted:** it refuses to run unless
+    `genconfig.DEFAULT` still equals the configuration recorded in the corpus, it
+    compares twelve record fields plus `pi`, `market` and `mode_counts` per
+    dataset, and it compares the replayed values and weights against
+    `values.parquet` element by element. All 10,050 datasets of
+    `corpus_2026-09-15b` replay byte-identically, in 13 minutes. Cached as
+    `parents_spec.json.gz` inside the corpus directory, which adds a derived file
+    and overwrites nothing. `tests/test_recovery.py` asserts that the
+    displacements are NOT in the record, so if that ever changes the replay can
+    be replaced by a read.
+
+65. **2026-09-16, Stage 2c. The evaluation target is fixed, differently on each
+    arm, and both are reported beside the old in-sample score.** `[AUTHOR]`
+    The old target was the variable-weighted empirical CDF of the same data the
+    model was fitted to, which is circular twice over: it is the training data,
+    and it is the variable-weighted CDF, which makes "variable weighting improves
+    fit" close to true by construction.
+
+    SYNTHETIC: W1 against the KNOWN PARENT. EMPIRICAL: cross-validated W1, ten
+    random half-splits in both directions, all six methods sharing each split so
+    the comparison is paired. Discrepancy entry 53.
+
+    **TWO PARENT COMPARISONS, AND CONFLATING THEM IS AN ERROR THIS STAGE MADE AND
+    CAUGHT.** `w1_parent` scores each method against the parent IT is estimating,
+    the sampling mixture for a uniform-weighted method and the market-weighted
+    mixture for a variable-weighted one. That is the only fair way to judge an
+    ESTIMATION method and it **cannot compare the two weighting schemes**,
+    because they are then scored against different truths. `w1_market` scores all
+    six against the market-weighted parent, which is the population a pLCA of
+    what gets built is a statement about, and is the only target under which the
+    weighting question is answerable.
+
+    **A CROSS-VALIDATED SCORE MAY NEVER BE COMPARED ACROSS WEIGHTING SCHEMES.**
+    The empirical weights are an exchangeable flat Dirichlet draw, so the
+    expected variable-weighted CDF of a random half IS the unweighted one and a
+    uniform-weighted fit is the better predictor by construction. That is a
+    property of the synthetic weights, not a finding. The weighting claim
+    therefore rests on the synthetic arm's market parent and the family claim on
+    both arms.
+
+66. **2026-09-16, Stage 2c. The two arms disagree about the family out of sample,
+    and the disagreement is explained rather than averaged away.** `[AUTHOR]`
+    Both differences survive a paired bootstrap over datasets. Against the parent
+    the KDE beats the lognormal by 0.0078 (uniform) and 0.0060 (variable);
+    cross-validated on the empirical arm the lognormal beats the KDE by 0.0313
+    and 0.0335.
+
+    **They are being read on different criteria and different size mixes.**
+    Uniform weighting, removing one at a time: parent, equal allocation +0.0078;
+    the same corpus CROSS-VALIDATED instead -0.0034, because a cross-validation
+    half measures the KDE at n/2 and its advantage is a large-n advantage;
+    reweighted to the empirical size mix -0.0127; the empirical arm itself
+    -0.0321. **The criterion and the size mix account for the SIGN.** A factor of
+    about two in magnitude does not, and that is a genuine corpus-to-arm
+    difference.
+
+    **What every arm and every criterion agrees on is the SHAPE: the KDE loses at
+    n = 10-99 and wins at n >= 1000.** The paper states the size dependence and
+    does not state a single winner. Entry 54.
+
+67. **2026-09-16, Stage 2c. Every headline aggregate is reported twice, equal
+    allocation and reweighted to the empirical size mix.** `[AUTHOR]`
+    `coverage.post_stratified` had existed since Stage 2a and no stage had
+    applied it to the W1 or rank results. It changes the sign of the corpus's
+    family verdict on the MEAN -- `Lognormal, Uniform` 0.1306 against
+    `KDE, Uniform` 0.1228 equal allocation, becoming 0.1240 against 0.1268
+    reweighted -- while the KDE stays ahead on mean RANK, 2.25 against 2.75.
+    Neither column is the true one and both are reported.
+
+    `genconfig.EMPIRICAL_STRATUM_SHARE` was stale: measured on the 149-dataset
+    arm, before decision 61. Corrected to 20 / 78 / 38 / 8 over 147, which moves
+    `coverage.post_stratified` in notebook 1 by at most 0.27 percent relative.
+    `recovery.empirical_size_shares` MEASURES the shares from the arm it is
+    given, so the score tables cannot inherit a stale constant again. Three
+    empirical datasets exceed the corpus maximum of n = 9,999 -- the three
+    largest `ReadyMix` strength classes -- so the reweighting covers 144 of 147.
+    Entry 62.
+
+68. **2026-09-16, Stage 2c. The empirical headline is a WIN SHARE, and no
+    size-banded claim below about n = 100 stands without the relative-gap view
+    beside it.** `[AUTHOR]` Both constraints come from the weight-draw noise
+    floor Stage 2b measured: W1 between the same values under two independent
+    Dirichlet draws has a median of 0.1344 on the empirical arm against a best
+    method's median W1 of 0.0984, so the target's own noise exceeds the best
+    score. A mean rank averages a signed distance in rank space and inherits the
+    noise of every dataset; a win share is a count, and the noise has to flip a
+    dataset's winner to move it. `tests/test_recovery.py` pins the mechanism.
+
+69. **2026-09-16, Stage 2c. W1 stays the criterion. Overlap area is the reported
+    robustness check and a tail-sensitive companion is NOT added.** `[AUTHOR]`
+    Two measurements settle it.
+
+    **Overlap area agrees.** On the synthetic arm, where a reference density
+    exists, it picks the same winner as W1 on 66.6 percent of datasets, correlates
+    at Spearman 0.689, and gives the SAME mean-rank ordering of all six methods.
+    It is not adopted because it needs a density: the empirical target is a set of
+    atoms, and supplying one would mean choosing a bin width or a kernel, and a
+    kernel would score the KDE against a KDE. The carried-forward item is closed.
+    Entry 58.
+
+    **The tail W1 does not see is now empty, and that is the guard's doing.**
+    Integrating each fitted model's survival function beyond the recovery grid
+    gives a mean charge of 0.0000 to 0.0001 across 60,000 fits, no fit whose
+    unseen tail exceeds its body score, and a rank correlation of 1.0000 between
+    the body score and the total. The pathology of decision 51 -- a model with a
+    standard deviation of 3,281 on data whose own is 0.6 -- was produced at
+    `PROFILE_DELTA_LO_FRAC = 0.01` and does not occur at 0.25. **So W1 alone is
+    sufficient AS LONG AS THE GUARD HOLDS, and `model_sd_ratio` stays as the
+    sentinel. Stage 2h sweeps that guard and must report `model_sd_ratio` with
+    every value it tries.** Stage 2g inherits the same question from the pLCA end.
+
+70. **2026-09-16, Stage 2c. The three-parameter lognormal keeps its place, and
+    the paper says plainly that on real data it buys nothing over gamma.**
+    `[AUTHOR]` Out of sample on the empirical arm it is indistinguishable from
+    gamma, from the two-parameter lognormal and from the Stage 1 offset method:
+    every paired bootstrap interval straddles zero. On the synthetic arm against
+    the parent it does separate from gamma, +0.0117 uniform and +0.0045 variable,
+    winning 77.4 and 67.5 percent of datasets. It is never worse, so it stands.
+
+    **Stage 2b's claim that gamma beats the lognormal ON THE GUARD-BOUND DATASETS
+    is withdrawn.** Out of sample, on those 65 empirical datasets, gamma wins 47.7
+    percent -- a coin flip -- and on the `interior` datasets it wins 61.4 percent,
+    the opposite direction. **No hybrid estimator**, which is what the
+    measurements favour least. Entry 59.
+
+71. **2026-09-16, Stage 2c. The bandwidth was re-examined against the parent. It
+    confirms Scott is wrong and does NOT confirm the guard, and nothing was
+    changed.** `[AUTHOR]` Decision 54 chose the guarded rule on leave-one-out
+    likelihood, a DENSITY criterion, while the study scores CDFs. The synthetic
+    parent gives the study's own criterion a target that is not the training data.
+
+    **The referee is unbiased**, which had to be established first: only 1.2
+    percent of datasets put the optimum at the sweep floor of 0.02 of Scott's,
+    against in-sample W1 minimizing there for 95 of 147. Its optimum is at 0.46
+    (uniform) and 0.56 (variable) of Scott's.
+
+    **It confirms the direction.** Scott sits 1.386x and 1.349x above the
+    parent-optimal bandwidth and the guarded rule beats it on 72.1 and 66.4
+    percent of datasets. **It does not confirm the GUARD**: pure Silverman beats
+    the guarded rule on 90.1 and 83.2 percent. The guard costs 0.9 and 0.25
+    percent of mean W1 against the parent and buys the repaired p05 of held-out
+    likelihood it was chosen for. **Said and left alone, per the stage
+    instruction; changing the guard is an author decision and Stage 2h owns the
+    sweep.**
+
+    The reconciliation belongs in the text: a density criterion and a CDF
+    criterion want different bandwidths, because the empirical CDF is already
+    root-n consistent so smoothing buys a CDF criterion very little. That is the
+    honest explanation, not "W1 is biased". Entry 60.
+
+72. **2026-09-16, Stage 2c. The 1,000-point scoring grid stays as it is.**
+    `[RECOMMENDED]` Measured against a 200,001-point lattice it costs a median of
+    0.11 to 0.20 percent of a score and picks a different winner on 1.36 percent
+    of empirical and 0.50 percent of synthetic datasets. It is biased BY METHOD
+    and AGAINST the KDE, by 4.7 percent on `KDE, Variable`'s empirical mean
+    against 0.2 percent for the lognormals.
+
+    **It does not reach a conclusion, and that is what decides it.** The
+    discretization is common to all six methods on a dataset, so it moves the
+    level of every score and not the gap between two of them: the paired
+    cross-validated KDE-minus-lognormal difference is -0.0340 at the study's grid
+    and route, -0.0341 integrating the same grid as two CDFs, and -0.0339 at
+    20,000 points. **One free improvement is NOT taken**: on the same 1,000
+    points the CDF route has a p99 relative error of 2.5 percent against the atom
+    route's 14.5 percent, at the same cost, but switching moves every reported
+    number for no change in any conclusion. Author decision. Entry 61.

@@ -141,12 +141,25 @@ def heldout_w1(x, weights, label, rng, repeats=HELDOUT_REPEATS,
 
 
 def score_methods(datasets, rng, arm, heldout=True, repeats=HELDOUT_REPEATS,
-                  progress=None, **fit_kw):
+                  progress=None, parents=None, decompose=True, **fit_kw):
     """Tidy scores for every dataset and every method. One row per pair.
 
     `datasets` is {name: (values, weights)}, the shape both arms already use.
-    Columns: arm, dataset, n, method, w1, w1_heldout, model_sd_ratio.
+    Columns: arm, dataset, n, method, w1, w1_heldout, model_sd_ratio, and, from
+    Stage 2c, the decomposition of `w1` and -- where a parent is available --
+    the recovery columns.
+
+    ONE FIT, EVERY SCORE. The Stage 2c columns are computed here rather than in
+    a second pass because the expensive part of both is fitting the six models,
+    and refitting to score them differently would double the cost of the notebook
+    and open the possibility of the two passes fitting slightly different objects.
+
+    `parents` is {name: mixture.MixtureParent} and is the synthetic arm only.
+    `decompose` splits the in-sample score into the model's error against its own
+    weighting scheme and the definitional gap between the two weightings; it is
+    available on both arms because it needs no parent.
     """
+    import recovery as RC
     rows = []
     for i, (name, (x, w)) in enumerate(datasets.items()):
         x = np.asarray(x, dtype=float)
@@ -155,12 +168,26 @@ def score_methods(datasets, rng, arm, heldout=True, repeats=HELDOUT_REPEATS,
         grid = FT.score_grid_open(x, w)
         ho = (heldout_w1_all(x, w, rng, repeats, **fit_kw) if heldout
               else {label: np.nan for label in FT.PEWT})
+        dec = (RC.decompose_weighting(models, x, w, grid=grid) if decompose
+               else {})
+        parent = (parents or {}).get(name)
+        if parent is not None:
+            rgrid = RC.recovery_grid(x, w, parent)
+            rec = RC.score_recovery(models, x, w, parent, grid=rgrid)
+            separation = RC.parent_separation(parent, rgrid)
+        else:
+            rec, separation = {}, np.nan
         for label in FT.PEWT:
-            rows.append(dict(
+            row = dict(
                 arm=arm, dataset=name, n=len(x), method=label,
                 w1=FT.score_w1_model(models[label], x, w, grid=grid),
                 w1_heldout=ho[label],
-                model_sd_ratio=model_sd_ratio(models[label], x, w)))
+                model_sd_ratio=model_sd_ratio(models[label], x, w))
+            row.update(dec.get(label, {}))
+            row.update(rec.get(label, {}))
+            if parent is not None:
+                row['parent_separation'] = separation
+            rows.append(row)
         if progress and (i + 1) % progress == 0:
             print(f'  {i + 1}/{len(datasets)}', flush=True)
     return pd.DataFrame(rows)

@@ -174,3 +174,29 @@ def test_screen_dpi_is_not_used_as_save_dpi(path):
             f"{path.name} sets figure.dpi without setting savefig.dpi, so the "
             f"screen resolution silently becomes the file resolution."
         )
+
+
+#: A `to_csv`, `to_excel` or `savefig` writing under `outputs/`, with the path
+#: as a plain literal. Paths built from a variable are not caught, and there are
+#: none at present.
+_WRITE = re.compile(
+    r"""\.(?:to_csv|to_excel|savefig)\(\s*['"]([^'"]*outputs/[^'"]+)['"]""")
+
+
+def test_no_two_notebooks_write_the_same_output_file():
+    """Two notebooks writing one filename means the second silently wins.
+
+    Found in Stage 2c: a new post-stratification table in notebook 2 was given
+    the name notebook 1 already used for the post-stratified dataset
+    CHARACTERISTICS, so running the pair would have left one table on disk
+    describing something other than its filename. Nothing else would have
+    noticed, because each notebook runs green on its own.
+    """
+    writers = {}
+    for path in NOTEBOOKS:
+        for _, source in code_cells(path):
+            for target in _WRITE.findall(source):
+                writers.setdefault(Path(target).name, set()).add(path.name)
+    clashes = {name: sorted(who) for name, who in writers.items()
+               if len(who) > 1}
+    assert not clashes, f'written by more than one notebook: {clashes}'
