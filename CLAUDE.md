@@ -720,7 +720,7 @@ rather than in conversation.
     The judgment behind it: mean standardized W1 across the ten characteristics
     is 0.2326 and the VISIBLE mode distribution, which the generator is steered
     by, matches to a total variation of 0.0128. The one real gap is the upper
-    tail of dispersion, and `audits/stage2a3/q5_dispersion_reach.py` shows it is
+    tail of dispersion, and `audits/dispersion_reach.py` shows it is
     not reachable by any parameter: eight candidates move the achieved sample
     coefficient of variation from 1.65 to at most 2.15 against an empirical
     14.34, and none puts a single dataset above 3. Closing it would be a
@@ -759,7 +759,7 @@ rather than in conversation.
     Applied ONLY where an external bound exists. For volume, area, length and
     item declarations there is none, so none is invented: the ten highest and
     ten lowest records per unit type are REPORTED for author review in
-    `outputs/tables/stage2b/TABLE_2b_UnitExtremes.csv`, and left in the arm.
+    `outputs/tables/audits/TABLE_UnitExtremes.csv`, and left in the arm.
 
     **Both gates were checked.** The catch is 115 of 117,807 raw records, which
     is 11 of 117,090 cleaned values, 0.0094 percent against a 0.1 percent
@@ -909,5 +909,5 @@ rather than in conversation.
     notebooks should reproduce the entirety of this analysis." Two figures dated
     2026-03 had no producer anywhere in the repository and were deleted; one
     figure had been written by a scratch script and its code is now a notebook
-    cell. **Audit scripts may write only under `outputs/tables/<audit>/`, never
+    cell. **Audit scripts may write only under `outputs/tables/audits/`, never
     to `outputs/figures/` or the top level of `outputs/tables/`.**

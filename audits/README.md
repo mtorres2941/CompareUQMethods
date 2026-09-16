@@ -1,16 +1,21 @@
 # audits/
 
-One-off measurement scripts, one directory per stage. They are tracked because
-the handoff quotes their numbers, and a number in a handoff that cannot be
-recomputed is an assertion rather than a measurement.
+One-off measurement scripts. They are tracked because the decision log quotes
+their numbers, and a number in the log that cannot be recomputed is an
+assertion rather than a measurement. Each script is named for what it measures,
+and the decision that rests on it names the script.
 
 They are not part of the `src/` package: nothing in `src/`, `tests/` or
-`notebooks/` imports them, and they are not on the notebook `sys.path`. They
+`notebooks/` imports them, and they are not on the notebook `sys.path`. Several
 read from `data/baseline_frozen/` by default, so they keep reporting the
 pre-regeneration baseline after the corpus is regenerated.
 
-Run from inside the stage directory, with the pinned environment:
+They are NOT part of the analysis. The notebooks reproduce every number in the
+paper on their own, and nothing in `outputs/` at the top level is written by
+anything here. An audit writes only under `outputs/tables/audits/`.
 
-    cd audits/stage2a && python a1_collapse_corpus_damage.py
+Run from the repository root, with the pinned environment:
 
-Tables land in `outputs/tables/stage2a/`.
+    conda run -n compareuq python audits/bandwidth_rules.py
+
+Tables land in `outputs/tables/audits/`.

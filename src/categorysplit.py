@@ -58,7 +58,7 @@ explicit "type not stated" dataset rather than being dropped or hidden.
     dropped by rule 1, and on the children a thickness is parseable for only 96
     of 335 BoardInsulation and 150 of 319 BlanketInsulation records, so crossing
     it with type leaves 8 viable groups covering 73 of 335. "As we are able" is
-    not able here. See audits/stage2a3/q4_split_axis_evidence.py.
+    not able here. See audits/split_axis_evidence.py.
 """
 
 import re

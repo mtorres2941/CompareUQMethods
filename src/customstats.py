@@ -855,7 +855,7 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
 
     Notes
     -----
-    WHY THE GUARD, measured in `audits/stage2b/r9_bandwidth.py` over 149
+    WHY THE GUARD, measured in `audits/bandwidth_rules.py` over 149
     empirical and 800 synthetic datasets, both weightings.
 
     Silverman's `min(sd, IQR/1.34)` bounds the scale estimate from ABOVE, which

@@ -118,10 +118,10 @@ and is swept in Stage 2h.
 change from it can be measured. What the offset actually was: a three-parameter
 lognormal with the threshold fixed at -0.5 and never estimated, patching
 near-zero values rather than the threshold pathology. See discrepancy entries
-37, 38 and 40 and `audits/stage2b/r4_lognormal_offset.py`.
+37, 38 and 40 and `audits/lognormal_offset.py`.
 
 `FAMILIES` also holds `lognormal_2p`, `lognormal_offset` and `gamma`, which are
-reported alongside rather than used: `audits/stage2b/r5_family_comparison.py`.
+reported alongside rather than used: `audits/family_comparison.py`.
 
 ### The bandwidth, and why W1 cannot choose it
 
@@ -132,7 +132,7 @@ rule the author's KL2 paper uses, and `'silverman_guarded'`, added in Stage 2b.
 any standard rule, because a KDE with a vanishing bandwidth IS the empirical
 distribution it is scored against. So W1 cannot choose a bandwidth and cannot
 arbitrate between methods of different flexibility. Use leave-one-out
-likelihood cross-validation for that; `audits/stage2b/r9_bandwidth.py` has it.
+likelihood cross-validation for that; `audits/bandwidth_rules.py` has it.
 
 **Silverman's rule breaks at SMALL n, not on small interquartile ranges.** Where
 `(IQR/1.34)/sd` is smallest -- heavy-tailed categories with a tight core -- it
@@ -348,7 +348,7 @@ nothing should query it while a pull is running in another repository.
 **The extract is frozen for the remainder of the project** (decision 44). The
 procedure below is recorded for the one deliberate pre-submission refresh, if
 the author calls for it, and for nothing else. To build a new extract, adapt
-`audits/stage2a2/p1_build_raw_extract.py`, which refuses to overwrite an
+`audits/build_raw_extract.py`, which refuses to overwrite an
 existing dated file, then validate it with `p2_validate_extract.py` and
 `p3_diagnose_changes.py` before pointing `src/empirical.SOURCE` at it.
 

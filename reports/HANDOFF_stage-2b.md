@@ -87,7 +87,7 @@ will cite a number and that number needs a source.
 length and item declarations the ten highest and ten lowest records per unit type
 are reported with product names, declared units and their ratio to the category
 median, for author review:
-`outputs/tables/stage2b/TABLE_2b_UnitExtremes.csv`. It is a report, not a filter.
+`outputs/tables/audits/TABLE_2b_UnitExtremes.csv`. It is a report, not a filter.
 Worth the author's eye: `BlanketInsulation [mineral wool]` holds a ceramic fibre
 blanket at 2,300 kgCO2e/m2, 1,564 times its category median, and
 `ReadyMix [4000-4999 psi]` holds two mixes at 109,292 and 97,859 kgCO2e/m3
@@ -505,7 +505,6 @@ list only by being marked resolved, with the reason.
 | Six or more modes, 5.6 pct of corpus vs 0.7 empirical | 2h | STILL OPEN |
 | `SUPP_DatasetExamplesByStratum.png` x-axis is misleading | 3 | STILL OPEN |
 | Figure sizes, git history | 3, 4 | STILL OPEN, untouched. See the new note below on notebook 2 carrying no outputs |
-| `audits/stage2a/a6_empirical_source.py` refers to `mode_count_est` | - | STILL OPEN, harmless |
 | Notebooks 2 and 3 never run against the active corpus | 2b | **RESOLVED.** Both run clean end to end. Section 3.2 |
 | Coverage claim is false at the top of the coefficient of variation | manuscript | STILL OPEN as a TEXT edit, option A, decision 48. The ceiling improved it from 11 uncovered pairs to 10 and from 5 uncovered datasets to 4; entry 34's list and the canonical block both need the new numbers and the `Aggregates`/`PowerCabling` correction |
 | A single Dirichlet realization moves per-dataset weighted metrics a long way | 2h | STILL OPEN, and **now quantified at the ARM level too**: the tuning objective's spread over weight realizations alone is 0.0082, larger than the 0.0066 generator seed noise. Section 4.2 |
@@ -531,7 +530,7 @@ list only by being marked resolved, with the reason.
 - **The ICE database figure in `MASS_ECC_CEILING`'s docstring is unsourced in
   this repository.** Verify before it goes in the paper. Section 3.1.
 - **Extremes no external bound can rule on, for author review.**
-  `outputs/tables/stage2b/TABLE_2b_UnitExtremes.csv`. Two that stand out: a
+  `outputs/tables/audits/TABLE_2b_UnitExtremes.csv`. Two that stand out: a
   ceramic fibre blanket at 2,300 kgCO2e/m2 in
   `BlanketInsulation [mineral wool]`, 1,564 times its category median, and two
   `ReadyMix [4000-4999 psi]` mixes at 109,292 and 97,859 kgCO2e/m3 against a
@@ -561,7 +560,7 @@ notebooks, `../EPDsFromEC3/store/epd_index.csv.gz` (for the non-positive GWP
 count only).
 
 **Written:** `src/families.py`; `audits/stage2b/` (README, r1 to r6);
-`tests/test_families.py`; `outputs/tables/stage2b/`;
+`tests/test_families.py`; `outputs/tables/audits/`;
 `reports/HANDOFF_stage-2b.md`.
 
 **Modified:** `src/fitting.py`, `src/empirical.py`, `src/corpus.py`;
@@ -609,7 +608,7 @@ optional.
    an in-sample criterion with no complexity penalty and the families run from 2
    parameters to effectively n, so that result cannot go in the paper until it
    has a held-out or cross-validated version. `fitting.fit_family(..., 'w1')` and
-   `audits/stage2b/r5_family_comparison.py` are the machinery; the missing piece
+   `audits/family_comparison.py` are the machinery; the missing piece
    is the split.
 2. **Score against the KNOWN PARENT**, which is 2c's own headline task and is now
    the cleanest way to settle which method is best: the corpus carries
@@ -683,8 +682,8 @@ arm -- zero such datasets, against 20.1 percent of the empirical arm at 0.01.
 **It is chosen on the bounded-variance criterion and NOT on W1**, deliberately,
 so that it is not a number tuned to the score it is then judged by; W1 is flat
 from 0.05 to 0.25 and better there than at 0.01 on both arms, so the choice
-costs nothing. `audits/stage2b/r7_profile_guard.py`,
-`outputs/tables/stage2b/TABLE_2b_ProfileGuardSweep.csv`.
+costs nothing. `audits/profile_guard_sweep.py`,
+`outputs/tables/audits/TABLE_2b_ProfileGuardSweep.csv`.
 
 **What the paper must say about it.** At 0.25 the guard determines the threshold
 for **48 percent of empirical fits** and 30 percent of synthetic ones. For about
@@ -802,7 +801,7 @@ Not done, because which is better is a presentation choice.
 
 The author rejected two Stage 2b readings on sniff-test grounds. Both were
 correct to reject, and chasing them produced the most useful mechanism in the
-stage. `audits/stage2b/r10_small_n_and_weight_noise.py`, discrepancy entry 47.
+stage. `audits/small_n_and_weight_noise.py`, discrepancy entry 47.
 
 **"KDE converges to normal, so how would a normal ever beat it?"**
 
@@ -942,7 +941,7 @@ the out-of-sample comparison rather than leaving it to the reviewer.**
 
 Added after the author asked. Section 4.5 says the KDE is not the best-fitting
 method on the empirical arm. That is a statement about numbers.
-**`audits/stage2b/r8_why_kde_loses.py` is the diagnosis, and two of the three
+**`audits/why_kde_loses.py` is the diagnosis, and two of the three
 mechanisms are defects in how the comparison is SPECIFIED rather than facts
 about kernel density estimation.** Discrepancy entry 44.
 
@@ -1031,7 +1030,7 @@ on them.**
 
 Added after the author said they would switch to Silverman if its small-sample
 failure could be fixed defensibly. Discrepancy entry 45.
-`audits/stage2b/r9_bandwidth.py`.
+`audits/bandwidth_rules.py`.
 
 **The referee had to change first.** W1 cannot choose a bandwidth (section 4.11,
 mechanism 3), so the comparison uses **leave-one-out likelihood cross-

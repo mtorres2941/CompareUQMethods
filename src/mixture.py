@@ -23,7 +23,7 @@ of EPDs can compute that and cannot compute anything else. The divisor is
 recorded per dataset, so the parent is still exactly specified: conditional on
 the recorded normalizer c, the parent of the normalized values is the truncated
 mixture evaluated at c * x. Conditioning on the sample mean induces an O(1/n)
-dependence between the values, which `audits/stage2a/a8_parent_verification.py`
+dependence between the values, which `audits/parent_verification.py`
 measures rather than assumes.
 
 What this replaces, and why (Stage 2a Part 1):
