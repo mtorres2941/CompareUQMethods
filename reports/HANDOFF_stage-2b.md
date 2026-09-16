@@ -2,9 +2,18 @@
 
 ## 0. STATUS, read this first
 
-**THE PIPELINE RUNS END TO END FOR THE FIRST TIME.** Notebooks 1, 2 and 3 all
-execute clean against `corpus_2026-09-14d` with zero errors. That was the oldest
+**THE PIPELINE RUNS END TO END.** Notebooks 1, 2 and 3 all execute clean with
+zero errors and zero warnings, against `corpus_2026-09-15b`. That was the oldest
 outstanding item in the project and it is closed.
+
+**THE ACTIVE CORPUS IS `corpus_2026-09-15b`, AND GETTING THERE INVOLVED ONE
+REGENERATION AND ONE REMETRIC. THEY ARE DIFFERENT OPERATIONS.** The regeneration
+to `corpus_2026-09-15` was authorized and fixed a rejected draw counted as a
+failure, taking the corpus to a full 10,000 (decision 55). The remetric to
+`corpus_2026-09-15b` redrew NOTHING: it re-read the stored values with corrected
+metric code. `values.parquet` is byte-identical across it and notebook 3
+reproduced `TABLE_PLCAResults.csv` byte for byte. Decisions 57 and 58. **Do not
+read the 15b directory as evidence that generation was reopened.**
 
 **FOUR THINGS IN THIS STAGE COULD CHANGE WHAT THE PAPER CONCLUDES.** They are
 listed here rather than left to be found in section 4.
@@ -37,7 +46,29 @@ the arithmetic.
 | `aa446f5` Remove physically implausible mass-declared records | **MOVES NUMBERS** |
 | `e004db4` Run all three notebooks against corpus_2026-09-14d, and re-freeze the fixtures | **MOVES NUMBERS** |
 | `da27c1a` Fit the lognormal by profile likelihood, on the settled support (0, inf) | **MOVES NUMBERS** |
+| `4085305` Speed up the simulation and the scoring, and add the win-share view | performance, one new figure |
+| `30461a1` Regenerate the corpus: 10,000 datasets, and nothing held out of the pLCA | **MOVES NUMBERS** |
+| `6c54ed8` Import this project's modules once, at the top, and clear them first | no numbers |
+| `f12383e` Measure the outlier weight from the data, not from the ECDF's padding | **MOVES NUMBERS** |
+| `c21f64d` Recompute a corpus's characteristics without redrawing it | **MOVES NUMBERS** (synthetic arm only) |
+| `f919580` Draw the two weightings of a characteristic on the same axis | figures only |
+| `ed947de` Delete the audit tables and the closed stages' handoffs | records only |
+| `830ae03` Drop the warning suppression, and give each characteristic its own figure | figures only |
+| `9abe3a8` Re-freeze the metric fixtures for the corrected outlier weight | records only |
+| `46aaf43` Rebuild every output against the remetriced corpus | rebuild |
+| `a2909e0` Flatten audits/ and drop the scripts nothing cites | records only |
+| `1e03c1f` Seed the strip-plot jitter from a Generator, not from global numpy state | figures only |
+| `bea3fbe` Save figures at print resolution, and stop storing notebook output | figures and file sizes |
 | this commit: the handoff | records only |
+
+**The last three commits were rewritten before they were first pushed**, to drop
+a 195.8 MB notebook blob from their trees. GitHub refuses any file over 100 MB
+outright, and the blob was in the HISTORY of the range, not just the working
+tree, so stripping it in a later commit was not enough. The rewrite touched only
+UNPUSHED commits; `origin` held everything through `46aaf43` throughout, and no
+published hash changed. This is not the `git filter-repo` rewrite that decision
+28 declines -- that one would rewrite every commit in the project and break the
+Zenodo deposit.
 
 **All three notebooks were run to completion twice**, once at `e004db4` with the
 Stage 1 fitting to isolate the corpus change, and once at `da27c1a` with the
@@ -87,7 +118,7 @@ will cite a number and that number needs a source.
 length and item declarations the ten highest and ten lowest records per unit type
 are reported with product names, declared units and their ratio to the category
 median, for author review:
-`outputs/tables/audits/TABLE_2b_UnitExtremes.csv`. It is a report, not a filter.
+the extremes table `audits/plausibility_ceiling.py` writes. It is a report, not a filter.
 Worth the author's eye: `BlanketInsulation [mineral wool]` holds a ceramic fibre
 blanket at 2,300 kgCO2e/m2, 1,564 times its category median, and
 `ReadyMix [4000-4999 psi]` holds two mixes at 109,292 and 97,859 kgCO2e/m3
@@ -478,6 +509,46 @@ paper beside the support statement, because the arm is truncated at zero by
 construction and no conclusion about the lower tail of an ECC distribution
 generalizes to biobased products. Entry 36.
 
+### 4.16 The outlier weight was measured from the ECDF's padding
+
+`weighted_ecdf` pads its arrays with `-inf` and `+inf` so the interpolator it
+returns extrapolates flat outside the data. `empirical_metadata` interpolated
+its QUARTILES on those padded arrays. Whenever the smallest value carried more
+than a quarter of the weight, `q1` came back as `-inf`, the interquartile range
+became infinite, both outlier comparisons were False, and `weight_outliers` was
+reported as exactly ZERO. Where both quartiles landed in the padding the
+subtraction gave NaN, which is the warning that exposed it.
+
+    synthetic  weight_outliers      474/10000   0.0540 -> 0.0609
+    synthetic  weight_outliers_uw   163/10000   0.0526 -> 0.0580
+    empirical  weight_outliers        3/  149   0.0614 -> 0.0656
+    empirical  weight_outliers_uw     1/  149   0.0590 -> 0.0612
+
+Confined to small datasets: the largest affected has n = 39, most have n = 3. A
+flat Dirichlet over three points puts a quarter of the weight on the smallest
+one often. **No W1 column moves on either arm and no other characteristic moves.**
+
+Both arms are corrected by the same code and move the same way by a similar
+amount, so the arm-to-arm agreement the tuning objective measures is essentially
+unchanged. Generation stays closed. Decision 57, discrepancy entry 49.
+
+**The synthetic arm needed a REMETRIC to pick it up**, because a corpus stores
+its characteristics at generation time while the empirical arm recomputes them
+on every notebook 1 run. Without that the two arms would have been measured by
+different code on a dimension the study reports, which is the failure decision
+42 is about. `corpus.remetric_corpus`, decision 58.
+
+### 4.17 Three figures were redrawn differently on every run
+
+Found by the author re-running notebook 2 to review it: every number reproduced
+exactly and exactly three figures changed. All three called
+`sns.stripplot(..., jitter=0.4)`, and seaborn draws that jitter from the GLOBAL
+numpy random state, which the standing constraints forbid. Cosmetic in effect --
+only the vertical scatter of the points moves -- but those three figures were
+never reproducible from the tables behind them, which is a property the deposit
+claims. `comparison.rank_strip` takes a Generator. Verified by two full runs
+producing byte-identical files. Discrepancy entry 50.
+
 ## 5. Open questions and flags
 
 ### Carried forward
@@ -504,13 +575,23 @@ list only by being marked resolved, with the reason.
 | `min_mode_sd_frac = 0.15` has no empirical anchor | 2h | STILL OPEN |
 | Six or more modes, 5.6 pct of corpus vs 0.7 empirical | 2h | STILL OPEN |
 | `SUPP_DatasetExamplesByStratum.png` x-axis is misleading | 3 | STILL OPEN |
-| Figure sizes, git history | 3, 4 | STILL OPEN, untouched. See the new note below on notebook 2 carrying no outputs |
+| Figure sizes | 3 | **RESOLVED 2026-09-15, and the recorded diagnosis was WRONG.** No figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION: notebook 2 set `figure.dpi = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the SAVE resolution for every figure it wrote; notebook 3 passed `dpi=1200` to six `savefig` calls. Largest figure 97.8 MPix to 12.5; `outputs/figures` 50 MB to 22.6 MB. Nothing moved but the pixel count. Four guards in `tests/test_notebooks.py` |
+| Git history size | 4 | STILL OPEN, untouched, and decision 28 stands |
+| Notebooks store their outputs | 3 | **RESOLVED 2026-09-15.** Notebook 2 had reached 195.8 MB of embedded base64 and could not be pushed. Outputs are stripped before commit and the reader re-runs; 196 MB to 0.07 MB. Guarded by test |
 | Notebooks 2 and 3 never run against the active corpus | 2b | **RESOLVED.** Both run clean end to end. Section 3.2 |
 | Coverage claim is false at the top of the coefficient of variation | manuscript | STILL OPEN as a TEXT edit, option A, decision 48. The ceiling improved it from 11 uncovered pairs to 10 and from 5 uncovered datasets to 4; entry 34's list and the canonical block both need the new numbers and the `Aggregates`/`PowerCabling` correction |
 | A single Dirichlet realization moves per-dataset weighted metrics a long way | 2h | STILL OPEN, and **now quantified at the ARM level too**: the tuning objective's spread over weight realizations alone is 0.0082, larger than the 0.0066 generator seed noise. Section 4.2 |
 | Four EC3 parent categories kept as residual bins | - | OPEN as a stated limitation |
 | `CementGrout`, `FlowableFill`, `OilPatch` carry a strength field and are not split | - | OPEN by choice |
 | EAF against BOF steel is not available | - | CLOSED as infeasible |
+
+### New, and still open
+
+| Item | Owner | Note |
+|---|---|---|
+| **The three unit-declared extremes** | AUTHOR | The only item here waiting on a person. Section 6 |
+| `TABLE_MethodCurves.csv.gz` is 91.7 MB and 21x redundant | 3 | It stores one row per (arm, characteristic, method, dataset), and `y` is IDENTICAL across all 21 characteristics for a given dataset and method: 4,018,446 rows for 192,414 distinct scores. It is under GitHub's 100 MB hard limit but over the 50 MB warning, and it WILL cross the limit if 2c or 2f adds a characteristic or a score. The fix is to store the scores once and join the characteristic values at plot time |
+| `src/` docstrings still carry stage language | 3 or 4 | `comparison.py` opens with "Stage 2b." The notebooks and reports are clean; the source files are not. Raised with the author and not answered |
 
 ### New in Stage 2b
 
@@ -530,7 +611,7 @@ list only by being marked resolved, with the reason.
 - **The ICE database figure in `MASS_ECC_CEILING`'s docstring is unsourced in
   this repository.** Verify before it goes in the paper. Section 3.1.
 - **Extremes no external bound can rule on, for author review.**
-  `outputs/tables/audits/TABLE_2b_UnitExtremes.csv`. Two that stand out: a
+  the table restated in section 6. Two that stand out: a
   ceramic fibre blanket at 2,300 kgCO2e/m2 in
   `BlanketInsulation [mineral wool]`, 1,564 times its category median, and two
   `ReadyMix [4000-4999 psi]` mixes at 109,292 and 97,859 kgCO2e/m3 against a
@@ -559,37 +640,72 @@ list only by being marked resolved, with the reason.
 notebooks, `../EPDsFromEC3/store/epd_index.csv.gz` (for the non-positive GWP
 count only).
 
-**Written:** `src/families.py`; `audits/stage2b/` (README, r1 to r6);
-`tests/test_families.py`; `outputs/tables/audits/`;
-`reports/HANDOFF_stage-2b.md`.
+**Written:** `src/families.py`, `src/comparison.py`; `tests/test_families.py`,
+`tests/test_comparison.py`; `reports/baselines/ASSESSMENT_baseline.md`;
+`reports/HANDOFF_stage-2b.md`; `data/processed/corpus_2026-09-15/` and
+`corpus_2026-09-15b/`; twelve `CompareUQMethods_SUPP_ByCharacteristic_*.png`.
+
+**Deleted:** `reports/HANDOFF_stage-0.md` through `HANDOFF_stage-2a3.md` and
+`REVIEW_stage-2a.md`; `outputs/tables/stage2a/`, `stage2a2/`, `stage2a3/`,
+`stage2b/` (98 tables); 26 of 43 audit scripts;
+`CompareUQMethods_SUPP_WassDistanceVsMetric_ALLMETRICS.png`, superseded by the
+merged all-metrics figure. Decision 59. Git history retains all of it.
+
+**`outputs/tables/audits/` is now GITIGNORED.** The scripts rewrite those tables
+on demand, and a 12 KB script is a better record of a measurement than a 4 MB
+CSV. That is what made deleting the tables safe.
 
 **Modified:** `src/fitting.py`, `src/empirical.py`, `src/corpus.py`;
 `notebooks/01`, `02`, `03`; `tests/test_regression.py`,
 `tests/fixtures/TABLE_EmpiricalECCMetrics.xlsx`,
 `TABLE_EmpiricalECCMetricsAndW1.xlsx`, `TABLE_SyntheticECCMetricsAndW1.xlsx`,
-`SHA256SUMS.txt`; `CLAUDE.md` (decision 13 confirmed, decisions 49 to 53, the
-roadmap); `CONTEXT.md` (section 2 rewritten, layout, runtimes, the smoke note,
-the test table); `reports/MANUSCRIPT_discrepancies.md` (entries 35 to 42);
-every table and figure the three notebooks write.
+`SHA256SUMS.txt`; `CLAUDE.md` (decision 13 confirmed, decisions 49 to 59, the
+roadmap, the continuity section); `CONTEXT.md` (section 2 rewritten, layout,
+runtimes, the smoke note, the test table, the remetric entry point);
+`reports/MANUSCRIPT_discrepancies.md` (entries 35 to 50); `.gitignore`; every
+table and figure the three notebooks write.
 
-**Not touched:** the generator, `genconfig.py`, the corpus, the empirical
-extract, the manuscript.
+**Not touched:** the generator's ALGORITHM and `genconfig.py`, the empirical
+extract, the manuscript. The corpus was regenerated once by authorization
+(decision 55) and remetriced once (decision 58); neither changed how a dataset
+is drawn.
 
-**New tables for the author:**
+**The author-facing audit tables are GONE, by decision 59.** Every one of them
+is rewritten by running the script that made it, named in the decision that
+rests on it. The one that carried an UNRESOLVED question is restated here rather
+than left to die with the file; see "The three records nobody has ruled on"
+below.
 
-| file | what |
-|---|---|
-| `TABLE_2b_UnitExtremes.csv` | ten highest and ten lowest records per declared-unit type, with names and ratio to category median. **Needs an eye** |
-| `TABLE_2b_PlausibilityDropped.csv` | what the ceiling removed, by dataset |
-| `TABLE_2b_PlausibilityEffect.csv` | the six datasets' characteristics before and after |
-| `TABLE_2b_NonPositiveGWP.csv` | the 270 records the GWP screen excludes, by category |
-| `TABLE_2b_OffsetDiagnosis.csv` | per dataset: near-zero count, W1 with and without the offset, with and without the near-zero values in the fit |
-| `TABLE_2b_ThresholdPathology.csv` | per dataset: unguarded against profile threshold, sigma and W1 |
-| `TABLE_2b_FamilyComparison.csv` | five families x two weightings x two estimators, both arms |
-| `TABLE_2b_TruncationEffect.csv` | normal and KDE, truncated against untruncated, exactly |
-| `TABLE_2b_MethodSwitch.csv` | the six methods, one change at a time from Stage 1 to Stage 2b |
-| `TABLE_2b_CalibrationAfterCeiling_2026-09-14d.csv` | the gate |
-| `TABLE_2b_WeightRealizationNoise_2026-09-14d.csv` | the objective over twelve weight realizations |
+### The three records nobody has ruled on
+
+The brief said to remove physically implausible records by an EXTERNAL bound and
+to report the extremes that no bound can rule on. The ceiling of 100 kgCO2e/kg
+applies only to MASS-declared products, because that is the only declared unit
+with a published external anchor. For area, volume, length and item
+declarations no bound exists -- a square metre of 200 mm insulation board and a
+square metre of window are not comparable quantities -- so none was invented and
+nothing was removed. These three are still in the empirical arm:
+
+| product | declared | value | vs. category median |
+|---|---|---|---|
+| Ceramic Fiber Blanket (mineral wool insulation) | 1.0 m2 | 2300 kgCO2e/m2 | **1564x** |
+| Atlas (single-ply PVC roofing) | 1 m2 | 2029 kgCO2e/m2 | 392x |
+| XT66 triple-glazed rebated double door | 1 m2 | 1060 kgCO2e/m2 | 15x |
+
+**The question is a domain judgement, not a statistical one, and it is the
+author's.** The first two look like declared-unit errors in EC3. But "1564 times
+the category median" is a statement about the distribution's own spread, and
+decision 46 forbids deciding category membership on dispersion, because this
+study MEASURES dispersion. Removing them on that basis would be circular in
+exactly the way decision 46 rules out. Removing them as an author judgement
+about DATA QUALITY is legitimate and is a different act.
+
+If they stay, it is a stated limitation. They affect the empirical arm's
+coefficient of variation, and their categories are among those already outside
+the synthetic corpus's coverage (decision 48).
+
+**Raised with the author 2026-09-15 and not answered. It is the only thing in
+this handoff waiting on a person.**
 
 ## 7. Next stage
 
@@ -683,7 +799,7 @@ arm -- zero such datasets, against 20.1 percent of the empirical arm at 0.01.
 so that it is not a number tuned to the score it is then judged by; W1 is flat
 from 0.05 to 0.25 and better there than at 0.01 on both arms, so the choice
 costs nothing. `audits/profile_guard_sweep.py`,
-`outputs/tables/audits/TABLE_2b_ProfileGuardSweep.csv`.
+`audits/profile_guard_sweep.py`, which writes the sweep it was chosen from.
 
 **What the paper must say about it.** At 0.25 the guard determines the threshold
 for **48 percent of empirical fits** and 30 percent of synthetic ones. For about
