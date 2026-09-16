@@ -123,8 +123,10 @@ reported alongside rather than used: `audits/family_comparison.py`.
 
 ### The bandwidth, and why W1 cannot choose it
 
-`BW_METHOD = 'scott'`. `customstats.weighted_bw` also offers `'silverman'`, the
-rule the author's KL2 paper uses, and `'silverman_guarded'`, added in Stage 2b.
+`BW_METHOD = 'silverman_guarded'`, by decision 54. `customstats.weighted_bw`
+also offers `'scott'`, which the study used through Stage 2a and which is now
+reported as a sensitivity, and `'silverman'`, the rule the author's KL2 paper
+uses.
 
 **W1 falls monotonically as the KDE bandwidth shrinks**, to about 2 percent of
 any standard rule, because a KDE with a vanishing bandwidth IS the empirical
@@ -160,11 +162,16 @@ optimum: measured on the empirical arm its median moves only from 0.233 to 0.243
 across a 50-fold bandwidth range. Leave-one-out likelihood is the sharp
 instrument for bandwidth and is what decision 54 used.
 
-**Not scored against the known parent.** The corpus stores the exact generating
-distribution in `parents.json.gz`, and that is the cleanest test of all, but it
-exists on the SYNTHETIC arm only, so it cannot carry a comparison the paper has
-to make on both. Stage 2c owns it, and its job there is to confirm that held-out
-W1 behaves rather than to become a third headline.
+**The recovery score, Stage 2c.** `src/recovery.py` scores each fitted model
+against the parent the dataset was drawn from, which is the cleanest test
+available and needs no training data in the target. It exists on the SYNTHETIC
+arm only, so it does not replace the in-sample score; the empirical arm's
+equivalent is cross-validation. TWO comparisons come out of it and they answer
+different questions: `w1_parent` scores each method against the parent IT is
+estimating, which is the fair way to judge an estimation method, and `w1_market`
+scores all six against the market-weighted parent, which is the only way to
+compare the two WEIGHTING schemes, because only then are they estimating the
+same thing.
 
 ### Fitting by the criterion we score by
 
@@ -211,6 +218,29 @@ advances the legacy global stream.
 
 Record the seed in the run-metadata file beside any table the notebook writes.
 
+**The parent of a synthetic dataset is RECOVERED, not read.** `parents.json.gz`
+stores how each parent was asked for: each component's moment TARGETS, from which
+`components.solve_component` recovers its location and scale deterministically,
+plus the global shift and the truncation bounds. It does NOT store the
+displacement the overlap solve gave each component, and one recorded overlap
+value cannot identify k - 1 displacements, so the parent CDF cannot be written
+down from the record. An earlier version of this file claimed it could.
+
+`corpus.rebuild_parents` replays the generation loop instead, which is
+deterministic given the seed, and keeps the parent objects `generate_corpus`
+discarded. It is not a regeneration: no corpus is written and nothing is
+redrawn. It refuses unless `genconfig.DEFAULT` still equals the configuration
+recorded in the corpus, checks twelve record fields per dataset, and compares the
+replayed values and weights against `values.parquet` element by element. On
+corpus_2026-09-15b all 10,050 datasets replay byte-identically, in 13 minutes.
+The result is cached as `parents_spec.json.gz` inside the corpus directory;
+`corpus.load_parent_specs` and `load_parent_objects` read it and build it if it
+is absent.
+
+```bash
+python -c "import sys; sys.path.insert(0,'src'); import corpus; corpus.rebuild_parents()"
+```
+
 **Corpus, not caching.** `generate_dontread` was removed in Stage 2a. It was a
 hand-edited module-level boolean that left no record in the outputs of which
 mode had produced them, which is the wrong mechanism for the one irreversible
@@ -250,7 +280,8 @@ Each corpus directory holds:
 |---|---|
 | `values.parquet` | long format, `dataset_id, value, weight` (decision 15) |
 | `metrics.parquet` | one row per dataset: stratum, metrics, generation record |
-| `parents.json.gz` | the parent of each dataset, enough to rebuild its CDF exactly |
+| `parents.json.gz` | how each parent was ASKED for: component moment targets, the overlap target, the shift, the bounds. **NOT enough to rebuild its CDF**; see below |
+| `parents_spec.json.gz` | the finished parent of each dataset, written by `corpus.rebuild_parents`. Derived, and the file the recovery score reads |
 | `combos.csv` | the 2,500 disjoint pLCA groups of four |
 | `runmeta.json` | seed, full config, git commit, library versions, platform, counts |
 | `invalid_datasets.json` | what the validity filter rejected, and why |

@@ -203,9 +203,34 @@ def score_recovery(models, x, weights, parent, grid=None, tail=True,
                    scheme_of=None):
     """Every recovery column for one dataset's six fits.
 
-    Returns {method: {...}} with `w1_parent`, `w1_parent_tail`,
-    `w1_parent_total`, `overlap`, `w1_parent_location`, `w1_parent_shape` and
-    `tail_residual_mass`.
+    TWO COMPARISONS, AND THEY ANSWER DIFFERENT QUESTIONS. Reporting only the
+    first would be a serious error and reporting only the second would waste the
+    parent.
+
+      `w1_parent`  each method against the parent IT IS ESTIMATING: the sampling
+                   mixture for a uniform-weighted method, the market-weighted
+                   mixture for a variable-weighted one. This says how well each
+                   method does its own job, and it is the only fair way to judge
+                   the ESTIMATION method, because a uniform-weighted fit was
+                   never asked to know anything about market share.
+
+      `w1_market`  every method, both weightings, against the MARKET-WEIGHTED
+                   parent. This is the decision-relevant comparison and the only
+                   one that can say whether variable weighting helps, because
+                   the six are then estimating the SAME quantity. A pLCA of what
+                   actually gets built is a statement about the market-weighted
+                   population, so that is the target a practitioner needs
+                   recovered. A uniform-weighted model pays a BIAS here -- it is
+                   estimating the wrong distribution -- and a variable-weighted
+                   model pays VARIANCE, because the weights are a noisy
+                   Dirichlet draw. Which one wins is the bias-variance question
+                   the paper exists to answer, and it cannot be read off
+                   `w1_parent`.
+
+      `w1_sampling` the same six against the SAMPLING mixture, for symmetry, so
+                   the two common-target comparisons can be read together.
+
+    Returns {method: {...}}.
     """
     scheme_of = scheme_of or PARENT_SCHEME
     grid = recovery_grid(x, weights, parent) if grid is None else grid
@@ -219,8 +244,26 @@ def score_recovery(models, x, weights, parent, grid=None, tail=True,
                           w1_parent_total=body + t,
                           overlap=overlap_area(m, parent, scheme, grid),
                           w1_parent_location=loc, w1_parent_shape=shape,
-                          tail_residual_mass=residual)
+                          tail_residual_mass=residual,
+                          parent_scheme=scheme,
+                          w1_market=w1_against_parent(m, parent, 'market', grid),
+                          w1_sampling=w1_against_parent(m, parent, 'uniform',
+                                                        grid),
+                          overlap_market=overlap_area(m, parent, 'market', grid))
     return out
+
+
+def parent_separation(parent, grid):
+    """W1 between the sampling parent and the market-weighted parent.
+
+    The synthetic arm's version of the definitional gap: how far apart the two
+    populations are for this dataset, before any model is fitted. A method that
+    ignores the weights cannot do better than this against the market parent, so
+    it is the floor on a uniform-weighted method's `w1_market` and the scale
+    every weighting result has to be read against.
+    """
+    return float(np.trapezoid(
+        np.abs(parent.cdf(grid, 'uniform') - parent.cdf(grid, 'market')), grid))
 
 
 def FT_weighting(label):
@@ -243,10 +286,13 @@ def score_recovery_arm(datasets, parents, rng=None, progress=None, **fit_kw):
         parent = parents[name]
         models, params = FT.fit_pewt(x, w, **fit_kw)
         in_grid = FT.score_grid_open(x, w)
-        rec = score_recovery(models, x, w, parent)
+        grid = recovery_grid(x, w, parent)
+        rec = score_recovery(models, x, w, parent, grid=grid)
+        sep = parent_separation(parent, grid)
         for label in FT.PEWT:
             row = dict(arm='synthetic', dataset=name, n=len(x), method=label,
-                       w1=FT.score_w1_model(models[label], x, w, grid=in_grid))
+                       w1=FT.score_w1_model(models[label], x, w, grid=in_grid),
+                       parent_separation=sep)
             row.update(rec[label])
             rows.append(row)
         if progress and (i + 1) % progress == 0:

@@ -74,11 +74,24 @@ PROBE = Stratum('probe_10k_100k', 10_000, 100_000, 50)
 # datasets, and three datasets now sit above 9,999 rather than one. This is a
 # post-stratification weight and NOT a generation parameter, so it moves
 # reported aggregates but requires no regeneration.
+#
+# Remeasured again in Stage 2c on the 147-dataset arm of decision 61, which
+# dropped `Chairs` and `Grouting`. One dataset leaves the second stratum and one
+# the third, and the shares move in the fourth decimal. The three above 9,999 are
+# the three largest `ReadyMix` strength classes; they have no stratum because the
+# corpus stops at 9,999, so the shares below sum to 0.9796 and a reweighting
+# renormalizes over the four bands both arms share. That covers 144 of the 147.
+#
+# `recovery.empirical_size_shares` MEASURES this from the arm it is handed rather
+# than reading it here, because a constant recorded when the arm had a different
+# membership is exactly the thing that moves every post-stratified number with
+# nothing to catch it. This constant remains for `coverage.post_stratified`,
+# which notebook 1 calls before the score tables exist.
 EMPIRICAL_STRATUM_SHARE = {
-    's1_3_9': 20 / 149,
-    's2_10_99': 79 / 149,
-    's3_100_999': 39 / 149,
-    's4_1000_9999': 8 / 149,
+    's1_3_9': 20 / 147,
+    's2_10_99': 78 / 147,
+    's3_100_999': 38 / 147,
+    's4_1000_9999': 8 / 147,
 }
 
 
