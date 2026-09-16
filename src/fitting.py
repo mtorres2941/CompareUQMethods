@@ -59,7 +59,7 @@ LOGFIT_OFFSET = 0.5
 #
 # THE THRESHOLD IS CALIBRATED ON HELD-OUT LIKELIHOOD, NOT ON W1, deliberately:
 # W1 falls monotonically as the bandwidth shrinks, so it cannot choose one.
-# See customstats.weighted_bw, audits/stage2b/r9_bandwidth.py, entry 45.
+# See customstats.weighted_bw, audits/bandwidth_rules.py, entry 45.
 #
 # Note that scipy.stats.gaussian_kde uses the words 'scott' and 'silverman' for
 # different formulas: its 'scott' carries no 1.06 factor. Do not describe the
@@ -211,7 +211,7 @@ def score_grid_open(x, weights, npoints=SCORE_GRID_POINTS,
     lumped onto one point. That is a property of the linear grid, it was present
     before this change and is unchanged by it, and it falls to Stage 2c, which
     owns the evaluation target. `w1_grid_error` in
-    `audits/stage2b/r6_fitting_comparison.py` measures it.
+    `audits/fitting_method_comparison.py` measures it.
     """
     x = np.asarray(x, dtype=float)
     spread = np.max([np.std(x), weighted_std(x, weights)])
@@ -370,7 +370,7 @@ def fit_kde(x, weights, bw_method=BW_METHOD):
 #: Stage 2b: the three-parameter lognormal is fitted by profile likelihood over
 #: a threshold restricted to a closed interval strictly below min(x), taking the
 #: interior local maximum. See `families.fit_lognorm3_profile` for the pathology
-#: that makes this necessary, and `audits/stage2b/r4_lognormal_offset.py` for
+#: that makes this necessary, and `audits/lognormal_offset.py` for
 #: what the +0.5 offset it replaces was actually doing.
 LOGNORMAL_FAMILY = 'lognormal_3p'
 

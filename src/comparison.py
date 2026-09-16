@@ -18,7 +18,7 @@ first has a known bias.
                   FLEXIBILITY: it falls monotonically as a KDE bandwidth
                   shrinks, because a KDE with a vanishing bandwidth IS the
                   empirical distribution it is being scored against
-                  (`audits/stage2b/r8_why_kde_loses.py`). The families compared
+                  (`audits/why_kde_loses.py`). The families compared
                   here run from 2 parameters to effectively n, so the in-sample
                   number cannot settle the comparison on its own. Held-out W1
                   keeps the same units and removes the reward.
@@ -276,7 +276,7 @@ def bandwidth_comparison(datasets, arm, rules=('scott', 'silverman',
     54), so the paper has to show what it does. Note that W1 alone cannot choose
     a rule -- it falls monotonically as the bandwidth shrinks -- which is why
     the rule was chosen on held-out likelihood in
-    `audits/stage2b/r9_bandwidth.py` and why `model_sd_ratio` is reported here
+    `audits/bandwidth_rules.py` and why `model_sd_ratio` is reported here
     beside it.
     """
     rows = []
@@ -528,5 +528,4 @@ def headline_sentence(headline):
         return ''
     return (f"{headline['method']} is best on {headline['overall']:.0%} of "
             f"datasets overall, {headline['bottom']:.0%} in the lowest decile "
-            f"and {headline['top']:.0%} in the highest "
-            f"(n = {headline['n']:,}, decile = {headline['n_tail']:,})")
+            f"and {headline['top']:.0%} in the highest (n = {headline['n']:,})")

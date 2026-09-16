@@ -58,7 +58,7 @@ STRATA = (
 PROBE = Stratum('probe_10k_100k', 10_000, 100_000, 50)
 
 # Share of the empirical datasets falling in each stratum, measured in
-# audits/stage2a2/p6_empirical_envelope.py on the 2026-08 arm. Used for
+# audits/empirical_envelope.py on the 2026-08 arm. Used for
 # post-stratification reweighting, never for generation.
 #
 # These moved when the empirical extract was rebuilt from raw values: the
@@ -158,7 +158,7 @@ class GeneratorConfig:
     marginally better on the objective and overshoots to 97.8; [0.3, 1.4] is the
     closest match on the measure that corresponds to what the data look like,
     and the four objectives span 2 percent, which is inside the seed-to-seed
-    noise measured in audits/stage2a2/p10_config_noise.py.
+    noise measured in audits/config_noise.py.
 
     The lesson, recorded because it is the expensive one: a modality statistic
     that is matched can coexist with a modality mismatch that is obvious in a
@@ -181,7 +181,7 @@ class GeneratorConfig:
     a lognormal body rather than separate clusters. The generator reproduces the
     mode COUNT without reproducing that gentleness.
 
-    See audits/stage2a/b5_tune_configuration.py, which is the script that
+    See audits/tune_configuration.py, which is the script that
     produced these numbers and the one to re-run after any change."""
 
     # ---- component shapes, as moment targets -------------------------------
@@ -246,7 +246,7 @@ class GeneratorConfig:
     falls below 0.086. Kept at 10 through Stage 2a-2 as well, so that the
     retune changes the separation of the modes and not also how many points
     land in each; Stage 2h owns the sweep, and alpha = 1 is the obvious other
-    end. Measured by audits/stage2a/a7_overlap_and_modality.py."""
+    end. Measured by audits/overlap_and_modality.py."""
 
     # ---- market share, Part 3 ----------------------------------------------
     market_share_alpha: float = 1.0
@@ -289,7 +289,7 @@ class GeneratorConfig:
     Honest note on how much it is worth. Updating it improves the tuning
     objective from 0.2307 to 0.2274 at the 440-dataset pre-flight scale, a
     movement of 0.0033 against a seed-to-seed standard deviation of 0.0066
-    measured in audits/stage2a2/p10_config_noise.py. That is HALF the noise: the
+    measured in audits/config_noise.py. That is HALF the noise: the
     change is adopted because it is the measurement the parameter cites, not
     because the improvement is distinguishable from a different seed.
 

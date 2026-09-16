@@ -101,7 +101,7 @@ MASS_UNIT_TYPE = 'weight'
 #: and 21,945 kgCO2e/kg, and 87 Cement records report a per-tonne GWP against a
 #: 1 kg declared unit, a factor-of-1,000 declaration error.
 #:
-#: Measured effect, `audits/stage2b/r1_plausibility.py`: 115 of 117,807 raw
+#: Measured effect, `audits/plausibility_ceiling.py`: 115 of 117,807 raw
 #: records, 11 of 117,090 CLEANED values, and no dataset lost.
 MASS_ECC_CEILING = 100.0
 
@@ -146,7 +146,7 @@ def implausible(df, ceiling=MASS_ECC_CEILING, unit_type=MASS_UNIT_TYPE):
     Applied only to the declared-unit type for which an external bound exists.
     For volume, area, length and item declarations there is no comparably tight
     published bound, so none is invented: those extremes are REPORTED for author
-    review instead, by `audits/stage2b/r1_plausibility.py`, and left in the arm.
+    review instead, by `audits/plausibility_ceiling.py`, and left in the arm.
 
     See `MASS_ECC_CEILING` for where the number comes from and why it may not be
     read off the data.

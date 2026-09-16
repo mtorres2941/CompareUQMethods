@@ -330,7 +330,7 @@ def _lognorm3_profile_at(x, w, gamma):
 #: of 3,000 on data whose standard deviation is 0.6 dominates any Monte Carlo it
 #: enters. It was found in the pLCA results, not in the fit scores.
 #:
-#: Swept over both arms by `audits/stage2b/r7_profile_guard.py`, which writes
+#: Swept over both arms by `audits/profile_guard_sweep.py`, which writes
 #: the sweep it was chosen from.
 #: `max_sd` is the largest standard deviation of any fitted model, on data whose
 #: own standard deviation is near 0.6:
