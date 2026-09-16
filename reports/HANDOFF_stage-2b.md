@@ -589,7 +589,6 @@ list only by being marked resolved, with the reason.
 
 | Item | Owner | Note |
 |---|---|---|
-| **The three unit-declared extremes** | AUTHOR | The only item here waiting on a person. Section 6 |
 | `TABLE_MethodCurves.csv.gz` is 91.7 MB and 21x redundant | 3 | It stores one row per (arm, characteristic, method, dataset), and `y` is IDENTICAL across all 21 characteristics for a given dataset and method: 4,018,446 rows for 192,414 distinct scores. It is under GitHub's 100 MB hard limit but over the 50 MB warning, and it WILL cross the limit if 2c or 2f adds a characteristic or a score. The fix is to store the scores once and join the characteristic values at plot time |
 | `src/` docstrings still carry stage language | 3 or 4 | `comparison.py` opens with "Stage 2b." The notebooks and reports are clean; the source files are not. Raised with the author and not answered |
 
@@ -672,40 +671,41 @@ is drawn.
 
 **The author-facing audit tables are GONE, by decision 59.** Every one of them
 is rewritten by running the script that made it, named in the decision that
-rests on it. The one that carried an UNRESOLVED question is restated here rather
-than left to die with the file; see "The three records nobody has ruled on"
-below.
+rests on it.
 
-### The three records nobody has ruled on
+### The extremes that survive both filters: no decision is owed
 
-The brief said to remove physically implausible records by an EXTERNAL bound and
-to report the extremes that no bound can rule on. The ceiling of 100 kgCO2e/kg
-applies only to MASS-declared products, because that is the only declared unit
-with a published external anchor. For area, volume, length and item
-declarations no bound exists -- a square metre of 200 mm insulation board and a
-square metre of window are not comparable quantities -- so none was invented and
-nothing was removed. These three are still in the empirical arm:
+**An earlier version of this section asked the author to rule on three records
+and was WRONG.** The extremes table was computed on the RAW extract, so it
+listed records that never reach the arm. Two filters already stand between a raw
+record and a dataset: the mass ceiling of decision 49, and the symmetric
+log-space 3 x IQR rule of decision 33. Of the three records raised, the ceramic
+fiber blanket at 2300 kgCO2e/m2 and the PVC membrane at 2029 are both removed by
+cleaning; only a triple-glazed rebated double door at 1060 kgCO2e/m2 survives,
+and at 15x its category median that is what a large triple-glazed door costs.
 
-| product | declared | value | vs. category median |
+`audits/plausibility_ceiling.py` now applies both filters before taking
+extremes, and reproduces the production arm exactly: 149 datasets, 117,079
+values. The extremes it reports now are the ones that genuinely reach the arm:
+
+| declared | dataset | ECC | vs category median |
 |---|---|---|---|
-| Ceramic Fiber Blanket (mineral wool insulation) | 1.0 m2 | 2300 kgCO2e/m2 | **1564x** |
-| Atlas (single-ply PVC roofing) | 1 m2 | 2029 kgCO2e/m2 | 392x |
-| XT66 triple-glazed rebated double door | 1 m2 | 1060 kgCO2e/m2 | 15x |
+| 1.0 kg | Aggregates | 47.75 | 6900x |
+| 1 m | PowerCabling | 363.2 | 6067x |
+| 1 m | PowerCabling | 130.3 | 2176x |
+| 1.0 kg | Chairs | 67.02 | 716x |
+| 1.0 kg | Grouting | 75.70 | 175x |
 
-**The question is a domain judgement, not a statistical one, and it is the
-author's.** The first two look like declared-unit errors in EC3. But "1564 times
-the category median" is a statement about the distribution's own spread, and
-decision 46 forbids deciding category membership on dispersion, because this
-study MEASURES dispersion. Removing them on that basis would be circular in
-exactly the way decision 46 rules out. Removing them as an author judgement
-about DATA QUALITY is legitimate and is a different act.
+**These need no new decision, because decision 48 already covers them.** They
+are `Aggregates`, `PowerCabling`, `Grouting` and `Chairs` -- four of the five
+categories decision 46 could not resolve into specifiable products, and exactly
+the ones decision 48 named when it accepted the coverage shortfall as a stated
+limitation rather than engineering it away. The mass-declared ones are under the
+100 kgCO2e/kg ceiling, so the external bound does not reach them; the
+length-declared ones have no external bound at all. What is extreme here is the
+shape of a contaminated EC3 category, which is the thing the paper says it is.
 
-If they stay, it is a stated limitation. They affect the empirical arm's
-coefficient of variation, and their categories are among those already outside
-the synthetic corpus's coverage (decision 48).
-
-**Raised with the author 2026-09-15 and not answered. It is the only thing in
-this handoff waiting on a person.**
+**Nothing in this handoff is waiting on a person.**
 
 ## 7. Next stage
 

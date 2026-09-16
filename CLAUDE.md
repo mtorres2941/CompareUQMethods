@@ -758,8 +758,18 @@ rather than in conversation.
 
     Applied ONLY where an external bound exists. For volume, area, length and
     item declarations there is none, so none is invented: the ten highest and
-    ten lowest records per unit type are REPORTED for author review in
-    `outputs/tables/audits/TABLE_UnitExtremes.csv`, and left in the arm.
+    ten lowest records per unit type are REPORTED rather than filtered, by
+    `audits/plausibility_ceiling.py`, and left in the arm.
+
+    **Corrected 2026-09-15: that report was computed on the RAW extract and so
+    listed records that never reach the arm.** Two filters already stand between
+    a raw record and a dataset -- this ceiling, and the symmetric log-space
+    3 x IQR rule of decision 33 -- so a raw extreme is not an open question. The
+    script now applies both before taking extremes and reproduces the production
+    arm exactly, 149 datasets and 117,079 values. The extremes that DO survive
+    are `Aggregates`, `PowerCabling`, `Grouting` and `Chairs`, which is decision
+    48's stated limitation and not a new decision: what is extreme there is the
+    shape of a contaminated EC3 category, not the shape of a material.
 
     **Both gates were checked.** The catch is 115 of 117,807 raw records, which
     is 11 of 117,090 cleaned values, 0.0094 percent against a 0.1 percent
