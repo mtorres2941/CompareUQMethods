@@ -473,6 +473,38 @@ which reports the same quantity in raw category units. Entry 41.
 | **Fix** | See the three options below. |
 | **Status** | **DECIDED 2026-09-14: option A** (CLAUDE.md decision 48). B and C are declined. What remains is a TEXT edit: restate the coverage claim as measured, name the exceptions, and rebuild `CompareUQMethods_FIG_MetricCoverage.png`. Decision 29 is corrected in place. |
 
+**RESTATED 2026-09-16, AND EVERY NUMBER ABOVE IS SUPERSEDED. DO NOT QUOTE THE
+ROWS ABOVE THIS LINE.** Decision 48's premise was partly wrong, through no fault
+of its reasoning: the empirical maximum coefficient of variation it was
+measuring against, 14.34, was inflated by two mislabelled records. Decisions 61
+and 63 removed them and dropped two categories that were not one product
+population. **The arm is 147 datasets and 116,766 values.** Current, measured
+from the rebuilt `outputs/tables/TABLE_MetricCoverage.csv`:
+
+| | then (149 datasets) | now (147 datasets) |
+|---|---|---|
+| arm maximum coefficient of variation | 14.34, attributed to `PowerCabling` | **6.93, `Aggregates`** |
+| synthetic maximum | 2.18 | 2.58 |
+| uncovered dataset-metric pairs | 11 of 1,490 | **5 of 1,470** |
+| uncovered on dispersion | 5 datasets | **1 dataset** |
+| uncovered on `n` | 3 | 3, by the deliberate 9,999 ceiling of decision 19 |
+| uncovered on `fit_norm_SW` | 2 | 1 |
+
+**What the text should now say.** The corpus covers the empirical characteristic
+space with margin except on three counts: one dataset of 147 sits above the
+synthetic range on dispersion, one on `fit_norm_SW`, and three exceed 9,999
+values per dataset, which the probe set covers by design. That is a materially
+stronger claim than the one option A was chosen to defend, and the gap that
+remains is about half what decision 48 measured.
+
+**Option B is still declined and the reasoning still holds**, but its arithmetic
+changes: the target to reach is 6.93 rather than 14.34, and the eight swept
+candidates reached 2.15. Whether a generator redesign could now close a halved
+gap has NOT been measured. It remains out of scope unless the author reopens it.
+
+**`CompareUQMethods_FIG_MetricCoverage.png` has been rebuilt** and shows the
+current state; it is the figure to use.
+
 **THE DECISION, stated as three options.** Earlier versions of this entry said
 "undecided and it needs one" without saying what was on offer, which is a defect
 in the document rather than a hard question.
