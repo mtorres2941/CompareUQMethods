@@ -1132,10 +1132,30 @@ rather than in conversation.
     what decision 48 listed. **The coverage claim and the figure must be restated
     from the rebuilt tables, not from decision 48's numbers.**
 
-    **THE GENERATOR CALIBRATION MOVED OUTSIDE THE GATE AND NOTHING WAS DONE,
-    which is the standing instruction.** Weighted objective 0.2278 to 0.2425, a
-    worsening of 2.2 of the 0.0066 seed-to-seed standard deviation. The cause is
-    plain and is itself a finding: **the corpus was tuned to match an empirical
-    arm that contained these errors.** Generation stays closed by decisions 47,
-    48 and 55; reopening it is an author decision, and it is a stronger case
-    than the 1.10 sd the plausibility ceiling produced in decision 49.
+    **THE CALIBRATION APPEARS TO MOVE OUTSIDE THE GATE AND THAT IS AN ARTIFACT.
+    DO NOT RETUNE ON IT.** The weighted objective goes 0.2278 to 0.2425, a
+    nominal worsening of 2.2 of the 0.0066 seed-to-seed standard deviation, and
+    an earlier version of this entry reported that as a real case for
+    regenerating. It is not.
+
+    `coverage.distribution_comparison` divides the Wasserstein distance by the
+    EMPIRICAL STANDARD DEVIATION, so the standardized number moves when the
+    denominator moves. Removing a coefficient of variation of 13.4 from a
+    147-value distribution shrinks that standard deviation from 1.2554 to
+    0.7067. Measured in ABSOLUTE terms the corpus now matches the corrected arm
+    BETTER on exactly the characteristic driving the change:
+
+        coeffvar    absolute W1  0.3463 -> 0.2690   IMPROVED by 22 percent
+                    empirical sd 1.2554 -> 0.7067
+                    standardized 0.2759 -> 0.3806   worse only by division
+
+    `coeffvar` and `crit_bw_1` carry weight 3 in the objective (decision 35),
+    which is why the two of them set the headline. `crit_bw_1` and `entropy`
+    move slightly the wrong way in absolute terms, 0.0744 to 0.0872 and 0.3452
+    to 0.3606, and those are inside the noise.
+
+    **So generation stays closed and no retune is warranted**, decisions 47, 48
+    and 55 unchanged. This is the failure mode decision 38 already records from
+    Stage 2a-2: a configuration that looks like an improvement on the statistic
+    being watched while the corpus gets no better. **A later stage that sees the
+    0.2425 and reaches for the tuner should read this paragraph first.**
