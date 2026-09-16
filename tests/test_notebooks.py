@@ -78,3 +78,99 @@ def test_generator_is_created_exactly_once(path):
         if ALLOWED_GLOBAL_RANDOM in line and not line.strip().startswith("#")
     ]
     assert len(creations) == 1, f"{path.name}: expected 1 Generator, found {creations}"
+
+
+#: Bytes. A notebook carrying stored figure outputs runs to hundreds of
+#: megabytes, and GitHub refuses any single file over 100 MB outright.
+NOTEBOOK_SIZE_LIMIT = 8 * 1024 * 1024
+
+
+@pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
+def test_notebooks_carry_no_stored_output(path):
+    """Outputs are stripped before commit; the reader re-runs to see them.
+
+    Figures are embedded base64, so a notebook that stores them grows without
+    bound: notebook 2 reached 196 MB and could not be pushed at all, GitHub's
+    hard per-file limit being 100 MB. Everything a stored output would show is
+    on disk in outputs/ and is reproduced by running the notebook.
+
+    To strip them:
+
+        jupyter nbconvert --clear-output --inplace notebooks/*.ipynb
+    """
+    nb = json.loads(path.read_text())
+    offenders = [
+        i for i, cell in enumerate(nb.get("cells", []))
+        if cell.get("cell_type") == "code" and cell.get("outputs")
+    ]
+    assert not offenders, (
+        f"{path.name}: {len(offenders)} cells carry stored output "
+        f"(first at {offenders[:5]}). Run: "
+        f"jupyter nbconvert --clear-output --inplace notebooks/*.ipynb"
+    )
+
+
+@pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
+def test_notebooks_stay_small(path):
+    size = path.stat().st_size
+    assert size <= NOTEBOOK_SIZE_LIMIT, (
+        f"{path.name} is {size / 1048576:.1f} MB, over the "
+        f"{NOTEBOOK_SIZE_LIMIT / 1048576:.0f} MB guard. Stored output is the "
+        f"usual cause."
+    )
+
+
+#: Dots per inch a figure may be SAVED at. 300 is print quality for a journal.
+#: Above this a figure is not better, only larger: notebook 2 set
+#: `figure.dpi = 1200`, and because `savefig.dpi` defaults to `'figure'` that
+#: was silently the save resolution for every figure in the notebook, while
+#: notebook 3 passed `dpi=1200` to six savefig calls directly. The result was a
+#: 98-megapixel scatter plot and a notebook too large for GitHub to accept.
+MAX_SAVE_DPI = 300
+
+
+@pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
+def test_figures_are_not_saved_above_print_resolution(path):
+    offenders = []
+    for index, source in code_cells(path):
+        for line in source.splitlines():
+            stripped = line.strip()
+            if stripped.startswith("#"):
+                continue
+            for match in re.finditer(r"\bdpi\s*=\s*(\d+)", stripped):
+                dpi = int(match.group(1))
+                # figure.dpi is the SCREEN resolution and is allowed to be low;
+                # only the save resolution is capped here.
+                if "figure.dpi" in stripped:
+                    continue
+                if dpi > MAX_SAVE_DPI:
+                    offenders.append((index, dpi, stripped[:90]))
+    assert not offenders, (
+        f"{path.name}: saving above {MAX_SAVE_DPI} dpi at {offenders}. "
+        f"Layout is measured in inches, so a higher dpi makes the file bigger "
+        f"and nothing else."
+    )
+
+
+@pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
+def test_screen_dpi_is_not_used_as_save_dpi(path):
+    """`savefig.dpi` defaults to `'figure'`, which is the trap that caused this.
+
+    Setting `figure.dpi` high to get a crisp inline preview silently raises the
+    resolution of every file the notebook writes. A notebook that sets
+    `figure.dpi` must set `savefig.dpi` explicitly alongside it.
+    """
+    sets_figure_dpi = sets_savefig_dpi = False
+    for _, source in code_cells(path):
+        for line in source.splitlines():
+            if line.strip().startswith("#"):
+                continue
+            if "figure.dpi" in line:
+                sets_figure_dpi = True
+            if "savefig.dpi" in line:
+                sets_savefig_dpi = True
+    if sets_figure_dpi:
+        assert sets_savefig_dpi, (
+            f"{path.name} sets figure.dpi without setting savefig.dpi, so the "
+            f"screen resolution silently becomes the file resolution."
+        )

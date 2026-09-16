@@ -40,10 +40,8 @@ CompareUQMethods/
 │   ├── datavisualization.py   one colour helper
 │   ├── funcs_unit_conversion.py  EC3 unit normalization
 │   └── dct_metriclabels.json  display labels for the 22 metrics
-├── audits/stage2a/            one-off measurement scripts, see audits/README.md
-├── audits/stage2a2/           empirical extract and generator audits, see its README
-├── audits/stage2a3/           the category split and the envelope it moved
-├── audits/stage2b/            the plausibility ceiling and the lognormal
+├── audits/                    one-off measurement scripts, each named for what
+│                              it measures; see audits/README.md
 ├── data/processed/            inputs, see section 5
 ├── outputs/tables/            tidy results, see section 6
 ├── outputs/figures/           publication and supplementary figures
@@ -197,7 +195,17 @@ rng = np.random.default_rng(SEED)
 ```
 
 `tests/test_notebooks.py` enforces this: exactly one `np.random.default_rng`
-per notebook and no other `np.random.*` call anywhere. `tests/test_determinism.py`
+per notebook and no other `np.random.*` call anywhere. A figure that needs its
+own stream spawns it, as the three strip plots in notebook 2 do -- seaborn's
+`stripplot` was drawing its jitter from the global state, so the same table drew
+a different figure on every run.
+
+The same file guards three other properties a reader of the deposit depends on:
+notebooks carry NO stored output (strip them with `jupyter nbconvert
+--clear-output --inplace notebooks/*.ipynb`, and re-run to see results), no
+notebook exceeds 8 MB, and nothing is saved above 300 dpi. A notebook that sets
+`figure.dpi` must set `savefig.dpi` beside it, because `savefig.dpi` defaults to
+`'figure'` and a high screen resolution silently becomes the file resolution. `tests/test_determinism.py`
 enforces that generation is reproducible from the seed and neither reads nor
 advances the legacy global stream.
 
@@ -221,6 +229,21 @@ python -c "import sys; sys.path.insert(0,'src'); import corpus; corpus.set_activ
 corpus can never be overwritten. `data/processed/CORPUS.json`, which IS tracked,
 names the active one, so repointing the whole analysis is a one-line change.
 
+**Recomputing the characteristics is NOT regeneration, and there is a separate
+entry point for it.** The empirical arm computes its characteristics when
+notebook 1 runs; a corpus stores them at generation time. A correction to the
+metric code therefore reaches one arm and not the other unless the corpus is
+told to re-read its own values:
+
+```bash
+python -c "import sys; sys.path.insert(0,'src'); import corpus; corpus.remetric_corpus('<new-label>')"
+```
+
+`remetric_corpus` copies `values.parquet` byte for byte, reruns the current
+`empirical_metadata` over it, and carries the generation record across. No
+dataset is redrawn and no random number is consumed. Use this, never
+`generate_corpus`, when a metric is corrected; generation itself is closed.
+
 Each corpus directory holds:
 
 | File | What |
@@ -238,7 +261,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 128 tests, about 90 seconds
+python -m pytest tests/          # 281 tests, about 90 seconds
 ```
 
 Headless execution, from `notebooks/`:
