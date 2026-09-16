@@ -19,7 +19,7 @@
 # from funcs_unit_conversion import volume_units, ft3, m3, yd3
 # from funcs_unit_conversion import weight_units, kgs, gs, lbs, tons, tonnes
 
-# from funcs_unit_conversion import area2m2, density2kgm2, density2kgm3, emission2kgco2e, emission2kgmwh, length2in, pressure2psi, therm2rval, time2year, vol2m3, weight2kgs
+# from funcs_unit_conversion import area2m2, density2kgm2, density2kgm3, emission2kgco2e, emission2kgmwh, length2m, pressure2psi, therm2rval, time2year, vol2m3, weight2kgs
 # from funcs_unit_conversion import dict_unitconv, dict_unittype, consistent_units, str2valunit
 
 ################################################################################################################
@@ -45,7 +45,7 @@ psi_mpa = 145.038
 # density2kgm3     density_units
 # emission2kgco2e  emission_units
 # emission2kgmwh   energyemission_units
-# length2in        length_units
+# length2m         length_units
 # pressure2psi     pressure_units
 # therm2rval       therm_units
 # time2year        time_units
@@ -243,8 +243,8 @@ def emission2kgmwh(qty, unit, prnt='y'):
         
     return qty
 
-############################# length2in ###################################################################################
-############################# length2in ###################################################################################
+############################# length2m ###################################################################################
+############################# length2m ###################################################################################
 
 m1 = ['m', 'meter', 'meters']
 ft = ['ft' ,'feet', 'fts']
@@ -255,34 +255,44 @@ km = ['km', 'kilometer', 'kilometers', 'kms']
 length_units = m1 + ft + cm + mm + inch + km
 
 
-def length2in(qty, unit, prnt='y'):
+#: Inches per metre, the factor the canonical length unit used to be in.
+INCHES_PER_METRE = 39.3701
+
+
+def length2m(qty, unit, prnt='y'):
     """
     INPUTS: (qty, unit, prnt='y')
-    OUTPUTS: qty (in psi)
+    OUTPUTS: qty (in metres)
+
+    The canonical length unit was the INCH until 2026-09-16. Nothing else in
+    this study is imperial, and a cable emission factor reported per inch is
+    not a quantity anyone checks by eye, so it is metres now. The frozen
+    extract predates the change and `empirical.load_records` rescales the
+    length-declared rows on the way in; see the note there.
     """
     if unit in m1:
-        qty *= 39.3701
-    
+        pass
+
     elif unit in ft:
-        qty *= 12
-        
+        qty *= 0.3048
+
     elif unit in cm:
-        qty /= 2.54
+        qty /= 100
 
     elif unit in mm:
-        qty /= 25.4
-    
+        qty /= 1000
+
     elif unit in inch:
-        pass
-    
+        qty *= 0.0254
+
     elif unit in km:
-        qty *= 1000*39.3701
-    
+        qty *= 1000
+
     else:
         qty = None
         if prnt=='y':
-            print(f'{unit} is not being accounted for in the length2in function')
-        
+            print(f'{unit} is not being accounted for in the length2m function')
+
     return qty
 
 ############################## pressure2psi ##################################################################################
@@ -519,7 +529,7 @@ dict_unitconv = {
     'density_vol': {'func':density2kgm3, 'units': density_units, 'output':'kgm-3'},
     'emissions': {'func':emission2kgco2e, 'units': emission_units, 'output':'kgco2e'},
     'emissions_energy': {'func':emission2kgmwh, 'units': energyemission_units, 'output':'kgmwh-1'},
-    'length': {'func':length2in, 'units': length_units, 'output':'in'},
+    'length': {'func':length2m, 'units': length_units, 'output':'m'},
     'pressure': {'func':pressure2psi, 'units': pressure_units, 'output':'psi'},
     'thermalresistance': {'func': therm2rval, 'units': therm_units, 'output': 'rval'},
     'time': {'func':time2year, 'units': time_units, 'output':'yr'},
