@@ -2,6 +2,11 @@
 
 ## 0. STATUS, read this first
 
+**THE ARM IS 147 DATASETS AND 116,768 VALUES, NOT 149 AND 117,079.** Two EC3
+categories were found not to be one product population and were dropped; see
+section 4.18, which also carries the general finding about why a relative
+outlier filter could never have found them.
+
 **THE PIPELINE RUNS END TO END.** Notebooks 1, 2 and 3 all execute clean with
 zero errors and zero warnings, against `corpus_2026-09-15b`. That was the oldest
 outstanding item in the project and it is closed.
@@ -59,6 +64,9 @@ the arithmetic.
 | `a2909e0` Flatten audits/ and drop the scripts nothing cites | records only |
 | `1e03c1f` Seed the strip-plot jitter from a Generator, not from global numpy state | figures only |
 | `bea3fbe` Save figures at print resolution, and stop storing notebook output | figures and file sizes |
+| `d174372` Take extremes after the filters, not before | records only |
+| `a39bad2` Record why a further filter would not be an outlier filter | records only |
+| `437138f` Drop two categories that are not one product population; metres, not inches | **MOVES NUMBERS** |
 | this commit: the handoff | records only |
 
 **The last three commits were rewritten before they were first pushed**, to drop
@@ -549,6 +557,83 @@ never reproducible from the tables behind them, which is a property the deposit
 claims. `comparison.rank_strip` takes a Generator. Verified by two full runs
 producing byte-identical files. Discrepancy entry 50.
 
+### 4.18 Two categories were not one product population, and why the cleaning could not have found them
+
+**The general finding first, because it outlives the two categories.** The
+symmetric log-space 3 x IQR rule of decision 33 is not broken. It is INERT on a
+contaminated category, because the width of a relative filter is set by the
+spread of the very contamination it is supposed to remove. Upper bound as a
+multiple of each dataset's own median:
+
+    ReadyMix [4000-4999 psi]              3x      42 records trimmed
+    Grouting                            289x       6
+    PowerCabling                     88,518x       0
+    Chairs                       18,469,729x       0
+    Aggregates                   41,238,610x       0
+
+On a coherent category the rule does exactly what it was designed to do. On a
+mixed one no multiplier would help. **That is the mechanism behind every extreme
+this project has chased, and it is why the fix is a category rule rather than a
+tighter filter.**
+
+**What the author settled.** Decisions 43 and 46 were being read as a blanket
+prohibition on judging a record by its value. They are not: they govern how a
+category is resolved into products. Decision 49's ceiling has judged records by
+value all along. The line that matters is where the THRESHOLD comes from --
+external and absolute is fine, read off the arm's own spread is circular.
+Decision 60. The author's sequencing is what the code now does: resolve
+categories into products first, then filter implausible values.
+
+**Applied.** `Chairs` dropped: 15 of 86 records name any kind of seating, the
+rest are kitchen mixer taps, asphalt, culverts, hollowcore slabs and bathroom
+furniture. `Grouting` dropped: 44 of 225 name a grout, the rest are gypsum
+plasters, decorative renders, GGBS, admixtures, epoxy coatings, a cable clamp
+and a glazed door. Seven records leave `Aggregates`: sinks, washbasins,
+porcelain stoneware. Both are EC3 LEAF categories, so no rule on the category
+tree could have caught them; the evidence is the product name, which decision 43
+permits. Decision 61.
+
+**An EXCLUSION list, not an inclusion vocabulary, and the reason matters for any
+later stage tempted to extend this.** An inclusion rule has to anticipate every
+legitimate naming convention in every language. Tried first, it removed 22
+`PowerCabling` records that are plainly cables -- `Cable a Haute Tension`,
+`TSLF 24kV`, `NF C 33-226`, `Nexans U-1000 R2V`, `H07RN-F` -- and two Schindler
+elevators whose names are model numbers, while MISSING the real intruders,
+because `GRANITEK Sinks` matches on "granite". **`PowerCabling` and `Elevators`
+were then read in full, all 381 and all 20 names, and need no list: every cable
+is a cable and every elevator an elevator.** Do not add one.
+
+**The constraint is TESTED, not asserted.** `tests/test_categorysplit.py` drives
+the whole assignment on a frame with no `ecc` column at all. If it completes, no
+rule can be keying on a value.
+
+**Numbers.** 149 datasets to 147; 117,079 values to 116,768. Among the datasets
+that remain only `Aggregates` moves: n 384 to 378, coefficient of variation
+7.108 to 6.929, skewness 16.95 to 12.47, kurtosis 296.1 to 163.9. Every other
+shared dataset is bit-identical and the synthetic arm is untouched. The arm's
+maximum coefficient of variation is unchanged at 13.404, still `PowerCabling`.
+**Generator calibration IMPROVES**, weighted objective 0.2308 to 0.2278, a move
+of 0.45 of the 0.0066 seed-to-seed standard deviation, so no regeneration:
+decisions 47, 48 and 55 stand.
+
+### 4.19 The canonical length unit was the inch
+
+`funcs_unit_conversion` converted every length-declared product to kgCO2e per
+INCH. Nothing else in the study is imperial. It is `length2m` now, and
+`PowerCabling` reads a median of 2.36 kgCO2e/m instead of 0.0599 kgCO2e/in.
+
+The frozen extract stores `ecc` already computed and CANNOT be rebuilt: its
+source store's sha256 no longer matches the one recorded in the runmeta, so a
+rebuild would change the POPULATION and not just the unit, which decision 44
+refuses. `empirical.fix_length_unit` rescales the 1,500 length-declared rows on
+the way in instead.
+
+**No analysis number moves.** Normalization by the dataset's own unweighted mean
+and log-space cleaning are both invariant under a constant rescale of a whole
+dataset, and the fixture regression passed unchanged before anything was
+re-frozen. `psi` and `rval` are kept deliberately: concrete is specified in psi,
+which is what decision 46's strength classes are named in. Decision 62.
+
 ## 5. Open questions and flags
 
 ### Carried forward
@@ -591,7 +676,9 @@ list only by being marked resolved, with the reason.
 |---|---|---|
 | `TABLE_MethodCurves.csv.gz` is 91.7 MB and 21x redundant | 3 | It stores one row per (arm, characteristic, method, dataset), and `y` is IDENTICAL across all 21 characteristics for a given dataset and method: 4,018,446 rows for 192,414 distinct scores. It is under GitHub's 100 MB hard limit but over the 50 MB warning, and it WILL cross the limit if 2c or 2f adds a characteristic or a score. The fix is to store the scores once and join the characteristic values at plot time |
 | `src/` docstrings still carry stage language | 3 or 4 | `comparison.py` opens with "Stage 2b." The notebooks and reports are clean; the source files are not. Raised with the author and not answered |
-| Whether to filter contaminated categories on METADATA | author, informed by 2f | Not an outlier filter, which decision 46 forbids. Section 6 has the diagnosis: `Aggregates` contains sinks and porcelain stoneware, `Chairs` contains a kitchen tap, and `PowerCabling` mixes per-metre and per-kilometre declarations. Reopening the arm is the cost; decision 48 already accepts these as a limitation |
+| Whether to filter contaminated categories on METADATA | - | **RESOLVED 2026-09-16.** Decisions 60 and 61, section 4.18. `Chairs` and `Grouting` dropped, 7 records excluded from `Aggregates`, arm 149 to 147 |
+| One cable record is wrong by four orders of magnitude | author, or 2h | `THHN/THWN-2 High Speed (HS)`, 14,300 kgCO2e for 1 m of building wire. No external bound reaches length-declared products. Section 6 |
+| `Aggregates` and `PowerCabling` remain the arm's dispersion extremes | - | OPEN as decision 48's stated limitation, unchanged |
 
 ### New in Stage 2b
 
@@ -674,82 +761,31 @@ is drawn.
 is rewritten by running the script that made it, named in the decision that
 rests on it.
 
-### The extremes that survive both filters: no decision is owed
+### The extremes that survive every filter
 
-**An earlier version of this section asked the author to rule on three records
-and was WRONG.** The extremes table was computed on the RAW extract, so it
-listed records that never reach the arm. Two filters already stand between a raw
-record and a dataset: the mass ceiling of decision 49, and the symmetric
-log-space 3 x IQR rule of decision 33. Of the three records raised, the ceramic
-fiber blanket at 2300 kgCO2e/m2 and the PVC membrane at 2029 are both removed by
-cleaning; only a triple-glazed rebated double door at 1060 kgCO2e/m2 survives,
-and at 15x its category median that is what a large triple-glazed door costs.
+Two filters stand between a raw record and a dataset -- the mass ceiling of
+decision 49 and the log-space rule of decision 33 -- and since 2026-09-16 the
+category rules of decision 61 stand in front of both. An earlier version of this
+section put three RAW records to the author as an open decision; that was wrong,
+because the report was computed before any filter ran and two of the three never
+reached the arm.
 
-`audits/plausibility_ceiling.py` now applies both filters before taking
-extremes, and reproduces the production arm exactly: 149 datasets, 117,079
-values. The extremes it reports now are the ones that genuinely reach the arm:
+`audits/plausibility_ceiling.py` now applies the filters before taking extremes
+and reproduces the production arm exactly. What survives is no longer a question
+about contamination, because the contaminated categories are gone. The largest
+remaining are `Aggregates` and `PowerCabling`, both named in decision 48 as
+categories the synthetic corpus cannot reach, which is a stated limitation
+rather than an open item.
 
-| declared | dataset | ECC | vs category median |
-|---|---|---|---|
-| 1.0 kg | Aggregates | 47.75 | 6900x |
-| 1 m | PowerCabling | 363.2 | 6067x |
-| 1 m | PowerCabling | 130.3 | 2176x |
-| 1.0 kg | Chairs | 67.02 | 716x |
-| 1.0 kg | Grouting | 75.70 | 175x |
-
-**These need no new decision, because decision 48 already covers them.** They
-are `Aggregates`, `PowerCabling`, `Grouting` and `Chairs` -- four of the five
-categories decision 46 could not resolve into specifiable products, and exactly
-the ones decision 48 named when it accepted the coverage shortfall as a stated
-limitation rather than engineering it away. The mass-declared ones are under the
-100 kgCO2e/kg ceiling, so the external bound does not reach them; the
-length-declared ones have no external bound at all. What is extreme here is the
-shape of a contaminated EC3 category, which is the thing the paper says it is.
-
-### Should there be a further filter? The diagnosis, so a later stage can decide
-
-The author asked whether records we are confident are outliers should simply be
-excluded. **Not as an outlier filter.** Decision 46 forbids reintroducing a
-dispersion screen, and decision 43 says a record may be judged only on metadata
-carried on the EPD or on EC3's category tree, never on its ECC value. This study
-MEASURES dispersion; removing a value because it is far from the others and then
-reporting how disperse ECC datasets are is circular.
-
-**But the survivors are not statistical outliers, and looking at what they
-actually are points at a filter that would be legitimate.** Two patterns, both
-readable from metadata alone:
-
-1. **Category contamination, visible in the product NAME.** `Aggregates` has a
-   median of 0.0069 kgCO2e/kg, which is right for gravel and sand, and contains
-   `GRANITEK Sinks` and `Porcelain stoneware`. `Chairs` contains
-   `Damixa Iris Kitchen Mixers`, a kitchen tap. `Grouting` contains
-   `Thermal Insulating Plaster`. A sink is not an aggregate and you can tell from
-   the name, not from the number.
-2. **Declared-unit inconsistency, visible in the UNIT field.** `PowerCabling`
-   holds 242 records declared per 1 km, median 0.0457 kgCO2e/m, and 26 declared
-   per 1 m, median 0.2642 and max 363.2. The per-metre records sit about six
-   times higher on the median. The 363.2 record is consistent with a cable
-   declared per kilometre and labelled per metre, but that cannot be shown from
-   the record.
-
-Both tests read only metadata, so both are permitted by decision 43. **Neither
-is recommended without a deliberate author decision**, for three reasons:
-
-- It REOPENS THE EMPIRICAL ARM, which decision 44 froze for the remainder of the
-  project and decision 46 closed. That is the cost, and it is not small.
-- Decision 48 already accepts exactly these categories as a stated limitation,
-  having found the corpus cannot reach their dispersion. The five it names --
-  `Aggregates`, `PowerCabling`, `Grouting`, `Elevators`, `Chairs` -- are four of
-  the five seen here.
-- **There is a real argument that the contamination IS the phenomenon.** Decision
-  34 keeps EPD-level uniform weighting because it is "what a practitioner pulling
-  from EC3 actually holds". By the same logic a practitioner pulling the
-  Aggregates category gets the sinks too. A paper about what practitioners should
-  do with real EC3 data is arguably obliged to keep them.
-
-**Owner: the author, informed by 2f.** If 2f finds that these datasets are
-driving which method wins, the case for cleaning them strengthens; if they are
-not, the limitation stands as written and nothing needs to change.
+**One record is a genuine data error and is still in the arm:**
+`THHN/THWN-2 High Speed (HS)` declares **14,300 kgCO2e for 1 metre** of ordinary
+building wire, which weighs a few hundred grams per metre. It is off by four or
+five orders of magnitude and is almost certainly a reel or a production batch
+mislabelled as one metre. It cannot be removed by the mass ceiling, which does
+not reach length-declared products, and `PowerCabling`'s log-space bound sits at
+88,518x its median. **Left in, flagged here.** Removing it needs either an
+external bound for length-declared cable, which would have to be derived from a
+plausible mass per metre, or an author judgement about the record.
 
 **Nothing in this handoff is waiting on a person.**
 
