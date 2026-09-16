@@ -365,7 +365,7 @@ live.** Where such an entry says "the 138 empirical datasets", the count is now
 | **datasets** | **147** |
 | drawn from | 138 EC3 categories queried; 136 retained at least 3 values after cleaning; 121 survived the residual-bin rule; splitting concrete and insulation brings it to 149; dropping `Chairs` and `Grouting` as not one product population brings it to 147 (decision 61) |
 | source | `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, a frozen archived extract, pulled 2026-08-13/14, checksummed in `data/INPUTS.sha256` |
-| ECC values after cleaning | **116,768** (117,090 before the plausibility ceiling; 117,079 before the category rules of decision 61) |
+| ECC values after cleaning | **116,766** (117,090 before the plausibility ceiling; 117,079 before the category rules of decision 61; 116,768 before the declared-unit consistency check of decision 63) |
 | cleaning | multiplicative 3 x IQR in LOG space, both ends, after an external plausibility ceiling of 100 kgCO2e/kg on mass-declared records (entry 35). **The log-space rule works on a coherent category and fails on a contaminated one**, because its width is set by the spread of the contamination: on `ReadyMix [4000-4999 psi]` its upper bound is 3x the median and it trims 42 records; on `Aggregates` it was 41,238,610x the median and trimmed nothing (entry 51) |
 | weighting | flat Dirichlet, alpha = 1, keyed by dataset name |
 | normalization | each dataset divided by its own UNWEIGHTED mean |
@@ -374,7 +374,7 @@ Per-dataset characteristics, median / min / max:
 
 | characteristic | median | min | max |
 |---|---|---|---|
-| coefficient of variation | 0.667 | 0.006 | **13.404** |
+| coefficient of variation | 0.658 | 0.006 | **6.929** (`Aggregates`; was 13.404 for `PowerCabling` before decision 63 removed two mislabelled records) |
 | skewness | 1.539 | -2.408 | **21.000** |
 | excess kurtosis | 3.702 | -3.627 | **525.17** |
 | entropy | 2.967 | 0.233 | 4.883 |

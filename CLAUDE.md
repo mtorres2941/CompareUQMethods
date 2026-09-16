@@ -1084,3 +1084,58 @@ rather than in conversation.
     of 0.0599 kgCO2e/in. `psi` and `rval` are deliberately kept: concrete is
     specified in psi, which is what decision 46's strength classes are named in,
     and R-value is the convention for thermal resistance.
+63. **2026-09-16. A record whose DECLARED UNIT contradicts its own published
+    mass is removed. Two records, and they were holding up the arm's dispersion
+    tail.** `[AUTHOR]` "14,300 kgCO2e/m is completely insane and obviously needs
+    to be excluded."
+
+    EC3 publishes a second, independent number on each EPD: the GWP per
+    KILOGRAM. `THHN/THWN-2 High Speed (HS)` declares 14,300 kgCO2e for one metre
+    of ordinary building wire while publishing 4.017 kgCO2e/kg, which puts 3,560
+    kg of copper in a single metre. The material is fine; the DECLARED UNIT is
+    wrong, and the record's own two numbers say so without reference to any
+    other record.
+
+    **BOTH published figures must be impossible before a record is removed, and
+    testing proved that necessary.** The implied-mass signal alone flagged four
+    `ReadyMix` records at a wholly normal 372 to 451 kgCO2e/m3, because their
+    `gwp_per_kg` field reads 0.020 where concrete is about 0.105: dividing by a
+    broken field manufactures an absurd mass from sound data. The ECC signal
+    alone is a per-unit ceiling that cannot be anchored externally, since a
+    square metre of product has no general size. `empirical.MAX_MASS_PER_UNIT`
+    and `MAX_ECC_PER_UNIT`.
+
+    **It is not a dispersion screen and that is tested, not asserted.** Scoring
+    one record alone and scoring it inside a crowd of fifty near-identical rows
+    gives the same answer, which no filter keyed on a median or an interquartile
+    range could do. `tests/test_categorysplit.py`.
+
+    **The live EC3 store is NOT a dependency.** It has already moved on from the
+    frozen extract, and reading it at analysis time would break reproducibility
+    from a clean clone, which is the point of decision 31. The values are frozen
+    as `data/raw/ec3_gwp_per_kg_2026-09-16.csv.gz`, tracked and checksummed,
+    covering 96.5 percent of the extract. Records without a usable value are
+    simply not checked.
+
+    **WHAT THIS MOVED, AND IT IS MUCH MORE THAN TWO RECORDS.** `PowerCabling`
+    n 400 to 398, coefficient of variation **13.404 to 2.030**, skewness 18.33 to
+    4.34, kurtosis 347.0 to 28.3. The ARM'S MAXIMUM coefficient of variation,
+    which is the number decision 48 rests on, falls from **13.404 to 6.929**, and
+    the maximum is now `Aggregates` rather than `PowerCabling`. Coverage improves
+    from 11 uncovered dataset-metric pairs of 1,490 to **5 of 1,470**, with only
+    one dataset now uncovered on dispersion. Values 116,768 to 116,766.
+
+    **DECISION 48'S PREMISE IS PARTLY WITHDRAWN.** It recorded that no generator
+    parameter could reach an empirical coefficient of variation of 14.34. That
+    figure was inflated by two mislabelled records. The real target is 6.93, the
+    gap is about half what it was, and the uncovered categories are no longer
+    what decision 48 listed. **The coverage claim and the figure must be restated
+    from the rebuilt tables, not from decision 48's numbers.**
+
+    **THE GENERATOR CALIBRATION MOVED OUTSIDE THE GATE AND NOTHING WAS DONE,
+    which is the standing instruction.** Weighted objective 0.2278 to 0.2425, a
+    worsening of 2.2 of the 0.0066 seed-to-seed standard deviation. The cause is
+    plain and is itself a finding: **the corpus was tuned to match an empirical
+    arm that contained these errors.** Generation stays closed by decisions 47,
+    48 and 55; reopening it is an author decision, and it is a stronger case
+    than the 1.10 sd the plausibility ceiling produced in decision 49.

@@ -87,3 +87,60 @@ def test_dropped_categories_are_gone_from_the_built_arm():
     for cat in CS.NOT_ONE_POPULATION:
         assert cat not in datasets
     assert len(datasets) == 147
+
+
+# ---------------------------------------------------------------------------
+# the declared-unit consistency check
+# ---------------------------------------------------------------------------
+
+def test_two_impossible_numbers_are_needed_to_remove_a_record():
+    """The design is that BOTH published figures must be impossible.
+
+    A broken gwp_per_kg alone would discard good records: four ReadyMix rows at
+    a wholly normal 372 to 451 kgCO2e/m3 imply an absurd mass only because
+    their per-kg field reads 0.02. The ECC test alone is a per-unit ceiling
+    that cannot be anchored externally. Together they identify a declared-unit
+    error.
+    """
+    df = pd.DataFrame({
+        'open_xpd_uuid': ['a', 'b', 'c', 'd'],
+        'du_type': ['length', 'vol', 'vol', 'length'],
+        'ecc': [14300.0, 451.0, 250.0, 2.4],
+    })
+    per_kg = pd.Series({'a': 4.017,   # cable: 3,560 kg in one metre  -> BOTH fail
+                        'b': 0.020,   # concrete: mass absurd, ECC normal -> keep
+                        'c': 0.105,   # ordinary concrete -> keep
+                        'd': 3.5})    # ordinary cable -> keep
+    # patch the loader so the test needs no data file
+    import unittest.mock as mock
+    with mock.patch.object(empirical, 'gwp_per_kg', lambda path=None: per_kg):
+        flagged = empirical.internally_inconsistent(df)
+    assert flagged.tolist() == [True, False, False, False]
+
+
+def test_a_broken_per_kg_field_never_removes_anything_on_its_own():
+    df = pd.DataFrame({'open_xpd_uuid': ['a', 'b'], 'du_type': ['vol', 'vol'],
+                       'ecc': [250.0, 13.0]})
+    import unittest.mock as mock
+    for value in (0.0, 1e-12, 1e6):
+        with mock.patch.object(empirical, 'gwp_per_kg',
+                               lambda path=None, v=value: pd.Series({'a': v, 'b': v})):
+            assert not empirical.internally_inconsistent(df).any(), value
+
+
+def test_the_check_is_not_a_dispersion_screen():
+    """It must depend only on the record, never on the other records.
+
+    Scoring one row alone and scoring it inside a crowd must agree, which a
+    filter keyed on a median or an interquartile range could not do.
+    """
+    import unittest.mock as mock
+    one = pd.DataFrame({'open_xpd_uuid': ['a'], 'du_type': ['length'],
+                        'ecc': [14300.0]})
+    crowd = pd.DataFrame({'open_xpd_uuid': ['a'] + [f'x{i}' for i in range(50)],
+                          'du_type': ['length'] * 51,
+                          'ecc': [14300.0] + [14000.0] * 50})
+    per_kg = pd.Series({'a': 4.017, **{f'x{i}': 4.0 for i in range(50)}})
+    with mock.patch.object(empirical, 'gwp_per_kg', lambda path=None: per_kg):
+        assert empirical.internally_inconsistent(one).iloc[0]
+        assert empirical.internally_inconsistent(crowd).iloc[0]
