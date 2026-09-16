@@ -1,10 +1,11 @@
 """Coverage of the empirical metric space by the synthetic corpus.
 
-This is analysis that belongs to the paper, not to the Stage 2a audit: it
+This is analysis that belongs to the paper, not a one-off measurement: it
 produces Table 1 and the coverage figure. It lives in `src/` so it can be
 tested, and notebook 1 calls it, so the notebook remains the place the analysis
-is read from. The one-off measurements that characterize the OLD generator stay
-in `audits/stage2a/`, because they describe code that no longer exists.
+is read from. The one-off measurements that characterize the generator as it
+was originally written stay in `audits/`, because they describe code that no
+longer exists.
 
 The question every function here answers is the one the author set: do the
 synthetic datasets look like the empirical ECC datasets, as measured by the
