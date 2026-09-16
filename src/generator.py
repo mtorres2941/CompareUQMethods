@@ -297,6 +297,17 @@ class _Shifted:
         # A shift moves the distribution and leaves its spread alone.
         return float(self._d.std())
 
+    def spec(self):
+        """The wrapped component with the shift folded into its location.
+
+        A shift and an affine location are the same operation, so a shifted
+        component is exactly `components.frozen(family, shape, loc + shift,
+        scale)`. Folding them here means a serialized parent needs no wrapper
+        of its own to rebuild.
+        """
+        d = self._d.spec()
+        return dict(d, loc=d['loc'] + self.shift)
+
 
 # --------------------------------------------------------------------------
 def draw_weights(parent, modes, cfg, rng):

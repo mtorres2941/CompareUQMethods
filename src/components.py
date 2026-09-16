@@ -470,7 +470,8 @@ def frozen(family, shape, loc, scale):
     Exposes pdf, cdf, ppf and sf. Reflected families are wrapped rather than
     special-cased at every call site.
     """
-    return _Affine(_standard_frozen(family, shape), loc, scale)
+    return _Affine(_standard_frozen(family, shape), loc, scale,
+                   family=family, shape=shape)
 
 
 class _Reflected:
@@ -506,10 +507,32 @@ class _Reflected:
 class _Affine:
     """Z = loc + scale * X."""
 
-    __slots__ = ('_d', 'loc', 'scale')
+    __slots__ = ('_d', 'loc', 'scale', '_family', '_shape')
 
-    def __init__(self, d, loc, scale):
+    def __init__(self, d, loc, scale, family=None, shape=None):
         self._d, self.loc, self.scale = d, float(loc), float(scale)
+        # The family name and shape vector, carried so a component can describe
+        # itself. `frozen` sets them; `solve_component`'s internal round-trip
+        # check builds an _Affine without them and never serializes it.
+        self._family = family
+        self._shape = None if shape is None else tuple(float(v) for v in shape)
+
+    def spec(self):
+        """(family, shape, loc, scale), enough to rebuild this component.
+
+        Stage 2c scores fitted models against the parent a synthetic dataset
+        was drawn from, so a parent has to survive a round trip to disk. The
+        generation record stores the moment TARGETS of a component, from which
+        `solve_component` recovers its loc and scale deterministically, but it
+        does not store the displacement the overlap solve applied, and that
+        displacement is not recoverable from anything else in the record. So a
+        component states its own final position here instead.
+        """
+        if self._family is None:
+            raise ValueError('this _Affine was built without a family tag and '
+                             'cannot describe itself; use components.frozen')
+        return dict(family=self._family, shape=list(self._shape),
+                    loc=self.loc, scale=self.scale)
 
     def pdf(self, x):
         return self._d.pdf((np.asarray(x, float) - self.loc) / self.scale) / self.scale

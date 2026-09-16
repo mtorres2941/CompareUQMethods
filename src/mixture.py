@@ -162,6 +162,33 @@ class MixtureParent:
                 break
         return 0.5 * (lo + hi)
 
+    # ------------------------------------------------------------- serialize
+    def spec(self):
+        """A JSON-serializable description of this parent, exact to the bit.
+
+        WHY THIS EXISTS. `parents.json.gz` records how a parent was ASKED for --
+        the moment targets of each component, the overlap target, the shift, the
+        bounds -- and `corpus.rebuild_parents` re-derives the rest by replaying
+        the generator's own random stream. What the record does NOT hold is the
+        displacement the overlap solve gave each component, which is a solved
+        scalar times an ordinate drawn from the generator's stream, so it cannot
+        be recovered from the record alone. A spec states the finished positions
+        instead, and `parent_from_spec` round-trips it exactly.
+
+        The components listed are the ones that SURVIVED construction, with `pi`
+        and `market` already renormalized over them, so a rebuild drops nothing
+        further and `n_components_dropped` is carried across rather than
+        recomputed.
+        """
+        return dict(
+            components=[c.spec() for c in self.comps],
+            pi=[float(v) for v in self.pi],
+            market=[float(v) for v in self.market],
+            lo=self.lo, hi=self.hi, coupling=self.coupling,
+            normalizer=float(self.normalizer),
+            n_components_dropped=int(self.n_components_dropped),
+        )
+
     def truncated_mean(self, grid_n=4001):
         """Population mean of the truncated mixture, in RAW units.
 
@@ -271,6 +298,28 @@ class MixtureParent:
 # --------------------------------------------------------------------------
 # overlap, after Maitra and Melnykov (2010) generalized to one dimension
 # --------------------------------------------------------------------------
+def parent_from_spec(spec):
+    """Rebuild a `MixtureParent` from `MixtureParent.spec()`.
+
+    The inverse of `spec`, and tested as one: `tests/test_mixture.py` asserts
+    that a round trip reproduces the CDF of both weighting schemes exactly and
+    that no component is dropped a second time.
+    """
+    comps = [C.frozen(c['family'], c['shape'], c['loc'], c['scale'])
+             for c in spec['components']]
+    p = MixtureParent(comps, np.asarray(spec['pi'], float),
+                      np.asarray(spec['market'], float),
+                      spec['lo'], spec['hi'], spec['coupling'])
+    if p.n_components_dropped:
+        raise ValueError(
+            f"rebuilding dropped {p.n_components_dropped} further component(s); "
+            f"a spec lists only the survivors, so this means the spec and the "
+            f"parent it came from disagree")
+    p.n_components_dropped = int(spec.get('n_components_dropped', 0))
+    p.normalizer = float(spec.get('normalizer', 1.0))
+    return p
+
+
 def _log_assignment_margin(x, di, dj, pi_i, pi_j):
     """log(pi_j f_j(x)) - log(pi_i f_i(x)). Positive where the Bayes rule
     assigns x to component j rather than to component i."""

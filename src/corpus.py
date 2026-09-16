@@ -474,3 +474,188 @@ def write_combos(directory, combos):
 def load_combos(directory=None):
     d = directory or active_dir()
     return pd.read_csv(os.path.join(d, 'combos.csv')).to_numpy(dtype=str)
+
+
+# --------------------------------------------------------------------------
+# Part 3 (Stage 2c): the parent each dataset was actually drawn from
+# --------------------------------------------------------------------------
+#: Filename of the rebuilt parent specs inside a corpus directory. Derived, not
+#: generated: it is written beside the corpus it describes and adds no file the
+#: corpus already has, so `generate_corpus`'s refusal to overwrite is untouched.
+PARENT_SPEC_FILE = 'parents_spec.json.gz'
+
+#: Record fields the replay must reproduce before a rebuilt parent is accepted.
+#: Scalars only; `pi`, `market` and `mode_counts` are checked as arrays.
+REPLAY_CHECK_FIELDS = ('n', 'k', 'k_effective', 'shift', 'lo', 'hi',
+                       'normalizer', 'overlap_achieved', 'cv_achieved',
+                       'cv_target', 'truncated_mass', 'n_components_dropped')
+
+
+def rebuild_parents(directory=None, out=None, verify_values=True,
+                    progress=True, atol=0.0):
+    """Recover the exact parent of every dataset in a corpus, and cache it.
+
+    WHY THIS IS NECESSARY, because `parents.json.gz` looks like it should be
+    enough and is not. The record stores each component's moment TARGETS, from
+    which `components.solve_component` recovers its location and scale
+    deterministically, and it stores the global shift and the truncation
+    bounds. It does NOT store the displacement the overlap solve gave each
+    component: that is a solved scalar multiplied by k ordinates drawn from the
+    generator's random stream, and one recorded overlap value cannot identify
+    k - 1 displacements. So the parent CDF cannot be written down from the
+    record, and CONTEXT.md's claim that it could was wrong.
+
+    WHAT THIS DOES INSTEAD, and why it is not a regeneration. Generation is
+    deterministic given the seed, so the same loop run again over the same
+    configuration produces the same parents, the same values and the same
+    weights. This replays it in memory and keeps the PARENT objects, which
+    `generate_corpus` threw away. Nothing is redrawn in the sense decisions 47,
+    48 and 55 close off: no corpus is written, no dataset changes, and the
+    replay is CHECKED against the stored values rather than trusted. If the
+    replay and the corpus disagree on one value of one dataset, this raises.
+
+    Returns {dataset: spec}, the argument `mixture.parent_from_spec` takes, and
+    writes it to `PARENT_SPEC_FILE` in the corpus directory unless `out` says
+    otherwise. Reading is `load_parent_specs`.
+    """
+    d = directory or active_dir()
+    with open(os.path.join(d, 'runmeta.json')) as f:
+        meta = json.load(f)
+    stored = load_parents(d)
+
+    # The replay is only faithful if it runs the configuration that produced the
+    # corpus. Rather than reconstructing a config from JSON, which would fail
+    # quietly if a field were added, require the live default to BE it.
+    live = G.DEFAULT.to_dict()
+    if live != meta['config']:
+        differing = sorted(k for k in set(live) | set(meta['config'])
+                           if live.get(k) != meta['config'].get(k))
+        raise ValueError(
+            f'genconfig.DEFAULT does not match the configuration that produced '
+            f'{os.path.basename(d)}; differing fields: {differing}. A replay '
+            f'under a different configuration would rebuild different parents, '
+            f'so it is refused rather than approximated.')
+    cfg = G.DEFAULT
+
+    groups = {}
+    if verify_values:
+        values = pd.read_parquet(os.path.join(d, 'values.parquet'))
+        groups = dict(tuple(values.groupby('dataset_id', observed=True)))
+
+    rng = np.random.default_rng(cfg.seed)
+    sizes, strata = GEN.stratified_sizes(cfg, rng)
+    if meta.get('include_probe', True):
+        p = GEN.probe_sizes(cfg, rng)
+        sizes = np.concatenate([sizes, p])
+
+    t0 = time.time()
+    specs, skipped = {}, {}
+    for i, n in enumerate(sizes):
+        ds = f'dataset{i}'
+        parent, record, x, w = _replay_one(cfg, int(n), rng)
+        if ds not in stored:
+            # The corpus dropped this slot, for a parent that would not solve or
+            # a dataset the validity filter refused. The replay must drop it too
+            # and must have consumed the same random numbers to get here.
+            skipped[ds] = record.get('status') if record else None
+            continue
+        if parent is None:
+            raise ValueError(f'{ds} is in the corpus but the replay failed to '
+                             f'draw a parent for it: {record}')
+        _check_replay(ds, record, stored[ds], atol)
+        if verify_values:
+            g = groups.get(ds)
+            if g is None:
+                raise ValueError(f'{ds} has a stored parent and no stored values')
+            if not (np.array_equal(x, g['value'].to_numpy())
+                    and np.array_equal(w, g['weight'].to_numpy())):
+                raise ValueError(
+                    f'{ds}: the replay reproduced the parent record but not the '
+                    f'values it drew from it. The corpus and the code that '
+                    f'reads it have diverged; do not use these parents.')
+        specs[ds] = parent.spec()
+        if progress and (i + 1) % 1000 == 0:
+            print(f'  {i+1:>6} / {len(sizes)}   {time.time()-t0:6.0f}s', flush=True)
+
+    missing = set(stored) - set(specs)
+    if missing:
+        raise ValueError(f'{len(missing)} stored parents were not rebuilt, '
+                         f'first few: {sorted(missing)[:5]}')
+
+    path = out if out is not None else os.path.join(d, PARENT_SPEC_FILE)
+    if path:
+        payload = dict(
+            corpus=os.path.basename(d), seed=int(cfg.seed),
+            created_utc=datetime.now(timezone.utc).isoformat(timespec='seconds'),
+            git_commit=_git_commit(), git_working_tree_dirty=_git_dirty(),
+            values_verified=bool(verify_values), n_datasets=len(specs),
+            skipped=skipped, specs=specs)
+        with gzip.open(path, 'wt') as f:
+            json.dump(payload, f)
+    return specs
+
+
+def _replay_one(cfg, n, rng):
+    """One `generate_dataset` call, returning the parent as well as the data.
+
+    `generate_dataset` does not hand back the parent object, and it must not be
+    changed to: it is the generation path and this is a read. So the retry loop
+    is repeated here, consuming the random stream identically.
+    """
+    parent, record = None, None
+    for retries in range(cfg.max_parent_retries):
+        parent, record = GEN.draw_parent(cfg, n, rng)
+        if parent is not None:
+            break
+        if record.get('status') not in GEN.REDRAWABLE:
+            break
+    if parent is None:
+        return None, record, None, None
+    x, modes = parent.sample(n, rng)
+    w = GEN.draw_weights(parent, modes, cfg, rng)
+    record = dict(record, n=int(n), normalizer=parent.normalizer,
+                  parent_retries=int(retries),
+                  mode_counts=np.bincount(modes,
+                                          minlength=len(parent.comps)).tolist())
+    return parent, record, x, w
+
+
+def _check_replay(ds, got, want, atol=0.0):
+    for key in REPLAY_CHECK_FIELDS:
+        if key not in want:
+            continue
+        a, b = got.get(key), want.get(key)
+        if a is None and b is None:
+            continue
+        if not np.isclose(float(a), float(b), rtol=0.0, atol=atol, equal_nan=True):
+            raise ValueError(f'{ds}: replayed {key} = {a!r}, corpus has {b!r}')
+    for key in ('pi', 'market', 'mode_counts'):
+        if key in want and not np.array_equal(np.asarray(got[key], float),
+                                              np.asarray(want[key], float)):
+            raise ValueError(f'{ds}: replayed {key} differs from the corpus')
+
+
+def load_parent_specs(directory=None, rebuild=False, **kw):
+    """The rebuilt parent specs for a corpus, building them if absent.
+
+    Returns {dataset: spec}. Pass each spec to `mixture.parent_from_spec`.
+    """
+    d = directory or active_dir()
+    path = os.path.join(d, PARENT_SPEC_FILE)
+    if rebuild or not os.path.exists(path):
+        return rebuild_parents(d, **kw)
+    with gzip.open(path, 'rt') as f:
+        payload = json.load(f)
+    if payload.get('corpus') != os.path.basename(d):
+        raise ValueError(f'{path} was built for {payload.get("corpus")!r}, not '
+                         f'{os.path.basename(d)!r}')
+    return payload['specs']
+
+
+def load_parent_objects(directory=None, datasets=None, **kw):
+    """`load_parent_specs`, rebuilt into `mixture.MixtureParent` objects."""
+    import mixture as M
+    specs = load_parent_specs(directory, **kw)
+    if datasets is not None:
+        specs = {k: specs[k] for k in datasets}
+    return {k: M.parent_from_spec(v) for k, v in specs.items()}
