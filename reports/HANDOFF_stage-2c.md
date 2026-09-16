@@ -438,16 +438,28 @@ because it needs a density and the empirical target is a set of atoms; supplying
 one would mean a bin width or a kernel, and a kernel would score the KDE against
 a KDE. Decision 69, entry 58.
 
-### 4.13 A defect found and fixed in passing
+### 4.13 Two defects found and fixed in passing, both introduced by this stage
 
-Notebook 2's new post-stratification table was given the filename notebook 1
-already uses for the post-stratified dataset CHARACTERISTICS. Running the pair
-would have left one table on disk describing something other than its name, and
-nothing would have caught it because each notebook runs green on its own.
-Renamed to `TABLE_PostStratifiedScores.csv`, and
+**A filename collision.** Notebook 2's new post-stratification table was given
+the name notebook 1 already uses for the post-stratified dataset
+CHARACTERISTICS. Running the pair would have left one table on disk describing
+something other than its name, and nothing would have caught it because each
+notebook runs green on its own. Renamed to `TABLE_PostStratifiedScores.csv`, and
 `tests/test_notebooks.py::test_no_two_notebooks_write_the_same_output_file` now
 guards the class. **Stage 3 owns the duplicate-filename check; this is a partial
 down payment on it and does not close it, because it only sees literal paths.**
+The rename also had to be made in the FIGURE that reads the table, which it was
+not at first, and the symptom was `'DataFrame' object has no attribute 'arm'`
+rather than a missing file, because notebook 1's table exists and has different
+columns.
+
+**A column name that shadows a DataFrame method.** A summary column called
+`rank` makes `frame.rank` the method rather than the column, so
+`h.rank.get(...)` returned a bound method and the figure raised
+`'function' object has no attribute 'get'` twelve minutes into a run. The same
+thing happened in an audit script with a column called `tail`. Renamed to
+`mean_rank`, and the surviving attribute access is bracket access with a comment
+saying why.
 
 ---
 
@@ -589,3 +601,15 @@ The habits Stage 2b recorded still hold, and this stage adds one.
    The arithmetic was right, every column was correctly computed, and the
    conclusion was meaningless because the six were being judged against different
    truths. Nothing in the code could have caught it; the check is the question.
+10. **Never name a column after a DataFrame method.** `rank`, `tail`, `mean`,
+    `max`, `count`, `size`, `shape`. Attribute access then silently returns the
+    method, and the failure surfaces wherever the value is first used, which in a
+    notebook is minutes or tens of minutes later. This stage hit it twice in one
+    afternoon. `mean_rank`, not `rank`; and where a column must keep such a name,
+    reach it with brackets.
+11. **A number quoted in a handoff must come from the table the paper reads.**
+    The cross-validated means in section 4.2 were first written from the audit
+    script, which uses its own split stream, and differ from notebook 2's in the
+    third decimal. No conclusion changed, but the handoff would have quoted
+    figures that appear in no committed table. Check the provenance of every
+    number before it goes in, and say which artifact it came from.
