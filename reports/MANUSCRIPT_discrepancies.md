@@ -362,11 +362,11 @@ live.** Where such an entry says "the 138 empirical datasets", the count is now
 
 | | |
 |---|---|
-| **datasets** | **149** |
-| drawn from | 138 EC3 categories queried; 136 retained at least 3 values after cleaning; 121 survived the residual-bin rule; splitting concrete and insulation brings it to 149 |
+| **datasets** | **147** |
+| drawn from | 138 EC3 categories queried; 136 retained at least 3 values after cleaning; 121 survived the residual-bin rule; splitting concrete and insulation brings it to 149; dropping `Chairs` and `Grouting` as not one product population brings it to 147 (decision 61) |
 | source | `data/raw/ec3_raw_ecc_2026-08-14.csv.gz`, a frozen archived extract, pulled 2026-08-13/14, checksummed in `data/INPUTS.sha256` |
-| ECC values after cleaning | **117,079** (117,090 before the Stage 2b plausibility ceiling) |
-| cleaning | multiplicative 3 x IQR in LOG space, both ends, after an external plausibility ceiling of 100 kgCO2e/kg on mass-declared records (entry 35) |
+| ECC values after cleaning | **116,768** (117,090 before the plausibility ceiling; 117,079 before the category rules of decision 61) |
+| cleaning | multiplicative 3 x IQR in LOG space, both ends, after an external plausibility ceiling of 100 kgCO2e/kg on mass-declared records (entry 35). **The log-space rule works on a coherent category and fails on a contaminated one**, because its width is set by the spread of the contamination: on `ReadyMix [4000-4999 psi]` its upper bound is 3x the median and it trims 42 records; on `Aggregates` it was 41,238,610x the median and trimmed nothing (entry 51) |
 | weighting | flat Dirichlet, alpha = 1, keyed by dataset name |
 | normalization | each dataset divided by its own UNWEIGHTED mean |
 
@@ -727,3 +727,27 @@ relative figure beside it.**
 | **Severity** | Cosmetic in effect -- only the vertical scatter of the points moves, and no number, rank or axis changes -- but it breaks the property that a figure is reproducible from the table behind it, which is a claim the deposit makes. |
 | **Fix** | `comparison.rank_strip` takes a Generator, draws the offsets itself and returns one handle per rank so the legend still builds. Tested for reproducibility under a fixed seed, for sensitivity to a different seed, and for leaving the global stream untouched. |
 | **Status** | **RESOLVED 2026-09-15.** No number moved. |
+
+## 51. Two EC3 categories were not one product population, and a relative outlier filter could never have found that
+
+| | |
+|---|---|
+| **Manuscript** | Reports the empirical arm as a set of material categories, each standing for one material choice in a pLCA. |
+| **What was there** | `Chairs` held 86 records of which only 15 name any kind of seating; the rest are kitchen mixer taps, asphalt, culverts, hollowcore slabs, particle board and bathroom furniture. `Grouting` held 225 of which only 44 name a grout; the rest are gypsum plasters, decorative renders, ground granulated blast furnace slag, concrete admixtures, epoxy coatings, a cable clamp and a glazed door. `Aggregates` held 7 finished products -- sinks, washbasins, porcelain stoneware slabs -- among 385 records of crushed stone, gravel and sand. |
+| **Why the cleaning did not catch it** | **This is the important part, and it is a general point about relative filters.** The symmetric log-space 3 x IQR rule works when a category is coherent: on `ReadyMix [4000-4999 psi]` its upper bound sits at 3x the median and it trims 42 records. On a contaminated category the same rule is inert, because the width of the interval is set by the spread of the very contamination it is supposed to remove. Measured upper bound as a multiple of the median: `ReadyMix` 3x, `Grouting` 289x, `PowerCabling` 88,518x, `Chairs` 18,469,729x, `Aggregates` 41,238,610x. The last three trimmed NOTHING. |
+| **Fix** | Drop the two categories that are not one population; exclude the named intruders from the one that is. Both read the product NAME and never the ECC value, which is the constraint decision 43 sets and the same evidence the insulation split already uses. Decisions 60 and 61. |
+| **An exclusion list, not an inclusion vocabulary** | An inclusion rule has to anticipate every legitimate naming convention in every language. Tried first, it would have removed 22 `PowerCabling` records that are plainly cables (`Cable a Haute Tension`, `TSLF 24kV`, `NF C 33-226`, `Nexans U-1000 R2V`, `H07RN-F`) and two Schindler elevators named by model number, while missing the actual intruders, since `GRANITEK Sinks` matches on "granite". |
+| **What moved** | 149 datasets to **147**; 117,079 ECC values to **116,768**. Generator calibration IMPROVED and stayed far inside the gate: weighted objective 0.2308 to 0.2278, 0.45 of the 0.0066 seed-to-seed standard deviation. No regeneration. |
+| **For the text** | The arm is 147 datasets and the derivation in the canonical block above is the one to quote. `Chairs` and `Grouting` should be named in the limitations as categories EC3 labels for a product but populates with a mixture. |
+| **Status** | **RESOLVED 2026-09-16.** |
+
+## 52. The canonical length unit was the inch
+
+| | |
+|---|---|
+| **Manuscript** | Reports ECC in kgCO2e per declared unit, in an otherwise metric analysis. |
+| **What was there** | `funcs_unit_conversion` converted every length-declared product to kgCO2e per INCH. `PowerCabling` and `DataCabling` were therefore reported per inch, and `PowerCabling`'s median read 0.0599 where the metric figure is 2.36 kgCO2e/m. |
+| **Fix** | `length2m`. The frozen extract stores `ecc` already computed and cannot be rebuilt -- the EC3 store's sha256 no longer matches, so a rebuild would change the population, which decision 44 refuses -- so `empirical.fix_length_unit` rescales the 1,500 length-declared rows at load. |
+| **What moved** | **No analysis number.** Every dataset is normalized by its own unweighted mean and cleaned by a log-space rule, both invariant under a constant rescale; the fixture regression passes unchanged. Only the magnitude and the label of the raw ECC change. |
+| **Kept imperial, deliberately** | `psi` for concrete strength, which is what decision 46's strength classes are named in and what a US structural engineer specifies, and `rval` for thermal resistance. |
+| **Status** | **RESOLVED 2026-09-16.** Decision 62. |

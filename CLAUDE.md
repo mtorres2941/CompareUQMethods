@@ -993,3 +993,94 @@ rather than in conversation.
 
     Kept deliberately: `reports/baselines/TIMING_baseline.md`, because
     the author wants a before-and-after comparison of the repository.
+60. **2026-09-16. A record may be judged on its VALUE against an EXTERNAL bound.
+    Decisions 43 and 46 were being read far too broadly, and that reading is
+    withdrawn.** `[AUTHOR]` "Why would we not judge a record on its value? If a
+    record says a concrete mix is 162,236 kgCO2e/m3, that value is sufficient to
+    discard that record."
+
+    **Decisions 43 and 46 govern SUBCATEGORISATION, not filtering.** They are
+    about how a category is resolved into products -- insulation by material
+    type, concrete by strength -- and they forbid choosing those axes by looking
+    at the spread of the values. An earlier session cited them as a blanket
+    prohibition on judging any record by its value. They say nothing of the
+    kind, and decision 49's mass ceiling has been judging records by their value
+    since it was written.
+
+    **The line that actually matters is where the THRESHOLD comes from.** An
+    absolute bound anchored outside the data is legitimate: 100 kgCO2e/kg comes
+    from published inventories and a stoichiometric check. A bound read off the
+    arm's own quantiles, spread, or distance from a median is circular, because
+    dispersion is what the study measures.
+
+    **The author's sequencing is the correct one and is what the code does:**
+    resolve categories into products FIRST, then filter implausible values.
+
+    **There are two filters and they have different jobs.** Decision 33's
+    symmetric log-space 3 x IQR is the general-purpose outlier rule and it works:
+    on `ReadyMix [4000-4999 psi]` its upper bound sits at 3x the median and it
+    trims 42 records. **It fails, structurally, on a contaminated category**,
+    because a relative filter's width is set by the spread of the very
+    contamination it is meant to remove: on `Aggregates` the same rule puts its
+    upper bound at 41,238,610x the median and trims nothing. That is the
+    mechanism behind every extreme this project has chased, and it is why the
+    fix is a category rule rather than a tighter filter.
+
+61. **2026-09-16. Two categories are dropped as not one product population, and
+    a named-product exclusion list is applied to a third. The arm is 147
+    datasets.** `[AUTHOR]` "Please drop those two and apply the exclusion list to
+    the other three."
+
+    `categorysplit.NOT_ONE_POPULATION` drops `Chairs`, where only 15 of 86
+    records name any kind of seating and the rest are kitchen mixer taps,
+    asphalt, culverts, hollowcore slabs and bathroom furniture; and `Grouting`,
+    where only 44 of 225 name a grout and the rest are gypsum plasters,
+    decorative renders, GGBS, concrete admixtures, epoxy coatings, a cable clamp
+    and a glazed door. These are EC3 LEAF categories, not residual bins, so no
+    rule on the category tree could have caught them; the evidence is the
+    product name, which decision 43 permits.
+
+    `categorysplit.EXCLUDED_PRODUCTS` removes 7 records from `Aggregates`:
+    sinks, washbasins and porcelain stoneware slabs, which are finished products
+    rather than crushed stone, gravel and sand.
+
+    **It is an EXCLUSION list and not an inclusion vocabulary, and that is not a
+    stylistic choice.** An inclusion rule must anticipate every legitimate
+    naming convention in every language. Tried first, it removed 22
+    `PowerCabling` records that are plainly cables -- `Cable a Haute Tension`,
+    `TSLF 24kV`, `NF C 33-226`, `Nexans U-1000 R2V`, `H07RN-F` -- and two
+    Schindler elevators whose names are model numbers, while MISSING the real
+    intruders, because `GRANITEK Sinks` and `Composite granite kitchen sinks`
+    both match on "granite". An exclusion list removes only what it names.
+
+    **`PowerCabling` and `Elevators` were checked and need no entry.** All 381
+    distinct cable names are cables or conductors; all 20 elevator names are
+    elevators. Applying a list to a clean category can only do harm.
+
+    **The rule provably cannot see a value.** `tests/test_categorysplit.py`
+    drives the whole assignment on a frame with no `ecc` column at all.
+
+    **Numbers.** 149 datasets to 147; 117,079 values to 116,768. The generator
+    calibration IMPROVES and stays far inside the gate: weighted objective
+    0.2308 to 0.2278, a move of 0.45 of the 0.0066 seed-to-seed standard
+    deviation. **No regeneration**, consistent with decisions 47, 48 and 55.
+
+62. **2026-09-16. The canonical length unit is the METRE, not the inch.**
+    `[AUTHOR]` "If you want to change length2in to length2m and change values to
+    meters or something like that, I'm totally fine with that."
+    `funcs_unit_conversion.length2m`. Nothing else in the study is imperial and
+    a cable emission factor per inch is not a quantity anyone checks by eye.
+
+    The frozen extract stores `ecc` already computed, and it CANNOT be rebuilt:
+    the EC3 store it came from has moved on, so its sha256 no longer matches and
+    a rebuild would change the POPULATION rather than just the unit, which
+    decision 44 refuses. `empirical.fix_length_unit` therefore rescales the
+    1,500 length-declared rows on the way in.
+
+    **This moves no analysis number.** Every dataset is normalized by its own
+    unweighted mean and cleaned by a log-space rule, and both are invariant
+    under a constant rescale of a whole dataset; the full fixture regression
+    passes unchanged. `PowerCabling` now reads a median of 2.36 kgCO2e/m instead
+    of 0.0599 kgCO2e/in. `psi` and `rval` are deliberately kept: concrete is
+    specified in psi, which is what decision 46's strength classes are named in,
+    and R-value is the convention for thermal resistance.

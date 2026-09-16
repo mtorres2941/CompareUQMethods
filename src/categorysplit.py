@@ -113,6 +113,52 @@ MATERIAL_TYPES = (
 UNSTATED = 'type not stated'
 
 
+#: Rule 4. Categories that EC3 names for a product but that hold a mixture of
+#: unrelated products, so they are not one population and cannot be made into
+#: one by any split. DROPPED whole.
+#:
+#: This is decision 46 rule 1 applied to the evidence rather than to the tree:
+#: a residual bin is recognisable from EC3's category structure, and these are
+#: not residual bins -- they are leaf categories into which EC3 has filed
+#: unrelated EPDs. The test is the PRODUCT NAME, never the ECC value, so it is
+#: the same kind of evidence as the insulation split and carries the same
+#: constraint from decision 43.
+#:
+#: The proportions below were measured by matching each record's name against
+#: the material the category claims. They are recorded because "most of this
+#: category is not the material" is the finding, and a later reader should be
+#: able to see how far from one product these were.
+NOT_ONE_POPULATION = {
+    'Chairs': ('only 15 of 86 records name a chair, stool, bench, sofa or other '
+               'seating. The rest are kitchen mixer taps, asphalt, culverts, '
+               'hollowcore slabs, particle board and bathroom furniture'),
+    'Grouting': ('only 44 of 225 records name a grout or a jointing compound. '
+                 'The rest are gypsum plasters, decorative renders, ground '
+                 'granulated blast furnace slag, concrete admixtures, epoxy '
+                 'coatings, a cable clamp and a glazed door'),
+}
+
+#: Rule 5. Individual records that name a product the category is not, in
+#: categories that are otherwise coherent. An EXCLUSION list and not an
+#: inclusion vocabulary, deliberately: an inclusion rule has to anticipate every
+#: legitimate naming convention in every language, and when it was tried it
+#: removed 22 PowerCabling records that are plainly cables (Cable a Haute
+#: Tension, TSLF 24kV, NF C 33-226, Nexans U-1000 R2V, H07RN-F) and two
+#: Schindler elevators whose names are model numbers, while MISSING the real
+#: intruders, because GRANITEK Sinks and Composite granite kitchen sinks both
+#: match on "granite". An exclusion list only removes what it explicitly names.
+#:
+#: PowerCabling and Elevators were checked and need no entry: all 381 cable
+#: names are cables or conductors and all 20 elevator names are elevators.
+EXCLUDED_PRODUCTS = {
+    'Aggregates': (r'\bsink|washbasin|wash basin|lavabo|jack module|rj45|'
+                   r'porcelain stoneware|worktop|countertop|sanitary',
+                   'sinks, washbasins and porcelain stoneware slabs are '
+                   'finished products, not the crushed stone, gravel and sand '
+                   'the category names'),
+}
+
+
 def residual_bins(categories, tree):
     """Categories that are EC3 parent nodes whose children are in the arm.
 
@@ -161,6 +207,32 @@ def assign(records, tree):
     labels = records.material_query.astype(object).copy()
     report = []
     drop, keep = residual_bins(records.material_query.unique(), tree)
+
+    text = (records.name.fillna('').astype(str) + ' '
+            + records.description.fillna('').astype(str)).str.lower()
+
+    for cat, why in NOT_ONE_POPULATION.items():
+        sel = records.index[records.material_query == cat]
+        if not len(sel):
+            continue
+        labels.loc[sel] = None
+        report.append(dict(
+            category=cat, rule='not one population', field='name and description',
+            population=f'{cat} (dropped)', n=len(sel), kept=False,
+            reason=(f'{cat} is an EC3 leaf category, but it is not one product '
+                    f'population: {why}. No split can make it one, so it is '
+                    f'dropped whole rather than curated record by record.')))
+
+    for cat, (pattern, why) in EXCLUDED_PRODUCTS.items():
+        sel = records.index[(records.material_query == cat)
+                            & text.str.contains(pattern, regex=True, na=False)]
+        if not len(sel):
+            continue
+        labels.loc[sel] = None
+        report.append(dict(
+            category=cat, rule='excluded product', field='name and description',
+            population=f'{cat} (records removed)', n=len(sel), kept=False,
+            reason=f'Removed from {cat}: {why}.'))
 
     for cat, children in drop.items():
         sel = records.index[records.material_query == cat]

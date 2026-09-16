@@ -121,9 +121,40 @@ META_COLS = ['open_xpd_uuid', 'name', 'description',
              'concrete_compressive_strength_28d_value']
 
 
+#: The frozen extract stores length-declared ECC per INCH, because that was the
+#: canonical length unit when it was built. It is metres now
+#: (`funcs_unit_conversion.length2m`), and the extract cannot be rebuilt: the
+#: EC3 store it came from has moved on, so a rebuild would change the
+#: POPULATION and not just the unit, which decision 44 refuses. The rows are
+#: therefore rescaled on the way in.
+#:
+#: This moves no analysis number. Every dataset is normalized by its own
+#: unweighted mean and cleaned by a log-space rule, and both are invariant
+#: under a constant rescale of a whole dataset. It changes the magnitude and the
+#: label of the raw ECC, which is what a reader looks at.
+#: Inches per metre. Keyed on `du_type`, which the extract carries, rather
+#: than on `ecc_unit`, which it does not load.
+LENGTH_UNIT_FIX = {'du_type': 'length', 'factor': 39.3701}
+
+
+def fix_length_unit(df, spec=LENGTH_UNIT_FIX):
+    """Rescale length-declared ECC from per-inch to per-metre, in place of a rebuild."""
+    if 'du_type' not in df.columns or 'ecc' not in df.columns:
+        return df
+    sel = df.du_type == spec['du_type']
+    if not sel.any():
+        return df
+    df = df.copy()
+    df.loc[sel, 'ecc'] = df.loc[sel, 'ecc'] * spec['factor']
+    if 'ecc_unit' in df.columns:
+        df.loc[sel, 'ecc_unit'] = 'kgco2e/m'
+    return df
+
+
 def load_records(path=SOURCE, metadata=METADATA):
     """The raw extract, one row per EPD, uncleaned, with the split metadata."""
     df = pd.read_csv(path, usecols=SPLIT_COLS, low_memory=False)
+    df = fix_length_unit(df)
     meta = pd.read_csv(metadata, usecols=META_COLS, low_memory=False)
     out = df.merge(meta, on='open_xpd_uuid', how='left', validate='one_to_one')
     if len(out) != len(df):
