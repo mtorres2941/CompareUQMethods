@@ -86,8 +86,33 @@ def characteristics(values, name):
                                  'fit_lognorm_SW_uw', 'crit_bw_1_uw')}}
 
 
+def surviving_records(df, mult=empirical.CLEAN_IQR_MULT, min_n=empirical.MIN_N):
+    """The records that actually REACH the arm, i.e. survive cleaning.
+
+    Reporting extremes from the RAW extract is misleading, and was. Two filters
+    already stand between a raw record and the arm: the mass ceiling of decision
+    49 and the symmetric log-space IQR rule of decision 33. A raw extreme is
+    therefore not something the author has to rule on -- it is something that has
+    already been ruled on. Only a record that survives BOTH is an open question.
+    """
+    # The ceiling runs BEFORE cleaning, exactly as `empirical.load_raw` does it:
+    # a record wrong by three orders of magnitude should not be setting the
+    # interquartile range the cleaning rule is computed from.
+    df = df[~empirical.implausible(df)]
+    keep = []
+    for ds, g in df.groupby('dataset'):
+        kept = clean_empirical_symmetric(g.ecc.to_numpy(float), mult)
+        if len(kept) < min_n:
+            continue
+        lo, hi = float(np.min(kept)), float(np.max(kept))
+        keep.append(g[(g.ecc >= lo) & (g.ecc <= hi)])
+    return (pd.concat(keep, ignore_index=True) if keep
+            else df.iloc[:0].copy())
+
+
 def extremes(arm, k=10):
-    """The k highest and k lowest records in each declared-unit type."""
+    """The k highest and k lowest SURVIVING records in each declared-unit type."""
+    arm = surviving_records(arm)
     med = arm.groupby('dataset').ecc.transform('median')
     arm = arm.assign(ratio_to_category_median=arm.ecc / med)
     cols = ['du_type', 'end', 'dataset', 'name', 'declared_unit_raw', 'gwp_raw',
@@ -226,7 +251,9 @@ def main():
 
     print()
     print('=' * 72)
-    print('3. EXTREMES BY DECLARED-UNIT TYPE, a report and not a filter')
+    print('3. EXTREMES BY DECLARED-UNIT TYPE, AFTER CLEANING.')
+    print('   A report and not a filter. Records the cleaning already removed')
+    print('   are not listed: they are not an open question.')
     print('=' * 72)
     ext = extremes(arm)
     ext.to_csv(os.path.join(TABLES, 'TABLE_UnitExtremes.csv'), index=False)
