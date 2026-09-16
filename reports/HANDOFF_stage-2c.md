@@ -35,6 +35,26 @@ Four results change what the paper says.
 scoring grid's quadrature route, and whether to add a tail-sensitive companion
 to W1. Sections 4.8, 4.9 and 4.10.
 
+### What actually needs your eyes
+
+This document carries the findings. Two things it cannot carry, and one it can.
+
+1. **The three author decisions above.** Each has a recommendation and the
+   numbers behind it; none blocks the next stage.
+2. **The new markdown in notebook 2**, from "The evaluation target" to the end.
+   It is roughly eight cells of prose that will ship in the public deposit and
+   that describes the method change to an outside reader. The findings in it are
+   in section 4 below, but the WORDING is not, and the notebooks are the entry
+   point by decision 3.
+3. **Notebook 3 does not need reviewing or re-running.** Nothing on its numeric
+   path changed, it calls none of the changed interfaces, and
+   `TABLE_PLCAResults.csv` is bit-identical; see section 6. The one thing in it
+   this stage touches is listed as an open item for Stage 2g in section 5, not
+   as a defect.
+
+The three new figures are `FIG_EvaluationTarget`, `FIG_TargetBySize` and
+`FIG_Regret`. They are drawn from the tables and were checked rendered.
+
 **The Stage 2b handoff is deleted**, per the standing rule that only the current
 stage's handoff is kept. Its findings survive as decisions 49 to 58 in CLAUDE.md
 and entries 35 to 52 in the discrepancy file, and the CLAUDE.md decisions that
@@ -514,6 +534,7 @@ list only by being marked resolved, with the reason.
 | **A factor of two in the corpus-to-arm gap is unexplained** | 2f, or nobody | Section 4.3 accounts for the sign of the disagreement and not its size. It could be the corpus's shapes, the corpus's weights, or the empirical arm's small n. **No stage owns it and it may not need one**: the conclusion the paper states, the size dependence, is the same on both arms |
 | **The empirical arm cannot answer the weighting question at all** | manuscript | Its weights are a flat Dirichlet stand-in with no market information, so no out-of-sample comparison across weighting schemes is meaningful on it. The weighting claim rests entirely on the synthetic arm's market parent. **This is a limitation the paper must state**, and it is the strongest argument in the project for Marsh, Hattam and Allen (2025)-style real production volumes |
 | **Notebook 2's runtime** | 3 | Roughly 35 minutes now: the corpus is fitted once for the recovery columns and the empirical arm is cross-validated at ten repeats. `COMPAREUQ_SMOKE_COMBOS` does not apply to notebook 2 |
+| **Notebook 3 cell 45 still explains pLCA outcomes with the IN-SAMPLE score** | 2g | It computes `score_all_models`, the circular in-sample W1, and cell 46 plots the pLCA results against it. Notebook 3 runs on the SYNTHETIC corpus, so `w1_parent` is available for exactly those datasets and is the better explanatory variable. **Not changed here**, because Stage 2g owns the sensitivity of the pLCA metrics and changing it would move a figure this stage was not asked to touch. Cells 37 to 40 are NOT affected: they correlate pLCA differences against the distance between two METHODS' fitted models, which needs no target and is not circular |
 
 ---
 
