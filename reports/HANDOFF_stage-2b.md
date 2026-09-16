@@ -591,6 +591,7 @@ list only by being marked resolved, with the reason.
 |---|---|---|
 | `TABLE_MethodCurves.csv.gz` is 91.7 MB and 21x redundant | 3 | It stores one row per (arm, characteristic, method, dataset), and `y` is IDENTICAL across all 21 characteristics for a given dataset and method: 4,018,446 rows for 192,414 distinct scores. It is under GitHub's 100 MB hard limit but over the 50 MB warning, and it WILL cross the limit if 2c or 2f adds a characteristic or a score. The fix is to store the scores once and join the characteristic values at plot time |
 | `src/` docstrings still carry stage language | 3 or 4 | `comparison.py` opens with "Stage 2b." The notebooks and reports are clean; the source files are not. Raised with the author and not answered |
+| Whether to filter contaminated categories on METADATA | author, informed by 2f | Not an outlier filter, which decision 46 forbids. Section 6 has the diagnosis: `Aggregates` contains sinks and porcelain stoneware, `Chairs` contains a kitchen tap, and `PowerCabling` mixes per-metre and per-kilometre declarations. Reopening the arm is the cost; decision 48 already accepts these as a limitation |
 
 ### New in Stage 2b
 
@@ -704,6 +705,51 @@ limitation rather than engineering it away. The mass-declared ones are under the
 100 kgCO2e/kg ceiling, so the external bound does not reach them; the
 length-declared ones have no external bound at all. What is extreme here is the
 shape of a contaminated EC3 category, which is the thing the paper says it is.
+
+### Should there be a further filter? The diagnosis, so a later stage can decide
+
+The author asked whether records we are confident are outliers should simply be
+excluded. **Not as an outlier filter.** Decision 46 forbids reintroducing a
+dispersion screen, and decision 43 says a record may be judged only on metadata
+carried on the EPD or on EC3's category tree, never on its ECC value. This study
+MEASURES dispersion; removing a value because it is far from the others and then
+reporting how disperse ECC datasets are is circular.
+
+**But the survivors are not statistical outliers, and looking at what they
+actually are points at a filter that would be legitimate.** Two patterns, both
+readable from metadata alone:
+
+1. **Category contamination, visible in the product NAME.** `Aggregates` has a
+   median of 0.0069 kgCO2e/kg, which is right for gravel and sand, and contains
+   `GRANITEK Sinks` and `Porcelain stoneware`. `Chairs` contains
+   `Damixa Iris Kitchen Mixers`, a kitchen tap. `Grouting` contains
+   `Thermal Insulating Plaster`. A sink is not an aggregate and you can tell from
+   the name, not from the number.
+2. **Declared-unit inconsistency, visible in the UNIT field.** `PowerCabling`
+   holds 242 records declared per 1 km, median 0.0457 kgCO2e/m, and 26 declared
+   per 1 m, median 0.2642 and max 363.2. The per-metre records sit about six
+   times higher on the median. The 363.2 record is consistent with a cable
+   declared per kilometre and labelled per metre, but that cannot be shown from
+   the record.
+
+Both tests read only metadata, so both are permitted by decision 43. **Neither
+is recommended without a deliberate author decision**, for three reasons:
+
+- It REOPENS THE EMPIRICAL ARM, which decision 44 froze for the remainder of the
+  project and decision 46 closed. That is the cost, and it is not small.
+- Decision 48 already accepts exactly these categories as a stated limitation,
+  having found the corpus cannot reach their dispersion. The five it names --
+  `Aggregates`, `PowerCabling`, `Grouting`, `Elevators`, `Chairs` -- are four of
+  the five seen here.
+- **There is a real argument that the contamination IS the phenomenon.** Decision
+  34 keeps EPD-level uniform weighting because it is "what a practitioner pulling
+  from EC3 actually holds". By the same logic a practitioner pulling the
+  Aggregates category gets the sinks too. A paper about what practitioners should
+  do with real EC3 data is arguably obliged to keep them.
+
+**Owner: the author, informed by 2f.** If 2f finds that these datasets are
+driving which method wins, the case for cleaning them strengthens; if they are
+not, the limitation stands as written and nothing needs to change.
 
 **Nothing in this handoff is waiting on a person.**
 
