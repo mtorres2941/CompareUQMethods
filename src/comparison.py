@@ -48,6 +48,7 @@ comparison the paper has to make on both. Stage 2c owns it, and its job there is
 to confirm that held-out W1 behaves, not to become a third headline.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -529,3 +530,34 @@ def headline_sentence(headline):
     return (f"{headline['method']} is best on {headline['overall']:.0%} of "
             f"datasets overall, {headline['bottom']:.0%} in the lowest decile "
             f"and {headline['top']:.0%} in the highest (n = {headline['n']:,})")
+
+
+def rank_strip(ax, values, ranks, rng, n_ranks=None, jitter=0.4, size=1.0,
+               cmap='viridis'):
+    """One horizontal strip of `values`, coloured by `ranks`, jittered.
+
+    Replaces seaborn's stripplot, whose jitter is drawn from the GLOBAL numpy
+    random state. Two runs of the same notebook therefore produced different
+    figures from identical tables, which breaks the rule that a figure is
+    reproducible from the table behind it. The offsets here come from a
+    Generator the caller passes, like every other random quantity in this
+    project.
+
+    Returns the scatter handles, one per rank present, in rank order, so the
+    caller can build a legend from them.
+    """
+    values = np.asarray(values, float)
+    ranks = np.asarray(ranks, float)
+    offsets = rng.uniform(-jitter, jitter, len(values))
+    present = np.unique(ranks[np.isfinite(ranks)])
+    n_ranks = n_ranks or (int(present.max()) if len(present) else 1)
+    colours = plt.get_cmap(cmap)
+    handles = []
+    for r in present:
+        sel = ranks == r
+        shade = 0.0 if n_ranks < 2 else (r - 1.0) / (n_ranks - 1.0)
+        handles.append(ax.scatter(values[sel], offsets[sel], s=size,
+                                  color=colours(shade), linewidths=0,
+                                  label=f'{int(r)}'))
+    ax.set_ylim(-1.0, 1.0)
+    return handles

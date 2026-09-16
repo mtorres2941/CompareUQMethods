@@ -703,3 +703,27 @@ relative figure beside it.**
 | **Fix** | **Code, one line**: retry on `component_targets_exhausted` as well, and record the reason for any slot that is finally abandoned. The corpus would then hold exactly 10,000 and the pLCA would divide by four, which removes the three held-out datasets of entry 39 as well. |
 | **Cost** | **It requires regenerating the corpus**, which moves every downstream number. That is an author decision; generation is otherwise settled. |
 | **Status** | **RESOLVED 2026-09-15.** The author authorized the regeneration. `generator.REDRAWABLE` now names both rejection statuses, `corpus.generate_corpus` records the reason for any slot it does abandon, and `corpus_2026-09-15` holds **10,000 datasets, 0 failed parents**. The pLCA is now 2,500 groups covering all 10,000, so entry 39's three held-out datasets are gone too. **The aggregates barely moved**, which is the check that the generator is stationary: mean W1 by method changes in the fourth decimal (KDE/Variable 0.0778 to 0.0776), mean rank by at most 0.007, median coefficient of variation 0.5018 to 0.5032. The empirical arm is bit-identical. |
+
+## 49. The weight of statistical outliers was reported as zero whenever one value carried a quarter of the weight
+
+| | |
+|---|---|
+| **Manuscript** | Reports "weight of statistical outliers" as one of the dataset characteristics, defined as the weight of values farther than 1.5 x IQR outside the interquartile range. |
+| **What was there** | The quartiles were interpolated on `weighted_ecdf`'s PADDED arrays. That function prepends `-inf` and appends `+inf` so the interpolator it returns extrapolates flat outside the data, and those sentinels are not data. Whenever the smallest value carried more than a quarter of the weight, 0.25 fell in the padded first segment and `q1` came back as `-inf`. The interquartile range was then infinite, `q1 - 1.5*IQR` was `-inf` and `q3 + 1.5*IQR` was `+inf`, so both comparisons were False and **the characteristic was reported as exactly zero**. Where both quartiles landed in the padding the subtraction produced NaN. |
+| **Who it hit** | Small datasets, almost entirely. The largest affected dataset has n = 39; most have n = 3. A flat Dirichlet draw over three points puts more than a quarter of the weight on the smallest one often. |
+| **Fix** | Interpolate on the interior of the ECDF, which clamps to the smallest observed value rather than to a sentinel. One line, in `customstats.empirical_metadata`. |
+| **What moved** | `synthetic weight_outliers` 474/10,000 rows, mean 0.0540 -> 0.0609. `synthetic weight_outliers_uw` 163/10,000, 0.0526 -> 0.0580. `empirical weight_outliers` 3/149, 0.0614 -> 0.0656. `empirical weight_outliers_uw` 1/149, 0.0590 -> 0.0612. **No W1 column moves on either arm**, and no other characteristic moves. |
+| **What it does NOT change** | The generator calibration. Both arms are corrected by the same code and move the same way by a similar amount, so the arm-to-arm agreement the tuning objective measures is essentially unchanged. Generation stays closed. |
+| **For the text** | Any reported mean, range or figure involving weight of outliers must come from the rebuilt tables. If the paper states that some datasets have no outlier weight, check it: part of that population was an artifact of this defect. |
+| **Status** | **RESOLVED 2026-09-15.** Decisions 57 and 58. The synthetic arm needed `corpus.remetric_corpus` to pick the correction up, because it stores its characteristics at generation time rather than recomputing them; that is a recomputation of the readout and not a regeneration, and `values.parquet` is byte-identical across it. |
+
+## 50. Three strip figures were redrawn differently on every run of the same table
+
+| | |
+|---|---|
+| **Manuscript** | Uses the KS, W1 and W2 strip-and-rank figures as supplementary evidence. |
+| **What was there** | All three called `sns.stripplot(..., jitter=0.4)`. Seaborn draws that jitter from the GLOBAL numpy random state, which the project's standing constraints forbid: "All randomness comes from an explicitly passed Generator, never from global numpy state." Two runs of the same notebook on identical tables produced different figures. |
+| **How it was found** | The author re-ran notebook 2 to review it. Every number reproduced exactly and exactly three figures changed. |
+| **Severity** | Cosmetic in effect -- only the vertical scatter of the points moves, and no number, rank or axis changes -- but it breaks the property that a figure is reproducible from the table behind it, which is a claim the deposit makes. |
+| **Fix** | `comparison.rank_strip` takes a Generator, draws the offsets itself and returns one handle per rank so the legend still builds. Tested for reproducibility under a fixed seed, for sensitivity to a different seed, and for leaving the global stream untouched. |
+| **Status** | **RESOLVED 2026-09-15.** No number moved. |

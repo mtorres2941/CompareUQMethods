@@ -389,3 +389,51 @@ def test_headline_sentence_is_plain_ascii_and_states_three_shares():
     assert text.isascii()
     assert text.count('%') == 3
     assert C.headline_sentence(None) == ''
+
+
+# ---------------------------------------------------------------------------
+# strip plots: the jitter must come from a passed Generator
+# ---------------------------------------------------------------------------
+
+def test_rank_strip_jitter_is_reproducible_and_leaves_global_state_alone():
+    """seaborn's stripplot jitters from global numpy state, so the same table
+    drew a different figure on every run. This must not."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    values = np.linspace(0.0, 1.0, 40)
+    ranks = np.tile([1.0, 2.0, 3.0, 4.0], 10)
+
+    def offsets(seed):
+        fig, ax = plt.subplots()
+        handles = C.rank_strip(ax, values, ranks, np.random.default_rng(seed),
+                               n_ranks=4)
+        got = np.concatenate([h.get_offsets()[:, 1] for h in handles])
+        plt.close(fig)
+        return np.sort(got), handles
+
+    a, handles = offsets(11)
+    b, _ = offsets(11)
+    c, _ = offsets(12)
+    np.testing.assert_array_equal(a, b)
+    assert not np.array_equal(a, c), 'a different Generator must jitter differently'
+    assert len(handles) == 4, 'one handle per rank, for the legend'
+
+    # drawing must not consume the global stream
+    np.random.seed(0)
+    first = np.random.rand()
+    np.random.seed(0)
+    offsets(11)
+    assert np.random.rand() == first
+
+
+def test_rank_strip_handles_a_single_rank():
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    handles = C.rank_strip(ax, [1.0, 2.0], [1.0, 1.0], np.random.default_rng(0))
+    plt.close(fig)
+    assert len(handles) == 1
