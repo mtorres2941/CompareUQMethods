@@ -201,6 +201,24 @@ def report(d):
         print()
 
     print('=' * 78)
+    print('IS ANY OF IT DISTINGUISHABLE? Paired bootstrap against lognormal_3p')
+    print('=' * 78)
+    print('Positive = the three-parameter lognormal scored LOWER, so better.')
+    for arm, col in (('empirical', 'w1_cv'), ('synthetic', 'w1_parent')):
+        for wt in ('Uniform', 'Variable'):
+            g = d[(d.arm == arm) & (d.weighting == wt) & d[col].notna()]
+            if not len(g):
+                continue
+            b = R.paired_bootstrap(g.rename(columns={'family': 'method'}), col,
+                                   'lognormal_3p',
+                                   rng=np.random.default_rng(0))
+            print(f'--- {arm}, {wt}, {int(b.n_datasets.max())} datasets ---')
+            print(fmt(b[['method', 'mean_difference', 'ci_lo', 'ci_hi',
+                         'reference_wins', 'distinguishable']]
+                      .set_index('method')))
+            print()
+
+    print('=' * 78)
     print('BY SIZE BAND, variable weighting')
     print('=' * 78)
     for arm, col in (('empirical', 'w1_cv'), ('synthetic', 'w1_parent')):

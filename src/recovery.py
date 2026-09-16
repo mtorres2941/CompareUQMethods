@@ -743,3 +743,65 @@ def win_share(scores, value='w1', by=('arm',), within_weighting=False):
     return out.sort_values(list(out.columns[:len(keys)]) + ['win_share'],
                            ascending=[True] * len(keys) + [False]
                            ).reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------
+# is a gap between two methods distinguishable from noise?
+# ---------------------------------------------------------------------------
+BOOTSTRAP_RESAMPLES = 4_000
+BOOTSTRAP_ALPHA = 0.05
+
+
+def paired_bootstrap(scores, value, reference, others=None, by=None,
+                     resamples=BOOTSTRAP_RESAMPLES, alpha=BOOTSTRAP_ALPHA,
+                     rng=None):
+    """Paired difference between two methods, with a bootstrap interval.
+
+    PAIRED OVER DATASETS, which is the whole point. The per-dataset scores in
+    this study span orders of magnitude, so an unpaired comparison of two means
+    is dominated by which datasets happen to be hard; the difference on the SAME
+    dataset is not. The resampling is over datasets for the same reason: a
+    dataset is the unit that was sampled, and the six methods on one dataset are
+    six measurements of it rather than six observations.
+
+    IT DOES NOT MAKE THE COMPARISON UNCONFOUNDED, and the distinction matters.
+    An interval here says whether a gap survives resampling the datasets. It
+    says nothing about the OTHER noise source the empirical arm carries, which
+    is the single Dirichlet weight realization every dataset's weights come from
+    -- Stage 2b measured that at a median W1 of 0.1344, larger than the best
+    method's score, and averaging over realizations is Stage 2h's job. So a gap
+    that is distinguishable here can still be inside the weight-draw noise, and
+    on the empirical arm it usually is.
+
+    Returns one row per compared method: the mean paired difference, its
+    interval, and the share of datasets on which `reference` is lower. A
+    positive difference means `reference` scored LOWER, which for a distance
+    means better.
+    """
+    rng = rng or np.random.default_rng(0)
+    others = others or [m for m in scores.method.unique() if m != reference]
+    keys = list(by or [])
+    rows = []
+    for k, g in (scores.groupby(keys, observed=True) if keys
+                 else [((), scores)]):
+        k = k if isinstance(k, tuple) else (k,)
+        wide = g.pivot_table(index='dataset', columns='method', values=value)
+        if reference not in wide:
+            continue
+        for other in others:
+            if other not in wide:
+                continue
+            d = (wide[other] - wide[reference]).replace(
+                [np.inf, -np.inf], np.nan).dropna().to_numpy(float)
+            if len(d) < 3:
+                continue
+            idx = rng.integers(0, len(d), (resamples, len(d)))
+            bs = d[idx].mean(axis=1)
+            lo, hi = np.quantile(bs, [alpha / 2, 1 - alpha / 2])
+            rows.append(dict(zip(keys, k), reference=reference, method=other,
+                             n_datasets=int(len(d)),
+                             mean_difference=float(d.mean()),
+                             ci_lo=float(lo), ci_hi=float(hi),
+                             reference_wins=float((d > 0).mean()),
+                             distinguishable=bool(lo > 0 or hi < 0)))
+    return pd.DataFrame(rows)

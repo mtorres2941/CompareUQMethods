@@ -434,3 +434,48 @@ def test_win_share_only_moves_when_the_WINNER_moves():
                             .win_share.get(lead, 0.0)))
     assert np.allclose(shares, 0.5)          # exactly constant, by construction
     assert np.std(ranks) > 0.02              # and the mean rank is not
+
+
+# ------------------------------------------------------------ paired bootstrap
+def test_paired_bootstrap_finds_a_real_gap_and_not_an_imaginary_one():
+    rng = np.random.default_rng(31)
+    n = 400
+    ds = [f'd{i}' for i in range(n)]
+    # A per-dataset difficulty of the size this study's scores actually have,
+    # orders of magnitude apart, so an UNPAIRED test would see nothing.
+    hard = np.exp(rng.normal(0, 1.5, n))
+    rows = []
+    for i, d in enumerate(ds):
+        rows.append(dict(arm='a', dataset=d, method='A', w1=hard[i] * 1.00))
+        rows.append(dict(arm='a', dataset=d, method='B', w1=hard[i] * 1.05))
+        rows.append(dict(arm='a', dataset=d, method='C', w1=hard[i] * 1.00))
+    s = pd.DataFrame(rows)
+    out = R.paired_bootstrap(s, 'w1', 'A', rng=np.random.default_rng(0))
+    out = out.set_index('method')
+    assert out.loc['B', 'distinguishable']          # a real 5 percent gap
+    assert out.loc['B', 'mean_difference'] > 0      # A is lower, so better
+    assert not out.loc['C', 'distinguishable']      # an identical method
+    assert out.loc['C', 'mean_difference'] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_paired_bootstrap_groups_and_is_reproducible():
+    rng = np.random.default_rng(32)
+    rows = []
+    for band, effect in (('small', -0.05), ('large', 0.05)):
+        for i in range(200):
+            base = float(np.exp(rng.normal(0, 0.5)))
+            rows.append(dict(arm='a', dataset=f'{band}{i}', size_band=band,
+                             method='A', w1=base))
+            rows.append(dict(arm='a', dataset=f'{band}{i}', size_band=band,
+                             method='B', w1=base * (1 + effect)))
+    s = pd.DataFrame(rows)
+    a = R.paired_bootstrap(s, 'w1', 'A', by=['size_band'],
+                           rng=np.random.default_rng(1)).set_index('size_band')
+    b = R.paired_bootstrap(s, 'w1', 'A', by=['size_band'],
+                           rng=np.random.default_rng(1)).set_index('size_band')
+    pd.testing.assert_frame_equal(a, b)
+    # the sign of the effect is recovered separately in each band, and an
+    # aggregate over both would have cancelled them
+    assert a.loc['small', 'mean_difference'] < 0
+    assert a.loc['large', 'mean_difference'] > 0
+    assert bool(a.distinguishable.all())

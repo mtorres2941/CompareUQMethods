@@ -317,6 +317,103 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
         print(f'  {wt:<9} empirical, CV     : {order(ew, "w1_cv")}')
         print(f'  {wt:<9} empirical, in samp: {order(ew, "w1")}')
 
+    section('3b. IS THE DISAGREEMENT DISTINGUISHABLE? Paired bootstrap')
+    print('Resampled over DATASETS, paired within dataset. Positive means the')
+    print('reference method scored LOWER, so better. This says whether a gap')
+    print('survives resampling the datasets; it does NOT cover the empirical')
+    print("arm's other noise source, the single Dirichlet weight realization,")
+    print('which Stage 2b measured at a median W1 of 0.1344 and which Stage 2h')
+    print('averages over.')
+    rngb = np.random.default_rng(0)
+    for wt in ('Uniform', 'Variable'):
+        sw = syn[syn.method.str.endswith(wt)]
+        ew = emp_s[emp_s.method.str.endswith(wt) & emp_s.w1_cv.notna()]
+        ref = f'KDE, {wt}'
+        print(f'--- {wt} weighting, reference {ref} ---')
+        a = R.paired_bootstrap(sw, 'w1_parent', ref, rng=rngb)
+        a.insert(0, 'arm_criterion', 'synthetic, parent')
+        b = R.paired_bootstrap(ew, 'w1_cv', ref, rng=rngb)
+        b.insert(0, 'arm_criterion', 'empirical, CV')
+        print(fmt(pd.concat([a, b])[['arm_criterion', 'method', 'n_datasets',
+                                     'mean_difference', 'ci_lo', 'ci_hi',
+                                     'reference_wins', 'distinguishable']]))
+        print()
+    print('And the weighting question, on the COMMON market target:')
+    for fam in ('Normal', 'Lognormal', 'KDE'):
+        g = syn[syn.method.isin([f'{fam}, Uniform', f'{fam}, Variable'])]
+        b = R.paired_bootstrap(g, 'w1_market', f'{fam}, Variable', rng=rngb)
+        b.insert(0, 'family', fam)
+        print(fmt(b[['family', 'method', 'n_datasets', 'mean_difference',
+                     'ci_lo', 'ci_hi', 'reference_wins', 'distinguishable']]))
+    print('  (positive = VARIABLE weighting scored lower, so better)')
+    print('  by size band, KDE:')
+    g = syn[syn.method.isin(['KDE, Uniform', 'KDE, Variable'])]
+    b = R.paired_bootstrap(g, 'w1_market', 'KDE, Variable', by=['size_band'],
+                           rng=rngb)
+    print(fmt(b[['size_band', 'n_datasets', 'mean_difference', 'ci_lo',
+                 'ci_hi', 'reference_wins', 'distinguishable']]))
+
+    section('3c. THE TWO ARMS DISAGREE. WHY, in three steps')
+    print('Against the parent the KDE beats the lognormal; cross-validated on the')
+    print('empirical arm the lognormal beats the KDE, and both gaps survive the')
+    print('bootstrap. They are not contradicting each other -- they are being read')
+    print('on different criteria and different size mixes. Removing one at a time:')
+    rngb = np.random.default_rng(0)
+    for wt in ('Uniform', 'Variable'):
+        ref, alt = f'KDE, {wt}', f'Lognormal, {wt}'
+        pair = [ref, alt]
+        sp = syn[syn.method.isin(pair)]
+        sc = sp[sp.w1_cv.notna()]
+        ec = emp_s[emp_s.method.isin(pair) & emp_s.w1_cv.notna()]
+
+        def band_reweighted(frame, col):
+            b = R.paired_bootstrap(frame, col, ref, by=['size_band'],
+                                   rng=rngb).set_index('size_band')
+            w = np.array([shares.get(k, 0.0) for k in b.index], float)
+            v = b.mean_difference.to_numpy(float)
+            return (float(v.mean()),
+                    float((v * w).sum() / w.sum()) if w.sum() else np.nan)
+
+        step1 = R.paired_bootstrap(sp, 'w1_parent', ref, rng=rngb)
+        step2 = R.paired_bootstrap(sc, 'w1_cv', ref, rng=rngb)
+        _, step3 = band_reweighted(sc, 'w1_cv')
+        step4 = R.paired_bootstrap(ec, 'w1_cv', ref, rng=rngb)
+        _, step4r = band_reweighted(ec, 'w1_cv')
+        print(f'--- {wt}: {ref} minus {alt}, positive = KDE better ---')
+        print(f'  synthetic, against the parent, equal allocation  '
+              f'{step1.mean_difference.iloc[0]:+.4f}')
+        print(f'  synthetic, CROSS-VALIDATED instead               '
+              f'{step2.mean_difference.iloc[0]:+.4f}'
+              f'   (a CV half measures the KDE at n/2, and its advantage is a '
+              f'large-n advantage)')
+        print(f'  synthetic, CV and REWEIGHTED to the empirical mix '
+              f'{step3:+.4f}')
+        print(f'  empirical, CV, reweighted                        '
+              f'{step4r:+.4f}   (equal allocation '
+              f'{step4.mean_difference.iloc[0]:+.4f})')
+    print()
+    print('The criterion and the size mix account for the SIGN. A factor of about')
+    print('two in the magnitude does not, and that is a genuine difference between')
+    print('the corpus and the arm rather than an artifact of how either is read.')
+    print('What both arms agree on, on every criterion, is the SHAPE: the KDE')
+    print('loses at n = 10-99 and wins at n >= 1000.')
+    print('  KDE minus lognormal, per band, all criteria, positive = KDE better:')
+    for wt in ('Uniform', 'Variable'):
+        pair = [f'KDE, {wt}', f'Lognormal, {wt}']
+        for arm, frame, col in (('synthetic', syn, 'w1_parent'),
+                                ('synthetic', syn, 'w1_cv'),
+                                ('empirical', emp_s, 'w1_cv'),
+                                ('empirical', emp_s, 'w1')):
+            g = frame[frame.method.isin(pair) & frame[col].notna()]
+            if not len(g):
+                continue
+            b = R.paired_bootstrap(g, col, f'KDE, {wt}', by=['size_band'],
+                                   rng=rngb)
+            bits = ' | '.join(
+                f'{r.size_band[:4]} {r.mean_difference:+.4f}'
+                f'{"*" if r.distinguishable else " "}' for _, r in b.iterrows())
+            print(f'    {wt:<9}{arm:<10}{col:<10} {bits}')
+
     section('4. POST-STRATIFICATION to the empirical size mix')
     print('empirical size shares, measured: '
           + '  '.join(f'{k} {v:.4f}' for k, v in shares.items())
