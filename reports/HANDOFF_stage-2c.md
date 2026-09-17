@@ -647,9 +647,10 @@ by 300 draws in **7 seconds**, so this is hours of work, not days.
 KL2's own measure -- the area of the interquartile range of the ensemble of PDFs
 produced by sampling Dirichlet weights -- which makes it a consistency constraint
 under the standing rule about the author's published papers, and it is one number
-per dataset in density space. **Verify its exact construction against
-`refs/1-s2.0-S0921344926002466-main.pdf` before implementing**: the definition in
-decision 90 is recorded second hand. **And it is the
+per dataset in density space. Quartiles are **pointwise in x** and the component
+PDFs use the **guarded Silverman bandwidth**, both settled by the author; **two
+details still have to be read off `refs/1-s2.0-S0921344926002466-main.pdf`**, how
+the area is normalized and how many draws. Decision 90. **And it is the
 one place in the study where DISPERSION beats SIZE** -- Spearman +0.693 with the
 coefficient of variation against -0.569 with log(n) -- which is the opposite
 ordering from decisions 84 and 88 and is worth a paragraph on its own. Decision

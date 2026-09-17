@@ -1839,14 +1839,22 @@ rather than in conversation.
     dataset, directly answering how much the density wobbles when the market
     shares are unknown.
 
-    **VERIFY THE EXACT CONSTRUCTION AGAINST THE PAPER BEFORE IMPLEMENTING IT.**
-    The above is a verbal description recorded second hand. Torres, Lupton, Marsh,
+    **TWO CONSTRUCTION DETAILS ARE SETTLED BY THE AUTHOR, 2026-09-17.** The
+    quartiles are taken **POINTWISE IN x** across the ensemble, and the component
+    PDFs use the **GUARDED SILVERMAN BANDWIDTH**, `fitting.BW_METHOD`, to align
+    with the rest of this study. Note that the second is a deliberate divergence
+    from KL2 if KL2 used a different rule: this paper's bandwidth is settled by
+    decisions 54 and 80, and a weighting-risk measure computed at some other
+    bandwidth would not describe the densities this paper actually fits.
+
+    **TWO DETAILS STILL HAVE TO BE READ OFF THE PAPER.** Torres, Lupton, Marsh,
     Srubar and Allen (2026), RC&R 234, 109022, is in `refs/` as
-    `1-s2.0-S0921344926002466-main.pdf`. What has to be read off it: whether the
-    quartiles are taken pointwise in x across the ensemble, how the area is
-    normalized if at all, how many draws it uses, and what bandwidth the component
-    PDFs use. Getting any of those wrong would produce a number that shares a name
-    with KL2's and not a definition, which is worse than inventing a new one.
+    `1-s2.0-S0921344926002466-main.pdf`. What remains: **how the area is
+    normalized, if at all**, and **how many Dirichlet draws** the ensemble uses.
+    Getting either wrong would produce a number that shares a name with KL2's and
+    not a definition, which is worse than inventing a new one. **And when the
+    paper reports A_IQR it must state the bandwidth**, because this study's is now
+    fixed by decision 80 and may not be KL2's.
 
     **Why it is a constraint and not a choice.** CLAUDE.md's standing rule treats
     the author's two published papers as consistency constraints. A_IQR is KL2's
