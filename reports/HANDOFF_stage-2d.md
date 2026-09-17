@@ -72,12 +72,23 @@ to use A_IQR -- the area between the pointwise 75th and 25th percentile density
 curves over an ensemble of Dirichlet-weighted fits, from Torres, Lupton, Marsh,
 Srubar and Allen (2026) -- on the expectation that it would track dispersion,
 because an earlier probe found dispersion rather than dataset size drives whether
-weighting matters. **It does not, and the reason is dimensional rather than a
-defect.** A probability density carries units of one over x, so the area under a
-difference of two densities is dimensionless and A_IQR is EXACTLY invariant when
-every value is rescaled. A measure that cannot see a change of scale cannot see
-dispersion. Holding the dataset size at 60 and moving the coefficient of
-variation by a factor of 27 moves A_IQR by 15 percent, downward. Decision 94.
+weighting matters. **It tracks dataset size instead**: over the 147 real
+categories its rank correlation with the number of EPDs is -0.946 and with the
+coefficient of variation +0.042, and across the arm it moves by a factor of 12
+from the smallest categories to the largest.
+
+**The mechanism, stated precisely because a first draft of this file got it
+wrong.** It is NOT that A_IQR is invariant to rescaling the data. It is, exactly
+-- but so is the mean-relative separation that this stage uses instead, so
+invariance cannot be what separates them. What A_IQR measures is the uncertainty
+of the density curve relative to the curve's OWN height, which is set by how many
+points the weight noise is averaged over and by almost nothing else: hold a
+lognormal at 60 points and raise its coefficient of variation from 0.22 to 5.83,
+a factor of 27, and A_IQR moves from 0.296 to 0.307 while A_IQR times the square
+root of the sample size stays between 2.21 and 2.38. The separation over the same
+sweep runs 0.030 to 0.664, and **the separation divided by the coefficient of
+variation is nearly constant at 0.114 to 0.138** -- it is proportional to
+dispersion by construction. Decision 94.
 
 A_IQR is still computed and reported, because it is the right answer to the
 published paper's own question -- how confident the uncertainty MODEL is -- and
@@ -397,13 +408,34 @@ units of the dataset mean, has no ceiling and is the honest version.
 On the synthetic sample of 400, A_IQR sits at -0.277 against dispersion and
 -0.993 against log size.
 
-**The mechanism is dimensional, not a defect.** A probability density carries
-units of one over x, so integrating a difference of two densities over x is
-dimensionless, and A_IQR is EXACTLY invariant when every value in a dataset is
-multiplied by a constant -- verified to ten decimal places across seven orders of
-magnitude. A measure that cannot see a change of scale cannot see dispersion
-either. What it does see is how many kernels the weight noise is averaged over,
-and it falls roughly as the number of EPDs to the power -0.37.
+**THE MECHANISM, AND A FIRST DRAFT OF THIS FILE EXPLAINED IT WRONGLY.** That
+draft said A_IQR cannot see dispersion because it is exactly invariant when every
+value is rescaled. It is invariant -- verified to ten decimal places over seven
+orders of magnitude -- but **so is the mean-relative separation**, so invariance
+cannot be what distinguishes them. The claim is withdrawn.
+
+What actually separates them is WHAT EACH DIVIDES BY. A_IQR is the uncertainty of
+the density curve measured against that curve's own height and width, so the
+data's spread cancels out of both factors and what survives is the sampling noise
+in the weights, which is a question of how many points there are. The separation
+is a distance along the x-axis divided by the mean alone, so the ratio of spread
+to mean survives -- and that ratio IS the coefficient of variation.
+
+Both halves are measurable and both check out. Holding a lognormal at 60 points
+and raising its coefficient of variation from 0.22 to 5.83: A_IQR goes 0.296,
+0.285, 0.299, 0.307 while A_IQR times the square root of the sample size stays
+between 2.21 and 2.38; the separation goes 0.030, 0.099, 0.316, 0.664, and
+**divided by the coefficient of variation it is nearly constant at 0.138, 0.119,
+0.115, 0.114**.
+
+**A_IQR is not wholly indifferent to dispersion, and the within-band numbers show
+where it is not.** Its rank correlation with the coefficient of variation inside
+each size band of the real arm is -0.008 at 3 to 9 EPDs, +0.128 at 10 to 99,
++0.644 at 100 to 999 and +0.405 above 1,000 -- monotone but small in magnitude. A
+five- to tenfold change in the coefficient of variation within a band moves
+A_IQR by a factor of 1.07 to 1.87, against a factor of 12 across the size range.
+So the accurate sentence is that A_IQR is DOMINATED by size, not that it is blind
+to spread.
 
 **THE PROBE'S FINDING SURVIVES, BUT IT IS NOT A REVERSAL AND SHOULD NOT BE
 WRITTEN AS ONE.** The earlier probe put dispersion at +0.693 and size at -0.569;

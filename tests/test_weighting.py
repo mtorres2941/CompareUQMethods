@@ -131,19 +131,30 @@ def test_aiqr_is_exactly_scale_invariant():
     assert max(vals) - min(vals) < 1e-9 * max(vals)
 
 
-def test_aiqr_is_nearly_blind_to_dispersion():
-    """A_IQR barely moves when the spread of the data changes by a factor of 20.
+def test_aiqr_tracks_sample_size_while_the_separation_tracks_dispersion():
+    """At fixed n, A_IQR barely moves over a 27-fold change in spread. The
+    separation moves with it, almost exactly in proportion.
 
     THIS IS THE RESULT THAT NARROWS DECISION 90, which expected A_IQR to track
-    the coefficient of variation. It cannot: a measure that is exactly
-    invariant to rescaling cannot respond to the scale of the data. The
-    mean-relative separation, which is what the flip probability is calibrated
-    in, moves by an order of magnitude over the same range, and the test checks
-    both so the contrast cannot quietly disappear.
+    the coefficient of variation.
+
+    AND IT PINS THE MECHANISM, because the obvious explanation is wrong and was
+    written into this project before it was checked. A_IQR is exactly invariant
+    under rescaling the data -- the test above proves it -- but SO IS the
+    mean-relative separation, so invariance is not what separates them. What
+    separates them is what each divides by. A_IQR measures the density's
+    uncertainty against that curve's own height and width, so the spread cancels
+    twice and only the weight sampling noise survives, which is a question of
+    how many points there are. The separation is an x-axis distance over the
+    mean alone, so the spread-to-mean ratio survives, and that ratio IS the
+    coefficient of variation.
+
+    Both halves are asserted, so neither claim can quietly rot.
     """
     aiqr, sep, cv = [], [], []
+    n = 60
     for sigma in (0.2, 0.6, 1.2, 2.0):
-        y = np.exp(np.random.default_rng(3).normal(0.0, sigma, size=60))
+        y = np.exp(np.random.default_rng(3).normal(0.0, sigma, size=n))
         y = y / y.mean()
         g = WG.aiqr_grid(y)
         d = WG.dirichlet_draws(len(y), np.random.default_rng(11), n_draws=200)
@@ -151,8 +162,17 @@ def test_aiqr_is_nearly_blind_to_dispersion():
         aiqr.append(WG.aiqr(WG.density_ensemble(y, d, g), g))
         sep.append(float(np.median(WG.weighting_separation(y, d, g))))
     assert cv[-1] / cv[0] > 10                      # the spread really varies
-    assert max(aiqr) / min(aiqr) < 1.5              # A_IQR does not follow it
-    assert sep[-1] / sep[0] > 5                     # the separation does
+    assert max(aiqr) / min(aiqr) < 1.2              # A_IQR barely follows it
+    assert sep[-1] / sep[0] > 10                    # the separation does
+
+    # A_IQR * sqrt(n) is the quantity that is nearly constant here, which is the
+    # positive form of the claim rather than the negative one.
+    scaled = [a * np.sqrt(n) for a in aiqr]
+    assert max(scaled) / min(scaled) < 1.2
+
+    # And the separation is proportional to the coefficient of variation.
+    ratio = [s / c for s, c in zip(sep, cv)]
+    assert max(ratio) / min(ratio) < 1.3
 
 
 def test_aiqr_falls_with_dataset_size():

@@ -2020,19 +2020,33 @@ rather than in conversation.
     A_IQR on the reasoning that it is a dispersion-of-the-density measure and
     would inherit that. It does not.
 
-    **The mechanism, and it is dimensional rather than a defect in the
-    implementation.** A probability density carries units of 1 / x, so integrating
-    a difference of two densities over x is dimensionless, and A_IQR is therefore
-    **exactly invariant under rescaling the data**: multiply every ECC by a
-    constant and the densities shrink by precisely the factor the lattice
-    stretches. Verified to ten decimal places over seven orders of magnitude in
-    `tests/test_weighting.py`. **A measure that cannot see a change of scale
-    cannot see dispersion.** Holding n at 60 and moving the coefficient of
-    variation from 0.22 to 5.83, a factor of 27, moves A_IQR from 0.293 to 0.249 --
-    slightly DOWN -- while the mean-relative separation moves from 0.030 to 0.522.
+    **THE MECHANISM, AND THE FIRST VERSION OF THIS ENTRY GOT IT WRONG.** It said
+    A_IQR cannot see dispersion because it is exactly invariant under rescaling
+    the data. It IS invariant -- verified to ten decimal places over seven orders
+    of magnitude in `tests/test_weighting.py` -- but **so is the mean-relative
+    separation this stage uses instead**, so invariance cannot be what
+    distinguishes them. That explanation is withdrawn.
 
-    What A_IQR does see is how many kernels the Dirichlet weight noise is averaged
-    over. It falls roughly as n to the power -0.37.
+    **What separates them is what each divides by.** A_IQR measures the
+    uncertainty of the density curve against that curve's own height and width, so
+    the data's spread cancels from both factors and what survives is the sampling
+    noise in the weights, which is a question of how many points there are. The
+    separation is a distance along x divided by the mean alone, so the ratio of
+    spread to mean survives, and that ratio IS the coefficient of variation.
+
+    Both halves check out. Holding a lognormal at n = 60 and raising the
+    coefficient of variation from 0.22 to 5.83, a factor of 27: A_IQR goes 0.296,
+    0.285, 0.299, 0.307 while `A_IQR * sqrt(n)` stays between 2.21 and 2.38; the
+    separation goes 0.030, 0.099, 0.316, 0.664, and **divided by the coefficient
+    of variation it is nearly constant at 0.138, 0.119, 0.115, 0.114**.
+
+    **A_IQR is DOMINATED by size, not blind to spread**, and the within-band
+    numbers say where the difference lies. Its rank correlation with the
+    coefficient of variation inside each size band of the real arm is -0.008 at
+    n = 3-9, +0.128 at 10-99, +0.644 at 100-999 and +0.405 above 1,000: monotone
+    but small. A five- to tenfold change in the coefficient of variation within a
+    band moves A_IQR by a factor of 1.07 to 1.87, against a factor of 12 across
+    the size range.
 
     **THE DISPERSION RESULT SURVIVES ON THE OTHER MEASURE, AND IT IS A
     BOTH-MATTER RESULT RATHER THAN A REVERSAL.** An earlier draft of this entry

@@ -266,13 +266,27 @@ with uniform weights, because one taken under the variable weights would move
 with the quantity being measured and a practitioner cannot compute a
 market-weighted mean without the market shares.
 
-**A_IQR is KL2's measure and it is EXACTLY SCALE INVARIANT, so it cannot see
-dispersion.** A density carries units of 1/x, so the area of a density band is
-dimensionless. Across the empirical arm it correlates with log dataset size at
--0.946 and with the coefficient of variation at +0.042. It is reported for
-consistency with the published paper, unnormalized and over 1,000 draws, both
-read off that paper. The practitioner number is the mean-relative separation
-instead, which correlates with dispersion at +0.803.
+**A_IQR is KL2's measure and it is DOMINATED BY DATASET SIZE.** Across the
+empirical arm it correlates with log size at -0.946 and with the coefficient of
+variation at +0.042, and it moves by a factor of 12 from the smallest categories
+to the largest against 1.07 to 1.87 across the dispersion range within a band.
+
+**Scale invariance is NOT the reason, and an earlier version of this file said it
+was.** A_IQR is exactly invariant under rescaling the data, but so is the
+mean-relative separation used instead, so invariance cannot distinguish them.
+What does is the denominator: A_IQR measures the density's uncertainty against
+that curve's own height and width, so the spread cancels twice and only the
+weight sampling noise survives; the separation is an x-axis distance over the
+mean alone, so the spread-to-mean ratio survives, and that ratio is the
+coefficient of variation. At fixed n over a 27-fold change in spread,
+`A_IQR * sqrt(n)` stays within 2.21 to 2.38 and `separation / coeffvar` within
+0.114 to 0.138.
+
+A_IQR is reported for consistency with the published paper, unnormalized and over
+1,000 draws, both read off that paper. The practitioner number is the separation,
+which correlates with dispersion at +0.731 and with log size at -0.545 -- BOTH
+matter, and dispersion dominates only within a size band, where it runs +0.83 to
++0.96.
 
 ## 3. Seeding and caching
 
@@ -640,7 +654,7 @@ the worst observed value.
 | `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
 | `test_comparison.py` | 10 | held-out W1 is undefined below n = 10 rather than computed from two points, is worse than in-sample for the flexible method, and removes most of W1's bandwidth sensitivity without replacing it with a sharp optimum; the model-spread ratio catches a tail W1 does not; ranks are within-dataset and invariant to rescaling a dataset; the curve window scales to the arm instead of assuming the corpus; all six methods share each held-out split, so the comparison is paired |
 | `test_recovery.py` | 26 | the parent spec round-trips exactly and the overlap displacements are NOT in the generation record, which is why the replay exists; a recovery score is zero when the model IS the parent and rises as it moves away; the grid always covers the parent; the two weightings are scored against different parents; the tail charge catches a far tail the body score does not; cross-validation is undefined below n = 10, penalizes the flexible method relative to in sample, and is paired across methods; the decomposition satisfies its own inequality and the definitional term is identical across uniform methods and zero for variable ones; regret is zero for the winner; post-stratification moves an aggregate toward the common band and the empirical shares are measured not assumed; a win share only moves when the WINNER moves, which is why the empirical headline is stated as one; the paired bootstrap finds a real gap and not an imaginary one |
-| `test_weighting.py` | 13 | the location term is a lower bound on W1 and a two-point dataset is all location; every relative measure is invariant to rescaling the data while the absolute W1 is not, which is the control; A_IQR is exactly scale invariant, is nearly blind to dispersion while the mean-relative separation is not, falls with dataset size, is zero for a degenerate ensemble, and its component curves are densities |
+| `test_weighting.py` | 13 | the location term is a lower bound on W1 and a two-point dataset is all location; every relative measure is invariant to rescaling the data while the absolute W1 is not, which is the control; A_IQR is exactly scale invariant, tracks sample size rather than dispersion while the mean-relative separation does the reverse -- with `A_IQR * sqrt(n)` and `separation / coeffvar` each pinned as the nearly-constant quantity, so the MECHANISM is asserted and not just the outcome -- falls with dataset size, is zero for a degenerate ensemble, and its component curves are densities |
 | `test_flip.py` | 15 | common random numbers make a method identical to itself while independent streams do not, which is the control; the tempering control at t = 0 gives zero separation and no flip, and separation grows with the level; the logistic recovers a known curve and its crossing inverts its own fit; the isotonic fit is monotone, preserves the mean and drops no point; the CLUSTER bootstrap is more than twice as wide as a row bootstrap, which is why the resampling unit is the pLCA; a model's distance to itself is zero and a relative distance is scale invariant |
 | `test_materialclass.py` | 7 | the tiers are a pure function of the category NAME and the whole assignment runs on a frame with no value column, so a tier cannot have been chosen because a method won on it; concrete, steel and every insulation variant land where a building-LCA reader expects |
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbors on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
