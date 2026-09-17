@@ -159,7 +159,11 @@ material writes no pLCA result and replaces nothing above it.**
 
 **Three audit scripts** measure what the settings are: how many grid points and
 Dirichlet draws A_IQR needs, the full calibration with its diagnostics, and the
-weighting measures end to end.
+weighting measures end to end. The last of these was stopped part-way through its
+final run, when it was competing for processor time with the notebook that
+produces the paper's own tables; it writes only to the audit directory, nothing
+reported depends on it, and re-running it is a single command. The next Claude
+Code session will find it at `audits/weighting_measure.py`.
 
 ### Two details read off the published paper, as required
 
@@ -515,7 +519,7 @@ corpus; the existing pLCA results table, for the gap analysis only; and the
 published KL2 paper, for the two A_IQR construction details.
 
 **Written.** Two source modules and their two test files; three audit scripts;
-new sections in notebooks 1 and 3; ten new result tables; two new figures, one
+new sections in notebooks 1 and 3; thirteen new result tables; two new figures, one
 showing what drives the weighting risk and one showing the calibration curve;
 five new decisions in the project brief's decision log, numbered 91 through 95,
 and its handoff specification; manuscript discrepancy entries 81 to 87; and this
