@@ -1134,3 +1134,16 @@ relative figure beside it.**
 | **What does predict the gap** | `w_v_uw_wasserstein`, the uniform-to-variable distance, is the strongest single addition and replicates on both weightings, incremental R2 0.046 and 0.055, p = 0.004 and 0.003. It is a property of the WEIGHT VECTOR and not of the data, a practitioner can only compute it after choosing weights, and it belongs to Stage 2d. Noted, not used. |
 | **Fix** | **Text, and it demotes a characteristic the manuscript treats as central.** State that modality was tested as a selection criterion and rejected on both axes, and that the rule is one threshold on one number. Stage 2f owns the full metric reduction; this is a targeted answer. |
 | **Status** | Open. Decision 88. |
+
+## 80. How safe is assuming uniform weights? A per-dataset probability, for Stage 2d
+
+| | |
+|---|---|
+| **The question** | The study samples market shares from a flat Dirichlet, so every draw is an allocation it considers possible. For a given dataset, what proportion of those possible allocations differ enough from uniform to matter? That turns the weighting question from a population average into something a practitioner can apply to the category in front of them. |
+| **Why it is not answered here** | It needs a threshold for "enough to matter", and Stage 2d owns that: the named relative measure and the flip probability calibrated against it. A placeholder threshold would make the number unciteable. |
+| **Feasibility, measured** | 147 datasets by 300 Dirichlet draws in **7 seconds**. `audits/weighting_risk.py`. |
+| **What it looks like** | Against a placeholder of a tenth of the mean, the median probability is 0.847 at n = 3-9, 0.675 at 10-99, 0.218 at 100-999 and **0.000 above 1,000**. Uniform weighting is safe for 36 of 147 datasets and almost never safe for 12. `PaintingAndCoating` (n = 19, CV 1.33) is riskiest; `Asphalt` (n = 7,232, CV 0.27) is safest. |
+| **THE FINDING THAT MAKES IT WORTH A PARAGRAPH** | **Dispersion beats size here, and nowhere else in this study.** Spearman with the coefficient of variation +0.693 and with the interquartile range +0.621, against log(n) at -0.569. Every question about which METHOD fits best is driven by n; whether WEIGHTING matters is driven by spread. Those are different mechanisms and the paper should say so, because a reader who has absorbed "it is all about n" will assume it applies here too. |
+| **It also supersedes a characteristic** | `w_v_uw_wasserstein` is ONE draw from this distribution. Reporting the distribution retires the open item about a single Dirichlet realization moving per-dataset metrics a long way. |
+| **Fix** | **Analysis, Stage 2d**, then text. |
+| **Status** | Open, specified, owner 2d. Decision 89. |

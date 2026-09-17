@@ -634,6 +634,19 @@ Four things it inherits.
 4. **Never compare weighting schemes out of sample on the empirical arm.**
    Decision 65.
 
+**A task 2d is handed fully specified**, from the author on 2026-09-17: for a
+given dataset, sample the flat Dirichlet the study already uses and ask what
+proportion of those possible weightings differ from uniform by more than the
+threshold 2d calibrates. That converts the weighting question into a per-dataset
+statement -- "assuming uniform weights has an X percent chance of changing which
+material ranks first" -- and it retires the single-realization
+`w_v_uw_wasserstein`. `audits/weighting_risk.py` is a working probe: 147 datasets
+by 300 draws in **7 seconds**, so this is hours of work, not days. **And it is the
+one place in the study where DISPERSION beats SIZE** -- Spearman +0.693 with the
+coefficient of variation against -0.569 with log(n) -- which is the opposite
+ordering from decisions 84 and 88 and is worth a paragraph on its own. Decision
+89, entry 80.
+
 **And the most valuable single experiment available to 2e and 2g**: run the pLCA
 twice on the same common random numbers, once with each method's fitted models and
 once with the true parents, and report how far each method's ECI Rank #1 Frequency

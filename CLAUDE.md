@@ -1787,3 +1787,40 @@ rather than in conversation.
     works and the choice is not sensitive inside that range. **Stage 2f owns the
     full metric reduction; this is a targeted answer and not that model.**
     `TABLE_RuleCandidates.csv`, `TABLE_RuleSelection.csv`. Entry 79.
+
+89. **2026-09-17. "What is the likelihood variable weights matter for THIS
+    dataset" is a good question, it is cheap, and it is STAGE 2d's, not 2c's.**
+    `[AUTHOR]` The author's framing: the study already samples weights from a flat
+    Dirichlet, so every draw is an allocation it considers possible; what
+    proportion of those possible allocations differ enough from uniform to matter?
+    "Just so someone can understand how safe their assumption of uniform weighting
+    is."
+
+    **Why it is 2d's.** The question needs a threshold for "enough to matter", and
+    2d owns exactly that: the named relative measure and the flip probability
+    calibrated against it. Building the final version on a placeholder threshold
+    is the mistake this project has avoided everywhere else.
+
+    **Why it is worth doing.** `audits/weighting_risk.py` is a feasibility probe:
+    147 datasets by 300 draws in **7 seconds**, so the full version is hours, not
+    days. Against a placeholder threshold of a tenth of the mean, the median
+    probability is 0.847 at n = 3-9, 0.675 at 10-99, 0.218 at 100-999 and
+    **0.000 above 1,000**; uniform weighting is safe for 36 of 147 datasets and
+    almost never safe for 12.
+
+    **AND IT IS THE ONE PLACE IN THIS STUDY WHERE DISPERSION BEATS SIZE.**
+    Spearman with the coefficient of variation **+0.693**, with the interquartile
+    range +0.621, with log(n) **-0.569**. Every question about WHICH METHOD FITS
+    BEST is driven by n (decisions 84 and 88); whether WEIGHTING MATTERS is driven
+    by how spread the values are. **The author's own intuition, that a wider
+    interquartile range means a higher chance weights matter, is right and is the
+    opposite ordering from the rest of the paper.** That contrast is worth stating
+    in the text.
+
+    **What 2d produces from it:** a per-dataset statement a practitioner can act
+    on -- "for a category like yours, assuming uniform weights has an X percent
+    chance of changing which material ranks first" -- reported against dispersion
+    rather than against n. It also supersedes the single-realization
+    `w_v_uw_wasserstein` characteristic, which is one draw from this distribution
+    and is the open item about a single Dirichlet realization moving per-dataset
+    metrics a long way. Entry 80.
