@@ -1691,3 +1691,61 @@ rather than in conversation.
     in the KDE's favour, each for an independently correct reason, and the paper
     should present all three as one paragraph about taking the criterion to
     convergence rather than as three separate improvements. Entry 76.
+
+86. **2026-09-17. THE HONEST ANSWER TO "WHICH METHOD SHOULD I USE": the KDE is
+    the SAFER default, not the more accurate one, and a size rule beats both.**
+    `[AUTHOR]` Written after the author named the risk directly -- "I'm falling
+    victim to confirmation bias... I want to make sure we're honest about our
+    findings rather than cherry picking results" -- and asked for the assumption
+    behind the whole study to be tested rather than confirmed.
+
+    **The assumption under test:** that kernel density estimation is the safe
+    default because it is flexible enough that a practitioner never has to decide,
+    and can be trusted to do a good job everywhere.
+
+    **It is half right, and right on a different axis than it is usually argued
+    on.** Comparing POLICIES against the unreachable per-dataset oracle, uniform
+    weighting:
+
+    | policy | empirical CV: mean cost over oracle / worst case | synthetic parent: same |
+    |---|---|---|
+    | always normal | 71.2 pct / 5.38x | 98.1 pct / 58.1x |
+    | always lognormal | **4.9 pct** / 2.75x | 23.0 pct / 24.5x |
+    | always KDE | 15.3 pct / **1.61x** | **14.9 pct** / **6.88x** |
+    | KDE if n >= 100, else lognormal | **4.5 pct** / **1.57x** | **9.4 pct** / 6.79x |
+
+    **What is true: the KDE never fails badly.** Its worst case is 1.61x on the
+    empirical arm against the lognormal's 2.75x, and 6.9x against 24.5x on the
+    synthetic arm. A practitioner who cannot inspect every category is protected by
+    it in a way the lognormal does not protect them.
+
+    **What is NOT true: that it is the most accurate default.** On the empirical
+    arm, out of sample, always-lognormal costs 4.9 percent over the oracle and
+    always-KDE costs 15.3. The KDE is within 5 percent of the best method on 47.2
+    percent of empirical datasets against the lognormal's 66.9.
+
+    **And the best policy is neither**: use the KDE above about 100 EPDs and a
+    lognormal below, which costs 4.5 percent over the oracle on the empirical arm
+    and 9.4 on the synthetic, and has the lowest worst case of any policy on both.
+    **That is the recommendation the paper should make**, and it is a stronger
+    contribution than "use the KDE" because it is a rule a practitioner can apply
+    without judgment and it is supported on both arms and on both axes.
+    `TABLE_PolicyComparison.csv`. Entry 77.
+
+87. **2026-09-17. The tail integral is bounded at the 1 - 1e-6 quantile, and the
+    bound is the study's own Monte Carlo.** `[AUTHOR]` "Let's be careful we're not
+    projecting out too much. We still want to keep it within bounds that are
+    realistic and matter." The check was warranted and the answer is reassuring.
+
+    At 1 - 1e-10 the integral reached a median of 3.3 times the largest observed
+    value, p99 158 times, max 297 -- not absurd, but further than anything that
+    matters. At **1 - 1e-6** it reaches a median of **1.9 times the data maximum**
+    and a p99 of 31, it captures **99.64 percent** of what the wider bound
+    captured, and the difference to the reported score is at most **5e-5 relative
+    on any single fit**.
+
+    **Why that quantile and not a round number:** in the 10,000-draw Monte Carlo
+    the pLCA runs, the chance of ever sampling beyond it is about 1 percent.
+    Beyond it a model's tail cannot affect any result this study reports, so
+    charging for it would be charging for something unobservable. The bound is the
+    reach of the study's own sampler. `fitting.W1_TAIL_QUANTILE`.

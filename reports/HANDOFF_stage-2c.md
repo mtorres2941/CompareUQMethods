@@ -38,7 +38,7 @@ does under-represent the multi-humped datasets at that bandwidth, 76.2 percent
 unimodal against the arm's 68.5, **but reweighting it to the empirical mode mix
 moves the method comparison by 0.0004**, so the mismatch is a limitation to state
 and not a reason to reopen generation. **The figure is wrong; the corpus is good
-enough.** Section 4.9, decision 82.
+enough.** Section 4.10, decision 82.
 
 ---
 
@@ -110,7 +110,7 @@ against themselves.
 
 Empirical arm, cross-validated on ten random half-splits in both directions, 127
 of 147 datasets reaching n = 10. Within a weighting scheme, which is the only
-valid comparison there (see 4.4): `Lognormal, Uniform` 0.2984 and `KDE, Uniform`
+valid comparison there (see 4.5): `Lognormal, Uniform` 0.2984 and `KDE, Uniform`
 0.3281; `Lognormal, Variable` 0.3165 and `KDE, Variable` 0.3527.
 
 ### 4.2 The two arms disagree about the family, and the disagreement is explained
@@ -194,7 +194,44 @@ family describes well.
 **So the paper states one mechanism with a threshold**, and notes that the
 materials which dominate embodied carbon are the ones that clear it. Decision 84.
 
-### 4.4 Weighting
+### 4.4 WHICH METHOD SHOULD A PRACTITIONER USE? The section that tests the premise
+
+Added after the author named the risk: "I'm falling victim to confirmation
+bias... I want to make sure we're honest about our findings rather than cherry
+picking results."
+
+**The premise of the study** is that kernel density estimation is the safe
+default -- flexible enough that a practitioner never has to decide, and
+trustworthy everywhere. Comparing POLICIES against the unreachable per-dataset
+oracle, uniform weighting:
+
+| policy | empirical CV: cost over oracle / worst case | synthetic parent: same | within 5 pct of best, empirical |
+|---|---|---|---|
+| always Normal | 71.2 pct / 5.38x | 98.1 pct / 58.11x | 0.260 |
+| always Lognormal | 4.9 pct / 2.75x | 23.0 pct / 24.48x | 0.669 |
+| always KDE | 15.3 pct / 1.61x | 14.9 pct / 6.88x | 0.472 |
+| KDE if n>=100, else lognormal | 4.5 pct / 1.57x | 9.4 pct / 6.79x | 0.717 |
+
+**THE PREMISE IS HALF RIGHT, on an axis other than the one it is usually argued
+on.**
+
+- **True: the KDE never fails badly.** Its worst single dataset is 1.61 times the
+  best available method on real data, against the lognormal's 2.75, and 6.9
+  against 24.5 on the corpus. A practitioner who cannot inspect every category is
+  protected by it in a way the lognormal does not protect them.
+- **Not true: that it is the most accurate default.** Out of sample on real data,
+  always-lognormal costs 4.9 percent over the oracle and always-KDE costs 15.3,
+  and the KDE is within 5 percent of the best method on 47 percent of datasets
+  against the lognormal's 67.
+- **And the best policy is neither.** Use the KDE above about 100 EPDs and a
+  lognormal below: 4.5 percent over the oracle on real data and 9.4 on the
+  corpus, with the lowest worst case of any policy on both arms.
+
+**That rule is a stronger contribution than "use the KDE"**, because it needs no
+judgment from the user, it is supported on both arms and on both axes, and it
+states its own boundary. Decision 86, entry 77.
+
+### 4.5 Weighting
 
 **The old target made "variable weighting improves fit" 62 percent definitional.**
 Every model, including the three uniform-weighted ones, was scored against the
@@ -222,7 +259,7 @@ flat Dirichlet -- 63.75 percent for Rest-of-World BOF steel against an expected
 5.2 percent top share -- and concentration cuts the effective sample size that
 drives the penalty. Decisions 73 and 79.
 
-### 4.5 Regret, and the tail that reverses two methods
+### 4.6 Regret, and the tail that reverses two methods
 
 Synthetic, against the parent: mean regret `KDE, Uniform` **0.0282**,
 `Lognormal, Uniform` 0.0368, `KDE, Variable` 0.0693, `Lognormal, Variable`
@@ -234,7 +271,7 @@ lower mean cost and the lognormal the tighter worst case.
 Empirical, cross-validated: `Lognormal, Uniform` 0.0259, `Lognormal, Variable`
 0.0440, `KDE, Uniform` 0.0556, `KDE, Variable` 0.0802, the normals near 0.21.
 
-### 4.6 Post-stratification
+### 4.7 Post-stratification
 
 The corpus allocates 2,500 datasets per size band for equal precision; the
 empirical arm is 13.9 / 54.2 / 26.4 / 5.6 percent. `coverage.post_stratified` had
@@ -253,7 +290,7 @@ widen that band's intervals by a factor of 2.1, in the band where the methods
 differ most. Post-stratification gives both readings from one corpus and is
 reversible. Decision 76.
 
-### 4.7 Why the KDE loses at small n, and three explanations that are excluded
+### 4.8 Why the KDE loses at small n, and three explanations that are excluded
 
 Asked four times across the project, so answered by measurement.
 
@@ -275,7 +312,7 @@ costs less than the KDE's variance, and at large n the bias stops shrinking whil
 the variance does not. The crossover is at about n = 100, which is where it is
 observed. Decision 74.
 
-### 4.8 The method settings, all three now decided
+### 4.9 The method settings, now four
 
 **The bandwidth.** Decision 54 adopted the guarded Silverman rule on leave-one-out
 likelihood. The synthetic parent gives W1 a target that is not the training data,
@@ -327,7 +364,7 @@ synthetic arm, where a reference density exists, the two pick the same winner on
 ordering of all six methods. It is not adopted because it needs a density and the
 empirical target is a set of atoms.
 
-### 4.9 THE "95 PERCENT UNIMODAL" FIGURE IS WRONG. THE CORPUS IS FINE
+### 4.10 THE "95 PERCENT UNIMODAL" FIGURE IS WRONG. THE CORPUS IS FINE
 
 Two separate questions, and conflating them was the error in the first draft of
 this section.
@@ -359,7 +396,7 @@ Decision 78.
 necessary to it**: it is closest on 74 percent of unimodal datasets, 80 percent of
 bimodal and 89 percent of those with three or more.
 
-### 4.10 The gamma question
+### 4.11 The gamma question
 
 Out of sample on the empirical arm the three-parameter lognormal is
 **indistinguishable from gamma, from the two-parameter lognormal, and from the

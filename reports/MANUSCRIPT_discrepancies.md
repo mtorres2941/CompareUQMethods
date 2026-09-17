@@ -1101,3 +1101,24 @@ relative figure beside it.**
 | **Fix** | **Analysis, done.** `fitting.W1_TAIL_TERM` adds the mean excess above the grid on a log-spaced extension to the 1 - 1e-10 quantile. It raises the lognormal's mean W1 by 0.28 to 0.41 percent, leaves the other four unchanged to five decimal places, and takes the worst-case relative error against a +400 sd reference from 3.1e-2 to 1.6e-3. Extending the linear grid instead would need five times the points to hold the resolution that entry 61 established as the binding constraint. |
 | **Note for the text** | This is the third criterion change in a row that moves numbers in the KDE's favour -- the bandwidth guard, the quadrature, and now the tail -- each for an independently correct reason. **Present them as one paragraph about taking the criterion to convergence**, with the convergence tables, rather than as three separate improvements, because three separate improvements all helping one method reads badly however sound each is. |
 | **Status** | Open as a text item. Decision 85. |
+
+## 77. Which method a practitioner should default to, answered against an oracle
+
+| | |
+|---|---|
+| **Why this and not the method comparison** | Every other table compares methods. A practitioner must pick one RULE and apply it to every material in a building, so the decision-relevant comparison is between POLICIES, measured against the unreachable oracle that picks the best method for each dataset. |
+| **The assumption being tested** | That kernel density estimation is the safe default: flexible enough that you never have to decide, and trustworthy everywhere. **It is half right.** |
+| **Results, uniform weighting, mean cost over the oracle and worst single dataset** | always normal 71.2 pct / 5.38x empirical, 98.1 pct / 58.1x synthetic. always lognormal **4.9 pct** / 2.75x, 23.0 pct / 24.5x. always KDE 15.3 pct / **1.61x**, **14.9 pct** / **6.88x**. **KDE if n >= 100 else lognormal: 4.5 pct / 1.57x empirical, 9.4 pct / 6.79x synthetic.** |
+| **What is true about the KDE** | **It never fails badly.** Worst case 1.61x against the lognormal's 2.75x on real data, 6.9x against 24.5x on the corpus. That is the defensible form of "safe to default to". |
+| **What is not** | That it is the most accurate default. On real data out of sample, always-lognormal costs 4.9 percent over the oracle and always-KDE 15.3, and the KDE is within 5 percent of the best method on 47.2 percent of datasets against the lognormal's 66.9. |
+| **Fix** | **Text, and it should be the paper's recommendation.** Use the KDE above about 100 EPDs and a parametric family below. It beats both fixed defaults on both arms and on both axes, and it is a rule a practitioner can apply without judgment. Report the KDE's worst-case advantage separately, because it is the honest version of the flexibility argument. |
+| **Status** | Open. Decision 86. `TABLE_PolicyComparison.csv`, `CompareUQMethods_FIG_MethodByMaterial.png`. |
+
+## 78. The study covers one impact category, and the text must say so
+
+| | |
+|---|---|
+| **What** | Every ECC in this study is global warming potential in kgCO2e. The EPDs behind them also report acidification, eutrophication, smog formation, ozone depletion and primary energy, and none of those is examined. |
+| **Why it matters for the conclusions** | The findings are all about the SHAPE of a distribution -- dispersion, skewness, modality, and how many values a category has. There is no reason to assume those are the same for acidification as for GWP, and the recommendation this paper makes is a threshold on dataset size that depends on them. A category with 400 GWP values may have far fewer for eutrophication, since reporting completeness varies by indicator. |
+| **Fix** | **Text, one paragraph in the limitations.** State the scope plainly, state that the size threshold is the part most likely to transfer (it is a property of estimation, not of the indicator) and that the characteristic distributions are the part least likely to. Do NOT extend the study; the author's judgment that it is too large a rabbit hole is right, and a claim about one indicator honestly bounded is worth more than a rushed pass at five. |
+| **Status** | Open. Raised by the author 2026-09-17. |

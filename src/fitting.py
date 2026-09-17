@@ -314,7 +314,23 @@ W1_ROUTE = 'trapezoid'
 W1_TAIL_TERM = True
 
 #: Quantile the tail extension integrates out to, and its point count.
-W1_TAIL_QUANTILE = 1.0 - 1e-10
+#:
+#: 1 - 1e-6, AND THE BOUND IS TIED TO THE STUDY'S OWN MONTE CARLO. Author
+#: question, 2026-09-17: keep the projection inside bounds that are realistic and
+#: matter. Three measurements set it (`audits/scoring_grid_error.py`):
+#:
+#:   - integrating only this far captures **99.64 percent** of what integrating to
+#:     1 - 1e-10 captures, so almost nothing is given up;
+#:   - it reaches a median of **1.9 times the largest observed value** and a p99 of
+#:     31 times, where 1 - 1e-10 reaches 3.3 and 158 times;
+#:   - and in the 10,000-draw Monte Carlo the pLCA runs, the chance of ever
+#:     sampling beyond this quantile is **about 1 percent**. Beyond it a model's
+#:     tail cannot affect any result this study reports, so charging for it would
+#:     be charging for something unobservable.
+#:
+#: That last point is what makes this a principled bound rather than an invented
+#: epsilon: it is the reach of the study's own sampler, not a round number.
+W1_TAIL_QUANTILE = 1.0 - 1e-6
 W1_TAIL_POINTS = 2_000
 
 
