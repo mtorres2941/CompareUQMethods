@@ -83,16 +83,23 @@ MASS_UNIT_TYPE = 'weight'
 #: `categorysplit`. The bound below comes from material science and is applied
 #: only where such a bound exists.
 #:
-#: WHAT IT IS ANCHORED ON. Published cradle-to-gate embodied-carbon inventories
-#: for building products report coefficients of order 0.1 to 15 kgCO2e/kg, the
-#: highest being primary aluminium, which the Inventory of Carbon and Energy
-#: (ICE) database v3.0 (Jones and Hammond, Circular Ecology, 2019) places near
-#: 13 kgCO2e/kg; EC3's own published ranges for its material categories sit
-#: inside the same envelope. A stoichiometric check bounds the same quantity
-#: from a different direction and needs no database at all: combusting pure
-#: carbon yields 3.67 kg CO2 per kg of carbon, so 25 kgCO2e per kg of DELIVERED
-#: PRODUCT already requires burning about 6.8 kg of pure carbon for each
-#: kilogram shipped, and 100 kgCO2e/kg requires about 27 kg.
+#: WHAT IT IS ANCHORED ON, AND WHAT MAY BE CITED FOR IT. The bound rests on
+#: stoichiometry, which needs no database and which a reviewer can check in one
+#: line: combusting pure carbon yields 44.009 / 12.011 = 3.664 kg CO2 per kg of
+#: carbon, so 25 kgCO2e per kg of DELIVERED PRODUCT already requires burning
+#: 6.8 kg of pure carbon for every kilogram shipped, and 100 kgCO2e/kg requires
+#: 27.3 kg. A building product cannot carry 27 times its own mass in combusted
+#: carbon, whatever any inventory says.
+#:
+#: THE INVENTORY FIGURE IS UNSOURCED AND MUST NOT BE PRINTED. Earlier text here
+#: attributed a highest building-product coefficient of about 13 kgCO2e/kg for
+#: primary aluminium to the Inventory of Carbon and Energy (ICE) v3.0 (Jones and
+#: Hammond, Circular Ecology, 2019). That figure came from an analyst's own
+#: knowledge; `refs/` holds no copy of ICE and nothing in this repository can
+#: confirm the number, the edition or the page. Stage 2d checked and could not
+#: verify it. It is kept here only as a note that somebody with the database in
+#: hand could restore it with a page reference. Decision 49, discrepancy
+#: entry 81.
 #:
 #: The ceiling is set at 100 rather than at 25 deliberately. It is four times
 #: the most generous defensible figure for a real product, so it cannot be

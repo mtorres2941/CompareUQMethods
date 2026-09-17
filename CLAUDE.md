@@ -156,6 +156,33 @@ starts from a written record rather than from memory.
 - **Name:** `HANDOFF_stage-<id>.md`, e.g. `reports/HANDOFF_stage-0.md`
 - **Format:** plain ASCII Markdown, same constraints as all other output.
 
+### WHO READS IT, and it is not someone with this repository
+
+**The handoff's only reader has NO access to this repository.** No `CLAUDE.md`,
+no `reports/`, no output tables, no figures, no `refs/`, no source. It is the
+manuscript session, which drafts the next stage's prompt and edits the paper
+from the handoff alone. Write for that reader, because a file that only makes
+sense next to a checkout is a file that cannot do its job.
+
+Three rules follow, and they are binding:
+
+- **A decision or entry number is a TRAILING CITATION, never the substance.**
+  Write the claim in full, then cite it. "The guard threshold is 20 effective
+  observations, not 30 (decision 80)" is right; "per decision 80" alone is a
+  dead pointer.
+- **Numbers and figures must appear as TEXT in the handoff.** Do not send the
+  reader to a table or a figure for a value the sentence depends on. If a claim
+  needs three numbers, the three numbers are in the sentence.
+- **An instruction to consult a repository file is addressed to the NEXT CLAUDE
+  CODE SESSION, not to the reader**, and must say so where it appears. "Stage 2h
+  sweeps `PROFILE_DELTA_LO_FRAC`; that session should read `src/fitting.py`
+  first" is fine. "See `src/fitting.py`" on its own is not.
+
+The test before a stage ends: **could the author hand this file over, alone, and
+say nothing?** If a sentence cannot be understood without looking something up,
+that is a defect in the handoff, and the fix is to spell it out there rather
+than to send the other files.
+
 Each handoff file contains, in order:
 
 1. **Stage and branch.** Stage id and title, the git branch the work was done
@@ -752,9 +779,20 @@ rather than in conversation.
     coefficients are of order 13 kgCO2e/kg for primary aluminium (ICE v3.0), and
     cross-checked stoichiometrically: 100 kgCO2e per kg of delivered product
     needs about 27 kg of pure carbon burned per kilogram shipped. Set at 100
-    rather than 25 so it cannot be read as a tuned threshold. **The ICE figure
-    is from the analyst's knowledge and `refs/` holds no copy; verify it against
-    the source before it goes in the paper.**
+    rather than 25 so it cannot be read as a tuned threshold.
+
+    **AMENDED 2026-09-17, Stage 2d: THE ICE FIGURE IS UNSOURCED AND IS WITHDRAWN
+    FROM THE PAPER.** This entry asked a later stage to verify it before it was
+    printed. Stage 2d checked: `refs/` holds no copy of ICE v3.0 and no file in
+    this repository contains the number, so neither the figure, the edition nor
+    the page can be confirmed from anything here. **Do not cite ICE.** The
+    ceiling stands on the arithmetic alone, which needs no database and which a
+    reviewer can check in one line: combusting pure carbon yields
+    44.009 / 12.011 = 3.664 kg CO2 per kg of carbon, so 100 kgCO2e per kg of
+    delivered product requires burning 27.3 kg of pure carbon for every kilogram
+    shipped, and even 25 kgCO2e/kg requires 6.8 kg. **This is about what the
+    paper cites, not about whether the ceiling is right**; the ceiling is
+    unchanged and no number moves. Discrepancy entry 81.
 
     Applied ONLY where an external bound exists. For volume, area, length and
     item declarations there is none, so none is invented: the ten highest and

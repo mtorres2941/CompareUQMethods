@@ -1150,3 +1150,15 @@ relative figure beside it.**
 | **Still to read off the paper** | How the area is normalized, if at all, and how many Dirichlet draws. `refs/1-s2.0-S0921344926002466-main.pdf`. A number sharing KL2's name but not its definition is worse than a new one. |
 | **Fix** | **Analysis, Stage 2d**, then text. Cite KL2 for the measure and state any divergence from it explicitly, as decision 9 required for the bandwidth. |
 | **Status** | Open, specified, owner 2d. Decisions 89 and 90. |
+
+## 81. The ICE figure behind the plausibility ceiling is UNSOURCED, and the ceiling does not need it
+
+| | |
+|---|---|
+| **What the record says** | `empirical.MASS_ECC_CEILING = 100.0` kgCO2e/kg is justified by two independent arguments. The first: published cradle-to-gate inventories put building-product coefficients at 0.1 to 15 kgCO2e/kg, the highest being primary aluminium, which the Inventory of Carbon and Energy (ICE) database v3.0 (Jones and Hammond, Circular Ecology, 2019) is said to place near 13 kgCO2e/kg. The second is stoichiometric and cites nothing. |
+| **The problem** | The ICE figure came from a session's own knowledge. `refs/` holds no copy of ICE v3.0 and no other file in this repository contains it, so nothing here can confirm the number, the edition or the page. Decision 49 already flagged it: "verify it against the source before it goes in the paper." Stage 2d checked, and it cannot be verified from anything the repository holds. |
+| **Resolution** | **Do not cite ICE in the manuscript.** The figure is recorded as unsourced rather than removed, because it is probably right and a later session with the database in hand can restore it with an edition and a page. Until then it is not citable. |
+| **What the ceiling rests on instead, and it is sufficient alone** | Combusting pure carbon yields 44.009/12.011 = **3.664 kg CO2 per kg of carbon**. So 100 kgCO2e per kg of DELIVERED PRODUCT requires burning **27.3 kg of pure carbon for every kilogram shipped**, and even 25 kgCO2e/kg requires 6.8 kg. No inventory database is needed to see that a building product cannot carry 27 times its own mass in combusted carbon. The argument is arithmetic and a reviewer can check it in one line. |
+| **Why this changes nothing about the ceiling** | The bound is external either way, which is the property decision 60 requires: the threshold is anchored outside the data rather than read off the arm's own spread. It also stays deliberately loose at 100 rather than 25, so it cannot be read as tuned, and it still catches the known cases by two orders of magnitude -- two `Elevators` records at 20,812 and 21,945 kgCO2e/kg, and 87 `Cement` records reporting a per-tonne GWP against a 1 kg declared unit. |
+| **Fix** | **Text.** State the ceiling with the stoichiometric justification and no database citation. If ICE is wanted as corroboration, someone must open v3.0 and record the edition and page. |
+| **Status** | RESOLVED as far as this repository can take it. The ICE citation is withdrawn; the ceiling stands on the arithmetic. Decision 49 amended in place. |
