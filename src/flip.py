@@ -425,3 +425,33 @@ def _outcome_from(models, names, uniforms):
     rank1 = ((-draws).argsort(axis=1).argsort(axis=1) == 0).mean(axis=0)
     return (names[int(np.argmax(rank1))],
             tuple(np.asarray(names)[np.argsort(-draws.mean(axis=0))]), rank1)
+
+
+# ---------------------------------------------------------------------------
+# what the curve settled
+# ---------------------------------------------------------------------------
+#: The relative W1 at which the probability of a changed top contributor
+#: crosses 1, 5 and 10 percent. In units of the dataset's own unweighted mean,
+#: which is what every W1 this study reports is already in.
+#:
+#: MEASURED, not chosen. 2,500 pLCA groups by nine tempering levels, under
+#: common random numbers so the Monte Carlo floor is zero, with a logistic fit
+#: on log distance and a percentile interval from a bootstrap that resamples
+#: pLCA GROUPS. The intervals are [0.00109, 0.00199], [0.00831, 0.01177] and
+#: [0.02049, 0.02652]; an isotonic fit, which assumes only that the probability
+#: does not fall as the models separate, gives 0.0026, 0.0133 and 0.0226.
+#:
+#: WHY THEY LIVE HERE AS CONSTANTS. Notebook 1 needs them to turn a per-dataset
+#: weighting risk into a probability, and notebook 3 is what computes them.
+#: Hard-coding the calibrated value and having notebook 3 print the recomputed
+#: crossings beside it breaks that circularity and makes any drift visible,
+#: which is the same pattern `customstats.SILVERMAN_MIN_NEFF` follows.
+#:
+#: READ THE LEVELS AS A PROPERTY OF THIS STUDY'S pLCA, NOT OF A BUILDING. Every
+#: material here is normalized to a mean of 1.0 and carries a material use
+#: intensity of 1.0, so the four contributions are nearly exchangeable and their
+#: ranking is as fragile as it can be made. A real building, where materials
+#: differ by orders of magnitude in contribution, is harder to flip. These
+#: numbers are therefore an upper bound on how often a weighting choice changes
+#: an answer, which is the conservative direction for a practitioner rule.
+FLIP_THRESHOLDS = {0.01: 0.00149, 0.05: 0.00991, 0.10: 0.02334}

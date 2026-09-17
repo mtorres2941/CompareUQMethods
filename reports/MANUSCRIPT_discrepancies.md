@@ -1162,3 +1162,64 @@ relative figure beside it.**
 | **Why this changes nothing about the ceiling** | The bound is external either way, which is the property decision 60 requires: the threshold is anchored outside the data rather than read off the arm's own spread. It also stays deliberately loose at 100 rather than 25, so it cannot be read as tuned, and it still catches the known cases by two orders of magnitude -- two `Elevators` records at 20,812 and 21,945 kgCO2e/kg, and 87 `Cement` records reporting a per-tonne GWP against a 1 kg declared unit. |
 | **Fix** | **Text.** State the ceiling with the stoichiometric justification and no database citation. If ICE is wanted as corroboration, someone must open v3.0 and record the edition and page. |
 | **Status** | RESOLVED as far as this repository can take it. The ICE citation is withdrawn; the ceiling stands on the arithmetic. Decision 49 amended in place. |
+
+## New, found in Stage 2d
+
+## 82. THE STUDY'S pLCA CANNOT ANSWER "DID THE ANSWER CHANGE", because it compares methods under independent randomness
+
+| | |
+|---|---|
+| **What the code does** | Notebook 3's pLCA loop draws each UQ method's Monte Carlo sample with `func.rvs(neccs, random_state=rng)` from one shared generator, advanced in sequence. So the six methods are compared under six INDEPENDENT sets of random numbers, and any difference between two methods' results mixes the difference between the models with the difference between the streams. |
+| **How big that is, measured** | Run the same method twice, with the SAME fitted models and two independent streams, over 400 pLCA groups. The identity of the top contributor changes in **5.33 percent** of cases and the full rank ordering in **34.2 percent**, with no model difference whatever. By method the top-contributor floor runs from 1.00 percent (`Normal, Variable`) to **15.25 percent** (`Lognormal, Uniform`). |
+| **Why it is that large here** | Every dataset is normalized to a mean of 1.0 and every material use intensity is 1.0, so the four materials in a pLCA are nearly exchangeable and their mean contributions differ by very little. The frequency with which each is the largest contributor sits near 0.25 for all four, and 15 percent of (pLCA, method) cells have a gap between the top two below two Monte Carlo standard errors. |
+| **What it blocks** | Stage 2d was asked for the relative W1 at which the flip probability crosses 1, 5 and 10 percent. Two of those three levels sit BELOW the noise floor of the existing results, so they cannot be read from them at any sample size of datasets. |
+| **The fix, and whose it is** | Common random numbers: one uniform variate per material per iteration, pushed through every method's inverse CDF, which makes two identical models produce identical draws and takes the floor to exactly zero. `families.rvs_from_uniform` was built for this in Stage 2b and had not been used since. Stage 2d implements it in `src/flip.py` and uses it for the CALIBRATION only. **Installing it in the study's own pLCA belongs to Stage 2e**, and Stage 2d wrote no pLCA result and replaced nothing. |
+| **Fix** | **Analysis, Stage 2e**, then text. The manuscript must say which comparisons are paired and which are not, because a reported difference between two methods' downstream results currently carries this floor. |
+| **Status** | Open, owner 2e. Measured and quantified here. Decision 91. |
+
+## 83. The uniform-to-variable distance is mostly a SHIFT OF THE MEAN, which simplifies the practitioner rule
+
+| | |
+|---|---|
+| **The question** | `w_v_uw_wasserstein`, the study's headline weighting characteristic, is W1 between the uniform-weighted and the variable-weighted version of one dataset. W1 is bounded below by the absolute difference in the two means, so the characteristic may be substantially measuring how far reweighting moves the mean rather than any change of shape. |
+| **The split** | `location = abs(weighted mean - unweighted mean)`, which is that bound exactly; `shape = W1 - location`, non-negative by the inequality. `src/weighting.py`, table `TABLE_WeightingLocationShape.csv`. |
+| **The answer** | **Mostly location.** See the numbers recorded in decision 92. |
+| **Why it is a good outcome** | A practitioner who wants to know whether market shares matter for their category does not need a distributional calculation. They need a weighted mean, which is a spreadsheet column, and the guidance can be stated that way. |
+| **Fix** | **Text.** State the decomposition and the share, and state the practitioner rule in terms of the weighted mean rather than a Wasserstein distance. |
+| **Status** | Open. Decision 92. |
+
+## 84. A_IQR DOES NOT MEASURE WHAT DECISION 90 EXPECTED IT TO, and the reason is dimensional
+
+| | |
+|---|---|
+| **What was expected** | Decision 90 adopted A_IQR from the author's KL2 paper as the instrument for "how safe is assuming uniform weights", on the reasoning that the Stage 2c probe found dispersion rather than size to be what drives whether weighting matters (Spearman +0.693 with the coefficient of variation against -0.569 with log n), and that A_IQR, being a dispersion-of-the-density measure, would inherit that. |
+| **What is measured** | It does not. A_IQR tracks the NUMBER OF EPDs almost perfectly and barely responds to dispersion at all. The correlations are in decision 94. |
+| **Why, and it is structural rather than a defect in the implementation** | A probability density carries units of 1 / x, so integrating a difference of two densities over x is dimensionless, and A_IQR is therefore EXACTLY invariant under rescaling the data: multiply every ECC by a constant and the densities shrink by precisely the factor the lattice stretches. This is verified to ten decimal places over seven orders of magnitude in `tests/test_weighting.py`. A measure that cannot see a change of scale cannot see dispersion either. What A_IQR does see is how many kernels the Dirichlet weight noise is averaged over, and it falls roughly as n to the power -0.37. |
+| **What A_IQR IS good for** | It is the right answer to KL2's question, which is how confident the uncertainty MODEL is, and it is published, so this paper can cite rather than re-derive. It is reported for exactly that. |
+| **What answers this paper's question instead** | The distance between the uniform-weighted fit and the fit under a drawn market share, in units of the dataset's own mean. That is not scale free in the same sense, it does respond to dispersion, and it is the axis the flip probability is calibrated on, because a pLCA ranks materials by absolute contribution. |
+| **Fix** | **Text.** Report A_IQR with a citation to KL2 and say plainly that it is a property of dataset size; make the practitioner statement on the mean-relative measure. Decision 90 said that where this paper differs from KL2 it must say so, and this is such a place: the divergence is not in how A_IQR is computed but in what it is asked to do. |
+| **Status** | Open. Decisions 90 (narrowed) and 94. |
+
+## 85. What a given W1 actually costs: the calibration curve, and what it says about the six methods
+
+| | |
+|---|---|
+| **What the manuscript lacks** | It reports W1 between a fitted model and a target, and asks the reader to accept that a smaller W1 is better without ever saying what a W1 of, say, 0.05 does to an answer. Nothing in the study connected the goodness-of-fit scale to a decision. |
+| **What was built** | For every probabilistic LCA, pairs of fitted models at a controlled separation, run on common random numbers so the Monte Carlo floor is zero, recording whether the identity of the top-contributing material changed and whether the full ranking changed. Logistic regression on log distance, an isotonic fit beside it, and a bootstrap that resamples pLCA GROUPS rather than rows, because the comparisons inside a group share four datasets and one set of variates. |
+| **Why the six UQ methods could not supply the curve on their own** | They never sit close enough together. Over 37,500 comparisons the smallest relative W1 between any two of the six is 0.00022, and the flip rate in the lowest 2 percent of separations is already **14.1 percent**. All three levels being asked about lie below the observed data, and an isotonic fit returns the same crossing for all three because its first block is above the top of them. So the calibration set adds pairs at separations running continuously to zero: the same kernel estimate under uniform weights and under weights moved a fraction of the way toward a Dirichlet draw. |
+| **The curve** | The crossings are in decision 95, with their intervals. |
+| **The check that the device is legitimate** | If the curve describes the DISTANCE rather than where the distance came from, then the six real method pairs -- which are different distribution FAMILIES -- fall on the curve fitted from weighting pairs, wherever the two overlap. They do over most of the range: at separations of 0.021 to 0.036 the calibration gives 0.109 and the method pairs 0.129; at 0.036 to 0.064, 0.180 against 0.166; at 0.064 to 0.122, 0.280 against 0.287. **They diverge at the top**, above a separation of 0.122, where the calibration gives 0.429 and the method pairs 0.604. A cross-family difference of a given size is more consequential than a reweighting difference of the same size, presumably because the families differ in the tails that decide a ranking. The curve therefore UNDERSTATES the flip probability for large cross-family differences and should be read as a lower bound there. |
+| **THE CAVEAT THAT HAS TO TRAVEL WITH EVERY ONE OF THESE NUMBERS** | Every material in this study is normalized to a mean of 1.0 and carries a material use intensity of 1.0, so the four contributions in a pLCA are nearly exchangeable and their ranking is as fragile as it can be made. A real building, where materials differ by orders of magnitude in contribution, is much harder to flip. These crossings are an upper bound on how often a modeling choice changes an answer, which is the conservative direction for a practitioner rule but must not be quoted as a statement about buildings. |
+| **Fix** | **Text.** This is a new result and a new figure, `CompareUQMethods_FIG_FlipCalibration.png`. It is what turns the study's W1 scale into something a reader can act on. |
+| **Status** | Open. Decisions 91, 93 and 95. |
+
+## 86. The relative measure was already there, unnamed, and the normalization is not doing secret work
+
+| | |
+|---|---|
+| **The situation** | Every dataset in this study is divided by its own unweighted mean before anything else happens, so every W1 the study has ever reported is already a W1 divided by a mean. The manuscript nowhere says so, and a reader cannot tell whether a reported 0.05 is an absolute distance in kgCO2e per declared unit or a relative one. |
+| **What was done** | The measure is named and defined explicitly, and the claim is verified rather than asserted: the same quantity was recomputed on the RAW, un-normalized empirical values, in their own units, with dataset means spanning several orders of magnitude. The relative measure is unchanged to within floating point; the absolute W1 moves by exactly the rescaling factor, which is the control that the test is testing something. |
+| **The two robust alternatives** | Dividing by the interquartile range or by the standard deviation instead. All three are computed with UNIFORM weights, which is the decision that matters here: a denominator taken under the variable weights would move when the weights move, which is the quantity being measured, and a practitioner holding a set of EPDs cannot compute a market-weighted mean without already knowing the market shares. |
+| **Which to use** | The mean. See decision 93 for the measured comparison. |
+| **Fix** | **Text.** State that scores are relative to the dataset mean, give the definition once, and say that the alternatives were tested. It moves no number: on a dataset normalized to a mean of 1.0 the named measure IS the reported W1, which `tests/test_weighting.py` pins. |
+| **Status** | Open. Decision 93. |
