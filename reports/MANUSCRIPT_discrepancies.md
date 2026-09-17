@@ -346,7 +346,7 @@ claim. See entries 3, 4 and 6.
 
 ---
 
-## CURRENT CANONICAL NUMBERS, as of Stage 2c closing, 2026-09-16
+## CURRENT CANONICAL NUMBERS, as of the Stage 2c review closing, 2026-09-17
 
 **Read this before working from any entry below.** Entries are appended and never
 rewritten, so an older one may quote a figure that a later stage has moved. This
@@ -451,6 +451,23 @@ the "before".** Every headline below is on a target the model has not seen.
 **Every aggregate is reported equally allocated AND reweighted to the empirical
 size mix**, and the reweighting flips the corpus's family verdict on the mean
 while leaving it on the rank. Entry 62.
+
+### What the Stage 2c REVIEW changed, 2026-09-17, and these supersede the block above
+
+Three settings moved and all three numbers below come from the notebook tables,
+not from an audit script.
+
+| | |
+|---|---|
+| **the bandwidth guard** | `SILVERMAN_MIN_NEFF` **30 to 20**. Decision 80, superseding 75 |
+| **the scoring grid** | **20,000 points, trapezoid quadrature**, from 1,000 atoms. Decision 81. The atom route never converges |
+| **W1, empirical, in-sample mean** | `KDE, Variable` **0.1319** (was 0.1471), `Lognormal, Variable` 0.1683, `KDE, Uniform` 0.1727 (was 0.1806), `Lognormal, Uniform` 0.1985, `Normal, Variable` 0.3599, `Normal, Uniform` 0.3970. **Only the KDE moves materially**, -10.4 and -4.4 percent, because the coarse grid was inflating it |
+| **W1, synthetic, against the parent, mean** | `KDE, Uniform` **0.1220**, `Lognormal, Uniform` 0.1306, `KDE, Variable` 0.1631, `Lognormal, Variable` 0.1699, `Normal, Uniform` 0.2103, `Normal, Variable` 0.2368 |
+| **W1, empirical, cross-validated, mean** | `Lognormal, Uniform` **0.2950**, `Lognormal, Variable` 0.3129, `KDE, Uniform` 0.3198, `KDE, Variable` 0.3437, `Normal, Variable` 0.4789, `Normal, Uniform` 0.4851 |
+| **the paired out-of-sample gaps** | synthetic parent, lognormal minus KDE: **+0.0086** uniform, **+0.0068** variable, both distinguishable. Empirical cross-validated: **-0.0247** and **-0.0309**, both distinguishable |
+| **the headline by material** | structural categories at n >= 100, 23 datasets and 83 percent of the arm's values: the KDE closest on **69.6 percent** under uniform weighting. Entry 73 |
+| **visible modes, empirical** | **68.5 percent** with one mode at the bandwidth the study fits, 94.6 at scipy's default. Entry 70 |
+| **the pLCA** | only the two KDE methods move, 12.3 percent of rows, mean `eci_rank_1` change 0.0016. The lognormal and normal rows are bit-identical |
 
 ### What Stage 2a-3 changed, entry by entry
 
@@ -915,9 +932,10 @@ relative figure beside it.**
 | **The level** | Against a 200,001-point lattice on the same interval the study's criterion is off by a median of 0.20 percent on the empirical arm and 0.11 percent on the synthetic, with a p99 of about 14.5 percent on both. It picks a different winner on **1.36 percent** of empirical and **0.50 percent** of synthetic datasets. |
 | **It is biased BY METHOD, and against the KDE** | Mean W1 on the empirical arm, coarse against dense: `KDE, Variable` 0.1471 against 0.1406, a **+4.7 percent** bias, and `KDE, Uniform` +2.9 percent, against +0.2 percent for both lognormals. The KDE's CDF has the most structure at the scale of a grid cell, and it is the method under test. |
 | **It does not reach a conclusion, and that is what decides it** | The discretization is common to all six methods on a given dataset, so it moves the LEVEL of every score and not the gap between two of them. The paired cross-validated KDE-minus-lognormal difference on the empirical arm is **-0.0340 at the study's grid and route, -0.0341 integrating the same grid as two CDFs, and -0.0339 at 20,000 points**. It cancels. |
-| **One free improvement that is NOT being taken** | On the same 1,000 points, integrating |F_model - F_empirical| directly has a p99 relative error of 2.5 percent against the atom route's 14.5 percent, at the same cost. Switching would move every reported number by up to a few percent and change no conclusion, so it is an author decision rather than a Stage 2c one. |
-| **Fix** | **Text, one sentence** stating the grid and that its discretization was measured and cancels in the paired comparisons. |
-| **Status** | Open. `audits/scoring_grid_error.py`. |
+| **SUPERSEDED, and the first reading was wrong twice** | This entry said the trapezoid route was a free improvement not being taken, and that the discretization cancels. Both need correcting. **It is not simply better**: at 1,000 points the atom route is better TYPICALLY, median 0.00134 against 0.00218, because the data's empirical CDF is a step function that a discrete-to-discrete distance handles exactly. And it cancels only in the CROSS-VALIDATED comparison; the IN-SAMPLE paired difference moves from -0.0184 to -0.0229 under uniform weighting. |
+| **What actually decided it** | **The atom route never converges.** Adding points does not extend the grid, whose top is `max(x) + 10 sd` whatever the count, so a model with mass beyond it keeps losing that mass: p99 relative error sticks at 0.0379 from 20,000 points through 100,000 while trapezoid goes 0.0039 to 0.0010 to 0.0002. |
+| **Fix** | **Analysis, DONE.** 20,000 points and trapezoid quadrature, decision 81. The text owes a sentence stating the grid and that the quadrature was taken to convergence, and should note that the change lowers the KDE's absolute scores by 3 to 5 percent while leaving every out-of-sample comparison intact, because a reader will ask. |
+| **Status** | RESOLVED in analysis; one sentence owed in the text. Decision 81. `audits/scoring_grid_error.py`. |
 
 ## 62. Post-stratification, and the empirical stratum shares were recorded for a 149-dataset arm
 
@@ -981,9 +999,10 @@ relative figure beside it.**
 |---|---|
 | **The question** | Entry 60 reported that the parent referee prefers pure Silverman to the guarded rule, which invites the response that the threshold should be adjusted rather than the guard abandoned. |
 | **Swept** | `SILVERMAN_MIN_NEFF` over 0, 5, 10, 15, 20, 30, 50, 100, 200 and infinity. **The two criteria disagree.** Held-out likelihood peaks at 20 to 30 on both arms; W1 against the parent peaks at **5**, where mean W1 is 0.1355 against pure Silverman's 0.1367 and the current 30's 0.1400. **So the parent referee argues against this THRESHOLD, not against the guard**, and entry 60 was too broad. |
-| **Kept at 30** | Moving it to improve W1 would be tuning the setting on the criterion the study reports, which is exactly what decision 54 avoided and what makes the choice answerable. The span 20 to 30 differs by about 1 percent of either criterion. |
-| **Fix** | **Text, half a sentence**: state that the threshold was swept on both criteria, that they disagree, and that the value was kept at the held-out-likelihood optimum rather than moved to the W1 optimum, on purpose. |
-| **Status** | Open. Decision 75. `audits/guard_threshold_sweep.py`. |
+| **MOVED TO 20, reversing this entry's first recommendation** | It said keep 30, on the grounds that moving it to improve W1 would be tuning on the reported criterion. That is wrong: the reported criterion is IN-SAMPLE W1 and the parent score is an independent out-of-sample truth. |
+| **Why 20 and not 10, which is what a reviewer asks** | Stepping the threshold down one value at a time and measuring what each step buys in parent accuracy per unit of held-out likelihood it costs, **every step from 200 down to 20 is free or better than free** -- 30 to 25 buys 0.65 percent for 0.29, and 25 to 22 and 22 to 20 cost nothing. **The step 20 to 18 is the first that costs more than it buys**, at a marginal ratio of 0.34, and every step below is also below 1. The held-out p05 agrees: flat at about -1.62 from 200 to 18, then -1.65 at 15, -1.72 at 10, -1.88 at 5. |
+| **Fix** | **Analysis, DONE**, plus half a sentence of text: the threshold was swept on both criteria, they disagree, and 20 is the smallest value reachable by steps that each cost nothing on the criterion the guard protects. |
+| **Status** | RESOLVED in analysis. Decision 80, superseding 75. `audits/guard_threshold_sweep.py`. |
 
 ## 68. The bandwidth documentation described a rule the code does not run
 
@@ -1038,3 +1057,26 @@ relative figure beside it.**
 | **And the counterpart** | On REAL data the three-parameter lognormal is indistinguishable from gamma and from the two-parameter form out of sample (entry 59). The separation between them is a synthetic-arm result. |
 | **Fix** | **Text.** State which lognormal is being compared, every time. "Lognormal" without a parameter count is ambiguous across a factor that matters more than the gap to the KDE at small n. |
 | **Status** | Open. |
+
+## 73. The method comparison by material, and the result the paper should lead with
+
+| | |
+|---|---|
+| **Why** | Entry 71 says every aggregate weights the 147 categories equally and that this is not the question the paper asks. This is the stratification that answers it. `src/materialclass.py` splits the arm into the structural frame and its binders, the envelope, and everything else, from published building-LCA hot-spot practice. **It reads only the category NAME**, and `tests/test_materialclass.py` drives the whole assignment on a frame with no value column, so a tier cannot have been drawn after seeing which method won on it -- the same constraint decisions 43, 46 and 60 impose on the category rules. |
+| **Result, empirical arm, cross-validated, share of datasets on which each method is closest within its weighting scheme** | **structure** (41 datasets, 98,216 values): `KDE, Uniform` **0.488** against `Lognormal, Uniform` 0.341; under variable weighting the lognormal leads 0.488 to 0.317. **envelope** (32, 3,869): the lognormal leads 0.625 to 0.188 and 0.719 to 0.062. **other** (54, 14,578): the lognormal leads 0.537 to 0.259 and 0.537 to 0.204. |
+| **And the conjunction the paper should lead with** | **structural categories with n >= 100: 23 datasets holding 97,438 values, 83 percent of everything in the arm.** `KDE, Uniform` is closest on **69.6 percent** of them against the lognormal's 26.1, mean cross-validated W1 **0.0658 against 0.0737**; under variable weighting 47.8 against 43.5, 0.0808 against 0.0844. |
+| **It is not a fished subgroup** | The tiers were fixed in `materialclass.py` before any result was looked at, and n = 100 is the crossover established independently in entry 65. It is a conjunction of two prior findings. |
+| **What it is not** | An importance weight. It is a stratification, and every number in it is a plain mean within a named group. Weighting categories by n was considered and rejected: that weights by how many EPDs a manufacturer happened to publish, which correlates with the dimension the KDE wins on. The principled versions are Stage 2i's real-building anchor and entry 69's pLCA-against-truth. |
+| **Fix** | **Text, and it is the paper's strongest honest claim.** Report the unweighted category average as primary, then this. `TABLE_MaterialTiers.csv` must be published so a reader can check the classification. |
+| **Status** | Open. Decision 83. `CompareUQMethods_FIG_MethodByMaterial.png`. |
+
+## 74. Notebook 2 held a second copy of the scoring criterion
+
+| | |
+|---|---|
+| **What** | Notebook 2 cell 23 computed the synthetic arm's W1 with an inline `wasserstein1_weighted` call instead of `fitting.score_w1_model`. It was a second implementation of the study's criterion, in the notebook, outside the tested module. |
+| **What it cost** | When `fitting.W1_ROUTE` moved to trapezoid quadrature (decision 81) the cell silently kept the old one, so the same quantity appeared in `TABLE_SyntheticECCMetricsAndW1.xlsx` and in `TABLE_MethodScores.csv` with values differing by **up to 9 percent**. |
+| **How it was found** | `tests/test_regression.py::test_synthetic_fits_and_w1_recomputed`, which drives the production path and compares it to the notebook's own output. That is precisely what the test exists for and it worked. |
+| **Fix** | **Code, done.** Cell 23 calls `score_w1_model`. Notebook 3's two inline `wasserstein1_weighted` calls are a DIFFERENT quantity -- W1 between two fitted models, with no empirical CDF in it -- and are correct as they stand. |
+| **Why it is in this log** | It is the same duplication Stage 1 removed from the FITTING block, reappearing in the SCORING block, and it says the lesson has to be applied to every criterion the paper reports, not only to the fit. **No manuscript number was ever published from the wrong copy**: it was caught in the same session that created it. |
+| **Status** | RESOLVED. |
