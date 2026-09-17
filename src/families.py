@@ -195,7 +195,7 @@ class WeightedKDE:
 
         This is the same construction `modality._BinnedKDE` uses for the
         critical-bandwidth search and for the same reason. Linear binning
-        splits each point's weight between its two neighbouring nodes, which is
+        splits each point's weight between its two neighboring nodes, which is
         second-order accurate where histogram binning is first-order; the
         Gaussian kernel's Fourier transform is itself a Gaussian, so the
         convolution needs no kernel array.

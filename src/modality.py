@@ -1,6 +1,6 @@
 """Modality on a principled footing: Silverman's critical bandwidth.
 
-The metric this replaces, `customstats.estimate_maxima`, is labelled
+The metric this replaces, `customstats.estimate_maxima`, is labeled
 "Mode Count" but returns
 
     (sum of local maxima heights - sum of local minima heights) / max height
@@ -72,7 +72,7 @@ class _BinnedKDE:
         self.grid = np.linspace(x.min() - pad, x.max() + pad, grid_n)
         self.delta = float(self.grid[1] - self.grid[0])
         # linear binning: each point splits its weight between its two
-        # neighbouring grid nodes, which is second-order accurate where simple
+        # neighboring grid nodes, which is second-order accurate where simple
         # histogram binning is only first-order
         pos = (x - self.grid[0]) / self.delta
         i0 = np.clip(np.floor(pos).astype(int), 0, grid_n - 2)
@@ -239,6 +239,69 @@ def fit_mixture_bic(x, rng, kmax=5):
 # ---------------------------------------------------------------------------
 # Modes you can see, as distinct from modes a test can detect.
 # ---------------------------------------------------------------------------
+def n_modes_fitted(x, weights=None, prominence=0.05, grid_n=1024,
+                   bw_method=None):
+    """Visible modes of the density THE STUDY ACTUALLY FITS.
+
+    THE FIGURE TO REPORT, and `n_modes_visible` is not it. That function counts
+    modes of `scipy.stats.gaussian_kde(x)` at its DEFAULT bandwidth, which is
+    Scott's rule, which Stage 2c showed oversmooths this data by about 35
+    percent: the bandwidth minimizing W1 against the known parent sits at 0.46 to
+    0.56 of Scott's. A mode counter at an oversmoothing bandwidth undercounts
+    modes, and the consequence is not small. The share of empirical datasets with
+    exactly one visible mode is 94.6 percent at scipy's default, 73.1 percent at
+    0.74 of it and 55.4 percent at 0.6. **The "95 percent unimodal" figure the
+    manuscript quotes as a property of ECC data is a property of a smoothing
+    choice.** `audits/visible_modes_bandwidth.py`.
+
+    This counts the modes of the density the study puts in front of a reader and
+    samples from in the pLCA, at `fitting.BW_METHOD`. That needs no invented
+    multiple and no new parameter, and it is the honest answer to "how many humps
+    does this dataset have" for a paper whose method IS that density.
+
+    WHY `n_modes_visible` IS NOT SIMPLY REPLACED. It is the generator's tuning
+    target (decision 38), and changing a tuning target implies a retune, which
+    generation being closed forbids. It does not need replacing: measured at THIS
+    bandwidth the two arms still agree, 73.85 percent unimodal empirical against
+    77.76 synthetic and a total variation of 0.0392, and reweighting the corpus to
+    the empirical mode mix moves the method comparison by 0.0003
+    (`audits/modality_reweighting.py`). So the corpus is fine and only the
+    reported number was wrong.
+    """
+    import fitting as _ft
+
+    x = np.asarray(x, float)
+    x = x[np.isfinite(x)]
+    if len(x) < 8 or np.std(x) <= 0:
+        return 1
+    w = (np.ones(len(x)) / len(x) if weights is None
+         else np.asarray(weights, float))
+    w = w / w.sum()
+    try:
+        model, _ = _ft.fit_kde(x, w, bw_method=bw_method or _ft.BW_METHOD)
+    except Exception:
+        return 1
+    grid = np.linspace(float(x.min()), float(x.max()), grid_n)
+    y = np.asarray(model.pdf(grid), float)
+    return _count_prominent(y, prominence)
+
+
+def _count_prominent(y, prominence):
+    """Local maxima of `y` clearing `prominence` of the tallest peak."""
+    from scipy.signal import argrelextrema
+
+    idx = argrelextrema(y, np.greater)[0]
+    if not len(idx) or not y.max() > 0:
+        return 1
+    kept = 0
+    for i in idx:
+        left = y[:i].min() if i > 0 else y[i]
+        right = y[i + 1:].min() if i < len(y) - 1 else y[i]
+        if (y[i] - max(left, right)) / y.max() >= prominence:
+            kept += 1
+    return max(kept, 1)
+
+
 def n_modes_visible(x, prominence=0.05, grid_n=512):
     """Count local maxima of a default-bandwidth KDE, by prominence.
 
@@ -260,6 +323,12 @@ def n_modes_visible(x, prominence=0.05, grid_n=512):
     `prominence` is the height a peak must clear above the higher of the two
     valleys flanking it, as a fraction of the tallest peak. 0.05 keeps the
     shoulders a reader would call a second hump and drops ripple.
+
+    **DO NOT QUOTE THIS FUNCTION'S OUTPUT AS A PROPERTY OF THE DATA.** It counts
+    at `gaussian_kde`'s DEFAULT bandwidth, which is Scott's rule, which
+    oversmooths this data by about 35 percent, so it undercounts. It is kept
+    because it is the generator's tuning target (decision 38) and a tuning target
+    cannot move without a retune. `n_modes_fitted` is the figure to report.
     """
     from scipy.stats import gaussian_kde
     from scipy.signal import argrelextrema

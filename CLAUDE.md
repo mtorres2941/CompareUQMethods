@@ -82,7 +82,7 @@ appointment at Bath, but is not an author on the present paper:
   the impact data and the production volumes. Useful as a reference for
   realistic weight concentration: in their steel case, Rest-of-World BOF alone
   is 63.75 percent of global production while Austrian EAF is 0.03 percent.
-- **Marsh, Lewis, Hattam and Allen (in press)**, "Uncertainty characterisation
+- **Marsh, Lewis, Hattam and Allen (in press)**, "Uncertainty characterization
   for construction products and comparative metrics for probabilistic building
   LCA." Six uncertainty characterisation scenarios applied to a four-option
   staircase comparison, evaluated with four comparative metrics. Two findings
@@ -133,7 +133,7 @@ several define methods this analysis implements directly.
   restate what a commit message, a handoff or a table already says; point at it.
 - **All communication between sessions goes through the handoff and discrepancy
   files, never through chat.** When a session ends, the author's job is to hand
-  the next session a FILE, nothing else. Do not also summarise that file's
+  the next session a FILE, nothing else. Do not also summarize that file's
   contents back to the author as chat text: it reads as a separate set of
   instructions they have to act on, and it makes the file look incomplete. If
   something belongs in the next session's hands, it goes in the file; if it is
@@ -461,7 +461,7 @@ rather than in conversation.
     n at 749 via 824 removals on size alone, and flagged 14 datasets on a
     column that is 1.0 by construction.
 21. **2026-09-11, Stage 2a. Market share attaches at the mode level**, with a
-    coupling parameter that reduces to the old uncoupled behaviour at 0.
+    coupling parameter that reduces to the old uncoupled behavior at 0.
     `[AUTHOR]` Both weighting schemes now have a population to be right or
     wrong about.
 22. **2026-09-11, Stage 2a. Components are moment-targeted Johnson-system and
@@ -851,7 +851,7 @@ rather than in conversation.
 54. **2026-09-14, Stage 2b. The KDE bandwidth is Silverman's robust rule, guarded
     by a minimum EFFECTIVE sample size.** `[AUTHOR]` `BW_METHOD =
     'silverman_guarded'`, `customstats.SILVERMAN_MIN_NEFF = 30`. This resolves
-    the KL1 / KL2 / this-paper inconsistency of decision 9 and entry 10 in favour
+    the KL1 / KL2 / this-paper inconsistency of decision 9 and entry 10 in favor
     of the rule Torres et al. (2026) uses and defends.
 
     **The guard swaps the SCALE ESTIMATE, not the rule.** It is Silverman's
@@ -1127,7 +1127,7 @@ rather than in conversation.
 
     **DECISION 48'S PREMISE IS PARTLY WITHDRAWN.** It recorded that no generator
     parameter could reach an empirical coefficient of variation of 14.34. That
-    figure was inflated by two mislabelled records. The real target is 6.93, the
+    figure was inflated by two mislabeled records. The real target is 6.93, the
     gap is about half what it was, and the uncovered categories are no longer
     what decision 48 listed. **The coverage claim and the figure must be restated
     from the rebuilt tables, not from decision 48's numbers.**
@@ -1300,7 +1300,7 @@ rather than in conversation.
     is withdrawn.** Out of sample, on those 65 empirical datasets, gamma wins 47.7
     percent -- a coin flip -- and on the `interior` datasets it wins 61.4 percent,
     the opposite direction. **No hybrid estimator**, which is what the
-    measurements favour least. Entry 59.
+    measurements favor least. Entry 59.
 
 71. **2026-09-16, Stage 2c. The bandwidth was re-examined against the parent. It
     confirms Scott is wrong and does NOT confirm the guard, and nothing was
@@ -1385,7 +1385,7 @@ rather than in conversation.
 
     NOT the halving: at fit fractions 0.5, 0.7, 0.8 and 0.9 the empirical deficit
     is -0.0670, -0.0684, -0.0663, -0.0665, so the 50/50 split is the protocol
-    most favourable to the KDE of the four. NOT the evaluation protocol at all:
+    most favorable to the KDE of the four. NOT the evaluation protocol at all:
     against the known parent, fitting on every value, it is -0.0172 uniform and
     -0.0228 variable. NOT the over-dispersion: the fitted KDE's spread is 1.19x
     the data's at n = 10-99, but correcting it exactly moves the deficit only
@@ -1506,3 +1506,125 @@ rather than in conversation.
     is a limitation of the generator and is the more important finding. Stage 2h's
     `mode_share_alpha` sweep can bracket it; only real production volumes would
     settle it.
+
+80. **2026-09-16, Stage 2c review. `SILVERMAN_MIN_NEFF` MOVES FROM 30 TO 20. This
+    SUPERSEDES decision 75**, which said it stays at 30. `[AUTHOR]` Stated
+    explicitly because CLAUDE.md forbids reversing a decision silently, and
+    decision 75 was written hours earlier in the same review.
+
+    **What was wrong with 75's reasoning.** It argued that moving the threshold to
+    improve W1 against the parent would be tuning the setting on the criterion the
+    study reports. It would not: the reported criterion is IN-SAMPLE W1, and the
+    parent score is an independent out-of-sample truth. The author pushed back on
+    exactly that point and was right.
+
+    **WHY 20 AND NOT 10, which is the question a reviewer asks.** Step the
+    threshold down one value at a time and measure what each step buys in parent
+    accuracy per unit of held-out likelihood it costs. Every step from 200 down to
+    20 is free or better than free -- 30 to 25 buys 0.65 percent for 0.29, and 25
+    to 22 and 22 to 20 cost nothing at all. **The step 20 to 18 is the first that
+    costs more than it buys**, at a marginal ratio of 0.34, and every step below
+    it is also below 1. The held-out p05, which is the failure the guard exists to
+    repair, says the same from the other side: flat at about -1.62 from 200 down
+    to 18, then -1.65 at 15, -1.72 at 10, -1.88 at 5.
+
+    So 20 is the smallest threshold reachable by steps that each cost nothing on
+    the criterion the guard protects. It is not a round number and it is not the
+    W1 optimum, which is 5 and would cost 17 percent of that p05.
+    `audits/guard_threshold_sweep.py`, entry 67.
+
+81. **2026-09-16, Stage 2c review. The scoring grid becomes 20,000 points with
+    TRAPEZOID quadrature, because the atom route never converges.** `[AUTHOR]`
+    "I'm fine with 20,000 atoms - I was worried about computation time but if that
+    actually converges and is more accurate, let's do it." It does not converge,
+    and that condition is what selected the route.
+
+    W1 is the area between two CDFs. The study evaluated the model's DENSITY at
+    1,000 grid points, treated them as weighted atoms, and took the discrete
+    Wasserstein distance to the data. The alternative evaluates the model's CDF on
+    the same points and integrates the absolute difference.
+
+    **NEITHER ROUTE IS SIMPLY BETTER AT 1,000 POINTS, and an earlier draft of this
+    claimed otherwise and was corrected by a test that failed.** Against a
+    400,001-point reference, relative error median / p99 / max: atoms
+    0.00134 / 0.1359 / 1.385, trapezoid 0.00218 / 0.0228 / 0.200. The atom route
+    is better TYPICALLY, because the data's empirical CDF is a step function that
+    a discrete-to-discrete distance handles exactly, and far worse in the tail.
+
+    **THE DECIDING FACT: the atom route has a floor it cannot get below.** Adding
+    points does not extend the grid, whose top is `max(x) + 10 sd` whatever the
+    point count, so a model with mass beyond it keeps losing that mass. Its p99
+    relative error sticks at 0.0379 from 20,000 points through 100,000, while the
+    trapezoid route goes 0.0039 to 0.0010 to 0.0002. The paired in-sample
+    KDE-minus-lognormal difference saturates at -0.0218 for atoms against a true
+    -0.0229.
+
+    **THE CHANGE FAVORS THE METHOD THE PAPER IS ABOUT, so it is justified on the
+    convergence table and nothing else.** The coarse grid inflated the KDE's score
+    by 3 to 5 percent against 0.2 percent for the lognormal, because the KDE's CDF
+    has the most structure at grid scale. The in-sample paired difference moves
+    from -0.0184 to -0.0229 (uniform) and -0.0216 to -0.0278 (variable). **The
+    CROSS-VALIDATED comparison does not move, -0.0340 against -0.0339**, so no
+    out-of-sample conclusion of Stage 2c depends on it. `fitting.W1_ROUTE`,
+    `SCORE_GRID_POINTS`, entry 61, `audits/scoring_grid_error.py`.
+
+82. **2026-09-16, Stage 2c review. Decision 78 is NARROWED: the reported
+    unimodality figure is wrong, and the CORPUS IS FINE.** `[AUTHOR]` Decision 78
+    said the corpus under-represents multimodal datasets by a factor of six and is
+    therefore biased against the KDE. That was measured at an arbitrary 0.74
+    multiple of scipy's default bandwidth and does not survive a better choice.
+
+    **Measured at the bandwidth the study ACTUALLY FITS** -- `silverman_guarded`
+    at the threshold of 20 settled by decision 80, which is the density a reader
+    is shown and the pLCA samples from, and which needs no invented multiple --
+    one visible mode is **68.46 percent empirical against 76.23 synthetic**, two
+    modes 26.15 against 20.46, three or more 5.38 against 3.31, total variation
+    0.0777. The corpus does under-represent the multi-humped datasets, by a factor
+    of 1.6 rather than decision 78's 6.
+
+    **AND IT DOES NOT MATTER: reweighting the corpus to the empirical mode mix
+    changes the KDE-minus-lognormal difference by 0.0004 under uniform weighting
+    and 0.0002 under variable.** That is the measurement that decides it, not the
+    size of the mismatch. `audits/modality_reweighting.py`.
+
+    **So generation is NOT reopened**, decisions 47, 48 and 55 unchanged, and the
+    author's offer to rebuild the corpus is declined on the evidence. What stands
+    from decision 78 is the part about the REPORTED figure: 95 percent unimodal is
+    a property of Scott's bandwidth, it is about 74 percent at the fitted
+    bandwidth, and the manuscript must say which bandwidth it is quoting.
+    `modality.n_modes_fitted` is the figure to report; `n_modes_visible` stays as
+    the generator's tuning target with a docstring saying so. Entry 70.
+
+    Worth keeping from the mode split: **modality helps the KDE without being
+    necessary to it.** It is closest on 74 percent of visibly unimodal datasets,
+    80 percent of bimodal and 89 percent of those with three or more, so its
+    advantage is present in the unimodal majority and merely larger where there
+    are several humps.
+
+83. **2026-09-16, Stage 2c review. The comparison is reported BY MATERIAL as well
+    as by dataset, and the tiers are fixed on names before any result is seen.**
+    `[AUTHOR]` "I think it's worth picking apart which materials are most relevant
+    for embodied carbon (structural materials) and which aren't."
+
+    Weighting categories by n was considered and rejected by the author in the
+    same message: it would weight by how many EPDs a manufacturer happened to
+    publish, which is a property of the market's paperwork rather than of a
+    building, and it correlates with the dimension the KDE wins on.
+    `src/materialclass.py` splits instead by what a material IS, in the standard
+    hot-spot ordering: the structural frame and its binders, the envelope, then
+    everything else. **It reads only the category NAME**, and
+    `tests/test_materialclass.py` drives the whole assignment with no data in the
+    room, which is the same constraint decisions 43, 46 and 60 impose on the
+    category rules.
+
+    **The result is the paper's strongest statement.** On the 23 structural
+    categories with at least 100 EPDs -- 83 percent of every value in the arm, and
+    the materials that dominate embodied carbon -- the KDE is closest on **70
+    percent** of datasets under uniform weighting, mean cross-validated W1 0.0659
+    against the lognormal's 0.0739. On the envelope and on everything else the
+    lognormal wins. **The subgroup is not fished**: the tiers were fixed before any
+    result was looked at and n = 100 is the crossover established independently.
+
+    It is a stratification and not an importance weight. The principled versions of
+    that are Stage 2i's real-building anchor and the pLCA-against-truth of entry
+    69. Entry 71.

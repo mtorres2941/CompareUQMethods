@@ -461,7 +461,7 @@ def average_overlap(comps, pi, grid_n=120):
     return float(np.mean(om[iu]))
 
 def min_adjacent_overlap(comps, pi, grid_n=120):
-    """Smallest overlap between NEIGHBOURING components, by location.
+    """Smallest overlap between NEIGHBORING components, by location.
 
     The quantity to control, in place of the average, once k > 2.
 
@@ -475,7 +475,7 @@ def min_adjacent_overlap(comps, pi, grid_n=120):
     SMALLEST pairwise overlap is 0.00000 at k = 3, 4 and 5 while the median
     average is 0.028, 0.060 and 0.091.
 
-    Neighbouring rather than all pairs, because in one dimension the outermost
+    Neighboring rather than all pairs, because in one dimension the outermost
     pair of a five-component mixture is legitimately far apart; that is not what
     makes a density look wrong. What makes it look wrong is a GAP, and a gap is
     a consecutive pair with no overlap. The empirical arm agrees: its smallest
@@ -543,7 +543,7 @@ def solve_spread_for_overlap(build, target, lo=1e-4, hi=1e4, tol=1e-3,
 
     `statistic` selects what is held to the target: 'average' is the
     Maitra-Melnykov average pairwise overlap, and 'min_adjacent' is the smallest
-    overlap between neighbouring components. See min_adjacent_overlap for why
+    overlap between neighboring components. See min_adjacent_overlap for why
     the average stops being the right quantity once k > 2.
 
     This is Maitra and Melnykov's step 3, with the roles of scale and location

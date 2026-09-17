@@ -1,7 +1,7 @@
 # Regression fixtures
 
 Reference artifacts for the Stage 1 refactor. They exist so that a phase
-labelled NEUTRAL can be proven not to have changed any result. They are not a
+labeled NEUTRAL can be proven not to have changed any result. They are not a
 claim that these values are methodologically correct: several known defects
 are still present in the code that produced them, and Stage 2 will deliberately
 change many of these numbers.

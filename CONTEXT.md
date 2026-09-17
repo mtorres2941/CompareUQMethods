@@ -41,7 +41,7 @@ CompareUQMethods/
 │   │                          known parent, cross-validation, the
 │   │                          fit-versus-definitional split, regret,
 │   │                          post-stratification, the paired bootstrap
-│   ├── datavisualization.py   one colour helper
+│   ├── datavisualization.py   one color helper
 │   ├── funcs_unit_conversion.py  EC3 unit normalization
 │   └── dct_metriclabels.json  display labels for the 22 metrics
 ├── audits/                    one-off measurement scripts, each named for what
@@ -355,7 +355,7 @@ against its parent and the empirical arm is cross-validated at ten repeats.
 `combos.txt`. Nothing reads them any more. Byte-identical copies with verified
 checksums are in `data/baseline_frozen/`; see `data/INPUTS.sha256`.
 
-The analysed set is the corpus minus the probe set: **9,999 datasets, not
+The analyzed set is the corpus minus the probe set: **9,999 datasets, not
 10,000**, sizes 3 to 9,999, stratified 2,500 per stratum over 3-9, 10-99,
 100-999 and 1000-9999 except the second, which holds 2,499 because one parent
 failed to solve and was reported rather than approximated. Plus a 50-dataset
@@ -522,7 +522,7 @@ the worst observed value.
 | `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
 | `test_comparison.py` | 10 | held-out W1 is undefined below n = 10 rather than computed from two points, is worse than in-sample for the flexible method, and removes most of W1's bandwidth sensitivity without replacing it with a sharp optimum; the model-spread ratio catches a tail W1 does not; ranks are within-dataset and invariant to rescaling a dataset; the curve window scales to the arm instead of assuming the corpus; all six methods share each held-out split, so the comparison is paired |
 | `test_recovery.py` | 26 | the parent spec round-trips exactly and the overlap displacements are NOT in the generation record, which is why the replay exists; a recovery score is zero when the model IS the parent and rises as it moves away; the grid always covers the parent; the two weightings are scored against different parents; the tail charge catches a far tail the body score does not; cross-validation is undefined below n = 10, penalizes the flexible method relative to in sample, and is paired across methods; the decomposition satisfies its own inequality and the definitional term is identical across uniform methods and zero for variable ones; regret is zero for the winner; post-stratification moves an aggregate toward the common band and the empirical shares are measured not assumed; a win share only moves when the WINNER moves, which is why the empirical headline is stated as one; the paired bootstrap finds a real gap and not an imaginary one |
-| `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbours on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
+| `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbors on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch

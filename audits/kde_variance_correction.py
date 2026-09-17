@@ -127,8 +127,9 @@ def main(n_synth=N_SYNTH):
         lambda g: float((g.kde < g.lognormal).mean()), include_groups=False)
     print(t.to_string(float_format=lambda v: f'{v:.4f}'))
     print()
-    print('EACH KDE VARIANT MINUS THE LOGNORMAL, paired against the parent.')
-    print('POSITIVE MEANS THE KDE VARIANT IS BETTER. `*` = interval excludes zero.')
+    print('THE LOGNORMAL MINUS EACH KDE VARIANT, paired against the parent.')
+    print('POSITIVE MEANS THE KDE VARIANT IS BETTER, because these are')
+    print('distances and the lower one wins. `*` = interval excludes zero.')
     for wt in ('Uniform', 'Variable'):
         for band in [b[0] for b in R.SIZE_BANDS]:
             g = d[(d.weighting == wt) & (d.size_band == band)]

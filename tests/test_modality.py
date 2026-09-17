@@ -83,3 +83,40 @@ def test_mixture_fit_recovers_two_components():
     k, pi, mu, sd = MD.fit_mixture_bic(x, rng)
     assert k == 2
     assert sorted(np.round(mu)) == [-3.0, 3.0]
+
+
+def test_n_modes_fitted_counts_the_density_the_study_fits():
+    """The reported modality figure must come from the density the paper shows,
+    not from `gaussian_kde`'s default bandwidth, which is Scott's rule and
+    oversmooths this data by about 35 percent."""
+    import fitting as FT
+    rng = np.random.default_rng(3)
+    two = np.concatenate([rng.normal(1.0, 0.08, 120),
+                          rng.normal(2.0, 0.08, 120)])
+    assert MD.n_modes_fitted(two) == 2
+    one = np.abs(rng.lognormal(0.0, 0.5, 300)) + 0.05
+    assert MD.n_modes_fitted(one) == 1
+    # it is the STUDY's bandwidth, so passing that rule explicitly is a no-op
+    assert MD.n_modes_fitted(two) == MD.n_modes_fitted(
+        two, bw_method=FT.BW_METHOD)
+
+
+def test_n_modes_fitted_sees_structure_the_default_bandwidth_smooths_away():
+    """The whole reason the corrected measure exists. A wider bandwidth can only
+    merge modes, never split them, so the fitted count is never the lower of the
+    two and is sometimes higher."""
+    rng = np.random.default_rng(11)
+    higher = 0
+    for _ in range(25):
+        x = np.concatenate([rng.lognormal(0.0, 0.25, 90),
+                            rng.lognormal(0.95, 0.25, 60)])
+        a = MD.n_modes_fitted(x)
+        b = MD.n_modes_visible(x)
+        assert a >= b
+        higher += int(a > b)
+    assert higher >= 1
+
+
+def test_n_modes_fitted_is_defined_at_the_small_end():
+    assert MD.n_modes_fitted(np.array([1.0, 2.0, 3.0])) == 1
+    assert MD.n_modes_fitted(np.ones(50)) == 1

@@ -774,9 +774,15 @@ def paired_bootstrap(scores, value, reference, others=None, by=None,
     on the empirical arm it usually is.
 
     Returns one row per compared method: the mean paired difference, its
-    interval, and the share of datasets on which `reference` is lower. A
-    positive difference means `reference` scored LOWER, which for a distance
-    means better.
+    interval, and the share of datasets on which `reference` is lower.
+
+    **THE SIGN, STATED ONCE BECAUSE IT IS EASY TO INVERT.** `mean_difference` is
+    `mean(method) - mean(reference)`. These are DISTANCES, so lower is better,
+    and a POSITIVE value therefore means the compared method scored higher and
+    the REFERENCE is better. Label any printout as "<method> minus <reference>",
+    never the other way round; two audit scripts got that label backwards while
+    interpreting the numbers correctly, which is exactly how a sign error
+    survives review.
     """
     rng = rng or np.random.default_rng(0)
     others = others or [m for m in scores.method.unique() if m != reference]

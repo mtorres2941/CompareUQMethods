@@ -3,7 +3,7 @@
 These guard the two rules added after the author asked whether records we are
 confident are wrong should simply be excluded. The answer turned on WHERE the
 evidence comes from: a product name is metadata and may be used, a record's
-distance from its neighbours is the dispersion this study measures and may not.
+distance from its neighbors is the dispersion this study measures and may not.
 """
 import os
 import sys

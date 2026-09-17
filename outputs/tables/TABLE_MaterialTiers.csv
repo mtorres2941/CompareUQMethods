@@ -1,0 +1,148 @@
+dataset,tier,n
+AluminiumBillets,envelope,120
+AluminiumExtrusions,envelope,36
+AluminiumSheetGoods,envelope,26
+AluminiumSiding,envelope,3
+AluminiumSuspensionAssembly,envelope,22
+BlanketInsulation [mineral wool],envelope,184
+BlanketInsulation [other],envelope,3
+BlanketInsulation [type not stated],envelope,129
+BlownInsulation [cellulose],envelope,3
+BlownInsulation [type not stated],envelope,16
+BoardInsulation [EPS],envelope,47
+BoardInsulation [PIR or PUR],envelope,50
+BoardInsulation [XPS],envelope,19
+BoardInsulation [mineral wool],envelope,77
+BoardInsulation [other],envelope,7
+BoardInsulation [type not stated],envelope,131
+Brick,envelope,215
+CementBoard,envelope,21
+CementitiousSheathingBoard,envelope,51
+CurtainWalls,envelope,54
+FenestrationFraming,envelope,259
+FlatGlassPanes,envelope,47
+FoamedInPlace [PIR or PUR],envelope,8
+FoamedInPlace [type not stated],envelope,5
+Gypsum,envelope,771
+GypsumSheathingBoard,envelope,19
+InsulatedRoofPanels,envelope,271
+InsulatedWallPanels,envelope,420
+InsulatingGlazingUnits,envelope,32
+MechanicalInsulation,envelope,22
+ProcessedNonInsulatingGlassPanes,envelope,130
+RoofPanels,envelope,61
+SheathingPanels,envelope,71
+SprayedInsulation,envelope,11
+StoneCladding,envelope,19
+UnitSkylights,envelope,17
+WallPanels,envelope,163
+Windows,envelope,358
+AccessFlooring,other,53
+AccessFlooringPedestals,other,13
+AcousticalCeilings,other,412
+Aggregates,other,378
+Asphalt,other,7232
+BackingAndUnderlay,other,45
+BituminousRoofing,other,66
+BlanketFacing,other,28
+CableTrays,other,59
+Carpet,other,1989
+CompositionSiding,other,3
+ConcreteAdmixtures,other,118
+Countertops,other,76
+DampproofingAndWaterproofing,other,162
+DataCabling,other,951
+DeckingBoards,other,7
+DemountablePartitionTrack,other,4
+DemountablePartitions,other,45
+DoorsAndFrames,other,61
+Electrical,other,3
+Elevators,other,20
+FenestrationAccessories,other,17
+FiberCementSiding,other,29
+FireAndSmokeProtection,other,22
+FlashingAndSheetMetal,other,12
+Furnishings,other,7
+GlazedDoors,other,141
+JointProtection,other,5
+Laminate,other,26
+MetalDoorAndFrames,other,42
+MetalRailings,other,13
+MetalStairs,other,5
+Mirrors,other,19
+MiscMetalFabrication,other,69
+NetworkingCableTrays,other,22
+NetworkingRaceways,other,32
+NonStructuralWood,other,57
+OilPatch,other,282
+Openings,other,12
+OtherFlooring,other,217
+PaintingAndCoating,other,19
+PowerCabling,other,398
+ResilientFlooring,other,468
+RoofCoverBoards,other,20
+SinglePlyEPDM,other,29
+SinglePlyKEE,other,11
+SinglePlyPVC,other,74
+SinglePlyPolyurethane,other,27
+SinglePlyTPO,other,62
+SteelSuspensionAssembly,other,98
+StorageFurniture,other,15
+Tables,other,161
+TileGrout,other,43
+TranslucentWallAndRoofAssemblies,other,46
+VinylSiding,other,11
+WallBase,other,14
+WallFinishes,other,173
+WeatherBarriers,other,59
+WindTurbines,other,3
+WoodDoors,other,32
+WoodFlooring,other,86
+WorkSurfaces,other,12
+CMU [3000-3999 psi],structure,137
+CMU [4000-4999 psi],structure,18
+CMU [5000-5999 psi],structure,8
+CMU [<3000 psi],structure,274
+CMU [>=6000 psi],structure,8
+CMU [strength not stated],structure,39
+CastDecksAndUnderlayment,structure,255
+Cement,structure,1084
+CementGrout,structure,3764
+Coil,structure,140
+CompositeLumber,structure,16
+ConcretePaving [3000-3999 psi],structure,108
+ConcretePaving [4000-4999 psi],structure,160
+ConcretePaving [5000-5999 psi],structure,42
+ConcretePaving [<3000 psi],structure,32
+ConcretePaving [strength not stated],structure,38
+DeckingSteel,structure,62
+FlowableFill,structure,2008
+HeavyTimber,structure,5
+Hollow,structure,145
+HotRolled,structure,81
+MBQ,structure,40
+MasonryCement,structure,26
+MassTimber,structure,66
+Mortar,structure,248
+OpenWebMembranes,structure,17
+PlateSteel,structure,72
+PostTensioningSteel,structure,35
+PrecastConcrete,structure,499
+ReadyMix [3000-3999 psi],structure,20814
+ReadyMix [4000-4999 psi],structure,31025
+ReadyMix [5000-5999 psi],structure,14366
+ReadyMix [<3000 psi],structure,3974
+ReadyMix [>=6000 psi],structure,7887
+ReadyMix [strength not stated],structure,8777
+RebarSteel,structure,204
+Shotcrete [3000-3999 psi],structure,183
+Shotcrete [4000-4999 psi],structure,651
+Shotcrete [5000-5999 psi],structure,471
+Shotcrete [<3000 psi],structure,4
+Shotcrete [>=6000 psi],structure,264
+Shotcrete [strength not stated],structure,96
+SupplementaryCementitiousMaterials,structure,28
+Timber,structure,17
+WireMeshSteel,structure,53
+WoodFraming,structure,7
+WoodJoists,structure,5

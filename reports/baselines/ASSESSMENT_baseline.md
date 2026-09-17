@@ -25,13 +25,13 @@ Ratings out of 10, with the evidence each rests on.
 | Performance awareness | 4 | `tqdm` used throughout, so runtime is watched; stale `# takes ~6 minutes for 15k` comment, now 10x pessimistic. Diagnosis was wrong: cost is dpi=1200 rasterization and scalar `.loc` writes, not the mathematics. `np.array([ele for ele in eccs if ele > 0])` appears six times; `np.array([ele**exp for ele in data])` once |
 | Scientific Python idiom | 5 | Competent scipy: `set_bandwidth`, `cumulative_trapezoid`, `argrelextrema`, bounded `minimize` for the weighted MLE. Weak pandas: `df.loc[key] = dict` in loops, object-dtype frames, `pd.Series(index=...)` with no dtype, repeated `.rank()` and `.value_counts()` on frames computable once |
 | Version control and project hygiene | 4 | Real commit messages, an explanatory `.gitignore`, `setup.py`, MIT license, a good README. Against: `setup.py` declares zero dependencies, nothing pinned, the `waterweed` kernel no longer exists, 267 MB of PNGs committed including 15 orphans from two dead naming schemes, and `DATA_all.json` is gitignored |
-| Statistical implementation judgment | 5 | Knowledge is strong (weighted MLE, Shapiro-Francia, Kish, Royston, effective-n bandwidth). Judgment about deployment is weaker: a 27.5% filter keyed to the data's own metrics and preferentially removing high-`weight_outliers` cases, undiscussed; `logfit_offset = 0.5` undocumented; a continuous modality index labelled "Mode Count"; Shapiro-Wilk and Shapiro-Francia compared as if one column |
+| Statistical implementation judgment | 5 | Knowledge is strong (weighted MLE, Shapiro-Francia, Kish, Royston, effective-n bandwidth). Judgment about deployment is weaker: a 27.5% filter keyed to the data's own metrics and preferentially removing high-`weight_outliers` cases, undiscussed; `logfit_offset = 0.5` undocumented; a continuous modality index labeled "Mode Count"; Shapiro-Wilk and Shapiro-Francia compared as if one column |
 
 **Archetype.** Closest to a self-taught researcher who codes to get results, but
 an unusually strong one, deviating far in both directions. Above that profile:
 statistical sophistication at domain-scientist level, and packaging instincts
 (`src/` module, `setup.py`, explanatory `.gitignore`, usable README) that are
-research-software-engineer behaviours. Below it: reproducibility discipline
+research-software-engineer behaviors. Below it: reproducibility discipline
 below even the self-taught median, zero tests in a codebase whose entire output
 is numbers, and notebooks that only run in the order they happened to be run.
 The summary: a domain scientist's statistical training with a self-taught

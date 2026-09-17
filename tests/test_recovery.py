@@ -475,7 +475,7 @@ def test_paired_bootstrap_groups_and_is_reproducible():
                            rng=np.random.default_rng(1)).set_index('size_band')
     pd.testing.assert_frame_equal(a, b)
     # the sign of the effect is recovered separately in each band, and an
-    # aggregate over both would have cancelled them
+    # aggregate over both would have canceled them
     assert a.loc['small', 'mean_difference'] < 0
     assert a.loc['large', 'mean_difference'] > 0
     assert bool(a.distinguishable.all())
@@ -525,7 +525,12 @@ def test_the_two_routes_trade_typical_error_against_tail_error():
     assert np.median(a) < 0.01 and np.median(t) < 0.01
 
 
-def test_the_default_route_is_unchanged():
-    """A guard, not a preference. Flipping `W1_ROUTE` moves every reported number
-    in the paper, so it may not happen as a side effect of another edit."""
-    assert FT.W1_ROUTE == 'atoms'
+def test_the_scoring_settings_are_the_decided_ones():
+    """A guard, not a preference. These three move every reported number in the
+    paper, so none of them may change as a side effect of another edit. Author
+    decisions of 2026-09-16: trapezoid quadrature on 20,000 points, and a
+    bandwidth guard at 20 effective observations."""
+    import customstats as CS
+    assert FT.W1_ROUTE == 'trapezoid'
+    assert FT.SCORE_GRID_POINTS == 20_000
+    assert CS.SILVERMAN_MIN_NEFF == 20.0

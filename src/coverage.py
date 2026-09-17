@@ -149,7 +149,7 @@ def post_stratified(synthetic, empirical, metrics=CORE_METRICS,
     empirical frequency of each stratum.
 
     Equal allocation across strata buys equal precision in every size regime,
-    which is what the metric-versus-W1 modelling in Stage 2f needs. It does not
+    which is what the metric-versus-W1 modeling in Stage 2f needs. It does not
     match the empirical size distribution, so the reweighted column is the one
     that describes real ECC datasets. Reporting both is the direct answer to
     the objection that the corpus over-represents large datasets.
@@ -265,7 +265,7 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical):
          f'{cfg.cv_log10_sd:.4f}, truncated to '
          f'[{10 ** cfg.cv_log10_lo:.3g}, {10 ** cfg.cv_log10_hi:.3g}], solved '
          'for by placing the mixture relative to zero',
-         f'centred on the empirical distribution, whose log10 coefficient of '
+         f'centerd on the empirical distribution, whose log10 coefficient of '
          f'variation has mean -0.1257 and sd 0.3752; the sd is DOUBLED for '
          f'margin. Empirical range {_clean(emp["coeffvar"]).min():.4g} to '
          f'{_clean(emp["coeffvar"]).max():.4g}',
@@ -320,7 +320,7 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical):
          f'{cfg.point_weight_alpha}'),
         ('Mode-to-point weight coupling',
          f'{cfg.mode_coupling}',
-         '0 reproduces the old uncoupled behaviour, in which the '
+         '0 reproduces the old uncoupled behavior, in which the '
          'market-weighted distribution had no population object. Swept in '
          'Stage 2h',
          f'{cfg.mode_coupling}'),
@@ -508,7 +508,7 @@ def symlog_ticks(values, linthresh, max_per_side=3):
 def plot_transform(scale, linthresh=None):
     """Forward transform for plotting a characteristic on `scale`.
 
-    Densities are plotted on the TRANSFORMED values with the ticks labelled in
+    Densities are plotted on the TRANSFORMED values with the ticks labeled in
     the original units, rather than by setting a matplotlib axis scale. A
     density estimate on a log axis is otherwise computed in linear space and
     then stretched, which distorts the shape; estimating it in the transformed

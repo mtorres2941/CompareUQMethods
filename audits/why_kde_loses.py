@@ -185,7 +185,7 @@ def mechanism_2_and_3(ds):
     print('the Scott-against-Silverman comparison above is confounded by it.')
     print('What survives the confound is the DIRECTION: Scott oversmooths this')
     print('data badly, and the KDE still loses to the lognormal under Scott even')
-    print('though the criterion is biased in the KDE\'s favour. an earlier revision owns the')
+    print('though the criterion is biased in the KDE\'s favor. an earlier revision owns the')
     print('out-of-sample answer; an earlier revision owns the bandwidth.')
 
 

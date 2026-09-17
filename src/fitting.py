@@ -7,7 +7,7 @@ change to the method had to be made in three places and kept in step by hand.
 Stage 2 changes the lognormal threshold and the bandwidth rule, which is
 exactly the kind of edit that goes wrong when it has to be repeated.
 
-The default constants below reproduce the behaviour as of Stage 1. Both are
+The default constants below reproduce the behavior as of Stage 1. Both are
 under review in Stage 2; see reports/MANUSCRIPT_discrepancies.md entries 6 and
 10.
 """
@@ -80,7 +80,14 @@ LOGFIT_OFFSET = 0.5
 BW_METHOD = "silverman_guarded"
 
 # The scoring grid runs from 0 to max(data) + this many standard deviations.
-SCORE_GRID_POINTS = 1_000
+#
+# 20,000 POINTS, NOT 1,000. Author decision, 2026-09-16. At 1,000 the criterion
+# is not a converged quadrature: measured against a 400,001-point reference its
+# relative error has a median of 0.0014 and a p99 of 0.14, and the error is
+# METHOD-DEPENDENT, inflating the KDE's score by 3 to 5 percent against 0.2
+# percent for the lognormal because the KDE's CDF has the most structure at grid
+# scale. See audits/scoring_grid_error.py.
+SCORE_GRID_POINTS = 20_000
 SCORE_GRID_STD_MULTIPLE = 10
 
 
@@ -270,12 +277,22 @@ def score_grid_open(x, weights, npoints=SCORE_GRID_POINTS,
 #: comparison does not move, -0.0340 against -0.0339, which is why the stage's
 #: out-of-sample conclusions stand either way.
 #:
-#: BECAUSE IT FAVOURS THE METHOD THE PAPER IS ABOUT, it has to be justified on
-#: numerical grounds alone, and it can be: 1,000 atoms is simply not a converged
-#: quadrature, and both routes agree once it is. Switching moves every reported
-#: number and should ride with any other number-moving change rather than cost a
-#: re-run of its own. `audits/scoring_grid_error.py`.
-W1_ROUTE = 'atoms'
+#: THE ATOM ROUTE NEVER CONVERGES, WHICH IS WHAT SETTLED IT. Adding points does
+#: not extend the grid, and the grid's top is max(x) + 10 sd whatever the point
+#: count, so a model with mass past it keeps losing that mass. Measured against a
+#: 400,001-point reference the atom route's p99 relative error sticks at 0.0379
+#: from 20,000 points through 100,000, while the trapezoid route goes 0.0039 ->
+#: 0.0010 -> 0.0002. The paired in-sample KDE-minus-lognormal difference on the
+#: empirical arm saturates at -0.0218 for atoms against a true -0.0229.
+#:
+#: BECAUSE THE CHANGE FAVORS THE METHOD THE PAPER IS ABOUT, it is justified on
+#: the convergence table and nothing else: both routes agree once the quadrature
+#: converges, and only one of them gets there. The in-sample paired difference
+#: moves from -0.0184 to -0.0229 (uniform) and -0.0216 to -0.0278 (variable);
+#: the CROSS-VALIDATED comparison does not move, -0.0340 against -0.0339, so no
+#: out-of-sample conclusion of Stage 2c depends on it.
+#: `audits/scoring_grid_error.py`.
+W1_ROUTE = 'trapezoid'
 
 
 def score_w1_model(model, x, weights, grid=None, route=None):

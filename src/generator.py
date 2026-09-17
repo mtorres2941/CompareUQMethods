@@ -16,7 +16,7 @@ metrics, keeping the first 10,000 survivors. That removed 27.5 percent of what
 was generated, was keyed to the synthetic corpus's own metric spread rather
 than to anything empirical, and is not described in the manuscript. It is
 replaced by `validity_failures`, which rejects a dataset only when it cannot be
-analysed at all. Nothing is filtered for being statistically unusual.
+analyzed at all. Nothing is filtered for being statistically unusual.
 """
 
 import numpy as np
@@ -384,7 +384,7 @@ def generate_dataset(cfg, n, rng):
 # Part 2: the validity filter
 # --------------------------------------------------------------------------
 def validity_failures(x, w, n_expected=None):
-    """Reasons this dataset cannot be analysed. Empty list means it is valid.
+    """Reasons this dataset cannot be analyzed. Empty list means it is valid.
 
     This rejects on analysability alone. It does NOT reject a dataset for being
     statistically unusual, and in particular it never looks at

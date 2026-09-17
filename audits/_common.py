@@ -13,7 +13,7 @@ os.makedirs(TABLES, exist_ok=True)
 
 
 def load_shipped(frozen=True, with_values=True):
-    """Load the shipped 15,000 synthetic datasets and the analysed subset."""
+    """Load the shipped 15,000 synthetic datasets and the analyzed subset."""
     base = FROZEN if frozen else os.path.join(ROOT, 'data', 'processed')
     with open(os.path.join(base, 'DATA_all.json')) as f:
         DATA_all = json.load(f)

@@ -21,7 +21,7 @@ of this module left that gap open and silently failed on 13 percent of moment
 targets, all of them inside it.
 
 betaprime and lognorm have support on one side only, so for negative skewness
-they are reflected about a fixed centre. That reflection is a property of the
+they are reflected about a fixed center. That reflection is a property of the
 component, computed from its own parameters, not from a realized sample.
 
 The feasible region is bounded below by

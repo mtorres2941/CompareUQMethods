@@ -6,7 +6,7 @@ It is the fourth time the question has been asked and the previous three each
 found a real mechanism, so it is asked here as a measurement rather than argued.
 
 THE SUSPICION IS WELL FOUNDED AND SPECIFIC. A 50/50 cross-validation fits on
-n/2, so the band labelled n = 10-99 measures a KDE fitted to 5 to 50 values. A
+n/2, so the band labeled n = 10-99 measures a KDE fitted to 5 to 50 values. A
 Gaussian KDE's variance is the data's PLUS h^2, so with a rule-of-thumb
 bandwidth it is systematically over-dispersed at small n -- 1.20x at n = 10 --
 while a lognormal matches the moments. Cross-validation therefore falls hardest
@@ -81,7 +81,8 @@ def report(cv, syn, ids, specs):
     pd.set_option('display.width', 220)
     print()
     print('=' * 78)
-    print('KDE MINUS LOGNORMAL, paired, by fit fraction. Positive = KDE better.')
+    print('LOGNORMAL MINUS KDE, paired, by fit fraction. POSITIVE = KDE BETTER,')
+    print('because these are distances and the lower one wins.')
     print('=' * 78)
     print('A 0.5 fit fraction is the 50/50 split Stage 2c reported. 0.9 is a')
     print('ten-fold cross-validation, which fits on almost all the data.')

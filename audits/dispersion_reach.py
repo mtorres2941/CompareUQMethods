@@ -34,15 +34,15 @@ from tune_configuration import empirical_arm, sample_config, score  # noqa: E402
 TABLES = os.path.join(ROOT, 'outputs', 'tables', 'audits')
 PER_STRATUM = 110
 
-#: Candidates. `cv_log10_mean` is the centre of the population target,
+#: Candidates. `cv_log10_mean` is the center of the population target,
 #: `cv_log10_sd` its spread, `cv_log10_hi` the upper truncation of the draw.
 CANDIDATES = {
     'current': {},
-    'centre +0.2': dict(cv_log10_mean=0.329),
+    'center +0.2': dict(cv_log10_mean=0.329),
     'spread x1.4': dict(cv_log10_sd=0.3919 * 2.8),
-    'centre +0.2, spread x1.4': dict(cv_log10_mean=0.329,
+    'center +0.2, spread x1.4': dict(cv_log10_mean=0.329,
                                      cv_log10_sd=0.3919 * 2.8),
-    'centre +0.4, spread x1.8, hi 60': dict(cv_log10_mean=0.529,
+    'center +0.4, spread x1.8, hi 60': dict(cv_log10_mean=0.529,
                                             cv_log10_sd=0.3919 * 3.6,
                                             cv_log10_hi=np.log10(60.0)),
     # None of the above move the achieved sample CV at all, because the binding
@@ -53,7 +53,7 @@ CANDIDATES = {
     'min_q1_over_iqr 0.1': dict(min_q1_over_iqr=0.1),
     'min_q1_over_iqr 0.05': dict(min_q1_over_iqr=0.05),
     'min_q1_over_iqr 0.01': dict(min_q1_over_iqr=0.01),
-    'min_q1_over_iqr 0.01 + centre +0.2': dict(min_q1_over_iqr=0.01,
+    'min_q1_over_iqr 0.01 + center +0.2': dict(min_q1_over_iqr=0.01,
                                                cv_log10_mean=0.329),
 }
 

@@ -149,6 +149,8 @@ def report(d):
     print('=' * 78)
     print('THE VERDICT')
     print('=' * 78)
+    print('POSITIVE MEANS VARIABLE WEIGHTING IS BETTER: these are distances, so')
+    print('the uniform fit scoring HIGHER is the variable fit winning.')
     print('If `oracle_beats_uniform` is high where `realized_beats_uniform` is')
     print('low, the penalty for variable weighting at small n is the flat')
     print('Dirichlet STAND-IN and not weighting itself, and the paper has to say')
@@ -167,9 +169,9 @@ def report(d):
                                    rng=np.random.default_rng(0)).set_index(
                 'method')
             print(f'  {pe:<10}{band:<14} '
-                  f'realized minus uniform {-b.loc["realized","mean_difference"]:+.4f}'
+                  f'uniform minus realized {-b.loc["realized","mean_difference"]:+.4f}'
                   f'{"*" if b.loc["realized","distinguishable"] else " "}   '
-                  f'oracle minus uniform {-b.loc["oracle","mean_difference"]:+.4f}'
+                  f'uniform minus oracle {-b.loc["oracle","mean_difference"]:+.4f}'
                   f'{"*" if b.loc["oracle","distinguishable"] else " "}')
 
 

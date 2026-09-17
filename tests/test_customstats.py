@@ -236,15 +236,21 @@ def test_silverman_guarded_swaps_the_scale_estimate_not_the_rule():
     from customstats import SILVERMAN_MIN_NEFF, weighted_bw, weighted_std
 
     rng = np.random.default_rng(0)
-    for n in (3, 5, 12, 29):
+    # Sizes are DERIVED from the threshold, not written in. The constant is an
+    # author decision that has already moved once, from 30 to 20, and a test
+    # that hardcodes sizes around it starts failing for the wrong reason.
+    thr = int(SILVERMAN_MIN_NEFF)
+    below = sorted({3, 5, max(3, thr // 2), thr - 1})
+    for n in below:
         x = rng.lognormal(0.0, 0.7, n)
         w = np.ones(n) / n
         n_eff = 1.0 / np.sum((w / w.sum()) ** 2)
+        assert n_eff < SILVERMAN_MIN_NEFF
         expected = 0.9 * weighted_std(x, w) * n_eff ** -0.2
         assert weighted_bw(x, w, 'silverman_guarded') == pytest.approx(expected)
         # and it is NOT Scott, which carries 1.06 rather than 0.9
         assert weighted_bw(x, w, 'silverman_guarded') < weighted_bw(x, w, 'scott')
-    for n in (int(SILVERMAN_MIN_NEFF), 60, 400):
+    for n in (thr, 2 * thr, 400):
         x = rng.lognormal(0.0, 0.7, n)
         w = np.ones(n) / n
         assert weighted_bw(x, w, 'silverman_guarded') == weighted_bw(

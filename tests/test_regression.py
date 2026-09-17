@@ -3,7 +3,7 @@ Regression tests for the Stage 1 refactor.
 
 Purpose
 -------
-Prove that a change labelled NEUTRAL did not move any reported number. These
+Prove that a change labeled NEUTRAL did not move any reported number. These
 tests are a change detector, not a correctness check: the fixtures were
 produced by code with known defects, and Stage 2 will deliberately change many
 of these values. When a number is meant to move, the fixture is re-frozen in

@@ -419,7 +419,7 @@ def symlog_ticks(values, linthresh, max_ticks=5):
     neg = decades(v[v < 0])
     for stride in range(1, 9):
         # Thin from the outside in, so the largest decade on each side -- the
-        # one that sets the axis limit -- is always labelled.
+        # one that sets the axis limit -- is always labeled.
         kept_pos = pos[::-1][::stride][::-1]
         kept_neg = neg[::-1][::stride][::-1]
         if 1 + len(kept_pos) + len(kept_neg) <= max_ticks:
@@ -561,7 +561,7 @@ def headline_sentence(headline):
 
 def rank_strip(ax, values, ranks, rng, n_ranks=None, jitter=0.4, size=1.0,
                cmap='viridis'):
-    """One horizontal strip of `values`, coloured by `ranks`, jittered.
+    """One horizontal strip of `values`, colored by `ranks`, jittered.
 
     Replaces seaborn's stripplot, whose jitter is drawn from the GLOBAL numpy
     random state. Two runs of the same notebook therefore produced different
@@ -578,13 +578,13 @@ def rank_strip(ax, values, ranks, rng, n_ranks=None, jitter=0.4, size=1.0,
     offsets = rng.uniform(-jitter, jitter, len(values))
     present = np.unique(ranks[np.isfinite(ranks)])
     n_ranks = n_ranks or (int(present.max()) if len(present) else 1)
-    colours = plt.get_cmap(cmap)
+    colors = plt.get_cmap(cmap)
     handles = []
     for r in present:
         sel = ranks == r
         shade = 0.0 if n_ranks < 2 else (r - 1.0) / (n_ranks - 1.0)
         handles.append(ax.scatter(values[sel], offsets[sel], s=size,
-                                  color=colours(shade), linewidths=0,
+                                  color=colors(shade), linewidths=0,
                                   label=f'{int(r)}'))
     ax.set_ylim(-1.0, 1.0)
     return handles

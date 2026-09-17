@@ -129,7 +129,7 @@ def main(n_synth=N_SYNTH):
     print('   generator was tuned to, and several times that once the bandwidth')
     print('   can see the structure -- driven by datasets with THREE OR MORE')
     print('   visible modes, which the corpus has far fewer of than the arm.')
-    print('   Multimodality favours the KDE, so on this dimension the corpus is')
+    print('   Multimodality favors the KDE, so on this dimension the corpus is')
     print('   biased AGAINST the KDE and not for it.')
 
 

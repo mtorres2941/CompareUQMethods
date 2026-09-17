@@ -118,7 +118,7 @@ UNSTATED = 'type not stated'
 #: one by any split. DROPPED whole.
 #:
 #: This is decision 46 rule 1 applied to the evidence rather than to the tree:
-#: a residual bin is recognisable from EC3's category structure, and these are
+#: a residual bin is recognizable from EC3's category structure, and these are
 #: not residual bins -- they are leaf categories into which EC3 has filed
 #: unrelated EPDs. The test is the PRODUCT NAME, never the ECC value, so it is
 #: the same kind of evidence as the insulation split and carries the same

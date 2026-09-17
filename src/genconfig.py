@@ -40,7 +40,7 @@ class Stratum:
 # Equal allocation across four size strata, so every size regime is estimated
 # with the same precision. The empirical sizes run 3 to 86,770 with a median of
 # 53, and a single log-uniform draw either leaves the large regime too sparse to
-# analyse or lets large datasets dominate every aggregate. Because equal
+# analyze or lets large datasets dominate every aggregate. Because equal
 # allocation does not match the empirical size distribution, every headline
 # aggregate is reported twice: per stratum, and reweighted by the empirical
 # frequency of each stratum (EMPIRICAL_STRATUM_SHARE below).
@@ -239,7 +239,7 @@ class GeneratorConfig:
     range of width c give a mixture with mean about c/2 and standard deviation
     about c/3.5, so a coefficient of variation near 0.57 whatever the
     components are. That is why 47 percent of targets were unreachable at
-    position_skew = 1, and why the corpus came out centred at 0.24 against an
+    position_skew = 1, and why the corpus came out centerd at 0.24 against an
     empirical 0.600."""
 
     comp_sd_log10_lo: float = -0.7
@@ -274,7 +274,7 @@ class GeneratorConfig:
 
     mode_coupling: float = 1.0
     """How much of a point's market weight is determined by which mode it is
-    in. 0 reproduces the old uncoupled behaviour, in which the market-weighted
+    in. 0 reproduces the old uncoupled behavior, in which the market-weighted
     distribution existed only on the realized sample and had no population to
     be right or wrong about. 1 makes market share fully mode-determined, so the
     market-weighted parent is the mixture sum_k v_k f_k. Swept."""
@@ -306,7 +306,7 @@ class GeneratorConfig:
     change is adopted because it is the measurement the parameter cites, not
     because the improvement is distinguishable from a different seed.
 
-    The centre is NOT the empirical centre. It sits above it, because this is a
+    The center is NOT the empirical center. It sits above it, because this is a
     target for the POPULATION coefficient of variation while the characteristic
     being matched is the SAMPLE one, and the sample value of a right-skewed
     distribution runs systematically low: a finite sample rarely contains the far
@@ -324,13 +324,13 @@ class GeneratorConfig:
 
     Both numbers moved together in Stage 2a-3 when the categories were resolved
     into specifiable products, and both track the same measurement. The arm's
-    log10 centre moved from -0.1387 to -0.2207, so the centre here moves by the
+    log10 center moved from -0.1387 to -0.2207, so the center here moves by the
     same 0.082 and KEEPS its measured offset of 0.350 above the arm; the arm's
     log10 standard deviation moved from 0.3800 to 0.3919.
 
     Honest note on the gain, as for every retune in this stage. At the
     440-dataset pre-flight scale the objective goes 0.2125 to 0.2118, and moving
-    the standard deviation WITHOUT the centre makes it worse, 0.2186. The three
+    the standard deviation WITHOUT the center makes it worse, 0.2186. The three
     candidates span 0.0068, about one seed-to-seed standard deviation, so the
     pair is adopted because it is what the parameters cite, not because the
     improvement is measurable.
@@ -340,16 +340,16 @@ class GeneratorConfig:
     inside the range the corpus is meant to cover with margin. The lower bound of
     0.004 still sits below the empirical minimum of 0.0081.
 
-    Measured sweep of the centre on the 2026-08 arm, reporting the standardized
+    Measured sweep of the center on the 2026-08 arm, reporting the standardized
     W1 of the coefficient of variation and the weighted objective:
 
-        centre        coeffvar W1   objective
+        center        coeffvar W1   objective
         0.011 (2a)       0.391        0.5087
         0.211            0.265        0.4261
         0.361            0.253        0.4400
 
     0.211 is kept rather than 0.361: the two are within 0.012 on the
-    characteristic being targeted, and the higher centre is worse overall,
+    characteristic being targeted, and the higher center is worse overall,
     because pushing the mixture further from the origin costs skewness and
     lognormality.
 
@@ -366,7 +366,7 @@ class GeneratorConfig:
 
     A log-UNIFORM draw over the same range was tried in Stage 2a and rejected: it
     gives even coverage of every regime, which is attractive for the
-    metric-versus-W1 modelling in Stage 2f, but the corpus came out with a median
+    metric-versus-W1 modeling in Stage 2f, but the corpus came out with a median
     coefficient of variation of 0.071 against an empirical 0.600. Range coverage
     was 98.6 percent and the corpus still did not look like the data, which is
     the actual requirement."""
@@ -435,7 +435,7 @@ class GeneratorConfig:
 
     'average' is the Maitra-Melnykov average pairwise overlap and is what Stage
     2a and Stage 2a-2 used. 'min_adjacent' is the smallest overlap between
-    NEIGHBOURING components.
+    NEIGHBORING components.
 
     The average stops constraining what a reader of a density plot sees once
     there are more than two components: a couple of heavily overlapping pairs
@@ -455,7 +455,7 @@ class GeneratorConfig:
     so pushed the already-unconstrained pairs further apart. Controlling the
     minimum adjacent overlap targets the gaps directly.
 
-    Neighbouring rather than all pairs: in one dimension the outermost pair of a
+    Neighboring rather than all pairs: in one dimension the outermost pair of a
     five-component mixture is legitimately far apart, and the empirical arm
     shows the same thing, with a median smallest all-pairs overlap of 0.0000.
     The all-pairs minimum therefore cannot distinguish the two arms; the

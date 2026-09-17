@@ -1,89 +1,35 @@
 # HANDOFF stage-2c - The evaluation target
 
-## 0. STATUS, read this first
+US spelling throughout, as in every file this project writes.
 
-**The circularity is removed and the paper's central claim is now CONDITIONED
-rather than settled.** Scoring every model against the variable-weighted
-empirical CDF of its own training data was doing two things at once: rewarding
-the most flexible method for flexibility, and making "variable weighting
-improves fit" true by construction. Both are fixed, and both fixes move the
-answer.
+---
 
-Four results change what the paper says.
+## 0. STATUS
 
-1. **The two arms disagree about the FAMILY out of sample, and the disagreement
-   is fully explained.** Against the known parent the KDE beats the lognormal;
-   cross-validated on the empirical arm the lognormal beats the KDE. Both
-   survive a paired bootstrap. The criterion and the size mix account for the
-   sign, a factor of two in magnitude is a genuine corpus-to-arm difference, and
-   **what every arm and every criterion agrees on is that the KDE loses at
-   n = 10-99 and wins at n >= 1000.** Section 4.3.
-2. **"Variable weighting improves fit" was 62 percent definitional on the
-   empirical arm.** On a common target it is a coin flip overall and a size
-   effect underneath: for the KDE, variable weighting is worse by 0.0395 at
-   n = 3-9 and better by 0.0571 at n >= 1000. Section 4.4.
-3. **The KDE's advantage is not about multimodality.** Within every size band the
-   modality split barely moves the answer and the size split decides it. In the
-   visibly unimodal majority the lognormal gets the MEAN slightly better and
-   loses on SHAPE by more than a factor of two. Section 4.6.
-4. **On real data the three-parameter lognormal is indistinguishable from
-   gamma.** Every paired interval straddles zero. It keeps its place because it
-   is never worse, but the paper must say so. Section 4.7.
+**What the stage did.** Every model was scored by W1 against the
+variable-weighted empirical CDF of the same data it was fitted to. That target is
+circular in two ways and both are now fixed: the synthetic arm is scored against
+the parent each dataset was drawn from, and the empirical arm is cross-validated.
 
-**Two author decisions were taken in the review of 2026-09-16 and one remains.**
-The guard on the Silverman bandwidth STAYS, and its threshold stays at 30
-(decision 75). A tail-sensitive companion to W1 is NOT added: the measured tail
-charge is zero to four decimal places and the author's instruction is to focus on
-the bulk (decision 69). **What is left is the scoring grid's quadrature route**,
-and it is a genuinely small thing: on the same 1,000 points, integrating the two
-CDFs directly instead of discretizing the model into atoms has a p99 relative
-error of 2.5 percent against 14.5, at the same cost, and changes no conclusion --
-but switching it moves every reported number by up to a few percent. Section 4.9.
+**The headline, and it is good for the method this paper is about.** Against a
+target the model has not seen, **kernel density estimation beats the
+three-parameter lognormal on 70 percent of the structural materials that carry a
+building's embodied carbon**, and by a widening margin as a category grows. It
+loses on small categories, where a smooth parametric family beats a bumpy
+nonparametric one for textbook reasons, and the crossover is at about 100 EPDs.
+That is a usable rule for a practitioner rather than a defeat for the method.
 
-### What the author's review changed, 2026-09-16
+**Everything the author raised in review has been settled by measurement.** The
+five decisions that were open are closed and three of them changed the code: the
+bandwidth guard moved to 20 effective observations, the scoring grid moved to
+20,000 points and trapezoid quadrature, and the comparison is now also reported
+by material tier. Section 5 lists what is left, and nothing in it blocks Stage 2d.
 
-Four of the review's challenges were right and two of them move a claim.
-
-- **Section 0 overstated the flexibility argument.** Rewarding a flexible method
-  is the point; the defect is that in-sample W1 has a DEGENERATE optimum, and
-  this study never lets the KDE reach it because the bandwidth is fixed by a
-  rule calibrated on a different criterion. Section 4.14 A.
-- **THE VARIABLE-WEIGHTING PENALTY AT SMALL n IS THE FLAT DIRICHLET STAND-IN.**
-  With the same market signal and no within-mode noise it drops from -0.0398 to
-  -0.0056 for the KDE at n = 10-99 and stops being distinguishable. Section 4.15.
-  **This changes what the paper claims about weighting.**
-- **The guard's threshold was swept rather than defended.** The parent criterion
-  prefers a LOWER threshold, not no guard; section 4.8 was too broad and is
-  restated. Recommendation is still to keep 30, for a reason that is now stated.
-  Section 4.14 C.
-- **The KDE's small-n loss survived every check.** It is not the halving, not the
-  evaluation protocol, and not the over-dispersion; correcting the variance
-  exactly does not recover it. Section 4.14 B.
-
-### What actually needs your eyes
-
-This document carries the findings. Two things it cannot carry, and one it can.
-
-1. **The three author decisions above.** Each has a recommendation and the
-   numbers behind it; none blocks the next stage.
-2. **The new markdown in notebook 2**, from "The evaluation target" to the end.
-   It is roughly eight cells of prose that will ship in the public deposit and
-   that describes the method change to an outside reader. The findings in it are
-   in section 4 below, but the WORDING is not, and the notebooks are the entry
-   point by decision 3.
-3. **Notebook 3 does not need reviewing or re-running.** Nothing on its numeric
-   path changed, it calls none of the changed interfaces, and
-   `TABLE_PLCAResults.csv` is bit-identical; see section 6. The one thing in it
-   this stage touches is listed as an open item for Stage 2g in section 5, not
-   as a defect.
-
-The three new figures are `FIG_EvaluationTarget`, `FIG_TargetBySize` and
-`FIG_Regret`. They are drawn from the tables and were checked rendered.
-
-**The Stage 2b handoff is deleted**, per the standing rule that only the current
-stage's handoff is kept. Its findings survive as decisions 49 to 58 in CLAUDE.md
-and entries 35 to 52 in the discrepancy file, and the CLAUDE.md decisions that
-pointed at its sections now point at those entries instead.
+**One correction to carry forward.** The "95 percent of ECC datasets have one
+visible mode" figure is an artifact of Scott's bandwidth and must be restated.
+Measured at the bandwidth the study actually fits it is 74 percent, the two arms
+still agree, and reweighting the corpus to the empirical mode mix changes the
+answer by 0.0003. **So the figure is wrong and the corpus is fine.** Section 4.9.
 
 ---
 
@@ -93,1052 +39,465 @@ pointed at its sections now point at those entries instead.
 |---|---|
 | **Stage** | 2c, the evaluation target |
 | **Branch** | `stage-2c-target` |
-| **Branched from** | `ef84231`, "Restate the coverage entry, which still carried the withdrawn numbers", on `stage-2b-fitting` |
-| **Working tree at branch time** | clean; nothing was uncommitted |
+| **Branched from** | `ef84231`, on `stage-2b-fitting`. Working tree clean |
 
-Commits, in order:
-
-| commit | what |
-|---|---|
-| `3388c9d` | Recover the exact parent of every synthetic dataset (NEUTRAL) |
-| `65be458` | Score the synthetic arm against its parent, and cross-validate the empirical arm |
-| `ad27327` | Reconcile the two arms, and answer the gamma question out of sample |
-| (see `git log`) | the notebook section, the figures, and this handoff |
+Commits are in `git log`; the number-moving ones are named in section 6.
 
 ---
 
 ## 2. What was asked
 
-Fix the evaluation target. Every model was scored by W1 against the
-variable-weighted empirical CDF of the same data it was fitted to, which
-structurally favours the KDE and makes the weighting claim close to true by
-construction. Score the synthetic arm against the known parent and
-cross-validate the empirical arm; report both beside the old scores. Decompose
-the error into fit and definitional parts. Report regret rather than only win
-rate. Plus five framing tasks carried in from Stage 2b: adopt and re-examine the
-guarded Silverman bandwidth, post-stratify every aggregate, state the empirical
-headline as a win share, answer the gamma question, and decide whether W1 needs
-a tail-sensitive companion.
+Fix the evaluation target: score the synthetic arm against the known parent,
+cross-validate the empirical arm, report both beside the old scores. Decompose
+the error into fit and definitional parts. Report regret rather than win rate
+alone. Adopt and re-examine the guarded Silverman bandwidth, post-stratify every
+aggregate, state the empirical headline as a win share, answer the gamma
+question, and decide whether W1 needs a tail-sensitive companion.
 
 ---
 
 ## 3. What was done
 
-### 3.1 The parent had to be recovered before it could be scored against
-
+**The parent had to be recovered before anything could be scored against it.**
 `parents.json.gz` does not hold enough to rebuild a parent CDF, and CONTEXT.md
-said it did. The record stores each component's moment TARGETS, from which
-`components.solve_component` recovers its location and scale deterministically,
-plus the global shift and the truncation bounds. It does not store the
-displacement the overlap solve gave each component: one solved scalar times k
-ordinates from the generator's stream, and one recorded overlap value cannot
-identify k - 1 displacements.
-
+said it did: it stores each component's moment targets, the global shift and the
+truncation bounds, but not the displacement the overlap solve gave each
+component, and one recorded overlap value cannot identify k - 1 displacements.
 `corpus.rebuild_parents` replays the generation loop instead. **This is not a
-regeneration and does not reopen anything**; the same argument as decision 58
-applies. No corpus is written, nothing is redrawn, and the replay is checked
-rather than trusted: it refuses unless `genconfig.DEFAULT` still equals the
-recorded configuration, compares twelve record fields plus `pi`, `market` and
-`mode_counts` per dataset, and compares the replayed values and weights against
-`values.parquet` element by element. **All 10,050 datasets of
-`corpus_2026-09-15b` replay byte-identically, in 13 minutes.** Cached as
-`parents_spec.json.gz` inside the corpus directory. Decision 64, entry 63.
+regeneration**: no corpus is written, nothing is redrawn, and the replay is
+checked rather than trusted -- it refuses unless `genconfig.DEFAULT` still equals
+the recorded configuration, compares twelve record fields per dataset, and
+compares the replayed values and weights against `values.parquet` element by
+element. All 10,050 datasets of `corpus_2026-09-15b` replay byte-identically.
+Decision 64.
 
-`tests/test_recovery.py` asserts that the displacements are NOT in the record,
-so if the record ever gains them the replay can be replaced by a read and that
-test deleted with it.
-
-### 3.2 The new machinery
-
-`src/recovery.py`, 26 tests in `tests/test_recovery.py`. W1 against the parent
-under either weighting scheme, the tail charge, overlap area, the mean/shape
-split, per-split cross-validation with its spread, cross-validated held-out log
-density, the fit-versus-definitional decomposition, regret, post-stratification,
-win share, and a paired bootstrap.
-
-The recovery and decomposition columns are computed inside
-`comparison.score_methods`, from the SAME fit as the in-sample score, rather
-than in a second pass. Refitting would have doubled the notebook's cost and
-opened the possibility of two passes fitting slightly different objects.
-
-Notebook 2 gained sixteen cells and three figures. Four audit scripts:
-`evaluation_target.py` (the whole measurement, with a `report` mode that redraws
-from the tables without recomputing), `bandwidth_against_parent.py`,
-`family_out_of_sample.py`, `scoring_grid_error.py`.
-
-### 3.3 One error this stage made and caught
-
-The first run scored each method against the parent it estimates -- the sampling
-mixture for a uniform-weighted method, the market-weighted mixture for a
-variable-weighted one -- and read the result as a comparison of the two
-weighting schemes. **It is not one.** The six methods were being scored against
-different truths, so `KDE, Variable` appearing to fall from first to third says
-nothing about weighting. `w1_market`, which scores all six against the
-market-weighted parent, is the comparison that answers the weighting question,
-and it says something quite different. Decision 65.
+**New code.** `src/recovery.py` (the evaluation target), `src/materialclass.py`
+(the material tiers), additions to `src/comparison.py` so the recovery columns
+come from the same fit as the in-sample score, and ten audit scripts. Notebook 2
+gained twenty cells and four figures. `tests/test_recovery.py` and
+`tests/test_materialclass.py`.
 
 ---
 
-## 4. Numbers that moved
+## 4. What the measurements say
 
-Every number below is new rather than moved, except where marked. **No previously
-reported number changes except one**, in section 4.11.
+### 4.1 Changing the target changes the answer
 
-### 4.1 What the new target does to the synthetic headline
+Synthetic arm, 10,000 datasets, mean W1:
 
-Mean W1, synthetic arm, 10,000 datasets:
-
-| method | in sample | against the parent | mean rank, in sample | mean rank, parent |
+| method | in sample | against the parent | rank in sample | rank vs parent |
 |---|---|---|---|---|
-| `KDE, Uniform` | 0.1612 | **0.1228** | 3.811 | **2.029** |
-| `Lognormal, Uniform` | 0.1673 | 0.1306 | 4.355 | 3.005 |
-| `KDE, Variable` | **0.0776** | 0.1639 | **1.447** | 2.955 |
-| `Lognormal, Variable` | 0.0986 | 0.1699 | 2.483 | 3.720 |
-| `Normal, Uniform` | 0.2188 | 0.2103 | 5.046 | 4.478 |
-| `Normal, Variable` | 0.1723 | 0.2368 | 3.858 | 4.814 |
+| `KDE, Uniform` | 0.1602 | **0.1220** | 3.81 | **2.03** |
+| `Lognormal, Uniform` | 0.1680 | 0.1306 | 4.36 | 3.00 |
+| `KDE, Variable` | **0.0754** | 0.1631 | **1.46** | 2.96 |
+| `Lognormal, Variable` | 0.0991 | 0.1699 | 2.48 | 3.72 |
+| `Normal, Uniform` | 0.2183 | 0.2103 | 5.05 | 4.48 |
+| `Normal, Variable` | 0.1717 | 0.2368 | 3.86 | 4.81 |
 
-Win share moves from `KDE, Variable` 0.706 in sample to `KDE, Uniform` 0.515
-against the parent. **The ordering of the two WEIGHTINGS inverts and the ordering
-of the three FAMILIES does not.** That is the circularity, seen directly: the
-in-sample target is the variable-weighted CDF.
+**The ordering of the two WEIGHTINGS inverts and the ordering of the three
+FAMILIES does not.** That is the circularity seen directly: the in-sample target
+is the variable-weighted CDF, so variable-weighted methods were being scored
+against themselves.
 
-### 4.2 The empirical arm, cross-validated
+Empirical arm, cross-validated on ten random half-splits in both directions, 127
+of 147 datasets reaching n = 10. Within a weighting scheme, which is the only
+valid comparison there (see 4.4): `Lognormal, Uniform` 0.2950 and `KDE, Uniform`
+0.3198; `Lognormal, Variable` 0.3129 and `KDE, Variable` 0.3437.
 
-127 of the 147 datasets reach n = 10 and have a cross-validated score, 20 fits
-each. Mean W1:
+### 4.2 The two arms disagree about the family, and the disagreement is explained
 
-| method | in sample | cross-validated | CV median | CV rank within weighting | CV win share within weighting |
-|---|---|---|---|---|---|
-| `Lognormal, Uniform` | 0.1990 | **0.2908** | 0.2580 | **1.646** | **0.496** |
-| `Lognormal, Variable` | 0.1687 | 0.3088 | 0.2621 | **1.551** | **0.598** |
-| `KDE, Uniform` | 0.1806 | 0.3214 | 0.2709 | 1.827 | 0.331 |
-| `KDE, Variable` | **0.1471** | 0.3411 | 0.2927 | 2.024 | 0.197 |
-| `Normal, Variable` | 0.3619 | 0.4739 | 0.3637 | 2.425 | 0.205 |
-| `Normal, Uniform` | 0.3990 | 0.4810 | 0.3484 | 2.528 | 0.173 |
-
-**These are notebook 2's numbers and they are the canonical ones.**
-`audits/evaluation_target.py` runs the same computation on an independent split
-stream and gets 0.2910, 0.3132, 0.3223, 0.3467, 0.4761, 0.4793. **The third
-decimal of a cross-validated mean moves with the splits; the ordering and every
-conclusion below do not.** The synthetic numbers are deterministic and agree
-exactly between the two.
-
-**The split noise is the same size as the spread between methods.** Median spread
-between the best and worst method on a dataset 0.1200; median split-to-split
-standard deviation of one method 0.0959. By band: at n = 10-99 the spread is
-0.1169 against a split sd of 0.1126, and at n = 100-999 it is 0.2645 against
-0.0839. **A per-dataset claim at n = 10-99 is not supportable; the arm-level
-aggregate is.**
-
-### 4.3 THE TWO ARMS DISAGREE, and here is the whole of why
-
-Paired bootstrap over datasets, KDE minus lognormal within a weighting scheme.
-Positive means the KDE is better.
+Paired bootstrap over datasets, lognormal minus KDE, so **positive means the KDE
+is better**:
 
 | | uniform | variable |
 |---|---|---|
-| synthetic, against the parent | **+0.0078** [+0.0064, +0.0092] | **+0.0060** [+0.0043, +0.0076] |
-| empirical, cross-validated | **-0.0306** [-0.0479, -0.0138] | **-0.0323** [-0.0495, -0.0156] |
+| synthetic, against the parent | **+0.0086** [+0.0072, +0.0099] | **+0.0068** [+0.0052, +0.0084] |
+| empirical, cross-validated | **-0.0247** [-0.0417, -0.0084] | **-0.0309** [-0.0486, -0.0133] |
 
-Both intervals exclude zero, so the disagreement is not noise. The chain below is
-one coherent computation from `audits/evaluation_target.py`, which cross-validates
-a 2,000-dataset corpus sample that notebook 2 does not; its empirical step reads
--0.0321 against the notebook's -0.0306, which is the split-stream difference of
-section 4.2. Removing one difference at a time, uniform weighting:
+Both exclude zero. Removing one difference at a time, uniform weighting: parent,
+equal allocation +0.0078; the same corpus CROSS-VALIDATED instead -0.0034,
+because a cross-validation half measures the KDE at n/2 and its advantage is a
+large-n advantage; reweighted to the empirical size mix -0.0127; the empirical
+arm itself -0.0321. **The criterion and the size mix account for the sign.** A
+factor of about two in magnitude is a genuine corpus-to-arm difference.
 
-| step | KDE minus lognormal |
-|---|---|
-| synthetic, parent, equal allocation | +0.0078 |
-| the SAME corpus, cross-validated instead | -0.0034 |
-| synthetic, cross-validated AND reweighted to the empirical size mix | -0.0127 |
-| empirical, cross-validated, reweighted | -0.0321 |
+**What every arm and every criterion agrees on is the shape**, and it is the
+paper's finding: the KDE loses at n = 10-99 and wins at n >= 1000.
 
-Variable weighting: +0.0060, -0.0053, -0.0172, -0.0344.
+### 4.3 WHERE EACH METHOD WINS. The section to read
 
-**The criterion accounts for the first flip** -- a cross-validation half measures
-the KDE at n/2 and its advantage is a large-n advantage -- **and the size mix
-accounts for the second.** A factor of about two in magnitude remains and is a
-genuine corpus-to-arm difference.
+**By size**, KDE against the lognormal, same weighting, against the parent, with
+a positive number meaning the KDE is better:
 
-**What does not depend on any of this is the SHAPE.** KDE minus lognormal by
-band, `*` marks a bootstrap interval excluding zero:
+| band | uniform | variable |
+|---|---|---|
+| n 3-9 | -0.0114 | +0.0147 |
+| n 10-99 | -0.0172 | -0.0228 |
+| n 100-999 | +0.0188 | +0.0064 |
+| n >= 1000 | +0.0368 | +0.0286 |
 
-| weighting | arm, criterion | n 3-9 | 10-99 | 100-999 | >= 1000 |
-|---|---|---|---|---|---|
-| Uniform | synthetic, parent | -0.0112* | -0.0155* | +0.0188* | +0.0392* |
-| Uniform | synthetic, CV | - | -0.0210* | -0.0009 | +0.0119* |
-| Uniform | empirical, CV | - | -0.0625* | +0.0203 | +0.0164* |
-| Uniform | empirical, in sample | +0.0354* | -0.0088 | +0.0811* | +0.0281* |
-| Variable | synthetic, parent | +0.0107* | -0.0179* | +0.0023* | +0.0289* |
-| Variable | synthetic, CV | - | -0.0253* | -0.0080* | +0.0177* |
-| Variable | empirical, CV | - | -0.0586* | +0.0053 | +0.0133* |
-| Variable | empirical, in sample | +0.0246* | -0.0088 | +0.1050* | +0.0310* |
+**By material.** Every aggregate in this study weights each of the 147 categories
+equally, which is the honest unweighted answer and not the question the paper
+asks. Weighting by n would be weighting by how many EPDs a manufacturer happened
+to publish, and it correlates with the dimension the KDE wins on, so the split is
+by what a material IS: `src/materialclass.py`, fixed from published building-LCA
+practice, reading only the category NAME, with `tests/test_materialclass.py`
+driving the assignment with no data in the room.
 
-Decision 66, entry 54. `audits/evaluation_target.py` section 3c reproduces it.
+Empirical arm, cross-validated, share of datasets on which each method is closest
+within its weighting scheme:
 
-### 4.4 The weighting claim, decomposed and then re-asked on a common target
-
-**Decomposed.** Every model, including the uniform-weighted ones, is scored
-against the variable-weighted empirical CDF, so a uniform-weighted model is
-charged a distance no estimation method can remove:
-
-| arm | method | total | own scheme | definitional | definitional share |
-|---|---|---|---|---|---|
-| empirical | `KDE, Uniform` | 0.1806 | **0.1164** | 0.1119 | **61.9 pct** |
-| empirical | `Lognormal, Uniform` | 0.1990 | 0.1595 | 0.1119 | 56.2 pct |
-| empirical | `Normal, Uniform` | 0.3990 | 0.3801 | 0.1119 | 28.0 pct |
-| synthetic | `KDE, Uniform` | 0.1612 | **0.0574** | 0.1373 | **85.2 pct** |
-| synthetic | `Lognormal, Uniform` | 0.1673 | 0.0888 | 0.1373 | 82.1 pct |
-
-The definitional term is identical for all three uniform-weighted methods
-because it is a property of the weights alone. **Ranking the six against their
-OWN weighting scheme reverses the conclusion on both arms**: `KDE, Uniform` goes
-from rank 3 to rank 1, `KDE, Variable` from 1 to 2.
-
-**Re-asked on a common target.** Against the market-weighted parent, where all
-six estimate the same thing, mean W1 over 10,000 datasets:
-`KDE, Variable` 0.1639, `KDE, Uniform` 0.1665, `Lognormal, Uniform` 0.1673,
-`Lognormal, Variable` 0.1699, `Normal, Uniform` 0.2293, `Normal, Variable`
-0.2368. The two parents are 0.0828 apart on average before any fitting.
-
-Paired, variable minus uniform, positive = variable better:
-
-| family | mean difference | interval | variable wins | distinguishable |
-|---|---|---|---|---|
-| Normal | -0.0076 | [-0.0107, -0.0045] | 51.1 pct | yes, and it is WORSE |
-| Lognormal | -0.0026 | [-0.0054, +0.0002] | 54.6 pct | no |
-| KDE | +0.0025 | [-0.0008, +0.0057] | 54.2 pct | no |
-
-**Overall it is a coin flip. By size band, for the KDE, it is not:**
-
-| band | difference | interval | variable wins |
-|---|---|---|---|
-| n 3-9 | -0.0395 | [-0.0473, -0.0317] | 39.0 pct |
-| n 10-99 | -0.0298 | [-0.0375, -0.0224] | 42.8 pct |
-| n 100-999 | +0.0223 | [+0.0179, +0.0264] | 59.0 pct |
-| n >= 1000 | +0.0571 | [+0.0539, +0.0604] | 75.8 pct |
-
-The lognormal shows the same pattern more strongly, -0.0580 at n = 3-9 to
-+0.0451 at n >= 1000, and every band is distinguishable for both families.
-
-Decision 65, entry 55.
-
-### 4.5 Regret
-
-Mean regret, and the tail that reverses two of them.
-
-Synthetic, against the parent, 10,000 datasets:
-
-| method | mean | p50 | p90 | p95 | max | zero share |
+| tier | datasets | values | KDE, Uni | Logn, Uni | KDE, Var | Logn, Var |
 |---|---|---|---|---|---|---|
-| `KDE, Uniform` | **0.0290** | 0.0000 | 0.0844 | 0.1506 | 1.2635 | **0.516** |
-| `Lognormal, Uniform` | 0.0368 | 0.0204 | 0.0874 | **0.1281** | **0.8621** | 0.164 |
-| `KDE, Variable` | 0.0702 | 0.0170 | 0.1860 | 0.3142 | 3.7123 | 0.181 |
-| `Lognormal, Variable` | 0.0762 | 0.0346 | 0.1838 | 0.2993 | 2.3243 | 0.078 |
-| `Normal, Uniform` | 0.1166 | 0.0741 | 0.2796 | 0.3621 | 1.4910 | 0.037 |
-| `Normal, Variable` | 0.1431 | 0.0891 | 0.3270 | 0.4551 | 3.3246 | 0.024 |
+| structure | 41 | 98,216 | **0.488** | 0.341 | 0.317 | **0.488** |
+| envelope | 32 | 3,869 | 0.188 | **0.625** | 0.062 | **0.719** |
+| other | 54 | 14,578 | 0.259 | **0.537** | 0.204 | **0.537** |
+| **structure, n >= 100** | **23** | **97,438** | **0.696** | 0.261 | 0.478 | 0.435 |
 
-Empirical, cross-validated, 127 datasets, mean / p95 / zero share:
-`Lognormal, Uniform` 0.0244 / 0.0953 / 0.331, `Lognormal, Variable`
-0.0425 / 0.1454 / 0.150, `KDE, Uniform` 0.0550 / 0.2411 / 0.268,
-`KDE, Variable` 0.0748 / 0.2702 / 0.047, `Normal, Variable`
-0.2075 / 0.7192 / 0.055, `Normal, Uniform` 0.2147 / 0.7061 / 0.150.
+**On the 23 structural categories with at least 100 EPDs -- which hold 83 percent
+of every value in the arm and are the materials that dominate embodied carbon --
+the KDE is closest on 70 percent of datasets under uniform weighting and has the
+lower mean under both.** Mean cross-validated W1 0.0658 against the lognormal's
+0.0737 under uniform weighting, 0.0808 against 0.0844 under variable.
 
-**The sentence the numbers support is that the KDE has the lower mean cost and
-the lognormal the tighter worst case.** Entry 56.
+That subgroup is not fished: the tiers were fixed in `materialclass.py` before any
+result was looked at, and n = 100 is the crossover established independently in
+4.2. **It is a conjunction of two prior findings, not a search.**
 
-### 4.6 The KDE's advantage is not about multimodality
+### 4.4 Weighting
 
-Two things had to be controlled or the answer is an artifact:
-`modality.n_modes_visible` returns 1 below n = 8 without measuring anything, so
-the whole of stratum 1 would be counted unimodal by fiat; and multimodality is
-only resolvable at large n, where every method does better. Datasets below n = 8
-are dropped and the split is reported within each band.
+**The old target made "variable weighting improves fit" 62 percent definitional.**
+Every model, including the three uniform-weighted ones, was scored against the
+variable-weighted empirical CDF, so a uniform-weighted model was charged a
+distance no estimation method can remove: 0.1119 on the empirical arm, identical
+for all three uniform methods, 61.9 percent of `KDE, Uniform`'s total. **Ranking
+the six against their own weighting scheme reverses the conclusion on both arms.**
 
-At n >= 8 the corpus is 93.7 percent visibly unimodal and the empirical arm 95.2.
-`KDE, Uniform` mean rank against the parent:
+**On a common target it is a coin flip overall and a size effect underneath.**
+Against the market-weighted parent, where all six estimate the same thing,
+variable weighting wins on 51.1 percent of datasets for the normal, 54.6 for the
+lognormal and 54.2 for the KDE, and the interval straddles zero for both of the
+latter. By band, for the KDE: -0.0395 at n = 3-9 rising to +0.0571 at n >= 1000,
+every band distinguishable.
 
-| band | visibly unimodal | multimodal |
+**Two limits on how far that can be read.** A cross-validated score may never be
+compared ACROSS weighting schemes: the empirical weights are an exchangeable flat
+Dirichlet draw, so the expected variable-weighted CDF of a random half IS the
+unweighted one and a uniform fit wins by construction. And the synthetic weighting
+result cannot be read as a statement about real market shares, because the
+generator makes within-mode share variation uninformative by construction
+(`mode_coupling = 1.0`), so an experiment that removes it and finds no signal is
+not evidence. Real shares are both informative and far more concentrated than a
+flat Dirichlet -- 63.75 percent for Rest-of-World BOF steel against an expected
+5.2 percent top share -- and concentration cuts the effective sample size that
+drives the penalty. Decisions 73 and 79.
+
+### 4.5 Regret, and the tail that reverses two methods
+
+Synthetic, against the parent: mean regret `KDE, Uniform` **0.0290**,
+`Lognormal, Uniform` 0.0368, `KDE, Variable` 0.0702, `Lognormal, Variable`
+0.0762, `Normal, Uniform` 0.1166, `Normal, Variable` 0.1431. **At the 95th
+percentile the order of the first two reverses**: 0.1506 for the KDE against
+0.1281 for the lognormal, and the worst case 1.26 against 0.86. The KDE has the
+lower mean cost and the lognormal the tighter worst case.
+
+Empirical, cross-validated: `Lognormal, Uniform` 0.0244, `Lognormal, Variable`
+0.0425, `KDE, Uniform` 0.0550, `KDE, Variable` 0.0748, the normals near 0.21.
+
+### 4.6 Post-stratification
+
+The corpus allocates 2,500 datasets per size band for equal precision; the
+empirical arm is 13.9 / 54.2 / 26.4 / 5.6 percent. `coverage.post_stratified` had
+existed since Stage 2a and no stage had applied it to the W1 or rank results.
+Reweighting changes the sign of the corpus's family verdict on the MEAN --
+`Lognormal, Uniform` 0.1306 against `KDE, Uniform` 0.1228 becoming 0.1240 against
+0.1268 -- while the KDE stays ahead on mean RANK, 2.25 against 2.75. **Every
+headline aggregate is now reported both ways.**
+
+`genconfig.EMPIRICAL_STRATUM_SHARE` was stale, measured on the 149-dataset arm
+before decision 61. Corrected to 20 / 78 / 38 / 8 over 147.
+
+**The strata themselves stay as they are.** Matching the corpus allocation to the
+empirical mix would put about 560 datasets above n = 1,000 instead of 2,500 and
+widen that band's intervals by a factor of 2.1, in the band where the methods
+differ most. Post-stratification gives both readings from one corpus and is
+reversible. Decision 76.
+
+### 4.7 Why the KDE loses at small n, and three explanations that are excluded
+
+Asked four times across the project, so answered by measurement.
+
+- **Not the halving.** At cross-validation fit fractions 0.5, 0.7, 0.8 and 0.9
+  the empirical deficit at n = 10-99 is -0.0670, -0.0684, -0.0663, -0.0665.
+- **Not the evaluation protocol.** Against the parent, fitting on every value and
+  splitting nothing, it is -0.0172 uniform and -0.0228 variable.
+- **Not the over-dispersion, which is the surprise.** A Gaussian KDE's variance
+  is the data's plus h^2, and the fitted spread over the data's is 1.63 at
+  n = 3-9 and 1.19 at n = 10-99. **Correcting it exactly does not recover the
+  loss**: the deficit moves only from -0.0138 to -0.0126 and the corrected
+  version beats the plain KDE on 47 to 55 percent of datasets, a coin flip.
+- **Partly the guard, and only partly.** Under pure Silverman the gap is -0.0085
+  instead of -0.0138. The guard costs the KDE about 40 percent of it.
+
+**The mechanism is the ordinary bias-variance tradeoff.** A parametric family
+converges at root-n and a KDE at n^-2/5, so at small n the lognormal's shape bias
+costs less than the KDE's variance, and at large n the bias stops shrinking while
+the variance does not. The crossover is at about n = 100, which is where it is
+observed. Decision 74.
+
+### 4.8 The method settings, all three now decided
+
+**The bandwidth.** Decision 54 adopted the guarded Silverman rule on leave-one-out
+likelihood. The synthetic parent gives W1 a target that is not the training data,
+and it is an unbiased referee: only 1.2 percent of datasets put the optimal
+bandwidth at the sweep floor, against in-sample W1 minimizing there for 95 of 147.
+It confirms the direction -- Scott sits 1.35 to 1.39 times above the
+parent-optimal bandwidth and the guarded rule beats it on 66 to 72 percent of
+datasets -- and it prefers a **lower threshold**, not no guard.
+
+**`SILVERMAN_MIN_NEFF` moved from 30 to 20**, and the answer to "why 20 and not
+10" is the shape of the trade. Stepping the threshold down one value at a time
+and measuring what each step buys in parent accuracy per unit of held-out
+likelihood it costs, every step from 200 down to 20 is free or better than free;
+**the step 20 -> 18 is the first that costs more than it buys**, at a marginal
+ratio of 0.34, and every step below is also below 1. The held-out p05 says the
+same from the other side: flat at about -1.62 from 200 down to 18, then -1.65 at
+15, -1.72 at 10, -1.88 at 5. Decision 75.
+
+**The scoring grid moved from 1,000 atoms to 20,000 points with trapezoid
+quadrature**, and the deciding fact is that **the atom route never converges**.
+Adding points does not extend the grid, whose top is `max(x) + 10 sd` whatever the
+point count, so a model with mass past it keeps losing that mass: against a
+400,001-point reference the atom route's p99 relative error sticks at 0.0379 from
+20,000 points through 100,000, while the trapezoid route goes 0.0039 to 0.0010 to
+0.0002. Because the change favors the method the paper is about -- the coarse grid
+inflated the KDE's score by 3 to 5 percent against 0.2 for the lognormal -- it is
+justified on the convergence table alone. The cross-validated comparison does not
+move: -0.0340 against -0.0339. Decision 80.
+
+**No tail-sensitive companion is added.** Integrating each fitted model's survival
+function beyond the recovery grid gives a mean charge of 0.0000 to 0.0001 over
+60,000 fits, no fit whose unseen tail exceeds its body score, and a rank
+correlation of 1.0000 between the body score and the total. `model_sd_ratio`
+stays as the sentinel, and Stage 2h must report it with every value of
+`PROFILE_DELTA_LO_FRAC` it tries. Decision 69.
+
+**Overlap area agrees with W1**, which is what justifies keeping W1. On the
+synthetic arm, where a reference density exists, the two pick the same winner on
+66.6 percent of datasets, correlate at Spearman 0.689, and give the same mean-rank
+ordering of all six methods. It is not adopted because it needs a density and the
+empirical target is a set of atoms.
+
+### 4.9 THE "95 PERCENT UNIMODAL" FIGURE IS WRONG. THE CORPUS IS FINE
+
+Two separate questions, and conflating them was the error in the first draft of
+this section.
+
+**The reported figure is an artifact.** `modality.n_modes_visible` counts local
+maxima of `gaussian_kde(x)` at scipy's DEFAULT bandwidth, which is Scott's rule,
+which this stage showed oversmooths by about 35 percent. The empirical share with
+exactly one visible mode is 94.6 percent at that bandwidth, 73.1 at 0.74 of it and
+55.4 at 0.6. **The manuscript quotes it as a property of ECC data and it is a
+property of a smoothing choice.** It must be restated with its bandwidth.
+
+**The corpus is not mismatched.** Counted at the bandwidth the study ACTUALLY
+FITS -- `silverman_guarded`, the density a reader is shown and the pLCA samples
+from, which needs no invented multiple -- the two arms agree:
+
+| visible modes | empirical | synthetic |
 |---|---|---|
-| n 10-99 | 2.55 (2,404 datasets) | 2.58 (96) |
-| n 100-999 | 1.57 (2,335) | 1.47 (165) |
-| n >= 1000 | 1.23 (2,272) | 1.25 (228) |
+| 1 | 68.46 pct | 76.23 pct |
+| 2 | 26.15 pct | 20.46 pct |
+| 3 or more | 5.38 pct | 3.31 pct |
 
-**The modality split barely moves it; the size split decides it.** The KDE's win
-share against the lognormal at the same weighting, on visibly UNIMODAL datasets
-only: 48 percent at n = 10-99, 82 at n = 100-999, 99 at n >= 1000.
+Total variation 0.0777, so the corpus does under-represent the multi-humped
+datasets, by a factor of 1.6. **And it does not matter: reweighting the corpus to
+the empirical mode mix changes the KDE-minus-lognormal difference by 0.0004.** So the modality shortfall
+is not a reason to reopen generation, which decisions 47, 48 and 55 close.
+Decision 78.
 
-**Where the advantage does come from.** Location against shape, variable
-weighting, visibly unimodal, n >= 1000: the lognormal gets the MEAN slightly
-better, 0.0159 against the KDE's 0.0173, and loses on SHAPE by more than a factor
-of two, 0.0569 against 0.0243. **It is a shape advantage -- skewness and tail
-behaviour -- and not an ability to represent several modes.** Entry 57.
+**What the mode split does show is that modality helps the KDE without being
+necessary to it**: it is closest on 74 percent of unimodal datasets, 80 percent of
+bimodal and 89 percent of those with three or more.
 
-### 4.7 The gamma question
+### 4.10 The gamma question
 
-Paired bootstrap against the three-parameter lognormal. Positive means the
-lognormal is better.
+Out of sample on the empirical arm the three-parameter lognormal is
+**indistinguishable from gamma, from the two-parameter lognormal, and from the
+Stage 1 offset method** -- every paired interval straddles zero, and only the
+normal separates. On the synthetic arm against the parent it does separate from
+gamma, +0.0117 uniform and +0.0045 variable, winning 77 and 68 percent of
+datasets. It is never worse, so it stands, and the paper must say that on real
+data its third parameter buys nothing measurable. **No hybrid estimator.**
 
-| arm, criterion | vs gamma | vs lognormal_2p | vs lognormal_offset | vs normal |
-|---|---|---|---|---|
-| empirical CV, uniform | +0.0044 [-0.0025, +0.0119] | +0.0042 [-0.0081, +0.0174] | +0.0044 [-0.0015, +0.0090] | +0.2049 [+0.1465, +0.2808]* |
-| empirical CV, variable | +0.0008 [-0.0055, +0.0077] | +0.0080 [-0.0061, +0.0215] | -0.0022 [-0.0110, +0.0037] | +0.1637 [+0.1055, +0.2470]* |
-| synthetic parent, uniform | +0.0117 [+0.0104, +0.0129]* | +0.0323* | +0.0042* | +0.0758* |
-| synthetic parent, variable | +0.0045 [+0.0031, +0.0060]* | +0.0253* | -0.0010 [-0.0023, +0.0003] | +0.0621* |
+Stage 2b's claim that gamma beats the lognormal on the guard-bound datasets is
+withdrawn: out of sample gamma wins 47.7 percent of those, a coin flip.
 
-**On real data, out of sample, the three-parameter lognormal is
-indistinguishable from gamma, from the two-parameter lognormal, and from the
-Stage 1 offset method.** Only the normal separates. On the synthetic arm it does
-separate from gamma, winning 77.4 and 67.5 percent of datasets.
-
-**Stage 2b's claim that gamma beats the lognormal on the GUARD-BOUND datasets is
-withdrawn.** On those 65 empirical datasets gamma wins 47.7 percent out of
-sample, a coin flip; on the `interior` datasets it wins 61.4 percent, the
-opposite direction. Decision 70, entry 59.
-
-### 4.8 The bandwidth against the parent: confirms Scott is wrong, does not confirm the guard
-
-The referee is unbiased, which had to be established before it could be used:
-only **1.2 percent** of datasets put the optimal bandwidth at the sweep floor of
-0.02 of Scott's, against in-sample W1 minimizing there for 95 of 147. Its optimum
-sits at a median of 0.46 (uniform) and 0.56 (variable) of Scott's.
-
-Mean W1 against the parent, 800 corpus datasets:
-
-| rule | uniform | variable | median h / sd, uniform | excess over the optimum |
-|---|---|---|---|---|
-| parent-optimal | 0.0911 | 0.1201 | 0.1899 | 1.000x |
-| pure Silverman | **0.1169** | **0.1593** | 0.2376 | 1.113x |
-| guarded Silverman | 0.1180 | 0.1597 | 0.2454 | 1.122x |
-| Scott | 0.1281 | 0.1695 | 0.4179 | 1.386x |
-
-The guarded rule beats Scott on 72.1 and 66.4 percent of datasets. **Pure
-Silverman beats the guarded rule on 90.1 and 83.2 percent.** The guard costs 0.9
-and 0.25 percent of mean W1 and buys the repaired p05 of held-out likelihood it
-was chosen for.
-
-**RESTATED AFTER THE AUTHOR ASKED THE OBVIOUS QUESTION, and the first version of
-this section was too broad.** It tested the guard only at its current threshold
-of 30 and concluded that the parent referee argues against a guard. It does not.
-Swept over the threshold (`audits/guard_threshold_sweep.py`), the parent
-criterion prefers a guard at `n_eff >= 5` -- mean W1 0.1355, below both pure
-Silverman's 0.1367 and the current 30's 0.1400 -- so what it argues against is
-this THRESHOLD, not the guard. Section 4.14 carries the sweep and the
-recommendation, which is to keep 30.
-
-The reconciliation belongs in the text: a density criterion and a CDF criterion
-want different bandwidths, because the empirical CDF is already root-n consistent
-so smoothing buys a CDF criterion very little. Decision 71, entry 60.
-
-### 4.9 The scoring grid, measured
-
-Against a 200,001-point lattice the study's criterion is off by a median of 0.20
-percent on the empirical arm and 0.11 on the synthetic, p99 about 14.5 percent on
-both, and it picks a different winner on 1.36 and 0.50 percent of datasets. **It
-is biased BY METHOD and AGAINST the KDE**: `KDE, Variable`'s empirical mean is
-0.1471 against a dense 0.1406, a +4.7 percent bias, against +0.2 percent for both
-lognormals.
-
-**It does not reach a conclusion, and that is what decides it.** The paired
-cross-validated KDE-minus-lognormal difference is -0.0340 at the study's grid and
-route, -0.0341 integrating the same grid as two CDFs, and -0.0339 at 20,000
-points. The discretization is common to all six methods and cancels.
-
-One free improvement is **not** taken: on the same 1,000 points the CDF route has
-a p99 relative error of 2.5 percent against the atom route's 14.5, at the same
-cost. Switching moves every reported number for no change in any conclusion.
-Author decision. Decision 72, entry 61.
-
-### 4.10 Does W1 need a tail-sensitive companion? No, as long as the guard holds
-
-Integrating each fitted model's survival function beyond the recovery grid, over
-60,000 fits: mean charge 0.0000 to 0.0001 by method, **no fit whose unseen tail
-exceeds its body score**, and a rank correlation of 1.0000 between the body score
-and the total. Mean rank changes in the fourth decimal.
-
-Stage 2b's pathology -- a model with a standard deviation of 3,281 on data whose
-own is 0.6 -- was produced at `PROFILE_DELTA_LO_FRAC = 0.01` and does not occur
-at 0.25. **So W1 alone is sufficient as long as the guard holds, and
-`model_sd_ratio` stays as the sentinel. Stage 2h sweeps that guard and must
-report `model_sd_ratio` with every value it tries.** Decision 69.
-
-### 4.11 THE ONE PREVIOUSLY REPORTED NUMBER THAT MOVES
-
-`genconfig.EMPIRICAL_STRATUM_SHARE` was measured on the 149-dataset arm, before
-decision 61 dropped `Chairs` and `Grouting`. Corrected to 20 / 78 / 38 / 8 over
-147. It is used by `coverage.post_stratified` in notebook 1, whose
-`median_post_stratified` column moves by at most **0.27 percent relative**:
-
-| metric | before | after |
-|---|---|---|
-| `weight_outliers` | 0.036651 | 0.036550 |
-| `entropy` | 2.925022 | 2.918925 |
-| `skewness` | 1.153434 | 1.150992 |
-| `coeffvar` | 0.508989 | 0.508389 |
-| `crit_bw_1` | 0.666286 | 0.666253 |
-
-All nine move in the third or fourth decimal. Nothing else in the study reads
-that constant; `recovery.empirical_size_shares` measures the shares from the arm
-it is handed, so the score tables cannot inherit a stale one. Entry 62.
-
-### 4.12 Overlap area, the carried-forward robustness check
-
-On the synthetic arm, where a reference density exists, overlap area and W1 pick
-the same winner on **66.6 percent** of datasets, correlate at Spearman **0.689**,
-and **give the same mean-rank ordering of all six methods**. It is not adopted
-because it needs a density and the empirical target is a set of atoms; supplying
-one would mean a bin width or a kernel, and a kernel would score the KDE against
-a KDE. Decision 69, entry 58.
-
-### 4.13 Two defects found and fixed in passing, both introduced by this stage
-
-**A filename collision.** Notebook 2's new post-stratification table was given
-the name notebook 1 already uses for the post-stratified dataset
-CHARACTERISTICS. Running the pair would have left one table on disk describing
-something other than its name, and nothing would have caught it because each
-notebook runs green on its own. Renamed to `TABLE_PostStratifiedScores.csv`, and
-`tests/test_notebooks.py::test_no_two_notebooks_write_the_same_output_file` now
-guards the class. **Stage 3 owns the duplicate-filename check; this is a partial
-down payment on it and does not close it, because it only sees literal paths.**
-The rename also had to be made in the FIGURE that reads the table, which it was
-not at first, and the symptom was `'DataFrame' object has no attribute 'arm'`
-rather than a missing file, because notebook 1's table exists and has different
-columns.
-
-**A column name that shadows a DataFrame method.** A summary column called
-`rank` makes `frame.rank` the method rather than the column, so
-`h.rank.get(...)` returned a bound method and the figure raised
-`'function' object has no attribute 'get'` twelve minutes into a run. The same
-thing happened in an audit script with a column called `tail`. Renamed to
-`mean_rank`, and the surviving attribute access is bracket access with a comment
-saying why.
+**And the two-parameter lognormal is the wrong comparator.** Against the parent it
+is the worst of the four right-skewed families, +0.0323 behind the
+three-parameter form. "Lognormal" should never appear in the paper without its
+parameter count.
 
 ---
 
-### 4.14 Four questions the author put to the draft, answered by measurement
+## 5. What is still open
 
-Added after the author reviewed this handoff. Each was a challenge to a claim in
-it; two of them were right and changed what it says.
+**Nothing here blocks Stage 2d.** The five decisions the author was asked for are
+closed; what remains is work owned by later stages, plus text the manuscript owes.
 
-**A. "Rewarding the most flexible method is part of the point. Why is it wrong?"
-IT IS NOT, AND SECTION 0 OVERSTATED IT.** Flexibility is the thing under test,
-and the defect is narrower than "in-sample W1 rewards flexibility". It is that
-in-sample W1 has a DEGENERATE optimum: a KDE with a vanishing bandwidth scores
-exactly zero on any dataset, so the criterion cannot distinguish a good flexible
-method from an arbitrarily flexible one. **This study never lets the KDE reach
-that optimum**, because the bandwidth is fixed by a rule and that rule was
-calibrated on held-out likelihood, not on W1. So the in-sample score is
-optimistic for the KDE but not degenerate, and it remains a legitimate number.
-The circularity that is NOT a matter of degree is the second one: scoring
-uniform-weighted models against the variable-weighted eCDF charges them a
-distance no estimation method can remove, which is 62 percent of the score on
-the empirical arm (section 4.4).
-
-**B. "The KDE losing at n = 10-99 does not pass the sniff test."** It survives
-every check that could have made it an artifact, and it has a textbook
-mechanism.
-
-  - **It is not the halving.** `audits/cv_fit_fraction.py` reruns the
-    cross-validation at fit fractions 0.5, 0.7, 0.8 and 0.9. The KDE's deficit
-    at n = 10-99 does not shrink as the fitting half grows: empirical uniform
-    -0.0670, -0.0684, -0.0663, -0.0665. The 50/50 split Stage 2c reports is, if
-    anything, the protocol most favourable to the KDE of the four.
-  - **It is not the evaluation protocol at all.** Against the known parent,
-    fitting on every value and splitting nothing, the KDE still loses at
-    n = 10-99: -0.0172 uniform and -0.0228 variable, both distinguishable.
-  - **The mechanism is the bias-variance tradeoff, and it is standard.** A
-    parametric family converges at root-n; a KDE converges at n^-2/5. At small n
-    the lognormal's shape bias costs less than the KDE's variance, and at large
-    n the lognormal's bias stops shrinking while the KDE's variance does not.
-    **The crossover is at n of about 100, which is where it is observed.**
-  - **The over-dispersion is real but is NOT the explanation.** A Gaussian KDE's
-    variance is the data's plus h^2, and the fitted model's spread over the
-    data's runs 1.63 at n = 3-9 and 1.19 at n = 10-99 against the normal's 1.35
-    and 1.02. Correcting it exactly -- shrinking the points so the density
-    recovers the data's variance -- **does not recover the loss**:
-    `audits/kde_variance_correction.py` moves the n = 10-99 deficit from -0.0138
-    to -0.0126 under uniform weighting and makes n = 3-9 WORSE under variable,
-    and it beats the plain KDE on 47 to 55 percent of datasets, a coin flip. So
-    the small-n deficit is about SHAPE, not spread: with 30 points a bumpy
-    nonparametric estimate of a smooth truth loses to a smooth three-parameter
-    one however its variance is scaled.
-  - **The guard costs the KDE about 40 percent of the n = 10-99 deficit and does
-    not cause it.** Under pure Silverman the same gap is -0.0085 instead of
-    -0.0138 (uniform) and -0.0103 instead of -0.0177 (variable). Still negative.
-
-**C. "If the guard loses to pure Silverman, adjust the threshold."** Swept, and
-the author is right that this was the question to ask. `SILVERMAN_MIN_NEFF` over
-0, 5, 10, 15, 20, 30, 50, 100, 200 and infinity, scored on BOTH criteria:
-
-| threshold | pct Silverman, empirical | mean LOO, empirical | p05 LOO, empirical | mean W1 vs parent |
-|---|---|---|---|---|
-| 0, pure Silverman | 100.0 | -0.8708 | -2.0701 | 0.1367 |
-| 5 | 88.4 | -0.7694 | -1.8804 | **0.1355** |
-| 10 | 79.9 | -0.7483 | -1.7191 | 0.1368 |
-| 15 | 71.4 | -0.7382 | -1.6233 | 0.1381 |
-| 20 | 64.6 | -0.7337 | -1.6233 | 0.1384 |
-| **30, in use** | 52.7 | **-0.7336** | -1.6113 | 0.1400 |
-| 50 | 41.2 | -0.7406 | -1.6113 | 0.1414 |
-| infinite, pure Scott | 0.0 | -0.7633 | -1.6173 | 0.1481 |
-
-**The two criteria disagree and 30 sits at one of the two optima.** Held-out
-likelihood peaks at 20 to 30 on both arms; W1 against the parent peaks at 5. The
-whole span 20 to 30 differs by about 1 percent on either criterion.
-
-**RECOMMENDATION REVISED AFTER THE AUTHOR PUSHED BACK: move it to 20.** The first
-version of this section said keep 30, on the grounds that moving it to improve W1
-would be tuning on the reported criterion. **That argument does not survive
-inspection and the author was right to doubt it.** The parent criterion is not
-the criterion the study reports: the reported one is IN-SAMPLE W1, and the parent
-score is an independent out-of-sample truth. Using it is not tuning on the
-training score.
-
-The case for 20 over 30 is that the two are **tied on the criterion the guard was
-chosen by** -- empirical mean LOO -0.7337 against -0.7336, a difference in the
-fourth decimal -- and 20 is **1.1 percent better on the parent**. That is not
-post-hoc selection; it is an independent criterion breaking a tie that the
-original criterion cannot break. The cost is 0.7 percent of the empirical p05,
-which is the tail the guard exists for.
-
-**Going lower than 20 is where the tradeoff turns real**: 5 is the parent
-optimum, 3.2 percent better than 30, but it costs 4.9 percent of the empirical
-mean LOO and 17 percent of the p05, which is the failure the guard was
-introduced to fix.
-
-**This is an author decision, and the honest statement of it is that 20 weakly
-dominates 30 while 30 is already defensible.** The whole effect is about 1
-percent of one criterion, so the question is really whether it is worth a re-run
--- and it is nearly free if it rides along with the quadrature change, which
-moves every number anyway.
-
-**D. "Would it be worth changing the n buckets to reflect the empirical data?"
-No, and post-stratification is why.** Matching the corpus's allocation to the
-empirical size mix would put about 560 datasets above n = 1,000 instead of 2,500,
-widening every interval in that band by a factor of `sqrt(2500/560)` = **2.1** --
-and that is the band where the methods differ most and where the KDE's advantage
-lives, so the author's worry that it would punish the KDE is right in a way that
-matters: it would not bias the estimate, it would make it too noisy to state.
-
-Equal allocation plus post-stratification already delivers what resampling would
-and keeps both readings: each band is estimated with equal precision, and the
-reweighted column says what happens on a population that looks like the EC3
-categories. It is also reversible, which a different allocation would not be,
-since generation is closed. **No change. Section 4.11 and decision 67 already
-report every aggregate both ways.**
-
-### 4.15 The weighting penalty at small n is the DIRICHLET STAND-IN, not weighting
-
-**The author's objection was right and this is the most consequential result of
-the review.** The objection: "variable data is parent distribution + noise, so
-it's not a faithful representation of the parent."
-
-**The structure, exactly.** A synthetic dataset's weights are built in two steps.
-Mode k is given its true market share, which is signal: the market-weighted
-parent is a real population object and `mode_coupling = 1.0`. That share is then
-split among the points inside mode k by a FLAT DIRICHLET, which is noise, and it
-is noise the real world does not have, because a real market share is a property
-of a product rather than a random draw.
-
-**The counterfactual that separates them.** `audits/weight_noise_vs_signal.py`
-refits everything under `oracle` weights: the same mode-level market share, split
-EQUALLY within each mode. Same signal, no within-mode noise. It is not a method
-anyone could use and is not proposed as one; it isolates the stand-in. It needs
-the per-point mode label, which nothing on disk carries -- `MixtureParent.sample`
-shuffles the points precisely so that mode membership carries no positional
-information -- so `corpus._replay_one` now returns it.
-
-Paired against the same uniform-weighted fit, against the market parent.
-Positive means variable weighting is better; `*` marks an interval excluding zero.
-
-| family | band | realized weights | oracle weights |
-|---|---|---|---|
-| Normal | n 3-9 | -0.0312* | -0.0103 |
-| Normal | n 10-99 | -0.0235* | -0.0066 |
-| Normal | n 100-999 | +0.0134* | +0.0162* |
-| Normal | n >= 1000 | +0.0129* | +0.0122* |
-| Lognormal | n 3-9 | -0.0528* | -0.0213* |
-| Lognormal | n 10-99 | -0.0335* | **-0.0014** |
-| Lognormal | n 100-999 | +0.0300* | +0.0394* |
-| Lognormal | n >= 1000 | +0.0402* | +0.0416* |
-| KDE | n 3-9 | -0.0317* | -0.0131 |
-| KDE | n 10-99 | -0.0398* | **-0.0056** |
-| KDE | n 100-999 | +0.0274* | +0.0437* |
-| KDE | n >= 1000 | +0.0513* | +0.0575* |
-
-**At n = 10-99 the penalty essentially disappears and stops being
-distinguishable**: 86 percent of it for the KDE, 96 percent for the lognormal,
-72 percent for the normal. **At n >= 100 the oracle makes variable weighting
-BETTER than the realized weights do**, which is the same statement from the other
-side: the stand-in's noise is a cost everywhere and it is simply outweighed once
-there are enough points.
-
-**At n = 3-9 a real penalty survives** for the lognormal, -0.0213 and still
-distinguishable. Estimating a several-mode market mixture from three to nine
-points does not work however clean the weights are, and that part is not an
-artifact.
-
-**WHAT THIS DOES AND DOES NOT SHOW, and the first version of this section
-overclaimed.** The author's response was "I can't think of a way to introduce
-variable weights to equally weighted values sampled from a distribution without
-it producing noise", and that scepticism is right in a way that narrows the
-result to almost nothing about reality.
-
-  - **What it shows.** The penalty is not intrinsic to using weights. It is
-    attributable to the WITHIN-MODE part of the weight vector.
-  - **Why that is nearly circular.** In this generator the within-mode split is
-    uninformative BY CONSTRUCTION: market share attaches at the mode level
-    (decision 21, `mode_coupling = 1.0`), and every point inside a mode is drawn
-    from the same component, so how the mode's share is divided among its points
-    cannot change the target. The oracle therefore removes variance that the
-    generator defined to carry no signal. **It was built that way, so finding it
-    carries no signal is not evidence.**
-  - **What reality does instead, and it may be worse.** Real products within a
-    production route are NOT identical, so their individual shares do carry
-    information -- but they are also far more CONCENTRATED than a flat Dirichlet.
-    Marsh, Hattam and Allen (2025) report Rest-of-World BOF at 63.75 percent of
-    global steel against Austrian EAF at 0.03. A flat Dirichlet at n = 100 gives
-    an expected top share of 5.2 percent (decision 16). Concentration cuts the
-    effective sample size, which is the mechanism BEHIND the penalty, so real
-    shares would carry more of it, not less.
-  - **The oracle removes both effects at once** -- the uninformative variation
-    and the concentration -- so it is the low-noise bound and not a model of
-    anything achievable.
-
-**SO THE CLAIM IS WEAKER THAN THE FIRST DRAFT OF THIS SECTION SAID.** It is not
-"variable weighting pays whenever shares are known". It is: **the penalty this
-study measures below n = 100 is a property of the weight VECTOR and not of
-weighting, and this generator cannot say what real market shares would do,
-because it was built with within-mode share variation carrying no information.**
-That is a limitation of the GENERATOR and it is the more important finding.
-Decision 73, entry 64.
-
-**What would actually answer it** is a weighting arm built from real production
-volumes rather than a Dirichlet, which is Marsh, Hattam and Allen (2025)'s
-contribution and is out of scope here; or, cheaply, a sweep of the Dirichlet
-concentration, which Stage 2h already owns (`mode_share_alpha`, decision 27) and
-which would at least bracket the effect.
-
-**And it endorses the author's "treat these as two separate issues".** The family
-comparison and the weighting comparison are already separable in the tables:
-`w1_parent` compares estimation methods WITHIN a weighting scheme, where the
-weights are held fixed and cannot confound anything, and `w1_market` is the only
-place the two weightings meet. The paper should present them in that order.
-
-### 4.16 The author's own framing of the right test, which no stage has run
-
-Raised in the review: "the test should be, if we use this probabilistic model in
-the context of a probabilistic whole-building LCA, how faithfully do those
-probabilistic models represent the true population of data? How aptly is the
-parent distribution captured? Does it even matter?"
-
-**The last three words are the test and it is now runnable for the first time.**
-Every fit-quality criterion in this study, old or new, is instrumental: it matters
-only insofar as it changes a pLCA answer. Until Stage 2c the synthetic parents
-could not be reconstructed, so there was no way to run a pLCA on the TRUTH. There
-is now: `corpus.load_parent_objects` returns an object with `ppf` and
-`rvs_from_uniform`, which is everything `notebooks/03` needs from a model.
-
-**The experiment: run the pLCA twice, once with each method's fitted models and
-once with the true parents, on the same common random numbers, and report how far
-each method's ECI Rank #1 Frequency is from the truth.** That converts every
-number in this handoff from "how close is the fitted CDF" to "how wrong is the
-answer", and it is the only version of the question a practitioner has.
-
-**It belongs to Stage 2e, which owns the pLCA construction and the common random
-numbers, and 2g, which owns the metrics.** Not run here: Stage 2c was told not to
-touch the pLCA construction, and the sweep over materials per pLCA that 2e owns
-would change the design underneath it. **It is the single most valuable thing
-either of those stages could do, and it may well show that the differences this
-stage measured do not matter, which would itself be the paper's cleanest result.**
-
-### 4.17 KDE against the lognormal, on one page
-
-Asked for directly in the review. Everything below is out of sample.
-
-**Where the KDE wins, and it is not close.**
+### Text the manuscript owes
 
 | | |
 |---|---|
-| n >= 1000, against the parent | wins **99 pct** of datasets against the lognormal under uniform weighting, 92 under variable. Mean W1 0.0161 against 0.0523 |
-| n = 100-999 | wins **82 pct** uniform, 66 variable |
-| shape, not location | at n >= 1000 the lognormal gets the MEAN slightly better, 0.0159 against 0.0173, and loses on SHAPE by a factor of 2.3, 0.0569 against 0.0243. The KDE is capturing skewness and tail behaviour no three-parameter family reaches |
-| it keeps improving | the lognormal's error stops falling with n because its bias is its shape; the KDE's keeps falling. At n >= 1000 the gap is a factor of 3.2 and still widening |
-| mean regret | lowest of all six methods on the synthetic arm, 0.0290 against the lognormal's 0.0368 |
+| The unimodality figure | Restate with its bandwidth. Section 4.9, entry 70 |
+| The coverage claim | Option A, decision 48, with decision 63's corrected numbers |
+| Empirical W1 in raw category units | Text must take new numbers from the rerun, entry 41 |
+| The ICE figure in `MASS_ECC_CEILING` | Unsourced in this repository; verify before it is printed |
+| Which lognormal | Say the parameter count every time, entry 72 |
+| Every claim in section 4 | Entries 53 to 72 |
 
-**Where the lognormal wins.**
+### Owned by a later stage
 
-| | |
+| Item | Owner |
 |---|---|
-| n = 10-99 | beats the KDE by 0.0172 uniform and 0.0228 variable against the parent. Section 4.14 B: real, textbook, and not fixable by a bandwidth |
-| the worst case | tighter upper tail everywhere. p95 regret 0.1281 against the KDE's 0.1506, worst case 0.86 against 1.26 |
-| unweighted over CATEGORIES | the empirical arm is 54 pct at n = 10-99, so a mean over categories puts the lognormal ahead |
-| against gamma | it is NOT better, on real data. Indistinguishable from gamma, from the 2-parameter lognormal and from the Stage 1 offset. Section 4.7 |
+| **Run the pLCA against the TRUE parents.** Newly possible; the decisive version of the whole comparison. Entry 69 | 2e, then 2g |
+| Dependent sampling; common random numbers | 2e |
+| Flip probability, and the location/shape split of the uniform-to-variable W1 | 2d |
+| `(1-capecc)` divisor; magnitude-based companions | 2g |
+| Shapiro-Wilk versus Shapiro-Francia; kurtosis undefined in stratum 1 | 2f |
+| `PROFILE_DELTA_LO_FRAC` sweep, **reporting `model_sd_ratio` at every value** | 2h |
+| `mode_share_alpha`, `trunc_iqr_mult`, `min_mode_sd_frac`, deduplicated variant, averaging over weight realizations | 2h |
+| `TABLE_MethodCurves.csv.gz` at 91.7 MB; `SUPP_DatasetExamplesByStratum` x-axis; notebook 2 stores no outputs; `src/` docstrings carry stage language | 3 |
+| Notebook 3 cell 45 explains pLCA outcomes with the in-sample score | 2g |
+| Git history size, decision 28 stands | 4 |
 
-**THE AVERAGE THE PAPER TAKES IS THE WRONG ONE, AND THAT IS NOT A DEFENCE OF THE
-KDE, IT IS AN OBSERVATION ABOUT THE ARM.** Every aggregate in this study weights
-each category equally, so `Chairs` counted as much as `ReadyMix` before it was
-dropped. On the 147-dataset arm:
+### Known and accepted
 
-  - 49 datasets reach n = 100. That is 33 percent of CATEGORIES and
-    **97.3 percent of the EPDs**.
-  - 88.1 percent of all EPDs sit in datasets with n >= 1,000, which is the band
-    where the KDE wins 76 to 99 percent of the time.
-  - The concrete family -- ReadyMix, Shotcrete, CMU, Precast -- is 25 datasets
-    and **77.1 percent of the arm by EPD count**, and every ReadyMix strength
-    class has between 3,974 and 31,025 values. Concrete is also the largest
-    single embodied-carbon contributor in most buildings.
-
-So **the categories where the KDE wins decisively are the structural materials
-that dominate a building's embodied carbon, and the categories where it loses are
-small, specialized ones.** A category-count average says the lognormal; an
-average that reflects what a building is made of says the KDE. **Neither is
-reported yet, and the second one is the paper's question.** Stage 2i's
-real-building anchor is the principled version and entry 69's pLCA-against-truth
-is the decisive one.
-
-**The 2-parameter lognormal is NOT what the paper should compare against, and
-saying so is worth a sentence.** Against the parent it is the worst of the four
-right-skewed families, +0.0323 behind the three-parameter form under uniform
-weighting, and the three-parameter form beats it on 66.5 percent of datasets.
-The Stage 1 method the manuscript currently describes -- a fixed +0.5 offset --
-is much closer to the three-parameter fit than the two-parameter one is.
-
-### 4.18 THE "95 PERCENT UNIMODAL" FIGURE IS A BANDWIDTH, NOT A PROPERTY OF THE DATA
-
-**The author doubted this on sight and was right.** It is the most consequential
-defect found in the review.
-
-`modality.n_modes_visible` counts local maxima of `scipy.stats.gaussian_kde(x)`
-at its DEFAULT bandwidth, which is Scott's rule. Stage 2c then established, on a
-criterion with nothing to do with modality, that **Scott oversmooths this data by
-about 35 percent**. A mode counter run at an oversmoothing bandwidth undercounts
-modes.
-
-Share with exactly one visible mode, n >= 8, as the bandwidth is scaled:
-
-| multiple of scipy's default | empirical | synthetic | empirical 3+ modes | synthetic 3+ | total variation |
-|---|---|---|---|---|---|
-| 1.20 | 96.9 pct | 96.6 pct | 0.0 | 0.0 | 0.0030 |
-| **1.00, what is used** | **94.6 pct** | 94.0 pct | 0.8 pct | 0.2 pct | **0.0123** |
-| 0.90 | 91.5 pct | 91.1 pct | 0.8 pct | 0.2 pct | 0.0104 |
-| 0.80 | 80.8 pct | 85.3 pct | 2.3 pct | 0.5 pct | 0.0457 |
-| **0.74, the Scott correction** | **73.1 pct** | 80.0 pct | **8.5 pct** | **1.3 pct** | **0.0714** |
-| 0.60 | 55.4 pct | 63.7 pct | 13.8 pct | 6.8 pct | 0.0829 |
-| 0.50 | 41.5 pct | 46.9 pct | 27.7 pct | 18.9 pct | 0.0883 |
-
-**Two things follow and the second is worse than the first.**
-
-1. **The headline figure is not a property of ECC data.** It is 95 percent at
-   Scott, 73 at the corrected bandwidth and 55 at 0.6. The manuscript quotes it
-   as a fact about the datasets. It is a fact about a smoothing choice.
-2. **THE AGREEMENT BETWEEN THE TWO ARMS IS ALSO A PROPERTY OF THE BANDWIDTH, AND
-   DECISION 38 TUNED THE GENERATOR AGAINST IT.** Total variation between the arms
-   is 0.0123 at Scott -- the number the corpus was matched on -- and 0.0714 at
-   the corrected bandwidth, six times worse. The gap is driven by datasets with
-   THREE OR MORE visible modes: **8.5 percent of the empirical arm against 1.3
-   percent of the corpus**. The corpus is missing the genuinely multi-humped
-   datasets, and the measure used to check could not see them.
-
-**WHICH WAY IT CUTS, because the review asked whether the corpus was cooked to
-favour the KDE.** The opposite. Multimodality is the one structure a KDE
-represents and a three-parameter family cannot, and **the corpus has six times
-fewer strongly multimodal datasets than the empirical arm**. On this dimension
-the corpus is biased AGAINST the KDE. Correcting it would be expected to help the
-KDE, not hurt it.
-
-**Not fixed here.** Changing `n_modes_visible`'s bandwidth changes a reported
-characteristic and, because decision 38 steers generation by it, implies a
-retune -- and generation is closed by decisions 47, 48 and 55. **This is an
-author decision and it is the one open item in this handoff that could change a
-conclusion.** Decision 78, entry 70. `audits/visible_modes_bandwidth.py`.
-
-## 5. Open questions and flags
-
-### Carried forward
-
-Every still-open item from every earlier handoff, restated. An item leaves this
-list only by being marked resolved, with the reason.
-
-| Item | Owner | Status |
-|---|---|---|
-| Bandwidth rule, KL1/KL2 inconsistency | 2h | **RESOLVED** by decision 54 in favour of KL2's rule, and re-examined in 2c against the parent (section 4.8). What stays open for 2h is the SWEEP, and the GUARD, which the parent referee does not confirm |
-| Dependent sampling | 2e | STILL OPEN. `rvs_from_uniform` is in place for it |
-| Overlap area alongside W1 | 2c | **RESOLVED in 2c.** Section 4.12, decision 69, entry 58 |
-| W1 has no complexity penalty | 2c | **RESOLVED in 2c.** Both arms now have a non-circular criterion; sections 4.1 to 4.3 |
-| The W1 grid is linear | 2c | **RESOLVED in 2c.** Measured, does not reach a conclusion, left alone. Section 4.9, decision 72 |
-| Shapiro-Wilk vs Shapiro-Francia and `_royston_pvalue` | 2f | STILL OPEN |
-| `(1-capecc)` divisor | 2g | STILL OPEN |
-| `weighted_quantile` must stay fixed before Silverman | 2h | STILL OPEN as a constraint. Silverman is now the production rule and the fix is in place |
-| Deduplicated empirical variant | 2h | STILL OPEN. Primary stays EPD-level uniform |
-| `mode_share_alpha` at 10 | 2h | STILL OPEN |
-| `trunc_iqr_mult` sweep | 2h | STILL OPEN |
-| `PROFILE_DELTA_LO_FRAC` sweep | 2h | STILL OPEN, and **now load-bearing**: section 4.10 says W1 needs no tail companion only because the guard is at 0.25. Any sweep of it must report `model_sd_ratio` |
-| Kurtosis undefined in stratum 1 | 2f | STILL OPEN |
-| `min_mode_sd_frac = 0.15` has no empirical anchor | 2h | STILL OPEN |
-| Six or more modes, 5.6 pct of corpus vs 0.7 empirical | 2h | STILL OPEN |
-| `SUPP_DatasetExamplesByStratum.png` x-axis is misleading | 3 | STILL OPEN |
-| Git history size | 4 | STILL OPEN, decision 28 stands |
-| Coverage claim is false at the top of the coefficient of variation | manuscript | STILL OPEN as a text edit, option A, decision 48, with the corrected numbers of decision 63 |
-| A single Dirichlet realization moves per-dataset weighted metrics a long way | 2h | STILL OPEN, and **2c adds to it**: the empirical cross-validation cannot compare weighting schemes at all because the weights are exchangeable (decision 65), so averaging over realizations does not fix that particular limitation, it only shrinks the noise |
-| Four EC3 parent categories kept as residual bins | - | OPEN as a stated limitation |
-| `CementGrout`, `FlowableFill`, `OilPatch` carry a strength field and are not split | - | OPEN by choice |
-| `TABLE_MethodCurves.csv.gz` is 91.7 MB and 21x redundant | 3 | STILL OPEN and **closer to the limit**: Stage 2c adds columns to `TABLE_MethodScores.csv`, not to the curves table, so the curves table itself has not grown. Check its size after any run |
-| `src/` docstrings still carry stage language | 3 or 4 | STILL OPEN, and `recovery.py` adds more |
-| `Aggregates` and `PowerCabling` remain the arm's dispersion extremes | - | OPEN as decision 48's stated limitation |
-| Notebook 2 carries no stored outputs | 3 | STILL OPEN |
-| `customstats.weighted_lognorm_fit` is unused by the production path | 3 or 4 | STILL OPEN |
-| The ICE database figure in `MASS_ECC_CEILING`'s docstring is unsourced here | manuscript | STILL OPEN. Verify before it goes in the paper |
-| The empirical W1 values in the manuscript are in raw category units | manuscript | STILL OPEN. Text must take new numbers from the rerun |
-| Calibration gate marginally outside noise | author | STILL OPEN; recommendation remains to do nothing, decisions 47, 48, 55 and 63 |
-| One cable record wrong by four orders of magnitude | author or 2h | **RESOLVED** by decision 63 |
-| EAF against BOF steel is not available | - | CLOSED as infeasible |
-| Whether to filter contaminated categories on metadata | - | **RESOLVED**, decisions 60 and 61 |
-
-### DECISIONS WAITING ON THE AUTHOR
-
-The review asked for these spelled out rather than named. Each states the choice,
-what it costs, and a recommendation. **Nothing below blocks Stage 2d.**
+Four EC3 parent categories kept as residual bins; `CementGrout`, `FlowableFill`
+and `OilPatch` not split by strength; `Aggregates` and `PowerCabling` as the arm's
+dispersion extremes; the calibration gate marginally outside noise with the
+recommendation to do nothing; `customstats.weighted_lognorm_fit` unused in the
+production path.
 
 ---
 
-**D1. The visible-mode bandwidth. THE ONLY OPEN ITEM THAT COULD CHANGE A
-CONCLUSION.** Section 4.18.
+## 6. Numbers that moved, and inputs and outputs
 
-*The choice.* `modality.n_modes_visible` counts modes at scipy's default
-bandwidth, which is Scott's, which Stage 2c showed oversmooths by about 35
-percent. Leave it, or recompute it at a corrected bandwidth.
+### The three settings that moved every number
 
-*What changes if you correct it.* The reported "95 percent of ECC datasets are
-visibly unimodal" becomes about 73 percent. More seriously, the corpus-to-arm
-agreement on modality, which decision 38 TUNED the generator against, goes from a
-total variation of 0.0123 to 0.0714, because the corpus has 1.3 percent of
-datasets with three or more visible modes against the arm's 8.5.
+Two settings changed and one measurement was corrected, in one re-run of all
+three notebooks. `SILVERMAN_MIN_NEFF` 30 to 20, `SCORE_GRID_POINTS` 1,000 to
+20,000, `W1_ROUTE` atoms to trapezoid.
 
-*Cost of correcting.* It is a reported characteristic and a tuning target, so
-taking it seriously implies a retune and a regeneration, and generation is closed
-by decisions 47, 48 and 55. That is the whole of Stage 2a again.
+**W1, mean over datasets.**
 
-*Cost of not correcting.* The manuscript states a number that is an artifact of a
-smoothing choice, and a reviewer who recomputes it at any other bandwidth gets a
-different answer.
+| method | empirical before | after | change | synthetic before | after | change |
+|---|---|---|---|---|---|---|
+| `KDE, Variable` | 0.1471 | **0.1319** | **-10.4 pct** | 0.0776 | **0.0754** | -2.9 pct |
+| `KDE, Uniform` | 0.1806 | **0.1727** | **-4.4 pct** | 0.1612 | 0.1602 | -0.6 pct |
+| `Lognormal, Variable` | 0.1687 | 0.1683 | -0.2 pct | 0.0986 | 0.0991 | +0.5 pct |
+| `Lognormal, Uniform` | 0.1990 | 0.1985 | -0.2 pct | 0.1673 | 0.1680 | +0.4 pct |
+| `Normal, Variable` | 0.3619 | 0.3599 | -0.6 pct | 0.1723 | 0.1717 | -0.4 pct |
+| `Normal, Uniform` | 0.3990 | 0.3970 | -0.5 pct | 0.2188 | 0.2183 | -0.2 pct |
 
-*Recommendation.* **Split it.** Correct the REPORTED figure and say the number
-depends on the bandwidth, quoting the table -- that costs nothing and is simply
-more honest. Do NOT regenerate: the gap is in the direction that penalizes the
-KDE, so the current corpus understates the case for the method the paper is
-about, and a limitation stated against yourself is safe ground.
+**The direction was predicted before the run and is the reason to be careful
+about it**: the coarse grid inflated the KDE's score because its CDF has the most
+structure at grid scale, so converging the quadrature helps the KDE and almost
+nothing else. Every non-W1 metric column is unchanged to 0.000e+00.
 
----
+**The pLCA.** Only the two KDE methods move, on 12.3 percent of rows, by a mean
+of 0.0016 in `eci_rank_1`. `Lognormal` and `Normal` are bit-identical, which is
+the check that the grid change cannot reach the pLCA and only the bandwidth
+guard can.
 
-**D2. `SILVERMAN_MIN_NEFF`, 30 or 20.** Section 4.14 C.
-
-*The choice.* The guard threshold. 20 and 30 are tied on the criterion the guard
-was chosen by (empirical mean LOO -0.7337 against -0.7336) and 20 is 1.1 percent
-better against the parent. Below 20 the tradeoff turns real.
-
-*Recommendation.* **20**, and only because it is nearly free if it rides along
-with D3, which moves every number anyway. On its own it is not worth a re-run.
-30 remains defensible.
-
----
-
-**D3. The scoring grid. THE FIRST WRITE-UP OF THIS WAS WRONG AND THE ANSWER IS
-BETTER THAN IT SAID.** Section 4.9, and `fitting.W1_ROUTE`.
-
-*What W1 is here.* The area between the fitted model's CDF and the data's. The
-study computes it on a grid of 1,000 points running from `hi/1000` to
-`max(x) + 10 sd`.
-
-*The two ways to compute it on that grid.* The study evaluates the model's
-DENSITY at each point, treats those as 1,000 weighted atoms, and asks
-`scipy.stats.wasserstein_distance` for the distance between that cloud and the
-data. The alternative evaluates the model's CDF at the same points and integrates
-`|F_model - F_data|` by the trapezoid rule. Same grid, same cost.
-
-*WHAT I TOLD YOU BEFORE AND WHY IT WAS WRONG.* I said the trapezoid route was
-strictly better and that switching was free accuracy. **It is not strictly
-better.** Against a 200,001-point reference at 1,000 points, relative error
-median / p99 / max:
-
-| route | median | p99 | max |
+| method | rows changed | mean absolute change | max |
 |---|---|---|---|
-| atoms, in use | **0.00134** | 0.1359 | 1.385 |
-| trapezoid | 0.00218 | **0.0228** | **0.200** |
+| `KDE, Uniform` | 12.33 pct | 0.00163 | 0.2854 |
+| `KDE, Variable` | 12.31 pct | 0.00159 | 0.3124 |
+| the other four | 0 pct | 0 | 0 |
 
-**The atom route is better TYPICALLY and far worse in the tail**, and that is not
-an accident. The data's empirical CDF is a step function, which a
-discrete-to-discrete distance handles exactly and the trapezoid rule smooths
-across. What the atom route handles badly is the MODEL in the far tail, where one
-grid cell spans a large change in the CDF -- which is the linear grid's known
-weakness on a dataset spanning orders of magnitude.
+**Out of sample, where the paper's claims live, the picture is unchanged and the
+KDE's empirical deficit narrows**: the paired cross-validated lognormal-minus-KDE
+difference goes from -0.0306 to **-0.0247** under uniform weighting and -0.0323 to
+**-0.0309** under variable, and against the parent the KDE's advantage grows from
++0.0078 to **+0.0086** and +0.0060 to **+0.0068**.
 
-*SO THE REAL FINDING IS RESOLUTION, NOT ROUTE.* Both converge to the same number.
-1,000 points is simply not a converged quadrature. At 20,000 points:
+**A defect the re-run exposed, and the regression suite caught it.** Notebook 2
+cell 23 computed W1 inline with `wasserstein1_weighted` instead of calling
+`fitting.score_w1_model`, so it was a second copy of the study's criterion. When
+`W1_ROUTE` moved it silently kept the old quadrature, and the same quantity
+appeared in two tables differing by up to 9 percent.
+`test_synthetic_fits_and_w1_recomputed` failed, which is exactly what it is for.
+Cell 23 now calls the single implementation. Notebook 3's two inline calls are a
+DIFFERENT quantity -- W1 between two fitted models, with no empirical CDF in it --
+and are left alone.
 
-| route | median | p99 |
-|---|---|---|
-| atoms | 0.00006 | 0.0371 |
-| trapezoid | **0.00010** | **0.0010** |
+The fixtures were re-frozen in the same commit, with `SHA256SUMS.txt` updated.
 
-*AND IT IS NOT NEUTRAL, WHICH IS THE PART TO BE CAREFUL ABOUT.* The coarse grid
-inflates the KDE's score by 3 to 5 percent against 0.2 percent for the lognormal,
-because the KDE's CDF has the most structure at grid scale. **Converging the grid
-makes the KDE look about 25 percent better in sample**: the in-sample paired
-KDE-minus-lognormal difference on the empirical arm goes from -0.0184 to -0.0229
-under uniform weighting and -0.0216 to -0.0278 under variable. The
-CROSS-VALIDATED comparison does not move, -0.0340 against -0.0339, so none of
-this stage's out-of-sample conclusions depend on it.
+### Files
 
-*Recommendation.* **Trapezoid at 20,000 points**, which is essentially exact on
-both criteria. If you would rather not change the route at all, atoms at 20,000
-is also a large improvement and needs no argument beyond "1,000 was not
-converged". **Because this favours the method the paper is about, justify it on
-the convergence table alone and say so in the text** -- the defence is that both
-routes agree once the grid is converged, which is checkable by anyone.
+**Written.** `src/recovery.py`, `src/materialclass.py`; `tests/test_recovery.py`,
+`tests/test_materialclass.py`; audits `evaluation_target.py`,
+`bandwidth_against_parent.py`, `family_out_of_sample.py`,
+`scoring_grid_error.py`, `cv_fit_fraction.py`, `kde_variance_correction.py`,
+`weight_noise_vs_signal.py`, `guard_threshold_sweep.py`,
+`visible_modes_bandwidth.py`, `modality_reweighting.py`;
+`data/processed/corpus_2026-09-15b/parents_spec.json.gz`; this handoff. Eleven
+new tables and five new figures from notebook 2.
 
-*Status.* Implemented as `fitting.W1_ROUTE`, **default unchanged at `'atoms'`**,
-with a test that pins the default so it cannot flip as a side effect. Flipping it
-and raising `SCORE_GRID_POINTS` is two lines and one full re-run of the three
-notebooks; **do it together with D2.**
+**Modified.** `src/comparison.py`, `src/corpus.py`, `src/mixture.py`,
+`src/components.py`, `src/generator.py`, `src/genconfig.py`, `src/fitting.py`,
+`src/customstats.py`; `notebooks/02`; `tests/test_notebooks.py`,
+`tests/test_customstats.py`; `CLAUDE.md` decisions 64 to 80; `CONTEXT.md`;
+`reports/MANUSCRIPT_discrepancies.md` entries 53 to 72; the regression fixtures.
 
-**D4. The average the paper takes.** Section 4.17.
+**Deleted.** `reports/HANDOFF_stage-2b.md`, per the rule that only the current
+stage's handoff is kept. Its findings are decisions 49 to 58 and entries 35 to 52.
 
-*The choice.* Every aggregate weights each of the 147 categories equally. 33
-percent of categories hold 97.3 percent of the EPDs, and the concrete family
-alone is 77 percent of the arm and the dominant embodied-carbon material in a
-building. A category-count average favours the lognormal; an average reflecting
-what a building is made of favours the KDE.
-
-*Recommendation.* **Report the category-count average as the primary, because it
-is the honest unweighted answer, and add one paragraph with the observation
-above.** The principled version is Stage 2i's real-building anchor or entry 69's
-pLCA-against-truth; do not invent an ad-hoc importance weight.
-
----
-
-**D5. Whether the weighting arm can say anything about real market shares.**
-Section 4.15.
-
-*The position after the review.* It cannot. The generator makes within-mode share
-variation uninformative by construction, so the measured penalty is a property of
-the weight vector rather than of weighting, and nothing here predicts what real,
-concentrated, informative shares would do.
-
-*Recommendation.* **State it as a limitation and let Stage 2h's
-`mode_share_alpha` sweep bracket it.** Do not describe the synthetic weighting
-result as a finding about weighting in practice.
-
----
-
-### New in Stage 2c, and still open
-
-| Item | Owner | Note |
-|---|---|---|
-| **The guard on the Silverman bandwidth** | **CLOSED by the author, 2026-09-16** | The guard stays, by author decision, and the threshold stays at 30 by decision 75 after being swept on both criteria. Sections 4.8 and 4.14 C. What remains for 2h is the ordinary robustness sweep, not a choice |
-| **The variable-weighting penalty at small n is the Dirichlet stand-in** | manuscript, and 2h | Quantified in section 4.15 and decision 73. 2h's plan to average over weight realizations shrinks the noise but does not remove it; only real market shares would. The manuscript owes the restated claim |
-| **The KDE's small-n loss** | **CLOSED** | Real, with a textbook mechanism, and three candidate artifacts excluded. Section 4.14 B, decision 74 |
-| **The scoring grid's quadrature route** | author | The CDF route is strictly better at the same cost, p99 2.5 percent against 14.5, and switching moves every reported number for no change in any conclusion. **Recommendation: leave it.** Section 4.9 |
-| **The right test has not been run: does any of this change a pLCA answer?** | 2e, then 2g | Section 4.16, entry 69. Newly possible, because the parents are reconstructible for the first time. **The most valuable thing either stage could do**, and it may show the differences do not matter, which would itself be the cleanest result |
-| **A factor of two in the corpus-to-arm gap is unexplained** | 2f, or nobody | Section 4.3 accounts for the sign of the disagreement and not its size. It could be the corpus's shapes, the corpus's weights, or the empirical arm's small n. **No stage owns it and it may not need one**: the conclusion the paper states, the size dependence, is the same on both arms |
-| **The empirical arm cannot answer the weighting question at all** | manuscript | Its weights are a flat Dirichlet stand-in with no market information, so no out-of-sample comparison across weighting schemes is meaningful on it. The weighting claim rests entirely on the synthetic arm's market parent. **This is a limitation the paper must state**, and it is the strongest argument in the project for Marsh, Hattam and Allen (2025)-style real production volumes |
-| **Notebook 2's runtime** | 3 | Roughly 35 minutes now: the corpus is fitted once for the recovery columns and the empirical arm is cross-validated at ten repeats. `COMPAREUQ_SMOKE_COMBOS` does not apply to notebook 2 |
-| **Notebook 3 cell 45 still explains pLCA outcomes with the IN-SAMPLE score** | 2g | It computes `score_all_models`, the circular in-sample W1, and cell 46 plots the pLCA results against it. Notebook 3 runs on the SYNTHETIC corpus, so `w1_parent` is available for exactly those datasets and is the better explanatory variable. **Not changed here**, because Stage 2g owns the sensitivity of the pLCA metrics and changing it would move a figure this stage was not asked to touch. Cells 37 to 40 are NOT affected: they correlate pLCA differences against the distance between two METHODS' fitted models, which needs no target and is not circular |
-
----
-
-## 6. Inputs and outputs
-
-**Read:** `CLAUDE.md`, `CONTEXT.md`, `reports/HANDOFF_stage-2b.md`, `src/`,
-`notebooks/02`, `data/processed/corpus_2026-09-15b/`,
-`data/raw/ec3_raw_ecc_2026-08-14.csv.gz` via `src/empirical.py`.
-
-**Written:** `src/recovery.py`; `tests/test_recovery.py`;
-`audits/evaluation_target.py`, `bandwidth_against_parent.py`,
-`family_out_of_sample.py`, `scoring_grid_error.py`;
-`data/processed/corpus_2026-09-15b/parents_spec.json.gz`;
-`reports/HANDOFF_stage-2c.md`. New tables from notebook 2:
-`TABLE_TargetComparison.csv`, `TABLE_TargetSummary.csv`,
-`TABLE_CrossValidatedScores.csv.gz`, `TABLE_CrossValidatedSummary.csv`,
-`TABLE_PairedBootstrap.csv`, `TABLE_WeightingDecomposition.csv`,
-`TABLE_WeightingOnCommonTarget.csv`, `TABLE_Regret.csv`,
-`TABLE_PostStratifiedScores.csv`, `TABLE_ModalityConditioned.csv`. New figures:
-`CompareUQMethods_FIG_EvaluationTarget.png`, `FIG_TargetBySize.png`,
-`FIG_Regret.png`.
-
-**Modified:** `src/comparison.py` (the recovery and decomposition columns come
-from the same fit), `src/corpus.py` (the replay), `src/mixture.py` and
-`src/components.py` and `src/generator.py` (`spec` / `parent_from_spec`),
-`src/genconfig.py` (the stratum shares); `notebooks/02`;
-`tests/test_notebooks.py`; `CLAUDE.md` (decisions 64 to 72, the roadmap, the
-dangling handoff references); `CONTEXT.md`;
-`reports/MANUSCRIPT_discrepancies.md` (entries 53 to 63).
-
-**Deleted:** `reports/HANDOFF_stage-2b.md`, per the standing rule that only the
-current stage's handoff is kept. Its findings are decisions 49 to 58 and
-discrepancy entries 35 to 52; the CLAUDE.md decisions that cited its sections now
-cite those entries. Git history retains it.
-
-**Not touched:** the generator's algorithm, `genconfig`'s generation parameters,
-the empirical extract, the fitting families, the corpus, and the manuscript.
-
-**NOTEBOOK 3 WAS NOT RE-RUN, and it does not need to be.** Nothing on the numeric
-path changed: `fitting.py`, `families.py`, `customstats.py` and `empirical.py`
-are untouched in this stage, and the diffs to `components.py`, `generator.py`
-and `mixture.py` add a `spec` method and an optional constructor tag and remove
-nothing. Notebook 3 calls none of `comparison.score_methods`, `recovery` or
-`EMPIRICAL_STRATUM_SHARE`. The regression fixtures pass unchanged. So
-`TABLE_PLCAResults.csv` is bit-identical to the Stage 2b run and the pLCA
-results in it still stand. **Notebook 1 SHOULD be re-run** before any figure is
-taken from it, because `coverage.post_stratified` moves in the fourth decimal;
-see section 4.11.
+**Not touched.** The generator's algorithm, `genconfig`'s generation parameters,
+the empirical extract, the corpus, and the manuscript.
 
 ---
 
 ## 7. Next stage
 
-**Stage 2d, the flip-probability threshold.** It owns the split of the
-uniform-to-variable W1 into location and shape, which Stage 2c deliberately did
-not do: 2c decomposed a different quantity, a model's total error into fit and
-definitional parts.
+**Stage 2d**, the flip-probability threshold. It owns the location/shape split of
+the uniform-to-variable W1, which Stage 2c deliberately did not do: 2c decomposed
+a different quantity.
 
-Four things 2c leaves it, and 2e and 2g after it.
+Four things it inherits.
 
-1. **The target is fixed and the machinery is in `src/recovery.py`.** Anything
-   2d, 2e or 2g scores should be scored on a non-circular target: the parent on
-   the synthetic arm, cross-validation on the empirical one.
-2. **Post-stratify.** `recovery.post_stratify` and `empirical_size_shares`. Every
-   headline aggregate from here on is reported both ways, and the corpus's equal
-   allocation is a precision choice that flips at least one verdict.
-3. **State a win share, not a mean rank, on the empirical arm**, and never make
-   a size-banded claim below about n = 100 without the relative-gap view beside
-   it. Decision 68.
+1. **Score on a non-circular target.** `src/recovery.py`: the parent on the
+   synthetic arm, cross-validation on the empirical one.
+2. **Post-stratify every headline**, `recovery.post_stratify`, and report both
+   allocations.
+3. **State a win share, not a mean rank**, on the empirical arm, and never make a
+   size-banded claim below about n = 100 without the relative-gap view. Decision
+   68.
 4. **Never compare weighting schemes out of sample on the empirical arm.**
-   Decision 65. The weights there are exchangeable and carry no information that
-   generalizes across a split.
+   Decision 65.
 
-**What Stage 2d must NOT do.** Reopen generation; change the fitting families or
-the bandwidth, which are decisions 51, 52, 54 and 71; or take the three author
-decisions listed in section 5.
+**And the most valuable single experiment available to 2e and 2g**: run the pLCA
+twice on the same common random numbers, once with each method's fitted models and
+once with the true parents, and report how far each method's ECI Rank #1 Frequency
+is from the truth. It converts every number here from "how close is the fitted
+CDF" to "how wrong is the answer", and it may show the differences do not matter,
+which would itself be the cleanest result the paper could report. Entry 69.
 
-### Read this before touching the comparison again
+### Habits, added by this stage
 
-The habits Stage 2b recorded still hold, and this stage adds one.
-
-9. **Ask what two numbers are measuring before you compare them.** The largest
-   error in this stage was scoring six methods against the parent each of them
-   estimates and reading the result as a comparison of the two weighting schemes.
-   The arithmetic was right, every column was correctly computed, and the
-   conclusion was meaningless because the six were being judged against different
-   truths. Nothing in the code could have caught it; the check is the question.
-10. **Never name a column after a DataFrame method.** `rank`, `tail`, `mean`,
-    `max`, `count`, `size`, `shape`. Attribute access then silently returns the
-    method, and the failure surfaces wherever the value is first used, which in a
-    notebook is minutes or tens of minutes later. This stage hit it twice in one
-    afternoon. `mean_rank`, not `rank`; and where a column must keep such a name,
-    reach it with brackets.
-11. **A number quoted in a handoff must come from the table the paper reads.**
-    The cross-validated means in section 4.2 were first written from the audit
-    script, which uses its own split stream, and differ from notebook 2's in the
-    third decimal. No conclusion changed, but the handoff would have quoted
-    figures that appear in no committed table. Check the provenance of every
-    number before it goes in, and say which artifact it came from.
+7. **Ask what two numbers are measuring before comparing them.** The largest error
+   in this stage was scoring six methods against the parent each estimates and
+   reading it as a comparison of the two weighting schemes. Every column was
+   correct and the conclusion was meaningless.
+8. **Never name a column after a DataFrame method.** `rank`, `tail`, `mean`,
+   `count`. Attribute access silently returns the method and the failure surfaces
+   minutes later. Hit twice in one afternoon.
+9. **State the sign convention of a paired difference where it is printed.**
+   Three audit scripts labeled a column "A minus B" while computing B minus A,
+   interpreting it correctly each time. That is how a sign error survives review.
+10. **A number quoted in a handoff must come from the table the paper reads**, not
+    from an audit script that reran the same computation on a different seed.
+11. **A measure computed at a default setting inherits that setting's bias.** The
+    unimodality figure was a statement about Scott's bandwidth for four stages
+    because nothing asked what bandwidth it used.

@@ -158,7 +158,7 @@ def test_curve_window_scales_to_the_arm():
     assert C.curve_window(149) <= 149
     assert C.curve_window(149) >= C.CURVE_WINDOW_MIN
     for n in (12, 149, 1000, 9999):
-        assert C.curve_window(n) % 2 == 1, 'window must be odd to centre'
+        assert C.curve_window(n) % 2 == 1, 'window must be odd to center'
 
 
 def test_characteristic_curves_are_unbinned_and_ordered():
@@ -311,7 +311,7 @@ def test_symlog_ticks_stay_inside_a_small_panel():
     assert len(ticks) <= 5
     assert 0.0 in ticks
     assert np.all(np.diff(ticks) > 0)
-    # the decade that sets each axis limit is labelled
+    # the decade that sets each axis limit is labeled
     assert ticks.max() == 10.0 ** int(np.floor(np.log10(v.max())))
     assert ticks.min() == -10.0 ** int(np.floor(np.log10(-v.min())))
 

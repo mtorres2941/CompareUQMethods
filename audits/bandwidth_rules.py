@@ -191,7 +191,7 @@ def report(d, arm):
         print()
 
 
-def analyse_guarded():
+def analyze_guarded():
     """The guarded rule, swept over its threshold, from this script's own table.
 
     `silverman_guarded` is Silverman above an effective-sample-size threshold
@@ -262,7 +262,7 @@ def main(n_synth):
     pd.set_option('display.width', 220)
     for arm in ('empirical', 'synthetic'):
         report(d, arm)
-    analyse_guarded()
+    analyze_guarded()
 
 
 if __name__ == '__main__':

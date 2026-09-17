@@ -132,7 +132,7 @@ def shapiro_wilk_weighted(x, weights=None):
     x : array-like, shape (n,)
         Sample data. Must contain at least 3 observations.
     weights : array-like, shape (n,), optional
-        Non-negative importance/frequency weights. Need not be normalised.
+        Non-negative importance/frequency weights. Need not be normalized.
         ``None`` (default) is equivalent to uniform weights and produces
         the same output as ``scipy.stats.shapiro(x)``.
 
@@ -185,7 +185,7 @@ def shapiro_wilk_weighted(x, weights=None):
     if w.sum() <= 0:
         raise ValueError("Sum of weights must be positive.")
 
-    w = w / w.sum()  # normalise to sum to 1
+    w = w / w.sum()  # normalize to sum to 1
 
     # Uniform weights -> exact scipy result
     if np.allclose(w, 1.0 / n):
@@ -318,7 +318,7 @@ def empirical_metadata(data: np.ndarray, weights: np.ndarray, num_bins: int = 25
 
         # Modality. Two measures are recorded side by side.
         #
-        # modality_index is the old `mode_count_est`, renamed. It was labelled
+        # modality_index is the old `mode_count_est`, renamed. It was labeled
         # "Mode Count" but it is a continuous index,
         # (sum of maxima heights - sum of minima heights) / max height, of a
         # KDE at Scott's bandwidth. Across the 138 empirical datasets it spans
@@ -822,8 +822,29 @@ def weighted_quantile(X, W, x, output='perc2val'):
 
 #: Below this effective sample size the interquartile range is too noisy to be
 #: used as a scale estimate, and `bw_method='silverman_guarded'` falls back to
-#: Scott's rule. See `weighted_bw` for the measurement behind the value.
-SILVERMAN_MIN_NEFF = 30.0
+#: the plain standard deviation. NOT to Scott's rule: the coefficient stays 0.9
+#: throughout, where Scott's is 1.06. See `weighted_bw`.
+#:
+#: 20, NOT 30. Author decision, 2026-09-16, after the threshold was swept on BOTH
+#: criteria in `audits/guard_threshold_sweep.py`. The two disagree -- held-out
+#: likelihood peaks at 20 to 30 and W1 against the known parent at 5 -- so there
+#: is no optimum, only a trade, and the question is where the trade turns.
+#:
+#: WHY 20 AND NOT 10, WHICH IS THE QUESTION A REVIEWER WILL ASK. Stepping the
+#: threshold down one value at a time and measuring what each step buys in
+#: parent accuracy per unit of held-out likelihood it gives up, every step from
+#: 200 down to 20 is free or better than free: the step 30 -> 25 buys 0.65
+#: percent for 0.29, and 25 -> 22 and 22 -> 20 cost nothing at all. The step
+#: 20 -> 18 is the first that costs more than it buys, at a marginal ratio of
+#: 0.34, and every step below it is also below 1. The held-out p05 tells the same
+#: story from the other side: flat at about -1.62 from 200 down to 18, then
+#: -1.65 at 15, -1.72 at 10, -1.88 at 5.
+#:
+#: So 20 is the smallest threshold reachable by steps that each cost nothing on
+#: the criterion the guard exists to protect. It is not a round number picked by
+#: eye, and it is not the W1 optimum, which is 5 and which would cost 17 percent
+#: of that p05.
+SILVERMAN_MIN_NEFF = 20.0
 
 
 def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):

@@ -46,7 +46,8 @@ N_SYNTH = 1_200
 
 #: Thresholds on the Kish effective sample size. 0 is pure Silverman, a very
 #: large value is pure Scott.
-THRESHOLDS = (0, 5, 10, 15, 20, 30, 50, 100, 200, 10 ** 9)
+THRESHOLDS = (0, 3, 5, 8, 10, 12, 15, 18, 20, 22, 25, 30, 40, 50,
+              75, 100, 200, 10 ** 9)
 
 
 def kish(w):
@@ -96,6 +97,51 @@ def sweep(d, arm):
     return pd.DataFrame(rows)
 
 
+def knee(out):
+    """Where does buying parent accuracy start costing held-out likelihood?
+
+    The two criteria disagree, so there is no optimum, only a trade, and the
+    question "why this threshold and not a smaller one" has to be answered by
+    the shape of the trade rather than by picking a round number.
+
+    The diagnostic is the MARGINAL rate between consecutive thresholds: stepping
+    down from one to the next, how much W1-against-parent does it buy per unit of
+    held-out likelihood it gives up. A marginal ratio far above 1 means the step
+    is nearly free. The first step below 1 is where each further reduction costs
+    more than it buys, and that is the stopping point.
+
+    The mean held-out likelihood is the cost used, not the p05: the p05 on 147
+    datasets is an order statistic that steps between discrete values and is too
+    lumpy to differentiate. It is printed beside it.
+    """
+    e = out[out.arm == 'empirical'].set_index('threshold')
+    s = out[out.arm == 'synthetic'].set_index('threshold')
+    thrs = sorted(t for t in e.index if t < 10 ** 9)[::-1]   # high to low
+    rows = []
+    for hi, lo in zip(thrs[:-1], thrs[1:]):
+        gain = 100 * (s.loc[hi, 'mean_parent'] - s.loc[lo, 'mean_parent']) \
+            / s.loc[hi, 'mean_parent']
+        cost = 100 * (e.loc[hi, 'mean_loo'] - e.loc[lo, 'mean_loo']) \
+            / abs(e.loc[hi, 'mean_loo'])
+        rows.append(dict(step=f'{hi} -> {lo}', parent_gain_pct=gain,
+                         loo_mean_cost_pct=cost,
+                         marginal_ratio=(gain / cost) if cost > 1e-6
+                         else float('inf'),
+                         loo_p05=e.loc[lo, 'p05_loo']))
+    k = pd.DataFrame(rows)
+    print()
+    print('=' * 78)
+    print('WHY THIS THRESHOLD AND NOT A SMALLER ONE: the MARGINAL trade')
+    print('=' * 78)
+    print(k.to_string(index=False, float_format=lambda v: f'{v:9.3f}'))
+    print()
+    good = k[k.marginal_ratio > 1]
+    if len(good):
+        print(f'Steps that buy more than they cost: {list(good.step)}')
+    print('Every step below that costs more held-out likelihood than it buys in')
+    print('parent accuracy, so it is where the reduction stops being free.')
+
+
 def main(n_synth=N_SYNTH):
     os.makedirs(TABLES, exist_ok=True)
     t0 = time.time()
@@ -132,6 +178,7 @@ def main(n_synth=N_SYNTH):
               ignore_index=True).to_csv(
         os.path.join(TABLES, 'TABLE_GuardThresholdPerDataset.csv'), index=False)
 
+    knee(out)
     pd.set_option('display.width', 220)
     print()
     print('=' * 78)

@@ -247,7 +247,7 @@ def implausible(df, ceiling=MASS_ECC_CEILING, unit_type=MASS_UNIT_TYPE):
     return (df.du_type == unit_type) & (df.ecc > ceiling)
 
 
-def labelled_records(path=SOURCE, split=SPLIT):
+def labeled_records(path=SOURCE, split=SPLIT):
     """Every raw record with the dataset it belongs to and whether it is kept.
 
     `dataset` is NaN for a record the split rules discard, and `implausible`
@@ -265,7 +265,7 @@ def labelled_records(path=SOURCE, split=SPLIT):
 
 def implausible_report(path=SOURCE, split=SPLIT):
     """One row per dataset that loses records to the ceiling, with what it lost."""
-    df = labelled_records(path, split)
+    df = labeled_records(path, split)
     df = df[df.dataset.notna() & df.implausible]
     if df.empty:
         return pd.DataFrame(columns=['dataset', 'n_implausible',
