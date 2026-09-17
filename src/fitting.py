@@ -45,8 +45,13 @@ LOGFIT_OFFSET = 0.5
 #                        study used through Stage 2a.
 #   'silverman'          0.9 * min(sigma, IQR/1.34) * n_eff ** -0.2. The rule
 #                        Torres et al. (2026), the KL2 paper, uses and defends.
-#   'silverman_guarded'  Silverman above customstats.SILVERMAN_MIN_NEFF = 30
-#                        effective observations, Scott below it.
+#   'silverman_guarded'  Silverman's rule THROUGHOUT, 0.9 * scale * n_eff ** -0.2,
+#                        with the SCALE guarded: the robust min(sd, IQR/1.34) at
+#                        or above customstats.SILVERMAN_MIN_NEFF = 30 effective
+#                        observations, the plain sd below it. IT IS NOT SCOTT
+#                        BELOW THE THRESHOLD -- Scott carries 1.06 where this
+#                        carries 0.9, so describing it that way overstates the
+#                        small-sample bandwidth by 18 percent.
 #
 # WHY GUARDED, and the reason is not the one it looks like. Silverman's
 # min(sigma, IQR/1.34) protects against outliers inflating the bandwidth, and it
@@ -56,6 +61,14 @@ LOGFIT_OFFSET = 0.5
 # are interpolated between two order statistics and a low estimate collapses the
 # bandwidth into a set of spikes. Guarding on effective sample size beats BOTH
 # pure rules on leave-one-out likelihood and repairs the worst cases.
+#
+# THE THRESHOLD WAS SWEPT IN STAGE 2C on the leave-one-out criterion AND on W1
+# against the known parent, which disagree: the parent criterion is best at
+# n_eff >= 5 and the held-out likelihood at 20 to 30. 30 is kept deliberately.
+# Moving it to improve W1 would be tuning the setting on the criterion the study
+# reports, which is the one thing decision 54 was careful not to do, and the
+# whole span from 20 to 30 differs by about 1 percent of either criterion.
+# audits/guard_threshold_sweep.py.
 #
 # THE THRESHOLD IS CALIBRATED ON HELD-OUT LIKELIHOOD, NOT ON W1, deliberately:
 # W1 falls monotonically as the bandwidth shrinks, so it cannot choose one.

@@ -552,7 +552,7 @@ def rebuild_parents(directory=None, out=None, verify_values=True,
     specs, skipped = {}, {}
     for i, n in enumerate(sizes):
         ds = f'dataset{i}'
-        parent, record, x, w = _replay_one(cfg, int(n), rng)
+        parent, record, x, w, _modes = _replay_one(cfg, int(n), rng)
         if ds not in stored:
             # The corpus dropped this slot, for a parent that would not solve or
             # a dataset the validity filter refused. The replay must drop it too
@@ -596,11 +596,20 @@ def rebuild_parents(directory=None, out=None, verify_values=True,
 
 
 def _replay_one(cfg, n, rng):
-    """One `generate_dataset` call, returning the parent as well as the data.
+    """One `generate_dataset` call, returning the parent and the mode labels.
 
     `generate_dataset` does not hand back the parent object, and it must not be
     changed to: it is the generation path and this is a read. So the retry loop
     is repeated here, consuming the random stream identically.
+
+    The MODE ASSIGNMENT is returned because it cannot be reconstructed from
+    anything on disk. `MixtureParent.sample` shuffles the points precisely so
+    that mode membership carries no positional information, so `mode_counts`
+    says how many points came from each component and nothing says which. Any
+    analysis that needs to know -- market share attaches at the mode level -- has
+    to take it from here.
+
+    Returns (parent, record, values, weights, modes).
     """
     parent, record = None, None
     for retries in range(cfg.max_parent_retries):
@@ -610,14 +619,14 @@ def _replay_one(cfg, n, rng):
         if record.get('status') not in GEN.REDRAWABLE:
             break
     if parent is None:
-        return None, record, None, None
+        return None, record, None, None, None
     x, modes = parent.sample(n, rng)
     w = GEN.draw_weights(parent, modes, cfg, rng)
     record = dict(record, n=int(n), normalizer=parent.normalizer,
                   parent_retries=int(retries),
                   mode_counts=np.bincount(modes,
                                           minlength=len(parent.comps)).tolist())
-    return parent, record, x, w
+    return parent, record, x, w, modes
 
 
 def _check_replay(ds, got, want, atol=0.0):

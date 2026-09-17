@@ -34,7 +34,7 @@ def a_parent(seed=11, n=200):
         x, w, rec = GEN.generate_dataset(G.DEFAULT, n, rng)
         if x is not None:
             break
-    parent, _, x, w = _replay(seed, n)
+    parent, _, x, w, _m = _replay(seed, n)
     return parent, x, w
 
 

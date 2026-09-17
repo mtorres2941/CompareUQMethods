@@ -938,3 +938,72 @@ relative figure beside it.**
 | **What is true** | It holds how each parent was ASKED for: each component's moment targets, from which `components.solve_component` recovers its location and scale deterministically, plus the global shift and the truncation bounds. It does NOT hold the displacement the overlap solve gave each component, which is one solved scalar times k ordinates drawn from the generator's stream. One recorded overlap value cannot identify k - 1 displacements. |
 | **Fix** | **Code, done.** `corpus.rebuild_parents` replays the generation loop, which is deterministic given the seed, and keeps the parent objects `generate_corpus` discarded. It is not a regeneration: no corpus is written, nothing is redrawn, and the replay is checked rather than trusted -- it refuses unless `genconfig.DEFAULT` still equals the recorded configuration, compares twelve record fields plus `pi`, `market` and `mode_counts` per dataset, and compares the replayed values and weights against `values.parquet` element by element. All 10,050 datasets of `corpus_2026-09-15b` replay byte-identically. |
 | **Status** | RESOLVED in code. **No manuscript consequence**; recorded because CONTEXT.md asserted something false about the deposit and a reader of the code would have believed it. |
+
+## New, found during the Stage 2c author review
+
+## 64. The variable-weighting penalty below n = 100 is the flat Dirichlet, not weighting
+
+| | |
+|---|---|
+| **What entry 55 said** | On a common target, variable weighting is a coin flip overall and strongly size dependent: for the KDE, worse by 0.0395 at n = 3-9 and better by 0.0571 at n >= 1000. |
+| **Why that is not the whole story** | A synthetic dataset's weights are built in two steps. Mode k is given its true market share, which is SIGNAL -- the market-weighted parent is a real population object at `mode_coupling = 1.0`. That share is then split among the points inside mode k by a FLAT DIRICHLET, which is noise the real world does not have, because a market share is a property of a product and not a random draw. So the measured penalty may be a property of the STAND-IN rather than of weighting as a practice. |
+| **The counterfactual** | Refit everything under ORACLE weights: the same mode-level share, split EQUALLY within each mode. Same signal, no within-mode noise. Not a method anyone could use; it isolates the stand-in. |
+| **Result, paired against the same uniform fit, against the market parent** | At **n = 10-99** the penalty essentially vanishes and stops being distinguishable from zero: KDE **-0.0398 to -0.0056**, lognormal **-0.0335 to -0.0014**, normal -0.0235 to -0.0066. That is 86, 96 and 72 percent of the penalty. At **n >= 100** the oracle makes variable weighting BETTER than the realized weights do: KDE +0.0274 to +0.0437 at n = 100-999 and +0.0513 to +0.0575 above 1,000. At **n = 3-9** a real penalty survives for the lognormal, -0.0213 and still distinguishable, because estimating a several-mode market mixture from three to nine points does not work however clean the weights are. |
+| **Fix** | **Text, and it changes a claim.** Do not write "variable weighting hurts below n = 100". Write that variable weighting pays whenever the market shares are actually known, from about n = 10 upward, and that the penalty this study measures below n = 100 is the price of representing UNKNOWN shares with a flat Dirichlet. **This is the strongest argument in the project for the real production volumes of Marsh, Hattam and Allen (2025)**, and it should be said where that paper is cited. |
+| **Status** | Open. Decision 73. `audits/weight_noise_vs_signal.py`, `TABLE_WeightNoiseVsSignal.csv`. |
+
+## 65. Why the KDE loses at n = 10-99, and the three explanations that are excluded
+
+| | |
+|---|---|
+| **The objection** | A KDE is the most flexible method under test, so it losing to a three-parameter lognormal at n = 10-99 does not pass a sniff test. Asked four times across the project. |
+| **Not the halving** | Cross-validation at fit fractions 0.5, 0.7, 0.8 and 0.9 gives an empirical deficit of -0.0670, -0.0684, -0.0663, -0.0665. It does not shrink as the fitting half grows; the 50/50 split is the protocol most favourable to the KDE of the four. |
+| **Not the evaluation protocol at all** | Against the known parent, fitting on every value and splitting nothing, the KDE still loses at n = 10-99: -0.0172 uniform and -0.0228 variable, both distinguishable. |
+| **Not the over-dispersion, which is the surprise** | A Gaussian KDE's variance is the data's PLUS h^2, and the fitted spread over the data's is 1.63 at n = 3-9 and 1.19 at n = 10-99 against the normal's 1.35 and 1.02. **Correcting it exactly does not recover the loss**: shrinking the points so the density regains the data's variance moves the n = 10-99 deficit only from -0.0138 to -0.0126 under uniform weighting, makes n = 3-9 worse under variable, and beats the plain KDE on 47 to 55 percent of datasets. |
+| **Partly the guard, but only partly** | Under pure Silverman the same gap is -0.0085 instead of -0.0138 (uniform) and -0.0103 instead of -0.0177 (variable). The guard costs the KDE about 40 percent of the deficit and does not cause it. |
+| **The mechanism** | The ordinary bias-variance tradeoff. A parametric family converges at root-n and a KDE at n^-2/5, so at small n the lognormal's shape bias costs less than the KDE's variance, and at large n the bias stops shrinking while the variance does not. **The crossover is at n of about 100, which is where it is observed.** With 30 points a bumpy nonparametric estimate of a smooth truth loses to a smooth three-parameter one however its variance is scaled. |
+| **Fix** | **Text.** State the crossover and its mechanism as a positive finding rather than defending the KDE. It is the honest answer to "when should a practitioner use kernel density estimation", and the answer is "when the category has about a hundred EPDs or more", which is a usable rule. |
+| **Status** | Open. Decision 74. `audits/cv_fit_fraction.py`, `audits/kde_variance_correction.py`. |
+
+## 66. In-sample W1 rewards flexibility, but this study does not let the KDE exploit it
+
+| | |
+|---|---|
+| **What the Stage 2c draft said** | That scoring against the training data is a defect because it rewards the most flexible method. |
+| **Why that was too broad** | Rewarding flexibility is the point of the comparison. The defect is narrower and it is that in-sample W1 has a DEGENERATE optimum: a KDE with a vanishing bandwidth scores exactly zero on any dataset, so the criterion cannot separate a good flexible method from an arbitrarily flexible one. **This study never lets the KDE reach that optimum**, because the bandwidth is fixed by a rule and that rule was calibrated on held-out likelihood, not on W1. The in-sample score is therefore optimistic for the KDE but not degenerate. |
+| **What IS unambiguously circular** | The second defect, which is not a matter of degree: scoring uniform-weighted models against the VARIABLE-weighted empirical CDF charges them a distance no estimation method can remove, 61.9 percent of the score on the empirical arm. Entry 55. |
+| **Fix** | **Text.** When the paper motivates the out-of-sample criteria, motivate them on the weighting circularity and on the complexity penalty, not on "flexibility is rewarded". A reviewer who knows kernel methods will notice the difference. |
+| **Status** | Open. |
+
+## 67. The guard threshold, swept on both criteria
+
+| | |
+|---|---|
+| **The question** | Entry 60 reported that the parent referee prefers pure Silverman to the guarded rule, which invites the response that the threshold should be adjusted rather than the guard abandoned. |
+| **Swept** | `SILVERMAN_MIN_NEFF` over 0, 5, 10, 15, 20, 30, 50, 100, 200 and infinity. **The two criteria disagree.** Held-out likelihood peaks at 20 to 30 on both arms; W1 against the parent peaks at **5**, where mean W1 is 0.1355 against pure Silverman's 0.1367 and the current 30's 0.1400. **So the parent referee argues against this THRESHOLD, not against the guard**, and entry 60 was too broad. |
+| **Kept at 30** | Moving it to improve W1 would be tuning the setting on the criterion the study reports, which is exactly what decision 54 avoided and what makes the choice answerable. The span 20 to 30 differs by about 1 percent of either criterion. |
+| **Fix** | **Text, half a sentence**: state that the threshold was swept on both criteria, that they disagree, and that the value was kept at the held-out-likelihood optimum rather than moved to the W1 optimum, on purpose. |
+| **Status** | Open. Decision 75. `audits/guard_threshold_sweep.py`. |
+
+## 68. The bandwidth documentation described a rule the code does not run
+
+| | |
+|---|---|
+| **What two comments said** | That `silverman_guarded` uses **Scott** below `SILVERMAN_MIN_NEFF = 30`. |
+| **What runs** | `0.9 * scale * n_eff ** -0.2` throughout, with only the SCALE guarded: the robust `min(sd, IQR/1.34)` at or above 30 effective observations, the plain standard deviation below it. Scott carries **1.06** where this carries **0.9**, so the fallback bandwidth is 18 percent smaller than "Scott" would be. Verified numerically. |
+| **Where** | `customstats.weighted_bw`'s main docstring had it right; its `min_neff` parameter note and `fitting.BW_METHOD`'s comment block did not. |
+| **Why it matters** | A Methods paragraph written from either of those two would describe a different estimator from the one that produced every number in the paper. |
+| **Fix** | **Code comments, done.** Nothing numeric moved: only prose was wrong. Decision 77. |
+| **Status** | RESOLVED. |
+
+## 69. The test the author actually wants, which no stage has run
+
+| | |
+|---|---|
+| **The framing** | From the Stage 2c review: "the test should be, if we use this probabilistic model in the context of a probabilistic whole-building LCA, how faithfully do those probabilistic models represent the true population of data? Does it even matter?" |
+| **Why it is the right test** | Every fit-quality criterion in this study, old or new, is instrumental. W1, overlap area, held-out likelihood and the recovery score all matter only insofar as they change a pLCA answer, and none of them has been shown to. |
+| **Why it is newly possible** | Until Stage 2c the synthetic parents could not be reconstructed, so there was no way to run a pLCA on the TRUTH. `corpus.load_parent_objects` now returns an object exposing `ppf` and `rvs_from_uniform`, which is everything notebook 3 needs from a model. |
+| **The experiment** | Run the pLCA twice on the same common random numbers, once with each method's fitted models and once with the true parents, and report how far each method's ECI Rank #1 Frequency is from the truth. |
+| **Owner** | **Stage 2e**, which owns the pLCA construction and the common random numbers, and **2g**, which owns the metrics. Not run in 2c, which was told not to touch the pLCA construction. |
+| **Fix** | **Analysis, and it may change the paper's conclusion in either direction.** If the methods' pLCA answers are indistinguishable from the truth and from each other, that is the cleanest result the paper could report and it reframes the whole comparison. |
+| **Status** | Open. Decision 65 gives the machinery. |

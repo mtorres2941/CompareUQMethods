@@ -30,10 +30,35 @@ Four results change what the paper says.
    gamma.** Every paired interval straddles zero. It keeps its place because it
    is never worse, but the paper must say so. Section 4.7.
 
-**Nothing here is waiting on a person except three author decisions, all of them
-"leave it alone" recommendations**: the guard on the Silverman bandwidth, the
-scoring grid's quadrature route, and whether to add a tail-sensitive companion
-to W1. Sections 4.8, 4.9 and 4.10.
+**Two author decisions were taken in the review of 2026-09-16 and one remains.**
+The guard on the Silverman bandwidth STAYS, and its threshold stays at 30
+(decision 75). A tail-sensitive companion to W1 is NOT added: the measured tail
+charge is zero to four decimal places and the author's instruction is to focus on
+the bulk (decision 69). **What is left is the scoring grid's quadrature route**,
+and it is a genuinely small thing: on the same 1,000 points, integrating the two
+CDFs directly instead of discretizing the model into atoms has a p99 relative
+error of 2.5 percent against 14.5, at the same cost, and changes no conclusion --
+but switching it moves every reported number by up to a few percent. Section 4.9.
+
+### What the author's review changed, 2026-09-16
+
+Four of the review's challenges were right and two of them move a claim.
+
+- **Section 0 overstated the flexibility argument.** Rewarding a flexible method
+  is the point; the defect is that in-sample W1 has a DEGENERATE optimum, and
+  this study never lets the KDE reach it because the bandwidth is fixed by a
+  rule calibrated on a different criterion. Section 4.14 A.
+- **THE VARIABLE-WEIGHTING PENALTY AT SMALL n IS THE FLAT DIRICHLET STAND-IN.**
+  With the same market signal and no within-mode noise it drops from -0.0398 to
+  -0.0056 for the KDE at n = 10-99 and stops being distinguishable. Section 4.15.
+  **This changes what the paper claims about weighting.**
+- **The guard's threshold was swept rather than defended.** The parent criterion
+  prefers a LOWER threshold, not no guard; section 4.8 was too broad and is
+  restated. Recommendation is still to keep 30, for a reason that is now stated.
+  Section 4.14 C.
+- **The KDE's small-n loss survived every check.** It is not the halving, not the
+  evaluation protocol, and not the over-dispersion; correcting the variance
+  exactly does not recover it. Section 4.14 B.
 
 ### What actually needs your eyes
 
@@ -392,11 +417,18 @@ Silverman beats the guarded rule on 90.1 and 83.2 percent.** The guard costs 0.9
 and 0.25 percent of mean W1 and buys the repaired p05 of held-out likelihood it
 was chosen for.
 
-**Said and left alone, per the stage instruction.** The reconciliation belongs in
-the text: a density criterion and a CDF criterion want different bandwidths,
-because the empirical CDF is already root-n consistent so smoothing buys a CDF
-criterion very little. **Author decision; Stage 2h owns the sweep.** Decision 71,
-entry 60.
+**RESTATED AFTER THE AUTHOR ASKED THE OBVIOUS QUESTION, and the first version of
+this section was too broad.** It tested the guard only at its current threshold
+of 30 and concluded that the parent referee argues against a guard. It does not.
+Swept over the threshold (`audits/guard_threshold_sweep.py`), the parent
+criterion prefers a guard at `n_eff >= 5` -- mean W1 0.1355, below both pure
+Silverman's 0.1367 and the current 30's 0.1400 -- so what it argues against is
+this THRESHOLD, not the guard. Section 4.14 carries the sweep and the
+recommendation, which is to keep 30.
+
+The reconciliation belongs in the text: a density criterion and a CDF criterion
+want different bandwidths, because the empirical CDF is already root-n consistent
+so smoothing buys a CDF criterion very little. Decision 71, entry 60.
 
 ### 4.9 The scoring grid, measured
 
@@ -483,6 +515,190 @@ saying why.
 
 ---
 
+### 4.14 Four questions the author put to the draft, answered by measurement
+
+Added after the author reviewed this handoff. Each was a challenge to a claim in
+it; two of them were right and changed what it says.
+
+**A. "Rewarding the most flexible method is part of the point. Why is it wrong?"
+IT IS NOT, AND SECTION 0 OVERSTATED IT.** Flexibility is the thing under test,
+and the defect is narrower than "in-sample W1 rewards flexibility". It is that
+in-sample W1 has a DEGENERATE optimum: a KDE with a vanishing bandwidth scores
+exactly zero on any dataset, so the criterion cannot distinguish a good flexible
+method from an arbitrarily flexible one. **This study never lets the KDE reach
+that optimum**, because the bandwidth is fixed by a rule and that rule was
+calibrated on held-out likelihood, not on W1. So the in-sample score is
+optimistic for the KDE but not degenerate, and it remains a legitimate number.
+The circularity that is NOT a matter of degree is the second one: scoring
+uniform-weighted models against the variable-weighted eCDF charges them a
+distance no estimation method can remove, which is 62 percent of the score on
+the empirical arm (section 4.4).
+
+**B. "The KDE losing at n = 10-99 does not pass the sniff test."** It survives
+every check that could have made it an artifact, and it has a textbook
+mechanism.
+
+  - **It is not the halving.** `audits/cv_fit_fraction.py` reruns the
+    cross-validation at fit fractions 0.5, 0.7, 0.8 and 0.9. The KDE's deficit
+    at n = 10-99 does not shrink as the fitting half grows: empirical uniform
+    -0.0670, -0.0684, -0.0663, -0.0665. The 50/50 split Stage 2c reports is, if
+    anything, the protocol most favourable to the KDE of the four.
+  - **It is not the evaluation protocol at all.** Against the known parent,
+    fitting on every value and splitting nothing, the KDE still loses at
+    n = 10-99: -0.0172 uniform and -0.0228 variable, both distinguishable.
+  - **The mechanism is the bias-variance tradeoff, and it is standard.** A
+    parametric family converges at root-n; a KDE converges at n^-2/5. At small n
+    the lognormal's shape bias costs less than the KDE's variance, and at large
+    n the lognormal's bias stops shrinking while the KDE's variance does not.
+    **The crossover is at n of about 100, which is where it is observed.**
+  - **The over-dispersion is real but is NOT the explanation.** A Gaussian KDE's
+    variance is the data's plus h^2, and the fitted model's spread over the
+    data's runs 1.63 at n = 3-9 and 1.19 at n = 10-99 against the normal's 1.35
+    and 1.02. Correcting it exactly -- shrinking the points so the density
+    recovers the data's variance -- **does not recover the loss**:
+    `audits/kde_variance_correction.py` moves the n = 10-99 deficit from -0.0138
+    to -0.0126 under uniform weighting and makes n = 3-9 WORSE under variable,
+    and it beats the plain KDE on 47 to 55 percent of datasets, a coin flip. So
+    the small-n deficit is about SHAPE, not spread: with 30 points a bumpy
+    nonparametric estimate of a smooth truth loses to a smooth three-parameter
+    one however its variance is scaled.
+  - **The guard costs the KDE about 40 percent of the n = 10-99 deficit and does
+    not cause it.** Under pure Silverman the same gap is -0.0085 instead of
+    -0.0138 (uniform) and -0.0103 instead of -0.0177 (variable). Still negative.
+
+**C. "If the guard loses to pure Silverman, adjust the threshold."** Swept, and
+the author is right that this was the question to ask. `SILVERMAN_MIN_NEFF` over
+0, 5, 10, 15, 20, 30, 50, 100, 200 and infinity, scored on BOTH criteria:
+
+| threshold | pct Silverman, empirical | mean LOO, empirical | p05 LOO, empirical | mean W1 vs parent |
+|---|---|---|---|---|
+| 0, pure Silverman | 100.0 | -0.8708 | -2.0701 | 0.1367 |
+| 5 | 88.4 | -0.7694 | -1.8804 | **0.1355** |
+| 10 | 79.9 | -0.7483 | -1.7191 | 0.1368 |
+| 15 | 71.4 | -0.7382 | -1.6233 | 0.1381 |
+| 20 | 64.6 | -0.7337 | -1.6233 | 0.1384 |
+| **30, in use** | 52.7 | **-0.7336** | -1.6113 | 0.1400 |
+| 50 | 41.2 | -0.7406 | -1.6113 | 0.1414 |
+| infinite, pure Scott | 0.0 | -0.7633 | -1.6173 | 0.1481 |
+
+**The two criteria disagree and 30 sits at one of the two optima.** Held-out
+likelihood peaks at 20 to 30 on both arms; W1 against the parent peaks at 5. The
+whole span 20 to 30 differs by about 1 percent on either criterion.
+
+**RECOMMENDATION: keep 30, and the reason is not inertia.** Moving the threshold
+to improve W1 would be tuning the setting on the criterion the study reports,
+which is precisely what decision 54 was careful not to do and what makes the
+bandwidth choice defensible to a reviewer. The gain would be 1.1 percent of one
+criterion at the cost of the argument for the whole rule. **The guard stays,
+which is the author's decision already; this says the threshold should too.**
+
+**D. "Would it be worth changing the n buckets to reflect the empirical data?"
+No, and post-stratification is why.** Matching the corpus's allocation to the
+empirical size mix would put about 560 datasets above n = 1,000 instead of 2,500,
+widening every interval in that band by a factor of `sqrt(2500/560)` = **2.1** --
+and that is the band where the methods differ most and where the KDE's advantage
+lives, so the author's worry that it would punish the KDE is right in a way that
+matters: it would not bias the estimate, it would make it too noisy to state.
+
+Equal allocation plus post-stratification already delivers what resampling would
+and keeps both readings: each band is estimated with equal precision, and the
+reweighted column says what happens on a population that looks like the EC3
+categories. It is also reversible, which a different allocation would not be,
+since generation is closed. **No change. Section 4.11 and decision 67 already
+report every aggregate both ways.**
+
+### 4.15 The weighting penalty at small n is the DIRICHLET STAND-IN, not weighting
+
+**The author's objection was right and this is the most consequential result of
+the review.** The objection: "variable data is parent distribution + noise, so
+it's not a faithful representation of the parent."
+
+**The structure, exactly.** A synthetic dataset's weights are built in two steps.
+Mode k is given its true market share, which is signal: the market-weighted
+parent is a real population object and `mode_coupling = 1.0`. That share is then
+split among the points inside mode k by a FLAT DIRICHLET, which is noise, and it
+is noise the real world does not have, because a real market share is a property
+of a product rather than a random draw.
+
+**The counterfactual that separates them.** `audits/weight_noise_vs_signal.py`
+refits everything under `oracle` weights: the same mode-level market share, split
+EQUALLY within each mode. Same signal, no within-mode noise. It is not a method
+anyone could use and is not proposed as one; it isolates the stand-in. It needs
+the per-point mode label, which nothing on disk carries -- `MixtureParent.sample`
+shuffles the points precisely so that mode membership carries no positional
+information -- so `corpus._replay_one` now returns it.
+
+Paired against the same uniform-weighted fit, against the market parent.
+Positive means variable weighting is better; `*` marks an interval excluding zero.
+
+| family | band | realized weights | oracle weights |
+|---|---|---|---|
+| Normal | n 3-9 | -0.0312* | -0.0103 |
+| Normal | n 10-99 | -0.0235* | -0.0066 |
+| Normal | n 100-999 | +0.0134* | +0.0162* |
+| Normal | n >= 1000 | +0.0129* | +0.0122* |
+| Lognormal | n 3-9 | -0.0528* | -0.0213* |
+| Lognormal | n 10-99 | -0.0335* | **-0.0014** |
+| Lognormal | n 100-999 | +0.0300* | +0.0394* |
+| Lognormal | n >= 1000 | +0.0402* | +0.0416* |
+| KDE | n 3-9 | -0.0317* | -0.0131 |
+| KDE | n 10-99 | -0.0398* | **-0.0056** |
+| KDE | n 100-999 | +0.0274* | +0.0437* |
+| KDE | n >= 1000 | +0.0513* | +0.0575* |
+
+**At n = 10-99 the penalty essentially disappears and stops being
+distinguishable**: 86 percent of it for the KDE, 96 percent for the lognormal,
+72 percent for the normal. **At n >= 100 the oracle makes variable weighting
+BETTER than the realized weights do**, which is the same statement from the other
+side: the stand-in's noise is a cost everywhere and it is simply outweighed once
+there are enough points.
+
+**At n = 3-9 a real penalty survives** for the lognormal, -0.0213 and still
+distinguishable. Estimating a several-mode market mixture from three to nine
+points does not work however clean the weights are, and that part is not an
+artifact.
+
+**WHAT THE PAPER MUST NOW SAY.** Not "variable weighting hurts below n = 100".
+The honest claim is that **variable weighting pays whenever the market shares are
+actually known, from about n = 10 upward, and the penalty this study measures
+below n = 100 is the price of representing UNKNOWN market shares with a flat
+Dirichlet.** That is a statement about the stand-in, and it is the strongest
+argument in this project for the real production volumes of Marsh, Hattam and
+Allen (2025). Decision 73, entry 64.
+
+**And it endorses the author's "treat these as two separate issues".** The family
+comparison and the weighting comparison are already separable in the tables:
+`w1_parent` compares estimation methods WITHIN a weighting scheme, where the
+weights are held fixed and cannot confound anything, and `w1_market` is the only
+place the two weightings meet. The paper should present them in that order.
+
+### 4.16 The author's own framing of the right test, which no stage has run
+
+Raised in the review: "the test should be, if we use this probabilistic model in
+the context of a probabilistic whole-building LCA, how faithfully do those
+probabilistic models represent the true population of data? How aptly is the
+parent distribution captured? Does it even matter?"
+
+**The last three words are the test and it is now runnable for the first time.**
+Every fit-quality criterion in this study, old or new, is instrumental: it matters
+only insofar as it changes a pLCA answer. Until Stage 2c the synthetic parents
+could not be reconstructed, so there was no way to run a pLCA on the TRUTH. There
+is now: `corpus.load_parent_objects` returns an object with `ppf` and
+`rvs_from_uniform`, which is everything `notebooks/03` needs from a model.
+
+**The experiment: run the pLCA twice, once with each method's fitted models and
+once with the true parents, on the same common random numbers, and report how far
+each method's ECI Rank #1 Frequency is from the truth.** That converts every
+number in this handoff from "how close is the fitted CDF" to "how wrong is the
+answer", and it is the only version of the question a practitioner has.
+
+**It belongs to Stage 2e, which owns the pLCA construction and the common random
+numbers, and 2g, which owns the metrics.** Not run here: Stage 2c was told not to
+touch the pLCA construction, and the sweep over materials per pLCA that 2e owns
+would change the design underneath it. **It is the single most valuable thing
+either of those stages could do, and it may well show that the differences this
+stage measured do not matter, which would itself be the paper's cleanest result.**
+
 ## 5. Open questions and flags
 
 ### Carried forward
@@ -529,8 +745,11 @@ list only by being marked resolved, with the reason.
 
 | Item | Owner | Note |
 |---|---|---|
-| **The guard on the Silverman bandwidth is not confirmed by the parent referee** | author, then 2h | Pure Silverman beats it on 83 to 90 percent of datasets against the parent, at a cost of 0.9 and 0.25 percent of mean W1. The guard buys the held-out-likelihood tail it was chosen for. **Recommendation: leave it.** Section 4.8 |
+| **The guard on the Silverman bandwidth** | **CLOSED by the author, 2026-09-16** | The guard stays, by author decision, and the threshold stays at 30 by decision 75 after being swept on both criteria. Sections 4.8 and 4.14 C. What remains for 2h is the ordinary robustness sweep, not a choice |
+| **The variable-weighting penalty at small n is the Dirichlet stand-in** | manuscript, and 2h | Quantified in section 4.15 and decision 73. 2h's plan to average over weight realizations shrinks the noise but does not remove it; only real market shares would. The manuscript owes the restated claim |
+| **The KDE's small-n loss** | **CLOSED** | Real, with a textbook mechanism, and three candidate artifacts excluded. Section 4.14 B, decision 74 |
 | **The scoring grid's quadrature route** | author | The CDF route is strictly better at the same cost, p99 2.5 percent against 14.5, and switching moves every reported number for no change in any conclusion. **Recommendation: leave it.** Section 4.9 |
+| **The right test has not been run: does any of this change a pLCA answer?** | 2e, then 2g | Section 4.16, entry 69. Newly possible, because the parents are reconstructible for the first time. **The most valuable thing either stage could do**, and it may show the differences do not matter, which would itself be the cleanest result |
 | **A factor of two in the corpus-to-arm gap is unexplained** | 2f, or nobody | Section 4.3 accounts for the sign of the disagreement and not its size. It could be the corpus's shapes, the corpus's weights, or the empirical arm's small n. **No stage owns it and it may not need one**: the conclusion the paper states, the size dependence, is the same on both arms |
 | **The empirical arm cannot answer the weighting question at all** | manuscript | Its weights are a flat Dirichlet stand-in with no market information, so no out-of-sample comparison across weighting schemes is meaningful on it. The weighting claim rests entirely on the synthetic arm's market parent. **This is a limitation the paper must state**, and it is the strongest argument in the project for Marsh, Hattam and Allen (2025)-style real production volumes |
 | **Notebook 2's runtime** | 3 | Roughly 35 minutes now: the corpus is fitted once for the recovery columns and the empirical arm is cross-validated at ten repeats. `COMPAREUQ_SMOKE_COMBOS` does not apply to notebook 2 |

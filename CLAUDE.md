@@ -1343,3 +1343,106 @@ rather than in conversation.
     points the CDF route has a p99 relative error of 2.5 percent against the atom
     route's 14.5 percent, at the same cost, but switching moves every reported
     number for no change in any conclusion. Author decision. Entry 61.
+
+73. **2026-09-16, Stage 2c review. The variable-weighting penalty below n = 100
+    is the FLAT DIRICHLET STAND-IN, not weighting, and the paper's weighting
+    claim changes accordingly.** `[AUTHOR]` Raised by the author against the
+    Stage 2c draft: "variable data is parent distribution + noise, so it's not a
+    faithful representation of the parent." Correct, and measurable.
+
+    A synthetic dataset's weights are built in two steps. Mode k gets its true
+    market share, which is SIGNAL, because the market-weighted parent is a real
+    population object at `mode_coupling = 1.0`. That share is then split among
+    the points inside mode k by a flat Dirichlet, which is NOISE the real world
+    does not have: a market share is a property of a product, not a random draw.
+
+    `audits/weight_noise_vs_signal.py` refits everything under ORACLE weights --
+    the same mode-level share, split equally within each mode -- which isolates
+    the noise. Paired against the same uniform fit, against the market parent, at
+    n = 10-99: KDE **-0.0398 to -0.0056**, lognormal **-0.0335 to -0.0014**,
+    normal -0.0235 to -0.0066, and none of the oracle figures is distinguishable
+    from zero. At n >= 100 the oracle makes variable weighting BETTER still. At
+    n = 3-9 a real penalty survives for the lognormal, -0.0213, because
+    estimating a several-mode market mixture from three to nine points does not
+    work however clean the weights are.
+
+    **So the claim is NOT "variable weighting hurts below n = 100".** It is that
+    variable weighting pays whenever the market shares are actually known, from
+    about n = 10 upward, and the penalty this study measures is the price of
+    representing UNKNOWN shares with a flat Dirichlet. **This is the strongest
+    argument in the project for the real production volumes of Marsh, Hattam and
+    Allen (2025).** Entry 64.
+
+    It also needed a code change: the per-point mode label cannot be recovered
+    from anything on disk, because `MixtureParent.sample` shuffles the points so
+    that mode membership carries no positional information.
+    `corpus._replay_one` now returns it.
+
+74. **2026-09-16, Stage 2c review. The KDE's loss at n = 10-99 is real, and the
+    three explanations that would have made it an artifact are all excluded.**
+    `[AUTHOR]` The author pressed on it for the fourth time in the project, which
+    is why it was answered by measurement rather than argued.
+
+    NOT the halving: at fit fractions 0.5, 0.7, 0.8 and 0.9 the empirical deficit
+    is -0.0670, -0.0684, -0.0663, -0.0665, so the 50/50 split is the protocol
+    most favourable to the KDE of the four. NOT the evaluation protocol at all:
+    against the known parent, fitting on every value, it is -0.0172 uniform and
+    -0.0228 variable. NOT the over-dispersion: the fitted KDE's spread is 1.19x
+    the data's at n = 10-99, but correcting it exactly moves the deficit only
+    from -0.0138 to -0.0126 and beats the plain KDE on 47 to 55 percent of
+    datasets, a coin flip. The guard costs the KDE about 40 percent of the
+    deficit and does not cause it: under pure Silverman the gap is -0.0085
+    instead of -0.0138.
+
+    **The mechanism is the ordinary bias-variance tradeoff.** A parametric family
+    converges at root-n and a KDE at n^-2/5, so at small n the lognormal's shape
+    bias costs less than the KDE's variance, and at large n the bias stops
+    shrinking while the variance does not. **The crossover is at n of about 100,
+    which is where it is observed.** With 30 points a bumpy nonparametric
+    estimate of a smooth truth loses to a smooth three-parameter one however its
+    variance is scaled. `audits/cv_fit_fraction.py`,
+    `audits/kde_variance_correction.py`. Entries 65 and 66.
+
+75. **2026-09-16, Stage 2c review. `SILVERMAN_MIN_NEFF` stays at 30, and the
+    reason is that moving it would be tuning on the reported criterion.**
+    `[AUTHOR]` The author asked the right question -- if the guarded rule loses
+    to pure Silverman against the parent, adjust the threshold rather than
+    accepting it. Swept over 0, 5, 10, 15, 20, 30, 50, 100, 200 and infinity on
+    BOTH criteria, `audits/guard_threshold_sweep.py`.
+
+    **The two criteria disagree.** Held-out likelihood peaks at 20 to 30 on both
+    arms; W1 against the parent peaks at **5**, where mean W1 is 0.1355 against
+    pure Silverman's 0.1367 and the current 30's 0.1400. **So the parent referee
+    argues against this THRESHOLD, not against the guard, and Stage 2c section
+    4.8 was too broad in saying otherwise.**
+
+    Keeping 30 is the defensible choice: moving the threshold to improve W1 would
+    be tuning the setting on the criterion the study reports, which is exactly
+    what decision 54 avoided and what makes the bandwidth choice answerable to a
+    reviewer. The whole span 20 to 30 differs by about 1 percent of either
+    criterion. **The guard itself stays by author decision.** Entry 67.
+
+76. **2026-09-16, Stage 2c review. The size strata stay at 3-9, 10-99, 100-999
+    and 1000-9999 with equal allocation.** `[AUTHOR]` The author asked whether
+    the buckets should instead reflect the empirical size distribution, and
+    worried it would punish the KDE.
+
+    It would, and not by bias. The empirical share above n = 1,000 is 5.6
+    percent, so matching it would put about 560 corpus datasets in that band
+    instead of 2,500 and widen every interval there by `sqrt(2500/560)` = **2.1**
+    -- in the band where the methods differ most and where the KDE's advantage
+    lives. Equal allocation plus post-stratification already delivers both
+    readings from one corpus, and it is reversible where a different allocation
+    would not be, since generation is closed by decisions 47, 48 and 55. **No
+    change.** Decision 67 already reports every aggregate both ways.
+
+77. **2026-09-16, Stage 2c review. The bandwidth documentation said "Scott below
+    the threshold" and that is not what runs.** `[DELEGATED, chose to fix]`
+    `silverman_guarded` is `0.9 * scale * n_eff ** -0.2` THROUGHOUT, with only
+    the SCALE guarded: the robust `min(sd, IQR/1.34)` at or above 30 effective
+    observations, the plain standard deviation below it. Scott carries 1.06 where
+    this carries 0.9, so describing the fallback as Scott overstates the
+    small-sample bandwidth by 18 percent. `customstats.weighted_bw`'s main
+    docstring had it right; its parameter note and `fitting.BW_METHOD`'s comment
+    did not, and a Methods section written from either would have described a
+    different method. Both corrected. Entry 68.

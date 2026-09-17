@@ -846,7 +846,9 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
                      effective observations, the plain standard deviation when
                      there are not. See WHY THE GUARD below.
     min_neff : float
-        Effective sample size below which 'silverman_guarded' uses Scott.
+        Effective sample size below which 'silverman_guarded' falls back to
+        the plain standard deviation as its scale. NOT to Scott: the
+        coefficient stays 0.9 throughout, where Scott's is 1.06.
 
     Returns
     -------
