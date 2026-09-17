@@ -1,0 +1,301 @@
+"""How much does the weighting scheme matter, for one dataset? Stage 2d.
+
+Three things live here, and they answer one question at three levels of
+commitment.
+
+1. THE DECOMPOSITION. `w_v_uw_wasserstein`, the study's uniform-to-variable
+   distance, is bounded below by the absolute difference in the two weighted
+   means. `location_shape_split` separates it into that bound and the residual.
+   If the bound carries most of it, the practitioner rule collapses to a
+   weighted mean, which needs no distributional machinery at all.
+
+2. THE RELATIVE MEASURE. Every dataset in this study is divided by its own
+   unweighted mean, so every W1 already reported IS a W1 divided by a mean.
+   `relative_scales` makes that explicit and offers two robust alternatives, so
+   the choice of denominator is a stated one rather than an accident of
+   normalization.
+
+3. A_IQR. The measure from the author's own KL2 paper (Torres, Lupton, Marsh,
+   Srubar and Allen, Resources, Conservation and Recycling 234, 109022, 2026):
+   sample market-share vectors from the Dirichlet, fit a density under each, and
+   take the area between the pointwise 75th and 25th percentile density curves.
+   One number per dataset, in density space, where a practitioner reads an error
+   band. Using KL2's measure rather than a new one keeps this paper consistent
+   with the author's published work, which CLAUDE.md treats as a constraint.
+
+WHAT MAKES THIS DIFFERENT FROM THE SINGLE REALIZATION IT REPLACES. The
+characteristic `w_v_uw_wasserstein` is ONE draw from the Dirichlet. Stage 2a-3
+measured its draw-to-draw spread at up to 1.02 per dataset, which is larger than
+most of the differences the study reports. Everything here is a property of the
+DISTRIBUTION of possible weightings instead, so it does not move when the seed
+does.
+"""
+import numpy as np
+
+import fitting
+from customstats import (wasserstein1_weighted, weighted_quantile,
+                         weighted_std)
+
+# ---------------------------------------------------------------------------
+# 1. the decomposition
+# ---------------------------------------------------------------------------
+
+
+def uniform_weights(x):
+    n = len(np.asarray(x))
+    return np.full(n, 1.0 / n)
+
+
+def location_shape_split(x, weights):
+    """Split W1(uniform-weighted, variable-weighted) into location and shape.
+
+    W1 between two distributions is bounded below by the absolute difference of
+    their means, because the optimal transport plan must at minimum move the
+    mass far enough to move the mean:
+
+        W1(P, Q) = integral |F_P - F_Q| >= |mean(P) - mean(Q)|
+
+    Here P and Q are the SAME values under two weightings, so the bound is
+    |weighted mean - unweighted mean|. Call that the LOCATION component. The
+    residual is everything reweighting did that a shift of the mean does not
+    describe, and it is non-negative by the inequality.
+
+    WHY THE SPLIT IS WORTH MAKING. If the location component carries most of the
+    distance, then a practitioner asking "do market shares matter for my
+    category" needs only a weighted mean, which is a spreadsheet column. If the
+    residual carries most of it, they need the whole distribution and the
+    question is genuinely distributional. The two answers imply very different
+    guidance, and nothing in the study had separated them.
+
+    Returns
+    -------
+    dict with `w1`, `location`, `shape` and `location_share`.
+
+    `shape` is clipped at zero. The inequality is exact in real arithmetic, so a
+    negative value is floating-point noise in the quadrature and never a real
+    result; `tests/test_weighting.py` pins the size of it.
+    """
+    x = np.asarray(x, dtype=float)
+    w = np.asarray(weights, dtype=float)
+    w = w / w.sum()
+    u = uniform_weights(x)
+    w1 = float(wasserstein1_weighted(x, x, u, w))
+    location = abs(float(np.sum(x * w)) - float(np.mean(x)))
+    shape = max(0.0, w1 - location)
+    return dict(w1=w1, location=location, shape=shape,
+                location_share=(location / w1) if w1 > 0 else np.nan)
+
+
+# ---------------------------------------------------------------------------
+# 2. the relative measure
+# ---------------------------------------------------------------------------
+
+#: The denominators a W1 on one dataset can be divided by, to make it a relative
+#: measure a practitioner can compare across categories.
+#:
+#: ALL THREE ARE COMPUTED WITH UNIFORM WEIGHTS, and that is the important
+#: decision here rather than which of the three is used. A denominator taken
+#: under the VARIABLE weights would move when the weights move, which is the
+#: quantity being measured, so the ratio would confound the numerator with its
+#: own scale. It would also be uncomputable in practice: decision 6 normalizes
+#: by the unweighted mean precisely because a practitioner holding a set of EPDs
+#: can compute one and cannot compute a market-weighted mean without already
+#: knowing the market shares, which is what they lack.
+#:
+#: `mean` is the study's existing implicit choice. Every dataset is divided by
+#: its unweighted mean before anything else happens, so every W1 this study has
+#: ever reported is already a W1 divided by a mean, and naming it changes no
+#: number.
+SCALES = ('mean', 'iqr', 'sd')
+
+
+def relative_scales(x, weights=None):
+    """The three candidate denominators for one dataset.
+
+    `weights` defaults to uniform and should be left that way for anything
+    reported; see `SCALES` for why. It is exposed so the weighted denominators
+    can be measured and rejected rather than asserted to be worse.
+    """
+    x = np.asarray(x, dtype=float)
+    w = uniform_weights(x) if weights is None else np.asarray(weights, float)
+    w = w / w.sum()
+    q1 = float(weighted_quantile(x, w, 0.25, output='perc2val'))
+    q3 = float(weighted_quantile(x, w, 0.75, output='perc2val'))
+    return dict(mean=float(np.sum(x * w)), iqr=q3 - q1,
+                sd=float(weighted_std(x, w)))
+
+
+def relativize(w1, scales):
+    """One absolute W1 as three relative measures. Non-positive scale -> nan."""
+    return {f'rel_{k}': (w1 / scales[k] if scales[k] > 0 else np.nan)
+            for k in SCALES}
+
+
+# ---------------------------------------------------------------------------
+# 3. A_IQR, and the ensemble it comes from
+# ---------------------------------------------------------------------------
+
+#: Dirichlet draws per dataset. KL2 uses 1,000 -- "Fig. 3a shows 1000 iterations
+#: illustrating the range of viable solutions", and the steel proof-of-concept
+#: likewise generates 1,000 viable PDFs -- and this study matches it so that the
+#: two papers report the same measure and not merely the same name.
+#:
+#: Measured convergence is in `audits/aiqr_convergence.py`.
+N_DRAWS = 1_000
+
+#: Points in the density grid A_IQR is integrated on. A_IQR is an area under a
+#: difference of two smooth density curves, so it needs far fewer points than
+#: the W1 criterion's grid, which has to resolve a step function.
+AIQR_GRID_POINTS = 2_000
+
+#: How far past the data the grid reaches, in standard deviations. The same
+#: convention as `fitting.score_grid_open`, so the density is integrated over
+#: the same support the study scores on, and the grid is open at zero for the
+#: same reason: an ECC of exactly zero is not admissible (decision 13).
+AIQR_GRID_STD_MULTIPLE = fitting.SCORE_GRID_STD_MULTIPLE
+
+
+def aiqr_grid(x, npoints=AIQR_GRID_POINTS, std_multiple=AIQR_GRID_STD_MULTIPLE):
+    """The x-lattice A_IQR is integrated on, open at zero."""
+    x = np.asarray(x, dtype=float)
+    hi = float(np.max(x) + std_multiple * np.std(x))
+    return np.linspace(hi / npoints, hi, npoints)
+
+
+def dirichlet_draws(n, rng, n_draws=N_DRAWS, alpha=1.0):
+    """`n_draws` market-share vectors over `n` points, from a flat Dirichlet.
+
+    The same prior the study already uses for its variable weights, so every row
+    is an allocation this study considers possible. `alpha` is the CONCENTRATION
+    parameter and is 1.0 everywhere in this project (decision 16): a SMALLER
+    alpha gives MORE dispersed shares, so a flat Dirichlet is a lower bound on
+    how concentrated real market shares are. Marsh, Hattam and Allen (2025)
+    report Rest-of-World BOF steel at 63.75 percent of global production against
+    an expected top share of 5.2 percent at n = 100 under this prior.
+    """
+    return rng.dirichlet(np.full(n, float(alpha)), size=int(n_draws))
+
+
+def density_ensemble(x, draws, grid, bw_method=None):
+    """The density each weight vector implies, on a common grid. (n_draws, n_grid).
+
+    One bandwidth per draw, not one for the dataset. That is KL2's construction
+    and it is also the only self-consistent one: the bandwidth rule reads the
+    weighted standard deviation, the weighted interquartile range and the KISH
+    effective sample size, all three of which change when the weights change. A
+    concentrated draw genuinely is a smaller effective sample and should be
+    smoothed more.
+
+    THE DENSITY IS THE STUDY'S KDE, TRUNCATED TO (0, inf) AND RENORMALIZED, and
+    not a bare kernel sum. `fitting.fit_kde` builds the same object the study
+    fits, scores and samples from, which decision 13 requires and decision 50
+    implemented. It matters here rather than being a formality: a Gaussian
+    kernel sitting on a small ECC puts real mass below zero, and on small
+    datasets with a concentrated weight draw the bandwidth is wide enough that a
+    bare kernel sum loses up to 10 percent of its mass off the bottom of the
+    grid. An ensemble of curves integrating to between 0.90 and 1.00 would make
+    A_IQR partly a measure of how much mass each draw spilled.
+    """
+    x = np.asarray(x, dtype=float)
+    bw_method = bw_method or fitting.BW_METHOD
+    out = np.empty((len(draws), len(grid)), dtype=float)
+    for k, w in enumerate(draws):
+        out[k] = fitting.fit_kde(x, w, bw_method=bw_method)[0].pdf(grid)
+    return out
+
+
+def aiqr(densities, grid):
+    """A_IQR: the area of the interquartile range of an ensemble of densities.
+
+    KL2's definition, quoted: the uncertainty of the mean PDF "is represented by
+    the area of the IQR across all viable PDFs, AIQR, which is calculated by
+    subtracting the 25th percentile density curve from the 75th percentile
+    density curve at each point along the x-axis". The quartiles are therefore
+    POINTWISE IN x, which the author confirmed on 2026-09-17, and the result is
+    an area under that band.
+
+    IT IS NOT NORMALIZED, AND IT DOES NOT NEED TO BE. Stage 2d read KL2 to
+    settle this: the paper reports A_IQR as a bare number (0.40, 0.22 and 0.12
+    for its three scenarios) with no divisor. Nor should there be one. A density
+    has units of 1 / x, so integrating a difference of two densities over x is
+    already dimensionless, and A_IQR is therefore invariant under rescaling the
+    data -- multiply every ECC by a constant and the densities shrink by exactly
+    the factor the lattice stretches. `tests/test_weighting.py` pins that.
+
+    HOW TO READ IT. A_IQR is the expected width of the error band around the
+    density a practitioner would have drawn from uniform weights, integrated
+    over the support. Zero means every possible market-share allocation gives
+    the same density and the uniform assumption is free; large means the density
+    is mostly a statement about a weight vector nobody has measured.
+    """
+    lo, hi = np.percentile(np.asarray(densities, dtype=float), [25.0, 75.0],
+                           axis=0)
+    return float(np.trapezoid(hi - lo, grid))
+
+
+# ---------------------------------------------------------------------------
+# what a draw costs, in the units the flip curve is calibrated in
+# ---------------------------------------------------------------------------
+def model_w1(model_a, model_b, grid):
+    """W1 between two fitted models, as the area between their CDFs.
+
+    The same quadrature `fitting.score_w1_model` uses on its trapezoid route,
+    on a grid supplied by the caller. There is no empirical CDF in it: this is a
+    distance between two things the pLCA could sample from, which is what the
+    flip curve needs, and it is the quantity Stage 2d calibrates against.
+    """
+    fa = np.asarray(model_a.cdf(grid), dtype=float)
+    fb = np.asarray(model_b.cdf(grid), dtype=float)
+    return float(np.trapezoid(np.abs(fa - fb), grid))
+
+
+def weighting_separation(x, draws, grid, bw_method=None):
+    """How far each possible weighting moves the fitted density, as a W1.
+
+    For every Dirichlet draw, the absolute W1 between the KDE fitted under
+    UNIFORM weights -- the model a practitioner builds when they do not know the
+    market shares -- and the KDE fitted under that draw. Divide by a scale from
+    `relative_scales` to get the relative measure the flip curve is calibrated
+    in, then count the share above the calibrated threshold.
+
+    THE COMPARISON IS BETWEEN MODELS, NOT BETWEEN EMPIRICAL CDFs.
+    `audits/weighting_risk.py`, the Stage 2c feasibility probe, compared the two
+    weighted empirical CDFs instead. That answers a slightly different question
+    and, more to the point, it is not the quantity the flip probability is
+    calibrated against: the pLCA samples from the fitted models and never from
+    the data.
+    """
+    x = np.asarray(x, dtype=float)
+    bw_method = bw_method or fitting.BW_METHOD
+    base = fitting.fit_kde(x, uniform_weights(x), bw_method=bw_method)[0]
+    fu = np.asarray(base.cdf(grid), dtype=float)
+    out = np.empty(len(draws), dtype=float)
+    for k, w in enumerate(draws):
+        m = fitting.fit_kde(x, w, bw_method=bw_method)[0]
+        out[k] = float(np.trapezoid(
+            np.abs(np.asarray(m.cdf(grid), dtype=float) - fu), grid))
+    return out
+
+
+def dataset_risk(x, rng, n_draws=N_DRAWS, alpha=1.0, thresholds=(),
+                 npoints=AIQR_GRID_POINTS, bw_method=None, scales=None):
+    """A_IQR and the weighting risk for one dataset, in a single pass.
+
+    `thresholds` are RELATIVE, in units of the scale each is paired with, and
+    come from the flip-probability calibration. Returns one flat dict, so an arm
+    is a list comprehension over this.
+    """
+    x = np.asarray(x, dtype=float)
+    grid = aiqr_grid(x, npoints=npoints)
+    draws = dirichlet_draws(len(x), rng, n_draws=n_draws, alpha=alpha)
+    dens = density_ensemble(x, draws, grid, bw_method=bw_method)
+    sc = scales or relative_scales(x)
+    sep = weighting_separation(x, draws, grid, bw_method=bw_method)
+    row = dict(n=len(x), aiqr=aiqr(dens, grid))
+    for k in SCALES:
+        rel = sep / sc[k] if sc[k] > 0 else np.full(len(sep), np.nan)
+        row[f'sep_median_{k}'] = float(np.median(rel))
+        row[f'sep_p90_{k}'] = float(np.quantile(rel, 0.90))
+        for name, thr in thresholds:
+            row[f'P_{name}_{k}'] = float(np.mean(rel > thr))
+    return row
