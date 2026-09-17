@@ -2034,6 +2034,29 @@ rather than in conversation.
     What A_IQR does see is how many kernels the Dirichlet weight noise is averaged
     over. It falls roughly as n to the power -0.37.
 
+    **THE DISPERSION RESULT SURVIVES ON THE OTHER MEASURE, AND IT IS A
+    BOTH-MATTER RESULT RATHER THAN A REVERSAL.** An earlier draft of this entry
+    claimed the probe's ordering was reproduced and strengthened; that was read
+    off a SATURATED variable and is withdrawn. The thresholded probability sits
+    at exactly 1.000 for 46 percent of real categories and above 0.99 for 74
+    percent, because the calibrated threshold is far smaller than a typical
+    reweighting, so its marginal correlation is carried by the untied minority.
+
+    The honest quantity is the MEDIAN SEPARATION over draws, which has no
+    ceiling: **+0.731 with the coefficient of variation and -0.545 with log n**,
+    reproducing the probe's +0.693 and -0.569 almost exactly. Both drive it.
+    Dispersion is marginally the stronger and that is remarkable in a study where
+    dispersion predicts nothing else, but it does not displace size.
+
+    **Where dispersion dominates is WITHIN a size band**, and there it is nearly
+    deterministic: Spearman +0.940 at n = 3-9 over 20 datasets, +0.888 at 10-99
+    over 78, +0.955 at 100-999 over 38, and +0.833 above 1,000 over 8. The mirror
+    holds among the 38 unsaturated categories, where size explains almost
+    everything (-0.726) and dispersion almost nothing (+0.040). **So the claim
+    the paper makes is that which METHOD fits best is driven by size alone, while
+    whether WEIGHTING matters is driven by size across categories and by
+    dispersion within a size band.**
+
     **A_IQR is still reported, and the reason is unchanged.** It is the right
     answer to KL2's question, which is how confident the uncertainty MODEL is; it
     is published, so this paper cites rather than re-derives; and decision 90's

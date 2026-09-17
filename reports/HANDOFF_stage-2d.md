@@ -84,7 +84,11 @@ published paper's own question -- how confident the uncertainty MODEL is -- and
 using it lets this paper cite rather than re-derive. **The practitioner statement
 is made on a different quantity**: the distance between the uniform-weighted fit
 and the fit under a drawn market share, in units of the dataset's own mean, which
-is the axis the flip probability is calibrated on.
+is the axis the flip probability is calibrated on. On that quantity the
+dispersion result the stage was sent to confirm does hold, at **+0.731 against
+size at -0.545** -- but it is a both-matter result rather than the reversal an
+earlier draft of this file claimed. Section 4.5 has the correction and the
+within-band numbers, which are the strong form of it.
 
 ### The two housekeeping items
 
@@ -370,17 +374,24 @@ earlier probe had found that dispersion rather than dataset size drives whether
 weighting matters.
 
 **It does not behave that way here.** Spearman correlations, over the 147 real
-categories:
+categories. Two versions of the risk are shown, and the difference between them
+matters:
 
-| against | A_IQR | the weighting risk |
-|---|---|---|
-| coefficient of variation | **+0.042** | **+0.803** |
-| log of the number of EPDs | **-0.946** | **-0.106** |
-| the single-realization distance the study currently reports | +0.462 | +0.671 |
+| against | A_IQR | risk as a probability | risk as a distance |
+|---|---|---|---|
+| coefficient of variation | **+0.042** | +0.803 | **+0.731** |
+| log of the number of EPDs | **-0.946** | -0.106 | **-0.545** |
 
-On the synthetic sample of 400 the same split holds: A_IQR against dispersion
--0.277 and against log size -0.993, the risk against dispersion +0.529 and
-against log size -0.475.
+**Read the third column, not the second.** The probability that a possible
+weighting crosses the 5 percent flip threshold is SATURATED: 46 percent of real
+categories sit at exactly 1.000 and 74 percent above 0.99, because the calibrated
+threshold is far smaller than a typical reweighting. A Spearman correlation on a
+variable that is three-quarters tied is carried by the handful of untied points
+and should not be quoted as the headline. The median separation over draws, in
+units of the dataset mean, has no ceiling and is the honest version.
+
+On the synthetic sample of 400, A_IQR sits at -0.277 against dispersion and
+-0.993 against log size.
 
 **The mechanism is dimensional, not a defect.** A probability density carries
 units of one over x, so integrating a difference of two densities over x is
@@ -390,14 +401,29 @@ magnitude. A measure that cannot see a change of scale cannot see dispersion
 either. What it does see is how many kernels the weight noise is averaged over,
 and it falls roughly as the number of EPDs to the power -0.37.
 
-**THE PROBE'S FINDING SURVIVES, AND ON THE RIGHT MEASURE IT IS STRONGER.** The
-earlier probe put dispersion at +0.693 against size at -0.569. On the weighting
-risk the separation is sharper still, **+0.803 against -0.106**. So the paragraph
-the paper owes is intact and can be stated more forcefully: **every question in
-this study about which METHOD fits best is driven by the number of EPDs; whether
-WEIGHTING matters is driven by how spread the values are.** Those are different
-mechanisms, and a reader who has absorbed the first will wrongly assume it
-governs the second.
+**THE PROBE'S FINDING SURVIVES, BUT IT IS NOT A REVERSAL AND SHOULD NOT BE
+WRITTEN AS ONE.** The earlier probe put dispersion at +0.693 and size at -0.569;
+the honest measure here gives **+0.731 and -0.545**, which reproduces the probe
+almost exactly. **Both drive the risk.** Dispersion is marginally the stronger of
+the two, and that alone is remarkable in a study where dispersion predicts
+nothing else -- but it does not displace size, and a sentence claiming it does
+would be overreaching.
+
+**Where dispersion genuinely dominates is WITHIN a size band**, and there it is
+close to deterministic. Spearman of the separation against the coefficient of
+variation, computed inside each band of the real arm: **+0.940** at 3 to 9 EPDs
+(20 datasets), **+0.888** at 10 to 99 (78), **+0.955** at 100 to 999 (38) and
+**+0.833** above 1,000 (8). The mirror image also holds: among the 38 categories
+that are NOT saturated, size explains almost everything (-0.726) and dispersion
+almost nothing (+0.040).
+
+So the paragraph the paper owes is this. **Every question in this study about
+which METHOD fits best is driven by the number of EPDs and by nothing else.
+Whether WEIGHTING matters is driven by BOTH -- by size across categories and by
+dispersion within a size band.** That is the one place in the project where
+dispersion is a first-order quantity, and a reader who has absorbed "it is all
+about n" will otherwise carry that assumption into a question where it is only
+half the answer.
 
 ### What the risk actually says, and it is not reassuring
 
