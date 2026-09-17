@@ -283,8 +283,8 @@ and generation is closed; neither input moves again.
 | **2a-3 DONE** | Resolve the EC3 categories into specifiable products, on record metadata only: drop EC3 residual bins, split concrete by specified strength, split insulation by material type. Arm 136 to 149. Regenerate as `corpus_2026-09-14d`. Two record corrections. Found that the coverage claim is false. Handoff deleted by decision 59 | Any fitting work. It is the LAST pre-2b stage: nothing after it reopens generation or the empirical extract |
 | **2b DONE** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE. Also the plausibility ceiling, the support (0, inf), and the first end-to-end run of notebooks 2 and 3. Handoff deleted at the close of 2c; its findings are decisions 49 to 58 and discrepancy entries 35 to 52 | Adding new families for robustness (2h), or rescoring against a parent (2c) |
 | **2c DONE** | The evaluation target: scored the synthetic arm against the known parent (recovered by replaying the generator, decision 64), cross-validated the empirical 147, the fit-versus-definitional decomposition, regret, post-stratification, overlap area, the gamma question, the bandwidth against the parent, and the scoring grid. `reports/HANDOFF_stage-2c.md` | The pLCA construction (2e) and the flip-probability threshold (2d). It did NOT split the uniform-to-variable W1 into location and shape, which is 2d's |
-| **2d** | Decompose the uniform-to-variable W1 into location and shape, define the named relative measure, calibrate flip probability against relative W1, report the 1, 5 and 10 percent crossings | Building companion decision metrics (2g) |
-| **2e** | pLCA construction: common random numbers across UQ methods, sweep materials per pLCA over 2 to 12, resample groupings, dominant-MUI variant, bootstrap intervals on every headline percentage and NRMSE | Changing what the headline metric is (2g) |
+| **2d DONE** | Decomposed the uniform-to-variable W1 into location and shape (mostly location), named the relative measure and verified it un-normalized, built A_IQR and the per-dataset weighting risk, and calibrated the flip probability with the 1, 5 and 10 percent crossings. Found that the study's pLCA compares methods under INDEPENDENT randomness, with a 5.33 percent top-contributor noise floor, so the calibration runs on common random numbers. `reports/HANDOFF_stage-2d.md` | Building companion decision metrics (2g), and installing common random numbers in the STUDY's pLCA, which stays 2e's |
+| **2e** | pLCA construction: common random numbers across UQ methods, sweep materials per pLCA over 2 to 12, resample groupings, dominant-MUI variant, bootstrap intervals on every headline percentage and NRMSE. **Stage 2d measured the cost of NOT having common random numbers at 5.33 percent of top-contributor comparisons and 34.2 percent of orderings, and left a tested implementation in `src/flip.py`** | Changing what the headline metric is (2g) |
 | **2f** | Resolve Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue`, then the multivariate model of W1 and of which method wins, to cut the metric set to three to five survivors | Regenerating, or redesigning figures (3) |
 | **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
 | **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling | Anything not framed as a sweep with a tabulated result |
@@ -301,7 +301,12 @@ Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue` (2f); dependent
 sampling (2e); overlap area alongside W1 (2c); the scoring grid's zero
 (RESOLVED in 2b); the `(1-capecc)` divisor (2g); overlap area (RESOLVED in 2c, decision 69); W1's lack of a complexity penalty (RESOLVED in 2c, decisions 65 and 70); the linear scoring grid (RESOLVED in 2c, decision 72);
 `weighted_quantile` order dependence (fixed in Stage 1 Phase 3, and it must
-stay fixed before any switch to Silverman in 2h).
+stay fixed before any switch to Silverman in 2h); the uniform-to-variable
+location/shape split and the flip-probability threshold (RESOLVED in 2d,
+decisions 92 and 95); `w_v_uw_wasserstein` as a single Dirichlet realization
+(RESOLVED in 2d, superseded by the per-dataset risk of decision 94);
+common random numbers in the STUDY's pLCA (2e, and 2d measured what their
+absence costs).
 
 Mark each stage done as it completes. If a stage hands an item to a different
 stage than this table says, update the table rather than leaving the two out of
@@ -1910,3 +1915,190 @@ rather than in conversation.
     is the reason to expect A_IQR to work here: dispersion, not size, is what drives
     whether weighting matters (Spearman +0.693 with the coefficient of variation
     against -0.569 with log n), and A_IQR is a dispersion-of-the-density measure.
+
+91. **2026-09-17, Stage 2d. THE STUDY'S pLCA CANNOT ANSWER "DID THE ANSWER
+    CHANGE", because it compares methods under INDEPENDENT randomness, and the
+    flip calibration therefore runs on common random numbers.** `[DELEGATED, 2d
+    chose]` Read this before concluding that Stage 2e's work was done early. **It
+    was not.** No pLCA result was written or replaced; this is a separate
+    calibration run.
+
+    Notebook 3 draws each method's Monte Carlo sample from its own stretch of one
+    shared generator, so any two methods are compared under two different sets of
+    random numbers. **Run the same method twice, with the SAME fitted models and
+    two independent streams, over 400 pLCA groups: the top contributor changes in
+    5.33 percent of cases and the full rank ordering in 34.2 percent, with no
+    model difference whatever.** By method the top-contributor floor runs from
+    1.00 percent for `Normal, Variable` to 15.25 percent for `Lognormal, Uniform`.
+
+    **Two of the three levels this stage was asked to resolve sit BELOW that
+    floor**, so they cannot be read off the existing results at any number of
+    datasets. Under common random numbers -- one uniform variate per material per
+    iteration through every method's inverse CDF, which is what
+    `families.rvs_from_uniform` was built for in Stage 2b and had never been used
+    for -- two identical models produce identical draws and the floor is exactly
+    zero. The `t = 0` control in the calibration set confirms it: 2,500 groups,
+    zero separation, zero flips.
+
+    **Why it is this large here, and it is a property of the study's own
+    construction.** Every dataset is normalized to a mean of 1.0 and every
+    material use intensity is 1.0, so the four materials in a pLCA are nearly
+    exchangeable, their rank-1 frequencies all sit near 0.25, and 15 percent of
+    (pLCA, method) cells have a gap between the top two below two Monte Carlo
+    standard errors.
+
+    **Stage 2e still owns installing common random numbers in the study's pLCA**
+    and moving its published numbers. What it inherits from here is a tested
+    implementation, `src/flip.py`, not a decision. Discrepancy entry 82.
+
+92. **2026-09-17, Stage 2d. The uniform-to-variable W1 is MOSTLY A SHIFT OF THE
+    MEAN, and that simplifies the practitioner rule.** `[AUTHOR]` The author
+    asked for the decomposition and named the good outcome in advance: if it is
+    mostly location, the rule collapses to something computable in a spreadsheet.
+    It is.
+
+    W1 is bounded below by the absolute difference in means, and here the two
+    distributions are the same values under two weightings, so the bound is
+    `abs(weighted mean - unweighted mean)`. Calling that the LOCATION component
+    and the remainder SHAPE:
+
+        arm         median share   mean share   pooled   above half
+        empirical      0.7252        0.6726     0.7281     68.7 pct
+        synthetic      0.8043        0.6945     0.7992     72.4 pct
+
+    **The share is highest where the datasets are smallest**: on the empirical arm
+    it is 0.96 at n = 3-9, 0.65 at 10-99, 0.74 at 100-999 and 0.54 at 1,000 and
+    above. With three to nine values there is barely any shape for reweighting to
+    change.
+
+    So the guidance a practitioner needs is "compute a weighted mean and see how
+    far it moves", not a distributional calculation. The residual is real but
+    secondary, and it grows with dataset size, which is the opposite of where the
+    weighting question is most urgent. Entry 83.
+
+93. **2026-09-17, Stage 2d. The relative measure is W1 DIVIDED BY THE DATASET'S
+    UNWEIGHTED MEAN, it was already there unnamed, and naming it moves no
+    number.** `[DELEGATED, 2d chose]` Every dataset in this study is divided by
+    its own unweighted mean before anything else happens (decision 6), so every
+    W1 this study has ever reported is already a W1 divided by a mean. The
+    manuscript nowhere says so.
+
+    **Verified rather than asserted.** The same quantity was recomputed on the
+    RAW empirical values, in their own kgCO2e per declared unit, with dataset
+    means spanning **0.0685 to 910.7**, a factor of 13,000. The relative measure
+    agrees with the normalized run to **6e-15**; the absolute W1 scales by exactly
+    the dataset's own mean, which is the control that the check is checking
+    something. `tests/test_weighting.py` pins both.
+
+    **The two robust alternatives were computed and are not adopted.** Dividing by
+    the interquartile range or the standard deviation instead separates the flips
+    essentially as well: AUC on the calibration set is 0.8018 for the mean, 0.8004
+    for the interquartile range and 0.8056 for the standard deviation on the
+    top-contributor outcome. A difference of half a percent is not a reason to
+    change the denominator the study already uses, and the mean is the only one of
+    the three a practitioner computes without ambiguity. **The standard deviation
+    is better on the FULL ORDERING outcome**, 0.794 against 0.761, which is noted
+    and not acted on because the full ordering is not a criterion this study
+    reports.
+
+    **All three are computed with UNIFORM weights, and that is the decision that
+    matters here** rather than which of the three is used. A denominator taken
+    under the variable weights would move when the weights move, which is the
+    quantity being measured, and a practitioner holding a set of EPDs cannot
+    compute a market-weighted mean without already knowing the market shares.
+    Entry 86.
+
+94. **2026-09-17, Stage 2d. A_IQR IS NEARLY A FUNCTION OF DATASET SIZE AND IS
+    ALMOST BLIND TO DISPERSION. This NARROWS decision 90**, which adopted it
+    expecting the opposite. `[DELEGATED, 2d measured]` Stated explicitly because
+    CLAUDE.md forbids reversing a decision silently, and decision 90 was written
+    hours earlier.
+
+    **What decision 90 expected.** The Stage 2c probe found that whether weighting
+    matters is driven by dispersion rather than size, Spearman +0.693 with the
+    coefficient of variation against -0.569 with log n, and decision 90 adopted
+    A_IQR on the reasoning that it is a dispersion-of-the-density measure and
+    would inherit that. It does not.
+
+    **The mechanism, and it is dimensional rather than a defect in the
+    implementation.** A probability density carries units of 1 / x, so integrating
+    a difference of two densities over x is dimensionless, and A_IQR is therefore
+    **exactly invariant under rescaling the data**: multiply every ECC by a
+    constant and the densities shrink by precisely the factor the lattice
+    stretches. Verified to ten decimal places over seven orders of magnitude in
+    `tests/test_weighting.py`. **A measure that cannot see a change of scale
+    cannot see dispersion.** Holding n at 60 and moving the coefficient of
+    variation from 0.22 to 5.83, a factor of 27, moves A_IQR from 0.293 to 0.249 --
+    slightly DOWN -- while the mean-relative separation moves from 0.030 to 0.522.
+
+    What A_IQR does see is how many kernels the Dirichlet weight noise is averaged
+    over. It falls roughly as n to the power -0.37.
+
+    **A_IQR is still reported, and the reason is unchanged.** It is the right
+    answer to KL2's question, which is how confident the uncertainty MODEL is; it
+    is published, so this paper cites rather than re-derives; and decision 90's
+    two construction details stand, pointwise quartiles and the guarded Silverman
+    bandwidth. **What changes is what it is asked to do.** The practitioner
+    statement is made on the distance between the uniform-weighted fit and the fit
+    under a drawn market share, in units of the dataset's own mean, because that
+    is the axis the flip probability is calibrated on and because a pLCA ranks
+    materials by absolute contribution.
+
+    **Two details were read off KL2 as decision 90 required**, from
+    `refs/1-s2.0-S0921344926002466-main.pdf`, and both are now settled. **The area
+    is NOT normalized**: the paper reports bare areas of 0.40, 0.22 and 0.12 for
+    its three scenarios and applies no divisor, and none is needed because the
+    integral is already dimensionless. **The ensemble is 1,000 draws**, stated
+    twice -- "Fig. 3a shows 1000 iterations illustrating the range of viable
+    solutions" and, for the 131-EPD steel proof of concept, "these constraints are
+    incorporated to generate 1000 viable PDFs". This study uses 1,000 for
+    consistency. Entry 84.
+
+95. **2026-09-17, Stage 2d. THE CALIBRATION CURVE: what a given W1 costs, and the
+    relative W1 at which the top contributor flips 1, 5 and 10 percent of the
+    time.** `[AUTHOR]` This is the stage's deliverable.
+
+    Measured on 2,500 pLCA groups by nine tempering levels, under common random
+    numbers, with a logistic fit on log distance and a percentile interval from a
+    bootstrap that resamples pLCA GROUPS rather than rows:
+
+        level   crossing   95 pct interval        isotonic
+        1 pct    0.00149   0.00109 to 0.00199      0.0026
+        5 pct    0.00991   0.00831 to 0.01177      0.0133
+        10 pct   0.02334   0.02049 to 0.02652      0.0226
+
+    The isotonic fit assumes only that the flip probability does not FALL as the
+    models separate, so its agreement at 10 percent and its mild disagreement
+    below say the crossings are a property of the data and not of the link
+    function. `flip.FLIP_THRESHOLDS` carries the logistic values.
+
+    **THE SIX UQ METHODS COULD NOT SUPPLY THIS CURVE AND THAT IS ITSELF A
+    RESULT.** Over 37,500 comparisons the smallest relative W1 between any two of
+    the six is 0.00022, and the flip rate in the lowest 2 percent of separations
+    is already 14.1 percent; averaged over all pairs it is **56.1 percent**. Every
+    level being asked about lies below the observed data. So the calibration set
+    adds pairs at controlled separations running to zero -- the same kernel
+    estimate under uniform weights and under weights moved a fraction `t` of the
+    way toward a Dirichlet draw -- with `t = 0` as the control and `t = 1` as the
+    study's own variable weighting.
+
+    **The device is checked, not assumed.** If the curve describes the DISTANCE
+    rather than its provenance, the six real method pairs, which are different
+    FAMILIES, fall on the curve fitted from weighting pairs. They do over most of
+    the range: 0.109 against 0.129, 0.180 against 0.166, 0.280 against 0.287 in
+    three successive separation bands. **They diverge above a separation of
+    0.122**, 0.429 against 0.604, so a cross-family difference of a given size is
+    more consequential than a reweighting difference of the same size and the
+    curve UNDERSTATES the flip probability there. Said rather than smoothed.
+
+    **THE CAVEAT TRAVELS WITH EVERY ONE OF THESE NUMBERS.** Every material here is
+    normalized to a mean of 1.0 with a material use intensity of 1.0, so the four
+    contributions are nearly exchangeable and the ranking is as fragile as it can
+    be made. A real building, where materials differ by orders of magnitude, is
+    much harder to flip. These are an **upper bound** on how often a modeling
+    choice changes an answer, which is the conservative direction for a
+    practitioner rule and must not be quoted as a statement about buildings.
+
+    **The full rank ordering is NOT a usable criterion in this construction** and
+    is reported only to say so: its crossings are at 0.00002, 0.00023 and 0.00065,
+    and its Monte Carlo floor under independent streams is 34.2 percent. Entry 85.

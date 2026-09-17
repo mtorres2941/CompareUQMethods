@@ -1223,3 +1223,14 @@ relative figure beside it.**
 | **Which to use** | The mean. See decision 93 for the measured comparison. |
 | **Fix** | **Text.** State that scores are relative to the dataset mean, give the definition once, and say that the alternatives were tested. It moves no number: on a dataset normalized to a mean of 1.0 the named measure IS the reported W1, which `tests/test_weighting.py` pins. |
 | **Status** | Open. Decision 93. |
+
+## 87. A smoke run was committed, and the guard that exists for it is a sentence rather than a check
+
+| | |
+|---|---|
+| **What happened** | Stage 2d ran notebook 3 under `COMPAREUQ_SMOKE_COMBOS=40` to exercise its new cells, then committed with `git add -A` while that output was still on disk. Commit `b750673` therefore replaced `outputs/tables/TABLE_PLCAResults.csv` with a 960-row smoke table in place of the 60,000-row result. Caught within the same session, restored from the parent commit in `b0af80e`, and verified at 60,001 lines. |
+| **What it cost** | Nothing. No number was read from the file while it was wrong, and the full test suite including the eight regression fixtures passed against the restored tree. |
+| **Why it is worth an entry anyway** | `CONTEXT.md` already says "Smoke results must never be committed", and that sentence did not stop it, because the smoke run and the commit were separated by half an hour of unrelated work. A rule that depends on remembering what a previous command did is the weakest kind. |
+| **The cheap fix** | Notebook 3 already knows it is in smoke mode. It should write its tables to a different directory, or refuse to write `TABLE_PLCAResults.csv` at all, when `COMPAREUQ_SMOKE_COMBOS` is set; or the run metadata beside each table should carry `n_combos` and a test should assert it equals 2,500. Either makes the failure impossible rather than discouraged. |
+| **Fix** | **Code, owner Stage 3**, which owns the output conventions. Not done here, because it touches every table notebook 3 writes and Stage 2d had no mandate for it. |
+| **Status** | Open, owner 3. The incident itself is resolved. |
