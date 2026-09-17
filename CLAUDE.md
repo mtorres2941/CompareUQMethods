@@ -1824,3 +1824,43 @@ rather than in conversation.
     `w_v_uw_wasserstein` characteristic, which is one draw from this distribution
     and is the open item about a single Dirichlet realization moving per-dataset
     metrics a long way. Entry 80.
+
+90. **2026-09-17. A_IQR is the measure Stage 2d should use for "how safe is
+    uniform weighting", and it comes from the author's own KL2 paper, which makes
+    it a CONSISTENCY CONSTRAINT rather than one option among several.**
+    `[AUTHOR]` Recorded because it was clarified in conversation and would
+    otherwise be lost; decision 89 specified the question and this names the
+    instrument.
+
+    **The definition, as the author gave it:** sample many weight vectors from the
+    Dirichlet, fit a PDF under each, and take **the area of the interquartile
+    range of that ensemble of PDFs**. A higher A_IQR means a wider error band
+    around the PDF you would have got from uniform weights. One number per
+    dataset, directly answering how much the density wobbles when the market
+    shares are unknown.
+
+    **VERIFY THE EXACT CONSTRUCTION AGAINST THE PAPER BEFORE IMPLEMENTING IT.**
+    The above is a verbal description recorded second hand. Torres, Lupton, Marsh,
+    Srubar and Allen (2026), RC&R 234, 109022, is in `refs/` as
+    `1-s2.0-S0921344926002466-main.pdf`. What has to be read off it: whether the
+    quartiles are taken pointwise in x across the ensemble, how the area is
+    normalized if at all, how many draws it uses, and what bandwidth the component
+    PDFs use. Getting any of those wrong would produce a number that shares a name
+    with KL2's and not a definition, which is worse than inventing a new one.
+
+    **Why it is a constraint and not a choice.** CLAUDE.md's standing rule treats
+    the author's two published papers as consistency constraints. A_IQR is KL2's
+    answer to the same question this paper asks, so using it keeps the two
+    consistent and lets this paper cite rather than re-derive. **Where this paper
+    differs from KL2 on it, say so**, as the bandwidth inconsistency of decision 9
+    had to be said.
+
+    **How it relates to what Stage 2c measured.** `audits/weighting_risk.py` uses a
+    different and more ad-hoc quantity: W1 between the uniform-weighted and the
+    variable-weighted empirical CDF, per draw, thresholded. That was a feasibility
+    probe, not a proposal. **A_IQR is the better instrument** -- it is a single
+    number, it is in density space where a practitioner reads an error band, and it
+    is already published. The probe's finding survives the change of instrument and
+    is the reason to expect A_IQR to work here: dispersion, not size, is what drives
+    whether weighting matters (Spearman +0.693 with the coefficient of variation
+    against -0.569 with log n), and A_IQR is a dispersion-of-the-density measure.
