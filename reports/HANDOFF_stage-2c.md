@@ -25,6 +25,12 @@ bandwidth guard moved to 20 effective observations, the scoring grid moved to
 20,000 points and trapezoid quadrature, and the comparison is now also reported
 by material tier. Section 5 lists what is left, and nothing in it blocks Stage 2d.
 
+**Five figures.** `FIG_EvaluationTarget` and `FIG_MethodByMaterial` were both
+redrawn after the author objected that ranks and tier bars bin away the size of a
+gap; both now plot the paired, unbinned `log(W1_KDE / W1_lognormal)` against the
+number of EPDs. `SUPP_AllEmpiricalFits` is all 147 empirical datasets with all six
+fits, sorted by tier then size.
+
 **One correction to carry forward.** The "95 percent of ECC datasets have one
 visible mode" figure is an artifact of Scott's bandwidth and must be restated:
 measured at the bandwidth the study actually fits it is **68 percent**. The corpus
@@ -91,9 +97,9 @@ Synthetic arm, 10,000 datasets, mean W1:
 | method | in sample | against the parent | rank in sample | rank vs parent |
 |---|---|---|---|---|
 | `KDE, Uniform` | 0.1602 | **0.1220** | 3.81 | **2.03** |
-| `Lognormal, Uniform` | 0.1680 | 0.1306 | 4.36 | 3.00 |
+| `Lognormal, Uniform` | 0.1684 | 0.1306 | 4.36 | 3.00 |
 | `KDE, Variable` | **0.0754** | 0.1631 | **1.46** | 2.96 |
-| `Lognormal, Variable` | 0.0991 | 0.1699 | 2.48 | 3.72 |
+| `Lognormal, Variable` | 0.0994 | 0.1699 | 2.48 | 3.72 |
 | `Normal, Uniform` | 0.2183 | 0.2103 | 5.05 | 4.48 |
 | `Normal, Variable` | 0.1717 | 0.2368 | 3.86 | 4.81 |
 
@@ -104,8 +110,8 @@ against themselves.
 
 Empirical arm, cross-validated on ten random half-splits in both directions, 127
 of 147 datasets reaching n = 10. Within a weighting scheme, which is the only
-valid comparison there (see 4.4): `Lognormal, Uniform` 0.2950 and `KDE, Uniform`
-0.3198; `Lognormal, Variable` 0.3129 and `KDE, Variable` 0.3437.
+valid comparison there (see 4.4): `Lognormal, Uniform` 0.2984 and `KDE, Uniform`
+0.3281; `Lognormal, Variable` 0.3165 and `KDE, Variable` 0.3527.
 
 ### 4.2 The two arms disagree about the family, and the disagreement is explained
 
@@ -115,7 +121,7 @@ is better**:
 | | uniform | variable |
 |---|---|---|
 | synthetic, against the parent | **+0.0086** [+0.0072, +0.0099] | **+0.0068** [+0.0052, +0.0084] |
-| empirical, cross-validated | **-0.0247** [-0.0417, -0.0084] | **-0.0309** [-0.0486, -0.0133] |
+| empirical, cross-validated | **-0.0297** [-0.0463, -0.0145] | **-0.0363** [-0.0534, -0.0197] |
 
 Both exclude zero. Removing one difference at a time, uniform weighting: parent,
 equal allocation +0.0078; the same corpus CROSS-VALIDATED instead -0.0034,
@@ -154,7 +160,7 @@ within its weighting scheme:
 |---|---|---|---|---|---|---|
 | structure | 41 | 98,216 | **0.488** | 0.341 | 0.317 | **0.488** |
 | envelope | 32 | 3,869 | 0.188 | **0.625** | 0.062 | **0.719** |
-| other | 54 | 14,578 | 0.259 | **0.537** | 0.204 | **0.537** |
+| other | 54 | 14,578 | 0.222 | **0.556** | 0.185 | **0.556** |
 | **structure, n >= 100** | **23** | **97,438** | **0.696** | 0.261 | 0.478 | 0.435 |
 
 **On the 23 structural categories with at least 100 EPDs -- which hold 83 percent
@@ -163,9 +169,30 @@ the KDE is closest on 70 percent of datasets under uniform weighting and has the
 lower mean under both.** Mean cross-validated W1 0.0658 against the lognormal's
 0.0737 under uniform weighting, 0.0808 against 0.0844 under variable.
 
-That subgroup is not fished: the tiers were fixed in `materialclass.py` before any
-result was looked at, and n = 100 is the crossover established independently in
-4.2. **It is a conjunction of two prior findings, not a search.**
+**BUT THE TIER IS NOT A SECOND MECHANISM, and reporting it as one overstates the
+result.** Regressing the per-dataset `log(W1_KDE / W1_lognormal)` on `log(n)` and
+then adding the tier as a factor, the tier adds nothing detectable: R2 goes from
+0.316 to 0.321 under uniform weighting and 0.216 to 0.225 under variable,
+**F = 0.49 and 0.72, p = 0.61 and 0.49**. Within a single size band the tier
+ordering is not even stable.
+
+**Size is the mechanism and the tier follows from it.** Structural categories are
+the well-populated ones: median n **140 against 52 for envelope and 46 for
+everything else**, and the six largest categories in the arm are all ReadyMix
+strength classes. The crossover is at **124 EPDs** under uniform weighting and 204
+under variable.
+
+**And what makes them different is not that the others are "more lognormal".**
+Structural datasets are better behaved in every characteristic: median coefficient
+of variation **0.307 against 0.828 and 0.736**, skewness 0.917 against 1.566 and
+1.716, excess kurtosis 1.412 against 3.716 and 5.312, and a HIGHER Shapiro
+statistic against both the normal and the lognormal. Concrete and steel are tight,
+nearly symmetric populations with many EPDs; finishes and furnishings are sparse,
+dispersed and heavy tailed, which is exactly what a skewed two- or three-parameter
+family describes well.
+
+**So the paper states one mechanism with a threshold**, and notes that the
+materials which dominate embodied carbon are the ones that clear it. Decision 84.
 
 ### 4.4 Weighting
 
@@ -197,15 +224,15 @@ drives the penalty. Decisions 73 and 79.
 
 ### 4.5 Regret, and the tail that reverses two methods
 
-Synthetic, against the parent: mean regret `KDE, Uniform` **0.0290**,
-`Lognormal, Uniform` 0.0368, `KDE, Variable` 0.0702, `Lognormal, Variable`
-0.0762, `Normal, Uniform` 0.1166, `Normal, Variable` 0.1431. **At the 95th
-percentile the order of the first two reverses**: 0.1506 for the KDE against
+Synthetic, against the parent: mean regret `KDE, Uniform` **0.0282**,
+`Lognormal, Uniform` 0.0368, `KDE, Variable` 0.0693, `Lognormal, Variable`
+0.0761, `Normal, Uniform` 0.1165, `Normal, Variable` 0.1430. **At the 95th
+percentile the order of the first two reverses**: 0.1453 for the KDE against
 0.1281 for the lognormal, and the worst case 1.26 against 0.86. The KDE has the
 lower mean cost and the lognormal the tighter worst case.
 
-Empirical, cross-validated: `Lognormal, Uniform` 0.0244, `Lognormal, Variable`
-0.0425, `KDE, Uniform` 0.0550, `KDE, Variable` 0.0748, the normals near 0.21.
+Empirical, cross-validated: `Lognormal, Uniform` 0.0259, `Lognormal, Variable`
+0.0440, `KDE, Uniform` 0.0556, `KDE, Variable` 0.0802, the normals near 0.21.
 
 ### 4.6 Post-stratification
 
@@ -278,12 +305,21 @@ inflated the KDE's score by 3 to 5 percent against 0.2 for the lognormal -- it i
 justified on the convergence table alone. The cross-validated comparison does not
 move: -0.0340 against -0.0339. Decision 80.
 
-**No tail-sensitive companion is added.** Integrating each fitted model's survival
-function beyond the recovery grid gives a mean charge of 0.0000 to 0.0001 over
-60,000 fits, no fit whose unseen tail exceeds its body score, and a rank
-correlation of 1.0000 between the body score and the total. `model_sd_ratio`
-stays as the sentinel, and Stage 2h must report it with every value of
-`PROFILE_DELTA_LO_FRAC` it tries. Decision 69.
+**The criterion now CHARGES the tail, which is better than adding a companion to
+watch it.** Above the grid's top the empirical CDF is 1, so the integrand is the
+model's survival function and the missing term is the model's mean excess; it is
+added on a log-spaced extension, which costs 2,000 points where extending the
+linear grid would cost five times the points to hold resolution. **It is not
+symmetric across methods**: the truncated normal and the KDE put exactly zero mass
+up there and the three-parameter lognormal up to 4.9e-3, so omitting it
+under-charged one family alone. Decision 85.
+
+**The side effect is worth more than the accuracy.** W1 now sees the runaway-tail
+pathology of entry 43: the bad model scores **1,144 times** the good one instead of
+81. A Stage 2b test asserting that W1 is blind to that failed, and is rewritten to
+pin the improvement. `model_sd_ratio` is kept anyway -- it is one cheap number and
+it does not depend on the grid -- and Stage 2h must still report it with every
+value of `PROFILE_DELTA_LO_FRAC` it tries.
 
 **Overlap area agrees with W1**, which is what justifies keeping W1. On the
 synthetic arm, where a reference density exists, the two pick the same winner on
@@ -388,9 +424,12 @@ production path.
 
 ### The three settings that moved every number
 
-Two settings changed and one measurement was corrected, in one re-run of all
-three notebooks. `SILVERMAN_MIN_NEFF` 30 to 20, `SCORE_GRID_POINTS` 1,000 to
-20,000, `W1_ROUTE` atoms to trapezoid.
+Four settings changed, over three re-runs of the notebooks.
+`SILVERMAN_MIN_NEFF` 30 to 20, `SCORE_GRID_POINTS` 1,000 to 20,000, `W1_ROUTE`
+atoms to trapezoid, and `W1_TAIL_TERM` off to on. The table below is the first
+three against the state at the start of Stage 2c; the tail term then moved the
+lognormal alone, by +0.28 to +0.41 percent, and left the other four unchanged to
+five decimal places.
 
 **W1, mean over datasets.**
 
@@ -435,7 +474,18 @@ Cell 23 now calls the single implementation. Notebook 3's two inline calls are a
 DIFFERENT quantity -- W1 between two fitted models, with no empirical CDF in it --
 and are left alone.
 
-The fixtures were re-frozen in the same commit, with `SHA256SUMS.txt` updated.
+The fixtures were re-frozen with `SHA256SUMS.txt` updated each time a number
+moved.
+
+**THREE OF THE FOUR CHANGES MOVE NUMBERS IN THE KDE'S FAVOR, each for an
+independently correct reason, and the paper must present them as one paragraph
+about taking the criterion to convergence rather than as three improvements.**
+Three separate improvements all helping the method under test reads badly however
+sound each is. The defense is the convergence tables, which anyone can recompute:
+the bandwidth was chosen on held-out likelihood before the parent referee existed,
+the quadrature was chosen because the atom route provably does not converge, and
+the tail term was added because the lognormal was the only family with mass beyond
+the grid. None was chosen by looking at which method it helped.
 
 ### Files
 
