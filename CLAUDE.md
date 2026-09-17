@@ -1630,3 +1630,64 @@ rather than in conversation.
     It is a stratification and not an importance weight. The principled versions of
     that are Stage 2i's real-building anchor and the pLCA-against-truth of entry
     69. Entry 71.
+
+84. **2026-09-17. THE MATERIAL TIER ADDS NOTHING BEYOND DATASET SIZE. Decision 83
+    is NARROWED: size is the mechanism and the tier is a consequence of it.**
+    `[AUTHOR]` The author asked why the comparison was being sliced at "structural
+    and n >= 100" and whether the tier was a useful distinction at all. It is
+    useful for deciding WHERE the result matters and it is not a second mechanism.
+
+    Regressing the per-dataset log ratio `log(W1_KDE / W1_lognormal)` on `log(n)`
+    and then adding the tier as a factor: R2 goes from 0.316 to 0.321 under
+    uniform weighting and 0.216 to 0.225 under variable, **F = 0.49 and 0.72,
+    p = 0.61 and 0.49. The tier explains nothing the size does not.** Within a
+    single size band the tier ordering is not even stable, and the counts per cell
+    are 2 to 40.
+
+    **Why the tier looked like a mechanism:** structural categories are the
+    well-populated ones. Median n is **140 for structure against 52 for envelope
+    and 46 for everything else**, and the largest six are all ReadyMix strength
+    classes.
+
+    **What the structural datasets actually are**, and it answers "are the others
+    just more lognormal": no, they are BETTER BEHAVED IN EVERY WAY. Median
+    coefficient of variation **0.307 against 0.828 and 0.736**, skewness 0.917
+    against 1.566 and 1.716, excess kurtosis 1.412 against 3.716 and 5.312, and a
+    HIGHER Shapiro statistic against both the normal (0.911 against 0.828, 0.791)
+    and the lognormal (0.964 against 0.951, 0.931). Concrete and steel are tight,
+    nearly symmetric populations with many EPDs; finishes and furnishings are
+    sparse, dispersed and heavy tailed.
+
+    **So the claim the paper makes is ONE mechanism with a threshold**: the KDE
+    overtakes the lognormal at about **130 EPDs** under uniform weighting and 210
+    under variable, on the empirical arm out of sample, and the materials that
+    dominate embodied carbon are the ones that clear it. Reporting a
+    "structural and n >= 100" cell as though it were a separate finding
+    overstates it, and the figure now plots the log ratio against n coloured by
+    tier rather than binning by tier. Entry 75.
+
+85. **2026-09-17. The scoring grid gains the model's TAIL BEYOND the grid,
+    computed analytically.** `[AUTHOR]` "Do we also need to cover more ground
+    along the x-axis? Can't we just extend the bounds? That would capture more
+    tail." Yes, and this is the version that costs nothing.
+
+    Above the grid's top every data point is behind us, so the empirical CDF is 1
+    and the integrand is the model's survival function; the missing term is its
+    mean excess above `hi`, taken on a LOG-SPACED extension to the 1 - 1e-10
+    quantile. Extending the LINEAR grid instead would need five times the points
+    to hold resolution, and resolution is the thing that mattered in decision 81.
+
+    **IT IS NOT SYMMETRIC ACROSS METHODS, which is the reason it matters.** The
+    truncated normal and the KDE put EXACTLY ZERO mass above `max(x) + 10 sd`; the
+    three-parameter lognormal puts a mean of 1.8e-4 and up to 4.9e-3 there. So
+    omitting it under-charged one family and not the others. Adding it raises the
+    lognormal's mean W1 by 0.28 to 0.41 percent, leaves the other four unchanged
+    to five decimal places, and takes the worst-case relative error against a
+    +400 sd reference from 3.1e-2 to 1.6e-3. Verified against that reference: the
+    composite reproduces the paired KDE-minus-lognormal difference to the fifth
+    decimal where the body-only grid was 2 percent off.
+
+    `fitting.W1_TAIL_TERM`. This is the third change in a row that moves numbers
+    in the KDE's favour, each for an independently correct reason, and the paper
+    should present all three as one paragraph about taking the criterion to
+    convergence rather than as three separate improvements. Entry 76.

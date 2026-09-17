@@ -294,8 +294,31 @@ def score_grid_open(x, weights, npoints=SCORE_GRID_POINTS,
 #: `audits/scoring_grid_error.py`.
 W1_ROUTE = 'trapezoid'
 
+#: Whether to add the model's tail BEYOND the grid analytically. Author question,
+#: 2026-09-17: "can't we just extend the bounds? That would capture more tail."
+#:
+#: Yes, and this is the version that costs nothing. Above the grid's top the
+#: empirical CDF is 1, so the integrand is the model's survival function and the
+#: missing contribution is its mean excess above `hi`. Integrating that on a
+#: LOG-SPACED extension to a far quantile is exact to three decimal places of
+#: relative error and needs 2,000 extra points, where covering the same range by
+#: extending the LINEAR grid would need five times the points to hold resolution.
+#:
+#: IT IS NOT SYMMETRIC ACROSS METHODS, which is why it matters. The truncated
+#: normal and the KDE put exactly zero mass above `max(x) + 10 sd`; the
+#: three-parameter lognormal puts a mean of 1.8e-4 and up to 4.9e-3 there, so
+#: omitting the term under-charged the lognormal alone. Adding it raises the
+#: lognormal's mean W1 by 0.28 to 0.41 percent and leaves the other four
+#: unchanged, and it takes the worst-case relative error against a +400 sd
+#: reference from 3.1e-2 to 1.6e-3.
+W1_TAIL_TERM = True
 
-def score_w1_model(model, x, weights, grid=None, route=None):
+#: Quantile the tail extension integrates out to, and its point count.
+W1_TAIL_QUANTILE = 1.0 - 1e-10
+W1_TAIL_POINTS = 2_000
+
+
+def score_w1_model(model, x, weights, grid=None, route=None, tail=None):
     """W1 between a truncated model and the variable-weighted empirical CDF.
 
     See `W1_ROUTE` for the two quadrature routes and why the default is the
@@ -311,13 +334,30 @@ def score_w1_model(model, x, weights, grid=None, route=None):
     if grid is None:
         grid = score_grid_open(x, weights)
     route = route or W1_ROUTE
+    tail = W1_TAIL_TERM if tail is None else tail
     if route == 'atoms':
         return wasserstein1_weighted(x, grid, weights, model.pdf(grid))
     if route != 'trapezoid':
         raise ValueError(f"route must be 'atoms' or 'trapezoid', got {route!r}")
     e = weighted_ecdf(x, weights)[2](grid)
-    return float(np.trapezoid(np.abs(np.asarray(model.cdf(grid), float) - e),
+    body = float(np.trapezoid(np.abs(np.asarray(model.cdf(grid), float) - e),
                               grid))
+    return body + (w1_tail_term(model, float(grid[-1])) if tail else 0.0)
+
+
+def w1_tail_term(model, hi, quantile=W1_TAIL_QUANTILE, npoints=W1_TAIL_POINTS):
+    """The part of W1 that lies beyond the grid: the model's mean excess above `hi`.
+
+    Above the grid's top every data point is behind us, so the empirical CDF is 1
+    and the integrand `|F_model - F_data|` is the model's survival function. The
+    missing term is therefore `integral of (1 - F_model) from hi to infinity`,
+    taken here on a log-spaced lattice to a far quantile. See `W1_TAIL_TERM`.
+    """
+    top = float(np.ravel(model.ppf(quantile))[0])
+    if not np.isfinite(top) or top <= hi:
+        return 0.0
+    g = np.geomspace(hi, top, npoints)
+    return float(np.trapezoid(1.0 - np.asarray(model.cdf(g), float), g))
 
 
 def score_w1_exact(model, x, weights, npoints=200_001):

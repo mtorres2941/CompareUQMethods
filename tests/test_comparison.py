@@ -112,22 +112,28 @@ def test_model_sd_ratio_is_near_one_for_a_sane_fit():
         assert 0.5 < r < 2.0, f'{label} gave {r:.4g}'
 
 
-def test_model_sd_ratio_catches_a_tail_that_w1_does_not():
-    """The failure mode of discrepancy entry 43, in one assertion.
+def test_the_tail_term_is_what_makes_w1_see_a_runaway_tail():
+    """The failure mode of discrepancy entry 43, and what now catches it.
 
     A lognormal whose threshold sits just below the smallest value matches the
-    body and carries an enormous tail. W1 barely moves; the ratio does.
+    body and carries an enormous tail. Until Stage 2c the criterion stopped at
+    `max(x) + 10 sd` and barely charged for it, which is why `model_sd_ratio`
+    was added as a separate sentinel. **With `fitting.W1_TAIL_TERM` the criterion
+    itself sees it**: the runaway model scores about 1,100 times the good one
+    instead of about 80. This pins the difference rather than the old blindness,
+    so if the tail term is ever switched off the first assertion says why.
     """
     x, w = dataset(200, 15)
     good, _ = FT.fit_family('lognormal_3p', x, w, 'mle')
     heavy = F.make_lognorm(dict(s=2.6, loc=float(x.min()) - 1e-4,
                                 scale=float(np.median(x))))
-    w1_good = FT.score_w1_model(good, x, w)
-    w1_heavy = FT.score_w1_model(heavy, x, w)
-    r_good = C.model_sd_ratio(good, x, w)
-    r_heavy = C.model_sd_ratio(heavy, x, w)
-    assert r_heavy > 10 * r_good, 'the ratio must see the tail'
-    assert w1_heavy < 30 * w1_good, 'W1 barely charges for it, which is the point'
+    with_tail = [FT.score_w1_model(m, x, w, tail=True) for m in (good, heavy)]
+    without = [FT.score_w1_model(m, x, w, tail=False) for m in (good, heavy)]
+    assert with_tail[1] / with_tail[0] > 200, 'the criterion must see the tail'
+    assert without[1] / without[0] < with_tail[1] / with_tail[0] / 5
+    # The sentinel is kept even so: it is one cheap number, it catches the same
+    # class, and unlike the criterion it does not depend on the grid at all.
+    assert C.model_sd_ratio(heavy, x, w) > 10 * C.model_sd_ratio(good, x, w)
 
 
 # ---------------------------------------------------------------------------

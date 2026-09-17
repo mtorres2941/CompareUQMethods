@@ -533,4 +533,44 @@ def test_the_scoring_settings_are_the_decided_ones():
     import customstats as CS
     assert FT.W1_ROUTE == 'trapezoid'
     assert FT.SCORE_GRID_POINTS == 20_000
+    assert FT.W1_TAIL_TERM is True
     assert CS.SILVERMAN_MIN_NEFF == 20.0
+
+
+def test_the_tail_term_charges_only_the_models_that_have_a_tail():
+    """The truncated normal and the KDE put no mass above max(x) + 10 sd; the
+    three-parameter lognormal does. Omitting the term therefore under-charged one
+    family and not the others, which is why it is not a wash."""
+    rng = np.random.default_rng(51)
+    charged = {'KDE, Uniform': 0, 'Lognormal, Uniform': 0, 'Normal, Uniform': 0}
+    for _ in range(12):
+        x = np.abs(rng.lognormal(0.0, 0.8, 150)) + 0.05
+        w = np.ones_like(x) / len(x)
+        models, _ = FT.fit_pewt(x, w)
+        for label in charged:
+            a = FT.score_w1_model(models[label], x, w, tail=False)
+            b = FT.score_w1_model(models[label], x, w, tail=True)
+            assert b >= a - 1e-15          # the tail can only add
+            charged[label] += int(b - a > 1e-12)
+    assert charged['Lognormal, Uniform'] > 0
+    assert charged['KDE, Uniform'] == 0
+    assert charged['Normal, Uniform'] == 0
+
+
+def test_the_tail_term_makes_the_score_grid_independent():
+    """The point of adding it analytically rather than extending the grid: the
+    answer stops depending on how far the linear lattice happens to reach."""
+    rng = np.random.default_rng(52)
+    x = np.abs(rng.lognormal(0.0, 0.9, 200)) + 0.05
+    w = np.ones_like(x) / len(x)
+    models, _ = FT.fit_pewt(x, w)
+    m = models['Lognormal, Uniform']
+    wide = FT.score_grid_open(x, w, std_multiple=200,
+                              npoints=FT.SCORE_GRID_POINTS * 20)
+    near = FT.score_w1_model(m, x, w, tail=True)
+    far = FT.score_w1_model(m, x, w, grid=wide, tail=True)
+    assert near == pytest.approx(far, rel=5e-3)
+    # and without it the two disagree by more
+    near_no = FT.score_w1_model(m, x, w, tail=False)
+    far_no = FT.score_w1_model(m, x, w, grid=wide, tail=False)
+    assert abs(near - far) <= abs(near_no - far_no)

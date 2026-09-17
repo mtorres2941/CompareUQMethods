@@ -1080,3 +1080,24 @@ relative figure beside it.**
 | **Fix** | **Code, done.** Cell 23 calls `score_w1_model`. Notebook 3's two inline `wasserstein1_weighted` calls are a DIFFERENT quantity -- W1 between two fitted models, with no empirical CDF in it -- and are correct as they stand. |
 | **Why it is in this log** | It is the same duplication Stage 1 removed from the FITTING block, reappearing in the SCORING block, and it says the lesson has to be applied to every criterion the paper reports, not only to the fit. **No manuscript number was ever published from the wrong copy**: it was caught in the same session that created it. |
 | **Status** | RESOLVED. |
+
+## 75. The material tier adds nothing beyond dataset size
+
+| | |
+|---|---|
+| **What entry 73 claimed** | That the KDE is closest on 70 percent of structural categories with at least 100 EPDs, presented as a material finding. |
+| **What is actually true** | Size is the mechanism. Regressing `log(W1_KDE / W1_lognormal)` on `log(n)` and then adding the material tier as a factor, the tier adds nothing detectable: R2 0.316 to 0.321 under uniform weighting and 0.216 to 0.225 under variable, **F = 0.49 and 0.72, p = 0.61 and 0.49**. Within one size band the tier ordering is not stable. |
+| **Why the tier looked like a mechanism** | Structural categories are the well-populated ones: **median n of 140 against 52 for envelope and 46 for everything else**, and the six largest categories in the arm are all ReadyMix strength classes. |
+| **And what makes them different, which answers "are the others just more lognormal"** | **No -- they are better behaved in every way.** Median coefficient of variation 0.307 for structure against 0.828 and 0.736; skewness 0.917 against 1.566 and 1.716; excess kurtosis 1.412 against 3.716 and 5.312; and a HIGHER Shapiro statistic against BOTH the normal (0.911 against 0.828 and 0.791) and the lognormal (0.964 against 0.951 and 0.931). Concrete and steel are tight, nearly symmetric populations with many EPDs. Finishes and furnishings are sparse, dispersed and heavy tailed, and a two- or three-parameter skewed family is a good description of those. |
+| **Fix** | **Text.** State ONE mechanism with a threshold: the KDE overtakes the lognormal at about **130 EPDs** under uniform weighting and 210 under variable, out of sample on the empirical arm, and the materials that dominate embodied carbon are the ones that clear it. Do NOT report "structural and n >= 100" as a separate finding; it overstates what the data supports. The figure plots the log ratio against n coloured by tier. |
+| **Status** | Open. Decision 84, narrowing 83. `TABLE_SizeVersusMaterial.csv`, `TABLE_CharacteristicsByTier.csv`. |
+
+## 76. The scoring grid did not charge the lognormal for its tail
+
+| | |
+|---|---|
+| **What** | W1 was integrated on a linear grid to `max(x) + 10 sd`. Above that the empirical CDF is 1, so the integrand is the model's survival function, and everything the model puts out there was simply not counted. |
+| **It is not symmetric across methods** | The truncated normal and the KDE put **exactly zero** mass above that point. The three-parameter lognormal puts a mean of 1.8e-4 and up to 4.9e-3. So the omission under-charged one family and not the others. |
+| **Fix** | **Analysis, done.** `fitting.W1_TAIL_TERM` adds the mean excess above the grid on a log-spaced extension to the 1 - 1e-10 quantile. It raises the lognormal's mean W1 by 0.28 to 0.41 percent, leaves the other four unchanged to five decimal places, and takes the worst-case relative error against a +400 sd reference from 3.1e-2 to 1.6e-3. Extending the linear grid instead would need five times the points to hold the resolution that entry 61 established as the binding constraint. |
+| **Note for the text** | This is the third criterion change in a row that moves numbers in the KDE's favour -- the bandwidth guard, the quadrature, and now the tail -- each for an independently correct reason. **Present them as one paragraph about taking the criterion to convergence**, with the convergence tables, rather than as three separate improvements, because three separate improvements all helping one method reads badly however sound each is. |
+| **Status** | Open as a text item. Decision 85. |
