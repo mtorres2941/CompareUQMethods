@@ -2,6 +2,18 @@
 
 US spelling throughout, as in every file this project writes.
 
+**HOW TO READ THIS FILE, and it has TWO audiences.** A numbered `decision N` or
+`entry N` is a pointer into `CLAUDE.md`'s decision log or into
+`reports/MANUSCRIPT_discrepancies.md`, both of which live in this repository. A
+Claude Code session working in the repository gets `CLAUDE.md` automatically and
+is told by it to read `reports/` in full, so it can follow every pointer. **A
+reader who does NOT have the repository -- the manuscript session, which drafts
+the next stage's prompt -- cannot.** So every claim in this file is stated in
+full where it is made and the number is a trailing citation, never the substance.
+If a sentence here cannot be understood without looking a number up, that is a
+defect in this file, and the fix is to spell it out here rather than to send the
+other two files.
+
 ---
 
 ## 0. STATUS
@@ -406,8 +418,9 @@ up there and the three-parameter lognormal up to 4.9e-3, so omitting it
 under-charged one family alone. Decision 85.
 
 **The side effect is worth more than the accuracy.** W1 now sees the runaway-tail
-pathology of entry 43: the bad model scores **1,144 times** the good one instead of
-81. A Stage 2b test asserting that W1 is blind to that failed, and is rewritten to
+pathology of entry 43 -- the Stage 2b fit whose standard deviation reached 3,281 on
+data whose own was 0.6, which W1 barely charged for -- and the bad model now scores
+**1,144 times** the good one instead of 81. A Stage 2b test asserting that W1 is blind to that failed, and is rewritten to
 pin the improvement. `model_sd_ratio` is kept anyway -- it is one cheap number and
 it does not depend on the grid -- and Stage 2h must still report it with every
 value of `PROFILE_DELTA_LO_FRAC` it tries.
@@ -479,12 +492,12 @@ closed; what remains is work owned by later stages, plus text the manuscript owe
 
 | | |
 |---|---|
-| The unimodality figure | Restate with its bandwidth. Section 4.9, entry 70 |
-| The coverage claim | Option A, decision 48, with decision 63's corrected numbers |
+| The unimodality figure | "95 percent of ECC datasets are visibly unimodal" is a property of Scott's bandwidth, not of the data. At the bandwidth the study fits it is **68.5 percent**. Restate it and say which bandwidth is quoted. Section 4.11, entry 70 |
+| The coverage claim | State the shortfall rather than engineering it away: generator redesign and excluding the uncovered categories were both declined (decision 48, option A). Take the numbers from the rebuilt tables, NOT from decision 48's text, which predates the two mislabeled records: **5 uncovered dataset-metric pairs of 1,470**, arm maximum coefficient of variation **6.93**, and the maximum is `Aggregates`, not `PowerCabling`. Decision 63 |
 | Empirical W1 in raw category units | Text must take new numbers from the rerun, entry 41 |
 | The ICE figure in `MASS_ECC_CEILING` | Unsourced in this repository; verify before it is printed |
 | Which lognormal | Say the parameter count every time, entry 72 |
-| Every claim in section 4 | Entries 53 to 72 |
+| Every claim in section 4 | Stated in full in section 4; entries 53 to 72 carry the working |
 
 ### Owned by a later stage
 
@@ -499,7 +512,7 @@ closed; what remains is work owned by later stages, plus text the manuscript owe
 | `mode_share_alpha`, `trunc_iqr_mult`, `min_mode_sd_frac`, deduplicated variant, averaging over weight realizations | 2h |
 | `TABLE_MethodCurves.csv.gz` at 91.7 MB; `SUPP_DatasetExamplesByStratum` x-axis; notebook 2 stores no outputs; `src/` docstrings carry stage language | 3 |
 | Notebook 3 cell 45 explains pLCA outcomes with the in-sample score | 2g |
-| Git history size, decision 28 stands | 4 |
+| Git history size: `.git` is about 391 MB and a `filter-repo` rewrite is declined, because it would break the Zenodo deposit for a benefit the author does not want. Decision 28 stands | 4 |
 
 ### Known and accepted
 
