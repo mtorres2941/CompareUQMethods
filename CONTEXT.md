@@ -40,6 +40,13 @@ CompareUQMethods/
 │   ├── materialclass.py       structural / envelope / other, from the category
 │   │                          NAME only, so the comparison can be read by what
 │   │                          a material IS (Stage 2c)
+│   ├── weighting.py           does the weighting scheme matter, per dataset
+│   │                          (Stage 2d): the location/shape split of the
+│   │                          uniform-to-variable W1, the named relative
+│   │                          measure, and A_IQR from the KL2 paper
+│   ├── flip.py                what a given W1 COSTS (Stage 2d): the
+│   │                          common-random-numbers pLCA, model-to-model
+│   │                          distances, and the calibration curve
 │   ├── recovery.py            the evaluation target (Stage 2c): W1 against the
 │   │                          known parent, cross-validation, the
 │   │                          fit-versus-definitional split, regret,
@@ -221,6 +228,52 @@ when `W1_ROUTE` moved, putting two different values for one quantity in two
 tables. `tests/test_regression.py::test_synthetic_fits_and_w1_recomputed` caught
 it and is the guard.
 
+### What a W1 costs, and the randomness that hides it
+
+`src/flip.py`, Stage 2d. Every score in this study is a distance; this is what a
+distance DOES. The probability that a probabilistic LCA names a different
+largest contributor crosses 1, 5 and 10 percent at relative W1 of **0.0018,
+0.011 and 0.025**, in units of the dataset's own unweighted mean.
+`flip.FLIP_THRESHOLDS` carries them, rounded to two significant figures because
+the bootstrap interval is about 30 percent wide and an independent run differed
+in the third figure.
+
+**THE STUDY'S pLCA COMPARES METHODS UNDER INDEPENDENT RANDOMNESS, and that costs
+more than it looks.** Notebook 3 draws each method's Monte Carlo sample from its
+own stretch of one shared generator. Running the same method twice, with the same
+fitted models and two independent streams, changes the top contributor in **5.33
+percent** of cases and the full rank ordering in **34.2 percent**, with no model
+difference at all. The calibration therefore uses common random numbers --
+`families.rvs_from_uniform`, one uniform variate per material per iteration --
+where the floor is exactly zero and the `t = 0` control verifies it.
+**Installing them in the STUDY's pLCA is Stage 2e's**, and nothing in Stage 2d
+wrote a pLCA result.
+
+### Does the weighting scheme matter, per dataset
+
+`src/weighting.py`, Stage 2d. Three measures, and the third is not the one the
+practitioner statement is built on.
+
+The uniform-to-variable W1 splits into a LOCATION term, `abs(weighted mean -
+unweighted mean)`, which is the exact lower bound W1 obeys, and a SHAPE
+residual. It is **mostly location**: median share 0.725 empirical and 0.804
+synthetic, and 0.96 where datasets have 3 to 9 values.
+
+The relative measure is W1 over the dataset's own UNWEIGHTED mean, which is what
+the study has always reported without saying so, since every dataset is divided
+by that mean before anything else. All three candidate denominators are computed
+with uniform weights, because one taken under the variable weights would move
+with the quantity being measured and a practitioner cannot compute a
+market-weighted mean without the market shares.
+
+**A_IQR is KL2's measure and it is EXACTLY SCALE INVARIANT, so it cannot see
+dispersion.** A density carries units of 1/x, so the area of a density band is
+dimensionless. Across the empirical arm it correlates with log dataset size at
+-0.946 and with the coefficient of variation at +0.042. It is reported for
+consistency with the published paper, unnormalized and over 1,000 draws, both
+read off that paper. The practitioner number is the mean-relative separation
+instead, which correlates with dispersion at +0.803.
+
 ## 3. Seeding and caching
 
 **Seeding.** All randomness comes from an explicitly passed
@@ -323,7 +376,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 335 tests, about 95 seconds
+python -m pytest tests/          # 369 tests, about 110 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -336,7 +389,16 @@ python -m nbconvert --to notebook --execute \
 
 **Smoke configuration.** Notebook 3 is the expensive one. Set
 `COMPAREUQ_SMOKE_COMBOS=20` to run it on 20 pLCAs instead of 2,500, which
-exercises the pipeline end to end in well under a minute:
+exercises the pipeline end to end in well under a minute.
+
+**A SMOKE RUN WRITES INTO `outputs/` AND THEREFORE INTO YOUR NEXT COMMIT.** In
+Stage 2d one reached a commit: it replaced the 60,000-row pLCA table with a
+960-row one and redrew SEVEN figures from 40 groups instead of 2,500. The table
+was spotted because its damage showed as a row count; the figures were not, and
+came back only when the notebook was rerun in full. **After any smoke run,
+`git checkout -- outputs/` before staging anything**, and treat the rule below
+as the reason. Stage 3 owns making this impossible rather than discouraged; see
+discrepancy entry 87.
 
 ```bash
 COMPAREUQ_SMOKE_COMBOS=20 python -m nbconvert --to notebook --execute ...
@@ -514,6 +576,18 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 material breakdown -- the tier is not a mechanism, decision 84) and
 `SUPP_AllEmpiricalFits`, all 147 empirical datasets with all six fits.
 | `TABLE_MethodWinShare.csv.gz` | NB2 | how often each method wins, against the percentile of each characteristic |
+| `TABLE_WeightingLocationShape.csv` | NB1 | one row per (arm, dataset): the uniform-to-variable W1 split into the mean shift it must at least contain and the residual |
+| `TABLE_WeightingRelativeMeasure.csv` | NB1 | the same quantity computed on normalized and on RAW values, which is the check that the normalization is not doing secret work |
+| `TABLE_WeightingRisk.csv` | NB1 | **the per-dataset practitioner table.** A_IQR, the median and 90th percentile separation over 1,000 Dirichlet draws, and the probability that a possible weighting carries a 1, 5 or 10 percent chance of changing the top contributor |
+| `TABLE_WeightingRiskDrivers.csv` | NB1 | Spearman correlations that separate A_IQR, which follows dataset SIZE, from the risk, which follows DISPERSION |
+| `TABLE_WeightingRiskPostStratified.csv` | NB1 | both measures at equal allocation and reweighted to the empirical size mix |
+| `TABLE_FlipNoiseFloor.csv` | NB3 | the flip rate with IDENTICAL models under two independent streams. **Read this before any other flip table** |
+| `TABLE_FlipMethodPairs.csv.gz` | NB3 | one row per (pLCA, method pair): how far apart the two fitted models are, and whether the answer changed |
+| `TABLE_FlipCalibration.csv.gz` | NB3 | the calibration set: uniform weights against tempered Dirichlet weights, at nine levels |
+| `TABLE_FlipCrossings.csv` | NB3 | **the stage's deliverable.** The relative W1 at which the flip probability crosses 1, 5 and 10 percent, with bootstrap intervals and an isotonic comparison |
+| `TABLE_FlipCurve.csv` | NB3 | the observed flip rate in equal-count bins, which the figure draws |
+| `TABLE_FlipProvenance.csv` | NB3 | whether the curve describes the distance or where the distance came from |
+| `TABLE_FlipPostStratified.csv` | NB3 | the flip rate at equal allocation and reweighted |
 | `TABLE_PLCAResults.csv` | NB3 | 59,976 x 43, which is 2,499 groups x 6 methods x 4 datasets |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |
 
@@ -566,6 +640,8 @@ the worst observed value.
 | `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
 | `test_comparison.py` | 10 | held-out W1 is undefined below n = 10 rather than computed from two points, is worse than in-sample for the flexible method, and removes most of W1's bandwidth sensitivity without replacing it with a sharp optimum; the model-spread ratio catches a tail W1 does not; ranks are within-dataset and invariant to rescaling a dataset; the curve window scales to the arm instead of assuming the corpus; all six methods share each held-out split, so the comparison is paired |
 | `test_recovery.py` | 26 | the parent spec round-trips exactly and the overlap displacements are NOT in the generation record, which is why the replay exists; a recovery score is zero when the model IS the parent and rises as it moves away; the grid always covers the parent; the two weightings are scored against different parents; the tail charge catches a far tail the body score does not; cross-validation is undefined below n = 10, penalizes the flexible method relative to in sample, and is paired across methods; the decomposition satisfies its own inequality and the definitional term is identical across uniform methods and zero for variable ones; regret is zero for the winner; post-stratification moves an aggregate toward the common band and the empirical shares are measured not assumed; a win share only moves when the WINNER moves, which is why the empirical headline is stated as one; the paired bootstrap finds a real gap and not an imaginary one |
+| `test_weighting.py` | 13 | the location term is a lower bound on W1 and a two-point dataset is all location; every relative measure is invariant to rescaling the data while the absolute W1 is not, which is the control; A_IQR is exactly scale invariant, is nearly blind to dispersion while the mean-relative separation is not, falls with dataset size, is zero for a degenerate ensemble, and its component curves are densities |
+| `test_flip.py` | 15 | common random numbers make a method identical to itself while independent streams do not, which is the control; the tempering control at t = 0 gives zero separation and no flip, and separation grows with the level; the logistic recovers a known curve and its crossing inverts its own fit; the isotonic fit is monotone, preserves the mean and drops no point; the CLUSTER bootstrap is more than twice as wide as a row bootstrap, which is why the resampling unit is the pLCA; a model's distance to itself is zero and a relative distance is scale invariant |
 | `test_materialclass.py` | 7 | the tiers are a pure function of the category NAME and the whole assignment runs on a frame with no value column, so a tier cannot have been chosen because a method won on it; concrete, steel and every insulation variant land where a building-LCA reader expects |
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbors on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
