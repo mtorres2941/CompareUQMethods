@@ -375,12 +375,12 @@ categories:
 | against | A_IQR | the weighting risk |
 |---|---|---|
 | coefficient of variation | **+0.042** | **+0.803** |
-| log of the number of EPDs | **-0.946** | **-0.155** |
-| the single-realization distance the study currently reports | +0.462 | +0.674 |
+| log of the number of EPDs | **-0.946** | **-0.106** |
+| the single-realization distance the study currently reports | +0.462 | +0.671 |
 
 On the synthetic sample of 400 the same split holds: A_IQR against dispersion
--0.277 and against log size -0.993, the risk against dispersion +0.542 and
-against log size -0.449.
+-0.277 and against log size -0.993, the risk against dispersion +0.529 and
+against log size -0.475.
 
 **The mechanism is dimensional, not a defect.** A probability density carries
 units of one over x, so integrating a difference of two densities over x is
@@ -392,7 +392,7 @@ and it falls roughly as the number of EPDs to the power -0.37.
 
 **THE PROBE'S FINDING SURVIVES, AND ON THE RIGHT MEASURE IT IS STRONGER.** The
 earlier probe put dispersion at +0.693 against size at -0.569. On the weighting
-risk the separation is sharper still, **+0.803 against -0.155**. So the paragraph
+risk the separation is sharper still, **+0.803 against -0.106**. So the paragraph
 the paper owes is intact and can be stated more forcefully: **every question in
 this study about which METHOD fits best is driven by the number of EPDs; whether
 WEIGHTING matters is driven by how spread the values are.** Those are different
@@ -403,9 +403,9 @@ governs the second.
 
 The per-dataset probability that a possible market-share allocation moves the
 fitted density past the 5 percent flip threshold, on the real categories:
-**0.917 at equal allocation across size bands and 0.936 reweighted** to the mix
-of sizes the real categories actually have. By size band the medians run 0.948 at
-3 to 9 EPDs, 0.994 at 10 to 99, 0.934 at 100 to 999, and **0.346 above 1,000**.
+**0.909 at equal allocation across size bands and 0.928 reweighted** to the mix
+of sizes the real categories actually have. By size band the means run 0.945 at
+3 to 9 EPDs, 0.992 at 10 to 99, 0.919 at 100 to 999, and **0.310 above 1,000**.
 
 **So uniform weighting is not safe for most real ECC categories.** For all but
 the largest, nearly every allocation the study considers possible is far enough
@@ -415,7 +415,7 @@ assumption become defensible, and that is a handful of concrete strength classes
 and asphalt.
 
 The reason the probability is so high is worth stating so it is not mistaken for
-an error: the calibrated 5 percent threshold is a relative distance of about
+an error: the calibrated 5 percent threshold is a relative distance of
 0.011, while the typical distance between a uniform-weighted fit and a
 Dirichlet-weighted one is an order of magnitude larger. The threshold is small
 because the study's four materials are near-exchangeable, and the separations are
@@ -423,7 +423,7 @@ large because a flat Dirichlet over few points is a violent reweighting.
 
 **A_IQR is still reported**, because it is the right answer to the published
 paper's own question -- how confident the uncertainty model is -- and because
-reporting it lets this paper cite rather than re-derive. Median A_IQR is 0.318 at
+reporting it lets this paper cite rather than re-derive. Mean A_IQR is 0.318 at
 equal allocation and 0.324 reweighted on the real categories; by size band, 0.615
 at 3 to 9 EPDs falling to 0.059 above 1,000. It should be presented as a property
 of dataset size, which is what it measures.
