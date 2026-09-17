@@ -2062,15 +2062,23 @@ rather than in conversation.
     numbers, with a logistic fit on log distance and a percentile interval from a
     bootstrap that resamples pLCA GROUPS rather than rows:
 
-        level   crossing   95 pct interval        isotonic
-        1 pct    0.00149   0.00109 to 0.00199      0.0026
-        5 pct    0.00991   0.00831 to 0.01177      0.0133
-        10 pct   0.02334   0.02049 to 0.02652      0.0226
+        level   crossing   95 pct interval      isotonic
+        1 pct     0.0018   0.0013 to 0.0023       0.0026
+        5 pct     0.011    0.0091 to 0.0126       0.0129
+        10 pct    0.025    0.0217 to 0.0277       0.0271
 
     The isotonic fit assumes only that the flip probability does not FALL as the
-    models separate, so its agreement at 10 percent and its mild disagreement
-    below say the crossings are a property of the data and not of the link
-    function. `flip.FLIP_THRESHOLDS` carries the logistic values.
+    models separate, so its agreement says the crossings are a property of the
+    data and not of the link function. `flip.FLIP_THRESHOLDS` carries them.
+
+    **TWO SIGNIFICANT FIGURES, AND NO MORE.** The interval is about 30 percent of
+    the estimate wide, and an independent run of the same calculation on a
+    different random stream gave 0.00149, 0.00991 and 0.02334 -- every one inside
+    the intervals above, and every one differing in the third figure. Quoting
+    five would be false precision and would make the constant drift on every
+    rerun, which matters because notebook 1 reads it to turn a per-dataset
+    weighting risk into a probability. Notebook 3 prints the recomputed crossing
+    beside the stored constant on every run so that drift stays visible.
 
     **THE SIX UQ METHODS COULD NOT SUPPLY THIS CURVE AND THAT IS ITSELF A
     RESULT.** Over 37,500 comparisons the smallest relative W1 between any two of

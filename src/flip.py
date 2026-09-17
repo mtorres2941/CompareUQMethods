@@ -434,12 +434,21 @@ def _outcome_from(models, names, uniforms):
 #: crosses 1, 5 and 10 percent. In units of the dataset's own unweighted mean,
 #: which is what every W1 this study reports is already in.
 #:
-#: MEASURED, not chosen. 2,500 pLCA groups by nine tempering levels, under
+#: MEASURED, not chosen. 2,500 pLCA groups by nine reweighting levels, under
 #: common random numbers so the Monte Carlo floor is zero, with a logistic fit
 #: on log distance and a percentile interval from a bootstrap that resamples
-#: pLCA GROUPS. The intervals are [0.00109, 0.00199], [0.00831, 0.01177] and
-#: [0.02049, 0.02652]; an isotonic fit, which assumes only that the probability
-#: does not fall as the models separate, gives 0.0026, 0.0133 and 0.0226.
+#: pLCA GROUPS. Notebook 3 is the source: it reports 0.00175 [0.00131, 0.00227],
+#: 0.01082 [0.00911, 0.01262] and 0.02467 [0.02175, 0.02766], with an isotonic
+#: fit -- which assumes only that the probability does not fall as two models
+#: separate -- giving 0.0026, 0.0129 and 0.0271.
+#:
+#: ROUNDED TO TWO SIGNIFICANT FIGURES, DELIBERATELY. The bootstrap interval is
+#: about 30 percent of the estimate wide, and an independent run of the same
+#: calculation on a different random stream gave 0.00149, 0.00991 and 0.02334 --
+#: every one inside the other run's interval, and every one differing in the
+#: third significant figure. Quoting five would be false precision and would
+#: make the constant drift on every rerun. Rounding makes it stable, which
+#: matters because notebook 1 reads it.
 #:
 #: WHY THEY LIVE HERE AS CONSTANTS. Notebook 1 needs them to turn a per-dataset
 #: weighting risk into a probability, and notebook 3 is what computes them.
@@ -454,4 +463,4 @@ def _outcome_from(models, names, uniforms):
 #: differ by orders of magnitude in contribution, is harder to flip. These
 #: numbers are therefore an upper bound on how often a weighting choice changes
 #: an answer, which is the conservative direction for a practitioner rule.
-FLIP_THRESHOLDS = {0.01: 0.00149, 0.05: 0.00991, 0.10: 0.02334}
+FLIP_THRESHOLDS = {0.01: 0.0018, 0.05: 0.011, 0.10: 0.025}
