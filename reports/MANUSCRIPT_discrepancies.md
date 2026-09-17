@@ -1007,3 +1007,34 @@ relative figure beside it.**
 | **Owner** | **Stage 2e**, which owns the pLCA construction and the common random numbers, and **2g**, which owns the metrics. Not run in 2c, which was told not to touch the pLCA construction. |
 | **Fix** | **Analysis, and it may change the paper's conclusion in either direction.** If the methods' pLCA answers are indistinguishable from the truth and from each other, that is the cleanest result the paper could report and it reframes the whole comparison. |
 | **Status** | Open. Decision 65 gives the machinery. |
+
+## 70. "95 percent of ECC datasets have one visible mode" is a statement about Scott's bandwidth
+
+| | |
+|---|---|
+| **Manuscript and CONTEXT.md** | Quote roughly 95 percent of empirical ECC datasets as having exactly one VISIBLE mode, as a property of real ECC data, and use it to argue that real categories are single right-skewed humps with shoulders rather than separated humps. |
+| **Code** | `modality.n_modes_visible` counts local maxima of `scipy.stats.gaussian_kde(x)` at its DEFAULT bandwidth, which is Scott's rule. Stage 2c established independently, on W1 against the known parent, that **Scott oversmooths this data by about 35 percent**. |
+| **Numbers** | Share with exactly one visible mode, n >= 8, as the bandwidth is scaled from scipy's default: 1.20 -> 96.9 pct; **1.00 -> 94.6 pct**; 0.90 -> 91.5; 0.80 -> 80.8; **0.74, the Scott correction -> 73.1**; 0.60 -> 55.4; 0.50 -> 41.5. |
+| **The part that matters more** | **The corpus-to-arm AGREEMENT is also a property of the bandwidth, and decision 38 tuned the generator against it.** Total variation between the arms is 0.0123 at scipy's default -- the figure the corpus was matched on -- and 0.0714 at the corrected bandwidth. The gap is datasets with three or more visible modes: **8.5 percent of the empirical arm against 1.3 percent of the corpus.** |
+| **Which way it cuts** | **Against the KDE.** Multimodality is the one structure a kernel estimate represents and a three-parameter family cannot, and the corpus has six times fewer strongly multimodal datasets than the arm. Any worry that the corpus was built to flatter the KDE is the opposite of what this shows. |
+| **Fix** | **Text at minimum, and an author decision beyond that.** The reported figure must be restated with its bandwidth, quoting the table, because a reviewer who recomputes it at any other smoothing gets a different answer. Whether to correct the measure and retune is decision 78; the recommendation is not to, because the gap understates the case for the paper's own method and a limitation stated against yourself is safe ground. |
+| **Status** | Open. Decision 78. `audits/visible_modes_bandwidth.py`, `TABLE_VisibleModesByBandwidth.csv`. |
+
+## 71. Which categories the KDE wins on, and why the average the paper takes is the wrong one
+
+| | |
+|---|---|
+| **What every aggregate does** | Weights each of the 147 categories equally. |
+| **What the arm looks like** | 49 datasets reach n = 100, which is 33 percent of CATEGORIES and **97.3 percent of the EPDs**. 88.1 percent of all EPDs sit in datasets with n >= 1,000, the band where the KDE beats the lognormal on 76 to 99 percent of datasets. The concrete family -- ReadyMix, Shotcrete, CMU, Precast -- is 25 datasets and **77.1 percent of the arm by EPD count**, with every ReadyMix strength class between 3,974 and 31,025 values, and it is the largest single embodied-carbon contributor in most buildings. |
+| **So** | The categories where the KDE wins decisively are the structural materials that dominate a building's embodied carbon; the categories where it loses are small and specialized. A category-count average says the lognormal and an average reflecting what a building is made of says the KDE. **Neither is currently reported.** |
+| **Fix** | **Text.** Keep the category-count average as the primary, because it is the honest unweighted answer, and add a paragraph with the observation above. Do NOT invent an ad-hoc importance weight; the principled versions are Stage 2i's real-building anchor and entry 69's pLCA-against-truth. |
+| **Status** | Open. |
+
+## 72. The 2-parameter lognormal is the wrong comparator and the paper should say so
+
+| | |
+|---|---|
+| **Why** | Against the known parent it is the worst of the four right-skewed families: +0.0323 behind the three-parameter form under uniform weighting and +0.0253 under variable, losing on 66.5 and 61.1 percent of datasets. Even the Stage 1 method the manuscript currently describes -- a lognormal with a fixed +0.5 offset -- is much closer to the three-parameter fit than the two-parameter one is. |
+| **And the counterpart** | On REAL data the three-parameter lognormal is indistinguishable from gamma and from the two-parameter form out of sample (entry 59). The separation between them is a synthetic-arm result. |
+| **Fix** | **Text.** State which lognormal is being compared, every time. "Lognormal" without a parameter count is ambiguous across a factor that matters more than the gap to the KDE at small n. |
+| **Status** | Open. |

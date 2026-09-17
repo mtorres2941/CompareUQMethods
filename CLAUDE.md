@@ -1446,3 +1446,63 @@ rather than in conversation.
     docstring had it right; its parameter note and `fitting.BW_METHOD`'s comment
     did not, and a Methods section written from either would have described a
     different method. Both corrected. Entry 68.
+
+78. **2026-09-16, Stage 2c review. The "95 percent of ECC datasets are visibly
+    unimodal" figure is a BANDWIDTH, not a property of the data, and the
+    generator was tuned against it.** `[AUTHOR]` The author doubted the figure on
+    sight -- "I remember seeing a lot of irregularities" -- and was right.
+
+    `modality.n_modes_visible` counts local maxima of `gaussian_kde(x)` at
+    scipy's DEFAULT bandwidth, which is Scott's rule. Stage 2c independently
+    established that Scott oversmooths this data by about 35 percent. A mode
+    counter at an oversmoothing bandwidth undercounts modes. Rescaled: the
+    empirical unimodal share is **94.6 percent at scipy's default, 73.1 percent
+    at 0.74 of it, and 55.4 percent at 0.6**.
+
+    **The worse half is that the ARM-TO-ARM AGREEMENT is also a property of the
+    bandwidth, and decision 38 steered generation by it.** Total variation
+    between the arms is 0.0123 at Scott, which is the number the corpus was
+    matched on, and 0.0714 at the corrected bandwidth. The gap is datasets with
+    three or more visible modes: **8.5 percent of the empirical arm against 1.3
+    percent of the corpus.**
+
+    **WHICH WAY IT CUTS: against the KDE, not for it.** Multimodality is the one
+    structure a kernel estimate represents and a three-parameter family cannot,
+    and the corpus has six times fewer strongly multimodal datasets than the arm.
+    The review's worry that the corpus was built to flatter the KDE is the
+    opposite of what this shows.
+
+    **Not fixed, and it is an author decision**, because correcting a tuning
+    target implies a retune and generation is closed by decisions 47, 48 and 55.
+    The recommendation in the handoff is to correct the REPORTED figure, state
+    the bandwidth dependence, and NOT regenerate, on the grounds that the gap
+    understates the case for the paper's own method. `audits/visible_modes_bandwidth.py`,
+    entry 70.
+
+79. **2026-09-16, Stage 2c review. Decision 73 is NARROWED: the oracle-weight
+    experiment says less about reality than its first write-up claimed.**
+    `[AUTHOR]` "I'm not sure how much I trust weight_noise_vs_signal.py. Still
+    feels like noise. I can't think of a way to introduce variable weights to
+    equally weighted values sampled from a distribution without it producing
+    noise."
+
+    The scepticism is correct. In this generator the within-mode split of a
+    mode's market share is uninformative BY CONSTRUCTION -- share attaches at the
+    mode level at `mode_coupling = 1.0`, and every point in a mode comes from the
+    same component, so dividing the mode's share among its points cannot move the
+    target. The oracle removes variance the generator defined to carry no signal,
+    so finding that it carries none is not evidence.
+
+    Real market shares differ in BOTH directions: products within a route are not
+    identical, so their shares do carry information; and real shares are far more
+    concentrated than a flat Dirichlet -- 63.75 percent for Rest-of-World BOF
+    steel against an expected 5.2 percent top share at n = 100 -- and
+    concentration cuts the effective sample size, which is the mechanism behind
+    the penalty.
+
+    **So the claim is not "variable weighting pays whenever shares are known".**
+    It is that the penalty is a property of the weight VECTOR rather than of
+    weighting, and **this generator cannot say what real shares would do.** That
+    is a limitation of the generator and is the more important finding. Stage 2h's
+    `mode_share_alpha` sweep can bracket it; only real production volumes would
+    settle it.

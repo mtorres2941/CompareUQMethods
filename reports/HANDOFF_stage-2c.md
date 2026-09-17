@@ -585,12 +585,31 @@ the author is right that this was the question to ask. `SILVERMAN_MIN_NEFF` over
 likelihood peaks at 20 to 30 on both arms; W1 against the parent peaks at 5. The
 whole span 20 to 30 differs by about 1 percent on either criterion.
 
-**RECOMMENDATION: keep 30, and the reason is not inertia.** Moving the threshold
-to improve W1 would be tuning the setting on the criterion the study reports,
-which is precisely what decision 54 was careful not to do and what makes the
-bandwidth choice defensible to a reviewer. The gain would be 1.1 percent of one
-criterion at the cost of the argument for the whole rule. **The guard stays,
-which is the author's decision already; this says the threshold should too.**
+**RECOMMENDATION REVISED AFTER THE AUTHOR PUSHED BACK: move it to 20.** The first
+version of this section said keep 30, on the grounds that moving it to improve W1
+would be tuning on the reported criterion. **That argument does not survive
+inspection and the author was right to doubt it.** The parent criterion is not
+the criterion the study reports: the reported one is IN-SAMPLE W1, and the parent
+score is an independent out-of-sample truth. Using it is not tuning on the
+training score.
+
+The case for 20 over 30 is that the two are **tied on the criterion the guard was
+chosen by** -- empirical mean LOO -0.7337 against -0.7336, a difference in the
+fourth decimal -- and 20 is **1.1 percent better on the parent**. That is not
+post-hoc selection; it is an independent criterion breaking a tie that the
+original criterion cannot break. The cost is 0.7 percent of the empirical p05,
+which is the tail the guard exists for.
+
+**Going lower than 20 is where the tradeoff turns real**: 5 is the parent
+optimum, 3.2 percent better than 30, but it costs 4.9 percent of the empirical
+mean LOO and 17 percent of the p05, which is the failure the guard was
+introduced to fix.
+
+**This is an author decision, and the honest statement of it is that 20 weakly
+dominates 30 while 30 is already defensible.** The whole effect is about 1
+percent of one criterion, so the question is really whether it is worth a re-run
+-- and it is nearly free if it rides along with the quadrature change, which
+moves every number anyway.
 
 **D. "Would it be worth changing the n buckets to reflect the empirical data?"
 No, and post-stratification is why.** Matching the corpus's allocation to the
@@ -658,13 +677,46 @@ distinguishable. Estimating a several-mode market mixture from three to nine
 points does not work however clean the weights are, and that part is not an
 artifact.
 
-**WHAT THE PAPER MUST NOW SAY.** Not "variable weighting hurts below n = 100".
-The honest claim is that **variable weighting pays whenever the market shares are
-actually known, from about n = 10 upward, and the penalty this study measures
-below n = 100 is the price of representing UNKNOWN market shares with a flat
-Dirichlet.** That is a statement about the stand-in, and it is the strongest
-argument in this project for the real production volumes of Marsh, Hattam and
-Allen (2025). Decision 73, entry 64.
+**WHAT THIS DOES AND DOES NOT SHOW, and the first version of this section
+overclaimed.** The author's response was "I can't think of a way to introduce
+variable weights to equally weighted values sampled from a distribution without
+it producing noise", and that scepticism is right in a way that narrows the
+result to almost nothing about reality.
+
+  - **What it shows.** The penalty is not intrinsic to using weights. It is
+    attributable to the WITHIN-MODE part of the weight vector.
+  - **Why that is nearly circular.** In this generator the within-mode split is
+    uninformative BY CONSTRUCTION: market share attaches at the mode level
+    (decision 21, `mode_coupling = 1.0`), and every point inside a mode is drawn
+    from the same component, so how the mode's share is divided among its points
+    cannot change the target. The oracle therefore removes variance that the
+    generator defined to carry no signal. **It was built that way, so finding it
+    carries no signal is not evidence.**
+  - **What reality does instead, and it may be worse.** Real products within a
+    production route are NOT identical, so their individual shares do carry
+    information -- but they are also far more CONCENTRATED than a flat Dirichlet.
+    Marsh, Hattam and Allen (2025) report Rest-of-World BOF at 63.75 percent of
+    global steel against Austrian EAF at 0.03. A flat Dirichlet at n = 100 gives
+    an expected top share of 5.2 percent (decision 16). Concentration cuts the
+    effective sample size, which is the mechanism BEHIND the penalty, so real
+    shares would carry more of it, not less.
+  - **The oracle removes both effects at once** -- the uninformative variation
+    and the concentration -- so it is the low-noise bound and not a model of
+    anything achievable.
+
+**SO THE CLAIM IS WEAKER THAN THE FIRST DRAFT OF THIS SECTION SAID.** It is not
+"variable weighting pays whenever shares are known". It is: **the penalty this
+study measures below n = 100 is a property of the weight VECTOR and not of
+weighting, and this generator cannot say what real market shares would do,
+because it was built with within-mode share variation carrying no information.**
+That is a limitation of the GENERATOR and it is the more important finding.
+Decision 73, entry 64.
+
+**What would actually answer it** is a weighting arm built from real production
+volumes rather than a Dirichlet, which is Marsh, Hattam and Allen (2025)'s
+contribution and is out of scope here; or, cheaply, a sweep of the Dirichlet
+concentration, which Stage 2h already owns (`mode_share_alpha`, decision 27) and
+which would at least bracket the effect.
 
 **And it endorses the author's "treat these as two separate issues".** The family
 comparison and the weighting comparison are already separable in the tables:
@@ -698,6 +750,107 @@ touch the pLCA construction, and the sweep over materials per pLCA that 2e owns
 would change the design underneath it. **It is the single most valuable thing
 either of those stages could do, and it may well show that the differences this
 stage measured do not matter, which would itself be the paper's cleanest result.**
+
+### 4.17 KDE against the lognormal, on one page
+
+Asked for directly in the review. Everything below is out of sample.
+
+**Where the KDE wins, and it is not close.**
+
+| | |
+|---|---|
+| n >= 1000, against the parent | wins **99 pct** of datasets against the lognormal under uniform weighting, 92 under variable. Mean W1 0.0161 against 0.0523 |
+| n = 100-999 | wins **82 pct** uniform, 66 variable |
+| shape, not location | at n >= 1000 the lognormal gets the MEAN slightly better, 0.0159 against 0.0173, and loses on SHAPE by a factor of 2.3, 0.0569 against 0.0243. The KDE is capturing skewness and tail behaviour no three-parameter family reaches |
+| it keeps improving | the lognormal's error stops falling with n because its bias is its shape; the KDE's keeps falling. At n >= 1000 the gap is a factor of 3.2 and still widening |
+| mean regret | lowest of all six methods on the synthetic arm, 0.0290 against the lognormal's 0.0368 |
+
+**Where the lognormal wins.**
+
+| | |
+|---|---|
+| n = 10-99 | beats the KDE by 0.0172 uniform and 0.0228 variable against the parent. Section 4.14 B: real, textbook, and not fixable by a bandwidth |
+| the worst case | tighter upper tail everywhere. p95 regret 0.1281 against the KDE's 0.1506, worst case 0.86 against 1.26 |
+| unweighted over CATEGORIES | the empirical arm is 54 pct at n = 10-99, so a mean over categories puts the lognormal ahead |
+| against gamma | it is NOT better, on real data. Indistinguishable from gamma, from the 2-parameter lognormal and from the Stage 1 offset. Section 4.7 |
+
+**THE AVERAGE THE PAPER TAKES IS THE WRONG ONE, AND THAT IS NOT A DEFENCE OF THE
+KDE, IT IS AN OBSERVATION ABOUT THE ARM.** Every aggregate in this study weights
+each category equally, so `Chairs` counted as much as `ReadyMix` before it was
+dropped. On the 147-dataset arm:
+
+  - 49 datasets reach n = 100. That is 33 percent of CATEGORIES and
+    **97.3 percent of the EPDs**.
+  - 88.1 percent of all EPDs sit in datasets with n >= 1,000, which is the band
+    where the KDE wins 76 to 99 percent of the time.
+  - The concrete family -- ReadyMix, Shotcrete, CMU, Precast -- is 25 datasets
+    and **77.1 percent of the arm by EPD count**, and every ReadyMix strength
+    class has between 3,974 and 31,025 values. Concrete is also the largest
+    single embodied-carbon contributor in most buildings.
+
+So **the categories where the KDE wins decisively are the structural materials
+that dominate a building's embodied carbon, and the categories where it loses are
+small, specialized ones.** A category-count average says the lognormal; an
+average that reflects what a building is made of says the KDE. **Neither is
+reported yet, and the second one is the paper's question.** Stage 2i's
+real-building anchor is the principled version and entry 69's pLCA-against-truth
+is the decisive one.
+
+**The 2-parameter lognormal is NOT what the paper should compare against, and
+saying so is worth a sentence.** Against the parent it is the worst of the four
+right-skewed families, +0.0323 behind the three-parameter form under uniform
+weighting, and the three-parameter form beats it on 66.5 percent of datasets.
+The Stage 1 method the manuscript currently describes -- a fixed +0.5 offset --
+is much closer to the three-parameter fit than the two-parameter one is.
+
+### 4.18 THE "95 PERCENT UNIMODAL" FIGURE IS A BANDWIDTH, NOT A PROPERTY OF THE DATA
+
+**The author doubted this on sight and was right.** It is the most consequential
+defect found in the review.
+
+`modality.n_modes_visible` counts local maxima of `scipy.stats.gaussian_kde(x)`
+at its DEFAULT bandwidth, which is Scott's rule. Stage 2c then established, on a
+criterion with nothing to do with modality, that **Scott oversmooths this data by
+about 35 percent**. A mode counter run at an oversmoothing bandwidth undercounts
+modes.
+
+Share with exactly one visible mode, n >= 8, as the bandwidth is scaled:
+
+| multiple of scipy's default | empirical | synthetic | empirical 3+ modes | synthetic 3+ | total variation |
+|---|---|---|---|---|---|
+| 1.20 | 96.9 pct | 96.6 pct | 0.0 | 0.0 | 0.0030 |
+| **1.00, what is used** | **94.6 pct** | 94.0 pct | 0.8 pct | 0.2 pct | **0.0123** |
+| 0.90 | 91.5 pct | 91.1 pct | 0.8 pct | 0.2 pct | 0.0104 |
+| 0.80 | 80.8 pct | 85.3 pct | 2.3 pct | 0.5 pct | 0.0457 |
+| **0.74, the Scott correction** | **73.1 pct** | 80.0 pct | **8.5 pct** | **1.3 pct** | **0.0714** |
+| 0.60 | 55.4 pct | 63.7 pct | 13.8 pct | 6.8 pct | 0.0829 |
+| 0.50 | 41.5 pct | 46.9 pct | 27.7 pct | 18.9 pct | 0.0883 |
+
+**Two things follow and the second is worse than the first.**
+
+1. **The headline figure is not a property of ECC data.** It is 95 percent at
+   Scott, 73 at the corrected bandwidth and 55 at 0.6. The manuscript quotes it
+   as a fact about the datasets. It is a fact about a smoothing choice.
+2. **THE AGREEMENT BETWEEN THE TWO ARMS IS ALSO A PROPERTY OF THE BANDWIDTH, AND
+   DECISION 38 TUNED THE GENERATOR AGAINST IT.** Total variation between the arms
+   is 0.0123 at Scott -- the number the corpus was matched on -- and 0.0714 at
+   the corrected bandwidth, six times worse. The gap is driven by datasets with
+   THREE OR MORE visible modes: **8.5 percent of the empirical arm against 1.3
+   percent of the corpus**. The corpus is missing the genuinely multi-humped
+   datasets, and the measure used to check could not see them.
+
+**WHICH WAY IT CUTS, because the review asked whether the corpus was cooked to
+favour the KDE.** The opposite. Multimodality is the one structure a KDE
+represents and a three-parameter family cannot, and **the corpus has six times
+fewer strongly multimodal datasets than the empirical arm**. On this dimension
+the corpus is biased AGAINST the KDE. Correcting it would be expected to help the
+KDE, not hurt it.
+
+**Not fixed here.** Changing `n_modes_visible`'s bandwidth changes a reported
+characteristic and, because decision 38 steers generation by it, implies a
+retune -- and generation is closed by decisions 47, 48 and 55. **This is an
+author decision and it is the one open item in this handoff that could change a
+conclusion.** Decision 78, entry 70. `audits/visible_modes_bandwidth.py`.
 
 ## 5. Open questions and flags
 
@@ -740,6 +893,115 @@ list only by being marked resolved, with the reason.
 | One cable record wrong by four orders of magnitude | author or 2h | **RESOLVED** by decision 63 |
 | EAF against BOF steel is not available | - | CLOSED as infeasible |
 | Whether to filter contaminated categories on metadata | - | **RESOLVED**, decisions 60 and 61 |
+
+### DECISIONS WAITING ON THE AUTHOR
+
+The review asked for these spelled out rather than named. Each states the choice,
+what it costs, and a recommendation. **Nothing below blocks Stage 2d.**
+
+---
+
+**D1. The visible-mode bandwidth. THE ONLY OPEN ITEM THAT COULD CHANGE A
+CONCLUSION.** Section 4.18.
+
+*The choice.* `modality.n_modes_visible` counts modes at scipy's default
+bandwidth, which is Scott's, which Stage 2c showed oversmooths by about 35
+percent. Leave it, or recompute it at a corrected bandwidth.
+
+*What changes if you correct it.* The reported "95 percent of ECC datasets are
+visibly unimodal" becomes about 73 percent. More seriously, the corpus-to-arm
+agreement on modality, which decision 38 TUNED the generator against, goes from a
+total variation of 0.0123 to 0.0714, because the corpus has 1.3 percent of
+datasets with three or more visible modes against the arm's 8.5.
+
+*Cost of correcting.* It is a reported characteristic and a tuning target, so
+taking it seriously implies a retune and a regeneration, and generation is closed
+by decisions 47, 48 and 55. That is the whole of Stage 2a again.
+
+*Cost of not correcting.* The manuscript states a number that is an artifact of a
+smoothing choice, and a reviewer who recomputes it at any other bandwidth gets a
+different answer.
+
+*Recommendation.* **Split it.** Correct the REPORTED figure and say the number
+depends on the bandwidth, quoting the table -- that costs nothing and is simply
+more honest. Do NOT regenerate: the gap is in the direction that penalizes the
+KDE, so the current corpus understates the case for the method the paper is
+about, and a limitation stated against yourself is safe ground.
+
+---
+
+**D2. `SILVERMAN_MIN_NEFF`, 30 or 20.** Section 4.14 C.
+
+*The choice.* The guard threshold. 20 and 30 are tied on the criterion the guard
+was chosen by (empirical mean LOO -0.7337 against -0.7336) and 20 is 1.1 percent
+better against the parent. Below 20 the tradeoff turns real.
+
+*Recommendation.* **20**, and only because it is nearly free if it rides along
+with D3, which moves every number anyway. On its own it is not worth a re-run.
+30 remains defensible.
+
+---
+
+**D3. The scoring grid's quadrature route. THE AUTHOR HAS SAID DO IT.**
+Section 4.9.
+
+*What it is, plainly.* W1 is the area between two CDFs. There are two ways to
+compute it on the same 1,000-point grid. The study currently takes the fitted
+model, evaluates its DENSITY at each of the 1,000 points, treats those as 1,000
+weighted atoms, and asks `scipy.stats.wasserstein_distance` for the distance
+between that point cloud and the data. The alternative evaluates the model's CDF
+at the same 1,000 points and integrates the absolute difference against the
+data's empirical CDF by the trapezoid rule. **Same grid, same cost, no new
+parameter, and one of them is a better approximation of the same integral.**
+
+*Why the second is better.* Turning a density into atoms puts all of a grid
+cell's mass at a single point, which is exact only if the density is flat across
+the cell. In the tail, where the CDF is changing fast relative to the grid, that
+is a poor assumption: measured against a 200,001-point reference, the atom route
+has a p99 relative error of **14.5 percent** and the trapezoid route **2.5
+percent**.
+
+*What it costs.* Every reported W1 moves, by a median of about 0.3 percent and up
+to a few percent, and the KDE's absolute scores fall by 3 to 5 percent because
+its CDF has the most structure at grid scale. **No conclusion changes**: the
+paired KDE-minus-lognormal difference is -0.0340 under the current route and
+-0.0339 at 20,000 trapezoid points.
+
+*Recommendation.* **Do it, together with D2, in one re-run.** It is strictly less
+approximation error for free, and the fact that it moves the KDE's numbers
+favourably is a reason to be careful rather than a reason to avoid it -- which is
+why the paired comparison is the thing to check, and it does not move.
+
+---
+
+**D4. The average the paper takes.** Section 4.17.
+
+*The choice.* Every aggregate weights each of the 147 categories equally. 33
+percent of categories hold 97.3 percent of the EPDs, and the concrete family
+alone is 77 percent of the arm and the dominant embodied-carbon material in a
+building. A category-count average favours the lognormal; an average reflecting
+what a building is made of favours the KDE.
+
+*Recommendation.* **Report the category-count average as the primary, because it
+is the honest unweighted answer, and add one paragraph with the observation
+above.** The principled version is Stage 2i's real-building anchor or entry 69's
+pLCA-against-truth; do not invent an ad-hoc importance weight.
+
+---
+
+**D5. Whether the weighting arm can say anything about real market shares.**
+Section 4.15.
+
+*The position after the review.* It cannot. The generator makes within-mode share
+variation uninformative by construction, so the measured penalty is a property of
+the weight vector rather than of weighting, and nothing here predicts what real,
+concentrated, informative shares would do.
+
+*Recommendation.* **State it as a limitation and let Stage 2h's
+`mode_share_alpha` sweep bracket it.** Do not describe the synthetic weighting
+result as a finding about weighting in practice.
+
+---
 
 ### New in Stage 2c, and still open
 
