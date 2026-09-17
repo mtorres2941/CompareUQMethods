@@ -942,37 +942,64 @@ with D3, which moves every number anyway. On its own it is not worth a re-run.
 
 ---
 
-**D3. The scoring grid's quadrature route. THE AUTHOR HAS SAID DO IT.**
-Section 4.9.
+**D3. The scoring grid. THE FIRST WRITE-UP OF THIS WAS WRONG AND THE ANSWER IS
+BETTER THAN IT SAID.** Section 4.9, and `fitting.W1_ROUTE`.
 
-*What it is, plainly.* W1 is the area between two CDFs. There are two ways to
-compute it on the same 1,000-point grid. The study currently takes the fitted
-model, evaluates its DENSITY at each of the 1,000 points, treats those as 1,000
-weighted atoms, and asks `scipy.stats.wasserstein_distance` for the distance
-between that point cloud and the data. The alternative evaluates the model's CDF
-at the same 1,000 points and integrates the absolute difference against the
-data's empirical CDF by the trapezoid rule. **Same grid, same cost, no new
-parameter, and one of them is a better approximation of the same integral.**
+*What W1 is here.* The area between the fitted model's CDF and the data's. The
+study computes it on a grid of 1,000 points running from `hi/1000` to
+`max(x) + 10 sd`.
 
-*Why the second is better.* Turning a density into atoms puts all of a grid
-cell's mass at a single point, which is exact only if the density is flat across
-the cell. In the tail, where the CDF is changing fast relative to the grid, that
-is a poor assumption: measured against a 200,001-point reference, the atom route
-has a p99 relative error of **14.5 percent** and the trapezoid route **2.5
-percent**.
+*The two ways to compute it on that grid.* The study evaluates the model's
+DENSITY at each point, treats those as 1,000 weighted atoms, and asks
+`scipy.stats.wasserstein_distance` for the distance between that cloud and the
+data. The alternative evaluates the model's CDF at the same points and integrates
+`|F_model - F_data|` by the trapezoid rule. Same grid, same cost.
 
-*What it costs.* Every reported W1 moves, by a median of about 0.3 percent and up
-to a few percent, and the KDE's absolute scores fall by 3 to 5 percent because
-its CDF has the most structure at grid scale. **No conclusion changes**: the
-paired KDE-minus-lognormal difference is -0.0340 under the current route and
--0.0339 at 20,000 trapezoid points.
+*WHAT I TOLD YOU BEFORE AND WHY IT WAS WRONG.* I said the trapezoid route was
+strictly better and that switching was free accuracy. **It is not strictly
+better.** Against a 200,001-point reference at 1,000 points, relative error
+median / p99 / max:
 
-*Recommendation.* **Do it, together with D2, in one re-run.** It is strictly less
-approximation error for free, and the fact that it moves the KDE's numbers
-favourably is a reason to be careful rather than a reason to avoid it -- which is
-why the paired comparison is the thing to check, and it does not move.
+| route | median | p99 | max |
+|---|---|---|---|
+| atoms, in use | **0.00134** | 0.1359 | 1.385 |
+| trapezoid | 0.00218 | **0.0228** | **0.200** |
 
----
+**The atom route is better TYPICALLY and far worse in the tail**, and that is not
+an accident. The data's empirical CDF is a step function, which a
+discrete-to-discrete distance handles exactly and the trapezoid rule smooths
+across. What the atom route handles badly is the MODEL in the far tail, where one
+grid cell spans a large change in the CDF -- which is the linear grid's known
+weakness on a dataset spanning orders of magnitude.
+
+*SO THE REAL FINDING IS RESOLUTION, NOT ROUTE.* Both converge to the same number.
+1,000 points is simply not a converged quadrature. At 20,000 points:
+
+| route | median | p99 |
+|---|---|---|
+| atoms | 0.00006 | 0.0371 |
+| trapezoid | **0.00010** | **0.0010** |
+
+*AND IT IS NOT NEUTRAL, WHICH IS THE PART TO BE CAREFUL ABOUT.* The coarse grid
+inflates the KDE's score by 3 to 5 percent against 0.2 percent for the lognormal,
+because the KDE's CDF has the most structure at grid scale. **Converging the grid
+makes the KDE look about 25 percent better in sample**: the in-sample paired
+KDE-minus-lognormal difference on the empirical arm goes from -0.0184 to -0.0229
+under uniform weighting and -0.0216 to -0.0278 under variable. The
+CROSS-VALIDATED comparison does not move, -0.0340 against -0.0339, so none of
+this stage's out-of-sample conclusions depend on it.
+
+*Recommendation.* **Trapezoid at 20,000 points**, which is essentially exact on
+both criteria. If you would rather not change the route at all, atoms at 20,000
+is also a large improvement and needs no argument beyond "1,000 was not
+converged". **Because this favours the method the paper is about, justify it on
+the convergence table alone and say so in the text** -- the defence is that both
+routes agree once the grid is converged, which is checkable by anyone.
+
+*Status.* Implemented as `fitting.W1_ROUTE`, **default unchanged at `'atoms'`**,
+with a test that pins the default so it cannot flip as a side effect. Flipping it
+and raising `SCORE_GRID_POINTS` is two lines and one full re-run of the three
+notebooks; **do it together with D2.**
 
 **D4. The average the paper takes.** Section 4.17.
 

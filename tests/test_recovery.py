@@ -479,3 +479,53 @@ def test_paired_bootstrap_groups_and_is_reproducible():
     assert a.loc['small', 'mean_difference'] < 0
     assert a.loc['large', 'mean_difference'] > 0
     assert bool(a.distinguishable.all())
+
+
+# --------------------------------------------------------- the quadrature route
+def test_both_w1_routes_converge_to_the_same_number():
+    """`atoms` and `trapezoid` approximate one integral, so a dense enough grid
+    has to make them agree. If this ever fails they are computing different
+    things and the choice between them is not a numerical one."""
+    rng = np.random.default_rng(41)
+    x = np.abs(rng.lognormal(0.0, 0.5, 300)) + 0.05
+    w = rng.dirichlet(np.ones(300))
+    models, _ = FT.fit_pewt(x, w)
+    for label, m in models.items():
+        coarse = [FT.score_w1_model(m, x, w, grid=FT.score_grid_open(
+            x, w, npoints=n), route=r)
+            for n in (50_000,) for r in ('atoms', 'trapezoid')]
+        assert coarse[0] == pytest.approx(coarse[1], rel=2e-3), label
+
+
+def test_the_two_routes_trade_typical_error_against_tail_error():
+    """NOT "trapezoid is better", which a first version of this test asserted and
+    which is false. The atom route is better TYPICALLY, because the data's
+    empirical CDF is a step function and a discrete-to-discrete distance handles
+    it exactly; the trapezoid route is better in the TAIL, where one grid cell
+    spans a large change in the model's CDF. The real finding is that 1,000
+    points is not converged."""
+    rng = np.random.default_rng(43)
+    err = {'atoms': [], 'trapezoid': []}
+    for _ in range(25):
+        x = np.abs(rng.lognormal(0.0, 0.7, 120)) + 0.05
+        w = rng.dirichlet(np.ones(120))
+        models, _ = FT.fit_pewt(x, w)
+        m = models['KDE, Variable']
+        ref = FT.score_w1_exact(m, x, w)
+        for r in err:
+            err[r].append(abs(FT.score_w1_model(m, x, w, route=r) - ref) / ref)
+    a, t = np.array(err['atoms']), np.array(err['trapezoid'])
+    assert np.median(a) < np.median(t)          # atoms wins typically
+    # The trapezoid route's advantage is in the TAIL and it needs a dataset
+    # spanning orders of magnitude to appear, which the well-behaved sample here
+    # does not. It is measured on the real arms instead, where the atom route's
+    # p99 relative error is 0.136 against 0.023 and its worst case 1.385 against
+    # 0.200: `audits/scoring_grid_error.py`. Not asserted here, because a test
+    # that needs its input tuned to make the effect show is not pinning anything.
+    assert np.median(a) < 0.01 and np.median(t) < 0.01
+
+
+def test_the_default_route_is_unchanged():
+    """A guard, not a preference. Flipping `W1_ROUTE` moves every reported number
+    in the paper, so it may not happen as a side effect of another edit."""
+    assert FT.W1_ROUTE == 'atoms'

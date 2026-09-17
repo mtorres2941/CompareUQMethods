@@ -232,19 +232,75 @@ def score_grid_open(x, weights, npoints=SCORE_GRID_POINTS,
     return np.linspace(hi / npoints, hi, npoints)
 
 
-def score_w1_model(model, x, weights, grid=None):
+#: How W1 is computed on `score_grid_open`. BOTH routes use the SAME grid and
+#: cost the same; they are two approximations of one integral, the area between
+#: the model's CDF and the data's.
+#:
+#:   'atoms'      evaluate the model's DENSITY at each grid point, treat those as
+#:                weighted atoms, and hand two point sets to
+#:                `scipy.stats.wasserstein_distance`. What the study has always
+#:                done and what every published number is.
+#:   'trapezoid'  evaluate the model's CDF at the same points and integrate
+#:                |F_model - F_data| directly.
+#:
+#: NEITHER ROUTE IS SIMPLY BETTER, AND THE REAL PROBLEM IS RESOLUTION. Both
+#: converge to the same integral. Measured against a 200,001-point reference at
+#: 1,000 points, relative error median / p99 / max:
+#:
+#:     atoms      0.00134 / 0.1359 / 1.385
+#:     trapezoid  0.00218 / 0.0228 / 0.200
+#:
+#: The atom route is BETTER typically and far worse in the tail. That is not an
+#: accident: the data's empirical CDF is a step function, which the atom route
+#: handles exactly because it is a discrete-to-discrete distance, while the
+#: trapezoid rule smooths across every jump. What the atom route handles badly is
+#: the MODEL in the far tail, where one grid cell spans a large change in the CDF.
+#:
+#: SO THE FINDING IS THAT 1,000 POINTS IS NOT CONVERGED, not that the route is
+#: wrong. At 20,000 points the two agree and both approach the reference, and the
+#: trapezoid route gets there faster: median / p99 error 0.00006 / 0.0371 for
+#: atoms against 0.00010 / 0.0010 for trapezoid.
+#:
+#: WHAT CONVERGING WOULD DO, and it is not neutral. The coarse grid inflates the
+#: KDE's score by 3 to 5 percent against 0.2 percent for the lognormal, because
+#: the KDE's CDF has the most structure at grid scale. The IN-SAMPLE paired
+#: KDE-minus-lognormal difference on the empirical arm moves from -0.0184 to
+#: -0.0229 (uniform) and -0.0216 to -0.0278 (variable): **converging the grid
+#: makes the KDE look about 25 percent better in sample.** The CROSS-VALIDATED
+#: comparison does not move, -0.0340 against -0.0339, which is why the stage's
+#: out-of-sample conclusions stand either way.
+#:
+#: BECAUSE IT FAVOURS THE METHOD THE PAPER IS ABOUT, it has to be justified on
+#: numerical grounds alone, and it can be: 1,000 atoms is simply not a converged
+#: quadrature, and both routes agree once it is. Switching moves every reported
+#: number and should ride with any other number-moving change rather than cost a
+#: re-run of its own. `audits/scoring_grid_error.py`.
+W1_ROUTE = 'atoms'
+
+
+def score_w1_model(model, x, weights, grid=None, route=None):
     """W1 between a truncated model and the variable-weighted empirical CDF.
 
-    The model is discretized onto `grid` with weight proportional to its
-    density, which is what `wasserstein1_weighted` consumes, and is the same
-    calculation Stage 1 performed. What has changed is the object being
-    discretized: it is now an explicit `families.Truncated`, renormalized onto
-    (0, inf), rather than an untruncated parent that the grid happened to
-    truncate by starting at zero.
+    See `W1_ROUTE` for the two quadrature routes and why the default is the
+    less accurate one.
+
+    Under `'atoms'` the model is discretized onto `grid` with weight
+    proportional to its density, which is what `wasserstein1_weighted` consumes,
+    and is the calculation Stage 1 performed. What changed in Stage 2b is the
+    object being discretized: it is now an explicit `families.Truncated`,
+    renormalized onto (0, inf), rather than an untruncated parent that the grid
+    happened to truncate by starting at zero.
     """
     if grid is None:
         grid = score_grid_open(x, weights)
-    return wasserstein1_weighted(x, grid, weights, model.pdf(grid))
+    route = route or W1_ROUTE
+    if route == 'atoms':
+        return wasserstein1_weighted(x, grid, weights, model.pdf(grid))
+    if route != 'trapezoid':
+        raise ValueError(f"route must be 'atoms' or 'trapezoid', got {route!r}")
+    e = weighted_ecdf(x, weights)[2](grid)
+    return float(np.trapezoid(np.abs(np.asarray(model.cdf(grid), float) - e),
+                              grid))
 
 
 def score_w1_exact(model, x, weights, npoints=200_001):
