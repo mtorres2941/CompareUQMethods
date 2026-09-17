@@ -47,7 +47,7 @@ LOGFIT_OFFSET = 0.5
 #                        Torres et al. (2026), the KL2 paper, uses and defends.
 #   'silverman_guarded'  Silverman's rule THROUGHOUT, 0.9 * scale * n_eff ** -0.2,
 #                        with the SCALE guarded: the robust min(sd, IQR/1.34) at
-#                        or above customstats.SILVERMAN_MIN_NEFF = 30 effective
+#                        or above customstats.SILVERMAN_MIN_NEFF = 20 effective
 #                        observations, the plain sd below it. IT IS NOT SCOTT
 #                        BELOW THE THRESHOLD -- Scott carries 1.06 where this
 #                        carries 0.9, so describing it that way overstates the

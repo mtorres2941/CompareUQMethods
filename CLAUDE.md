@@ -850,7 +850,9 @@ rather than in conversation.
 
 54. **2026-09-14, Stage 2b. The KDE bandwidth is Silverman's robust rule, guarded
     by a minimum EFFECTIVE sample size.** `[AUTHOR]` `BW_METHOD =
-    'silverman_guarded'`, `customstats.SILVERMAN_MIN_NEFF = 30`. This resolves
+    'silverman_guarded'`, `customstats.SILVERMAN_MIN_NEFF = 30`. **The threshold
+    is 20 from 2026-09-16; decision 80 supersedes this one on that value only.**
+    This resolves
     the KL1 / KL2 / this-paper inconsistency of decision 9 and entry 10 in favor
     of the rule Torres et al. (2026) uses and defends.
 

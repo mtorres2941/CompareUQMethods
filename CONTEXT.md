@@ -37,6 +37,9 @@ CompareUQMethods/
 │   ├── fitting.py             the six PEWT fits and W1 scoring
 │   ├── comparison.py          the paper's method comparison: held-out W1, the
 │   │                          tail check, ranks and characteristic curves
+│   ├── materialclass.py       structural / envelope / other, from the category
+│   │                          NAME only, so the comparison can be read by what
+│   │                          a material IS (Stage 2c)
 │   ├── recovery.py            the evaluation target (Stage 2c): W1 against the
 │   │                          known parent, cross-validation, the
 │   │                          fit-versus-definitional split, regret,
@@ -144,9 +147,17 @@ beats Scott on held-out likelihood every time, and flooring the robust scale
 makes things worse. Where it fails is n = 3 to 10, because the quartiles are
 interpolated between two order statistics. `'silverman_guarded'` is Silverman's
 rule throughout, `0.9 * scale * n_eff ** -0.2`, with the SCALE ESTIMATE guarded:
-the robust `min(sd, IQR/1.34)` at or above `SILVERMAN_MIN_NEFF = 30` effective
-observations, the plain standard deviation below it. It beats both pure rules on
-held-out likelihood and repairs the worst cases.
+the robust `min(sd, IQR/1.34)` at or above `SILVERMAN_MIN_NEFF = 20` effective
+observations, the plain standard deviation below it. **It is NOT Scott below the
+threshold**: the coefficient stays 0.9 throughout where Scott's is 1.06, and two
+comments said otherwise until Stage 2c.
+
+**The threshold was 30 until Stage 2c and is now 20** (decision 80, superseding
+75). It was swept on BOTH the held-out likelihood it was chosen by and W1 against
+the known parent, which disagree -- the first peaks at 20 to 30, the second at 5.
+Stepping down one value at a time, every step from 200 to 20 is free or better
+than free and the step 20 to 18 is the first that costs more than it buys.
+`audits/guard_threshold_sweep.py`.
 
 ### Three scores per fit, and why one is not enough
 
@@ -187,12 +198,28 @@ it was never fitted under the rule it is judged by. `FIT_METHOD = 'mle'` is the
 study's method; the W1-optimal results are reported beside it, not instead.
 
 **Scoring.** Every model is scored against the **variable-weighted** empirical
-CDF, including the uniform-weighted fits. `score_grid_open` is 1,000 points from
-`hi / 1000` to `hi = max(x) + 10 * spread`, **open at zero**: the lower bound is
-the first point of the grid's own lattice, chosen that way so that it is not a
-new free parameter. The lattice is LINEAR, so its resolution near zero is the
-same for every dataset; on a dataset spanning several orders of magnitude that
-is coarse, which is unchanged from Stage 1 and belongs to Stage 2c.
+CDF, including the uniform-weighted fits. `score_grid_open` is
+`SCORE_GRID_POINTS` points from `hi / npoints` to `hi = max(x) + 10 * spread`,
+**open at zero**: the lower bound is the first point of the grid's own lattice,
+chosen that way so that it is not a new free parameter.
+
+**20,000 POINTS AND TRAPEZOID QUADRATURE, both settled in Stage 2c** (decision
+81). At 1,000 points the criterion is not converged, and the error is
+METHOD-DEPENDENT: it inflated the KDE's score by 3 to 5 percent against 0.2
+percent for the lognormal, because the KDE's CDF has the most structure at grid
+scale. `fitting.W1_ROUTE` selects how the integral is taken on that grid --
+`'atoms'` discretizes the model's density into weighted points and takes a
+discrete Wasserstein distance, `'trapezoid'` integrates `|F_model - F_data|`
+directly. **The atom route never converges**, because adding points does not
+extend the grid and a model with mass past its top keeps losing it: its p99
+relative error sticks at 0.0379 from 20,000 points through 100,000 while
+trapezoid reaches 0.0002. `audits/scoring_grid_error.py`.
+
+**There is ONE implementation and notebooks must call it.** Notebook 2 cell 23
+computed W1 inline for the synthetic arm and so silently kept the old quadrature
+when `W1_ROUTE` moved, putting two different values for one quantity in two
+tables. `tests/test_regression.py::test_synthetic_fits_and_w1_recomputed` caught
+it and is the guard.
 
 ## 3. Seeding and caching
 
@@ -296,7 +323,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 322 tests, about 95 seconds
+python -m pytest tests/          # 335 tests, about 95 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -469,6 +496,10 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_Regret.csv` | NB2 | mean, median and upper tail of regret per method |
 | `TABLE_PostStratifiedScores.csv` | NB2 | every headline aggregate equally allocated and reweighted. **NOT `TABLE_PostStratified.csv`, which is NB1's and is about the dataset characteristics** |
 | `TABLE_ModalityConditioned.csv` | NB2 | the method comparison split by visible modality, within size band |
+| `TABLE_MaterialTiers.csv` | NB2 | every category with its material tier. **Publish this**: a hot-spot argument cannot be checked without it |
+| `TABLE_MethodByMaterialTier.csv` | NB2 | the method comparison inside each tier, and for structural categories at n >= 100 |
+| `TABLE_VisibleModes.csv` | NB1 | visible modes per dataset at scipy's default bandwidth and at the one the study fits |
+| `TABLE_VisibleModeSummary.csv` | NB1 | the share with one, two, three or more visible modes, at both bandwidths |
 | `TABLE_MethodWinShare.csv.gz` | NB2 | how often each method wins, against the percentile of each characteristic |
 | `TABLE_PLCAResults.csv` | NB3 | 59,976 x 43, which is 2,499 groups x 6 methods x 4 datasets |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |
@@ -522,6 +553,7 @@ the worst observed value.
 | `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
 | `test_comparison.py` | 10 | held-out W1 is undefined below n = 10 rather than computed from two points, is worse than in-sample for the flexible method, and removes most of W1's bandwidth sensitivity without replacing it with a sharp optimum; the model-spread ratio catches a tail W1 does not; ranks are within-dataset and invariant to rescaling a dataset; the curve window scales to the arm instead of assuming the corpus; all six methods share each held-out split, so the comparison is paired |
 | `test_recovery.py` | 26 | the parent spec round-trips exactly and the overlap displacements are NOT in the generation record, which is why the replay exists; a recovery score is zero when the model IS the parent and rises as it moves away; the grid always covers the parent; the two weightings are scored against different parents; the tail charge catches a far tail the body score does not; cross-validation is undefined below n = 10, penalizes the flexible method relative to in sample, and is paired across methods; the decomposition satisfies its own inequality and the definitional term is identical across uniform methods and zero for variable ones; regret is zero for the winner; post-stratification moves an aggregate toward the common band and the empirical shares are measured not assumed; a win share only moves when the WINNER moves, which is why the empirical headline is stated as one; the paired bootstrap finds a real gap and not an imaginary one |
+| `test_materialclass.py` | 7 | the tiers are a pure function of the category NAME and the whole assignment runs on a frame with no value column, so a tier cannot have been chosen because a method won on it; concrete, steel and every insulation variant land where a building-LCA reader expects |
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbors on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 
