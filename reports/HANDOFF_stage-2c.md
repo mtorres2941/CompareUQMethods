@@ -26,10 +26,13 @@ bandwidth guard moved to 20 effective observations, the scoring grid moved to
 by material tier. Section 5 lists what is left, and nothing in it blocks Stage 2d.
 
 **One correction to carry forward.** The "95 percent of ECC datasets have one
-visible mode" figure is an artifact of Scott's bandwidth and must be restated.
-Measured at the bandwidth the study actually fits it is 74 percent, the two arms
-still agree, and reweighting the corpus to the empirical mode mix changes the
-answer by 0.0003. **So the figure is wrong and the corpus is fine.** Section 4.9.
+visible mode" figure is an artifact of Scott's bandwidth and must be restated:
+measured at the bandwidth the study actually fits it is **68 percent**. The corpus
+does under-represent the multi-humped datasets at that bandwidth, 76.2 percent
+unimodal against the arm's 68.5, **but reweighting it to the empirical mode mix
+moves the method comparison by 0.0004**, so the mismatch is a limitation to state
+and not a reason to reopen generation. **The figure is wrong; the corpus is good
+enough.** Section 4.9, decision 82.
 
 ---
 
