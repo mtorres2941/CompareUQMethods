@@ -496,10 +496,23 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_Regret.csv` | NB2 | mean, median and upper tail of regret per method |
 | `TABLE_PostStratifiedScores.csv` | NB2 | every headline aggregate equally allocated and reweighted. **NOT `TABLE_PostStratified.csv`, which is NB1's and is about the dataset characteristics** |
 | `TABLE_ModalityConditioned.csv` | NB2 | the method comparison split by visible modality, within size band |
+| `TABLE_PolicyComparison.csv` | NB2 | **the table a practitioner reads.** Each fixed and size-conditional policy against the per-dataset oracle: mean cost, share within 5 and 20 percent of the best, and the worst single dataset |
+| `TABLE_RuleSelection.csv` | NB2 | whether adding a characteristic to the rule beats a size threshold alone. It does not |
+| `TABLE_RuleCandidates.csv` | NB2 | how much each characteristic adds to predicting the KDE-lognormal gap once log(n) is in the model |
+| `TABLE_SizeCrossover.csv` | NB2 | the fitted slope and break-even n for each arm |
+| `TABLE_SizeVersusMaterial.csv` | NB2 | the same fit used by the material figure |
+| `TABLE_MaterialTiers.csv` | NB2 | every category with its material tier and size. **Publish this**: a hot-spot argument cannot be checked without it |
+| `TABLE_MethodByMaterialTier.csv` | NB2 | the method comparison inside each tier |
+| `TABLE_CharacteristicsByTier.csv` | NB2 | median characteristics by tier, which is why the tiers differ |
 | `TABLE_MaterialTiers.csv` | NB2 | every category with its material tier. **Publish this**: a hot-spot argument cannot be checked without it |
 | `TABLE_MethodByMaterialTier.csv` | NB2 | the method comparison inside each tier, and for structural categories at n >= 100 |
 | `TABLE_VisibleModes.csv` | NB1 | visible modes per dataset at scipy's default bandwidth and at the one the study fits |
 | `TABLE_VisibleModeSummary.csv` | NB1 | the share with one, two, three or more visible modes, at both bandwidths |
+
+**Figures added in Stage 2c:** `FIG_EvaluationTarget`, `FIG_TargetBySize`,
+`FIG_Regret`, `FIG_MethodByMaterial` (which is the POLICY comparison, not a
+material breakdown -- the tier is not a mechanism, decision 84) and
+`SUPP_AllEmpiricalFits`, all 147 empirical datasets with all six fits.
 | `TABLE_MethodWinShare.csv.gz` | NB2 | how often each method wins, against the percentile of each characteristic |
 | `TABLE_PLCAResults.csv` | NB3 | 59,976 x 43, which is 2,499 groups x 6 methods x 4 datasets |
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |

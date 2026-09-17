@@ -11,36 +11,51 @@ variable-weighted empirical CDF of the same data it was fitted to. That target i
 circular in two ways and both are now fixed: the synthetic arm is scored against
 the parent each dataset was drawn from, and the empirical arm is cross-validated.
 
-**The headline, and it is good for the method this paper is about.** Against a
-target the model has not seen, **kernel density estimation beats the
-three-parameter lognormal on 70 percent of the structural materials that carry a
-building's embodied carbon**, and by a widening margin as a category grows. It
-loses on small categories, where a smooth parametric family beats a bumpy
-nonparametric one for textbook reasons, and the crossover is at about 100 EPDs.
-That is a usable rule for a practitioner rather than a defeat for the method.
+### The headline, stated the way the evidence supports it
 
-**Everything the author raised in review has been settled by measurement.** The
-five decisions that were open are closed and three of them changed the code: the
-bandwidth guard moved to 20 effective observations, the scoring grid moved to
-20,000 points and trapezoid quadrature, and the comparison is now also reported
-by material tier. Section 5 lists what is left, and nothing in it blocks Stage 2d.
+**There is one mechanism and it is dataset size.** The KDE improves relative to
+the three-parameter lognormal at about -0.07 per log(n) on real data out of
+sample, crossing over at roughly **100 to 200 EPDs**. Nothing else earns a place
+in the rule: of eleven characteristics tested, the strongest addition is a
+property of the weights rather than of the data, and **multimodality is last**,
+with an incremental R2 of 0.00002. Section 4.5.
 
-**Five figures.** `FIG_EvaluationTarget` and `FIG_MethodByMaterial` were both
-redrawn after the author objected that ranks and tier bars bin away the size of a
-gap; both now plot the paired, unbinned `log(W1_KDE / W1_lognormal)` against the
-number of EPDs. `SUPP_AllEmpiricalFits` is all 147 empirical datasets with all six
-fits, sorted by tier then size.
+**The KDE is the SAFER default, not the more accurate one**, and that is the
+defensible form of the flexibility argument. Against an oracle that picks the
+best method per dataset, always-KDE costs 15.3 percent on real data and
+always-lognormal 4.9 -- but the KDE's worst single dataset is **1.61 times** the
+best available method against the lognormal's **2.75**, and 6.9 against 24.5 on
+the corpus. **The best policy is neither: use the KDE above about 100 EPDs and a
+lognormal below**, which costs 4.5 percent over the oracle and has the lowest
+worst case of any policy on both arms. Section 4.4.
+
+**Where that lands in a building.** Structural categories are the well-populated
+ones -- median n of 140 against 46 for everything else, and the six largest are
+all ReadyMix strength classes -- so the size rule puts the KDE on the materials
+that dominate embodied carbon. **The material tier is a consequence of size and
+not a second mechanism** (p = 0.61); reporting it as one overstates the result.
+Section 4.3.
 
 **One correction to carry forward.** The "95 percent of ECC datasets have one
 visible mode" figure is an artifact of Scott's bandwidth and must be restated:
-measured at the bandwidth the study actually fits it is **68 percent**. The corpus
-does under-represent the multi-humped datasets at that bandwidth, 76.2 percent
-unimodal against the arm's 68.5, **but reweighting it to the empirical mode mix
-moves the method comparison by 0.0004**, so the mismatch is a limitation to state
-and not a reason to reopen generation. **The figure is wrong; the corpus is good
-enough.** Section 4.10, decision 82.
+at the bandwidth the study fits it is **68 percent**. The corpus does
+under-represent multi-humped datasets at that bandwidth, but reweighting it to
+the empirical mode mix moves the comparison by 0.0004, so the mismatch is a
+limitation to state and not a reason to reopen generation. Section 4.11.
 
----
+**Five figures.** `FIG_EvaluationTarget` panel four and `FIG_MethodByMaterial`
+were both redrawn after the author objected that ranks and tier bars bin away the
+size of a gap: the first now plots the paired, unbinned log ratio against EPD
+count for both arms, and the second is the POLICY comparison, because once the
+tier stopped being a mechanism a figure built on it had nothing to show.
+`SUPP_AllEmpiricalFits` is all 147 empirical datasets with all six fits.
+
+**Everything the author raised in two reviews is settled by measurement**, and
+nothing in section 5 blocks Stage 2d. Three of the four criterion changes move
+numbers in the KDE's favor, each for an independently correct reason; section 6
+says why that has to be presented as one paragraph about convergence rather than
+as three improvements.
+
 
 ## 1. Stage and branch
 
@@ -110,7 +125,7 @@ against themselves.
 
 Empirical arm, cross-validated on ten random half-splits in both directions, 127
 of 147 datasets reaching n = 10. Within a weighting scheme, which is the only
-valid comparison there (see 4.5): `Lognormal, Uniform` 0.2984 and `KDE, Uniform`
+valid comparison there (see 4.6): `Lognormal, Uniform` 0.2984 and `KDE, Uniform`
 0.3281; `Lognormal, Variable` 0.3165 and `KDE, Variable` 0.3527.
 
 ### 4.2 The two arms disagree about the family, and the disagreement is explained
@@ -231,7 +246,46 @@ on.**
 judgment from the user, it is supported on both arms and on both axes, and it
 states its own boundary. Decision 86, entry 77.
 
-### 4.5 Weighting
+### 4.5 NOTHING BUT SIZE BELONGS IN THE RULE, and multimodality least of all
+
+The author expected multimodality to be the big factor, since representing
+several humps is the one thing a kernel estimate does and a three-parameter
+family cannot. **It is last of eleven characteristics.**
+
+Incremental R2 over `log(n)` for predicting `log(W1_KDE / W1_lognormal)`,
+empirical arm: `n_modes` **0.00002** (uniform, p = 0.95) and **0.00104**
+(variable, p = 0.69). On the synthetic arm, where 2,415 datasets make almost
+anything detectable, it reaches 0.004 and 0.009 against `log(n)`'s own R2 of
+0.616 and 0.395.
+
+**And as a selection rule it is actively harmful.** Cost over the oracle,
+empirical cross-validated, uniform weighting:
+
+| rule | uses KDE on | cost over oracle | worst case |
+|---|---|---|---|
+| `n >= 200` | 25 pct | **3.56 pct** | 1.71x |
+| `n >= 100` | 39 pct | 4.46 pct | **1.58x** |
+| always lognormal | 0 pct | 4.87 pct | 2.76x |
+| **2+ modes only** | 32 pct | **6.17 pct** | **2.76x** |
+| `n >= 100 or 2+ modes` | 54 pct | 7.06 pct | 1.58x |
+| always KDE | 100 pct | 15.31 pct | 1.61x |
+
+Selecting on modality is worse than not selecting at all and it triples the worst
+case. **Why the intuition fails:** the KDE's advantage is general shape matching,
+skewness and tail behavior, not resolving separate humps, and at the bandwidth
+the study fits 68 percent of empirical datasets are visibly unimodal anyway.
+
+**What does predict the gap, and is still not in the rule.**
+`w_v_uw_wasserstein` is the strongest single addition and replicates on both
+weightings, incremental R2 0.046 and 0.055 at p = 0.004 and 0.003. It is a
+property of the WEIGHT VECTOR and not of the data, a practitioner can compute it
+only after choosing weights, and it is Stage 2d's quantity.
+
+**So the rule is one threshold on one number, and it is not sensitive between 100
+and 200.** Stage 2f owns the full metric reduction; this is a targeted answer and
+not that model. Decision 88, entry 79.
+
+### 4.6 Weighting
 
 **The old target made "variable weighting improves fit" 62 percent definitional.**
 Every model, including the three uniform-weighted ones, was scored against the
@@ -259,7 +313,7 @@ flat Dirichlet -- 63.75 percent for Rest-of-World BOF steel against an expected
 5.2 percent top share -- and concentration cuts the effective sample size that
 drives the penalty. Decisions 73 and 79.
 
-### 4.6 Regret, and the tail that reverses two methods
+### 4.7 Regret, and the tail that reverses two methods
 
 Synthetic, against the parent: mean regret `KDE, Uniform` **0.0282**,
 `Lognormal, Uniform` 0.0368, `KDE, Variable` 0.0693, `Lognormal, Variable`
@@ -271,7 +325,7 @@ lower mean cost and the lognormal the tighter worst case.
 Empirical, cross-validated: `Lognormal, Uniform` 0.0259, `Lognormal, Variable`
 0.0440, `KDE, Uniform` 0.0556, `KDE, Variable` 0.0802, the normals near 0.21.
 
-### 4.7 Post-stratification
+### 4.8 Post-stratification
 
 The corpus allocates 2,500 datasets per size band for equal precision; the
 empirical arm is 13.9 / 54.2 / 26.4 / 5.6 percent. `coverage.post_stratified` had
@@ -290,7 +344,7 @@ widen that band's intervals by a factor of 2.1, in the band where the methods
 differ most. Post-stratification gives both readings from one corpus and is
 reversible. Decision 76.
 
-### 4.8 Why the KDE loses at small n, and three explanations that are excluded
+### 4.9 Why the KDE loses at small n, and three explanations that are excluded
 
 Asked four times across the project, so answered by measurement.
 
@@ -312,7 +366,7 @@ costs less than the KDE's variance, and at large n the bias stops shrinking whil
 the variance does not. The crossover is at about n = 100, which is where it is
 observed. Decision 74.
 
-### 4.9 The method settings, now four
+### 4.10 The method settings, now four
 
 **The bandwidth.** Decision 54 adopted the guarded Silverman rule on leave-one-out
 likelihood. The synthetic parent gives W1 a target that is not the training data,
@@ -364,7 +418,7 @@ synthetic arm, where a reference density exists, the two pick the same winner on
 ordering of all six methods. It is not adopted because it needs a density and the
 empirical target is a set of atoms.
 
-### 4.10 THE "95 PERCENT UNIMODAL" FIGURE IS WRONG. THE CORPUS IS FINE
+### 4.11 THE "95 PERCENT UNIMODAL" FIGURE IS WRONG. THE CORPUS IS FINE
 
 Two separate questions, and conflating them was the error in the first draft of
 this section.
@@ -396,7 +450,7 @@ Decision 78.
 necessary to it**: it is closest on 74 percent of unimodal datasets, 80 percent of
 bimodal and 89 percent of those with three or more.
 
-### 4.11 The gamma question
+### 4.12 The gamma question
 
 Out of sample on the empirical arm the three-parameter lognormal is
 **indistinguishable from gamma, from the two-parameter lognormal, and from the
@@ -532,8 +586,21 @@ the grid. None was chosen by looking at which method it helped.
 `scoring_grid_error.py`, `cv_fit_fraction.py`, `kde_variance_correction.py`,
 `weight_noise_vs_signal.py`, `guard_threshold_sweep.py`,
 `visible_modes_bandwidth.py`, `modality_reweighting.py`;
-`data/processed/corpus_2026-09-15b/parents_spec.json.gz`; this handoff. Eleven
-new tables and five new figures from notebook 2.
+`data/processed/corpus_2026-09-15b/parents_spec.json.gz`; this handoff.
+
+New tables from notebook 2: `TABLE_TargetComparison`, `TargetSummary`,
+`CrossValidatedScores`, `CrossValidatedSummary`, `PairedBootstrap`,
+`WeightingDecomposition`, `WeightingOnCommonTarget`, `Regret`,
+`PostStratifiedScores`, `ModalityConditioned`, **`PolicyComparison`** (the table a
+practitioner reads), `RuleSelection`, `RuleCandidates`, `SizeCrossover`,
+`SizeVersusMaterial`, `MaterialTiers`, `MethodByMaterialTier`,
+`CharacteristicsByTier`; and from notebook 1 `VisibleModes` and
+`VisibleModeSummary`.
+
+New figures: `FIG_EvaluationTarget`, `FIG_TargetBySize`, `FIG_Regret`,
+`FIG_MethodByMaterial` -- **which is the POLICY comparison and not a material
+breakdown**, because the tier is not a mechanism -- and
+`SUPP_AllEmpiricalFits`, all 147 empirical datasets with all six fits.
 
 **Modified.** `src/comparison.py`, `src/corpus.py`, `src/mixture.py`,
 `src/components.py`, `src/generator.py`, `src/genconfig.py`, `src/fitting.py`,

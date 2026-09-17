@@ -1659,11 +1659,11 @@ rather than in conversation.
     sparse, dispersed and heavy tailed.
 
     **So the claim the paper makes is ONE mechanism with a threshold**: the KDE
-    overtakes the lognormal at about **130 EPDs** under uniform weighting and 210
+    overtakes the lognormal at about **124 EPDs** under uniform weighting and 204
     under variable, on the empirical arm out of sample, and the materials that
     dominate embodied carbon are the ones that clear it. Reporting a
     "structural and n >= 100" cell as though it were a separate finding
-    overstates it, and the figure now plots the log ratio against n coloured by
+    overstates it, and the figure now plots the log ratio against n colored by
     tier rather than binning by tier. Entry 75.
 
 85. **2026-09-17. The scoring grid gains the model's TAIL BEYOND the grid,
@@ -1688,7 +1688,7 @@ rather than in conversation.
     decimal where the body-only grid was 2 percent off.
 
     `fitting.W1_TAIL_TERM`. This is the third change in a row that moves numbers
-    in the KDE's favour, each for an independently correct reason, and the paper
+    in the KDE's favor, each for an independently correct reason, and the paper
     should present all three as one paragraph about taking the criterion to
     convergence rather than as three separate improvements. Entry 76.
 
@@ -1749,3 +1749,41 @@ rather than in conversation.
     Beyond it a model's tail cannot affect any result this study reports, so
     charging for it would be charging for something unobservable. The bound is the
     reach of the study's own sampler. `fitting.W1_TAIL_QUANTILE`.
+
+88. **2026-09-17. NOTHING BUT DATASET SIZE BELONGS IN THE RULE, and multimodality
+    least of all.** `[AUTHOR]` The author asked whether other statistical
+    characteristics are significant enough to enter the "use the KDE above 100
+    EPDs" rule, and expected multimodality to be a much bigger factor.
+
+    **Two tests, and they agree.** First, how much each characteristic adds to
+    predicting `log(W1_KDE / W1_lognormal)` once `log(n)` is in the model.
+    **`n_modes` is LAST of eleven on both weightings**: incremental R2 of 0.00002
+    and 0.00104, p = 0.95 and 0.69. On the synthetic arm, where 2,415 datasets
+    make almost anything detectable, it reaches 0.004 and 0.009 against `log(n)`'s
+    own R2 of 0.616 and 0.395.
+
+    Second, and the test that decides it, whether adding a characteristic to the
+    RULE lowers the cost over the oracle. It does not. Uniform weighting,
+    empirical cross-validated: `n >= 200` 3.56 percent, `n >= 100` 4.46, always
+    lognormal 4.87, **`2+ modes only` 6.17**, `n >= 100 or 2+ modes` 7.06. Using
+    modality as the selector is WORSE than not selecting at all, and it triples
+    the worst case, 2.755 against 1.575.
+
+    **Why the intuition fails.** The KDE's advantage is general shape matching --
+    skewness and tail behavior -- not the ability to resolve separate humps, and
+    at the bandwidth the study fits, 68 percent of empirical datasets are visibly
+    unimodal anyway. Section 4.10 already showed the advantage is present in the
+    unimodal majority; this shows modality adds nothing on top of size even where
+    it is present.
+
+    **What does predict the gap, and why it is still not in the rule:**
+    `w_v_uw_wasserstein` is the strongest single addition and replicates on both
+    weightings, incremental R2 0.046 and 0.055, p = 0.004 and 0.003. It is a
+    property of the WEIGHT VECTOR rather than of the data, a practitioner can
+    only compute it after choosing weights, and it is Stage 2d's quantity. Noted,
+    not used.
+
+    **The rule stays one threshold on one number.** Anywhere between 100 and 200
+    works and the choice is not sensitive inside that range. **Stage 2f owns the
+    full metric reduction; this is a targeted answer and not that model.**
+    `TABLE_RuleCandidates.csv`, `TABLE_RuleSelection.csv`. Entry 79.
