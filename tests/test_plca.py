@@ -13,6 +13,9 @@ against would be measuring the arithmetic.
 import os
 import sys
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
@@ -762,3 +765,18 @@ def test_the_comparison_margin_is_harder_to_clear_in_the_right_direction():
     got = PL.comparison_statement(a, b)
     assert got['discernibility'] > 0.9
     assert got['mci_1.2'] >= got['discernibility']
+
+
+def test_the_figure_style_writes_ascii_minus_signs():
+    """FIGURE_STYLE.md requires plain ASCII on every figure and matplotlib's
+    default negative tick label is U+2212, which nothing had ever turned off."""
+    import matplotlib as mpl
+    import figstyle
+    figstyle.apply()
+    assert mpl.rcParams['axes.unicode_minus'] is False
+    fig, ax = plt.subplots()
+    ax.plot([-1.0, 0.0, 1.0], [0, 1, 0])
+    fig.canvas.draw()
+    labels = [t.get_text() for t in ax.get_xticklabels()]
+    plt.close(fig)
+    assert all(lab.isascii() for lab in labels), labels

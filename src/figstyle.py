@@ -44,6 +44,11 @@ def apply():
     """Set the rcParams this project's figures assume."""
     import matplotlib as mpl
     mpl.rcParams.update({
+        # matplotlib writes a negative tick label with U+2212 MINUS SIGN. This
+        # project is plain ASCII everywhere, FIGURE_STYLE.md says so in as many
+        # words, and nothing had ever set this, so every figure with a negative
+        # axis value carried a Unicode character. Found in Stage 2e.
+        'axes.unicode_minus': False,
         'figure.dpi': 100,
         'savefig.dpi': 300,
         'savefig.bbox': 'tight',
