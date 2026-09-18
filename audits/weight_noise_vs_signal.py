@@ -53,36 +53,10 @@ import fitting as FT  # noqa: E402
 import genconfig as G  # noqa: E402
 import generator as GEN  # noqa: E402
 import recovery as R  # noqa: E402
+from weighting import oracle_weights  # noqa: E402
 
 TABLES = os.path.join(ROOT, 'outputs', 'tables', 'audits')
 N_KEEP = 2_000
-
-
-def oracle_weights(parent, modes):
-    """Mode-level market share, split equally inside each mode.
-
-    The same total weight per mode that `generator.draw_weights` targets, with
-    the within-mode flat Dirichlet replaced by equal shares. A mode that drew no
-    points contributes nothing and the rest are renormalized, which is what the
-    realized weights do too.
-    """
-    modes = np.asarray(modes, int)
-    k = len(parent.comps)
-    counts = np.bincount(modes, minlength=k).astype(float)
-    # `generator.draw_weights` targets `parent.market`, which equals
-    # `market_effective` at the configured coupling of 1.0. Mirror the
-    # source rather than the identity, so this stays right if coupling moves.
-    share = np.asarray(parent.market, float).copy()
-    share[counts == 0] = 0.0
-    total = share.sum()
-    if not total > 0:
-        return np.ones(len(modes)) / len(modes)
-    share = share / total
-    per_point = np.zeros(k)
-    nz = counts > 0
-    per_point[nz] = share[nz] / counts[nz]
-    w = per_point[modes]
-    return w / w.sum()
 
 
 def main(n_keep=N_KEEP):

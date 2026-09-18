@@ -595,6 +595,85 @@ def rebuild_parents(directory=None, out=None, verify_values=True,
     return specs
 
 
+#: Filename of the cached per-point mode labels inside a corpus directory.
+#: Derived, like PARENT_SPEC_FILE, and written beside the corpus rather than
+#: into it.
+MODE_LABEL_FILE = 'mode_labels.parquet'
+
+
+def rebuild_mode_labels(directory=None, progress=True):
+    """Which mixture component each stored value was drawn from, cached.
+
+    WHY IT CANNOT BE READ OFF THE CORPUS. `MixtureParent.sample` shuffles the
+    points it draws, so mode membership carries no positional information and
+    nothing on disk records it. The generator knows, so this replays it, the
+    same way `rebuild_parents` does and with the same guarantee: nothing is
+    redrawn, no corpus is written, and the replay is checked against the stored
+    values element by element before a label is kept.
+
+    WHAT IT IS FOR. The oracle-weight counterfactual, which needs the mode of
+    every point in order to split a mode's market share equally inside it
+    instead of by a flat Dirichlet. `weighting.oracle_weights` is the consumer.
+
+    Stored as int8 in the row order of `values.parquet`, which is about twenty
+    megabytes against the hundred and fifty the weight vectors themselves would
+    take. Returns {dataset: ndarray of labels}.
+    """
+    d = directory or active_dir()
+    path = os.path.join(d, MODE_LABEL_FILE)
+    with open(os.path.join(d, 'runmeta.json')) as f:
+        meta = json.load(f)
+    stored = load_parents(d)
+    live = G.DEFAULT.to_dict()
+    if live != meta['config']:
+        raise ValueError(
+            'genconfig.DEFAULT does not match the configuration that produced '
+            f'{os.path.basename(d)}, so a replay would label different points.')
+    cfg = G.DEFAULT
+    values = pd.read_parquet(os.path.join(d, 'values.parquet'))
+    groups = dict(tuple(values.groupby('dataset_id', observed=True)))
+
+    rng = np.random.default_rng(cfg.seed)
+    sizes, strata = GEN.stratified_sizes(cfg, rng)
+    if meta.get('include_probe', True):
+        sizes = np.concatenate([sizes, GEN.probe_sizes(cfg, rng)])
+
+    t0 = time.time()
+    out = {}
+    for i, n in enumerate(sizes):
+        ds = f'dataset{i}'
+        parent, record, x, w, modes = _replay_one(cfg, int(n), rng)
+        if ds not in stored:
+            continue
+        g = groups.get(ds)
+        if g is None or not np.array_equal(x, g['value'].to_numpy()):
+            raise ValueError(
+                f'{ds}: the replay did not reproduce the stored values, so its '
+                f'mode labels would describe a different dataset.')
+        out[ds] = np.asarray(modes, dtype=np.int8)
+        if progress and (i + 1) % 1000 == 0:
+            print(f'  {i+1:>6} / {len(sizes)}   {time.time()-t0:6.0f}s',
+                  flush=True)
+
+    frame = pd.DataFrame({
+        'dataset_id': np.repeat(list(out), [len(v) for v in out.values()]),
+        'mode': np.concatenate(list(out.values()))})
+    frame['dataset_id'] = frame.dataset_id.astype('category')
+    frame.to_parquet(path, index=False)
+    return out
+
+
+def load_mode_labels(directory=None, rebuild=False, **kw):
+    """The cached mode labels, replaying the generator once if they are absent."""
+    d = directory or active_dir()
+    path = os.path.join(d, MODE_LABEL_FILE)
+    if rebuild or not os.path.exists(path):
+        return rebuild_mode_labels(d, **kw)
+    frame = pd.read_parquet(path)
+    return {k: g['mode'].to_numpy(dtype=np.int8)
+            for k, g in frame.groupby('dataset_id', observed=True)}
+
+
 def _replay_one(cfg, n, rng):
     """One `generate_dataset` call, returning the parent and the mode labels.
 

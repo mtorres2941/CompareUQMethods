@@ -347,38 +347,79 @@ def _nrmse_from(wide):
 # ---------------------------------------------------------------------------
 # the study's own pLCA, under common random numbers
 # ---------------------------------------------------------------------------
-def cap_reduction(model, col, capecc, uniform_for_pass, scale=1.0):
-    """The ECC-cap strategy, with the redraws taken from supplied uniforms.
+#: Where a specifier sets the cap, as a quantile of the values they hold.
+CAP_QUANTILE = 0.75
 
-    The study's cap strategy replaces every Monte Carlo draw at or above the
-    material's own `capecc` sample quantile, redrawing until the column lies
-    entirely below its own cap. The algorithm is unchanged here; only where the
-    variates come from is. `uniform_for_pass(p)` must return the same
-    (neccs,) vector for pass `p` however many times it is asked and whichever
-    method is asking, so that two methods redrawing the same iteration on the
-    same pass use the same variate.
+#: Redraw passes before the cap is declared unreachable for a model.
+CAP_MAX_PASSES = 200
 
-    `scale` is the material's use intensity, because `col` carries it and a
-    redraw off the model does not. Returns `(reduced, touched, cap)`.
+
+def specification_cap(x, quantile=CAP_QUANTILE, scale=1.0):
+    """The ABSOLUTE ECC cap for one material, read off the data and nothing else.
+
+    THIS REPLACED A CAP TAKEN FROM EACH METHOD'S OWN DRAWS, AND THE OLD FORM
+    COULD NOT MEASURE WHAT THE STRATEGY IS FOR. Capping every method at the
+    75th percentile of its OWN sample gives each method a different absolute
+    cap, so the six are no longer being asked about the same intervention; and
+    because each is capped at its own 75th percentile, exactly 25 percent of
+    iterations are capped under every method by construction. That forces the
+    signal to zero. A method that understates the upper tail SHOULD conclude
+    that capping buys less, and under the old form it could not.
+
+    One absolute cap per material, applied to every method and to the true
+    parent, restores it. The quantile is taken on the VALUES a practitioner
+    holds, unweighted, because that is what a specifier can compute -- "I will
+    accept no product above the 75th percentile of the declarations I have" --
+    and because it exists on the empirical arm, where no parent does.
+
+    `scale` is the material's use intensity, since the draws carry it.
+    """
+    return float(np.quantile(np.asarray(x, dtype=float), quantile) * scale)
+
+
+def cap_reduction(model, col, cap, uniform_for_pass, scale=1.0):
+    """The ECC-cap strategy: redraw everything at or above an ABSOLUTE cap.
+
+    Every Monte Carlo draw at or above `cap` is redrawn until the column lies
+    entirely below it. `uniform_for_pass(p)` must return the same (neccs,)
+    vector for pass `p` however many times it is asked and whichever method is
+    asking, so that two methods redrawing the same iteration on the same pass
+    use the same variate.
+
+    `cap` is an absolute value from `specification_cap`, NOT a quantile of this
+    method's own draws; see that function for why the difference decides whether
+    the strategy measures anything. `scale` is the material's use intensity,
+    because `col` carries it and a redraw off the model does not.
+
+    Returns `(reduced, touched, cap)`.
 
     WHY THE PASSES ARE INDEXED. Within one pass the variate for an iteration is
     fixed, so a draw that lands above the cap again must be given a DIFFERENT
     variate or the loop cannot terminate. Each pass therefore has its own
     vector, shared across methods.
+
+    A model can put almost all of its mass above the cap -- nothing forbids it,
+    and a badly fitted one might -- so the loop is bounded and reports rather
+    than hanging.
     """
     col = np.asarray(col, dtype=float)
-    cap = float(np.quantile(col, capecc))
+    cap = float(cap)
     red = col.copy()
     touched = np.zeros(len(col), dtype=bool)
     above = red >= cap
     p = 0
-    while above.any():
+    while above.any() and p < CAP_MAX_PASSES:
         touched |= above
         u = np.asarray(uniform_for_pass(p), dtype=float)
         red[above] = np.asarray(model.rvs_from_uniform(u[above]),
                                 dtype=float) * float(scale)
         above = red >= cap
         p += 1
+    if above.any():
+        # Reported rather than hidden: a model with almost no mass below the
+        # cap cannot satisfy it, and pretending otherwise would put a value
+        # above the cap into a table labelled as capped.
+        red[above] = np.nan
     return red, touched, cap
 
 
@@ -619,7 +660,7 @@ def make_mui(kind, parameter, k, rng):
 
 
 def sweep(models, pool, rng, sizes=GROUP_SIZES, cases=None, n_groups=400,
-          neccs=NECCS, methods=None, sizes_of=None, progress=None):
+          neccs=NECCS, methods=None, sizes_of=None, cv_of=None, progress=None):
     """Every (group size, intensity) cell, one row per pLCA and method pair.
 
     THE TWO SWEEPS ARE CROSSED AND NOT RUN SEPARATELY, because they interact:
@@ -635,6 +676,13 @@ def sweep(models, pool, rng, sizes=GROUP_SIZES, cases=None, n_groups=400,
     `top2_ratio` and `top_share` -- rather than the Dirichlet concentration,
     which means nothing to a reader and whose implied dominance changes with
     the number of materials.
+
+    `cv_of` maps a dataset to its coefficient of variation, and the group's
+    dispersion is carried through so the ratio is not asked to do the work
+    alone. IT ALMOST CERTAINLY CANNOT: the ratio is built from MEAN
+    contributions, and two materials whose means sit two to one apart can still
+    trade places if their spreads are wide enough. The columns recorded are the
+    dispersion of the leading material, of the runner-up, and of the group.
     """
     methods = methods or FT.PEWT
     cases = cases if cases is not None else mui_cases()
@@ -654,6 +702,21 @@ def sweep(models, pool, rng, sizes=GROUP_SIZES, cases=None, n_groups=400,
                          mui_parameter=parameter, **contribution_profile(mui))
             if sizes_of is not None:
                 extra['n_min'] = int(min(sizes_of[d] for d in names))
+            if cv_of is not None:
+                # Ordered by mean contribution, so `cv_lead` and `cv_second`
+                # belong to the two materials whose order a flip exchanges.
+                order = np.argsort(-np.asarray(mui, dtype=float))
+                cvs = np.array([float(cv_of[d]) for d in names])
+                extra['cv_lead'] = float(cvs[order[0]])
+                extra['cv_second'] = float(cvs[order[1]]) if k > 1 else np.nan
+                extra['cv_mean'] = float(np.mean(cvs))
+                extra['cv_max'] = float(np.max(cvs))
+                # What decides a trade of places is the spread of the two
+                # materials relative to the gap between their means, so the
+                # pair's dispersion is carried as one number too.
+                extra['cv_pair'] = float(np.sqrt(
+                    cvs[order[0]] ** 2 + cvs[order[1]] ** 2)) if k > 1 else (
+                    float(cvs[order[0]]))
             rows += pair_rows(per, names, methods,
                               plca=f'{cell_index}_{gi}', extra=extra)
     frame = pd.DataFrame(rows)
@@ -749,8 +812,51 @@ def nrmse_table(frame, values, by='method', cluster='plca', unit='dataset',
 # ---------------------------------------------------------------------------
 # the truth run
 # ---------------------------------------------------------------------------
+#: Fraction of a material's quantity a reduction strategy removes, as in the
+#: study's own `matred`.
+MATERIAL_REDUCTION = 0.25
+
+
+def intervention_rows(draws, caps, passes, models, names, method, mui,
+                      matred=MATERIAL_REDUCTION):
+    """Statement 4 for one group: what each intervention delivers, per material.
+
+    Two strategies, both expressed as a fraction of the WHOLE BUILDING's total,
+    because that is the number a designer commits to -- "capping the concrete
+    cuts the building by six percent" -- and not as a fraction of the material.
+
+        specification  every draw at or above an ABSOLUTE cap is redrawn. The
+                       cap is the same value for every method and for the
+                       truth, so the six are asked about one intervention
+        quantity       the material's contribution is reduced by a fixed
+                       fraction, which needs no redraw
+
+    A third intervention is already computed elsewhere and is not repeated
+    here: collapsing a material's uncertainty by obtaining a supplier-specific
+    declaration is exactly what the uncertainty index measures, and it is the
+    only one of the family that reduces the VARIANCE of the answer rather than
+    its level.
+    """
+    base = draws.sum(axis=1)
+    out = []
+    for j, d in enumerate(names):
+        red, touched, cap = cap_reduction(models[d][method], draws[:, j],
+                                          caps[j], passes.for_material(j),
+                                          scale=1.0)
+        capped_total = base - draws[:, j] + red
+        row = dict(cap_value=caps[j],
+                   cap_share_touched=float(np.mean(touched)),
+                   cap_unreachable=float(np.mean(~np.isfinite(red))))
+        row.update(reduction_statement(base, capped_total, prefix='cap_'))
+        row.update(reduction_statement(
+            base, base - float(matred) * draws[:, j], prefix='qty_'))
+        out.append(row)
+    return out
+
+
 def truth_run(models, samplers, combos, rng, neccs=NECCS, methods=None,
-              mui_of=None, progress=None, sizes_of=None):
+              mui_of=None, progress=None, sizes_of=None, data=None,
+              statements=False):
     """Every pLCA group, run with the fitted models and with the TRUE parents.
 
     One row per (group, material, method), carrying each output, the value the
@@ -763,7 +869,7 @@ def truth_run(models, samplers, combos, rng, neccs=NECCS, methods=None,
     be post-stratified.
     """
     methods = methods or FT.PEWT
-    rows = []
+    rows, group_rows = [], []
     it = enumerate(combos)
     if progress is not None:
         it = progress(it, total=len(combos))
@@ -776,10 +882,47 @@ def truth_run(models, samplers, combos, rng, neccs=NECCS, methods=None,
             extra.update(contribution_profile(mui))
         rows += truth_rows(models, samplers, names, u, mui, methods,
                            plca=i, extra=extra)
+        if not statements:
+            continue
+        # Statements 1 and 4, which are properties of the BUILDING and of an
+        # intervention on it rather than of a material's own numbers.
+        if data is None:
+            raise ValueError('statements=True needs `data` for the cap, which '
+                             'is read off the values a specifier holds')
+        scale = np.ones(len(names)) if mui is None else np.asarray(mui, float)
+        caps = [specification_cap(data[d]['data'], scale=scale[j])
+                for j, d in enumerate(names)]
+        tmod = {d: {'__truth__': samplers[d]} for d in names}
+        truth_draws = draw_contributions(tmod, names, '__truth__', u, mui)
+        truth_passes = PassUniforms(rng, int(neccs), len(names))
+        truth_iv = intervention_rows(truth_draws, caps, truth_passes, tmod,
+                                     names, '__truth__', mui)
+        truth_total = truth_draws.sum(axis=1)
+        for m in methods:
+            d_m = draw_contributions(models, names, m, u, mui)
+            row = dict(plca=i, method=m, **extra)
+            row.update(building_statement(d_m.sum(axis=1), truth_total))
+            group_rows.append(row)
+            passes = PassUniforms(rng, int(neccs), len(names))
+            got = intervention_rows(d_m, caps, passes, models, names, m, mui)
+            for j, dname in enumerate(names):
+                iv = dict(plca=i, dataset=dname, method=m)
+                for key, val in got[j].items():
+                    iv[key] = val
+                    iv[f'{key}__truth'] = truth_iv[j][key]
+                    iv[f'{key}__error'] = val - truth_iv[j][key]
+                group_rows[-1].setdefault('_interventions', []).append(iv)
     frame = pd.DataFrame(rows)
     if sizes_of is not None:
         frame['n'] = frame.dataset.map(sizes_of)
-    return frame
+    if not statements:
+        return frame
+    iv_rows = [iv for r in group_rows for iv in r.pop('_interventions', [])]
+    gframe = pd.DataFrame(group_rows)
+    iframe = pd.DataFrame(iv_rows)
+    if sizes_of is not None and len(iframe):
+        iframe['n'] = iframe.dataset.map(sizes_of)
+    return frame, gframe, iframe
 
 
 def truth_summary(frame, outputs_=None, rng=None,
@@ -850,3 +993,237 @@ def truth_win_share(frame, value='eci_rank_1', by=(), rng=None,
     return c.sort_values(keys + ['win_share'],
                          ascending=[True] * len(keys) + [False]
                          ).reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------
+# what a probabilistic LCA is FOR: five statements, and how wrong each one is
+# ---------------------------------------------------------------------------
+#: Fractional reductions a designer would ask an intervention to deliver, for
+#: the "and how likely is it" half of the statement.
+REDUCTION_TARGETS = (0.05, 0.10, 0.20)
+
+#: Quantiles of the TRUE building total at which the compliance statement is
+#: read. A threshold set at the truth's own q is one the truth meets with
+#: probability q exactly, so a method's answer can be compared against a number
+#: that needs no external budget: "you believe you have a 90 percent chance of
+#: coming in under this figure; you actually have X".
+COMPLIANCE_QUANTILES = (0.5, 0.9)
+
+#: Multipliers for the modified comparison index. 1.0 is the plain
+#: discernibility index, "how often is A below B"; above 1.0 asks how often A
+#: beats B by a margin worth acting on. Marsh et al. (in press) use 1.2 and
+#: discuss 1.05.
+COMPARISON_MARGINS = (1.0, 1.05, 1.2)
+
+
+def _step_integral(a, b, power):
+    """Integral of |F_a - F_b| ** power over x, for two empirical samples.
+
+    Both CDFs are right-continuous step functions that only change at the
+    pooled sample points, so the integral is exact as a sum of rectangles and
+    needs no grid. Written out rather than taken from a library because two
+    different powers are wanted and the second has no library function.
+    """
+    a = np.sort(np.asarray(a, dtype=float))
+    b = np.sort(np.asarray(b, dtype=float))
+    pooled = np.union1d(a, b)
+    if len(pooled) < 2:
+        return 0.0
+    fa = np.searchsorted(a, pooled, side='right') / len(a)
+    fb = np.searchsorted(b, pooled, side='right') / len(b)
+    width = np.diff(pooled)
+    return float(np.sum(np.abs(fa[:-1] - fb[:-1]) ** power * width))
+
+
+def w1_samples(a, b):
+    """W1 between two samples: the area between their empirical CDFs.
+
+    The study's own criterion, applied to the pLCA OUTPUT rather than to the
+    ECC data. That is the point of using it here rather than anything else: it
+    puts the input-side score and the output-side error in the same units, so
+    the paper can ask whether a better fit to the data produces a better
+    building total.
+    """
+    return _step_integral(a, b, 1.0)
+
+
+def cramer_distance(a, b):
+    """Integral of (F_a - F_b) ** 2: the L2 sibling of W1.
+
+    WHY THIS AND NOT CRPS. The continuous ranked probability score grades a
+    predictive distribution against a single observed VALUE, and the truth here
+    is itself a distribution. Taking the expectation of CRPS over outcomes drawn
+    from the true distribution G gives the integral of (F - G) ** 2 plus a term
+    that depends only on G, so ranking methods by expected CRPS against a
+    distributional truth IS ranking them by this. It is reported beside W1 as
+    the robustness check, the way overlap area was in Stage 2c.
+    """
+    return _step_integral(a, b, 2.0)
+
+
+def building_statement(method_total, truth_total,
+                       quantiles=COMPLIANCE_QUANTILES):
+    """Statement 1: the building total, and how wrong the method is about it.
+
+    Both samples come from the same uniform variates, so nothing here contains
+    Monte Carlo noise. Returns the distance between the two distributions, the
+    error at two readable quantiles, and the error in the COMPLIANCE statement:
+    a threshold placed at the truth's own q is met by the truth with
+    probability q, so `p_error_q` is the gap between what a practitioner would
+    believe and what is true.
+    """
+    m = np.asarray(method_total, dtype=float)
+    t = np.asarray(truth_total, dtype=float)
+    out = dict(total_w1=w1_samples(m, t), total_cramer=cramer_distance(m, t),
+               total_mean=float(m.mean()), total_mean__truth=float(t.mean()),
+               total_sd=float(m.std()), total_sd__truth=float(t.std()))
+    out['total_mean__error'] = out['total_mean'] - out['total_mean__truth']
+    out['total_sd__error'] = out['total_sd'] - out['total_sd__truth']
+    for q in quantiles:
+        mq, tq = float(np.quantile(m, q)), float(np.quantile(t, q))
+        out[f'total_q{q:g}'] = mq
+        out[f'total_q{q:g}__truth'] = tq
+        out[f'total_q{q:g}__error'] = mq - tq
+        # The compliance statement, read at a threshold the TRUTH meets with
+        # probability q by construction.
+        out[f'p_below_q{q:g}'] = float((m <= tq).mean())
+        out[f'p_below_q{q:g}__truth'] = q
+        out[f'p_below_q{q:g}__error'] = float((m <= tq).mean()) - q
+    return out
+
+
+def reduction_statement(base_total, new_total, targets=REDUCTION_TARGETS,
+                        prefix=''):
+    """Statement 4: what an intervention delivers, and how likely it is to.
+
+    The mean reduction is what the study already reports. The rest is the half
+    it throws away: the probability that the intervention delivers AT LEAST a
+    given fraction, which is the form a designer commits to.
+    """
+    base = np.asarray(base_total, dtype=float)
+    new = np.asarray(new_total, dtype=float)
+    ok = np.isfinite(base) & np.isfinite(new) & (base != 0)
+    rel = (base[ok] - new[ok]) / base[ok]
+    out = {f'{prefix}reduction_mean': float(rel.mean()),
+           f'{prefix}reduction_sd': float(rel.std()),
+           f'{prefix}reduction_p05': float(np.quantile(rel, 0.05))}
+    for t in targets:
+        out[f'{prefix}p_reduction_over_{int(round(100 * t))}'] = float(
+            (rel >= t).mean())
+    return out
+
+
+def comparison_statement(total_a, total_b, margins=COMPARISON_MARGINS):
+    """Statement 5: is option A better than option B, and by enough to act on.
+
+    `margin` 1.0 is the discernibility index of Heijungs (2021), the share of
+    Monte Carlo iterations in which A comes out below B. Above 1.0 it is the
+    modified comparison index: the share in which A beats B by a margin worth
+    acting on, which is what Marsh et al. (in press) report at 1.2.
+
+    THE TWO OPTIONS MUST BE DRAWN ON THE SAME VARIATES for their shared
+    materials, which is dependent sampling and is what Henriksson et al. (2015)
+    and Heijungs (2021) require of a comparative probabilistic LCA. This
+    function takes the totals; `swap_options` is what builds them that way.
+    """
+    a = np.asarray(total_a, dtype=float)
+    b = np.asarray(total_b, dtype=float)
+    out = dict(mean_difference=float((a - b).mean()),
+               mean_difference_relative=float((a - b).mean() / b.mean()))
+    for g in margins:
+        key = 'discernibility' if g == 1.0 else f'mci_{g:g}'
+        out[key] = float((a < g * b).mean())
+    return out
+
+
+#: Expected savings a design swap is asked to deliver, as a fraction of the
+#: whole building's mean total. Zero is the control: two options that differ in
+#: which product they use but not in expected impact, where any discernibility
+#: a method reports is coming from shape alone.
+SWAP_SAVINGS = (0.0, 0.01, 0.02, 0.05, 0.10, 0.20)
+
+
+def swap_totals(models, shared, alt_a, alt_b, u, method, saving=0.0,
+                n_materials=None):
+    """Two design options differing in ONE material, drawn on shared variates.
+
+    Option A uses `alt_a` as its last material and option B uses `alt_b`. The
+    materials they have in common take the SAME uniform variates in both
+    options, which is dependent sampling: it is what Henriksson et al. (2015)
+    and Heijungs (2021) require of a comparative probabilistic LCA and what
+    Marsh et al. (in press) do, and without it the comparison inherits a
+    sampling difference that has nothing to do with the design.
+
+    WHY THE INTENSITY CARRIES THE SAVING AND NOT THE DATASET. Every dataset in
+    this study is normalized to a mean of 1.0, so replacing one material with
+    another changes the expected total by NOTHING and the two options would
+    differ only in shape. That is not a design decision anyone makes. The
+    replacement's use intensity therefore carries the difference: option B's
+    alternative is set so that B's expected total is `saving` lower than A's,
+    as a fraction of the whole building. This is also the realistic reading,
+    since a substitute product generally needs a different quantity.
+
+    `u` has one column per shared material plus one for each alternative, so
+    the two alternatives are independent of each other as two different
+    products must be.
+    """
+    shared = list(shared)
+    k = int(n_materials or (len(shared) + 1))
+    u = np.asarray(u, dtype=float)
+    cols = [np.asarray(models[d][method].rvs_from_uniform(u[:, j]), float)
+            for j, d in enumerate(shared)]
+    a = np.asarray(models[alt_a][method].rvs_from_uniform(u[:, len(shared)]),
+                   float)
+    b = np.asarray(models[alt_b][method].rvs_from_uniform(u[:, len(shared) + 1]),
+                   float)
+    # Every material sits at an intensity of 1.0 except option B's
+    # alternative, which is lowered so that B's expected total is `saving`
+    # below A's as a share of the k-material building.
+    mui_b = 1.0 - float(saving) * k
+    base = np.sum(cols, axis=0) if cols else np.zeros(len(a))
+    return base + a, base + mui_b * b
+
+
+def swap_run(models, groups, rng, savings=SWAP_SAVINGS, neccs=NECCS,
+             methods=None, samplers=None, progress=None):
+    """Statement 5, over many option pairs and many claimed savings.
+
+    Each row of `groups` is `k + 1` datasets: the first `k - 1` are shared
+    between the two options, then option A's distinctive material, then option
+    B's. Returns one row per (pair, saving, method) carrying the discernibility
+    index and the modified comparison index, and, when `samplers` is given, the
+    same quantities under the TRUE parents and the error in each.
+    """
+    methods = methods or FT.PEWT
+    groups = np.asarray(groups)
+    k = groups.shape[1] - 1
+    rows = []
+    it = enumerate(groups)
+    if progress is not None:
+        it = progress(it, total=len(groups))
+    for i, g in it:
+        names = list(g)
+        shared, alt_a, alt_b = names[:k - 1], names[k - 1], names[k]
+        u = rng.random((int(neccs), k + 1))
+        truth = {}
+        if samplers is not None:
+            tmod = {d: {'__truth__': samplers[d]} for d in names}
+            for sv in savings:
+                ta, tb = swap_totals(tmod, shared, alt_a, alt_b, u,
+                                     '__truth__', sv, n_materials=k)
+                truth[sv] = comparison_statement(tb, ta)
+        for m in methods:
+            for sv in savings:
+                ta, tb = swap_totals(models, shared, alt_a, alt_b, u, m, sv,
+                                     n_materials=k)
+                # B against A, so a HIGH discernibility means the substitution
+                # is judged an improvement, which is the direction a designer
+                # reads.
+                row = dict(pair=i, method=m, saving=sv, nmats=k,
+                           **comparison_statement(tb, ta))
+                if sv in truth:
+                    for key, val in truth[sv].items():
+                        row[f'{key}__truth'] = val
+                        row[f'{key}__error'] = row[key] - val
+                rows.append(row)
+    return pd.DataFrame(rows)

@@ -549,3 +549,160 @@ def test_lazy_samplers_bound_their_memory_and_agree_with_eager_ones():
         assert np.allclose(lazy[d].ppf(q), eager[d].ppf(q))
     assert len(lazy._cache) <= 2
     assert len(lazy) == 6 and 'd3' in lazy
+
+
+# ---------------------------------------------------------------------------
+# the five statements a probabilistic LCA makes
+# ---------------------------------------------------------------------------
+def test_w1_between_samples_matches_scipy():
+    """The output-side distance is the study's own criterion and nothing new."""
+    from scipy.stats import wasserstein_distance
+    rng = np.random.default_rng(30)
+    a, b = rng.normal(0, 1, 3_000), rng.normal(0.4, 1.2, 4_000)
+    assert PL.w1_samples(a, b) == pytest.approx(wasserstein_distance(a, b))
+
+
+def test_both_distances_are_zero_for_a_sample_against_itself():
+    rng = np.random.default_rng(31)
+    a = rng.normal(size=500)
+    assert PL.w1_samples(a, a) == 0.0
+    assert PL.cramer_distance(a, a) == 0.0
+
+
+def test_cramer_is_the_l2_sibling_and_orders_the_same_way_here():
+    """Reported beside W1 as the robustness check, so what matters is that it
+    agrees about which of two candidates is closer to the truth."""
+    rng = np.random.default_rng(32)
+    truth = rng.normal(0, 1, 5_000)
+    near, far = rng.normal(0.1, 1, 5_000), rng.normal(0.8, 1, 5_000)
+    assert PL.w1_samples(near, truth) < PL.w1_samples(far, truth)
+    assert PL.cramer_distance(near, truth) < PL.cramer_distance(far, truth)
+
+
+def test_the_compliance_statement_is_read_at_the_truths_own_quantile():
+    """A threshold at the truth's q is met by the truth with probability q, so
+    a method that IS the truth must report exactly zero error."""
+    rng = np.random.default_rng(33)
+    t = rng.lognormal(0, 0.3, 20_000)
+    got = PL.building_statement(t, t)
+    for q in PL.COMPLIANCE_QUANTILES:
+        assert got[f'p_below_q{q:g}__truth'] == q
+        assert abs(got[f'p_below_q{q:g}__error']) < 1e-12
+    assert got['total_w1'] == 0.0
+
+
+def test_a_method_that_understates_the_tail_overstates_compliance():
+    """Which is the whole point of the statement: a thin-tailed model tells a
+    practitioner they are likelier to meet a budget than they are."""
+    rng = np.random.default_rng(34)
+    truth = rng.lognormal(0, 0.6, 20_000)
+    thin = rng.lognormal(0, 0.3, 20_000) * np.exp(0.6 ** 2 / 2 - 0.3 ** 2 / 2)
+    got = PL.building_statement(thin, truth)
+    assert got['p_below_q0.9__error'] > 0
+    assert got['total_q0.9__error'] < 0
+
+
+# ---------------------------------------------------------------------------
+# the interventions
+# ---------------------------------------------------------------------------
+def test_the_cap_is_a_property_of_the_data_not_of_the_method():
+    """The defect this replaced: a cap taken from each method's own draws gave
+    the six methods six different interventions."""
+    rng = np.random.default_rng(35)
+    x = rng.lognormal(0, 0.5, 400)
+    assert PL.specification_cap(x) == pytest.approx(np.quantile(x, 0.75))
+    assert PL.specification_cap(x, scale=2.0) == pytest.approx(
+        2.0 * np.quantile(x, 0.75))
+
+
+def test_the_share_capped_is_free_to_differ_between_methods():
+    """Under the old form it was 25 percent for every method by construction,
+    which forced the signal to zero. A method that puts more mass above the cap
+    must now be able to say so."""
+    names, data, models = a_group(seed=36, n=80)
+    rng = np.random.default_rng(36)
+    u = rng.random((NECCS, len(names)))
+    cap = PL.specification_cap(data[names[0]]['data'])
+    shares = []
+    for m in ('Normal, Uniform', 'Lognormal, Uniform', 'KDE, Uniform'):
+        col = PL.draw_contributions(models, names, m, u)[:, 0]
+        passes = PL.PassUniforms(rng, NECCS, len(names))
+        _, touched, _ = PL.cap_reduction(models[names[0]][m], col, cap,
+                                         passes.for_material(0))
+        shares.append(float(touched.mean()))
+    assert len(set(np.round(shares, 3))) > 1
+    assert all(0.0 < s < 1.0 for s in shares)
+
+
+def test_a_reduction_statement_carries_its_confidence():
+    """The half the study threw away: not the mean saving but the chance of
+    achieving at least a stated one."""
+    rng = np.random.default_rng(37)
+    base = rng.lognormal(1.0, 0.3, 20_000)
+    got = PL.reduction_statement(base, base * 0.9)
+    assert got['reduction_mean'] == pytest.approx(0.1)
+    assert got['p_reduction_over_5'] == 1.0
+    assert got['p_reduction_over_20'] == 0.0
+
+
+def test_a_reduction_that_only_sometimes_lands_reports_a_middling_chance():
+    rng = np.random.default_rng(38)
+    base = rng.lognormal(1.0, 0.3, 20_000)
+    factor = rng.uniform(0.8, 1.0, 20_000)
+    got = PL.reduction_statement(base, base * factor)
+    assert 0.2 < got['p_reduction_over_10'] < 0.8
+
+
+# ---------------------------------------------------------------------------
+# the design swap
+# ---------------------------------------------------------------------------
+def test_the_two_options_share_variates_for_the_materials_they_share():
+    """Dependent sampling. Without it the comparison carries a sampling
+    difference that has nothing to do with the design."""
+    names, _, models = a_group(seed=39, n=60, k=5)
+    rng = np.random.default_rng(39)
+    u = rng.random((NECCS, 5))
+    a, b = PL.swap_totals(models, names[:3], names[3], names[3], u,
+                          'KDE, Uniform', saving=0.0, n_materials=4)
+    # same alternative on BOTH sides but different variate columns, so only
+    # the shared part is identical; with the same column it is exact.
+    a2, b2 = PL.swap_totals(models, names[:3], names[3], names[4], u,
+                            'KDE, Uniform', saving=0.0, n_materials=4)
+    shared = a - np.asarray(
+        models[names[3]]['KDE, Uniform'].rvs_from_uniform(u[:, 3]), float)
+    shared2 = a2 - np.asarray(
+        models[names[3]]['KDE, Uniform'].rvs_from_uniform(u[:, 3]), float)
+    assert np.allclose(shared, shared2)
+
+
+def test_the_saving_lands_where_it_is_asked_for():
+    """Every dataset has a mean of 1.0, so the intensity carries the design
+    difference and it must land exactly."""
+    names, _, models = a_group(seed=40, n=200, k=5)
+    rng = np.random.default_rng(40)
+    u = rng.random((40_000, 5))
+    for saving in (0.0, 0.05, 0.10):
+        a, b = PL.swap_totals(models, names[:3], names[3], names[4], u,
+                              'KDE, Uniform', saving=saving, n_materials=4)
+        assert (a.mean() - b.mean()) / a.mean() == pytest.approx(
+            saving, abs=0.02)
+
+
+def test_discernibility_is_a_coin_flip_when_the_options_are_equivalent():
+    rng = np.random.default_rng(41)
+    a = rng.lognormal(0, 0.4, 20_000)
+    b = rng.lognormal(0, 0.4, 20_000)
+    got = PL.comparison_statement(a, b)
+    assert 0.45 < got['discernibility'] < 0.55
+    assert got['mci_1.2'] > got['discernibility']
+
+
+def test_the_comparison_margin_is_harder_to_clear_in_the_right_direction():
+    """A margin above 1 asks whether A beats B by enough to act on, so it must
+    be EASIER to satisfy than plain dominance when A is the smaller."""
+    rng = np.random.default_rng(42)
+    a = rng.lognormal(0, 0.3, 20_000)
+    b = a * 1.1
+    got = PL.comparison_statement(a, b)
+    assert got['discernibility'] > 0.9
+    assert got['mci_1.2'] >= got['discernibility']

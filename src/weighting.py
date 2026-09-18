@@ -352,3 +352,49 @@ def effective_n(weights):
     """Kish effective sample size, the denominator concentration actually acts on."""
     w = np.asarray(weights, dtype=float)
     return float(w.sum() ** 2 / np.sum(w ** 2))
+
+
+# ---------------------------------------------------------------------------
+# the counterfactual: weights that carry the signal and none of the noise
+# ---------------------------------------------------------------------------
+def oracle_weights(parent, modes):
+    """Mode-level market share, split equally inside each mode.
+
+    NOT A METHOD AND NOT A PROPOSAL. A practitioner cannot compute this: it
+    needs the mode each value was drawn from, which only the generator knows.
+    It exists to separate two things the study's variable arm confounds. A
+    synthetic dataset's weights are built in two steps -- mode k is given its
+    true market share, which is signal, and that share is then split among the
+    points inside mode k by a flat Dirichlet, which is noise the real world
+    does not have, because a real market share is a property of a product and
+    not a random draw. This removes the second step and keeps the first.
+
+    **The comparison it licenses is between KNOWING market shares and GUESSING
+    them, and it is not a verdict on weighting.** Where the realized weights do
+    worse than uniform and the oracle weights do not, what has been measured is
+    the cost of the flat-Dirichlet stand-in, which is a limitation of this
+    generator rather than a property of variable weighting. Stage 2d measured
+    the same thing on the fitting side.
+
+    The same total weight per mode that `generator.draw_weights` targets, with
+    the within-mode flat Dirichlet replaced by equal shares. A mode that drew no
+    points contributes nothing and the rest are renormalized, which is what the
+    realized weights do too.
+    """
+    modes = np.asarray(modes, int)
+    k = len(parent.comps)
+    counts = np.bincount(modes, minlength=k).astype(float)
+    # `generator.draw_weights` targets `parent.market`, which equals
+    # `market_effective` at the configured coupling of 1.0. Mirror the
+    # source rather than the identity, so this stays right if coupling moves.
+    share = np.asarray(parent.market, float).copy()
+    share[counts == 0] = 0.0
+    total = share.sum()
+    if not total > 0:
+        return np.ones(len(modes)) / len(modes)
+    share = share / total
+    per_point = np.zeros(k)
+    nz = counts > 0
+    per_point[nz] = share[nz] / counts[nz]
+    w = per_point[modes]
+    return w / w.sum()
