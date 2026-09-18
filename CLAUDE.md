@@ -2621,14 +2621,14 @@ rather than in conversation.
 
          method                error in a material's   error in its estimated
                                rank-1 frequency        contribution
-         Lognormal, Uniform    0.0800 [.0781, .0818]   0.1266
-         KDE, Uniform          0.0816 [.0798, .0834]   0.1314
+         Lognormal, Uniform    0.0799 [.0781, .0817]   0.1265
+         KDE, Uniform          0.0815 [.0797, .0834]   0.1313
          KDE, Variable         0.0825 [.0799, .0849]   0.1262
-         Lognormal, Variable   0.0852 [.0827, .0877]   0.1201
-         Normal, Uniform       0.1151 [.1132, .1172]   0.1640
+         Lognormal, Variable   0.0853 [.0827, .0877]   0.1201
+         Normal, Uniform       0.1152 [.1132, .1172]   0.1639
          Normal, Variable      0.1193 [.1170, .1215]   0.1683
 
-     **THE FOUR NON-NORMAL METHODS SPAN 0.0800 TO 0.0852, a spread of 6 percent,
+     **THE FOUR NON-NORMAL METHODS SPAN 0.0799 TO 0.0853, a spread of 7 percent,
      and the normal is 40 percent worse than any of them.** So at the decision
      level the choice between a kernel estimate and a three-parameter lognormal
      does not matter, and the choice to use a normal does. **That is a cleaner
@@ -2636,15 +2636,15 @@ rather than in conversation.
      report if it found one.
 
      **NOBODY RECOVERS THE ANSWER.** The best method names the material the
-     truth says is the largest contributor **53 percent** of the time
+     truth says is the largest contributor **52.5 percent** of the time
      (`KDE, Variable`), against 25 percent for a coin toss among four, and the
-     normal manages 23 to 37. On a win share over 10,000 materials the best is
-     `KDE, Variable` at 0.215 [0.207, 0.226] against a one-in-six chance of
+     normal manages 23.9 to 37.4. On a win share over 10,000 materials the best
+     is `KDE, Variable` at 0.221 [0.212, 0.231] against a one-in-six chance of
      0.167. Reweighting to the empirical size mix moves every figure by less
      than 0.003.
 
      **The uniform-weighted methods look much better against the SAMPLING parent
-     -- `KDE, Uniform` 0.0609 against 0.0816 -- and the variable-weighted ones
+     -- `KDE, Uniform` 0.0609 against 0.0815 -- and the variable-weighted ones
      worse.** That gap is definitional, not an error of estimation: it is the
      difference between the population a method estimates and the population a
      building is about, and decision 65 is why both are reported.
@@ -2910,7 +2910,7 @@ rather than in conversation.
      HIGH (+0.044 uniform, +0.050 variable), the lognormal LOW (-0.038, -0.027)
      and the kernel estimate is nearly unbiased (-0.014, +0.003). On a
      material's 95th percentile they all fail the same way -- every one
-     understates it, the KDE by 0.086 and the normal by 0.193.
+     understates it, the KDE by 0.085 and the normal by 0.193.
 
      **Materials.** Per-material errors correlate **0.892 to 0.970 between
      methods that share a weighting scheme** and only **0.581 to 0.714 across

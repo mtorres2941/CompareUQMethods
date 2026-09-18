@@ -216,7 +216,7 @@ and both figures rebuilt.
 
 ## 3. What was done
 
-**One new source module with 53 tests.** It holds the common-random-numbers
+**One new source module with 54 tests.** It holds the common-random-numbers
 draw, the ten pLCA outputs in the notebook's own definitions, material use
 intensity as a share vector, the resampled groupings, the cluster bootstrap,
 NRMSE with an interval, the five statements, the design comparison and the run
@@ -226,7 +226,7 @@ against the true distributions. Every notebook cell below is one call into it.
 main pLCA loop now uses common random numbers and an absolute specification
 cap.
 
-**The whole test suite is 439 tests and all pass**, including the eight
+**The whole test suite is 440 tests and all pass**, including the eight
 regression fixtures that pin the empirical metrics, the synthetic metrics and
 all six goodness-of-fit scores. That is the check that the fitting, the corpus
 and the empirical arm were not touched.
@@ -362,18 +362,18 @@ through the upper tail, which is what the methods disagree about.
 
 | method | error in rank-1 frequency | 95 pct interval | error in contribution | bias in contribution | names the true leader |
 |---|---|---|---|---|---|
-| Lognormal, Uniform | **0.0800** | 0.0781 to 0.0818 | 0.1266 | **-0.038** | 36.2 pct |
-| KDE, Uniform | 0.0816 | 0.0798 to 0.0834 | 0.1314 | -0.014 | 37.9 pct |
-| KDE, Variable | 0.0825 | 0.0799 to 0.0849 | 0.1262 | **+0.003** | **53.2 pct** |
-| Lognormal, Variable | 0.0852 | 0.0827 to 0.0877 | 0.1201 | -0.027 | 50.1 pct |
-| Normal, Uniform | 0.1151 | 0.1132 to 0.1172 | 0.1640 | **+0.044** | 22.9 pct |
-| Normal, Variable | 0.1193 | 0.1170 to 0.1215 | 0.1683 | **+0.050** | 37.0 pct |
+| Lognormal, Uniform | **0.0799** | 0.0781 to 0.0817 | 0.1265 | **-0.038** | 35.4 pct |
+| KDE, Uniform | 0.0815 | 0.0797 to 0.0834 | 0.1313 | -0.014 | 38.2 pct |
+| KDE, Variable | 0.0825 | 0.0799 to 0.0849 | 0.1262 | **+0.004** | **52.5 pct** |
+| Lognormal, Variable | 0.0853 | 0.0827 to 0.0877 | 0.1201 | -0.027 | 50.2 pct |
+| Normal, Uniform | 0.1152 | 0.1132 to 0.1172 | 0.1639 | **+0.044** | 23.9 pct |
+| Normal, Variable | 0.1193 | 0.1170 to 0.1215 | 0.1683 | **+0.050** | 37.4 pct |
 
 **The four non-normal methods span six percent of each other and the normal is
 forty percent worse than any of them.** On a win share over 10,000 materials --
 how often a method is CLOSEST to the truth, which is a count and so does not
-inherit every material's noise -- the best is `KDE, Variable` at 0.215 (0.207 to
-0.226) against the one-in-six of 0.167 six methods would give by chance.
+inherit every material's noise -- the best is `KDE, Variable` at 0.221 (0.212 to
+0.231) against the one-in-six of 0.167 six methods would give by chance.
 
 **The spread matters more than the average.** The error on any ONE material has
 a standard deviation of **0.234 to 0.301** and a 99th percentile of **0.895 to
@@ -381,7 +381,7 @@ a standard deviation of **0.234 to 0.301** and a 99th percentile of **0.895 to
 material's entire expected contribution.
 
 **On the upper tail they fail together.** Every method understates a material's
-95th percentile, by 0.086 under `KDE, Uniform` and 0.219 under
+95th percentile, by 0.085 under `KDE, Uniform` and 0.219 under
 `Normal, Variable`.
 
 **And they fail on the same materials.** Per-material errors correlate 0.892 to
