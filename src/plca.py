@@ -319,17 +319,29 @@ def nrmse(frame, value, by='method', cluster='plca', unit='dataset'):
     figure, and so an interval can be attached to it. `tests/test_plca.py`
     checks it against the notebook's own arithmetic.
     """
-    wide = frame.pivot_table(index=[cluster, unit], columns=by, values=value)
-    cols = list(wide.columns)
-    se = []
-    for a in cols:
-        for b in cols:
-            if a == b:
-                continue
-            se.append((wide[a] - wide[b]).to_numpy(dtype=float) ** 2)
-    se = np.concatenate(se)
-    sd = np.nanstd(wide.to_numpy(dtype=float))
-    return float(np.sqrt(np.nanmean(se)) / sd) if sd > 0 else np.nan
+    return _nrmse_from(_wide(frame, value, by, cluster, unit)[0])
+
+
+def _wide(frame, value, by, cluster, unit):
+    """(values, group labels, method names), one row per material."""
+    w = frame.pivot_table(index=[cluster, unit], columns=by, values=value)
+    return (w.to_numpy(dtype=float),
+            w.index.get_level_values(cluster).to_numpy(), list(w.columns))
+
+
+def _nrmse_from(wide):
+    """Root mean squared difference over ORDERED method pairs, over the spread.
+
+    The spread is the standard deviation of the whole table -- every material
+    under every method -- which is what makes the number comparable across
+    outputs on different scales.
+    """
+    if wide.shape[1] < 2:
+        return np.nan
+    d = wide[:, :, None] - wide[:, None, :]
+    off = ~np.eye(wide.shape[1], dtype=bool)
+    sd = np.nanstd(wide)
+    return float(np.sqrt(np.nanmean(d[:, off] ** 2)) / sd) if sd > 0 else np.nan
 
 
 # ---------------------------------------------------------------------------
@@ -461,9 +473,55 @@ class ParentSampler:
 
 
 def parent_samplers(parents, scheme=TRUTH_SCHEME, npoints=ParentSampler.GRID):
-    """`{dataset: ParentSampler}` for every parent supplied."""
+    """`{dataset: ParentSampler}` for every parent supplied.
+
+    For a handful of parents. Use `LazySamplers` for a whole corpus: see its
+    docstring for the arithmetic that makes the difference matter.
+    """
     return {d: ParentSampler(p, scheme=scheme, npoints=npoints)
             for d, p in parents.items()}
+
+
+class LazySamplers:
+    """`ParentSampler` objects built on demand and held in a bounded cache.
+
+    WHY THIS IS NOT A PREMATURE OPTIMIZATION. A ParentSampler holds three
+    arrays of `GRID` doubles, which is about half a megabyte; the corpus has
+    just under 10,000 parents and the truth run wants two schemes, so building
+    them all would ask for roughly ten gigabytes on top of the twenty thousand
+    fitted models the notebook is already holding. A pLCA group needs four of
+    them at a time, and the study's groups are disjoint, so a small cache costs
+    nothing and bounds the memory.
+
+    Indexing is by dataset name, so this is a drop-in for the dict every other
+    entry point takes.
+    """
+
+    def __init__(self, parents, scheme=TRUTH_SCHEME, npoints=ParentSampler.GRID,
+                 maxsize=64):
+        self.parents = parents
+        self.scheme = scheme
+        self.npoints = int(npoints)
+        self.maxsize = int(maxsize)
+        self._cache = {}
+        self._order = []
+
+    def __getitem__(self, dataset):
+        got = self._cache.get(dataset)
+        if got is None:
+            got = ParentSampler(self.parents[dataset], scheme=self.scheme,
+                                npoints=self.npoints)
+            self._cache[dataset] = got
+            self._order.append(dataset)
+            while len(self._order) > self.maxsize:
+                del self._cache[self._order.pop(0)]
+        return got
+
+    def __contains__(self, dataset):
+        return dataset in self.parents
+
+    def __len__(self):
+        return len(self.parents)
 
 
 def truth_rows(models, samplers, names, u, mui=None, methods=None,
@@ -650,29 +708,42 @@ def nrmse_ci(frame, value, by='method', cluster='plca', unit='dataset',
     uncertainty to any of them, which is awkward in a paper about uncertainty.
     The resampling unit is the group because the four materials of a pLCA share
     its total and its variates.
+
+    The table is pivoted ONCE and the bootstrap resamples rows of the result. A
+    group drawn twice contributes its rows twice, which is what a replicate is;
+    pivoting inside the loop would cost 2,000 pivots and would average the
+    duplicate away instead.
     """
     rng = rng or np.random.default_rng(0)
-    groups = frame[cluster].to_numpy()
-    uniq = np.unique(groups)
-    index = {g: np.flatnonzero(groups == g) for g in uniq}
-    point = nrmse(frame, value, by=by, cluster=cluster, unit=unit)
+    wide, groups, _ = _wide(frame, value, by, cluster, unit)
+    point = _nrmse_from(wide)
+    uniq, inverse = np.unique(groups, return_inverse=True)
+    index = [np.flatnonzero(inverse == i) for i in range(len(uniq))]
     draws = np.empty(int(resamples), dtype=float)
     for r in range(int(resamples)):
-        pick = rng.choice(uniq, size=len(uniq), replace=True)
-        rows = np.concatenate([index[g] for g in pick])
-        sub = frame.iloc[rows].copy()
-        # A resampled group may appear several times, so the (group, material)
-        # key is no longer unique and the pivot would average the copies
-        # together. Numbering the copies keeps them as separate pLCAs, which is
-        # what a bootstrap replicate is.
-        sub['_copy'] = np.concatenate(
-            [np.full(len(index[g]), i) for i, g in enumerate(pick)])
-        sub['_cluster'] = sub[cluster].astype(str) + '_' + sub['_copy'].astype(str)
-        draws[r] = nrmse(sub, value, by=by, cluster='_cluster', unit=unit)
+        pick = rng.integers(0, len(uniq), size=len(uniq))
+        rows = np.concatenate([index[p] for p in pick])
+        draws[r] = _nrmse_from(wide[rows])
     return dict(nrmse=point,
                 ci_lo=float(np.nanpercentile(draws, 100 * alpha / 2)),
                 ci_hi=float(np.nanpercentile(draws, 100 * (1 - alpha / 2))),
-                n_clusters=int(len(uniq)))
+                n_clusters=int(len(uniq)), n_units=int(len(wide)))
+
+
+def nrmse_table(frame, values, by='method', cluster='plca', unit='dataset',
+                resamples=BOOTSTRAP_RESAMPLES, rng=None, progress=None):
+    """`nrmse_ci` for every output, as one table."""
+    rng = rng or np.random.default_rng(0)
+    it = values
+    if progress is not None:
+        it = progress(values, total=len(values))
+    rows = []
+    for v in it:
+        rows.append(dict(output=v, **nrmse_ci(frame, v, by=by, cluster=cluster,
+                                              unit=unit, resamples=resamples,
+                                              rng=rng)))
+    return pd.DataFrame(rows).sort_values(
+        'nrmse', ascending=False).reset_index(drop=True)
 
 
 # ---------------------------------------------------------------------------
@@ -743,24 +814,39 @@ def truth_summary(frame, outputs_=None, rng=None,
     return pd.DataFrame(rows).sort_values(list(by)).reset_index(drop=True)
 
 
-def truth_win_share(frame, value='eci_rank_1', by=()):
+def truth_win_share(frame, value='eci_rank_1', by=(), rng=None,
+                    resamples=BOOTSTRAP_RESAMPLES):
     """How often each method is CLOSEST to the truth, per material.
 
     A win share rather than a mean error, for the reason Stage 2c gives for
     the empirical headline: a mean of a signed distance inherits the noise of
     every material, while a count moves only when the winner moves.
+
+    Carries a cluster-bootstrap interval over pLCA groups, because a win share
+    is a headline percentage and every headline percentage in this stage has
+    one.
     """
     f = frame.assign(_err=frame[f'{value}__error'].abs())
     keys = list(by)
     idx = (f.groupby(keys + ['plca', 'dataset'], observed=True)['_err']
            .transform('min') == f['_err'])
+    f['_win'] = idx.astype(float)
     wins = f[idx]
-    tot = wins.groupby(keys, observed=True).size().rename('n') if keys else None
     c = wins.groupby(keys + ['method'], observed=True).size().rename('n_wins')
     c = c.reset_index()
-    total = (len(wins) if not keys
+    total = (float(len(wins)) if not keys
              else c.groupby(keys, observed=True)['n_wins'].transform('sum'))
-    c['win_share'] = c.n_wins / (total if keys else float(len(wins)))
+    c['win_share'] = c.n_wins / total
+    if rng is not None:
+        lo, hi = [], []
+        for _, row in c.iterrows():
+            sub = f[f.method == row['method']]
+            for k in keys:
+                sub = sub[sub[k] == row[k]]
+            b = cluster_bootstrap(sub, '_win', resamples=resamples, rng=rng)
+            lo.append(b['ci_lo'])
+            hi.append(b['ci_hi'])
+        c['win_share_lo'], c['win_share_hi'] = lo, hi
     return c.sort_values(keys + ['win_share'],
                          ascending=[True] * len(keys) + [False]
                          ).reset_index(drop=True)

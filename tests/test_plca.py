@@ -536,3 +536,16 @@ def test_truth_run_and_summary_round_trip():
     assert exact.names_true_top == 1.0
     wins = PL.truth_win_share(frame)
     assert wins[wins.method == 'exact'].win_share.iloc[0] >= 0.5
+
+
+def test_lazy_samplers_bound_their_memory_and_agree_with_eager_ones():
+    """A ParentSampler is about half a megabyte and the corpus has nearly ten
+    thousand parents, so the truth run builds them four at a time."""
+    parents = {f'd{i}': a_parent(i) for i in range(6)}
+    lazy = PL.LazySamplers(parents, maxsize=2)
+    eager = PL.parent_samplers(parents)
+    q = np.linspace(0.05, 0.95, 20)
+    for d in parents:
+        assert np.allclose(lazy[d].ppf(q), eager[d].ppf(q))
+    assert len(lazy._cache) <= 2
+    assert len(lazy) == 6 and 'd3' in lazy
