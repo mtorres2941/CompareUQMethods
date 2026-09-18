@@ -490,6 +490,14 @@ way; it is written that way for the typing and the read speed as much as the
 size, and Parquet is what this project already chose for its large tidy tables.
 **The 96 MB table noted above is a different one and is still Stage 3's.**
 
+**The repository's history is 2.5 GB.** The decision that accepted the size
+recorded it at 391 MB and was taken on the author's explicit instruction that a
+large history does not matter to them, so this is a statement of fact and not a
+proposal: the growth is large tables re-stored whole on every commit, this stage
+added 31 MB of them, and the rewrite that would shrink it was declined because
+it would break the published deposit's commit hashes. **The next Claude Code
+session should not act on this**; it is here so that the number is somewhere.
+
 **The equal-intensity construction is now measured rather than assumed to be
 conservative.** It is the most fragile case for a ranking and it makes no
 difference to the magnitude outputs, which is the strongest available defense of
