@@ -141,6 +141,15 @@ certainty. The comparison is in absolute units and that is legitimate because
 the intensity vector is normalised to a mean of 1.0 in every case, so the
 building's total mean contribution is the same number throughout.
 
+**The lower panel is a rolling MEDIAN and the upper a rolling mean**, because a
+flip rate is a mean of zeros and ones while the change in a contribution is
+heavy tailed -- a few groups move by more than 1.4 where the typical one moves
+by 0.19 -- so a mean there would track the tail rather than the typical group.
+Reading a mean against a median is what made this panel appear to rise with
+dominance when the median is flat: within four materials the median change runs
+**0.187, 0.190, 0.198, 0.181, 0.182, 0.197** across ratio bands from 1.0 to
+21.2.
+
 **Both panels are held at four materials, which is the study's own
 construction, and that is not presentation.** What a given top-two ratio implies
 about dominance changes with the number of materials, and a Dirichlet draw over
