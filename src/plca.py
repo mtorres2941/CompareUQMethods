@@ -335,7 +335,7 @@ def nrmse(frame, value, by='method', cluster='plca', unit='dataset'):
 # ---------------------------------------------------------------------------
 # the study's own pLCA, under common random numbers
 # ---------------------------------------------------------------------------
-def cap_reduction(model, col, capecc, uniform_for_pass):
+def cap_reduction(model, col, capecc, uniform_for_pass, scale=1.0):
     """The ECC-cap strategy, with the redraws taken from supplied uniforms.
 
     The study's cap strategy replaces every Monte Carlo draw at or above the
@@ -346,7 +346,8 @@ def cap_reduction(model, col, capecc, uniform_for_pass):
     method is asking, so that two methods redrawing the same iteration on the
     same pass use the same variate.
 
-    Returns `(reduced, touched, cap)`.
+    `scale` is the material's use intensity, because `col` carries it and a
+    redraw off the model does not. Returns `(reduced, touched, cap)`.
 
     WHY THE PASSES ARE INDEXED. Within one pass the variate for an iteration is
     fixed, so a draw that lands above the cap again must be given a DIFFERENT
@@ -362,7 +363,8 @@ def cap_reduction(model, col, capecc, uniform_for_pass):
     while above.any():
         touched |= above
         u = np.asarray(uniform_for_pass(p), dtype=float)
-        red[above] = np.asarray(model.rvs_from_uniform(u[above]), dtype=float)
+        red[above] = np.asarray(model.rvs_from_uniform(u[above]),
+                                dtype=float) * float(scale)
         above = red >= cap
         p += 1
     return red, touched, cap
@@ -638,3 +640,127 @@ def sweep_summary(frame, by=('nmats', 'mui_case'), outputs_=None,
             row[f'{col}_hi'] = b['ci_hi']
         rows.append(row)
     return pd.DataFrame(rows).sort_values(list(by)).reset_index(drop=True)
+
+
+def nrmse_ci(frame, value, by='method', cluster='plca', unit='dataset',
+             resamples=BOOTSTRAP_RESAMPLES, alpha=BOOTSTRAP_ALPHA, rng=None):
+    """`nrmse` with a percentile interval, resampling pLCA GROUPS.
+
+    The study reports an NRMSE for every pLCA output and attaches no
+    uncertainty to any of them, which is awkward in a paper about uncertainty.
+    The resampling unit is the group because the four materials of a pLCA share
+    its total and its variates.
+    """
+    rng = rng or np.random.default_rng(0)
+    groups = frame[cluster].to_numpy()
+    uniq = np.unique(groups)
+    index = {g: np.flatnonzero(groups == g) for g in uniq}
+    point = nrmse(frame, value, by=by, cluster=cluster, unit=unit)
+    draws = np.empty(int(resamples), dtype=float)
+    for r in range(int(resamples)):
+        pick = rng.choice(uniq, size=len(uniq), replace=True)
+        rows = np.concatenate([index[g] for g in pick])
+        sub = frame.iloc[rows].copy()
+        # A resampled group may appear several times, so the (group, material)
+        # key is no longer unique and the pivot would average the copies
+        # together. Numbering the copies keeps them as separate pLCAs, which is
+        # what a bootstrap replicate is.
+        sub['_copy'] = np.concatenate(
+            [np.full(len(index[g]), i) for i, g in enumerate(pick)])
+        sub['_cluster'] = sub[cluster].astype(str) + '_' + sub['_copy'].astype(str)
+        draws[r] = nrmse(sub, value, by=by, cluster='_cluster', unit=unit)
+    return dict(nrmse=point,
+                ci_lo=float(np.nanpercentile(draws, 100 * alpha / 2)),
+                ci_hi=float(np.nanpercentile(draws, 100 * (1 - alpha / 2))),
+                n_clusters=int(len(uniq)))
+
+
+# ---------------------------------------------------------------------------
+# the truth run
+# ---------------------------------------------------------------------------
+def truth_run(models, samplers, combos, rng, neccs=NECCS, methods=None,
+              mui_of=None, progress=None, sizes_of=None):
+    """Every pLCA group, run with the fitted models and with the TRUE parents.
+
+    One row per (group, material, method), carrying each output, the value the
+    true parent gives for it, and the difference. Both are drawn from the SAME
+    uniform block, so the difference is the error the fitted model causes and
+    contains no Monte Carlo noise whatever.
+
+    `mui_of(k, rng)` supplies the intensity vector if the run is not at equal
+    intensity; `sizes_of` maps a dataset to its number of values so a row can
+    be post-stratified.
+    """
+    methods = methods or FT.PEWT
+    rows = []
+    it = enumerate(combos)
+    if progress is not None:
+        it = progress(it, total=len(combos))
+    for i, g in it:
+        names = list(g)
+        mui = None if mui_of is None else mui_of(len(names), rng)
+        u = rng.random((int(neccs), len(names)))
+        extra = dict(nmats=len(names))
+        if mui is not None:
+            extra.update(contribution_profile(mui))
+        rows += truth_rows(models, samplers, names, u, mui, methods,
+                           plca=i, extra=extra)
+    frame = pd.DataFrame(rows)
+    if sizes_of is not None:
+        frame['n'] = frame.dataset.map(sizes_of)
+    return frame
+
+
+def truth_summary(frame, outputs_=None, rng=None,
+                  resamples=BOOTSTRAP_RESAMPLES, by=('method',)):
+    """Per method: how far its answer sits from the truth, with intervals.
+
+    The mean ABSOLUTE error is reported rather than the mean error, because a
+    method that is too high on half the materials and too low on the other half
+    is not accurate; and the mean SIGNED error is carried beside it, because a
+    method that is systematically high is a different failure from one that is
+    merely noisy.
+    """
+    rng = rng or np.random.default_rng(0)
+    outputs_ = outputs_ or ('eci_rank_1', 'eci_mean', 'eci_p95', 'ui',
+                            'eci_perc_mean')
+    rows = []
+    for key, g in frame.groupby(list(by), observed=True):
+        key = key if isinstance(key, tuple) else (key,)
+        row = dict(zip(by, key), n_rows=len(g), n_plca=g.plca.nunique())
+        row['names_true_top'] = float((g.is_top == g.is_top__truth)[
+            g.is_top__truth].mean())
+        for k in outputs_:
+            e = g[f'{k}__error']
+            sub = g.assign(_abs=e.abs())
+            b = cluster_bootstrap(sub, '_abs', resamples=resamples, rng=rng)
+            row[f'{k}_abs_error'] = b['statistic']
+            row[f'{k}_abs_error_lo'] = b['ci_lo']
+            row[f'{k}_abs_error_hi'] = b['ci_hi']
+            row[f'{k}_signed_error'] = float(e.mean())
+            row[f'{k}_rmse'] = float(np.sqrt(np.mean(e.to_numpy() ** 2)))
+        rows.append(row)
+    return pd.DataFrame(rows).sort_values(list(by)).reset_index(drop=True)
+
+
+def truth_win_share(frame, value='eci_rank_1', by=()):
+    """How often each method is CLOSEST to the truth, per material.
+
+    A win share rather than a mean error, for the reason Stage 2c gives for
+    the empirical headline: a mean of a signed distance inherits the noise of
+    every material, while a count moves only when the winner moves.
+    """
+    f = frame.assign(_err=frame[f'{value}__error'].abs())
+    keys = list(by)
+    idx = (f.groupby(keys + ['plca', 'dataset'], observed=True)['_err']
+           .transform('min') == f['_err'])
+    wins = f[idx]
+    tot = wins.groupby(keys, observed=True).size().rename('n') if keys else None
+    c = wins.groupby(keys + ['method'], observed=True).size().rename('n_wins')
+    c = c.reset_index()
+    total = (len(wins) if not keys
+             else c.groupby(keys, observed=True)['n_wins'].transform('sum'))
+    c['win_share'] = c.n_wins / (total if keys else float(len(wins)))
+    return c.sort_values(keys + ['win_share'],
+                         ascending=[True] * len(keys) + [False]
+                         ).reset_index(drop=True)

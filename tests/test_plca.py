@@ -435,3 +435,104 @@ def test_the_committed_plca_table_is_not_a_smoke_run():
         lines = sum(1 for _ in fh)
     assert lines - 1 == meta['n_rows'], (
         f"{TABLE} holds {lines - 1} rows, metadata says {meta['n_rows']}")
+
+
+# ---------------------------------------------------------------------------
+# the sweep, the summary and the truth tables
+# ---------------------------------------------------------------------------
+def test_sweep_covers_every_cell_and_carries_its_observables():
+    names, data, models = a_group(seed=20, n=40, k=8)
+    rng = np.random.default_rng(20)
+    f = PL.sweep(models, names, rng, sizes=(2, 4), neccs=500, n_groups=3,
+                 cases=[('1:1', 'ratio', 1.0), ('10:1', 'ratio', 10.0)])
+    assert set(f.nmats) == {2, 4}
+    assert set(f.mui_case) == {'1:1', '10:1'}
+    # 2 sizes x 2 cases x 3 groups x 15 pairs
+    assert len(f) == 2 * 2 * 3 * 15
+    assert f[f.mui_case == '1:1'].top2_ratio.eq(1.0).all()
+    assert f[f.mui_case == '10:1'].top2_ratio.eq(10.0).all()
+    assert np.allclose(f.inv_top2_ratio, 1.0 / f.top2_ratio)
+
+
+def test_sweep_groups_are_distinct_clusters_per_cell():
+    """The bootstrap resamples pLCA groups, so two cells must not share a
+    cluster label or a resample would pool them."""
+    names, _, models = a_group(seed=21, n=40, k=6)
+    rng = np.random.default_rng(21)
+    f = PL.sweep(models, names, rng, sizes=(2, 3), neccs=400, n_groups=2,
+                 cases=[('1:1', 'ratio', 1.0)])
+    per_cell = f.groupby('nmats').plca.nunique()
+    assert (per_cell == 2).all()
+    assert f.plca.nunique() == 4
+
+
+def test_sweep_summary_reports_an_interval_on_every_headline():
+    names, _, models = a_group(seed=22, n=40, k=6)
+    rng = np.random.default_rng(22)
+    f = PL.sweep(models, names, rng, sizes=(3,), neccs=400, n_groups=8,
+                 cases=[('1:1', 'ratio', 1.0)])
+    s = PL.sweep_summary(f, resamples=100, rng=np.random.default_rng(0))
+    assert len(s) == 1
+    row = s.iloc[0]
+    assert row.flip_top_lo <= row.flip_top <= row.flip_top_hi
+    assert row.eci_mean_max_lo <= row.eci_mean_max <= row.eci_mean_max_hi
+
+
+def test_nrmse_interval_brackets_the_point_estimate():
+    rng = np.random.default_rng(23)
+    rows = []
+    for g in range(40):
+        for d in range(4):
+            base = rng.normal(1.0, 0.3)
+            for m in ('A', 'B', 'C'):
+                rows.append(dict(plca=g, dataset=f'{g}_{d}', method=m,
+                                 v=base + rng.normal(0, 0.05)))
+    frame = pd.DataFrame(rows)
+    got = PL.nrmse_ci(frame, 'v', resamples=200, rng=np.random.default_rng(0))
+    assert got['ci_lo'] < got['nrmse'] < got['ci_hi']
+    assert got['n_clusters'] == 40
+
+
+def test_nrmse_bootstrap_keeps_repeated_groups_apart():
+    """A resampled group can be drawn twice, and averaging the two copies
+    together would shrink the very variation the bootstrap is measuring."""
+    rng = np.random.default_rng(24)
+    rows = []
+    for g in range(15):
+        for d in range(4):
+            for m in ('A', 'B'):
+                rows.append(dict(plca=g, dataset=f'{g}_{d}', method=m,
+                                 v=rng.normal(1.0, 0.3)))
+    frame = pd.DataFrame(rows)
+    got = PL.nrmse_ci(frame, 'v', resamples=200, rng=np.random.default_rng(1))
+    assert got['ci_hi'] > got['ci_lo'] > 0
+
+
+def test_truth_run_and_summary_round_trip():
+    p = a_parent(6)
+    s = PL.ParentSampler(p)
+    names = ['d0', 'd1', 'd2', 'd3']
+    samplers = {d: s for d in names}
+
+    class Shifted:
+        def __init__(self, base, factor):
+            self.base, self.factor = base, factor
+
+        def rvs_from_uniform(self, u):
+            return self.base.rvs_from_uniform(u) * self.factor
+
+    models = {d: {'exact': s, 'off': Shifted(s, 1.3)} for d in names}
+    combos = np.array([names, names[::-1]])
+    frame = PL.truth_run(models, samplers, combos, np.random.default_rng(0),
+                         neccs=1_000, methods=['exact', 'off'],
+                         sizes_of={d: 50 for d in names})
+    assert len(frame) == 2 * 4 * 2
+    summ = PL.truth_summary(frame, resamples=50,
+                            rng=np.random.default_rng(0))
+    exact = summ[summ.method == 'exact'].iloc[0]
+    off = summ[summ.method == 'off'].iloc[0]
+    assert exact.eci_mean_abs_error == 0.0
+    assert off.eci_mean_abs_error > 0
+    assert exact.names_true_top == 1.0
+    wins = PL.truth_win_share(frame)
+    assert wins[wins.method == 'exact'].win_share.iloc[0] >= 0.5
