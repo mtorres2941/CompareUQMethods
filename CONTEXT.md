@@ -242,16 +242,16 @@ largest contributor crosses 1, 5 and 10 percent at relative W1 of **0.0018,
 the bootstrap interval is about 30 percent wide and an independent run differed
 in the third figure.
 
-**THE STUDY'S pLCA COMPARES METHODS UNDER INDEPENDENT RANDOMNESS, and that costs
-more than it looks.** Notebook 3 draws each method's Monte Carlo sample from its
-own stretch of one shared generator. Running the same method twice, with the same
-fitted models and two independent streams, changes the top contributor in **5.33
-percent** of cases and the full rank ordering in **34.2 percent**, with no model
-difference at all. The calibration therefore uses common random numbers --
-`families.rvs_from_uniform`, one uniform variate per material per iteration --
-where the floor is exactly zero and the `t = 0` control verifies it.
-**Installing them in the STUDY's pLCA is Stage 2e's**, and nothing in Stage 2d
-wrote a pLCA result.
+**THE STUDY'S pLCA GIVES EACH METHOD ITS OWN RANDOM DRAWS.** Two methods are
+therefore compared under two independent Monte Carlo samples. For every
+CONTINUOUS output this is immaterial -- switching method changes a material's
+estimated contribution by 0.18 where the average material contributes 1.00, far
+more than resampling does. It matters only for an ARGMAX outcome such as "which
+material has the highest rank-1 frequency", where two statistically tied
+materials can swap places; that is why the flip calibration of Stage 2d gives
+both methods the same uniform draws, through `families.rvs_from_uniform`.
+Installing the same thing in the study's own pLCA is Stage 2e's and is a
+refinement, not a repair.
 
 ### Does the weighting scheme matter, per dataset
 

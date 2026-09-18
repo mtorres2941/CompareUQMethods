@@ -13,33 +13,35 @@ file.
 
 # IF YOU READ ONE PAGE, READ THIS ONE
 
-Everything below is the working record. **These eleven sentences are what Stage 2d
+Everything below is the working record. **These ten sentences are what Stage 2d
 contributes to the manuscript.** Each is a claim the paper can make, with the
 number that supports it. Nothing else in this file needs to reach the paper.
 
 **On the method comparison**
 
-1. **Every output of a probabilistic LCA discriminates between UQ methods by 7
-   to 24 times the Monte Carlo noise**, so the choice of method is not a detail.
-   The most sensitive outputs are the dispersion ones -- the coefficient of
-   variation of a material's contribution, and its standard deviation, both at 24
-   times noise -- which is what one would hope, since modelling spread is what a
-   UQ method is for.
-2. In absolute terms, **which UQ method you choose changes a material's stated
-   probability of being the largest contributor by 5 to 19 percentage points**: a
-   median shift in rank-1 frequency of 0.048 for the closest pair of the six
-   methods and 0.188 for the furthest.
-3. **The most robust thing a pLCA produces is its data-collection priority.**
-   Variance importance -- the share of total output variance attributable to one
-   material's uncertainty -- is the LEAST sensitive output at 7.4 times noise. So
-   which material is worth measuring better is a conclusion that survives the
-   choice of method, even where the magnitudes do not. Nothing in the study
-   currently reports it, and it should.
+1. **Switching UQ method changes a material's estimated contribution by about
+   18 percent.** For the most-affected material in a typical probabilistic LCA,
+   with every material contributing a mean of 1.00: its estimated contribution
+   moves by **0.18**, its 95th percentile by **0.41**, its share of the building
+   total by **3.0 percentage points**, and its contribution to total variance by
+   **8.9 points**. At the 90th percentile those become 0.52, 1.29, 8.5 points and
+   27.6 points. The choice of method is not a rounding detail.
+2. The output that moves most is the **spread**, not the average: a material's
+   standard deviation moves by 0.17 and its 95th percentile by 0.41, against 0.18
+   for its mean. That is what one would hope, since representing spread is what a
+   UQ method is for, and it means the methods differ most where they are supposed
+   to.
+3. **The steadiest output is the one that sets data-collection priorities.** A
+   material's contribution to total variance moves by 8.9 points against 12.6 for
+   its chance of being the largest contributor, and it is the least affected
+   output measured. So "which material is worth measuring better" survives the
+   choice of method better than any magnitude does -- and the study currently
+   computes it and reports it nowhere.
 4. The probability that the identity of the largest contributor changes crosses
    **1 percent at a relative W1 of 0.0018, 5 percent at 0.011 and 10 percent at
    0.025**. **A relative W1 of 0.011 is a shift of about one percent of the
-   dataset mean** -- invisible on a plotted curve, and enough to change the answer
-   one time in twenty.
+   dataset mean** -- invisible on a plotted curve, and enough to change the
+   answer one time in twenty.
 
 **On weighting, which is the stage's main contribution**
 
@@ -70,16 +72,6 @@ number that supports it. Nothing else in this file needs to reach the paper.
 10. This is the one place in the whole study where **dispersion matters as much as
     dataset size**; everywhere else size is the only mechanism.
 
-**One methods note, not a finding**
-
-11. A_IQR, the measure from the companion paper, is **a measure of dataset size**
-    in this study (R2 0.94 against log n). That is what density-estimation theory
-    predicts when the weight information is held fixed and only n varies, and it
-    does NOT make A_IQR a poor measure -- the companion paper's own scenarios show
-    it separating 0.22 from 0.12 on the same nine points when the weight
-    constraints differ. **Whether to mention it at all is the author's call**; the
-    paper's line needs only `n` and `CV`.
-
 **What the paper must state as conditional, in the same paragraph as the number
 and not in a footnote.** Every FLIP probability assumes four materials of equal
 material use intensity, which makes a ranking as fragile as it can be made and
@@ -95,84 +87,6 @@ database and which a reviewer checks in one line.
 
 ---
 
-
----
-
-## REVIEW SECTION -- FOR THE AUTHOR, AND TO BE DELETED BEFORE THIS FILE SHIPS
-
-The three figures this stage produced, inline, with what to check in each. This
-file plus these three figures is the whole review: there is nothing to run and no
-other document to open. **The handoff's real reader has no repository, so
-these links are useless to them; this whole section comes out when the stage
-closes.** Everything below section 0 stands on its own without them.
-
-**What changed after the second pass.** Figure 1 now draws the fifteen method
-pairs as POINTS at their own separation and their own flip rate -- as a rug at a
-fixed height they read as though every pair flipped almost always, which is a
-lie factor above one -- labels both point series in their own colour, and shows
-DENSITIES rather than cumulative curves. Figure 3 is rebuilt to the author's
-design, dispersion against dataset size with the separation in the colour and
-the safe boundary drawn from the fitted law. `figstyle.check_overlaps` now
-detects colliding text automatically; all three figures pass it.
-
-### 1. The deliverable: what a given W1 costs
-
-![flip calibration](../outputs/figures/CompareUQMethods_FIG_FlipCalibration.png)
-
-What to check. The dark points are the observed flip rate in equal-count bins
-and the grey curve is a **logistic regression**: it models a yes/no outcome as a
-probability rising smoothly from zero to one with the logarithm of the distance,
-and the three crossings are read off it. An **isotonic fit** would impose no
-shape at all, assuming only that the probability never FALLS as two models
-separate; it gives 0.0026, 0.0129 and 0.0271 for the same three levels, which is
-close enough that the shape is not doing the work. It is in
-`TABLE_FlipCrossings.csv` and is no longer drawn, because a second curve saying
-the same thing is the clutter the style guide forbids.
-
-**The orange rug along the top is every pair of the six UQ methods**, at your
-request: the star alone binned away how common each distance is. The bar beneath
-it is the median and the 5th to 95th percentile. The point of the figure is that
-the entire distribution sits far to the right of every marked threshold.
-
-The full-ordering panel has been deleted. Its Monte Carlo noise floor alone is
-34 percent, so it is not a usable criterion, and a panel with no message is a
-panel the style guide removes.
-
-### 2. A_IQR against what it was supposed to measure
-
-![weighting risk](../outputs/figures/CompareUQMethods_FIG_WeightingRisk.png)
-
-What to check. Left panel: A_IQR against dataset size is a tight monotone curve,
-and the two arms lie on top of one another. Middle panel: the same A_IQR against
-dispersion is a formless cloud. **That contrast is the whole finding** -- A_IQR
-is a measure of how many EPDs a category has.
-
-The third panel that was here has been deleted. You were right that it carried no
-takeaway: the risk saturates near 1.0 for three quarters of categories, so the
-panel showed a ceiling rather than a relationship. Figure 3 carries the
-unsaturated version of the same question.
-
-### 3. What actually decides whether weighting matters
-
-![weighting drivers](../outputs/figures/CompareUQMethods_FIG_WeightingDrivers.png)
-
-What to check, and this is the one to spend time on.
-
-**Left panel, to the author's design.** Every real category placed by its
-dispersion and its size, coloured by how far a plausible market-share allocation
-moves its fitted density. The orange line is not drawn by eye: it is where the
-fitted law `0.73 * CV * n^-0.43` equals the 5 percent flip threshold, so it is
-the boundary of the safe region. **Only 12 of 147 categories fall inside it**,
-and eleven of the twelve are concrete strength classes or asphalt. The direction
-was checked against the data rather than read off the picture -- 11 of the 12
-safe categories sit left of the line and all 135 unsafe ones sit right of it.
-
-**Right panel** answers the clustering question. Share concentrated on RANDOM
-products lies on top of share spread evenly, at every effective sample size, so
-concentration alone behaves exactly like having fewer products -- which is what
-the effective sample size already captures. Share concentrated on SIMILAR
-products sits clearly above, and the gap widens. **If those two lines had
-coincided, the flat Dirichlet would have been vindicated. They do not.**
 
 ---
 
@@ -193,20 +107,28 @@ results came out of the author's review of the first draft and are the most
 useful things here for a practitioner: a closed form for when weighting matters,
 and a measured limit on the weight model this whole study rests on.
 
-### The six results, in the order they matter
+### The results, in the order they matter
 
-**1. THE STUDY'S OWN pLCA CANNOT ANSWER "DID THE ANSWER CHANGE".** Its Monte
-Carlo loop gives every uncertainty-quantification method its own stretch of one
-random stream, so any two methods are compared under two different sets of random
-numbers. Running the SAME method twice, with the SAME fitted models and two
-independent streams, over 400 probabilistic LCAs: **the identity of the
-top-contributing material changes in 5.33 percent of cases and the full rank
-ordering in 34.2 percent, with no model difference whatever.** Two of the three
-levels the stage was asked to resolve sit below that floor. The calibration
-therefore runs on common random numbers -- one uniform variate per material per
-iteration pushed through every method's inverse CDF -- where two identical models
-produce identical draws and the floor is exactly zero. **No pLCA result was
-written or replaced.** Decision 91.
+**1. SWITCHING UQ METHOD CHANGES A MATERIAL'S ESTIMATED CONTRIBUTION BY ABOUT
+18 PERCENT.** Measured over 250 probabilistic LCAs and all fifteen pairs of the
+six methods, giving both methods the same draws so the comparison is
+like-for-like. Each figure below is the change for the most-affected of the four
+materials in a group, which is the one a practitioner is deciding about. Every
+material contributes a mean of 1.00 in this study, so these read directly:
+
+    estimated contribution                 0.181     (90th pct 0.519)
+    95th percentile of the contribution    0.413     (90th pct 1.290)
+    standard deviation of contribution     0.173     (90th pct 0.467)
+    coefficient of variation               0.175     (90th pct 0.389)
+    chance of being largest contributor    0.126     (90th pct 0.278)
+    contribution to total variance         0.089     (90th pct 0.276)
+    share of the building total            0.030     (90th pct 0.085)
+
+**The spread outputs move most** -- the 95th percentile by 0.41 against the
+mean's 0.18 -- which is the right way round, since representing spread is what a
+UQ method is for. **The contribution to total variance moves least**, so "where
+should I collect better data" is the steadiest answer a probabilistic LCA gives,
+and the study computes it and reports it nowhere. Decision 103.
 
 **2. THE CURVE, which is the deliverable.** The probability that the
 top-contributing material changes crosses **1 percent at a relative W1 of
@@ -218,56 +140,32 @@ independent run of the same calculation on a different random stream gave
 0.0015, 0.0099 and 0.0233, every one inside the other run's interval and every
 one differing in the third figure. Decision 95.
 
-**What that says about the six methods under test is blunt: they are all far
-past every one of those thresholds.** The smallest relative W1 between any two of
-the six, over 37,500 comparisons, is 0.00022, but the average is 0.30 and the
-average flip rate is **56.1 percent**. Choosing between these six methods changes
-which material is named the largest contributor more often than not.
+**What that says about the six methods under test:** they sit at a median
+separation of 0.30, an order of magnitude past the 10 percent crossing. Result 1
+is the better way to say what that costs, in units that do not depend on how many
+materials a pLCA holds.
 
-**3. THE UNIFORM-TO-VARIABLE DISTANCE IS MOSTLY A SHIFT OF THE MEAN**, which is
-the good outcome the author named in advance. Median location share **0.725 on
-the 147 real datasets and 0.804 on the 10,000 synthetic ones**, above half on 69
-and 72 percent of datasets respectively. It is highest where datasets are
-smallest -- 0.96 at 3 to 9 EPDs -- because with that few values there is barely
-any shape for reweighting to change. **So the practitioner rule collapses to a
-weighted mean**: compute one, see how far it moves, compare against the
-thresholds above. No distributional machinery. Decision 92.
+**3. REWEIGHTING USUALLY MOVES THE MEAN, BUT NOT ALWAYS, AND NOTHING PREDICTS
+WHICH.** The uniform-to-variable distance splits into a shift of the mean and a
+change of shape. The mean term carries a median of **0.725** of it on the 147
+real categories -- but that is a median, not a rule: the interquartile range is
+**0.457 to 0.933**, and **28 of the 147 are shape-dominated**, below 0.4, where
+reweighting rearranges the distribution and barely moves its mean.
+`CementGrout` sits at 0.024, `PowerCabling` at 0.077, `RebarSteel` at 0.082.
 
-**4. A_IQR DOES NOT MEASURE WHAT IT WAS ADOPTED TO MEASURE.** The stage was told
-to use A_IQR -- the area between the pointwise 75th and 25th percentile density
-curves over an ensemble of Dirichlet-weighted fits, from Torres, Lupton, Marsh,
-Srubar and Allen (2026) -- on the expectation that it would track dispersion,
-because an earlier probe found dispersion rather than dataset size drives whether
-weighting matters. **It tracks dataset size instead**: over the 147 real
-categories its rank correlation with the number of EPDs is -0.946 and with the
-coefficient of variation +0.042, and across the arm it moves by a factor of 12
-from the smallest categories to the largest.
+**Which way a category behaves is predictable from nothing measured here**:
+Spearman -0.11 against log dataset size and -0.10 against the coefficient of
+variation.
 
-**The mechanism, stated precisely because a first draft of this file got it
-wrong.** It is NOT that A_IQR is invariant to rescaling the data. It is, exactly
--- but so is the mean-relative separation that this stage uses instead, so
-invariance cannot be what separates them. What A_IQR measures is the uncertainty
-of the density curve relative to the curve's OWN height, which is set by how many
-points the weight noise is averaged over and by almost nothing else: hold a
-lognormal at 60 points and raise its coefficient of variation from 0.22 to 5.83,
-a factor of 27, and A_IQR moves from 0.296 to 0.307 while A_IQR times the square
-root of the sample size stays between 2.21 and 2.38. The separation over the same
-sweep runs 0.030 to 0.664, and **the separation divided by the coefficient of
-variation is nearly constant at 0.114 to 0.138** -- it is proportional to
-dispersion by construction. Decision 94.
+**This is not a recipe and an earlier draft wrongly offered it as one.** Nobody
+can compute a market-weighted mean, because EPD market shares are not published,
+which is the premise of the companion paper. What the finding says is what KIND
+of uncertainty unknown weights introduce -- for most categories, uncertainty
+about a mean rather than about a shape. That is why an industry-average EPD, the
+one published quantity that is production-weighted, would resolve most of it.
+The practitioner rule is result 4, not this. Decisions 92 and 104.
 
-A_IQR is still computed and reported, because it is the right answer to the
-published paper's own question -- how confident the uncertainty MODEL is -- and
-using it lets this paper cite rather than re-derive. **The practitioner statement
-is made on a different quantity**: the distance between the uniform-weighted fit
-and the fit under a drawn market share, in units of the dataset's own mean, which
-is the axis the flip probability is calibrated on. On that quantity the
-dispersion result the stage was sent to confirm does hold, at **+0.731 against
-size at -0.545** -- but it is a both-matter result rather than the reversal an
-earlier draft of this file claimed. Section 4.5 has the correction and the
-within-band numbers, which are the strong form of it.
-
-**5. WHAT DECIDES WHETHER WEIGHTING MATTERS IS BOTH SIZE AND DISPERSION, and
+**4. WHAT DECIDES WHETHER WEIGHTING MATTERS IS BOTH SIZE AND DISPERSION, and
 together they give a closed form.** This is the one place in the project where
 dispersion is a first-order quantity. Regressing the log of the separation on
 log dataset size and log coefficient of variation: size alone explains 48 percent
@@ -287,7 +185,7 @@ hundred, 0.315 at a thousand. The median real category has a coefficient of
 variation of 0.63 at 47 EPDs, so almost none of them clears it, which is the same
 conclusion the per-dataset probabilities reach by a different route.
 
-**6. A FLAT DIRICHLET UNDERSTATES THE WEIGHTING RISK, AND THE NUMBERS HERE ARE
+**5. A FLAT DIRICHLET UNDERSTATES THE WEIGHTING RISK, AND THE NUMBERS HERE ARE
 THEREFORE A LOWER BOUND.** The author asked whether uniformly exploring the
 simplex is the right model, given that real market share probably arrives in
 clusters, and suggested that a cluster is nearly a dataset with fewer points, so
@@ -302,7 +200,7 @@ size.
 
 What the effective sample size misses is coherence. A contiguous block shifts the
 whole distribution one way, which lands in the location term that already carries
-three-quarters of the uniform-to-variable distance; random concentration moves
+72.5 percent of the uniform-to-variable distance; random concentration moves
 mass in directions that partly cancel. **The direction of the error is
 conservative for this paper**, whose finding is that uniform weighting is rarely
 safe.
@@ -329,55 +227,29 @@ to open a file is addressed to the next Claude Code session.
 
 ---
 
-## 0b. QUESTIONS THE AUTHOR ASKED OF THE FIRST DRAFT, ANSWERED
+## 0b. Four things a reader will ask, answered here so they are not re-derived
 
-Kept because each answer is a claim in its own right and none of them is
-recoverable from the numbers alone.
+**What "relative W1" means.** W1 between two distributions over one dataset,
+divided by that dataset's own unweighted mean. Every W1 this study has ever
+reported is already this, because every dataset is divided by its unweighted
+mean before anything else happens. Naming it changes no number.
 
-**"A weighted mean, not a distribution" -- what does that mean?** Poorly put in
-the first draft. It means this: to decide whether market shares matter for your
-category you do not need to fit anything. Take the plain average of the ECCs you
-hold, take the average again weighting each by its market share, and see how far
-apart they are. Three quarters of the entire uniform-to-variable effect is that
-one gap. If it is small, uniform weighting is safe for you.
+**What "CV" means.** The coefficient of variation: the standard deviation
+divided by the mean.
 
-**"Does CV mean coefficient of variation?"** Yes -- the standard deviation
-divided by the mean. It is written out on first use everywhere now.
+**Why the location/shape split is not a recipe.** Nobody can compute a
+market-weighted mean, because EPD market shares are not published -- that is the
+premise of the companion paper. The split says what KIND of uncertainty unknown
+weights introduce, which for most categories is uncertainty about a mean rather
+than about a shape. It is a reason to want industry-average declarations, not an
+instruction to compute something.
 
-**"Is A_IQR aligned with log n an artifact, and does it match the statistics
-literature?"** It matches it. The pointwise variance of a kernel density estimate
-goes as 1 / (n h), and with a Silverman or Scott bandwidth h goes as n^-0.2, so
-the standard deviation of the estimated density goes as **n^-0.4**. A_IQR is an
-interquartile width of exactly that ensemble, and the measured exponent is
-**-0.35**. So A_IQR is behaving as density-estimation theory says it must.
-
-**Does that make A_IQR redundant?** In THIS study, largely yes -- but not in the
-companion paper, and the difference is instructive. A_IQR depends on the weight
-INFORMATION as well as on n. The companion paper's scenarios 3.1 and 3.2 use the
-same nine-point dataset and report A_IQR of 0.22 and 0.12, differing only in
-whether a subgroup's weights are constrained or known exactly. **Same n, nearly a
-factor of two in A_IQR.** This study holds the weight information fixed -- a flat
-Dirichlet, no constraints, for every category -- so the only thing left varying
-is n, and A_IQR collapses onto it. The measure is not redundant; this study's
-design simply removes the dimension it was built to see.
-
-**"The noise floor still feels wrong -- are we just not sampling enough?"** No,
-and the analogy that makes it clear: polling an election. With 10,000 respondents
-you know each candidate's share to within half a point, which is plenty. But if
-the true race is 50.0 against 50.0, no sample size tells you who wins, because
-there is no stable answer to tell. Here about a fifth of pLCA groups have their
-top two materials within sampling error of each other, and in those the "winner"
-is arbitrary. The estimates are converged; the ARGMAX of a tie is not a
-convergent quantity. This is also why the recommended headline is the continuous
-shift rather than the flip: the shift has no tie to be on the wrong side of.
-
-**"Why do we keep talking about the inventory citation?"** We should not, and the
-first draft over-weighted it. The ceiling is fine and no number depends on it.
-The only issue was that one supporting citation could not be verified in this
-repository, so it is withdrawn and the arithmetic justification carries it alone.
-It has been demoted out of the headline list.
-
----
+**Why the plausibility ceiling's citation was withdrawn.** The mass ceiling of
+100 kgCO2e/kg was justified partly by a figure attributed to the Inventory of
+Carbon and Energy database, which could not be verified from anything in the
+repository. Nothing about the ceiling changes: it rests on the arithmetic that
+100 kgCO2e per kilogram of delivered product would require burning 27.3 kg of
+pure carbon per kilogram shipped, which needs no database.
 
 ## 1. Stage and branch
 
@@ -419,42 +291,26 @@ check that nothing existing moved.
 **New notebook sections.** Notebook 1 gained the decomposition on both arms, the
 relative measure with its un-normalized verification, A_IQR and the per-dataset
 weighting risk at 1,000 Dirichlet draws, a post-stratified aggregate, and a
-three-panel figure. Notebook 3 gained the noise floor, the six method pairs under
+three-panel figure. Notebook 3 gained the six method pairs under
 common random numbers, the calibration set, the crossings, a provenance check,
 post-stratified flip rates and the calibration figure. **Notebook 3's new
 material writes no pLCA result and replaces nothing above it.**
 
-**Three audit scripts** measure what the settings are: how many grid points and
-Dirichlet draws A_IQR needs, the full calibration with its diagnostics, and the
-weighting measures end to end. The last of these was stopped part-way through its
+**Five audit scripts** measure what the settings are: the ensemble convergence,
+the full calibration with its diagnostics, the weighting measures end to end, how
+how a tie-break between two near-identical materials behaves, and what
+switching UQ method does to every pLCA output. The last of these was stopped part-way through its
 final run, when it was competing for processor time with the notebook that
 produces the paper's own tables; it writes only to the audit directory, nothing
 reported depends on it, and re-running it is a single command. The next Claude
 Code session will find it at `audits/weighting_measure.py`.
 
-### Two details read off the published paper, as required
+### Two details read off the published paper
 
-Both were open and both are now settled, from the copy of Torres et al. (2026),
-Resources, Conservation and Recycling volume 234, article 109022, held locally.
-
-**The area is NOT normalized.** The paper defines A_IQR as the area of the
-interquartile range across all viable probability density functions, "calculated
-by subtracting the 25th percentile density curve from the 75th percentile density
-curve at each point along the x-axis", and reports bare areas of 0.40, 0.22 and
-0.12 for its three scenarios with no divisor. None is needed: the integral of a
-difference of densities over x is already dimensionless.
-
-**The ensemble is 1,000 draws.** Stated twice -- "Fig. 3a shows 1000 iterations
-illustrating the range of viable solutions and the average PDF", and for the
-131-EPD steel proof of concept, "these constraints are incorporated to generate
-1000 viable PDFs". This study uses 1,000 for consistency, so that the two papers
-report the same measure and not merely the same name.
-
-**One divergence from that paper to state in the text.** Its bandwidth rule is
-Silverman's with the interquartile range divided by **1.35**; this study divides
-by **1.34** and guards the scale estimate below 20 effective observations. The
-difference is immaterial numerically but the paper should not claim the two
-computations are identical.
+Both were open when the stage began and both were settled from the local copy of
+Torres et al. (2026): the area is not normalized, and the ensemble is 1,000
+draws. **They no longer matter to this paper**, because A_IQR is dropped from it
+(section 4.5), but they are recorded so nobody re-reads the paper to find them.
 
 ### Two defects the tests caught, both of which would have been silent
 
@@ -464,62 +320,44 @@ its destination was computed, which put the merge on the wrong block. The fitted
 curve came back shorter than its input and did not preserve the mean. It now
 matches a reference implementation to 1.1e-16 over 500 points.
 
-**A_IQR was built from a bare kernel sum rather than the study's own fitted
-density**, which is a kernel estimate explicitly truncated at zero and
+**The density ensemble was built from a bare kernel sum rather than the study's
+own fitted density**, which is a kernel estimate explicitly truncated at zero and
 renormalized, because an embodied carbon coefficient of zero or less is not
 admissible. On small datasets with a concentrated weight draw the bandwidth is
 wide enough that up to 10 percent of the mass fell below zero and off the grid,
-so A_IQR would have been partly a measure of how much mass each draw spilled.
+so the ensemble would have been partly a measure of how much mass each draw
+spilled. It feeds the weighting separation as well, so the fix matters even
+though A_IQR itself is now dropped.
 
 ---
 
 ## 4. What the measurements say
 
-### 4.1 The Monte Carlo noise floor, and why it decided the design
+### 4.1 What switching UQ method actually does to a pLCA result
 
-Same fitted models, two independent random streams, 400 probabilistic LCAs by six
-methods, at 10,000 Monte Carlo draws per material:
+Measured over 250 pLCA groups and all fifteen method pairs, giving both methods
+the same uniform draws so the comparison is like-for-like. Each figure is the
+change for the MOST-AFFECTED of the four materials in a group, which is the
+material a practitioner would be making a decision about.
 
-| method | top contributor changes | full ordering changes |
-|---|---|---|
-| all six pooled | **5.33 pct** | **34.2 pct** |
-| Normal, Variable | 1.00 pct | 6.25 pct |
-| Lognormal, Variable | 2.25 pct | 8.25 pct |
-| KDE, Variable | 2.75 pct | 11.50 pct |
-| Normal, Uniform | 3.75 pct | 37.75 pct |
-| KDE, Uniform | 7.00 pct | 68.50 pct |
-| Lognormal, Uniform | **15.25 pct** | 73.00 pct |
+    output                              median change   90th pct
+    estimated contribution                      0.181      0.519
+    95th percentile of the contribution         0.413      1.290
+    standard deviation of contribution          0.173      0.467
+    coefficient of variation                    0.175      0.389
+    chance of being largest contributor         0.126      0.278
+    contribution to total variance              0.089      0.276
+    share of the building total                 0.030      0.085
 
-**Why it is this large, and it is a property of the study's own construction.**
-Every dataset is normalized to a mean of 1.0 and every material use intensity is
-1.0, so the four materials in a probabilistic LCA are nearly exchangeable: the
-frequency with which each is the largest contributor sits near 0.25 for all four,
-and 15 percent of cells have a gap between the top two below two Monte Carlo
-standard errors.
+**Every material contributes a mean of 1.00 in this study, so 0.181 on the first
+row is an 18 percent change in a material's estimated contribution**, purely from
+which of six defensible UQ methods was used.
 
-**WHAT IS AND IS NOT CONVERGED, because "10,000 draws should be enough" is a
-reasonable objection and it is half right.** The estimates ARE converged: one
-rank-1 frequency has a Monte Carlo standard error of 0.0043 at 10,000 draws.
-What is not converged, and cannot be at any sample size, is WHICH of two nearly
-equal materials is larger, because the argmax is a discontinuous function of
-continuous estimates. **The flips are confined entirely to the near-ties.** At
-10,000 draws, groups whose top-two gap exceeds four standard errors flipped in
-**0 of 238** cases; groups inside two standard errors flipped about half the
-time. So this is not five percent of error smeared across every comparison. It is
-near-certainty on four fifths of the groups and a coin toss on the fifth that are
-genuinely tied.
-
-**More draws help at square-root cost and never reach zero.** Over 300 groups the
-floor is **16.3 percent at 1,000 draws, 6.7 percent at 10,000 and 2.7 percent at
-100,000** -- a factor of 2.5 for ten times the compute, against the 3.16 a
-square-root law predicts. Half a percent would cost about a hundred times the
-current run and still not be exact. Common random numbers reach exactly zero for
-nothing, because they remove the COMPARISON noise and not the estimation noise.
-That, and not "10,000 is too few", is the argument for them.
-
-Under common random numbers the floor is zero by construction, and the
-calibration set carries a control that verifies it: at zero reweighting, across
-2,500 groups, the separation is exactly zero and no flip occurs.
+Two things worth carrying into the paper. **The spread outputs move most**, which
+is the right way round: a UQ method exists to represent spread, so that is where
+two of them should differ. And **the variance contribution moves least**, so the
+question "where should I spend effort collecting better data" is the most robust
+output a probabilistic LCA produces -- more robust than any magnitude it reports.
 
 ### 4.2 The decomposition: mostly location
 
@@ -538,10 +376,13 @@ component; the rest is SHAPE.
 inequality holds throughout: the worst residual across all 10,147 datasets is
 -7.0e-14, which is floating point in the quadrature and not a result.
 
-**What it means for the paper.** A practitioner asking whether market shares
-matter for their category needs a weighted mean, not a distribution. The residual
-is real but secondary, and it grows with dataset size, which is the opposite of
-where the weighting question is most urgent.
+**What it means for the paper, and it is NOT a recipe.** Nobody can compute a
+market-weighted mean, because EPD market shares are not published -- that is the
+premise of the companion paper. What this says is what KIND of uncertainty
+unknown weights introduce: for most categories, uncertainty about a mean rather
+than about a shape, which is why a production-weighted industry-average EPD would
+resolve most of it. For the 28 shape-dominated categories it would not. The rule a
+practitioner can actually apply is the size-and-dispersion law in section 4.4a.
 
 ### 4.3 The relative measure was already there, unnamed
 
@@ -601,9 +442,8 @@ at 0.0024, 0.021 at 0.0039, 0.034 at 0.0057 and 0.051 at 0.0093.
 
 **The six UQ methods could not supply this curve, and that is itself a result.**
 Over 37,500 comparisons the smallest relative W1 between any two of the six is
-0.00022, but the flip rate in the lowest 2 percent of separations is already 14.1
-percent and the average over all pairs is **56.1 percent** at an average
-separation of 0.30. Every level being asked about lies below the observed data;
+0.00022, and the flip rate in the lowest 2 percent of separations is already 14.1
+percent. Every level being asked about lies below the observed data;
 an isotonic fit on those pairs alone returns the same crossing for all three
 levels, because its first block is already above the top of them. The calibration
 set therefore adds pairs at controlled separations running continuously to zero:
@@ -644,8 +484,8 @@ not be quoted as a statement about buildings.
 
 **The full rank ordering is not a usable criterion in this construction**, and is
 reported only in order to say so. Its crossings are at 0.00002, 0.00023 and
-0.00065, and its Monte Carlo noise floor under independent streams is 34.2
-percent.
+0.00065. Ranking four near-identical materials from first to last is not a
+decision anyone makes.
 
 **Post-stratified**, because the synthetic corpus allocates datasets equally
 across four size bands while the real categories do not: the top-contributor flip
@@ -656,116 +496,28 @@ four materials and therefore has no single size band, so the convention is the
 smallest material in the group, on the grounds that the small dataset is where
 fitted models differ most. It is stated rather than hidden.
 
-### 4.5 A_IQR, and why it is not the practitioner's number
+### 4.5 A_IQR is dropped from the paper
 
-A_IQR is the area between the pointwise 75th and 25th percentile density curves
-over an ensemble of 1,000 Dirichlet-weighted kernel fits. It was adopted because
-it is the measure the author's own published paper defines, and because an
-earlier probe had found that dispersion rather than dataset size drives whether
-weighting matters.
+**Author decision, 2026-09-17: "that was a hypothesis I had that didn't pan out
+... let's stop mentioning it and don't bring it up in the manuscript. It served a
+different purpose for a different study."**
 
-**It does not behave that way here.** Spearman correlations, over the 147 real
-categories. Two versions of the risk are shown, and the difference between them
-matters:
+The measure stays in `src/weighting.py` and the per-dataset values stay in
+`TABLE_WeightingRisk.csv`, so nothing has to be recomputed if it is ever wanted
+again. It is simply not part of this paper's argument.
 
-| against | A_IQR | risk as a probability | risk as a distance |
-|---|---|---|---|
-| coefficient of variation | **+0.042** | +0.803 | **+0.731** |
-| log of the number of EPDs | **-0.946** | -0.106 | **-0.545** |
-
-**Read the third column, not the second.** The probability that a possible
-weighting crosses the 5 percent flip threshold is SATURATED: 46 percent of real
-categories sit at exactly 1.000 and 74 percent above 0.99, because the calibrated
-threshold is far smaller than a typical reweighting. A Spearman correlation on a
-variable that is three-quarters tied is carried by the handful of untied points
-and should not be quoted as the headline. The median separation over draws, in
-units of the dataset mean, has no ceiling and is the honest version.
-
-On the synthetic sample of 400, A_IQR sits at -0.277 against dispersion and
--0.993 against log size.
-
-**THE MECHANISM, AND A FIRST DRAFT OF THIS FILE EXPLAINED IT WRONGLY.** That
-draft said A_IQR cannot see dispersion because it is exactly invariant when every
-value is rescaled. It is invariant -- verified to ten decimal places over seven
-orders of magnitude -- but **so is the mean-relative separation**, so invariance
-cannot be what distinguishes them. The claim is withdrawn.
-
-What actually separates them is WHAT EACH DIVIDES BY. A_IQR is the uncertainty of
-the density curve measured against that curve's own height and width, so the
-data's spread cancels out of both factors and what survives is the sampling noise
-in the weights, which is a question of how many points there are. The separation
-is a distance along the x-axis divided by the mean alone, so the ratio of spread
-to mean survives -- and that ratio IS the coefficient of variation.
-
-Both halves are measurable and both check out. Holding a lognormal at 60 points
-and raising its coefficient of variation from 0.22 to 5.83: A_IQR goes 0.296,
-0.285, 0.299, 0.307 while A_IQR times the square root of the sample size stays
-between 2.21 and 2.38; the separation goes 0.030, 0.099, 0.316, 0.664, and
-**divided by the coefficient of variation it is nearly constant at 0.138, 0.119,
-0.115, 0.114**.
-
-**A_IQR is not wholly indifferent to dispersion, and the within-band numbers show
-where it is not.** Its rank correlation with the coefficient of variation inside
-each size band of the real arm is -0.008 at 3 to 9 EPDs, +0.128 at 10 to 99,
-+0.644 at 100 to 999 and +0.405 above 1,000 -- monotone but small in magnitude. A
-five- to tenfold change in the coefficient of variation within a band moves
-A_IQR by a factor of 1.07 to 1.87, against a factor of 12 across the size range.
-So the accurate sentence is that A_IQR is DOMINATED by size, not that it is blind
-to spread.
-
-**THE PROBE'S FINDING SURVIVES, BUT IT IS NOT A REVERSAL AND SHOULD NOT BE
-WRITTEN AS ONE.** The earlier probe put dispersion at +0.693 and size at -0.569;
-the honest measure here gives **+0.731 and -0.545**, which reproduces the probe
-almost exactly. **Both drive the risk.** Dispersion is marginally the stronger of
-the two, and that alone is remarkable in a study where dispersion predicts
-nothing else -- but it does not displace size, and a sentence claiming it does
-would be overreaching.
-
-**Where dispersion genuinely dominates is WITHIN a size band**, and there it is
-close to deterministic. Spearman of the separation against the coefficient of
-variation, computed inside each band of the real arm: **+0.940** at 3 to 9 EPDs
-(20 datasets), **+0.888** at 10 to 99 (78), **+0.955** at 100 to 999 (38) and
-**+0.833** above 1,000 (8). The mirror image also holds: among the 38 categories
-that are NOT saturated, size explains almost everything (-0.726) and dispersion
-almost nothing (+0.040).
-
-So the paragraph the paper owes is this. **Every question in this study about
-which METHOD fits best is driven by the number of EPDs and by nothing else.
-Whether WEIGHTING matters is driven by BOTH -- by size across categories and by
-dispersion within a size band.** That is the one place in the project where
-dispersion is a first-order quantity, and a reader who has absorbed "it is all
-about n" will otherwise carry that assumption into a question where it is only
-half the answer.
-
-### What the risk actually says, and it is not reassuring
-
-The per-dataset probability that a possible market-share allocation moves the
-fitted density past the 5 percent flip threshold, on the real categories:
-**0.909 at equal allocation across size bands and 0.928 reweighted** to the mix
-of sizes the real categories actually have. By size band the means run 0.945 at
-3 to 9 EPDs, 0.992 at 10 to 99, 0.919 at 100 to 999, and **0.310 above 1,000**.
-
-**So uniform weighting is not safe for most real ECC categories.** For all but
-the largest, nearly every allocation the study considers possible is far enough
-from uniform to carry at least a 5 percent chance of changing which material is
-named the largest contributor. Only above about a thousand EPDs does the
-assumption become defensible, and that is a handful of concrete strength classes
-and asphalt.
-
-The reason the probability is so high is worth stating so it is not mistaken for
-an error: the calibrated 5 percent threshold is a relative distance of
-0.011, while the typical distance between a uniform-weighted fit and a
-Dirichlet-weighted one is an order of magnitude larger. The threshold is small
-because the study's four materials are near-exchangeable, and the separations are
-large because a flat Dirichlet over few points is a violent reweighting.
-
-**A_IQR is still reported**, because it is the right answer to the published
-paper's own question -- how confident the uncertainty model is -- and because
-reporting it lets this paper cite rather than re-derive. Mean A_IQR is 0.318 at
-equal allocation and 0.324 reweighted on the real categories; by size band, 0.615
-at 3 to 9 EPDs falling to 0.059 above 1,000. It should be presented as a property
-of dataset size, which is what it measures.
-
+**What was learned before it was dropped, in one paragraph, because it is a real
+result about the measure and not a failure of it.** A_IQR in this study is a
+function of dataset size: Spearman -0.946 against log n, +0.042 against the
+coefficient of variation, and its exponent of -0.35 is what density-estimation
+theory predicts, since the standard deviation of a kernel density estimate goes
+as n^-0.4 under a Silverman bandwidth. **That does not make it a poor measure.**
+It responds to the WEIGHT INFORMATION as well as to n, and the companion paper's
+own scenarios show it separating 0.22 from 0.12 on the same nine data points when
+the only change is whether a subgroup's shares are constrained or known. This
+study holds the weight information fixed for every category -- a flat Dirichlet,
+no constraints -- so the only dimension left varying is n. The measure is fine;
+this study's design removes the axis it was built to see.
 
 ---
 
@@ -775,13 +527,14 @@ of dataset size, which is what it measures.
 
 | Item | Owner |
 |---|---|
-| **Install common random numbers in the STUDY's pLCA.** Stage 2d measured what their absence costs -- 5.33 percent of top-contributor comparisons and 34.2 percent of orderings flip with no model difference -- and left a tested implementation. Every downstream number moves when it is installed | 2e |
+| **Common random numbers in the STUDY's pLCA.** A tested implementation is in `src/flip.py`; giving two methods the same uniform draws makes their comparison exactly paired. Worth doing, and not urgent: every continuous output already separates the methods far more than sampling variation does | 2e |
 | Dependent sampling; materials per pLCA swept over 2 to 12; resampled groupings; bootstrap intervals on every headline percentage | 2e |
 | **Run the pLCA against the TRUE parent distributions**, which Stage 2c called the most valuable single experiment available. It converts every score from "how close is the fitted CDF" to "how wrong is the answer" | 2e, then 2g |
 | Shapiro-Wilk versus Shapiro-Francia; the full reduction of the characteristic set to three to five survivors | 2f |
 | The `(1-capecc)` divisor; magnitude-based companion metrics; sensitivity of the headline rank-1 frequency | 2g |
 | The profile-likelihood guard sweep, reporting the fitted-model spread ratio at every value; the Dirichlet concentration sweep; multiple weight realizations; the deduplicated variant | 2h |
 | **A smoke run reached a commit in this stage.** It was caught and restored within the session and cost nothing, but the rule against it is a sentence in a document rather than a check. The fix is for the notebook to refuse to write its main table when the smoke environment variable is set, or for a test to assert the group count in the run metadata | 3 |
+| **Every figure in the repository must be brought to `FIGURE_STYLE.md`.** The author's instruction is that the guide is binding on all figures, not only on the ones Stage 2d produced. Two are compliant; the rest of notebooks 1, 2 and 3 predate the guide and none has been checked against it. `src/figstyle.py` provides the palette, the rcParams, direct labelling and an automatic text-overlap check | 3 |
 | Figure rebuilds and the figure manifest; one results table is 96 MB | 3 |
 
 ### Text the manuscript owes, from this stage
@@ -790,20 +543,17 @@ of dataset size, which is what it measures.
 |---|---|
 | The inventory citation | Withdrawn. State the plausibility ceiling with the stoichiometric justification and no database citation. If corroboration is wanted, someone must open the Inventory of Carbon and Energy version 3.0 and record an edition and a page |
 | The relative measure | Say once, explicitly, that every reported distance is relative to the dataset's own unweighted mean. It moves no number |
-| The decomposition | Report that the uniform-to-variable distance is roughly three quarters a shift of the mean, and give the practitioner rule in those terms |
-| A_IQR | Cite the published paper for it, state that it is computed with no normalization over 1,000 draws, and say plainly that in this study it is a property of dataset size. Also state the bandwidth divergence from that paper, 1.34 against 1.35 |
+| The decomposition | Report the median location share as **0.725**, with its interquartile range of 0.457 to 0.933 and the 28 of 147 shape-dominated categories. Do NOT report it as a constant, and do NOT frame it as a recipe: nobody can compute a market-weighted mean |
+| A_IQR | **Nothing. It is dropped from the paper by author decision.** Section 4.5 says why; do not reintroduce it |
 | The curve | New result and new figure. Report the crossings with their intervals, and report the caveat about exchangeable materials in the same paragraph, not in a footnote |
-| The noise floor | Say which comparisons in the study are paired and which are not. Any difference between two methods' downstream results currently carries a 5.33 percent floor |
 
 ### Known and accepted
 
 The calibration curve understates the flip probability for large cross-family
 separations, as section 4.4 shows and states. The flip levels are an upper bound
-because the study's four materials are near-exchangeable. The synthetic arm of
-the A_IQR table is a stratified sample of 400 rather than the whole corpus,
-because 1,000 Dirichlet draws per dataset costs about a second and 10,000
-datasets would be hours; the sample size is reported beside every number taken
-from it.
+because the study's four materials are near-exchangeable. The synthetic arm of the per-dataset weighting table is a stratified sample of
+400 rather than the whole corpus, because 1,000 Dirichlet draws per dataset costs
+about a second; the sample size is reported beside every number taken from it.
 
 ---
 
@@ -826,11 +576,12 @@ verified at 60,001 lines. See the open item above.
 corpus; the existing pLCA results table, for the gap analysis only; and the
 published KL2 paper, for the two A_IQR construction details.
 
-**Written.** Two source modules and their two test files; three audit scripts;
-new sections in notebooks 1 and 3; thirteen new result tables; two new figures, one
-showing what drives the weighting risk and one showing the calibration curve;
-five new decisions in the project brief's decision log, numbered 91 through 95,
-and its handoff specification; manuscript discrepancy entries 81 to 87; and this
+**Written.** Three source modules and their two test files; five audit scripts;
+new sections in notebooks 1 and 3; thirteen new result tables; two new figures,
+the calibration curve and the map of which categories can safely assume uniform
+weights;
+fourteen new decisions in the project brief's decision log, numbered 91 through 104,
+and its handoff specification; manuscript discrepancy entries 81 to 95; and this
 file.
 
 **Not touched.** The generator, the synthetic corpus, the empirical extract, the
@@ -840,14 +591,15 @@ fitting methods, the scoring criterion, and the manuscript.
 
 ## 8. Next stage
 
-**Stage 2e**, the pLCA construction, and it should start with common random
-numbers rather than treating them as one item among several. This stage measured
-what their absence costs and the number is large: 5.33 percent of top-contributor
-comparisons and 34.2 percent of rank orderings change with no model difference at
-all. Every comparison the study currently makes between two methods' downstream
-results carries that floor. A tested implementation is already in the repository
-and the next Claude Code session should read `src/flip.py` before writing a new
-one.
+**Stage 2e**, the pLCA construction. Its first job is the sweep over the number
+of materials per pLCA, because the flip thresholds in section 4.4 are conditional
+on four materials of equal use intensity and will move when that changes.
+
+Common random numbers are worth installing while it is in there -- a tested
+implementation is in `src/flip.py`, and the next Claude Code session should read
+that before writing another -- but they are a refinement rather than a repair.
+Every continuous output already separates the six methods far more than sampling
+variation does.
 
 **The second thing 2e should do is the experiment Stage 2c identified and nobody
 has run**: the probabilistic LCA against the TRUE parent distributions, on the

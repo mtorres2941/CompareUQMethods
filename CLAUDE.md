@@ -283,8 +283,8 @@ and generation is closed; neither input moves again.
 | **2a-3 DONE** | Resolve the EC3 categories into specifiable products, on record metadata only: drop EC3 residual bins, split concrete by specified strength, split insulation by material type. Arm 136 to 149. Regenerate as `corpus_2026-09-14d`. Two record corrections. Found that the coverage claim is false. Handoff deleted by decision 59 | Any fitting work. It is the LAST pre-2b stage: nothing after it reopens generation or the empirical extract |
 | **2b DONE** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE. Also the plausibility ceiling, the support (0, inf), and the first end-to-end run of notebooks 2 and 3. Handoff deleted at the close of 2c; its findings are decisions 49 to 58 and discrepancy entries 35 to 52 | Adding new families for robustness (2h), or rescoring against a parent (2c) |
 | **2c DONE** | The evaluation target: scored the synthetic arm against the known parent (recovered by replaying the generator, decision 64), cross-validated the empirical 147, the fit-versus-definitional decomposition, regret, post-stratification, overlap area, the gamma question, the bandwidth against the parent, and the scoring grid. `reports/HANDOFF_stage-2c.md` | The pLCA construction (2e) and the flip-probability threshold (2d). It did NOT split the uniform-to-variable W1 into location and shape, which is 2d's |
-| **2d DONE** | Decomposed the uniform-to-variable W1 into location and shape (mostly location), named the relative measure and verified it un-normalized, built A_IQR and the per-dataset weighting risk, and calibrated the flip probability with the 1, 5 and 10 percent crossings. Found that the study's pLCA compares methods under INDEPENDENT randomness, with a 5.33 percent top-contributor noise floor, so the calibration runs on common random numbers. `reports/HANDOFF_stage-2d.md` | Building companion decision metrics (2g), and installing common random numbers in the STUDY's pLCA, which stays 2e's |
-| **2e** | pLCA construction: common random numbers across UQ methods, sweep materials per pLCA over 2 to 12, resample groupings, dominant-MUI variant, bootstrap intervals on every headline percentage and NRMSE. **Stage 2d measured the cost of NOT having common random numbers at 5.33 percent of top-contributor comparisons and 34.2 percent of orderings, and left a tested implementation in `src/flip.py`** | Changing what the headline metric is (2g) |
+| **2d DONE** | Decomposed the uniform-to-variable W1 into location and shape, named the relative measure and verified it un-normalized, built the per-dataset weighting risk and the size-and-dispersion law behind it, calibrated the flip probability, and measured what switching UQ method does to every pLCA output in real units. `reports/HANDOFF_stage-2d.md` | Building companion decision metrics (2g), and installing common random numbers in the STUDY's pLCA, which stays 2e's |
+| **2e** | pLCA construction: common random numbers across UQ methods, sweep materials per pLCA over 2 to 12, resample groupings, dominant-MUI variant, bootstrap intervals on every headline percentage and NRMSE. **Start with the materials-per-pLCA sweep: decision 95's flip thresholds are conditional on four materials. A tested common-random-numbers implementation is in `src/flip.py`** | Changing what the headline metric is (2g) |
 | **2f** | Resolve Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue`, then the multivariate model of W1 and of which method wins, to cut the metric set to three to five survivors | Regenerating, or redesigning figures (3) |
 | **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
 | **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling | Anything not framed as a sweep with a tabulated result |
@@ -1875,7 +1875,18 @@ rather than in conversation.
     and is the open item about a single Dirichlet realization moving per-dataset
     metrics a long way. Entry 80.
 
-90. **2026-09-17. A_IQR is the measure Stage 2d should use for "how safe is
+90. **2026-09-17. SUPERSEDED by the author, after Stage 2d measured it: A_IQR is
+    DROPPED from this paper.** "That was a hypothesis I had that didn't pan out
+    ... let's stop mentioning it and don't bring it up in the manuscript. It
+    served a different purpose for a different study." The measure stays in
+    `src/weighting.py` and its per-dataset values stay in
+    `TABLE_WeightingRisk.csv`; the figure that showed it is deleted and nothing
+    in the manuscript cites it. See decision 94 for what was learned before it
+    was dropped, and decision 96 for the size-and-dispersion law that replaced
+    it. The original entry follows, unchanged, because a later stage needs to
+    know what was asked for and why.
+
+    **A_IQR is the measure Stage 2d should use for "how safe is
     uniform weighting", and it comes from the author's own KL2 paper, which makes
     it a CONSISTENCY CONSTRAINT rather than one option among several.**
     `[AUTHOR]` Recorded because it was clarified in conversation and would
@@ -1923,66 +1934,34 @@ rather than in conversation.
     whether weighting matters (Spearman +0.693 with the coefficient of variation
     against -0.569 with log n), and A_IQR is a dispersion-of-the-density measure.
 
-91. **2026-09-17, Stage 2d. THE STUDY'S pLCA CANNOT ANSWER "DID THE ANSWER
-    CHANGE", because it compares methods under INDEPENDENT randomness, and the
-    flip calibration therefore runs on common random numbers.** `[DELEGATED, 2d
-    chose]` Read this before concluding that Stage 2e's work was done early. **It
-    was not.** No pLCA result was written or replaced; this is a separate
-    calibration run.
+91. **2026-09-17, Stage 2d. WITHDRAWN IN FULL. The claim that the study's pLCA
+    "cannot answer did the answer change" was wrong, and the 5.33 percent figure
+    behind it is not to be quoted.** `[AUTHOR]` This entry originally reported
+    that comparing two UQ methods under independent random streams changes the
+    answer 5.33 percent of the time, and treated that as a defect in the study's
+    pLCA. The author rejected it five times before it was demonstrated rather than
+    asserted, and the demonstration shows the objection was correct.
 
-    Notebook 3 draws each method's Monte Carlo sample from its own stretch of one
-    shared generator, so any two methods are compared under two different sets of
-    random numbers. **Run the same method twice, with the SAME fitted models and
-    two independent streams, over 400 pLCA groups: the top contributor changes in
-    5.33 percent of cases and the full rank ordering in 34.2 percent, with no
-    model difference whatever.** By method the top-contributor floor runs from
-    1.00 percent for `Normal, Variable` to 15.25 percent for `Lognormal, Uniform`.
+    **What that number actually counts.** Not a change in any reported quantity.
+    It is the rate at which the LABEL "which material has the highest rank-1
+    frequency" lands elsewhere when two materials are statistically tied. Worked
+    case: the four frequencies were 0.2335, 0.2581, 0.2597, 0.2487 in one run and
+    0.2325, 0.2583, 0.2543, 0.2549 in another. The largest change in any number is
+    0.0062; the top two differed by 0.0016, inside their own 0.0043 standard
+    error. **10,000 draws is ample and the numbers agree; an arbitrary tie-break
+    went the other way.**
 
-    **Two of the three levels this stage was asked to resolve sit BELOW that
-    floor**, so they cannot be read off the existing results at any number of
-    datasets. Under common random numbers -- one uniform variate per material per
-    iteration through every method's inverse CDF, which is what
-    `families.rvs_from_uniform` was built for in Stage 2b and had never been used
-    for -- two identical models produce identical draws and the floor is exactly
-    zero. The `t = 0` control in the calibration set confirms it: 2,500 groups,
-    zero separation, zero flips.
+    **Why quoting it was actively misleading.** "5.33 percent of comparisons
+    change" reads as though a contribution moved from 25 percent to 20 percent.
+    Nothing of the sort occurs. Decision 103 measures what does change, in units a
+    reader can act on.
 
-    **Why it is this large here, and it is a property of the study's own
-    construction.** Every dataset is normalized to a mean of 1.0 and every
-    material use intensity is 1.0, so the four materials in a pLCA are nearly
-    exchangeable, their rank-1 frequencies all sit near 0.25, and 15 percent of
-    (pLCA, method) cells have a gap between the top two below two Monte Carlo
-    standard errors.
-
-    **Stage 2e still owns installing common random numbers in the study's pLCA**
-    and moving its published numbers. What it inherits from here is a tested
-    implementation, `src/flip.py`, not a decision. Discrepancy entry 82.
-
-    **NARROWED 2026-09-17 BY THE AUTHOR'S CHALLENGE, and the narrowing matters.**
-    The author objected that comparing two methods under independent streams is
-    the normal thing to do, that 10,000 draws ought to have converged, and that
-    5.33 percent is shockingly high. Measured rather than defended, in
-    `audits/noise_floor_convergence.py`, and the objection is half right.
-
-    **THE ESTIMATES ARE CONVERGED. THE ARGMAX IS NOT, AND CANNOT BE.** One
-    rank-1 frequency has a Monte Carlo standard error of 0.0043 at 10,000 draws,
-    which is fine. What is unstable is WHICH of two nearly equal materials is
-    larger, because the argmax is a discontinuous function of continuous
-    estimates. **The flips are entirely confined to the near-ties:** at 10,000
-    draws, groups whose top-two gap exceeds 4 standard errors flipped in 0 of
-    238 cases, while groups inside 2 standard errors flipped about half the time.
-    So it is not 5 percent error smeared over every comparison; it is certainty
-    on about 80 percent of groups and a coin toss on the 20 percent that are
-    genuinely tied.
-
-    **More draws help, at square-root cost, and never reach zero.** Measured over
-    300 groups: 16.3 percent at 1,000 draws, 6.7 percent at 10,000, 2.7 percent
-    at 100,000 -- a factor of 2.5 for ten times the compute, against the 3.16 a
-    square-root law predicts. Getting to half a percent would cost roughly a
-    hundred times the current run and would still not be exact. **Common random
-    numbers reach exactly zero for free**, because they remove the COMPARISON
-    noise rather than the estimation noise. That is the argument for them, and it
-    is a better argument than "10,000 is not enough", which is not true.
+    **The one thing that survives.** The flip-probability calibration of decision
+    95 has an argmax as its outcome, so it would inherit that tie-break noise;
+    giving both methods the same uniform draws removes it exactly, which is why
+    the calibration is run that way. `families.rvs_from_uniform`. Installing the
+    same thing in the study's own pLCA is Stage 2e's and is a refinement, not a
+    repair.
 
 92. **2026-09-17, Stage 2d. The uniform-to-variable W1 is MOSTLY A SHIFT OF THE
     MEAN, and that simplifies the practitioner rule.** `[AUTHOR]` The author
@@ -2104,15 +2083,15 @@ rather than in conversation.
     whether WEIGHTING matters is driven by size across categories and by
     dispersion within a size band.**
 
-    **A_IQR is still reported, and the reason is unchanged.** It is the right
-    answer to KL2's question, which is how confident the uncertainty MODEL is; it
-    is published, so this paper cites rather than re-derives; and decision 90's
-    two construction details stand, pointwise quartiles and the guarded Silverman
-    bandwidth. **What changes is what it is asked to do.** The practitioner
-    statement is made on the distance between the uniform-weighted fit and the fit
-    under a drawn market share, in units of the dataset's own mean, because that
-    is the axis the flip probability is calibrated on and because a pLCA ranks
-    materials by absolute contribution.
+    **SUPERSEDED 2026-09-17 BY THE AUTHOR: A_IQR IS DROPPED FROM THE PAPER
+    ENTIRELY.** "That was a hypothesis I had that didn't pan out ... let's stop
+    mentioning it and don't bring it up in the manuscript. It served a different
+    purpose for a different study." The code stays in `src/weighting.py` and the
+    per-dataset values stay in `TABLE_WeightingRisk.csv`; the figure that showed
+    it has been deleted. Nothing in the manuscript cites it, and decision 90's
+    adoption of it is superseded. The practitioner statement is made on the
+    distance between the uniform-weighted fit and the fit under a drawn market
+    share, in units of the dataset's own mean.
 
     **Two details were read off KL2 as decision 90 required**, from
     `refs/1-s2.0-S0921344926002466-main.pdf`, and both are now settled. **The area
@@ -2153,7 +2132,7 @@ rather than in conversation.
     **THE SIX UQ METHODS COULD NOT SUPPLY THIS CURVE AND THAT IS ITSELF A
     RESULT.** Over 37,500 comparisons the smallest relative W1 between any two of
     the six is 0.00022, and the flip rate in the lowest 2 percent of separations
-    is already 14.1 percent; averaged over all pairs it is **56.1 percent**. Every
+    is already 14.1 percent. Every
     level being asked about lies below the observed data. So the calibration set
     adds pairs at controlled separations running to zero -- the same kernel
     estimate under uniform weights and under weights moved a fraction `t` of the
@@ -2178,8 +2157,9 @@ rather than in conversation.
     practitioner rule and must not be quoted as a statement about buildings.
 
     **The full rank ordering is NOT a usable criterion in this construction** and
-    is reported only to say so: its crossings are at 0.00002, 0.00023 and 0.00065,
-    and its Monte Carlo floor under independent streams is 34.2 percent. Entry 85.
+    is reported only to say so: its crossings are at 0.00002, 0.00023 and 0.00065.
+    Ranking four near-identical materials from first to last is not a decision
+    anyone makes. Entry 85.
 
 96. **2026-09-17, Stage 2d. WHETHER WEIGHTING MATTERS HAS A CLOSED FORM IN TWO
     NUMBERS A PRACTITIONER ALREADY HAS, and it is the strongest
@@ -2233,7 +2213,7 @@ rather than in conversation.
     **Concentration and coherence are different things and only the first is a
     sample-size effect.** A contiguous block shifts the whole distribution one
     way, and that lands in the LOCATION term which decision 92 shows already
-    carries about three-quarters of the uniform-to-variable distance; random
+    carries a median of 72.5 percent of the uniform-to-variable distance; random
     concentration moves mass in directions that partly cancel.
 
     **The direction is conservative, which is what makes it a limitation rather
@@ -2277,9 +2257,8 @@ rather than in conversation.
 100. **2026-09-17, Stage 2d. An INDUSTRY-AVERAGE EPD may be the missing weighted
      mean, and it is KL2's `EVtarget` under another name.** `[AUTHOR]` The
      author's idea, and it is a good one: since the uniform-to-variable distance
-     is about three-quarters a shift of the mean, what a practitioner needs is a
-     weighted mean, and an industry-average declaration is in principle exactly
-     that -- a production-weighted average over a population they cannot see.
+     has a median location share of 0.725, what is missing is a market-weighted
+     mean, and an industry-average declaration is in principle exactly that -- a production-weighted average over a population they cannot see.
 
      **It is already in the author's own published work.** KL2 uses
      industry-average ECCs as its target expected value and places a phantom
@@ -2308,9 +2287,8 @@ rather than in conversation.
 
      All four materials are normalized to a mean of 1.0 and weighted equally, so
      they contribute the same expected amount and the ranking is decided entirely
-     by the tails. That is why the Monte Carlo noise floor is 5.33 percent, why
-     the flip probabilities are high, and why the calibrated thresholds are
-     small. **A real building has materials differing by orders of magnitude, so
+     by the tails. That is why the flip probabilities are high and the
+     calibrated thresholds are small. **A real building has materials differing by orders of magnitude, so
      every flip probability this study reports is an UPPER BOUND** on how often a
      modeling choice changes a real answer.
 
@@ -2359,49 +2337,52 @@ rather than in conversation.
      data-collection-facing measure, and state any argmax result with its noise
      floor beside it. Discrepancy entry 94.
 
-103. **2026-09-17, Stage 2d review. EVERY pLCA OUTPUT DISCRIMINATES BETWEEN UQ
-     METHODS BY 7 TO 24 TIMES THE MONTE CARLO NOISE. Decision 91's headline
-     framing is WITHDRAWN.** `[AUTHOR]` The author proposed the right test --
-     plot the model distance for each method pair against the difference it makes
-     in every output metric, and see which move most -- and objected three times
-     that the 5.33 percent noise figure did not make sense. **They were right and
-     the framing was wrong.**
+103. **2026-09-17, Stage 2d review. WHAT SWITCHING UQ METHOD ACTUALLY DOES,
+     in units a reader can act on. Decisions 91 and 102's framing is WITHDRAWN
+     along with the statistic behind it.** `[AUTHOR]` The author asked for this
+     test -- compare each method pair's model distance against the difference it
+     makes in every output -- and separately rejected, five times, a statistic
+     this stage kept quoting. Both are settled here and the author was right on
+     both.
 
-     `audits/output_metric_sensitivity.py` measures both halves on the same
-     footing: NOISE is one method run twice on independent variates, SIGNAL is two
-     different methods on COMMON variates, each as the median absolute change
-     across the four materials divided by that metric's spread across them.
+     **What was withdrawn, and why it was wrong.** Stage 2d reported that running
+     one method twice on different random draws changed "the answer" 5.33 percent
+     of the time, and built a case on it. That number is the rate at which the
+     LABEL "which material has the highest rank-1 frequency" lands on a different
+     material. It is not a change in any reported quantity. A worked case: the
+     four rank-1 frequencies were 0.2335, 0.2581, 0.2597, 0.2487 in one run and
+     0.2325, 0.2583, 0.2543, 0.2549 in the other -- the largest change in any
+     number is 0.0062, and the top two differed by 0.0016, inside their own
+     0.0043 standard error. **Nothing meaningful moved; a coin-toss tie-break
+     landed the other way.** Quoting it as a percentage invited the reading that a
+     contribution had shifted from 25 percent to 20 percent, which is not remotely
+     what happens. **It is not to be quoted again**, and any ratio expressed as a
+     multiple of it is equally meaningless to a reader.
 
-         metric            noise   signal   ratio
-         eci_cov           0.017    0.417    24.4
-         eci_std           0.015    0.354    24.4
-         eci_rank_1        0.031    0.565    18.1
-         eci_p95           0.024    0.393    16.2
-         eci_mean          0.064    1.014    15.8
-         eci_perc_std      0.026    0.351    13.4
-         eci_meanrank      0.085    0.868    10.2
-         eci_perc_mean     0.090    0.835     9.3
-         ui                0.029    0.211     7.4
-         eci_rank_4        0.075    0.541     7.2
+     **What replaces it.** `audits/output_metric_sensitivity.py`, over 250 pLCA
+     groups and all fifteen method pairs, both methods given the same uniform
+     draws. Each figure is the change for the most-affected of the four
+     materials, which is the one a practitioner is deciding about. Every material
+     contributes a mean of 1.00, so these are readable directly:
 
-     **NOTHING IS NOISE-DOMINATED.** The study's own pLCA answers "did the answer
-     change" perfectly well for every continuous output. What is fragile is only
-     the ARGMAX -- "which material has the highest rank-1 frequency" -- and that
-     was Stage 2d's own framing for the flip calibration, not a metric the study
-     reports. Decision 91 said the study's pLCA "cannot answer did the answer
-     change"; **that sentence is withdrawn.** What stands from it is narrower: an
-     argmax outcome carries a 5.33 percent floor, so common random numbers are
-     needed to CALIBRATE a flip curve, and Stage 2e's installation of them is a
-     refinement rather than a repair.
+         output                              median   90th pct
+         estimated contribution               0.181      0.519
+         95th percentile of contribution      0.413      1.290
+         standard deviation of contribution   0.173      0.467
+         coefficient of variation             0.175      0.389
+         chance of being largest contributor  0.126      0.278
+         contribution to total variance       0.089      0.276
+         share of the building total          0.030      0.085
 
-     **Three findings worth carrying into the paper.** Dispersion outputs are the
-     most sensitive -- `eci_cov` and `eci_std` at 24 times noise -- which is what
-     one would hope, since modelling spread is what a UQ method is for.
-     `eci_mean` tracks the model distance most predictably, Spearman 0.919 with a
-     log-log slope of 1.48. And **variance importance `ui` is the LEAST sensitive
-     at 7.4**, which is the reassuring one: **which material to prioritise for
-     data collection is the most robust conclusion a pLCA produces**, even where
-     the magnitudes are not. Nothing in the study currently reports it.
+     **Switching UQ method changes a material's estimated contribution by about
+     18 percent.** That is the sentence the paper can use.
+
+     **Two findings inside it.** The SPREAD outputs move most -- the 95th
+     percentile by 0.41 against the mean's 0.18 -- which is the right way round,
+     because representing spread is what a UQ method is for. And the CONTRIBUTION
+     TO TOTAL VARIANCE moves least, so **"where should I collect better data" is
+     the most robust output a probabilistic LCA produces**, more robust than any
+     magnitude it reports. The study computes it as `ui` and reports it nowhere.
      Discrepancy entry 95.
 
 104. **2026-09-17, Stage 2d review. The location share is NOT universal, and
