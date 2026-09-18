@@ -531,7 +531,9 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 notebooks print it, so the remainder is stated rather than inferred.
 
 Approximate runtimes on a 2026 laptop: NB1 about 3 min, **NB2 about 35 min**,
-**NB3 about 90 min** at `neccs = 10000`. All three roughly doubled in Stage 2b,
+**NB3 about 40 min** at `neccs = 10000`, measured twice end to end in Stage 2e,
+which roughly doubled it by adding the sweep, the flip recalibration at six
+group sizes and the run against the true parents. All three roughly doubled in Stage 2b,
 because stratum 4 now reaches n = 9,999 where the pre-regeneration corpus
 stopped at 749, and NB2 grew again in Stage 2c: the whole corpus is scored
 against its parent and the empirical arm is cross-validated at ten repeats.
