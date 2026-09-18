@@ -348,6 +348,41 @@ to the second largest and the leading material's share of the total, both
 computable from a quantity take-off and both fixed before any distribution is
 fitted, so neither can move with the method under test.
 
+### The five statements, and the interventions
+
+Stage 2e, after author review. A probabilistic LCA makes five kinds of
+statement and the study reported one and a half of them: **magnitude** (the
+building total as a distribution, including the chance of meeting a budget),
+**attribution** (each material's contribution and share), **information**
+(which material's uncertainty dominates), **action** (what an intervention
+delivers and how likely it is to) and **comparison** (whether one design beats
+another). `plca.building_statement`, `reduction_statement` and
+`comparison_statement`, all scored against the true parent on the same variates.
+
+**THE SPECIFICATION CAP IS ONE ABSOLUTE VALUE PER MATERIAL and the old form
+could not measure what the strategy is for.** It was the 75th percentile of each
+METHOD'S OWN draws, so the six were asked about six different interventions --
+and because each was capped at its own 75th percentile, exactly 25 percent of
+iterations were capped under every method by construction, which forces the
+signal to zero. It is now `plca.specification_cap`, the 75th percentile of the
+values a specifier holds, which is what a practitioner can compute and which
+exists on the empirical arm where no parent does. **This moved every `capecc_`
+column**, and it forced the `(1 - capecc)` divisor out with it, because that
+divisor was exact only under the old cap.
+
+**A capped draw is taken EXACTLY from the model conditioned on being below the
+cap, by inverse CDF.** Redrawing until a value lands below the cap samples from
+the same conditional distribution, so `ppf(u * F(cap))` is the same thing in one
+step; decision 50 had already settled that sampling here is never by rejection,
+and that loop was the last rejection sampler in the study. It also cannot fail,
+which the loop could and did.
+
+**There are four reduction strategies and only three need code.** Use less of a
+material, specify a better product, substitute a different one -- and obtain a
+supplier-specific declaration, which is exactly what the uncertainty index
+measures and is the only one of the four that reduces the VARIANCE of the answer
+rather than its level.
+
 ### The pLCA against the truth
 
 `plca.truth_run` runs the same groups twice on the same variates: once with the
@@ -479,7 +514,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 423 tests, about 100 seconds
+python -m pytest tests/          # 439 tests, about 105 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -531,9 +566,11 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 notebooks print it, so the remainder is stated rather than inferred.
 
 Approximate runtimes on a 2026 laptop: NB1 about 3 min, **NB2 about 35 min**,
-**NB3 about 40 min** at `neccs = 10000`, measured twice end to end in Stage 2e,
-which roughly doubled it by adding the sweep, the flip recalibration at six
-group sizes and the run against the true parents. All three roughly doubled in Stage 2b,
+**NB3 about 55 min** at `neccs = 10000`, measured end to end in Stage 2e, which
+roughly trebled it by adding the sweep, the flip recalibration at six group
+sizes, the run against the true parents, the design comparison and the
+oracle-weight counterfactual. **The first run on a new corpus adds 14 minutes**
+for the mode-label replay, which is then cached. All three roughly doubled in Stage 2b,
 because stratum 4 now reaches n = 9,999 where the pre-regeneration corpus
 stopped at 749, and NB2 grew again in Stage 2c: the whole corpus is scored
 against its parent and the empirical arm is cross-validated at ten repeats.
@@ -717,6 +754,16 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCATruthWinShare.csv` | NB3 | how often each method is closest to the truth, with an interval |
 | `TABLE_PLCATruthPostStratified.csv` | NB3 | the same error at equal allocation and reweighted to the empirical size mix |
 | `TABLE_PLCATruthByIntensity.csv` | NB3 | the same error at 1:1, 2:1 and 10:1 intensities, which is what crosses the truth run with the dominance sweep |
+| `TABLE_PLCATruthBuilding.csv.gz` | NB3 | statement 1, per (pLCA, method): W1 and the Cramer distance from the method's whole-building total to the true one, the error at two quantiles, and the error in the compliance statement |
+| `TABLE_PLCABuildingSummary.csv` | NB3 | that, per method, with a bootstrap interval |
+| `TABLE_PLCATruthIntervention.csv.gz` | NB3 | statement 4, per (pLCA, material, method): what capping or a quantity reduction delivers, the chance it delivers at least 5, 10 and 20 percent of the building, and the error in each |
+| `TABLE_PLCAInterventionSummary.csv` | NB3 | that, per method, with a bootstrap interval. **The share of iterations capped is in here and is no longer 25 percent by construction** |
+| `TABLE_PLCADesignSwap.csv.gz` | NB3 | statement 5, per (pair, saving, method): the discernibility index and the modified comparison index against the truth |
+| `TABLE_PLCADesignSwapSummary.csv` | NB3 | **the stage's headline table.** The same per (method, saving), with the truth beside it |
+| `TABLE_PLCAOracleWeights.csv.gz` | NB3 | the nine-method truth run: the six, plus three fitted under weights that know the true mode-level share |
+| `TABLE_PLCAOracleSummary.csv` | NB3 | that, per family and weighting. **Read the framing note in the notebook before quoting it**: the contrast is knowing shares against guessing them, not uniform against variable |
+| `TABLE_PLCAFlipDrivers.csv` | NB3 | whether the top-two ratio decides a flip on its own. It nearly does |
+| `TABLE_PLCASafeLead.csv` | NB3 | the lead a material needs, as a function of how spread the two materials are |
 | `TABLE_PLCANRMSE.csv` | NB3 | every pLCA output's NRMSE between the six methods, with a bootstrap interval. None had one before |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
@@ -772,7 +819,7 @@ the worst observed value.
 | `test_flip.py` | 15 | common random numbers make a method identical to itself while independent streams do not, which is the control; the tempering control at t = 0 gives zero separation and no flip, and separation grows with the level; the logistic recovers a known curve and its crossing inverts its own fit; the isotonic fit is monotone, preserves the mean and drops no point; the CLUSTER bootstrap is more than twice as wide as a row bootstrap, which is why the resampling unit is the pLCA; a model's distance to itself is zero and a relative distance is scale invariant |
 | `test_materialclass.py` | 7 | the tiers are a pure function of the category NAME and the whole assignment runs on a frame with no value column, so a tier cannot have been chosen because a method won on it; concrete, steel and every insulation variant land where a building-LCA reader expects |
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbors on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
-| `test_plca.py` | 36 | common random numbers make a method identical to itself while independent variates do not, and sharing them leaves each method's own marginal distribution alone, which is what makes installing them a refinement rather than a change of estimand; materials stay independent within an iteration; the outputs are the notebook's own definitions, checked against its pandas ranking and against NRMSE computed the way the plotting function computes it; an infinite Dirichlet concentration reproduces the equal-intensity case EXACTLY and every intensity vector averages to 1.0; concentration makes the top contributor stop moving; resampled groups hold distinct datasets; the cluster bootstrap is more than twice as wide as a row bootstrap; the tabulated parent sampler inverts the parent's own bisection and stays inside its support; a method that IS the parent has exactly zero error, which is the truth run's control; the lazy samplers agree with eager ones while bounding their memory; and the committed pLCA table is a full run rather than a smoke one |
+| `test_plca.py` | 53 | common random numbers make a method identical to itself while independent variates do not, and sharing them leaves each method's own marginal distribution alone, which is what makes installing them a refinement rather than a change of estimand; materials stay independent within an iteration; the outputs are the notebook's own definitions, checked against its pandas ranking and against NRMSE computed the way the plotting function computes it; an infinite Dirichlet concentration reproduces the equal-intensity case EXACTLY and every intensity vector averages to 1.0; concentration makes the top contributor stop moving; resampled groups hold distinct datasets; the cluster bootstrap is more than twice as wide as a row bootstrap; the tabulated parent sampler inverts the parent's own bisection and stays inside its support; a method that IS the parent has exactly zero error, which is the truth run's control; the lazy samplers agree with eager ones while bounding their memory; and the committed pLCA table is a full run rather than a smoke one |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch

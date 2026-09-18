@@ -1429,3 +1429,98 @@ relative figure beside it.**
 | **The sentence the paper can write** | A practitioner whose design has one dominant material can trust the ranking under any of these methods and still cannot trust the magnitude, which is what a carbon budget is written in. |
 | **Fix** | **Text.** `TABLE_PLCATruthByIntensity.csv`. |
 | **Status** | Open, text only. Decision 113. |
+
+## New, found in the Stage 2e review
+
+## 105. The paper reports ranking metrics and should report five statements, of which ranking is one
+
+| | |
+|---|---|
+| **The author's objection** | The draft led with the error in a material's chance of being the largest contributor. "If something predicts a different material as being first, but first and second are extremely close, the fact that one is over the other doesn't seem very important." The same objection retired the flip rate in entry 94. |
+| **The five statements a probabilistic LCA makes** | **Magnitude**: the building total as a distribution, including the chance of meeting a budget. **Attribution**: each material's contribution and share. **Information**: which material's uncertainty dominates, so it is worth measuring better. **Action**: what an intervention delivers and how likely it is to. **Comparison**: whether one design beats another. |
+| **Where the study stood** | It computed attribution in full, computed information and reported it nowhere, kept only the mean and standard deviation of the total and of each intervention so the confidence half was missing, and never made a comparison at all. |
+| **Fix** | **Text and analysis, both now done.** Three sections -- what the method does to the numbers, to where the uncertainty sits, and to the decision -- covering all five. |
+| **Status** | Analysis done in Stage 2e. Text open. Decision 114. |
+
+## 106. The ECC cap was taken from each method's own draws, which forced the strategy's signal to zero
+
+| | |
+|---|---|
+| **What the code did** | `upper_limit = np.quantile(col, capecc)` on each method's own 10,000 draws. So the six methods were asked about six different interventions -- and because each was capped at its own 75th percentile, **exactly 25 percent of iterations were capped under every method by construction**. |
+| **Why that is worse than a comparability problem** | A method that understates the upper tail *should* conclude that capping buys less. Under that form it could not: the quantity the strategy exists to measure was fixed by the construction. |
+| **What it is now** | One absolute cap per material, the 75th percentile of the values a specifier holds, applied to every method and to the true parent. It is what a practitioner can compute, and it exists on the empirical arm where no parent does. **The share of iterations capped now runs from 0.277 under `Lognormal, Uniform` to 0.366 under `Normal, Uniform`.** |
+| **What moved** | Every `capecc_*` column of the results table. `capecc_red_mean` -0.8623 to -0.8349, `capecc_perc_mean` -0.1712 to -0.1698; the rank-frequency columns move further and for a second reason, entry 107. |
+| **Fix** | **Code, done. Text**: the manuscript describes the cap and must describe this one. |
+| **Status** | Open, text. Decision 115. |
+
+## 107. RESOLVES the `(1-capecc)` divisor, which the cap fix made wrong
+
+| | |
+|---|---|
+| **What it was** | A count over all iterations scaled by 1 / 0.25. That was exact only because the old cap bound in exactly 25 percent of iterations for every material. |
+| **Why it had to go** | Under an absolute cap the bound share is a property of the material and the method, so the divisor scaled by a number that is no longer the right one and a pLCA's four columns summed to 1.25. |
+| **What it is now** | A plain count over the Monte Carlo draws: the share of iterations in which capping this material both bound and gave the largest reduction of the four. Across the four ranks of one material the columns sum to the share of iterations its own cap bound; across the four materials the rank-1 column sums to the share in which any cap bound. |
+| **Fix** | **Code, done.** The roadmap gives this metric to Stage 2g, which should still revisit it; what forced the change was that the old divisor was correct only under a cap that no longer exists. |
+| **Status** | Partly resolved in Stage 2e. Decision 116. |
+
+## 108. THE DECISION A DESIGNER ACTUALLY MAKES IS NOT SENSITIVE TO THE CHOICE OF UQ METHOD
+
+| | |
+|---|---|
+| **What the manuscript compares** | One building, four materials, no alternatives. A designer chooses between designs, which is what Heijungs (2021), Prado-Lopez et al. (2014) and Marsh et al. (in press) all measure and what all three are cited for. |
+| **What was measured** | 800 pairs of options sharing three materials and **the same random draws for them**, differing in the fourth, with the replacement's use intensity carrying a controlled expected saving. Scored against the same comparison run with the true parents. |
+| **The result** | P(option B beats option A), against a claimed saving of 0, 1, 2, 5, 10 and 20 percent of the building: the truth gives **0.505, 0.529, 0.554, 0.629, 0.754, 0.953**, and the spread across the six UQ methods is **0.006, 0.006, 0.007, 0.012, 0.020, 0.012**. **The choice of method changes the stated probability that a substitution is an improvement by at most two percentage points, and every method is within two and a half points of the truth.** |
+| **Why it should lead** | Every other comparison in this study is between a method and another method, or between a method and a target it was fitted to. This is the decision, scored against the right answer, and the answer is that the choice is safe. |
+| **Fix** | **Text, and it is a new section.** `TABLE_PLCADesignSwap.csv.gz`, `TABLE_PLCADesignSwapSummary.csv`. |
+| **Status** | Open, text. Decision 118. |
+
+## 109. Where the choice of method does matter: the upper tail, the budget, and the value of specifying
+
+| | |
+|---|---|
+| **The building's upper tail** | **Every method understates the building's 90th percentile**, by 0.09 to 0.36 on a four-material building whose total averages 4.0. |
+| **The budget statement** | At a budget the truth meets 90.0 percent of the time, `Lognormal, Variable` reports **91.3** percent and `Normal, Uniform` reports **86.8**. A practitioner is told they are safer or less safe than they are, in both directions depending on the method. |
+| **The specification policy** | Against a true mean saving of **5.39 percent** of the building, the normal reports 6.19 and the lognormal 4.88. Asked for the chance of achieving at least a 5 percent saving, the truth is **23.2 percent** and the normal says **30.5**, an overstatement of 7.4 points, while the KDE is within 1.3 and the lognormal within 0.3. |
+| **The contrast that explains it** | **The quantity strategy is method-independent to four decimal places.** Using 25 percent less of a material is a deterministic fraction of its own contribution, so no distributional assumption enters; specifying a cap acts entirely through the upper tail, which is exactly what the methods disagree about. |
+| **Fix** | **Text.** `TABLE_PLCABuildingSummary.csv`, `TABLE_PLCAInterventionSummary.csv`. |
+| **Status** | Open, text. Decision 119. |
+
+## 110. The methods fail on the same materials, and the families fail in opposite directions
+
+| | |
+|---|---|
+| **What was asked** | Whether the different UQ methods fail in the same direction or not. |
+| **Direction** | On a material's estimated contribution the normal is biased **high** (+0.044 uniform, +0.050 variable), the lognormal **low** (-0.038, -0.027), and the kernel estimate is nearly unbiased (-0.014, +0.003). On a material's 95th percentile they all fail the same way: every one understates it, the KDE by 0.086 and the normal by 0.193. |
+| **Materials** | Per-material errors correlate **0.892 to 0.970 between methods that share a weighting scheme** and only **0.581 to 0.714 across weighting schemes**; all six err in the same direction on **51.2 percent** of materials against about 3 percent if they were independent. |
+| **What follows** | The dominant axis of disagreement is the WEIGHTS and not the family, the three families make nearly the same error on the same material, and **choosing a different family does not hedge the risk**. |
+| **Fix** | **Text, and it belongs with the figure**, which now shows the six signed-error distributions so bias reads as a shift and imprecision as a width. `CompareUQMethods_FIG_PLCATruth.png`. |
+| **Status** | Open, text. Decision 120. |
+
+## 111. Knowing market shares buys 17 percent; guessing them with a flat Dirichlet captures a third of it
+
+| | |
+|---|---|
+| **The framing constraint, which the author set** | The contrast is between **knowing** market shares and **guessing** them, not between two weighting schemes, and nothing here says uniform weighting is better. |
+| **What was measured** | 1,200 pLCA groups against the market-weighted parent, with a third weighting added: the same mode-level market share split EQUALLY inside each mode, which removes the flat-Dirichlet noise the generator introduces and the real world does not have. |
+| **The result** | Mean absolute error in a material's estimated contribution: KDE **0.1285** uniform, **0.1215** variable, **0.1064** oracle; lognormal 0.1243, 0.1168, 0.1007; normal 0.1620, 0.1629, 0.1550. On the rank-1 frequency the oracle gains as much again -- KDE 0.0815, 0.0818, 0.0717 -- **and the stand-in gains nothing at all**. |
+| **How to say it** | Variable weighting is better than uniform on the magnitude, a wash on the ranking, and would be better than both if the shares were known. What separates the oracle from the realized weights is noise this generator introduces by construction, which is entry 89's finding reaching the decision level. |
+| **Fix** | **Text**, and it strengthens the call for real production volumes. `TABLE_PLCAOracleSummary.csv`. |
+| **Status** | Open, text. Decision 121. |
+
+## 112. Dispersion enters the safe-lead rule in the expected direction and is weak
+
+| | |
+|---|---|
+| **The question** | Whether the lead a material needs is just the ratio of the means, when the coefficient of variation should surely matter too. |
+| **What was measured** | A logistic on the log ratio alone reaches a pseudo R2 of **0.3251**; adding the log dispersion of the two materials whose order a flip would exchange takes it to **0.3288**, with coefficients -6.36 on the ratio and **+0.37** on the dispersion. Positive is the expected direction: at the same lead, a wider pair is riskier. |
+| **What it does to the rule** | The lead needed before the choice of method changes the leader less than 1 percent of the time runs from **2.05** for a tightly spread pair to **2.19** for a widely spread one, as the pair's dispersion triples from 0.39 to 1.18. |
+| **Fix** | **Text.** The rule stays "about two"; the dispersion term is a refinement and not a second mechanism, and saying so is more useful than a two-variable rule nobody would apply. `TABLE_PLCAFlipDrivers.csv`, `TABLE_PLCASafeLead.csv`. |
+| **Status** | Open, text. Decision 122. |
+
+## 113. Every negative tick label this project has drawn was a Unicode minus
+
+| | |
+|---|---|
+| **What was found** | `FIGURE_STYLE.md` requires plain ASCII and names the Unicode minus explicitly. Nothing had ever set matplotlib's `axes.unicode_minus`, so its default U+2212 went into every figure with a negative axis value. |
+| **Fix** | **Code, done**: one line in the style module, and a test that draws a figure and asserts its tick labels are ASCII. It reaches the figures built since the style guide existed; the older figures do not call the style module and are Stage 3's, which owns bringing every figure to the guide. |
+| **Status** | RESOLVED in Stage 2e for the figures that use the style module. Decision 123. |
