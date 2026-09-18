@@ -361,27 +361,84 @@ def test_truth_error_grows_as_a_model_leaves_the_parent():
 # the capped-reduction strategy under shared variates
 # ---------------------------------------------------------------------------
 def test_cap_reduction_leaves_every_draw_below_the_cap():
-    names, _, models = a_group(seed=16)
+    names, data, models = a_group(seed=16)
     rng = np.random.default_rng(16)
     u = rng.random((NECCS, len(names)))
     col = PL.draw_contributions(models, names, 'KDE, Uniform', u)[:, 0]
-    passes = PL.PassUniforms(rng, NECCS, len(names))
-    red, touched, cap = PL.cap_reduction(models[names[0]]['KDE, Uniform'], col,
-                                         0.75, passes.for_material(0))
-    assert red.max() < cap
-    # Every draw at or above the cap was redrawn, and nothing else was.
+    cap = PL.specification_cap(data[names[0]]['data'])
+    red, touched, got = PL.cap_reduction(models[names[0]]['KDE, Uniform'], col,
+                                         cap, rng.random(NECCS))
+    assert got == cap
+    assert np.nanmax(red) < cap
+    # Every draw at or above the cap was replaced, and nothing else was.
     assert np.array_equal(touched, col >= cap)
     assert np.array_equal(red[~touched], col[~touched])
 
 
-def test_pass_uniforms_give_two_methods_the_same_variate():
-    """Which is what makes the capped strategy paired across methods too."""
-    rng = np.random.default_rng(17)
-    passes = PL.PassUniforms(rng, 50, 4)
-    first = passes(2, 0).copy()
-    assert np.array_equal(passes(2, 0), first)
-    assert not np.array_equal(passes(2, 1), first)
-    assert not np.array_equal(passes(3, 0), first)
+def test_the_capped_draw_is_the_model_conditioned_on_being_below_the_cap():
+    """Exact, by inverse CDF. Redrawing until a value lands below the cap gives
+    the same distribution, which is what makes the one-step form a replacement
+    and not a different intervention."""
+    names, data, models = a_group(seed=43, n=120)
+    model = models[names[0]]['Lognormal, Uniform']
+    cap = PL.specification_cap(data[names[0]]['data'])
+    rng = np.random.default_rng(43)
+    col = np.asarray(model.rvs(40_000, random_state=rng), dtype=float)
+    exact, _, _ = PL.cap_reduction(model, col, cap, rng.random(40_000))
+    # the rejection version, written out here so the two can be compared
+    loop = col.copy()
+    above = loop >= cap
+    while above.any():
+        loop[above] = np.asarray(model.rvs(int(above.sum()), random_state=rng),
+                                 dtype=float)
+        above = loop >= cap
+    q = np.linspace(0.02, 0.98, 25)
+    assert np.allclose(np.quantile(exact, q), np.quantile(loop, q), rtol=0.03)
+
+
+def test_a_cap_below_the_models_whole_support_is_reported_not_looped():
+    """The failure a bounded redraw loop cannot report: with no mass below the
+    cap there is nothing to redraw, and a loop returns values still above it."""
+
+    class AllHigh:
+        def cdf(self, x):
+            return np.zeros(np.shape(x))
+
+        def ppf(self, q):
+            return np.full(np.shape(q), 99.0)
+
+    col = np.full(100, 50.0)
+    red, touched, _ = PL.cap_reduction(AllHigh(), col, 10.0,
+                                       np.random.default_rng(0).random(100))
+    assert touched.all()
+    assert np.isnan(red).all()
+
+
+def test_a_reduction_statement_survives_an_impossible_cap():
+    base = np.full(50, 4.0)
+    got = PL.reduction_statement(base, np.full(50, np.nan), prefix='cap_')
+    assert np.isnan(got['cap_reduction_mean'])
+    assert np.isnan(got['cap_p_reduction_over_5'])
+
+
+def test_the_cap_is_paired_across_methods_by_one_uniform_block():
+    """Two methods capping the same iteration use the same variate, which is
+    what the pass cache used to do and what one block now does."""
+    names, data, models = a_group(seed=44)
+    rng = np.random.default_rng(44)
+    u = rng.random((NECCS, len(names)))
+    u_cap = rng.random(NECCS)
+    cap = PL.specification_cap(data[names[0]]['data'])
+    out = {}
+    for m in ('KDE, Uniform', 'KDE, Variable'):
+        col = PL.draw_contributions(models, names, m, u)[:, 0]
+        out[m] = PL.cap_reduction(models[names[0]][m], col, cap, u_cap)[0]
+    # different models, so different values, but the same variate drives both
+    again = PL.cap_reduction(models[names[0]]['KDE, Uniform'],
+                             PL.draw_contributions(models, names,
+                                                   'KDE, Uniform', u)[:, 0],
+                             cap, u_cap)[0]
+    assert np.array_equal(out['KDE, Uniform'], again)
 
 
 # ---------------------------------------------------------------------------
@@ -624,11 +681,10 @@ def test_the_share_capped_is_free_to_differ_between_methods():
     u = rng.random((NECCS, len(names)))
     cap = PL.specification_cap(data[names[0]]['data'])
     shares = []
+    u_cap = rng.random(NECCS)
     for m in ('Normal, Uniform', 'Lognormal, Uniform', 'KDE, Uniform'):
         col = PL.draw_contributions(models, names, m, u)[:, 0]
-        passes = PL.PassUniforms(rng, NECCS, len(names))
-        _, touched, _ = PL.cap_reduction(models[names[0]][m], col, cap,
-                                         passes.for_material(0))
+        _, touched, _ = PL.cap_reduction(models[names[0]][m], col, cap, u_cap)
         shares.append(float(touched.mean()))
     assert len(set(np.round(shares, 3))) > 1
     assert all(0.0 < s < 1.0 for s in shares)

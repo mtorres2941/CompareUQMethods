@@ -350,9 +350,6 @@ def _nrmse_from(wide):
 #: Where a specifier sets the cap, as a quantile of the values they hold.
 CAP_QUANTILE = 0.75
 
-#: Redraw passes before the cap is declared unreachable for a model.
-CAP_MAX_PASSES = 200
-
 
 def specification_cap(x, quantile=CAP_QUANTILE, scale=1.0):
     """The ABSOLUTE ECC cap for one material, read off the data and nothing else.
@@ -377,75 +374,52 @@ def specification_cap(x, quantile=CAP_QUANTILE, scale=1.0):
     return float(np.quantile(np.asarray(x, dtype=float), quantile) * scale)
 
 
-def cap_reduction(model, col, cap, uniform_for_pass, scale=1.0):
-    """The ECC-cap strategy: redraw everything at or above an ABSOLUTE cap.
+def cap_reduction(model, col, cap, u, scale=1.0):
+    """The specification strategy: every draw at or above an ABSOLUTE cap is
+    replaced by one from the model CONDITIONED on being below the cap.
 
-    Every Monte Carlo draw at or above `cap` is redrawn until the column lies
-    entirely below it. `uniform_for_pass(p)` must return the same (neccs,)
-    vector for pass `p` however many times it is asked and whichever method is
-    asking, so that two methods redrawing the same iteration on the same pass
-    use the same variate.
+    EXACTLY, BY INVERSE CDF, AND NOT BY REDRAWING UNTIL IT LANDS. Redrawing
+    until a value falls below the cap samples from the model conditioned on
+    being below it, so `ppf(u * F(cap))` is the same distribution in one step.
+    Three things follow, and the third is why the loop is gone rather than
+    merely tidied:
+
+        it is the project's own rule. Decision 50 settled that sampling is by
+        inverse CDF and never by rejection, and this redraw loop was the last
+        rejection sampler left in the study
+
+        it is paired across methods with ONE uniform block, where the loop
+        needed a cache of variates indexed by redraw pass
+
+        it cannot fail. A model with little mass below the cap needs
+        unboundedly many redraws, and a bounded loop returns values that are
+        still above the cap; this returns the conditional draw whenever the
+        conditioning event has any probability at all, and says so when it does
+        not. A full run hit exactly that case
 
     `cap` is an absolute value from `specification_cap`, NOT a quantile of this
-    method's own draws; see that function for why the difference decides whether
-    the strategy measures anything. `scale` is the material's use intensity,
-    because `col` carries it and a redraw off the model does not.
+    method's own draws. `scale` is the material's use intensity, because `col`
+    carries it and the model does not.
 
-    Returns `(reduced, touched, cap)`.
-
-    WHY THE PASSES ARE INDEXED. Within one pass the variate for an iteration is
-    fixed, so a draw that lands above the cap again must be given a DIFFERENT
-    variate or the loop cannot terminate. Each pass therefore has its own
-    vector, shared across methods.
-
-    A model can put almost all of its mass above the cap -- nothing forbids it,
-    and a badly fitted one might -- so the loop is bounded and reports rather
-    than hanging.
+    Returns `(reduced, touched, cap)`. Where the model puts NO mass below the
+    cap the conditional distribution does not exist, and those entries come
+    back as NaN rather than as a value above a cap that is labelled as capped.
     """
     col = np.asarray(col, dtype=float)
     cap = float(cap)
+    scale = float(scale)
+    u = np.asarray(u, dtype=float)
+    touched = col >= cap
     red = col.copy()
-    touched = np.zeros(len(col), dtype=bool)
-    above = red >= cap
-    p = 0
-    while above.any() and p < CAP_MAX_PASSES:
-        touched |= above
-        u = np.asarray(uniform_for_pass(p), dtype=float)
-        red[above] = np.asarray(model.rvs_from_uniform(u[above]),
-                                dtype=float) * float(scale)
-        above = red >= cap
-        p += 1
-    if above.any():
-        # Reported rather than hidden: a model with almost no mass below the
-        # cap cannot satisfy it, and pretending otherwise would put a value
-        # above the cap into a table labelled as capped.
-        red[above] = np.nan
+    if not touched.any():
+        return red, touched, cap
+    mass_below = float(np.ravel(model.cdf(cap / scale))[0])
+    if mass_below <= 0.0:
+        red[touched] = np.nan
+        return red, touched, cap
+    red[touched] = scale * np.asarray(
+        model.ppf(u[touched] * mass_below), dtype=float)
     return red, touched, cap
-
-
-class PassUniforms:
-    """A per-group cache of uniform vectors, one per redraw pass.
-
-    Handed to `cap_reduction` so that every method in a group draws the same
-    variate for the same (iteration, pass). Vectors are created on demand and
-    kept, because how many passes a method needs depends on its own fitted
-    model and the methods must not consume each other's stream.
-    """
-
-    def __init__(self, rng, neccs, n_materials):
-        self.rng = rng
-        self.neccs = int(neccs)
-        self.k = int(n_materials)
-        self._cache = {}
-
-    def __call__(self, material, pass_index):
-        key = (int(material), int(pass_index))
-        if key not in self._cache:
-            self._cache[key] = self.rng.random(self.neccs)
-        return self._cache[key]
-
-    def for_material(self, material):
-        return lambda p: self(material, p)
 
 
 # ---------------------------------------------------------------------------
@@ -817,7 +791,7 @@ def nrmse_table(frame, values, by='method', cluster='plca', unit='dataset',
 MATERIAL_REDUCTION = 0.25
 
 
-def intervention_rows(draws, caps, passes, models, names, method, mui,
+def intervention_rows(draws, caps, u_cap, models, names, method, mui,
                       matred=MATERIAL_REDUCTION):
     """Statement 4 for one group: what each intervention delivers, per material.
 
@@ -840,9 +814,9 @@ def intervention_rows(draws, caps, passes, models, names, method, mui,
     base = draws.sum(axis=1)
     out = []
     for j, d in enumerate(names):
+        scale = 1.0 if mui is None else float(np.asarray(mui, float)[j])
         red, touched, cap = cap_reduction(models[d][method], draws[:, j],
-                                          caps[j], passes.for_material(j),
-                                          scale=1.0)
+                                          caps[j], u_cap[:, j], scale=scale)
         capped_total = base - draws[:, j] + red
         row = dict(cap_value=caps[j],
                    cap_share_touched=float(np.mean(touched)),
@@ -894,8 +868,8 @@ def truth_run(models, samplers, combos, rng, neccs=NECCS, methods=None,
                 for j, d in enumerate(names)]
         tmod = {d: {'__truth__': samplers[d]} for d in names}
         truth_draws = draw_contributions(tmod, names, '__truth__', u, mui)
-        truth_passes = PassUniforms(rng, int(neccs), len(names))
-        truth_iv = intervention_rows(truth_draws, caps, truth_passes, tmod,
+        u_cap = rng.random((int(neccs), len(names)))
+        truth_iv = intervention_rows(truth_draws, caps, u_cap, tmod,
                                      names, '__truth__', mui)
         truth_total = truth_draws.sum(axis=1)
         for m in methods:
@@ -903,8 +877,7 @@ def truth_run(models, samplers, combos, rng, neccs=NECCS, methods=None,
             row = dict(plca=i, method=m, **extra)
             row.update(building_statement(d_m.sum(axis=1), truth_total))
             group_rows.append(row)
-            passes = PassUniforms(rng, int(neccs), len(names))
-            got = intervention_rows(d_m, caps, passes, models, names, m, mui)
+            got = intervention_rows(d_m, caps, u_cap, models, names, m, mui)
             for j, dname in enumerate(names):
                 iv = dict(plca=i, dataset=dname, method=m)
                 for key, val in got[j].items():
@@ -1104,6 +1077,16 @@ def reduction_statement(base_total, new_total, targets=REDUCTION_TARGETS,
     new = np.asarray(new_total, dtype=float)
     ok = np.isfinite(base) & np.isfinite(new) & (base != 0)
     rel = (base[ok] - new[ok]) / base[ok]
+    if rel.size == 0:
+        # The model puts no mass below the cap, so the intervention has no
+        # distribution to report. NaN rather than an exception, and the share
+        # of materials in this state is carried beside it as `cap_unreachable`.
+        out = {f'{prefix}reduction_mean': np.nan,
+               f'{prefix}reduction_sd': np.nan,
+               f'{prefix}reduction_p05': np.nan}
+        for t in targets:
+            out[f'{prefix}p_reduction_over_{int(round(100 * t))}'] = np.nan
+        return out
     out = {f'{prefix}reduction_mean': float(rel.mean()),
            f'{prefix}reduction_sd': float(rel.std()),
            f'{prefix}reduction_p05': float(np.quantile(rel, 0.05))}
