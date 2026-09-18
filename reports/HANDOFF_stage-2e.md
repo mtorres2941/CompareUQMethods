@@ -144,16 +144,16 @@ drawn from.
 
 ## 3. What was done
 
-**One new source module, `src/plca.py`, with 37 tests.** It holds the
+**One new source module, `src/plca.py`, with 36 tests.** It holds the
 common-random-numbers draw, the ten pLCA outputs in the notebook's own
 definitions, material use intensity as a share vector, the resampled groupings,
 the cluster bootstrap, NRMSE with an interval, and the run against the true
 parents. Everything the notebook does below is one call into it.
 
-**Notebook 3 gained six sections and two figures**, and its main pLCA loop now
-uses common random numbers. Nothing else in the notebook changed.
+**Notebook 3 gained five sections -- eleven cells -- and two figures**, and its
+main pLCA loop now uses common random numbers. Nothing else in the notebook changed.
 
-**The whole test suite is 420 tests and all pass**, including the eight
+**The whole test suite is 423 tests and all pass**, including the eight
 regression fixtures that pin the empirical metrics, the synthetic metrics and
 all six goodness-of-fit scores. That is the check that the fitting, the corpus
 and the empirical arm were not touched.
@@ -470,10 +470,10 @@ generator; the frozen raw empirical extract, for the one real dataset a figure
 illustrates and for the size mix the post-stratified numbers reweight by; and
 the published staircase paper, for the one real contribution ratio available.
 
-**Written.** One source module and its test file; seven new sections and two
-new figures in notebook 3; seventeen new result tables; eight decisions in the project
-brief's decision log, numbered 105 through 112; manuscript discrepancy entries 96
-through 103, and entry 87 marked resolved; and this file.
+**Written.** One source module and its test file; eleven new cells and two new
+figures in notebook 3; sixteen new result tables; nine decisions in the project
+brief's decision log, numbered 105 through 113; manuscript discrepancy entries 96
+through 104, and entry 87 marked resolved; and this file.
 
 **Not touched.** The generator, the synthetic corpus, the empirical extract, the
 fitting methods, the scoring criterion, the published flip thresholds, and the
