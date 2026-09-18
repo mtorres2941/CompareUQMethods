@@ -299,3 +299,56 @@ def dataset_risk(x, rng, n_draws=N_DRAWS, alpha=1.0, thresholds=(),
         for name, thr in thresholds:
             row[f'P_{name}_{k}'] = float(np.mean(rel > thr))
     return row
+
+
+# ---------------------------------------------------------------------------
+# is a flat Dirichlet an adequate stand-in for real market shares?
+# ---------------------------------------------------------------------------
+def block_weights(n, k, rng, adjacent=True):
+    """Market share concentrated in `k` groups rather than spread over n points.
+
+    Author's question, 2026-09-17: a flat Dirichlet explores the simplex
+    uniformly, but real market share probably arrives in CLUSTERS -- a few
+    related products carrying most of the volume. Is a flat draw the right
+    model, and if share does cluster, is that just a dataset with fewer points?
+
+    THE SECOND HALF OF THAT IS RIGHT AND THE FIRST HALF IS NOT, which is what
+    this function exists to show. Draw group shares from a flat Dirichlet over
+    `k` groups and split each equally inside its group.
+
+    `adjacent=True` puts each group on a contiguous run of the SORTED values, so
+    products with similar coefficients share their volume, which is what
+    clustering means in practice. `adjacent=False` puts the same group sizes on
+    randomly chosen points, so the concentration is identical and only the
+    coherence is removed. Comparing the two isolates adjacency from
+    concentration.
+
+    Measured in `audits/weight_clustering.py` and in notebook 1, at MATCHED
+    effective sample size: random concentration is indistinguishable from a flat
+    draw (ratio 0.90 to 0.99 across bands), while adjacent concentration
+    produces separations 1.5 to 3.1 times larger. So the effective sample size
+    does capture concentration -- the author's mechanism is correct -- and it
+    does NOT capture coherence. A contiguous block shifts the whole distribution
+    one way, which lands in the location term that already carries most of the
+    uniform-to-variable distance, whereas random concentration moves mass in
+    directions that partly cancel.
+
+    **The consequence for this study is conservative**: a flat Dirichlet
+    UNDERSTATES how far real market shares would move a fitted density, so the
+    reported weighting risk is a lower bound.
+    """
+    k = int(max(1, min(k, n)))
+    share = rng.dirichlet(np.ones(k))
+    order = np.arange(n) if adjacent else rng.permutation(n)
+    w = np.zeros(n, dtype=float)
+    for s, group in zip(share, np.array_split(order, k)):
+        if len(group):
+            w[group] = s / len(group)
+    total = w.sum()
+    return w / total if total > 0 else np.full(n, 1.0 / n)
+
+
+def effective_n(weights):
+    """Kish effective sample size, the denominator concentration actually acts on."""
+    w = np.asarray(weights, dtype=float)
+    return float(w.sum() ** 2 / np.sum(w ** 2))

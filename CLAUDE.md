@@ -321,6 +321,13 @@ is worked from later. Keep appending. Do not start editing the paper.
 
 ## How the repository works
 
+Figures are governed by **FIGURE_STYLE.md**, which is binding on every figure
+this repository produces: one message per figure with the takeaway in the title,
+Tufte's data-ink discipline, direct labelling rather than legends, and a
+checklist. `src/figstyle.py` implements what can be implemented. It was written
+in Stage 2d at the author's instruction, after a review found the stage's figures
+followed no written guide.
+
 Mechanics live in **CONTEXT.md**: package layout, the fitting interface, the
 seeding and caching conventions, how to run the pinned environment and the
 smoke configuration, the input and output tables, the regression fixture
@@ -1951,6 +1958,32 @@ rather than in conversation.
     and moving its published numbers. What it inherits from here is a tested
     implementation, `src/flip.py`, not a decision. Discrepancy entry 82.
 
+    **NARROWED 2026-09-17 BY THE AUTHOR'S CHALLENGE, and the narrowing matters.**
+    The author objected that comparing two methods under independent streams is
+    the normal thing to do, that 10,000 draws ought to have converged, and that
+    5.33 percent is shockingly high. Measured rather than defended, in
+    `audits/noise_floor_convergence.py`, and the objection is half right.
+
+    **THE ESTIMATES ARE CONVERGED. THE ARGMAX IS NOT, AND CANNOT BE.** One
+    rank-1 frequency has a Monte Carlo standard error of 0.0043 at 10,000 draws,
+    which is fine. What is unstable is WHICH of two nearly equal materials is
+    larger, because the argmax is a discontinuous function of continuous
+    estimates. **The flips are entirely confined to the near-ties:** at 10,000
+    draws, groups whose top-two gap exceeds 4 standard errors flipped in 0 of
+    238 cases, while groups inside 2 standard errors flipped about half the time.
+    So it is not 5 percent error smeared over every comparison; it is certainty
+    on about 80 percent of groups and a coin toss on the 20 percent that are
+    genuinely tied.
+
+    **More draws help, at square-root cost, and never reach zero.** Measured over
+    300 groups: 16.3 percent at 1,000 draws, 6.7 percent at 10,000, 2.7 percent
+    at 100,000 -- a factor of 2.5 for ten times the compute, against the 3.16 a
+    square-root law predicts. Getting to half a percent would cost roughly a
+    hundred times the current run and would still not be exact. **Common random
+    numbers reach exactly zero for free**, because they remove the COMPARISON
+    noise rather than the estimation noise. That is the argument for them, and it
+    is a better argument than "10,000 is not enough", which is not true.
+
 92. **2026-09-17, Stage 2d. The uniform-to-variable W1 is MOSTLY A SHIFT OF THE
     MEAN, and that simplifies the practitioner rule.** `[AUTHOR]` The author
     asked for the decomposition and named the good outcome in advance: if it is
@@ -2147,3 +2180,141 @@ rather than in conversation.
     **The full rank ordering is NOT a usable criterion in this construction** and
     is reported only to say so: its crossings are at 0.00002, 0.00023 and 0.00065,
     and its Monte Carlo floor under independent streams is 34.2 percent. Entry 85.
+
+96. **2026-09-17, Stage 2d. WHETHER WEIGHTING MATTERS HAS A CLOSED FORM IN TWO
+    NUMBERS A PRACTITIONER ALREADY HAS, and it is the strongest
+    practitioner-facing result in the study.** `[AUTHOR]` Asked for directly:
+    "Is there a way we can visualise the contribution of size and dispersion?"
+    The answer turned out to be better than a figure.
+
+    Regressing the log of the separation between the uniform-weighted fit and a
+    Dirichlet-weighted one on log size and log dispersion: **size alone explains
+    48.0 percent of the variance, dispersion alone 49.5 percent, and both
+    together 99.1 percent.** Each adds about half on top of the other, so they
+    are nearly orthogonal, which is exactly why neither looked like the answer on
+    its own.
+
+        empirical   log(sep) = -0.318 - 0.434 log(n) + 1.036 log(CV)   R2 0.991
+        synthetic   log(sep) = -0.405 - 0.427 log(n) + 0.977 log(CV)   R2 0.996
+
+    **The exponents agree across the two arms**, which is what makes this a law
+    rather than a fit: **separation is about 0.73 * CV * n^-0.43**.
+
+    **The rule needs no distributional machinery at all.** Against the calibrated
+    5 percent flip threshold of 0.011, uniform weighting is safe only when the
+    coefficient of variation is below about **0.015 * n^0.43**: 0.046 at 10 EPDs,
+    0.120 at 100, 0.315 at 1,000, 0.826 at 10,000. The median real category is CV
+    0.63 at 47 EPDs and does not clear it. A reader counts their EPDs and takes a
+    coefficient of variation in a spreadsheet; every other rule this project has
+    produced requires the analysis to have been run first.
+
+    **The contrast the paper must draw.** Which METHOD fits best is driven by
+    size and nothing else, and modality was tested and rejected for that role
+    (decision 88). Whether WEIGHTING matters is driven by size AND dispersion. A
+    reader who has absorbed the first will carry it into the second and be half
+    wrong. Discrepancy entry 88.
+
+97. **2026-09-17, Stage 2d. THE FLAT DIRICHLET UNDERSTATES THE WEIGHTING RISK,
+    so every weighting number in this paper is a LOWER BOUND.** `[AUTHOR]` The
+    author's question: a flat Dirichlet explores the simplex uniformly, but real
+    market share probably arrives in clusters; and if it does, is a cluster not
+    almost a dataset with fewer points, so that the effective sample size already
+    captures it?
+
+    **Half of that is right and the other half is the important half.** Three
+    weight schemes compared at MATCHED Kish effective sample size, 97 categories
+    by 30 draws: share concentrated on RANDOMLY chosen products gives 0.84 to
+    1.32 times the flat separation, which is no difference at all -- **so the
+    effective sample size does capture concentration, exactly as the author
+    reasoned.** Share concentrated on products with ADJACENT coefficients, which
+    is what clustering means in practice, gives **1.5 to 3.1 times** the
+    separation at the same effective sample size.
+
+    **Concentration and coherence are different things and only the first is a
+    sample-size effect.** A contiguous block shifts the whole distribution one
+    way, and that lands in the LOCATION term which decision 92 shows already
+    carries about three-quarters of the uniform-to-variable distance; random
+    concentration moves mass in directions that partly cancel.
+
+    **The direction is conservative, which is what makes it a limitation rather
+    than a hole.** If real shares cluster by product similarity -- and the 63.75
+    percent share Marsh, Hattam and Allen (2025) report for Rest-of-World BOF
+    steel says they do -- the true separations are larger and uniform weighting
+    is even less safe than this study reports. Only real production volumes would
+    settle it. **Stage 2h's concentration sweep should vary the BLOCK STRUCTURE
+    and not only the Dirichlet concentration parameter**, because the two are not
+    the same knob. `weighting.block_weights`, discrepancy entry 89.
+
+98. **2026-09-17, Stage 2d. Silverman's divisor stays at 1.34, and the paper
+    states in one sentence that KL2's 1.35 is the same rule.** `[AUTHOR]` The
+    author asked which is correct. **Neither is wrong and 1.35 is the closer
+    rounding.** The interquartile range of a standard normal is
+    `2 * 0.674490 = 1.348980`, so the unbiased divisor is 1.3490: dividing by
+    1.35 biases the scale estimate by -0.08 percent and by 1.34 by +0.67 percent.
+    1.34 is what Silverman's 1986 book prints and what most software carries.
+
+    The two differ by 0.75 percent in the resulting bandwidth, against the 18
+    percent that separates Silverman's coefficient from Scott's, so nothing in
+    this study turns on it. **The code does not change**, because 1.34 is the
+    published convention and moving it would shift every KDE number for a
+    correction nobody asked for. Discrepancy entry 90.
+
+99. **2026-09-17, Stage 2d. THE FLIP THRESHOLD IS CONDITIONAL ON FOUR MATERIALS
+    and Stage 2e will move it.** `[AUTHOR]` The author asked why the calibration
+    still uses groups of four when the plan was to stop doing that, and whether
+    the sweep should have come first. The concern is legitimate and the answer is
+    that the machinery does not depend on the group size while the numbers do.
+
+    **The crossings of 0.0018, 0.011 and 0.025 hold for four materials of equal
+    material use intensity.** With more materials competing there are more
+    chances for a near-tie, so the flip probability at a given model distance
+    should RISE and the thresholds should FALL. Stage 2e owns the sweep over 2 to
+    12 materials and must re-run `flip.weighting_calibration` at each size,
+    reporting the crossings as a function of it; if they move materially, every
+    weighting-risk probability in notebook 1 is recomputed. Until then the paper
+    states the conditionality. Discrepancy entry 91.
+
+100. **2026-09-17, Stage 2d. An INDUSTRY-AVERAGE EPD may be the missing weighted
+     mean, and it is KL2's `EVtarget` under another name.** `[AUTHOR]` The
+     author's idea, and it is a good one: since the uniform-to-variable distance
+     is about three-quarters a shift of the mean, what a practitioner needs is a
+     weighted mean, and an industry-average declaration is in principle exactly
+     that -- a production-weighted average over a population they cannot see.
+
+     **It is already in the author's own published work.** KL2 uses
+     industry-average ECCs as its target expected value and places a phantom
+     kernel so the model reproduces it, so this paper would be reaching for an
+     instrument its companion paper defines, which is the consistency this
+     project requires rather than a new invention.
+
+     **Three things must be checked before it is used**: whether the industry
+     average is production-weighted at all rather than a simple mean over
+     participating manufacturers, which is a different object; what population it
+     covers, since a regional average cannot stand in for a global one; and
+     whether its scope, boundary and reference year match the declarations it
+     would be compared against.
+
+     **The use is as a CHECK, not a replacement.** The distance between the
+     unweighted mean of the EPDs a practitioner holds and the industry-average
+     value directly estimates the location term, which is most of the effect,
+     and needs no Dirichlet sampling at all. **Not currently owned by any stage.**
+     Discrepancy entry 92.
+
+101. **2026-09-17, Stage 2d. Every material carrying a material use intensity of
+     1.0 makes the ranking maximally fragile, and that biases every result in the
+     conservative direction.** `[AUTHOR]` The author asked whether the assumption
+     should be challenged. It should, it is scheduled, and in the meantime it has
+     to be stated rather than assumed away.
+
+     All four materials are normalized to a mean of 1.0 and weighted equally, so
+     they contribute the same expected amount and the ranking is decided entirely
+     by the tails. That is why the Monte Carlo noise floor is 5.33 percent, why
+     the flip probabilities are high, and why the calibrated thresholds are
+     small. **A real building has materials differing by orders of magnitude, so
+     every flip probability this study reports is an UPPER BOUND** on how often a
+     modeling choice changes a real answer.
+
+     Stage 2e owns the dominant-intensity variant and Stage 2i the optional
+     real-building anchor. **The paper must not quote a flip probability as
+     though it described a building**, and the conditionality belongs in the same
+     paragraph as the number, not in a footnote. Discrepancy entry 93.

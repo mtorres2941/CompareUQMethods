@@ -218,3 +218,66 @@ def test_dirichlet_draws_are_weights():
     assert d.shape == (50, 12)
     assert np.allclose(d.sum(axis=1), 1.0)
     assert (d > 0).all()
+
+
+# ---------------------------------------------------------------------------
+# clustered market share
+# ---------------------------------------------------------------------------
+def test_block_weights_are_weights_and_respect_their_groups():
+    rng = np.random.default_rng(0)
+    for adjacent in (True, False):
+        w = WG.block_weights(40, 5, rng, adjacent=adjacent)
+        assert w.shape == (40,)
+        assert w.sum() == pytest.approx(1.0)
+        assert (w >= 0).all()
+        # five groups, so at most five distinct weight levels
+        assert len(np.unique(np.round(w, 12))) <= 5
+
+
+def test_adjacent_blocks_are_contiguous_and_scattered_ones_are_not():
+    """The two schemes differ ONLY in placement, which is what the experiment
+    comparing them depends on."""
+    rng = np.random.default_rng(1)
+    adj = WG.block_weights(60, 4, rng, adjacent=True)
+    runs = np.sum(np.diff(adj) != 0) + 1
+    assert runs <= 4                               # contiguous blocks
+    sca = WG.block_weights(60, 4, np.random.default_rng(1), adjacent=False)
+    assert np.sum(np.diff(sca) != 0) + 1 > 4       # interleaved
+    assert sorted(np.round(adj, 12)) == pytest.approx(sorted(np.round(sca, 12)))
+
+
+def test_effective_n_is_the_kish_size():
+    n = 50
+    assert WG.effective_n(np.full(n, 1.0 / n)) == pytest.approx(float(n))
+    spike = np.zeros(n)
+    spike[0] = 1.0
+    assert WG.effective_n(spike) == pytest.approx(1.0)
+
+
+def test_adjacent_clustering_moves_the_density_more_than_scattered():
+    """THE ANSWER TO THE AUTHOR'S QUESTION, pinned so it cannot quietly reverse.
+
+    At a comparable effective sample size, concentrating market share on
+    ADJACENT values moves the fitted density further than concentrating it on
+    random ones, because a contiguous block shifts the whole distribution one
+    way while random concentration partly cancels. That is why the effective
+    sample size captures concentration but not coherence, and why a flat
+    Dirichlet understates the weighting risk.
+    """
+    x = np.sort(np.exp(np.random.default_rng(4).normal(0.0, 0.7, size=120)))
+    x = x / x.mean()
+    g = WG.aiqr_grid(x)
+    adj, sca, neff_a, neff_s = [], [], [], []
+    rng = np.random.default_rng(6)
+    for _ in range(40):
+        k = int(rng.integers(3, 30))
+        wa = WG.block_weights(len(x), k, rng, adjacent=True)
+        ws = WG.block_weights(len(x), k, rng, adjacent=False)
+        adj.append(WG.weighting_separation(x, [wa], g)[0])
+        sca.append(WG.weighting_separation(x, [ws], g)[0])
+        neff_a.append(WG.effective_n(wa))
+        neff_s.append(WG.effective_n(ws))
+    # the two schemes are matched on concentration ...
+    assert np.median(neff_a) == pytest.approx(np.median(neff_s), rel=0.35)
+    # ... and differ substantially on what that concentration does
+    assert np.median(adj) > 1.5 * np.median(sca)

@@ -12,6 +12,8 @@ the end of Stage 1, when CLAUDE.md grew past a comfortable size.
 CompareUQMethods/
 ├── CLAUDE.md                  Project brief, constraints, decision log
 ├── CONTEXT.md                 This file
+├── FIGURE_STYLE.md            how every figure is built, after Tufte and
+│                              Doumont. Read before writing a figure
 ├── environment.yml            Pinned environment (see section 4)
 ├── environment.lock.yml       Full transitive solve, osx-arm64
 ├── notebooks/
@@ -40,6 +42,8 @@ CompareUQMethods/
 │   ├── materialclass.py       structural / envelope / other, from the category
 │   │                          NAME only, so the comparison can be read by what
 │   │                          a material IS (Stage 2c)
+│   ├── figstyle.py            FIGURE_STYLE.md in code: palette, rcParams,
+│   │                          direct labelling, the greyscale check
 │   ├── weighting.py           does the weighting scheme matter, per dataset
 │   │                          (Stage 2d): the location/shape split of the
 │   │                          uniform-to-variable W1, the named relative

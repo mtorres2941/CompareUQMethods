@@ -11,6 +11,123 @@ opened, the instruction is addressed to the NEXT CLAUDE CODE SESSION and says so
 If a sentence here cannot be understood on its own, that is a defect in this
 file.
 
+# IF YOU READ ONE PAGE, READ THIS ONE
+
+Everything below is the working record. **These eleven sentences are what Stage
+2d contributes to the manuscript.** Each is a claim the paper can make, with the
+number that supports it. Nothing else in this file needs to reach the paper.
+
+**On the method comparison**
+
+1. Choosing among the six UQ methods changes which material is named the largest
+   contributor in **56 percent** of probabilistic LCAs; every pair of the six
+   sits far past the distance at which the answer starts to change.
+2. The probability that the answer changes crosses **1 percent at a relative W1
+   of 0.0018, 5 percent at 0.011 and 10 percent at 0.025** -- so the study's
+   goodness-of-fit scale can now be read as a consequence rather than as a
+   ranking.
+
+**On weighting, which is the stage's main contribution**
+
+3. The distance between uniform and variable weighting is about **three quarters
+   a shift of the mean** (median location share 0.725 on real data), so the
+   practitioner question needs a weighted mean, not a distribution.
+4. Whether weighting matters is predicted almost exactly by two numbers a
+   practitioner already has: **separation is about 0.73 * CV * n^-0.43**, R2 =
+   0.99 on both arms.
+5. Uniform weighting is therefore safe only when the coefficient of variation is
+   below about **0.015 * n^0.43** -- 0.046 at 10 EPDs, 0.120 at 100, 0.315 at
+   1,000 -- and the median real category does not clear it.
+6. **For 91 percent of real ECC categories, a plausible market-share allocation
+   has at least a 5 percent chance of changing which material ranks first.**
+   Uniform weighting is defensible only above roughly a thousand EPDs.
+7. Every one of those numbers is a **lower bound**, because a flat Dirichlet
+   understates the separation by **1.5 to 3.1 times** when share clusters on
+   similar products, which is how real market share behaves.
+8. This is the one place in the whole study where **dispersion matters as much as
+   dataset size**; everywhere else size is the only mechanism.
+
+**On method, which the paper owes as method rather than as findings**
+
+9. A_IQR, the measure from the companion paper, turns out to be **a measure of
+   dataset size** here (R2 0.94 against log n, 1.5 percent added by dispersion),
+   so it is reported for consistency and is not the instrument for this question.
+10. Comparing two UQ methods under independent random streams changes the answer
+    **5.33 percent** of the time with no model difference at all; the estimates
+    are converged and the argmax of a near-tie is not, so common random numbers
+    are required rather than more draws.
+11. The plausibility ceiling's inventory citation is withdrawn as unverifiable;
+    the ceiling stands on the arithmetic that 100 kgCO2e per kg would require
+    burning **27.3 kg of pure carbon per kilogram shipped**.
+
+**What the paper must state as conditional, in the same paragraph as the
+number, not in a footnote.** Every flip probability here assumes four materials
+of equal material use intensity, which makes the ranking as fragile as it can be
+made and therefore makes these numbers upper bounds on how often a modeling
+choice changes a real building's answer.
+
+---
+
+
+---
+
+## REVIEW SECTION -- FOR THE AUTHOR, AND TO BE DELETED BEFORE THIS FILE SHIPS
+
+The three figures this stage produced, inline so they need no folder digging,
+with what to check in each. **The handoff's real reader has no repository, so
+these links are useless to them; this whole section comes out when the stage
+closes.** Everything below section 0 stands on its own without them.
+
+### 1. The deliverable: what a given W1 costs
+
+![flip calibration](../outputs/figures/CompareUQMethods_FIG_FlipCalibration.png)
+
+What to check. The grey points are the observed flip rate in equal-count bins,
+the red line is the logistic fit and the blue step is the isotonic fit, which
+assumes only that the probability does not fall as two models separate. They
+should agree through the body; where they part, at the very bottom left, the data
+is thinnest. **The green star is where the six UQ methods of this study actually
+sit** -- a median separation of 0.30 and a 56 percent flip rate -- which is the
+point of the figure: every method pair is far past every threshold marked.
+
+The right panel is shown to be dismissed. The full rank ordering of four
+near-exchangeable materials is so fragile that its crossings land at 2.1e-05, and
+its Monte Carlo noise floor alone is 34 percent. It is not a usable criterion and
+the paper should say so rather than report it.
+
+### 2. A_IQR against what it was supposed to measure
+
+![weighting risk](../outputs/figures/CompareUQMethods_FIG_WeightingRisk.png)
+
+What to check. Left panel: A_IQR against dataset size is a tight monotone curve,
+and the two arms lie on top of one another. Middle panel: the same A_IQR against
+dispersion is a formless cloud. **That contrast is the whole finding** -- A_IQR
+is a measure of how many EPDs a category has.
+
+Right panel is the honest caveat about itself: the risk is saturated near 1.0 for
+most categories, which is why the marginal rank correlation on it should not be
+quoted. Figure 3 is the version that is not saturated.
+
+### 3. What actually decides whether weighting matters
+
+![weighting drivers](../outputs/figures/CompareUQMethods_FIG_WeightingDrivers.png)
+
+What to check, and this is the one to spend time on.
+
+Left and middle: the same data twice, against size and against dispersion, with
+the fitted law drawn at three fixed values of the other variable. The points
+should sit between the guide lines rather than scattering across them -- that is
+what an R2 of 0.991 looks like. The red line in the middle panel is the 5 percent
+flip threshold, so **everything above it is a category where uniform weighting is
+not safe**, and you can see how few fall below.
+
+Right panel answers the clustering question directly. `scatter` (share
+concentrated on random products) lies on top of `flat` at every effective sample
+size, so concentration alone behaves exactly like having fewer points. `blocks`
+(share concentrated on products with adjacent coefficients) sits clearly above
+and the gap widens. **If those two lines had coincided, the flat Dirichlet would
+have been vindicated; they do not.**
+
 ---
 
 ## 0. STATUS
@@ -24,10 +141,13 @@ published paper as the instrument; and calibrate that X against the downstream
 decision, giving the relative W1 at which the flip probability crosses 1, 5 and
 10 percent. Plus two housekeeping items.
 
-**All of it was delivered. Three things did not come out as expected, and each
-is stated plainly below rather than smoothed into the story.**
+**All of it was delivered. Several things did not come out as expected, and each
+is stated plainly below rather than smoothed into the story.** Two further
+results came out of the author's review of the first draft and are the most
+useful things here for a practitioner: a closed form for when weighting matters,
+and a measured limit on the weight model this whole study rests on.
 
-### The four results, in the order they matter
+### The six results, in the order they matter
 
 **1. THE STUDY'S OWN pLCA CANNOT ANSWER "DID THE ANSWER CHANGE".** Its Monte
 Carlo loop gives every uncertainty-quantification method its own stretch of one
@@ -100,6 +220,46 @@ dispersion result the stage was sent to confirm does hold, at **+0.731 against
 size at -0.545** -- but it is a both-matter result rather than the reversal an
 earlier draft of this file claimed. Section 4.5 has the correction and the
 within-band numbers, which are the strong form of it.
+
+**5. WHAT DECIDES WHETHER WEIGHTING MATTERS IS BOTH SIZE AND DISPERSION, and
+together they give a closed form.** This is the one place in the project where
+dispersion is a first-order quantity. Regressing the log of the separation on
+log dataset size and log coefficient of variation: size alone explains 48 percent
+of the variance, dispersion alone 50 percent, and **both together 99.1 percent**,
+with each adding about half on top of the other. They are nearly orthogonal. The
+fit is
+
+    log(separation) = -0.32 - 0.434 * log(n) + 1.036 * log(CV)
+
+and the same exponents come out of the synthetic arm, -0.427 and 0.977, so the
+practitioner form is **separation is about 0.73 * CV * n^-0.43**.
+
+**Set that against the calibrated 5 percent threshold and the rule needs no
+distribution at all**: uniform weighting is safe only when the coefficient of
+variation is below about **0.015 * n^0.43** -- 0.046 at ten EPDs, 0.120 at a
+hundred, 0.315 at a thousand. The median real category has a coefficient of
+variation of 0.63 at 47 EPDs, so almost none of them clears it, which is the same
+conclusion the per-dataset probabilities reach by a different route.
+
+**6. A FLAT DIRICHLET UNDERSTATES THE WEIGHTING RISK, AND THE NUMBERS HERE ARE
+THEREFORE A LOWER BOUND.** The author asked whether uniformly exploring the
+simplex is the right model, given that real market share probably arrives in
+clusters, and suggested that a cluster is nearly a dataset with fewer points, so
+the effective sample size would already capture it. **Half of that is right, and
+the half that is not is the important half.** Comparing three weight schemes at
+MATCHED effective sample size: concentrating share on randomly chosen products
+gives separations 0.90 to 0.99 times a flat draw, which is no difference --
+so the effective sample size does capture concentration. Concentrating the same
+share on products with ADJACENT coefficients, which is what clustering means in
+practice, gives **1.5 to 3.1 times** the separation at the same effective sample
+size.
+
+What the effective sample size misses is coherence. A contiguous block shifts the
+whole distribution one way, which lands in the location term that already carries
+three-quarters of the uniform-to-variable distance; random concentration moves
+mass in directions that partly cancel. **The direction of the error is
+conservative for this paper**, whose finding is that uniform weighting is rarely
+safe.
 
 ### The two housekeeping items
 
@@ -240,6 +400,26 @@ Every dataset is normalized to a mean of 1.0 and every material use intensity is
 frequency with which each is the largest contributor sits near 0.25 for all four,
 and 15 percent of cells have a gap between the top two below two Monte Carlo
 standard errors.
+
+**WHAT IS AND IS NOT CONVERGED, because "10,000 draws should be enough" is a
+reasonable objection and it is half right.** The estimates ARE converged: one
+rank-1 frequency has a Monte Carlo standard error of 0.0043 at 10,000 draws.
+What is not converged, and cannot be at any sample size, is WHICH of two nearly
+equal materials is larger, because the argmax is a discontinuous function of
+continuous estimates. **The flips are confined entirely to the near-ties.** At
+10,000 draws, groups whose top-two gap exceeds four standard errors flipped in
+**0 of 238** cases; groups inside two standard errors flipped about half the
+time. So this is not five percent of error smeared across every comparison. It is
+near-certainty on four fifths of the groups and a coin toss on the fifth that are
+genuinely tied.
+
+**More draws help at square-root cost and never reach zero.** Over 300 groups the
+floor is **16.3 percent at 1,000 draws, 6.7 percent at 10,000 and 2.7 percent at
+100,000** -- a factor of 2.5 for ten times the compute, against the 3.16 a
+square-root law predicts. Half a percent would cost about a hundred times the
+current run and still not be exact. Common random numbers reach exactly zero for
+nothing, because they remove the COMPARISON noise and not the estimation noise.
+That, and not "10,000 is too few", is the argument for them.
 
 Under common random numbers the floor is zero by construction, and the
 calibration set carries a control that verifies it: at zero reweighting, across

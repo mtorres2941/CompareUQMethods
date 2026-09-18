@@ -70,3 +70,7 @@ outputs/tables/stage2a3/CACHE_modality_*.npz
 # is a better record of a measurement than the CSV it produces. 98 of these were
 # tracked and deleted on 2026-09-15; they are not tracked again.
 outputs/tables/audits/
+
+# Executed notebook exports for review. Disposable: regenerated on demand,
+# never part of the deposit. See reports/HANDOFF_stage-2d.md section 0.
+reports/review/

@@ -1,0 +1,132 @@
+"""The figure conventions of FIGURE_STYLE.md, in code. Stage 2d.
+
+Read `FIGURE_STYLE.md` first; this module implements the parts of it that can be
+implemented and does not repeat its reasoning. The parts it cannot implement are
+the ones that matter most: a title that states a finding rather than naming an
+axis, a panel that earns its place, and an annotation that does not collide with
+the data.
+
+Usage, at the top of a figure cell:
+
+    import figstyle
+    figstyle.apply()
+    fig, axes = plt.subplots(1, 2, figsize=figstyle.size(2))
+    ...
+    figstyle.finish(ax, title='Below 0.002 the answer almost never changes')
+"""
+import numpy as np
+
+#: Okabe-Ito, which is distinguishable under deuteranopia and protanopia and
+#: survives greyscale. Order chosen so the first two are the furthest apart.
+CATEGORICAL = ('#0072B2', '#D55E00', '#009E73', '#CC79A7', '#E69F00', '#56B4E9')
+
+#: The single saturated colour reserved for whatever the message is about.
+#: Everything else in a figure should be grey; see FIGURE_STYLE.md section 4.
+ACCENT = '#D55E00'
+MUTED = '#9A9A9A'
+FAINT = '#D4D4D4'
+
+#: Perceptually uniform, no luminance reversal.
+SEQUENTIAL = 'viridis'
+
+#: Final printed widths in inches. A figure is built at the size it is printed,
+#: because text scales and a figure designed wide and shrunk is illegible.
+COL_WIDTH = 3.5
+FULL_WIDTH = 7.2
+
+TITLE_PT = 9
+LABEL_PT = 8
+TICK_PT = 7
+ANNOT_PT = 6.5
+
+
+def apply():
+    """Set the rcParams this project's figures assume."""
+    import matplotlib as mpl
+    mpl.rcParams.update({
+        'figure.dpi': 100,
+        'savefig.dpi': 300,
+        'savefig.bbox': 'tight',
+        'axes.prop_cycle': mpl.cycler(color=list(CATEGORICAL)),
+        'axes.spines.top': False,
+        'axes.spines.right': False,
+        'axes.grid': False,
+        'axes.titlesize': TITLE_PT,
+        'axes.labelsize': LABEL_PT,
+        'axes.titlelocation': 'left',
+        'xtick.labelsize': TICK_PT,
+        'ytick.labelsize': TICK_PT,
+        'xtick.direction': 'out',
+        'ytick.direction': 'out',
+        'legend.frameon': False,
+        'legend.fontsize': ANNOT_PT,
+        'lines.linewidth': 1.3,
+        'font.size': LABEL_PT,
+    })
+
+
+def size(ncols=1, nrows=1, aspect=0.75, width=None):
+    """Figure size in inches at FINAL printed width."""
+    w = width if width is not None else (COL_WIDTH if ncols == 1 else FULL_WIDTH)
+    return (w, w / ncols * aspect * nrows)
+
+
+def finish(ax, title=None, xlabel=None, ylabel=None, nticks=4):
+    """Erase what FIGURE_STYLE.md says to erase, and set the message.
+
+    `title` should be the takeaway as a sentence, not a description of the axes.
+    Nothing here can check that, which is why the checklist exists.
+    """
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.grid(False)
+    if title is not None:
+        ax.set_title(title, fontsize=TITLE_PT, loc='left')
+    if xlabel is not None:
+        ax.set_xlabel(xlabel, fontsize=LABEL_PT)
+    if ylabel is not None:
+        ax.set_ylabel(ylabel, fontsize=LABEL_PT)
+    ax.tick_params(labelsize=TICK_PT)
+    for axis in (ax.xaxis, ax.yaxis):
+        if axis.get_scale() == 'linear':
+            axis.set_major_locator(__import__('matplotlib').ticker.MaxNLocator(
+                nticks, prune=None))
+    return ax
+
+
+def label_line(ax, x, y, text, color=None, dx=4, dy=0, va='center', ha='left',
+               fontsize=ANNOT_PT, weight=None):
+    """Put a series name at the series, which is what replaces a legend."""
+    return ax.annotate(text, (x, y), xytext=(dx, dy),
+                       textcoords='offset points', color=color or MUTED,
+                       fontsize=fontsize, va=va, ha=ha, weight=weight,
+                       annotation_clip=False)
+
+
+def stagger(values, minimum_gap):
+    """Nudge overlapping label positions apart, preserving order.
+
+    For annotating several crossings on one axis. Returns positions at least
+    `minimum_gap` apart, moving later entries up. A label that still collides
+    after this means the panel is too crowded, which the style guide treats as a
+    fault in the panel rather than in the label.
+    """
+    out = []
+    for v in np.sort(np.asarray(values, dtype=float)):
+        if out and v - out[-1] < minimum_gap:
+            v = out[-1] + minimum_gap
+        out.append(v)
+    return np.array(out)
+
+
+def greyscale_check(path):
+    """Luminance spread of a saved figure, as a crude legibility proxy.
+
+    Returns the fraction of distinct luminance levels used. A figure whose marks
+    collapse to one level in greyscale is relying on hue alone, which
+    FIGURE_STYLE.md section 4 forbids. It is a smell test, not a proof.
+    """
+    from PIL import Image
+    g = np.asarray(Image.open(path).convert('L'))
+    ink = g[g < 250]
+    return 0.0 if ink.size == 0 else float(len(np.unique(ink)) / 256.0)

@@ -1238,3 +1238,73 @@ relative figure beside it.**
 | **The cheap fix** | Notebook 3 already knows it is in smoke mode. It should redirect every write -- tables AND figures -- to a scratch directory when `COMPAREUQ_SMOKE_COMBOS` is set, rather than writing to `outputs/` at all. A weaker version is to have the run metadata carry the group count and a test assert it equals 2,500, but that only protects the tables, and this incident shows the figures are the part that gets forgotten. |
 | **Fix** | **Code, owner Stage 3**, which owns the output conventions. Not done here, because it touches every table notebook 3 writes and Stage 2d had no mandate for it. |
 | **Status** | Open, owner 3. The incident itself is resolved. |
+
+## 88. When does weighting matter? A closed form in two numbers a practitioner already has
+
+| | |
+|---|---|
+| **The gap** | The manuscript treats the uniform-to-variable distance as a characteristic to be reported, not as something a reader can predict for their own category. A practitioner holding a set of EPDs has no way to ask "does this apply to me". |
+| **What was measured** | The log of the separation between the uniform-weighted fit and a Dirichlet-weighted one, regressed on log dataset size and log coefficient of variation. **Size alone explains 48.0 percent of the variance, dispersion alone 49.5 percent, and both together 99.1 percent**, each adding about half on top of the other. They are nearly orthogonal, which is why neither alone looked like the answer. |
+| **The fit** | `log(separation) = -0.318 - 0.434 log(n) + 1.036 log(CV)` on the empirical arm, R2 = 0.991; `-0.405 - 0.427 log(n) + 0.977 log(CV)` on 400 synthetic datasets, R2 = 0.996. **The exponents agree across the two arms**, which is what makes it worth stating as a law rather than as a fit. Practitioner form: **separation is about 0.73 * CV * n^-0.43**. |
+| **The rule that falls out** | Combined with the calibrated 5 percent flip threshold of 0.011, uniform weighting is safe only when the coefficient of variation is below about **0.015 * n^0.43**: 0.046 at 10 EPDs, 0.120 at 100, 0.315 at 1,000, 0.826 at 10,000. The median real category is CV 0.63 at 47 EPDs and does not clear it. |
+| **Why this is the strongest practitioner-facing result in the study** | It needs no distributional machinery, no Dirichlet sampling and no kernel estimate. A reader counts their EPDs, computes a coefficient of variation in a spreadsheet, and gets an answer. Every other rule this project has produced needs the analysis to have been run. |
+| **The contrast the text must draw** | Every question in this study about WHICH METHOD fits best is driven by dataset size and nothing else, and modality in particular was tested and rejected. Whether WEIGHTING matters is driven by size AND dispersion. A reader who has absorbed the first will carry it into the second and be half wrong. |
+| **Fix** | **Text**, and it is new. `TABLE_WeightingRiskDecomposition.csv`, `TABLE_WeightingRule.csv`, figure `CompareUQMethods_FIG_WeightingDrivers.png`. |
+| **Status** | Open. Decision 96. |
+
+## 89. THE FLAT DIRICHLET UNDERSTATES THE WEIGHTING RISK, so every number from it is a lower bound
+
+| | |
+|---|---|
+| **The author's question, 2026-09-17** | A flat Dirichlet explores the simplex uniformly, but real market share probably arrives in clusters, with a few related products carrying most of the volume. Is uniform exploration the right model? And if share does cluster, is that not almost a dataset with fewer points, so that the effective sample size already captures it? |
+| **The test** | Three weight schemes compared at MATCHED Kish effective sample size, which is what makes this a test of that reading rather than of concentration. `flat`: a Dirichlet over all n points. `scatter`: share concentrated into k groups placed on randomly chosen products. `blocks`: the same k groups placed on contiguous runs of the SORTED values, so products with similar coefficients share their volume. 97 categories, 30 draws each. |
+| **The answer, and it splits in two** | **Concentration behaves exactly as the author expected.** `scatter` gives 0.90 to 0.99 times the flat separation across effective-size bands, which is no difference. So the effective sample size does capture "fewer data points". **Coherence does not.** `blocks` gives **1.5 to 3.1 times** the separation at the same effective sample size, and the ratio grows with effective size. |
+| **Why** | A contiguous block shifts the whole distribution one way, and that lands in the LOCATION term which entry 83 shows already carries about three-quarters of the uniform-to-variable distance. Random concentration moves mass in directions that partly cancel. Concentration and coherence are different things and only the first is a sample-size effect. |
+| **What it means for every weighting number in this paper** | They are computed under a flat Dirichlet, so they are **lower bounds**. If real market shares cluster by product similarity -- and the 63.75 percent share Marsh, Hattam and Allen (2025) report for one steel route says they do -- the true separations are larger and uniform weighting is even less safe than reported. **This is the conservative direction for the paper's conclusion**, which is what makes it publishable as a stated limitation rather than a hole. |
+| **What would settle it** | Real production volumes, which is what the Marsh data provides and what this study lacks. Short of that, Stage 2h's concentration sweep should vary the BLOCK STRUCTURE and not only the Dirichlet concentration parameter, because the two are not the same knob. |
+| **Fix** | **Text**, as a stated limitation with its direction and its measured size. `TABLE_WeightingClustering.csv.gz`, `TABLE_WeightingClusteringSummary.csv`. |
+| **Status** | Open. Decision 97. |
+
+## 90. Silverman's constant: 1.34 or 1.35, and neither is wrong
+
+| | |
+|---|---|
+| **The discrepancy** | This study divides the interquartile range by **1.34** to estimate a scale; the author's KL2 paper divides by **1.35**. A reader comparing the two papers will notice. |
+| **Which is correct** | Both are roundings of the same exact quantity. The interquartile range of a standard normal is `2 * 0.674490 = 1.348980`, so the unbiased divisor is **1.3490**. Dividing by 1.35 estimates sigma with a bias of **-0.08 percent**; dividing by 1.34, **+0.67 percent**. **1.35 is the closer rounding.** 1.34 is what Silverman's 1986 book prints and what most software carries, which is why it is the more common convention. |
+| **What it does here** | The two differ by 0.75 percent in the bandwidth. Nothing in this study turns on it: the guard threshold was calibrated over a range of effective sample sizes from 5 to 200 and the bandwidth rule was compared against Scott, which differs by 18 percent in the coefficient. |
+| **Fix** | **Text, one sentence.** State that this study uses 1.34, that the exact value is 1.349, and that KL2's 1.35 is the same rule to within 0.75 percent of the bandwidth. Do not change the code: 1.34 is the published convention and moving it would shift every KDE number for a 0.75 percent correction nobody asked for. |
+| **Status** | Open, one sentence. Decision 98. |
+
+## 91. The flip threshold is conditional on FOUR materials, and Stage 2e changes that
+
+| | |
+|---|---|
+| **The author's question** | Part of the plan was to stop building every probabilistic LCA from exactly four materials. Why is the calibration still on groups of four, and should the sweep not come first? |
+| **The answer, and the concern is legitimate** | The sweep over 2 to 12 materials per pLCA belongs to Stage 2e and has not run. **The calibrated crossings of 0.0018, 0.011 and 0.025 are therefore conditional on four materials**, and they will move when that sweep lands. The direction is predictable: with more materials competing there are more chances for a near-tie, so the flip probability at a given model distance should RISE and the thresholds should FALL. |
+| **Why calibrating first was still the right order** | The threshold is needed to state any per-dataset weighting risk at all, and the machinery -- common random numbers, the model-to-model distance, the tempered calibration set, the cluster bootstrap -- is independent of how many materials a group holds. Stage 2e re-runs a calibration it does not have to design. |
+| **What 2e must do** | Re-run `flip.weighting_calibration` at each group size in the sweep and report the crossings as a function of it. If they move materially, every weighting-risk probability in notebook 1 is recomputed at the four-material value's replacement. |
+| **Fix** | **Analysis, Stage 2e.** Until then the paper must state the crossings as conditional on four materials of equal material use intensity. |
+| **Status** | Open, owner 2e. Decision 99. |
+
+## 92. Could an industry-average EPD stand in for the weighted mean?
+
+| | |
+|---|---|
+| **The author's idea** | Since the uniform-to-variable distance is mostly a shift of the mean, a practitioner needs a weighted mean rather than a distribution. An industry-average EPD is in principle built from a more complete dataset than any individual product declaration, so could it serve as that weighted mean? |
+| **Why it is a good idea** | It is, in principle, exactly the missing quantity: a production-weighted average over a population the practitioner cannot otherwise see. **It is also what the author's own KL2 paper already does under another name** -- KL2 uses industry-average ECCs as its target expected value, `EVtarget`, and locates a phantom kernel so the model reproduces it. So this paper would be reaching for an instrument its companion paper has already defined, which is the consistency this project requires. |
+| **What has to be checked before it is used** | Three things, none of them settled here. Whether the industry average is production-weighted at all, or a simple mean over participating manufacturers, which is a different object. What population it covers, since a regional average cannot stand in for a global one. And whether its scope, system boundary and reference year match the product declarations it would be compared against. |
+| **How it would be used** | Not as a replacement for the dataset, but as a CHECK on it: the distance between the unweighted mean of the EPDs a practitioner holds and the industry-average value is a direct, computable estimate of the location term, which this stage measured to be about three quarters of the whole effect. That is a rule needing no Dirichlet sampling at all. |
+| **Fix** | **Analysis, a later stage, and it is not currently owned.** Recorded here so it is not lost. It would need industry-average ECCs for the categories in the arm, which EC3 carries for some and not others. |
+| **Status** | Open, unowned, worth doing. Decision 100. |
+
+## 93. Every material carries a material use intensity of 1.0, which makes the ranking as fragile as possible
+
+| | |
+|---|---|
+| **The author's question** | Should this assumption be challenged rather than accepted? |
+| **What it does** | Every dataset is normalized to a mean of 1.0 and every material use intensity is 1.0, so all four materials in a probabilistic LCA contribute the same expected amount. Their ranking is then decided entirely by the tails, which makes it as unstable as it can be made. This is why the Monte Carlo noise floor is 5.33 percent, why the flip probabilities are high, and why the calibrated thresholds are small. |
+| **Which direction it biases** | **Conservative for every claim this study makes.** A real building has materials differing by orders of magnitude in contribution, where the largest contributor is usually obvious and no modeling choice will dislodge it. So the reported flip probabilities are an upper bound on how often a method choice changes a real answer. |
+| **What is already scheduled** | Stage 2e owns a dominant-material-use-intensity variant, which is exactly this challenge. Stage 2i owns an optional real-building anchor with realistic intensities. Neither has run. |
+| **What the paper must not do** | Quote a flip probability as though it described a building. Every one of them is conditional on four exchangeable materials, and the text must say so in the same paragraph, not in a footnote. |
+| **Fix** | **Analysis, Stage 2e then optionally 2i**, and text in the meantime. |
+| **Status** | Open, owner 2e. Decision 101. |

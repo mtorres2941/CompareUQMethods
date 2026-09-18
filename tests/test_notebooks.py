@@ -200,3 +200,31 @@ def test_no_two_notebooks_write_the_same_output_file():
     clashes = {name: sorted(who) for name, who in writers.items()
                if len(who) > 1}
     assert not clashes, f'written by more than one notebook: {clashes}'
+
+@pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
+def test_no_cell_uses_a_frame_defined_below_it(path):
+    """A cell may not read a name that a LATER cell assigns.
+
+    WHY THIS EXISTS. A Stage 2d figure cell read `df_riskdecomp`, which the cell
+    two positions below it creates. Every interactive session had that name in
+    memory from an earlier run, and rendering the figure cells on their own
+    loaded the frames from disk first, so the error only surfaced in a full
+    headless run -- eleven minutes in, which is the expensive place to find it.
+
+    The check is deliberately narrow: top-level `df_*` assignments only. A
+    general dataflow analysis of a notebook is not worth writing, and this
+    catches the shape of the mistake that actually happened.
+    """
+    nb = json.loads(path.read_text())
+    code = [(i, "".join(c["source"])) for i, c in enumerate(nb["cells"])
+            if c["cell_type"] == "code"]
+    defined = {}
+    for i, src in code:
+        for m in re.finditer(r"^(df_\w+)\s*=", src, re.M):
+            defined.setdefault(m.group(1), i)
+    bad = []
+    for i, src in code:
+        for name, j in defined.items():
+            if j > i and re.search(rf"\b{name}\b", src):
+                bad.append(f"cell {i} uses {name}, first assigned in cell {j}")
+    assert not bad, f"{path.name}: " + "; ".join(bad)
