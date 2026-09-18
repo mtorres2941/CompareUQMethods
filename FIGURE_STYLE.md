@@ -14,8 +14,11 @@ writing a figure and call that module rather than re-deriving it.
 ## 1. The one rule that matters most: a figure carries ONE message, and the title states it
 
 Doumont's central claim is that every piece of communication should be built
-around a single message the audience can restate afterwards. A title that names
-the variables is a label; a title that states the finding is a message.
+around a single message the audience can restate afterwards. His own test, from
+a worked counterexample: a display conveys no message when its "title expresses
+what the data are, not what the data mean -- **the what, not the so what**". A
+title that names the variables is a label; a title that states the finding is a
+message.
 
     WRONG   "A_IQR against dataset size"
     RIGHT   "A_IQR measures how many EPDs a category has, not how spread it is"
@@ -44,6 +47,10 @@ and the words must be proportional to the evidence.
 Tufte's test is the ratio of ink that encodes data to ink on the page. Every mark
 that is not data must justify itself.
 
+Tufte's own list is five instructions: above all else show the data; maximize
+the data-ink ratio; erase non-data-ink; erase redundant data-ink; revise and
+edit. The last is the one people skip.
+
 **Erase by default:**
 
 - the top and right spines, always;
@@ -58,15 +65,16 @@ that is not data must justify itself.
 
 **Keep and strengthen:**
 
-- the data marks themselves;
+- the data marks themselves, which is Tufte's first principle: above all else
+  show the data;
 - one direct label per series, placed at the series, replacing the legend;
 - the smallest number of axis ticks that lets a reader interpolate, typically
   three to five;
 - annotation of the specific points the message depends on.
 
 **Direct labelling beats a legend.** A legend forces the reader to look away,
-decode a colour, and look back; Tufte calls this an interruption and Doumont
-calls it noise. Put the series name at the end of the series, in the series
+decode a colour, and look back. Doumont's objection is blunter: a legend is "an
+arbitrary dictionary of colors, hard to process". Put the series name at the end of the series, in the series
 colour. Use a legend only when lines are too dense to label in place.
 
 ---
@@ -74,8 +82,10 @@ colour. Use a legend only when lines are too dense to label in place.
 ## 3. Small multiples over multi-series clutter
 
 When a relationship should be compared across a third variable, repeat the panel
-rather than overplotting. Hold the axes identical across panels so the comparison
-is positional, label the axes once, and let the panel titles carry the level of
+rather than overplotting. **Hold the axes identical across panels**, which
+Doumont states as a requirement rather than a preference -- panels showing
+subsets of the same variables "must use the same scales to offer a meaningful
+comparison" -- so the comparison is positional, label the axes once, and let the panel titles carry the level of
 the third variable. Small multiples are Tufte's strongest recommendation and this
 project's data -- two arms, four size bands, six UQ methods -- suits them.
 
@@ -167,15 +177,62 @@ Colour encodes, it does not decorate.
 9. Is every number quoted to a precision the estimate supports?
 10. Does the figure read without the caption? Does the caption add something
     rather than repeat the title?
+11. **Doumont's test:** show it to someone representative of the audience with
+    no spoken explanation. Can they say what it shows and why it is there? If a
+    reader has to ask what a mark means, the mark is not labelled.
 
 ---
 
-## 9. Provenance of this file
+## 9. What comes from where
+
+**Sourced to Tufte**, *The Visual Display of Quantitative Information* (1983):
+
+- the five data-ink principles, quoted -- **above all else show the data;
+  maximize the data-ink ratio; erase non-data-ink; erase redundant data-ink;
+  revise and edit**;
+- the data-ink ratio itself, defined as one minus the proportion of the graphic
+  that could be erased without loss of data information;
+- **chartjunk**, and its three named forms: moire vibration, heavy grids, and
+  self-promoting graphics;
+- the **lie factor**, the size of the effect shown divided by the size of the
+  effect in the data, which should be near one;
+- **small multiples**, which is his term.
+
+**Sourced to Doumont**, *Trees, maps, and theorems* (2009):
+
+- the three laws -- **adapt to your audience, maximize the signal-to-noise
+  ratio, use effective redundancy**;
+- the message rule, in his words: a display that conveys no message is one whose
+  "title expresses **what the data are, not what the data mean (the what, not
+  the so what)**";
+- the objection to legends, from his worked counterexample: a legend is "an
+  arbitrary dictionary of colors, hard to process";
+- the small-multiple constraint: "multiple panels representing subsets of the
+  same variables **must use the same scales** to offer a meaningful comparison";
+- the self-explanation test -- show the display to someone representative of the
+  audience, without your spoken text, and see whether they can say what it shows
+  and why it is there.
+
+**This project's own conventions, which neither author states.** The Okabe-Ito
+palette and the six-colour limit; the specific point sizes; the ASCII-only rule,
+which is a standing constraint of this repository and not a design principle;
+the file-naming scheme; the 3.5 and 7.2 inch widths; and the requirement that
+figures be built from tables on disk. These are ours. They are listed separately
+so a future stage can change them without arguing with Tufte.
+
+---
+
+## 10. Provenance of this file
 
 Written 2026-09-17, Stage 2d, at the author's instruction, after a review found
 that the stage's three figures followed no written guide: titles named variables
 rather than findings, annotations collided with data, and legends were used where
 direct labels would serve.
+
+**Revised the same day**, also at the author's instruction, after checking the
+primary sources rather than working from memory. The first draft attributed to
+Tufte and Doumont several rules neither of them states; section 9 now separates
+what is sourced from what is ours.
 
 **Before this file existed the guide lived only in conversation, which is the
 condition this project's own continuity rule forbids.** If a figure convention is

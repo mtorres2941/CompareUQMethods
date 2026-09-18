@@ -1308,3 +1308,15 @@ relative figure beside it.**
 | **What the paper must not do** | Quote a flip probability as though it described a building. Every one of them is conditional on four exchangeable materials, and the text must say so in the same paragraph, not in a footnote. |
 | **Fix** | **Analysis, Stage 2e then optionally 2i**, and text in the meantime. |
 | **Status** | Open, owner 2e. Decision 101. |
+
+## 94. The headline metric should be a SHIFT, not a FLIP
+
+| | |
+|---|---|
+| **What the manuscript does** | Reports "ECI Rank #1 Frequency" and compares UQ methods by how often the identity of the largest contributor changes. |
+| **Why that is the wrong headline** | The identity of an argmax is a discontinuous function of four nearly equal quantities, so it inherits every source of instability at once. With the same fitted models and two independent Monte Carlo streams it changes 5.3 percent of the time for rank-1 frequency, 12.3 percent for contribution share and 3.0 percent for variance importance -- with no model difference at all. The underlying continuous values are stable to about 7 percent of their spread. |
+| **What a probabilistic LCA is actually for** | Magnitude and likelihood: which material contributes most, and how confident that is -- because those drive design decisions and data-collection priorities. `eci_rank_1` per material already answers both at once. The error was collapsing it to "which material has the highest one". |
+| **The headline this supports instead** | **Which UQ method you choose changes a material's rank-1 frequency by a median of 0.048 for the closest pair of the six and 0.188 for the furthest** -- that is, your stated probability that a given material is the largest contributor moves by 5 to 19 percentage points. Stable, continuous, no noise floor, and far less dependent on the four-material construction. |
+| **What else belongs in the set** | Variance importance, the share of total variance a material's uncertainty accounts for, which is the measure that tells a practitioner where to spend data-collection effort. It is already computed as `ui` in the pLCA table and nothing reports it. |
+| **Fix** | **Analysis, Stage 2g**, which owns the metric set. Report the continuous shift as primary, variance importance alongside, and any argmax statistic with its noise floor beside it. |
+| **Status** | Open, owner 2g. Decision 102. |

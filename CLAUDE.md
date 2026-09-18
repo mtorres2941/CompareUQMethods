@@ -2318,3 +2318,43 @@ rather than in conversation.
      real-building anchor. **The paper must not quote a flip probability as
      though it described a building**, and the conditionality belongs in the same
      paragraph as the number, not in a footnote. Discrepancy entry 93.
+
+102. **2026-09-17, Stage 2d review. THE HEADLINE SHOULD BE A CONTINUOUS OUTPUT,
+     NOT AN ARGMAX. "56 percent of pLCAs flip" is demoted.** `[AUTHOR]` The
+     author declined to over-index on the flip rate, on two grounds: the pLCA
+     process is still changing in later stages, and the identity of the largest
+     contributor is not the only thing a probabilistic LCA is for. Both are
+     right, and the measurement supports a better headline.
+
+     **The author's framing of what a pLCA is for:** magnitude and variance --
+     which material contributes most, and how likely that is -- because those are
+     what drive design decisions and data-collection priorities.
+
+     **The study already computes the right quantities and the error was
+     collapsing them to an argmax.** `eci_rank_1` per material IS magnitude and
+     likelihood together: "a 30 percent chance this material is the largest
+     contributor." What is fragile is not that number but the question "which
+     material has the highest one", because with four exchangeable materials the
+     top two are often tied. Measured over 300 groups with the SAME models and
+     two streams, the argmax flips 12.3 percent of the time for contribution
+     share, 5.3 percent for rank-1 frequency and 3.0 percent for variance
+     importance, while the underlying continuous values are stable to about 7
+     percent of their spread across materials.
+
+     **So the headline becomes a SHIFT rather than a FLIP**, and it needs no
+     common random numbers and carries no noise floor:
+
+         choosing between the CLOSEST pair of the six methods moves a
+         material's rank-1 frequency by a median of 0.048
+         the FURTHEST pair moves it by 0.188
+
+     Read as: which UQ method you pick changes your stated probability that a
+     given material is the largest contributor by **5 to 19 percentage points**.
+     That is a sentence a practitioner can act on, it is stable, and it does not
+     depend on the four-material construction the way a flip rate does.
+
+     **The flip rate stays as a secondary, clearly conditional statistic.**
+     **Stage 2g owns the metric set** and should carry this through: report the
+     continuous shift as primary, add variance importance as the
+     data-collection-facing measure, and state any argmax result with its noise
+     floor beside it. Discrepancy entry 94.

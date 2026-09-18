@@ -13,34 +13,42 @@ file.
 
 # IF YOU READ ONE PAGE, READ THIS ONE
 
-Everything below is the working record. **These eleven sentences are what Stage
-2d contributes to the manuscript.** Each is a claim the paper can make, with the
+Everything below is the working record. **These ten sentences are what Stage 2d
+contributes to the manuscript.** Each is a claim the paper can make, with the
 number that supports it. Nothing else in this file needs to reach the paper.
 
 **On the method comparison**
 
-1. Choosing among the six UQ methods changes which material is named the largest
-   contributor in **56 percent** of probabilistic LCAs; every pair of the six
-   sits far past the distance at which the answer starts to change.
-2. The probability that the answer changes crosses **1 percent at a relative W1
-   of 0.0018, 5 percent at 0.011 and 10 percent at 0.025** -- so the study's
-   goodness-of-fit scale can now be read as a consequence rather than as a
-   ranking.
+1. **Which UQ method you choose changes a material's stated probability of being
+   the largest contributor by 5 to 19 percentage points** -- a median shift in
+   rank-1 frequency of 0.048 for the closest pair of the six methods and 0.188
+   for the furthest. This is the headline: it is continuous, it carries no Monte
+   Carlo noise floor, and it does not lean on the four-material construction.
+2. The probability that the identity of the largest contributor actually changes
+   crosses **1 percent at a relative W1 of 0.0018, 5 percent at 0.011 and 10
+   percent at 0.025**, so the study's goodness-of-fit scale can be read as a
+   consequence. **A relative W1 of 0.011 is a shift of about one percent of the
+   dataset mean** -- invisible on a plotted curve, and enough to change the
+   answer one time in twenty.
 
 **On weighting, which is the stage's main contribution**
 
 3. The distance between uniform and variable weighting is about **three quarters
-   a shift of the mean** (median location share 0.725 on real data), so the
-   practitioner question needs a weighted mean, not a distribution.
+   a shift of the mean** (median location share 0.725 on real data), so a
+   practitioner can tell whether market shares matter for their category by
+   computing a weighted mean and seeing how far it moves -- no distribution
+   fitting, no simulation.
 4. Whether weighting matters is predicted almost exactly by two numbers a
-   practitioner already has: **separation is about 0.73 * CV * n^-0.43**, R2 =
-   0.99 on both arms.
+   practitioner already has, the EPD count and the coefficient of variation:
+   **separation is about 0.73 * CV * n^-0.43**, R2 = 0.99 on both arms.
 5. Uniform weighting is therefore safe only when the coefficient of variation is
    below about **0.015 * n^0.43** -- 0.046 at 10 EPDs, 0.120 at 100, 0.315 at
    1,000 -- and the median real category does not clear it.
 6. **For 91 percent of real ECC categories, a plausible market-share allocation
    has at least a 5 percent chance of changing which material ranks first.**
-   Uniform weighting is defensible only above roughly a thousand EPDs.
+   Uniform weighting is defensible only above roughly a thousand EPDs. **This is
+   a call to collect market-share data**, which is the one input that would
+   remove the problem rather than bound it.
 7. Every one of those numbers is a **lower bound**, because a flat Dirichlet
    understates the separation by **1.5 to 3.1 times** when share clusters on
    similar products, which is how real market share behaves.
@@ -49,22 +57,29 @@ number that supports it. Nothing else in this file needs to reach the paper.
 
 **On method, which the paper owes as method rather than as findings**
 
-9. A_IQR, the measure from the companion paper, turns out to be **a measure of
-   dataset size** here (R2 0.94 against log n, 1.5 percent added by dispersion),
-   so it is reported for consistency and is not the instrument for this question.
-10. Comparing two UQ methods under independent random streams changes the answer
-    **5.33 percent** of the time with no model difference at all; the estimates
-    are converged and the argmax of a near-tie is not, so common random numbers
-    are required rather than more draws.
-11. The plausibility ceiling's inventory citation is withdrawn as unverifiable;
-    the ceiling stands on the arithmetic that 100 kgCO2e per kg would require
-    burning **27.3 kg of pure carbon per kilogram shipped**.
+9. A_IQR, the measure from the companion paper, is **a measure of dataset size**
+   in this study (R2 0.94 against log n, 1.5 percent added by dispersion), which
+   is what density-estimation theory predicts when the weight information is held
+   fixed and only n varies. It stays reported for consistency and is not the
+   instrument for this question.
+10. Comparing two UQ methods under independent random streams changes the
+    identity of the largest contributor **5.33 percent** of the time with no model
+    difference at all. The estimates are converged; the argmax of a near-tie is
+    not, and cannot be at any sample size. Common random numbers fix it exactly;
+    more draws only shrink it as the square root.
 
-**What the paper must state as conditional, in the same paragraph as the
-number, not in a footnote.** Every flip probability here assumes four materials
-of equal material use intensity, which makes the ranking as fragile as it can be
-made and therefore makes these numbers upper bounds on how often a modeling
-choice changes a real building's answer.
+**What the paper must state as conditional, in the same paragraph as the number
+and not in a footnote.** Every FLIP probability assumes four materials of equal
+material use intensity, which makes the ranking as fragile as it can be made and
+therefore makes those numbers upper bounds; the continuous SHIFT in sentence 1
+does not have that dependence, which is the main reason to lead with it. Stage 2e
+changes the number of materials per pLCA and will move every flip threshold.
+
+**One housekeeping item, not a finding.** The plausibility ceiling's inventory
+citation could not be verified in this repository and is withdrawn. Nothing about
+the ceiling changes: it rests on the arithmetic that 100 kgCO2e per kg of product
+would require burning 27.3 kg of pure carbon per kilogram shipped, which needs no
+database and which a reviewer checks in one line.
 
 ---
 
@@ -73,8 +88,9 @@ choice changes a real building's answer.
 
 ## REVIEW SECTION -- FOR THE AUTHOR, AND TO BE DELETED BEFORE THIS FILE SHIPS
 
-The three figures this stage produced, inline so they need no folder digging,
-with what to check in each. **The handoff's real reader has no repository, so
+The three figures this stage produced, inline, with what to check in each. This
+file plus these three figures is the whole review: there is nothing to run and no
+other document to open. **The handoff's real reader has no repository, so
 these links are useless to them; this whole section comes out when the stage
 closes.** Everything below section 0 stands on its own without them.
 
@@ -293,6 +309,56 @@ arithmetic a reviewer checks in one line. Discrepancy entry 81.
 reader has no repository, that decision and entry numbers are trailing citations
 rather than substance, that numbers must appear as text, and that an instruction
 to open a file is addressed to the next Claude Code session.
+
+---
+
+## 0b. QUESTIONS THE AUTHOR ASKED OF THE FIRST DRAFT, ANSWERED
+
+Kept because each answer is a claim in its own right and none of them is
+recoverable from the numbers alone.
+
+**"A weighted mean, not a distribution" -- what does that mean?** Poorly put in
+the first draft. It means this: to decide whether market shares matter for your
+category you do not need to fit anything. Take the plain average of the ECCs you
+hold, take the average again weighting each by its market share, and see how far
+apart they are. Three quarters of the entire uniform-to-variable effect is that
+one gap. If it is small, uniform weighting is safe for you.
+
+**"Does CV mean coefficient of variation?"** Yes -- the standard deviation
+divided by the mean. It is written out on first use everywhere now.
+
+**"Is A_IQR aligned with log n an artifact, and does it match the statistics
+literature?"** It matches it. The pointwise variance of a kernel density estimate
+goes as 1 / (n h), and with a Silverman or Scott bandwidth h goes as n^-0.2, so
+the standard deviation of the estimated density goes as **n^-0.4**. A_IQR is an
+interquartile width of exactly that ensemble, and the measured exponent is
+**-0.35**. So A_IQR is behaving as density-estimation theory says it must.
+
+**Does that make A_IQR redundant?** In THIS study, largely yes -- but not in the
+companion paper, and the difference is instructive. A_IQR depends on the weight
+INFORMATION as well as on n. The companion paper's scenarios 3.1 and 3.2 use the
+same nine-point dataset and report A_IQR of 0.22 and 0.12, differing only in
+whether a subgroup's weights are constrained or known exactly. **Same n, nearly a
+factor of two in A_IQR.** This study holds the weight information fixed -- a flat
+Dirichlet, no constraints, for every category -- so the only thing left varying
+is n, and A_IQR collapses onto it. The measure is not redundant; this study's
+design simply removes the dimension it was built to see.
+
+**"The noise floor still feels wrong -- are we just not sampling enough?"** No,
+and the analogy that makes it clear: polling an election. With 10,000 respondents
+you know each candidate's share to within half a point, which is plenty. But if
+the true race is 50.0 against 50.0, no sample size tells you who wins, because
+there is no stable answer to tell. Here about a fifth of pLCA groups have their
+top two materials within sampling error of each other, and in those the "winner"
+is arbitrary. The estimates are converged; the ARGMAX of a tie is not a
+convergent quantity. This is also why the recommended headline is the continuous
+shift rather than the flip: the shift has no tie to be on the wrong side of.
+
+**"Why do we keep talking about the inventory citation?"** We should not, and the
+first draft over-weighted it. The ceiling is fine and no number depends on it.
+The only issue was that one supporting citation could not be verified in this
+repository, so it is withdrawn and the arithmetic justification carries it alone.
+It has been demoted out of the headline list.
 
 ---
 
