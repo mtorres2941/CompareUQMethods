@@ -2527,12 +2527,20 @@ rather than in conversation.
      little with the group size**: the 1 percent crossing is 1.90 at two
      materials and 2.34 at twelve.
 
-     **AND CONCENTRATION DOES NOTHING FOR THE NUMBERS.** Across the whole sweep
-     the median change in a material's estimated contribution is 0.188 at equal
-     intensities, 0.186 at 2:1, 0.175 at 10:1 and 0.166 at 100:1 -- a 12 percent
-     decline while the flip probability goes from 55 percent to zero. **That
-     contrast is the figure and it is the finding**: concentration protects the
-     RANKING and leaves the RESULT where it was.
+     **AND CONCENTRATION DOES NOTHING FOR THE NUMBERS.** At the study's own four
+     materials the median change in a material's estimated contribution is 0.188
+     at equal intensities, 0.186 at 2:1, 0.175 at 10:1 and 0.166 at 100:1 -- an
+     11 percent decline while the flip probability goes from 0.546 to zero.
+     Pooled over the six group sizes the same four figures are 0.212, 0.213,
+     0.193 and 0.210, which is no decline at all. **That contrast is the figure
+     and it is the finding**: concentration protects the RANKING and leaves the
+     RESULT where it was.
+
+     **The comparison is in absolute units and that is legitimate here**, because
+     the intensity vector is normalized to a mean of 1.0 in every cell, so the
+     building's total mean contribution is the number of materials whatever the
+     concentration. Decision 113 says what changes if the denominator is the
+     leading material's own contribution instead.
 
      **THE ANCHOR, and it is the reason this matters.** Marsh, Lewis, Hattam and
      Allen (in press) report for their Concrete-Precast staircase under the ICE

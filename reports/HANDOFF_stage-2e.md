@@ -49,11 +49,12 @@ below this page is the working record.
    precast concrete at 41 percent. A real design can sit within a percentage
    point of a tie, which is exactly where the choice of UQ method decides the
    ranking.
-5. **Concentration protects the ranking and does nothing for the numbers.**
-   Across the same sweep the median change in a material's estimated
-   contribution is **0.188** at equal intensities, 0.186 at 2:1, 0.175 at 10:1
-   and **0.166** at 100:1 -- a 12 percent decline while the flip probability
-   falls from 55 percent to zero.
+5. **Concentration protects the ranking and does nothing for the numbers.** At
+   four materials the median change in a material's estimated contribution is
+   **0.188** at equal intensities and **0.166** at 100:1, an 11 percent decline
+   while the probability that the leader changes falls from 0.546 to zero.
+   Pooled over group sizes the same two figures are 0.212 and 0.210, no decline
+   at all.
 6. **More materials does not dilute the effect.** From two materials per
    probabilistic LCA to twelve, a material's own estimated contribution moves
    **0.069 to 0.095** when the UQ method changes, its share of the building
@@ -246,11 +247,19 @@ The observed rate in equal-count bins runs 0.576 at a ratio of 1.00, 0.410 at
 1.10, 0.290 at 1.17, 0.150 at 1.31, 0.049 at 1.59, 0.042 at 2.00, 0.007 at 2.45
 and 0.000 from 10 upward.
 
-**AND CONCENTRATION DOES NOTHING FOR THE NUMBERS.** Over the same sweep the
-median change in a material's estimated contribution is 0.188 at equal
-intensities, 0.186 at 2:1, 0.175 at 10:1 and 0.166 at 100:1. A 12 percent
-decline in the magnitude while the ranking goes from a coin toss to certainty.
-**That contrast is the figure and it is the finding.**
+**AND CONCENTRATION DOES NOTHING FOR THE NUMBERS.** At the study's own four
+materials the median change in a material's estimated contribution is **0.188**
+at equal intensities, 0.186 at 2:1, 0.175 at 10:1 and **0.166** at 100:1: an 11
+percent decline in the magnitude while the ranking goes from a coin toss to
+certainty. Pooled over the six group sizes the same four figures are 0.212,
+0.213, 0.193 and 0.210, which is no decline at all. **That contrast is the
+figure and it is the finding.**
+
+The comparison is in absolute units and that is legitimate here, because the
+intensity vector is normalized to a mean of 1.0 in every cell, so the building's
+total mean contribution is the number of materials whatever the concentration.
+Section 4.6a says what changes if the denominator is the leading material's own
+contribution instead.
 
 ### 4.4 The anchor, and what could not be anchored
 
