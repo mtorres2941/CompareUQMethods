@@ -270,3 +270,30 @@ def test_the_plca_notebook_defines_its_output_root_before_it_writes():
     assert defines, 'notebook 3 never defines OUT'
     assert min(writes) > min(defines), (
         f'first write in cell {min(writes)} precedes OUT in cell {min(defines)}')
+
+
+@pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
+def test_no_cell_shadows_an_imported_module(path):
+    """A variable may not take the name of a module the notebook imports.
+
+    WHY THIS EXISTS. Notebook 3 used `plca` as a loop index years before
+    `src/plca.py` existed, so importing the module left every later call to it
+    reading an integer: `AttributeError: 'int' object has no attribute
+    'run_group'`, eleven cells after the assignment. Nothing else would catch
+    it, because the assignment and the call are in different cells and both are
+    perfectly valid on their own.
+    """
+    imported = set()
+    assigned = {}
+    for index, source in code_cells(path):
+        for node in ast.walk(ast.parse(source)):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    imported.add((alias.asname or alias.name).split('.')[0])
+            elif isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        assigned.setdefault(target.id, index)
+    clashes = sorted(f'{name} (assigned in cell {assigned[name]})'
+                     for name in imported & set(assigned))
+    assert not clashes, f'{path.name}: shadowed modules: {clashes}'

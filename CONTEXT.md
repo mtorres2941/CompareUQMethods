@@ -607,7 +607,22 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_FlipProvenance.csv` | NB3 | whether the curve describes the distance or where the distance came from |
 | `TABLE_FlipPostStratified.csv` | NB3 | the flip rate at equal allocation and reweighted |
 | `TABLE_PLCAResults.csv` | NB3 | 59,976 x 43, which is 2,499 groups x 6 methods x 4 datasets |
-| `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform |
+| `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform, and whether the run was a SMOKE run |
+| `TABLE_CRNComparison.csv` | NB3 | **read this before any statement about how far apart two methods are.** Each output's median change between two methods under shared variates, under independent variates, and under one method run twice |
+| `TABLE_CRNComparisonRows.csv.gz` | NB3 | the rows behind it, one per (pLCA, output, kind, method pair) |
+| `TABLE_PLCASweep.csv.gz` | NB3 | the crossed sweep: one row per (cell, pLCA, method pair), with the top-two contribution ratio and the leading material's share |
+| `TABLE_PLCASweepSummary.csv` | NB3 | one row per (group size, intensity case): the flip rate and each output's shift, each with a bootstrap interval |
+| `TABLE_PLCAGroupSize.csv` | NB3 | the equal-intensity column of that sweep, which is how the effect of choosing a UQ method scales with the number of materials |
+| `TABLE_PLCARatioCrossings.csv` | NB3 | **the intensity sweep's deliverable.** The top-two contribution ratio at which the flip probability crosses 1, 5 and 10 percent, pooled and by group size |
+| `TABLE_PLCARatioCurve.csv` | NB3 | the observed flip rate in bins of that ratio |
+| `TABLE_PLCARatioAnchor.csv` | NB3 | the one real top-two contribution ratio available, transcribed from the text of Marsh et al. (in press) |
+| `TABLE_FlipCrossingsByGroupSize.csv` | NB3 | the Stage 2d flip thresholds recalibrated at 2, 3, 4, 6, 8 and 12 materials |
+| `TABLE_FlipCalibrationByGroupSize.csv.gz` | NB3 | the calibration rows behind it |
+| `TABLE_PLCATruth.csv.gz` | NB3 | **the Stage 2e table to read.** One row per (pLCA, material, method, truth parent): every output, the value the TRUE parent gives, and the error |
+| `TABLE_PLCATruthSummary.csv` | NB3 | per method, the mean absolute error against the truth with an interval, and how often it names the true largest contributor |
+| `TABLE_PLCATruthWinShare.csv` | NB3 | how often each method is closest to the truth, with an interval |
+| `TABLE_PLCATruthPostStratified.csv` | NB3 | the same error at equal allocation and reweighted to the empirical size mix |
+| `TABLE_PLCANRMSE.csv` | NB3 | every pLCA output's NRMSE between the six methods, with a bootstrap interval. None had one before |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
 (pLCA, UQ method, dataset). It did not exist before Stage 1: notebook 3 wrote
