@@ -702,7 +702,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform, and whether the run was a SMOKE run |
 | `TABLE_CRNComparison.csv` | NB3 | **read this before any statement about how far apart two methods are.** Each output's median change between two methods under shared variates, under independent variates, and under one method run twice |
 | `TABLE_CRNComparisonRows.csv.gz` | NB3 | the rows behind it, one per (pLCA, output, kind, method pair) |
-| `TABLE_PLCASweep.parquet` | NB3 | the crossed sweep: one row per (cell, pLCA, method pair), with the top-two contribution ratio and the leading material's share. **Parquet and not CSV**: 432,000 rows of mostly floats, which decision 15 already settled for this project's large tidy tables |
+| `TABLE_PLCASweep.parquet` | NB3 | the crossed sweep: one row per (cell, pLCA, method pair), with the top-two contribution ratio and the leading material's share. **Parquet and not CSV**: 432,000 rows of mostly floats, 39 MB gzipped as CSV against 33 MB columnar, written this way for the typing and the read speed as much as the 16 percent saving. Decision 15 already settled parquet for this project's large tidy tables |
 | `TABLE_PLCASweepSummary.csv` | NB3 | one row per (group size, intensity case): the flip rate and each output's shift, each with a bootstrap interval |
 | `TABLE_PLCAGroupSize.csv` | NB3 | the equal-intensity column of that sweep, which is how the effect of choosing a UQ method scales with the number of materials |
 | `TABLE_PLCARatioCrossings.csv` | NB3 | **the intensity sweep's deliverable.** The top-two contribution ratio at which the flip probability crosses 1, 5 and 10 percent, pooled and by group size |

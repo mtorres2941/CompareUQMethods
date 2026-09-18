@@ -2690,3 +2690,39 @@ rather than in conversation.
      shadows an imported module, and the notebook loads the one empirical
      dataset that figure illustrates, spawning its stream after the calibration's
      so that no Stage 2d number moves.
+
+113. **2026-09-18, Stage 2e. THE TRUTH RUN AND THE DOMINANCE SWEEP AGREE, BY TWO
+     INDEPENDENT ROUTES: concentration fixes the RANKING and leaves the ERROR IN
+     THE NUMBERS exactly where it was.** `[DELEGATED, 2e measured]` Decision 107
+     found this by comparing methods with each other. This finds it by comparing
+     each method with the right answer, which is a different measurement and
+     could have disagreed.
+
+     The same pLCA run against the true parents at three intensity settings, 600
+     groups each, with the leading material at 1, 2 and 10 times every other:
+
+         intensity                       1:1          2:1          10:1
+         names the TRUE leader      0.23 to 0.51  0.95 to 0.98   1.00 (all six)
+         error in rank-1 frequency  0.078-0.119   0.056-0.076    0.0075-0.0091
+         error in contribution      0.115-0.161   0.116-0.163    0.119-0.173
+
+     **At 10:1 every one of the six methods names the true largest contributor
+     in every group**, and the error in a material's rank-1 frequency falls by a
+     factor of ten. **The error in its estimated contribution does not move at
+     all.**
+
+     **WHY THE ABSOLUTE COMPARISON IS THE RIGHT ONE HERE, and it is a property
+     of the construction rather than an assumption.** The intensity vector is
+     normalized to a mean of 1.0 in every cell of the sweep, so the building's
+     total mean contribution is the same number -- the group size -- whatever
+     the concentration. An absolute error of 0.12 is therefore the same share of
+     the building at 1:1 as at 100:1, and the flat row above is a statement
+     about the building and not an artifact of rescaling one material. Read as a
+     fraction of the LEADING material's own contribution the same error does
+     fall, because that material is larger; the paper should say which
+     denominator it is using.
+
+     **What the pair of results licenses the paper to say.** A practitioner
+     whose design has one dominant material can trust the ranking under any of
+     these methods and still cannot trust the magnitude, and the magnitude is
+     what a carbon budget is written in.

@@ -1418,3 +1418,14 @@ relative figure beside it.**
 | **Why it matters beyond the fix** | The project's own rule is that everything must be traceable back to the notebooks and that they reproduce the entire analysis. `CompareUQMethods_FIG_FlipCalibration.png` is in the deposit and could not be regenerated from them as committed. |
 | **Fix** | **Code, done.** The notebook loads the one empirical dataset that figure illustrates, spawning its stream after the calibration's so no Stage 2d number moves, and a test now refuses any notebook variable that takes the name of a module the notebook imports. |
 | **Status** | RESOLVED in Stage 2e. Decision 112. |
+
+## 104. Concentration fixes the ranking and leaves the error in the numbers where it was, by two independent routes
+
+| | |
+|---|---|
+| **Why a second route matters** | Entry 99 reports that concentrating a design's contributions on one material takes the probability of a changed leader from 55 percent to zero while the change in a material's estimated contribution falls only 12 percent. That compares the UQ methods with EACH OTHER. This compares each of them with the RIGHT ANSWER, which is a different measurement and could have disagreed. |
+| **What was measured** | The same probabilistic LCAs run against the true parent distributions at three intensity settings, 600 groups each, with the leading material at 1, 2 and 10 times every other. At **10:1 all six methods name the true largest contributor in every group**, and the error in a material's rank-1 frequency falls from 0.078-0.119 to **0.0075-0.0091**. The error in its estimated contribution goes 0.115-0.161, 0.116-0.163, **0.119-0.173** -- it does not move. |
+| **Which denominator, and why it is not a choice** | The intensity vector is normalized to a mean of 1.0 in every cell, so the building's total mean contribution is the same number whatever the concentration, and an absolute error of 0.12 is the same share of the building at 1:1 as at 10:1. Read instead as a fraction of the LEADING material's own contribution the same error does fall, because that material is larger. **The text must say which denominator it is using.** |
+| **The sentence the paper can write** | A practitioner whose design has one dominant material can trust the ranking under any of these methods and still cannot trust the magnitude, which is what a carbon budget is written in. |
+| **Fix** | **Text.** `TABLE_PLCATruthByIntensity.csv`. |
+| **Status** | Open, text only. Decision 113. |

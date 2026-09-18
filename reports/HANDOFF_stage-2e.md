@@ -13,7 +13,7 @@ file.
 
 # IF YOU READ ONE PAGE, READ THIS ONE
 
-**These nine sentences are what Stage 2e contributes to the manuscript.** Each
+**These ten sentences are what Stage 2e contributes to the manuscript.** Each
 is a claim the paper can make, with the number that supports it. Everything
 below this page is the working record.
 
@@ -76,7 +76,16 @@ below this page is the working record.
    output's NRMSE is **1.042** (1.033 to 1.051): the choice of UQ method moves a
    material's rank-1 frequency by more than the standard deviation of that
    quantity across every material and method.
-9. **The steadiest output is still the one that sets data-collection
+9. **Concentration fixes the ranking and leaves the error in the numbers
+   exactly where it was, and two independent measurements say so.** Running the
+   same probabilistic LCAs against the true distributions with the leading
+   material at ten times every other, all six methods name the true largest
+   contributor in **every** group and the error in a material's rank-1 frequency
+   falls from about 0.09 to about 0.008 -- while the error in its estimated
+   contribution stays at 0.12 to 0.17, exactly where it was at equal
+   intensities. A practitioner with one dominant material can trust the ranking
+   and still cannot trust the magnitude.
+10. **The steadiest output is still the one that sets data-collection
    priorities.** The uncertainty index has the lowest NRMSE of the main outputs
    at **0.503** (0.491 to 0.515), and the study computes it and reports it
    nowhere.
@@ -336,6 +345,38 @@ definitional and not an error of estimation: it is the difference between the
 population a method estimates and the population a building is about. Both are
 reported.
 
+### 4.6a The truth run and the dominance sweep agree, by two routes
+
+Section 4.3 found that concentration kills the flip probability and leaves the
+magnitude alone by comparing the methods with EACH OTHER. The truth run says the
+same thing by comparing each method with the RIGHT ANSWER, which is a different
+measurement and could have disagreed. Same pLCA against the true parents at
+three intensity settings, 600 groups each, with the leading material at 1, 2 and
+10 times every other:
+
+| | 1:1 | 2:1 | 10:1 |
+|---|---|---|---|
+| names the TRUE largest contributor | 0.23 to 0.51 | 0.95 to 0.98 | **1.00, all six methods** |
+| error in a material's rank-1 frequency | 0.078 to 0.119 | 0.056 to 0.076 | **0.0075 to 0.0091** |
+| error in its estimated contribution | 0.115 to 0.161 | 0.116 to 0.163 | **0.119 to 0.173** |
+
+**At ten to one every method names the true leader in every group and the error
+in the rank-1 frequency falls tenfold, while the error in the estimated
+contribution does not move at all.**
+
+**Why the absolute comparison is the right one, and it is a property of the
+construction rather than an assumption.** The intensity vector is normalized to
+a mean of 1.0 in every cell, so the building's total mean contribution is the
+same number -- the number of materials -- whatever the concentration. An
+absolute error of 0.12 is therefore the same share of the building at 1:1 as at
+10:1. Read instead as a fraction of the LEADING material's own contribution the
+same error does fall, because that material is larger, so the paper must say
+which denominator it is using.
+
+**What the pair of results licenses.** A practitioner whose design has one
+dominant material can trust the ranking under any of these methods and still
+cannot trust the magnitude, which is what a carbon budget is written in.
+
 ### 4.7 An interval on every headline
 
 The study reported an NRMSE between the six methods for every pLCA output and
@@ -371,6 +412,13 @@ previous stage's flip calibration tables are BYTE IDENTICAL, because their rando
 streams are spawned from the seed sequence rather than taken from the consumed
 stream, and the eight regression fixtures pass unchanged.
 
+**The notebook was run end to end twice, and the second run reproduced the
+first's tables byte for byte in content** -- every one of them, including the
+60,000-row results table and the 432,000-row sweep -- with only file timestamps
+differing. The second run existed to improve a figure and to add one table, and
+what it settles beyond that is that the whole 39-minute analysis is reproducible
+from its seed.
+
 **One table changed in its last decimal digit**, the post-stratified flip rate,
 because the empirical size shares it reweights by are now measured from the arm
 rather than written as a constant. 0.11474905550369241 becomes
@@ -401,10 +449,12 @@ here because this stage reruns the artifact it protects.
 
 ### New, and small
 
-**The sweep's own table is 39 MB as gzipped CSV and is written as Parquet
-instead**, which is about a fifth of that and is what this project already
-chose for its large tidy tables. The 96 MB table noted above is a different one
-and is still Stage 3's.
+**The sweep's own table is 432,000 rows and is written as Parquet**, which is
+33 MB against 39 MB as gzipped CSV. That is a 16 percent saving and not the
+large one it might sound like, because float64 does not compress well either
+way; it is written that way for the typing and the read speed as much as the
+size, and Parquet is what this project already chose for its large tidy tables.
+**The 96 MB table noted above is a different one and is still Stage 3's.**
 
 **The equal-intensity construction is now measured rather than assumed to be
 conservative.** It is the most fragile case for a ranking and it makes no
@@ -420,8 +470,8 @@ generator; the frozen raw empirical extract, for the one real dataset a figure
 illustrates and for the size mix the post-stratified numbers reweight by; and
 the published staircase paper, for the one real contribution ratio available.
 
-**Written.** One source module and its test file; six new sections and two new
-figures in notebook 3; sixteen new result tables; eight decisions in the project
+**Written.** One source module and its test file; seven new sections and two
+new figures in notebook 3; seventeen new result tables; eight decisions in the project
 brief's decision log, numbered 105 through 112; manuscript discrepancy entries 96
 through 103, and entry 87 marked resolved; and this file.
 
