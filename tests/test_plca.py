@@ -404,3 +404,34 @@ def test_pair_rows_cover_every_pair():
     rng = np.random.default_rng(19)
     per = PL.run_group(models, names, rng.random((NECCS, len(names))))
     assert len(PL.pair_rows(per, names)) == 15
+
+
+# ---------------------------------------------------------------------------
+# the committed pLCA table is a full run
+# ---------------------------------------------------------------------------
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TABLE = os.path.join(ROOT, 'outputs', 'tables', 'TABLE_PLCAResults.csv')
+RUNMETA = os.path.join(ROOT, 'outputs', 'tables', 'TABLE_PLCAResults_runmeta.json')
+
+
+@pytest.mark.skipif(not os.path.exists(RUNMETA), reason='no pLCA table on disk')
+def test_the_committed_plca_table_is_not_a_smoke_run():
+    """The second half of the smoke guard, and the half that catches a table
+    that got in by some other route than notebook 3's own writer.
+
+    In Stage 2d a smoke run reached a commit and replaced the 60,000-row
+    results table with a 960-row one. It was caught by eye. This asserts the
+    group count in the run metadata, checks that the table on disk has the
+    number of rows that metadata implies, and refuses a table whose metadata
+    says it came from a smoke run.
+    """
+    import json
+    meta = json.load(open(RUNMETA))
+    assert not meta.get('smoke', False), 'the committed pLCA table is a smoke run'
+    assert meta['n_combos'] >= 2_000, (
+        f"only {meta['n_combos']} pLCA groups: this is a smoke or truncated run")
+    assert meta['n_rows'] == meta['n_combos'] * meta['n_pewt'] * meta['nmats']
+    with open(TABLE) as fh:
+        lines = sum(1 for _ in fh)
+    assert lines - 1 == meta['n_rows'], (
+        f"{TABLE} holds {lines - 1} rows, metadata says {meta['n_rows']}")

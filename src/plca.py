@@ -58,10 +58,12 @@ NECCS = 10_000
 GROUP_SIZES = (2, 3, 4, 6, 8, 12)
 
 #: Concentration of the symmetric Dirichlet the intensity shares are drawn
-#: from. `np.inf` is the equal-intensity case and must reproduce the study's
-#: own results exactly, which `tests/test_plca.py` asserts. Small values put
-#: nearly all of the building's impact on one material.
-MUI_CONCENTRATIONS = (np.inf, 200.0, 50.0, 20.0, 8.0, 3.0, 1.0, 0.4, 0.15)
+#: from. Large is nearly equal, 1.0 is flat on the simplex, small puts nearly
+#: all of a building's impact on one material. `mui_dirichlet` also accepts
+#: `np.inf`, which returns the equal vector exactly; it is not listed here
+#: because the sweep gets that case from the named 1:1 checkpoint instead, and
+#: running it twice under two labels would put one cell in the table twice.
+MUI_CONCENTRATIONS = (200.0, 50.0, 20.0, 8.0, 3.0, 1.0, 0.4, 0.15)
 
 #: Deterministic checkpoints, as the leading material's intensity against every
 #: other material at 1. Reproducible, interpretable, and they bracket the
@@ -529,3 +531,110 @@ def pair_rows(per_method, names, methods=None, plca=None, extra=None):
             row[f'{key}_mean'] = float(np.nanmean(d))
         rows.append(row)
     return rows
+
+
+# ---------------------------------------------------------------------------
+# the crossed sweep
+# ---------------------------------------------------------------------------
+def mui_cases(ratios=MUI_RATIOS, concentrations=MUI_CONCENTRATIONS):
+    """The intensity settings the sweep runs, as (label, kind, parameter).
+
+    The deterministic checkpoints come first, because a reader can picture
+    10:1:1:1 and cannot picture a Dirichlet draw, and because they bracket the
+    random cases at both ends: 1:1 is the study's own construction and 100:1 is
+    one material carrying almost the whole building.
+    """
+    out = [(f'{r:g}:1', 'ratio', float(r)) for r in ratios]
+    out += [(f'dirichlet {c:g}', 'dirichlet', float(c)) for c in concentrations]
+    return out
+
+
+def make_mui(kind, parameter, k, rng):
+    """One intensity vector for one group, from a case of `mui_cases`."""
+    if kind == 'ratio':
+        return mui_from_ratio(k, parameter)
+    if kind == 'dirichlet':
+        return mui_dirichlet(k, parameter, rng)
+    raise ValueError(f'unknown intensity case {kind!r}')
+
+
+def sweep(models, pool, rng, sizes=GROUP_SIZES, cases=None, n_groups=400,
+          neccs=NECCS, methods=None, sizes_of=None, progress=None):
+    """Every (group size, intensity) cell, one row per pLCA and method pair.
+
+    THE TWO SWEEPS ARE CROSSED AND NOT RUN SEPARATELY, because they interact:
+    adding a material raises the chance of a near-tie when the contributions
+    are even, and barely moves it when the added material is small.
+
+    `pool` is the datasets groups are resampled from, `sizes_of` maps a dataset
+    to its number of values so that a row can be post-stratified afterwards.
+    Every group at every cell gets a fresh uniform block, and every method in a
+    group shares it.
+
+    Returns a frame whose predictor columns are the two OBSERVABLES --
+    `top2_ratio` and `top_share` -- rather than the Dirichlet concentration,
+    which means nothing to a reader and whose implied dominance changes with
+    the number of materials.
+    """
+    methods = methods or FT.PEWT
+    cases = cases if cases is not None else mui_cases()
+    rows = []
+    cells = [(k, c) for k in sizes for c in cases]
+    it = enumerate(cells)
+    if progress is not None:
+        it = progress(it, total=len(cells))
+    for cell_index, (k, (label, kind, parameter)) in it:
+        groups = resample_groups(pool, k, n_groups, rng)
+        for gi, g in enumerate(groups):
+            names = list(g)
+            mui = make_mui(kind, parameter, k, rng)
+            u = rng.random((int(neccs), k))
+            per = run_group(models, names, u, mui, methods)
+            extra = dict(nmats=k, mui_case=label, mui_kind=kind,
+                         mui_parameter=parameter, **contribution_profile(mui))
+            if sizes_of is not None:
+                extra['n_min'] = int(min(sizes_of[d] for d in names))
+            rows += pair_rows(per, names, methods,
+                              plca=f'{cell_index}_{gi}', extra=extra)
+    frame = pd.DataFrame(rows)
+    # The flip probability FALLS as the leading material pulls away, and every
+    # curve-fitting tool in this project -- the logistic on a log predictor, the
+    # isotonic fit, the bootstrap that inverts a crossing -- is written for a
+    # probability that RISES with its predictor. The reciprocal of the ratio
+    # turns one into the other exactly, so the same tested machinery reads this
+    # curve, and a crossing is reported back as `1 / crossing`.
+    frame['inv_top2_ratio'] = 1.0 / frame.top2_ratio
+    return frame
+
+
+def sweep_summary(frame, by=('nmats', 'mui_case'), outputs_=None,
+                  resamples=BOOTSTRAP_RESAMPLES, rng=None):
+    """One row per cell: the flip rate and each output's shift, with intervals.
+
+    Every percentage this study reports should carry an interval, and none of
+    the pLCA ones did. The interval is a cluster bootstrap over pLCA groups,
+    because the fifteen method pairs inside a group share its materials and its
+    variates.
+    """
+    rng = rng or np.random.default_rng(0)
+    outputs_ = outputs_ or ('eci_mean_max', 'eci_p95_max', 'eci_rank_1_max',
+                            'ui_max', 'eci_perc_mean_max')
+    rows = []
+    for key, g in frame.groupby(list(by), observed=True):
+        key = key if isinstance(key, tuple) else (key,)
+        row = dict(zip(by, key), n_pairs=len(g), n_plca=g.plca.nunique(),
+                   top2_ratio=float(g.top2_ratio.median()),
+                   top_share=float(g.top_share.median()))
+        b = cluster_bootstrap(g, 'flip_top', resamples=resamples, rng=rng)
+        row.update(flip_top=b['statistic'], flip_top_lo=b['ci_lo'],
+                   flip_top_hi=b['ci_hi'])
+        for col in outputs_:
+            if col not in g:
+                continue
+            b = cluster_bootstrap(g, col, statistic='median',
+                                  resamples=resamples, rng=rng)
+            row[col] = b['statistic']
+            row[f'{col}_lo'] = b['ci_lo']
+            row[f'{col}_hi'] = b['ci_hi']
+        rows.append(row)
+    return pd.DataFrame(rows).sort_values(list(by)).reset_index(drop=True)

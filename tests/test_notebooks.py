@@ -179,8 +179,12 @@ def test_screen_dpi_is_not_used_as_save_dpi(path):
 #: A `to_csv`, `to_excel` or `savefig` writing under `outputs/`, with the path
 #: as a plain literal. Paths built from a variable are not caught, and there are
 #: none at present.
+# A write into the repository's outputs, in either of the two forms the
+# notebooks use: a literal '../outputs/...' path, or f'{OUT}/...', which is how
+# notebook 3 redirects itself away from outputs/ under smoke mode. The captured
+# group is the path below the output root in both cases.
 _WRITE = re.compile(
-    r"""\.(?:to_csv|to_excel|savefig)\(\s*['"]([^'"]*outputs/[^'"]+)['"]""")
+    r"""\.(?:to_csv|to_excel|savefig)\(\s*f?['"](?:\{OUT\}|[^'"]*outputs)/([^'"]+)['"]""")
 
 
 def test_no_two_notebooks_write_the_same_output_file():
@@ -228,3 +232,41 @@ def test_no_cell_uses_a_frame_defined_below_it(path):
             if j > i and re.search(rf"\b{name}\b", src):
                 bad.append(f"cell {i} uses {name}, first assigned in cell {j}")
     assert not bad, f"{path.name}: " + "; ".join(bad)
+
+
+# ---------------------------------------------------------------------------
+# a smoke run must not be able to reach outputs/
+# ---------------------------------------------------------------------------
+PLCA_NOTEBOOK = ROOT / "notebooks" / "03_CompareUQ_PerformPLCA.ipynb"
+
+
+def test_the_plca_notebook_writes_only_through_its_output_root():
+    """Notebook 3 is the only notebook with a smoke mode, and in Stage 2d a
+    smoke run reached a commit: it replaced the 60,000-row pLCA results table
+    with a 960-row one and redrew seven figures from 40 pLCA groups instead of
+    2,500. The rule against that was a sentence in a document.
+
+    It is now a mechanism. Every path the notebook writes goes through `OUT`,
+    which smoke mode points at a temporary directory, so a smoke run cannot
+    touch the repository at all. This asserts that no cell has been written
+    since with a literal path back into outputs/.
+    """
+    offenders = []
+    for index, source in code_cells(PLCA_NOTEBOOK):
+        for line in source.splitlines():
+            code = line.split('#', 1)[0]
+            if '../outputs' in code and not re.match(r'\s*OUT\s*=', code):
+                offenders.append(f'cell {index}: {line.strip()}')
+    assert not offenders, (
+        'notebook 3 must write through OUT, not a literal outputs/ path, or a '
+        'smoke run will overwrite committed results: ' + '; '.join(offenders))
+
+
+def test_the_plca_notebook_defines_its_output_root_before_it_writes():
+    """OUT has to exist before the first write, or the guard is decorative."""
+    cells = list(code_cells(PLCA_NOTEBOOK))
+    defines = [i for i, src in cells if re.search(r"^OUT\s*=", src, re.M)]
+    writes = [i for i, src in cells if '{OUT}' in src and 'OUT =' not in src]
+    assert defines, 'notebook 3 never defines OUT'
+    assert min(writes) > min(defines), (
+        f'first write in cell {min(writes)} precedes OUT in cell {min(defines)}')
