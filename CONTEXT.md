@@ -51,6 +51,11 @@ CompareUQMethods/
 │   ├── flip.py                what a given W1 COSTS (Stage 2d): the
 │   │                          common-random-numbers pLCA, model-to-model
 │   │                          distances, and the calibration curve
+│   ├── plca.py                the pLCA CONSTRUCTION (Stage 2e): common random
+│   │                          numbers, the group-size and material-use-
+│   │                          intensity sweep, the cluster bootstrap, NRMSE
+│   │                          with an interval, and the run against the TRUE
+│   │                          parents
 │   ├── recovery.py            the evaluation target (Stage 2c): W1 against the
 │   │                          known parent, cross-validation, the
 │   │                          fit-versus-definitional split, regret,
@@ -292,6 +297,86 @@ which correlates with dispersion at +0.731 and with log size at -0.545 -- BOTH
 matter, and dispersion dominates only within a size band, where it runs +0.83 to
 +0.96.
 
+## 2b. The pLCA construction
+
+Stage 2e. Three properties of the probabilistic LCA that were fixed by
+accident rather than by decision, and what each is now.
+
+### Common random numbers
+
+**The pLCA draws ONE uniform variate per material per Monte Carlo iteration and
+pushes it through every method's inverse CDF.** Independent ACROSS MATERIALS
+within an iteration, because materials in a building are not rank-correlated
+and sharing a variate across them would invent a correlation this study does
+not claim; identical ACROSS METHODS, so two identical models produce identical
+results and the Monte Carlo floor under a comparison is exactly zero. This is
+the practice Henriksson et al. (2015) and Heijungs (2021) recommend for
+comparative probabilistic LCA and that Marsh et al. (in press) use.
+
+Before Stage 2e each method drew its own stretch of one stream.
+**It is a refinement and not a repair**: a uniform is a uniform, so each
+method's own marginal sample is unchanged in distribution and only the PAIRING
+changes. `TABLE_CRNComparison.csv` measures what it is worth, output by output,
+against the unpaired draws it replaces and against the floor of running one
+method twice.
+
+The capped-reduction strategy is paired too. `plca.PassUniforms` caches one
+variate vector per (material, redraw pass) for the group, so two methods
+redrawing the same iteration on the same pass use the same variate. The passes
+are indexed because within a pass the variate is fixed, so a draw that lands
+above the cap again must be given a different one or the loop cannot terminate.
+
+### Material use intensity is a share vector
+
+Every dataset is normalized to an unweighted mean of 1.0, so a material's mean
+contribution IS its use intensity and the intensity vector carries all of the
+between-material variation. The study's own construction sets every intensity
+to 1.0, which makes the materials exchangeable and a ranking as fragile as it
+can be made.
+
+A building total is arbitrary, so the object being swept is a point on the
+simplex: `plca.mui_dirichlet` draws shares from a symmetric Dirichlet and
+scales them to a mean of 1.0, and an infinite concentration returns the equal
+vector EXACTLY rather than approaching it. `plca.mui_from_ratio` gives the
+deterministic checkpoints 1:1, 2:1, 10:1 and 100:1.
+
+**Report against the observable, never against the concentration.** A Dirichlet
+concentration means nothing to a reader and what it implies about dominance
+changes with the number of materials, which would confound the two sweeps.
+`plca.contribution_profile` returns the ratio of the largest mean contribution
+to the second largest and the leading material's share of the total, both
+computable from a quantity take-off and both fixed before any distribution is
+fitted, so neither can move with the method under test.
+
+### The pLCA against the truth
+
+`plca.truth_run` runs the same groups twice on the same variates: once with the
+fitted models and once with the datasets' TRUE parents, recovered by replaying
+the generator. The difference is the error the fitted model causes and contains
+no Monte Carlo noise at all.
+
+The truth is the MARKET-weighted parent, because a probabilistic LCA of what
+gets built is a statement about the population weighted by production, and it
+is the one population all six methods can be scored against on equal terms. The
+sampling parent is reported beside it, which is what a uniform-weighted method
+is estimating, so the definitional part of each method's error is visible.
+
+`plca.LazySamplers` builds the samplers four at a time. A `ParentSampler`
+tabulates a parent's CDF on 20,001 points and inverts it by interpolation,
+which is half a megabyte; the corpus has nearly 10,000 parents and the notebook
+is already holding 20,000 fitted models, so building them all is not available.
+
+### Every headline carries an interval
+
+`plca.cluster_bootstrap` for a percentage or a median, `plca.nrmse_ci` for the
+study's NRMSE, `plca.truth_win_share(rng=...)` for a win share. **The
+resampling unit is the pLCA GROUP and never the row**, because the fifteen
+method pairs inside a group share its materials and its variates and the four
+materials share its total; `tests/test_plca.py` pins that a row bootstrap comes
+back more than twice too narrow.
+
+---
+
 ## 3. Seeding and caching
 
 **Seeding.** All randomness comes from an explicitly passed
@@ -394,7 +479,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 369 tests, about 110 seconds
+python -m pytest tests/          # 420 tests, about 100 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -409,14 +494,21 @@ python -m nbconvert --to notebook --execute \
 `COMPAREUQ_SMOKE_COMBOS=20` to run it on 20 pLCAs instead of 2,500, which
 exercises the pipeline end to end in well under a minute.
 
-**A SMOKE RUN WRITES INTO `outputs/` AND THEREFORE INTO YOUR NEXT COMMIT.** In
-Stage 2d one reached a commit: it replaced the 60,000-row pLCA table with a
-960-row one and redrew SEVEN figures from 40 groups instead of 2,500. The table
-was spotted because its damage showed as a row count; the figures were not, and
-came back only when the notebook was rerun in full. **After any smoke run,
-`git checkout -- outputs/` before staging anything**, and treat the rule below
-as the reason. Stage 3 owns making this impossible rather than discouraged; see
-discrepancy entry 87.
+**A SMOKE RUN CAN NO LONGER REACH `outputs/`, as of Stage 2e.** Every path
+notebook 3 writes goes through `OUT`, which smoke mode points at a fresh
+temporary directory, so the repository is untouched and `git checkout --
+outputs/` is no longer the thing standing between a smoke run and a commit. Two
+tests hold it in place: `tests/test_notebooks.py` refuses a literal `outputs/`
+path in any cell of notebook 3 and checks that `OUT` is defined before the first
+write, and `tests/test_plca.py` asserts that the committed pLCA table is a full
+run -- not flagged as a smoke run in its metadata, at least 2,000 groups, and
+with the row count that metadata implies.
+
+What it is protecting against happened in Stage 2d: a smoke run reached a commit,
+replacing the 60,000-row pLCA table with a 960-row one and redrawing seven
+figures from 40 groups instead of 2,500. The table was spotted because its damage
+showed as a row count; the figures were not, and came back only when the notebook
+was rerun in full. Discrepancy entry 87.
 
 ```bash
 COMPAREUQ_SMOKE_COMBOS=20 python -m nbconvert --to notebook --execute ...
@@ -439,7 +531,7 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 notebooks print it, so the remainder is stated rather than inferred.
 
 Approximate runtimes on a 2026 laptop: NB1 about 3 min, **NB2 about 35 min**,
-NB3 about 20 min at `neccs = 10000`. All three roughly doubled in Stage 2b,
+**NB3 about 90 min** at `neccs = 10000`. All three roughly doubled in Stage 2b,
 because stratum 4 now reaches n = 9,999 where the pre-regeneration corpus
 stopped at 749, and NB2 grew again in Stage 2c: the whole corpus is scored
 against its parent and the empirical arm is cross-validated at ten repeats.
@@ -667,7 +759,7 @@ the worst observed value.
 | `test_regression.py` | 8 | fixture integrity, outputs against fixtures, independent recomputation driving `src/` without a notebook |
 | `test_determinism.py` | 7 | same seed reproduces, different seeds differ, global numpy state neither affects nor is consumed, rng is required, the seed=0 collapse is gone, output contract |
 | `test_customstats.py` | 17 | hand-computed quantiles, order invariance with and without ties, moments against scipy, both bandwidth formulas, Wasserstein identities |
-| `test_notebooks.py` | 10 | every code cell parses, no global numpy randomness, exactly one Generator per notebook |
+| `test_notebooks.py` | 13 | every code cell parses, no global numpy randomness, exactly one Generator per notebook, no cell reads a frame a later cell defines, no variable shadows an imported module, and notebook 3 writes only through its redirectable output root |
 | `test_components.py` | 48 | moment targets hit exactly, infeasible targets refused not approximated, every accepted component inverts its own CDF, the four families partition the Pearson plane |
 | `test_mixture.py` | 9 | the parent CDF matches a 400,000-draw sample, the market-weighted parent is a real population object, coupling 0 collapses the two parents, inverse-CDF sampling agrees with the truncation loop it replaced, overlap is symmetric and monotone in separation |
 | `test_modality.py` | 8 | binned KDE matches direct evaluation, mode count ignores FFT round-off and is non-increasing in bandwidth, Silverman recovers known mode counts, the statistic is scale free and defined at n = 3 |
@@ -677,6 +769,7 @@ the worst observed value.
 | `test_flip.py` | 15 | common random numbers make a method identical to itself while independent streams do not, which is the control; the tempering control at t = 0 gives zero separation and no flip, and separation grows with the level; the logistic recovers a known curve and its crossing inverts its own fit; the isotonic fit is monotone, preserves the mean and drops no point; the CLUSTER bootstrap is more than twice as wide as a row bootstrap, which is why the resampling unit is the pLCA; a model's distance to itself is zero and a relative distance is scale invariant |
 | `test_materialclass.py` | 7 | the tiers are a pure function of the category NAME and the whole assignment runs on a frame with no value column, so a tier cannot have been chosen because a method won on it; concrete, steel and every insulation variant land where a building-LCA reader expects |
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbors on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
+| `test_plca.py` | 37 | common random numbers make a method identical to itself while independent variates do not, and sharing them leaves each method's own marginal distribution alone, which is what makes installing them a refinement rather than a change of estimand; materials stay independent within an iteration; the outputs are the notebook's own definitions, checked against its pandas ranking and against NRMSE computed the way the plotting function computes it; an infinite Dirichlet concentration reproduces the equal-intensity case EXACTLY and every intensity vector averages to 1.0; concentration makes the top contributor stop moving; resampled groups hold distinct datasets; the cluster bootstrap is more than twice as wide as a row bootstrap; the tabulated parent sampler inverts the parent's own bisection and stays inside its support; a method that IS the parent has exactly zero error, which is the truth run's control; the lazy samplers agree with eager ones while bounding their memory; and the committed pLCA table is a full run rather than a smoke one |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch
