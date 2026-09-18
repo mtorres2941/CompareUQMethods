@@ -141,6 +141,15 @@ certainty. The comparison is in absolute units and that is legitimate because
 the intensity vector is normalised to a mean of 1.0 in every case, so the
 building's total mean contribution is the same number throughout.
 
+**Both panels are held at four materials, which is the study's own
+construction, and that is not presentation.** What a given top-two ratio implies
+about dominance changes with the number of materials, and a Dirichlet draw over
+twelve produces large ratios far more often than one over two, so pooling the
+sizes fills the right of the axis with twelve-material groups whose
+most-affected material moves more simply because a maximum over twelve is drawn
+from more chances. Drawn that way the lower panel appears to RISE with
+dominance, which is a group-size effect wearing a dominance label.
+
 ![The methods differ in which way they are wrong, not in how far](../outputs/figures/CompareUQMethods_FIG_PLCATruth.png)
 
 **Figure: the methods differ in which way they are wrong, not in how far.** The

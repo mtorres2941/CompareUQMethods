@@ -2527,12 +2527,26 @@ rather than in conversation.
      little with the group size**: the 1 percent crossing is 1.90 at two
      materials and 2.34 at twelve.
 
-     **AND CONCENTRATION DOES NOTHING FOR THE NUMBERS.** At the study's own four
-     materials the median change in a material's estimated contribution is 0.188
-     at equal intensities, 0.186 at 2:1, 0.175 at 10:1 and 0.166 at 100:1 -- an
-     11 percent decline while the flip probability goes from 0.546 to zero.
-     Pooled over the six group sizes the same four figures are 0.212, 0.213,
-     0.193 and 0.210, which is no decline at all. **That contrast is the figure
+     **AND A DOMINANT MATERIAL DOES NOTHING FOR THE NUMBERS.** At the study's
+     own four materials the median change in a material's estimated contribution
+     is 0.188 at equal intensities, 0.186 at 2:1, 0.175 at 10:1 and 0.166 at
+     100:1 -- an 11 percent decline while the flip probability goes from 0.546
+     to zero.
+
+     **THE CLAIM IS ABOUT A FIXED GROUP SIZE AND MUST BE STATED THAT WAY.** The
+     change in the MOST-AFFECTED material is a maximum over the group, so it
+     grows with the group whatever the intensities: 0.109 at two materials and
+     0.346 at twelve, at equal intensities. Within a group size dominance moves
+     it very little and not always downward -- at twelve materials it runs
+     0.346, 0.338, 0.381, 0.433 across the same four cases. What falls cleanly
+     everywhere is the change in the AVERAGE material, from 0.081 to 0.045 at
+     four materials and 0.095 to 0.046 at twelve, and as a share of the whole
+     building the most-affected material's change is flat at 0.03 to 0.05
+     throughout. **A figure that pools the group sizes shows a rise, because a
+     Dirichlet draw over twelve materials reaches a large top-two ratio far more
+     often than one over two, so the right of the axis fills with large groups.
+     That is a group-size effect wearing a dominance label**, and the figure is
+     held at four materials for it. **That contrast is the figure
      and it is the finding**: concentration protects the RANKING and leaves the
      RESULT where it was.
 
