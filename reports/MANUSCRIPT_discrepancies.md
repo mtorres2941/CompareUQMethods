@@ -1235,7 +1235,7 @@ relative figure beside it.**
 | **Why it is worth an entry anyway** | `CONTEXT.md` already says "Smoke results must never be committed", and that sentence did not stop it, because the smoke run and the commit were separated by half an hour of unrelated work. A rule that depends on remembering what a previous command did is the weakest kind. |
 | **The cheap fix** | Notebook 3 already knows it is in smoke mode. It should redirect every write -- tables AND figures -- to a scratch directory when `COMPAREUQ_SMOKE_COMBOS` is set, rather than writing to `outputs/` at all. A weaker version is to have the run metadata carry the group count and a test assert it equals 2,500, but that only protects the tables, and this incident shows the figures are the part that gets forgotten. |
 | **Fix** | **Code, owner Stage 3**, which owns the output conventions. Not done here, because it touches every table notebook 3 writes and Stage 2d had no mandate for it. |
-| **Status** | Open, owner 3. The incident itself is resolved. |
+| **Status** | **RESOLVED in Stage 2e**, which reruns the artifact this protects and so did it rather than leaving it to Stage 3. Every path notebook 3 writes goes through a redirectable output root; see entry 102. |
 
 ## 88. When does weighting matter? A closed form in two numbers a practitioner already has
 
@@ -1330,3 +1330,91 @@ relative figure beside it.**
 | **What the study should report and does not** | The variance contribution. It is computed in the pLCA loop as `ui` and appears in no table, no figure and no section of the manuscript. It is the output a practitioner would act on most directly and the one least sensitive to the modelling choice this paper is about. |
 | **Fix** | **Text, and it replaces the current framing.** Report these absolute changes rather than a goodness-of-fit ranking, and add the variance contribution to the reported set. Stage 2g owns the metric set. `TABLE_OutputMetricSensitivity.csv`. |
 | **Status** | Open, owner 2g. Decisions 102 and 103. |
+
+## New, found in Stage 2e
+
+## 96. The pLCA compared UQ methods under independent randomness, and now does not. What that was worth
+
+| | |
+|---|---|
+| **What the code did** | Notebook 3's pLCA loop drew each UQ method's Monte Carlo sample from its own stretch of one shared stream, so two methods were compared under two independent sets of random numbers and any difference between them mixed the difference between the models with the difference between the draws. |
+| **What it does now** | One uniform variate per material per Monte Carlo iteration, drawn once for the group and pushed through every method's inverse CDF: independent across materials within an iteration, identical across methods. The capped-reduction strategy is paired too. This is the practice Henriksson et al. (2015) and Heijungs (2021) recommend for comparative probabilistic LCA and that Marsh et al. (in press) use, so the manuscript can now cite all three for it. |
+| **What it was worth, measured** | Over 300 probabilistic LCAs and all fifteen method pairs, with each figure the change for the most-affected of the four materials and every material contributing a mean of 1.00: the estimated contribution moves **0.1819** between two methods on shared draws and **0.1828** on independent ones, while running ONE method twice moves it **0.0095**. The sampling noise is **4 to 15 percent** of the model difference across the ten outputs and adds nearly orthogonally to it, so the study's old measurement was not inflated -- every ratio of unpaired to paired lies between 0.99 and 1.02. |
+| **Where it does matter** | The argmax. The top contributor changes in **3.67 percent** of comparisons with NO model difference at all, which is a floor under any flip statistic read off the old table, and common random numbers take it to exactly zero. That is the honest, measured version of the claim entry 82 was withdrawn for overstating. |
+| **What moved** | Every row of `TABLE_PLCAResults.csv`, by Monte Carlo noise, and no aggregate. Per row `eci_rank_1` changes by a mean of 0.0047 and at most 0.0288, 4.4 percent of that column's standard deviation; the largest relative move in any column MEAN across 60,000 rows is 0.34 percent. Seven figures drawn from that table are redrawn. |
+| **Fix** | **Text.** State that the comparison between UQ methods is paired, cite the three papers, and report that pairing changes the measured differences by about 1 percent while removing a 3.7 percent floor under any statement about which material ranks first. `TABLE_CRNComparison.csv`. |
+| **Status** | Open, text only. Decision 105. |
+
+## 97. "ECI Rank #1 Frequency" is reported without an interval, and every pLCA output now has one
+
+| | |
+|---|---|
+| **What the manuscript does** | Reports NRMSE between the six UQ methods for each pLCA output, and the headline rank-1 frequencies, with no uncertainty attached to any of them. |
+| **What is now available** | A cluster bootstrap over pLCA GROUPS on every one, because the four materials of a pLCA share its total and its variates and a row bootstrap comes back more than twice too narrow. **`eci_rank_1` has an NRMSE of 1.042 [1.033, 1.051]**; the uncertainty index, which the study computes and reports nowhere, is the lowest of the main outputs at 0.503 [0.491, 0.515]. |
+| **Why the level matters and not only the interval** | An NRMSE above 1 means the root mean squared difference between two UQ methods exceeds the standard deviation of that output across every material and method. For the paper's headline output the choice of method moves the answer by more than the spread it is trying to describe. |
+| **Fix** | **Text.** Put an interval on every reported NRMSE and percentage, and say what an NRMSE above one means. `TABLE_PLCANRMSE.csv`. |
+| **Status** | Open, text only. Decision 110. |
+
+## 98. The number of materials per pLCA: the effect does not dilute, and which output is named decides the sentence
+
+| | |
+|---|---|
+| **What the manuscript assumes** | Four materials per probabilistic LCA throughout, with no statement about what the results would be in a building with more. |
+| **What was measured** | The sweep over 2, 3, 4, 6, 8 and 12 materials, 400 resampled groupings each, at equal intensities. **A material's own estimated contribution does not dilute**: the change caused by switching UQ method goes 0.069, 0.076, 0.081, 0.089, 0.089, 0.095 from two materials to twelve. **Its share of the building total does**, 0.0199 to 0.0077. **And the probability that two methods name a different largest contributor RISES**, 0.448 to 0.656, because more materials means more chances of a near-tie at the top. |
+| **Why it matters for the text** | The natural sentence -- "with more materials each one matters less, so the choice of method matters less" -- is true only of the share-of-total outputs. Written without naming the output it is wrong in the direction that flatters the study. |
+| **Fix** | **Text**, one paragraph with the three directions and the group sizes they were measured over. `TABLE_PLCAGroupSize.csv`. |
+| **Status** | Open, text only. Decision 106. |
+
+## 99. Every material carries a use intensity of 1.0, and the ranking results are an upper bound because of it
+
+| | |
+|---|---|
+| **What the manuscript does** | Sets the material use intensity of all four materials to 1.0 and normalizes every dataset to a mean of 1.0, so the four contributions are exchangeable and their ranking is as fragile as it can be made. The assumption is not stated as a limitation. |
+| **What was measured** | Intensities drawn on the simplex from a symmetric Dirichlet, concentration 200 down to 0.15, plus 1:1, 2:1, 10:1 and 100:1, crossed with the group-size sweep. Reported against the ratio of the largest mean contribution to the second largest, which a practitioner computes from a quantity take-off in one line. **The probability that the choice of UQ method changes the leading material crosses 1 percent at a ratio of 2.13 [2.09, 2.17], 5 percent at 1.64 and 10 percent at 1.46**, with an isotonic fit giving 2.22, 1.61 and 1.35 and the 1 percent crossing moving only from 1.90 at two materials to 2.34 at twelve. |
+| **The other half, which is the finding** | **Concentration does nothing for the numbers.** The median change in a material's estimated contribution is 0.188 at equal intensities, 0.186 at 2:1, 0.175 at 10:1 and 0.166 at 100:1 -- a 12 percent decline while the flip probability falls from 55 percent to zero. Concentration protects the RANKING and leaves the RESULT where it was. |
+| **The anchor** | Marsh, Lewis, Hattam and Allen (in press) state that for their Concrete-Precast staircase under the ICE recommended factors the top two products are steel bar at **42 percent** and precast concrete at **41 percent**: a top-two ratio of **1.02**. A real building element can sit within a percentage point of a tie, which is exactly where the choice of UQ method decides the ranking. Their per-product quantities are in supplementary material this repository does not hold, so no further ratio is computed and no bill of quantities is reconstructed. |
+| **The scope limit that belongs in the same paragraph** | Material use intensity is deterministic within a run. Real quantity take-offs carry their own uncertainty, which in practice can exceed the coefficient uncertainty this paper is about. |
+| **Fix** | **Text and a new figure.** State the exchangeable-intensity assumption as a limitation, give the crossing with its interval, give the anchor, and say that the continuous outputs do not depend on the assumption the way the ranking does. `TABLE_PLCARatioCrossings.csv`, `TABLE_PLCARatioCurve.csv`, `TABLE_PLCARatioAnchor.csv`, `CompareUQMethods_FIG_MaterialDominance.png`. |
+| **Status** | Open, text and figure. Decision 107. |
+
+## 100. THE ANSWER AGAINST THE TRUTH: the KDE and the lognormal are indistinguishable at the decision level and the normal is 40 percent worse
+
+| | |
+|---|---|
+| **What the manuscript compares** | How far each fitted CDF sits from a target, and how the six methods differ from each other downstream. Neither says how far the ANSWER is from the right one. |
+| **What was measured** | Every pLCA group run twice on the same uniform variates, once with the fitted models and once with the datasets' TRUE parents, which this project can reconstruct by replaying the generator. The difference is the error the fitted model causes, with no Monte Carlo noise in it. 2,500 groups, 10,000 draws, cluster-bootstrap intervals. |
+| **The result** | Error in a material's rank-1 frequency: `Lognormal, Uniform` **0.0800** [0.0781, 0.0818], `KDE, Uniform` **0.0816**, `KDE, Variable` **0.0825**, `Lognormal, Variable` **0.0852**, `Normal, Uniform` **0.1151**, `Normal, Variable` **0.1193**. **The four non-normal methods span 6 percent of each other and the normal is 40 percent worse than any of them.** |
+| **What no method does** | Recover the answer. The best names the material the truth says is the largest contributor **53 percent** of the time against 25 percent for a coin toss among four, and its error in a material's estimated contribution is **0.12** where every material contributes 1.00. |
+| **Why this is the cleanest thing the paper can say** | It converts a goodness-of-fit ranking into a decision-level statement: at the level of the answer, choosing between a kernel estimate and a three-parameter lognormal does not matter, and choosing a normal does. That is a recommendation a practitioner can act on without running the analysis. |
+| **The definitional part, kept separate** | Against the SAMPLING parent -- the population a uniform-weighted method is actually estimating -- `KDE, Uniform` scores 0.0609 rather than 0.0816 and the variable-weighted methods get worse. That gap is definitional, not an error of estimation, and both are reported. |
+| **The caveat** | Every material carries an intensity of 1.0, so the rank-based figures are an upper bound on how often a method gets the ranking wrong. The contribution error does not have that dependence. |
+| **Fix** | **Text and a new figure**, and it should lead the results rather than follow them. `TABLE_PLCATruth.csv.gz`, `TABLE_PLCATruthSummary.csv`, `TABLE_PLCATruthWinShare.csv`, `CompareUQMethods_FIG_PLCATruth.png`. |
+| **Status** | Open, text and figure. Decision 109. |
+
+## 101. The flip thresholds are conditional on four materials, and the conditionality is now measured
+
+| | |
+|---|---|
+| **What the manuscript would say** | That the probability of a changed top contributor crosses 1, 5 and 10 percent at relative Wasserstein distances of 0.0018, 0.011 and 0.025, which were calibrated on groups of four materials. |
+| **What was measured** | The same calibration at 2, 3, 4, 6, 8 and 12 materials. The flip RATE rises with the group size, 0.106 to 0.188. The thresholds do not fall as expected: under the MAXIMUM of the per-material distances, which is what the stored constants use, they roughly double from two materials to twelve; under the MEAN they are flat. **The rise is the summary drifting, not the pLCA changing** -- a maximum over twelve materials is drawn from more chances than a maximum over two. |
+| **What follows** | The stored constants stand, notebook 1's weighting-risk probabilities are not recomputed, and the manuscript states the conditionality with the measured dependence beside it rather than as a bare caveat. |
+| **Fix** | **Text.** `TABLE_FlipCrossingsByGroupSize.csv`. |
+| **Status** | Open, text only. Decision 108. |
+
+## 102. RESOLVES entry 87. A smoke run can no longer reach outputs/
+
+| | |
+|---|---|
+| **What entry 87 asked for** | That notebook 3 redirect every write -- tables AND figures -- to a scratch directory when `COMPAREUQ_SMOKE_COMBOS` is set, rather than writing to `outputs/` at all, because the weaker version protects only the tables and the figures are the part that gets forgotten. |
+| **What was done** | Exactly that. Every path notebook 3 writes goes through `OUT`, which smoke mode points at a fresh temporary directory. Verified with an 8-group run that wrote all nine tables and eight figures into a temporary directory and left `outputs/` clean. Two tests hold it in place, one static and one on the committed table's own metadata. |
+| **Fix** | **None. Code, done.** |
+| **Status** | RESOLVED in Stage 2e. Decision 111. |
+
+## 103. A figure in the paper could not be regenerated from the notebooks
+
+| | |
+|---|---|
+| **What was found** | Running notebook 3 end to end under the smoke configuration, which had never been done for the cells Stage 2d added, three cells failed. The flip-calibration figure read `dct_empirical`, a name notebook 3 never defines, and called `fitting.fit_kde` when only the names imported FROM `fitting` were in scope; both work in a kernel that has run notebook 2 first, which is how they were written. Separately `plca` was a loop index in notebook 3 long before `src/plca.py` existed, so importing the module left every later call reading an integer. |
+| **Why it matters beyond the fix** | The project's own rule is that everything must be traceable back to the notebooks and that they reproduce the entire analysis. `CompareUQMethods_FIG_FlipCalibration.png` is in the deposit and could not be regenerated from them as committed. |
+| **Fix** | **Code, done.** The notebook loads the one empirical dataset that figure illustrates, spawning its stream after the calibration's so no Stage 2d number moves, and a test now refuses any notebook variable that takes the name of a module the notebook imports. |
+| **Status** | RESOLVED in Stage 2e. Decision 112. |

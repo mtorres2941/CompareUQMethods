@@ -1,0 +1,3 @@
+source,design,ecf_source,top_product,top_share,second_product,second_share,top2_ratio,stated
+"Marsh et al. (in press), sec. 4.1",Concrete-Precast,a) ICE recommended,steel bar,0.42,precast concrete,0.41,1.024390243902439,"exactly, both shares"
+"Marsh et al. (in press), sec. 4.1",Concrete-Precast,the other three sources,precast concrete,0.65,steel bar,,,"top share only; steel bar is 21 to 42 pct across all four sources, so the ratio is bounded but not identified"

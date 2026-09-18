@@ -284,7 +284,7 @@ and generation is closed; neither input moves again.
 | **2b DONE** | The lognormal: threshold pathology, the +0.5 offset, two-parameter versus profile-likelihood versus gamma. W1-optimal fitting alongside MLE. Also the plausibility ceiling, the support (0, inf), and the first end-to-end run of notebooks 2 and 3. Handoff deleted at the close of 2c; its findings are decisions 49 to 58 and discrepancy entries 35 to 52 | Adding new families for robustness (2h), or rescoring against a parent (2c) |
 | **2c DONE** | The evaluation target: scored the synthetic arm against the known parent (recovered by replaying the generator, decision 64), cross-validated the empirical 147, the fit-versus-definitional decomposition, regret, post-stratification, overlap area, the gamma question, the bandwidth against the parent, and the scoring grid. `reports/HANDOFF_stage-2c.md` | The pLCA construction (2e) and the flip-probability threshold (2d). It did NOT split the uniform-to-variable W1 into location and shape, which is 2d's |
 | **2d DONE** | Decomposed the uniform-to-variable W1 into location and shape, named the relative measure and verified it un-normalized, built the per-dataset weighting risk and the size-and-dispersion law behind it, calibrated the flip probability, and measured what switching UQ method does to every pLCA output in real units. `reports/HANDOFF_stage-2d.md` | Building companion decision metrics (2g), and installing common random numbers in the STUDY's pLCA, which stays 2e's |
-| **2e** | pLCA construction: common random numbers across UQ methods, sweep materials per pLCA over 2 to 12, resample groupings, dominant-MUI variant, bootstrap intervals on every headline percentage and NRMSE. **Start with the materials-per-pLCA sweep: decision 95's flip thresholds are conditional on four materials. A tested common-random-numbers implementation is in `src/flip.py`** | Changing what the headline metric is (2g) |
+| **2e DONE** | pLCA construction: common random numbers installed in the study's own pLCA, the crossed sweep over group size and material use intensity, resampled groupings, bootstrap intervals on every headline percentage and NRMSE, the flip thresholds recomputed at every group size, and the pLCA against the TRUE parents. Decisions 105 to 112. `reports/HANDOFF_stage-2e.md` | Changing what the headline metric is (2g). It did NOT redesign the metric set, and it did not touch the fitting, the corpus or the empirical arm |
 | **2f** | Resolve Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue`, then the multivariate model of W1 and of which method wins, to cut the metric set to three to five survivors | Regenerating, or redesigning figures (3) |
 | **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
 | **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling | Anything not framed as a sweep with a tabulated result |
@@ -305,8 +305,14 @@ stay fixed before any switch to Silverman in 2h); the uniform-to-variable
 location/shape split and the flip-probability threshold (RESOLVED in 2d,
 decisions 92 and 95); `w_v_uw_wasserstein` as a single Dirichlet realization
 (RESOLVED in 2d, superseded by the per-dataset risk of decision 94);
-common random numbers in the STUDY's pLCA (2e, and 2d measured what their
-absence costs).
+common random numbers in the STUDY's pLCA (RESOLVED in 2e, decision 105:
+installed, and measured to be worth 4 to 15 percent of the model difference on
+every continuous output and a 3.67 percent floor on the argmax); dependent
+sampling (RESOLVED in 2e by the same change, which is what dependent sampling
+across compared options means); the materials-per-pLCA sweep, resampled
+groupings and bootstrap intervals (RESOLVED in 2e, decisions 106, 107 and 110);
+the pLCA against the true parents (RESOLVED in 2e, decision 109); the
+smoke-run guard (RESOLVED in 2e, decision 111, which was Stage 3's item).
 
 Mark each stage done as it completes. If a stage hands an item to a different
 stage than this table says, update the table rather than leaving the two out of
@@ -2414,3 +2420,273 @@ rather than in conversation.
      quantity that IS production-weighted, would resolve most of it (decision
      100). **The practitioner-facing rule is decision 96's size-and-dispersion
      law, not this.**
+
+105. **2026-09-18, Stage 2e. THE pLCA NOW USES COMMON RANDOM NUMBERS, and the
+     measurement says it was a refinement rather than a repair, exactly as the
+     author argued.** `[AUTHOR]` One uniform variate per material per Monte
+     Carlo iteration, drawn once for the group and pushed through every
+     method's inverse CDF. Independent ACROSS MATERIALS within an iteration,
+     because materials in a building are not rank-correlated; identical ACROSS
+     METHODS, so two identical models produce identical results. The practice
+     Henriksson et al. (2015) and Heijungs (2021) recommend for comparative
+     probabilistic LCA and that Marsh et al. (in press) use. The
+     capped-reduction strategy is paired too, through a per-group cache of
+     redraw variates.
+
+     **WHAT IT WAS WORTH, over 300 pLCAs and all fifteen method pairs.** Each
+     figure is the change for the most-affected of the four materials, and
+     every material contributes a mean of 1.00:
+
+         output                    paired   unpaired   noise   noise/paired
+         estimated contribution    0.1819    0.1828   0.0095      0.053
+         95th pct of contribution  0.4152    0.4153   0.0239      0.058
+         chance of being largest   0.1275    0.1274   0.0073      0.057
+         contribution to variance  0.0898    0.0914   0.0132      0.147
+         TOP CONTRIBUTOR CHANGES   0.548     0.559    0.0367      0.067
+
+     **The unpaired column is the study's old measurement and it was not
+     inflated**: every ratio of unpaired to paired is between 0.99 and 1.02. The
+     sampling noise is 4 to 15 percent of the model difference and adds nearly
+     orthogonally to it, so it never moved a median. **Decision 103's
+     withdrawal of the 5.33 percent statistic is confirmed from the other
+     side**: the thing common random numbers fix is an ARGMAX, where 3.67
+     percent of comparisons name a different top contributor with NO model
+     difference at all, and that floor is now exactly zero by construction.
+
+     **NUMBERS THAT MOVED.** Every row of `TABLE_PLCAResults.csv` moves by Monte
+     Carlo noise, and no aggregate moves. Per row, `eci_rank_1` changes by a
+     mean of 0.0047 and at most 0.0288, which is 4.4 percent of that column's
+     standard deviation; the largest relative move in ANY column's mean across
+     the whole 60,000-row table is 0.34 percent, on `capecc_rank_4`, whose mean
+     is 0.0039. `eci_mean` moves from 1.042702 to 1.042689. The integer rank
+     columns move most, by a mean of 0.25 of a rank, which is the argmax
+     fragility above and not a change in any quantity. Seven figures drawn from
+     that table are redrawn. **The Stage 2d flip calibration is BYTE IDENTICAL**,
+     because its streams are spawned from the seed sequence rather than taken
+     from the consumed stream, which is the check that nothing else moved.
+
+106. **2026-09-18, Stage 2e. MORE MATERIALS DOES NOT DILUTE THE EFFECT OF
+     CHOOSING A UQ METHOD. Only the quantities that are shares of the whole
+     dilute, and the probability that the ranking changes RISES.** `[AUTHOR]`
+     The author's expectation, stated in the stage prompt, was that the effect
+     would dilute as the group grows because each material's share of the total
+     shrinks. Half of that is right and the important half is not.
+
+     Equal intensities, 400 resampled groupings per size, 15 method pairs each:
+
+         materials per pLCA          2      3      4      6      8     12
+         P(top contributor changes)  .448   .544   .546   .624   .634   .656
+         change in a material's
+           estimated contribution    .069   .076   .081   .089   .089   .095
+         change in its share
+           of the building total     .0199  .0204  .0179  .0137  .0108  .0077
+         change in its chance of
+           being largest             .0684  .0790  .0727  .0585  .0476  .0362
+
+     **The share of the building total does dilute**, by a factor of 2.6 from
+     two materials to twelve, and so does a rank-1 frequency, which is bounded
+     by 1/k on average and must. **A material's own estimated contribution does
+     not dilute at all**; it grows slightly, because a bigger group has more
+     chances to contain a dataset the methods disagree about. And the
+     probability that the two methods name a different largest contributor
+     RISES from 45 to 66 percent, because more materials means more chances of a
+     near-tie at the top.
+
+     So the paper's statement has to name the output: **switching UQ method
+     changes a material's estimated contribution by about the same amount
+     however many materials the building has, and changes its share of the
+     total less as the building grows.** All intervals are cluster bootstraps
+     over pLCA groups and are about 0.02 wide on the flip rates.
+
+107. **2026-09-18, Stage 2e. A MATERIAL MUST LEAD THE NEXT BY ABOUT A FACTOR OF
+     2 BEFORE THE CHOICE OF UQ METHOD CANNOT CHANGE WHICH ONE LEADS, and the one
+     real building element available sits at 1.02.** `[AUTHOR]` This is the
+     intensity sweep's deliverable and the answer to the question Stage 2d's
+     thresholds left conditional.
+
+     **Sampled on the simplex, not in absolute units**, because a building total
+     is arbitrary and material use intensity matters only through each
+     material's share of the total mean contribution. A symmetric Dirichlet over
+     the group's materials, concentration from 200 down to 0.15, plus
+     deterministic checkpoints at 1:1, 2:1, 10:1 and 100:1. An infinite
+     concentration reproduces the equal case EXACTLY, which is the sweep's
+     anchor to the study's own construction and is asserted by a test.
+
+     **Reported against the ratio of the largest mean contribution to the second
+     largest**, which a practitioner computes from a quantity take-off in one
+     line, and never against the Dirichlet concentration, which means nothing to
+     a reader and whose implied dominance changes with the number of materials.
+
+         P(the UQ method changes the leader)   crosses at a ratio of
+         1 percent                             2.13   [2.09, 2.17]
+         5 percent                             1.64   [1.62, 1.66]
+         10 percent                            1.46   [1.45, 1.47]
+
+     An isotonic fit, which assumes only that the probability does not rise as
+     the leader pulls away, gives 2.22, 1.61 and 1.35. **The crossing moves
+     little with the group size**: the 1 percent crossing is 1.90 at two
+     materials and 2.34 at twelve.
+
+     **AND CONCENTRATION DOES NOTHING FOR THE NUMBERS.** Across the whole sweep
+     the median change in a material's estimated contribution is 0.188 at equal
+     intensities, 0.186 at 2:1, 0.175 at 10:1 and 0.166 at 100:1 -- a 12 percent
+     decline while the flip probability goes from 55 percent to zero. **That
+     contrast is the figure and it is the finding**: concentration protects the
+     RANKING and leaves the RESULT where it was.
+
+     **THE ANCHOR, and it is the reason this matters.** Marsh, Lewis, Hattam and
+     Allen (in press) report for their Concrete-Precast staircase under the ICE
+     recommended factors that the top two products are steel bar at 42 percent
+     and precast concrete at 41 percent, **a top-two ratio of 1.02**. A real
+     building element can sit within a percentage point of a tie, which is
+     exactly where the choice of UQ method decides the ranking. Their
+     per-product quantities are in supplementary material this repository does
+     not hold, so no further ratio is computed and no bill of quantities is
+     reconstructed; for the other three factor sources the paper states only
+     that precast concrete leads at 65 percent, which bounds the ratio without
+     identifying it.
+
+     **THE SCOPE LIMIT, which belongs in the text.** Material use intensity is
+     deterministic within a run here. Real quantity take-offs carry their own
+     uncertainty, which in practice can exceed the coefficient uncertainty this
+     paper is about. That is a limitation to state, not a sweep to add.
+
+108. **2026-09-18, Stage 2e. THE FLIP THRESHOLDS RISE WITH GROUP SIZE UNDER THE
+     MAXIMUM AND ARE FLAT UNDER THE MEAN, so the stored constants stand and
+     notebook 1 is not recomputed.** `[AUTHOR]` Decision 99 required this
+     measurement and predicted the thresholds would FALL, on the reasoning that
+     more materials give more chances of a near-tie. The flip RATE does rise --
+     0.106 at two materials to 0.188 at twelve -- but the thresholds do not
+     fall, and the reason is an aggregation artifact worth stating.
+
+     The model distance is a property of a MATERIAL and the decision is a
+     property of the GROUP, so the per-material distances have to be summarized.
+     The stored constants use the MAXIMUM, and a maximum over twelve materials
+     is drawn from more chances than a maximum over two, so it drifts upward on
+     its own. Both aggregations, 300 resampled groupings per size:
+
+         materials      2      3      4      6      8     12
+         max,  1 pct   .0015  .0020  .0012  .0021  .0022  .0032
+         max,  5 pct   .0098  .0108  .0087  .0126  .0124  .0157
+         mean, 1 pct   .0011  .0012  .0006  .0010  .0010  .0011
+         mean, 5 pct   .0065  .0060  .0041  .0052  .0047  .0049
+
+     **Under the mean the thresholds are constant in the group size.** Under the
+     maximum they roughly double from two materials to twelve, and that is the
+     summary drifting rather than the pLCA changing.
+
+     At four materials the recomputed crossings are 0.0012, 0.0087 and 0.0216
+     against the stored 0.0018, 0.011 and 0.025, which is the same two
+     significant figures given that these use 300 resampled groupings against
+     the stored values' 2,500 and that decision 95 already records a 30 percent
+     interval width. **`flip.FLIP_THRESHOLDS` is unchanged and notebook 1's
+     weighting-risk probabilities are not recomputed.** The paper states the
+     conditionality with the measured dependence beside it.
+
+109. **2026-09-18, Stage 2e. THE pLCA AGAINST THE TRUTH: the KDE and the
+     lognormal are INDISTINGUISHABLE at the decision level, the normal is 40
+     percent worse, and no method recovers the answer.** `[AUTHOR]` Stage 2c
+     called this the most valuable single experiment left in the project and
+     nobody had run it. Every pLCA group is run twice on the same uniform
+     variates, once with the fitted models and once with the datasets' TRUE
+     parents, so the difference is the error the fitted model causes with no
+     Monte Carlo noise in it at all.
+
+     The truth is the MARKET-weighted parent, because a probabilistic LCA of
+     what gets built is a statement about the population weighted by production
+     and it is the one population all six methods can be scored against on equal
+     terms. 2,500 groups, 10,000 draws, cluster-bootstrap intervals:
+
+         method                error in a material's   error in its estimated
+                               rank-1 frequency        contribution
+         Lognormal, Uniform    0.0800 [.0781, .0818]   0.1266
+         KDE, Uniform          0.0816 [.0798, .0834]   0.1314
+         KDE, Variable         0.0825 [.0799, .0849]   0.1262
+         Lognormal, Variable   0.0852 [.0827, .0877]   0.1201
+         Normal, Uniform       0.1151 [.1132, .1172]   0.1640
+         Normal, Variable      0.1193 [.1170, .1215]   0.1683
+
+     **THE FOUR NON-NORMAL METHODS SPAN 0.0800 TO 0.0852, a spread of 6 percent,
+     and the normal is 40 percent worse than any of them.** So at the decision
+     level the choice between a kernel estimate and a three-parameter lognormal
+     does not matter, and the choice to use a normal does. **That is a cleaner
+     recommendation than a ranking**, and it is the null the stage was told to
+     report if it found one.
+
+     **NOBODY RECOVERS THE ANSWER.** The best method names the material the
+     truth says is the largest contributor **53 percent** of the time
+     (`KDE, Variable`), against 25 percent for a coin toss among four, and the
+     normal manages 23 to 37. On a win share over 10,000 materials the best is
+     `KDE, Variable` at 0.215 [0.207, 0.226] against a one-in-six chance of
+     0.167. Reweighting to the empirical size mix moves every figure by less
+     than 0.003.
+
+     **The uniform-weighted methods look much better against the SAMPLING parent
+     -- `KDE, Uniform` 0.0609 against 0.0816 -- and the variable-weighted ones
+     worse.** That gap is definitional, not an error of estimation: it is the
+     difference between the population a method estimates and the population a
+     building is about, and decision 65 is why both are reported.
+
+     **The caveat travels with it.** Every material here carries an intensity of
+     1.0, which makes the ranking as fragile as it can be made, so the
+     rank-based figures are an upper bound on how often a method gets the
+     ranking wrong. The contribution error does not have that dependence.
+
+110. **2026-09-18, Stage 2e. EVERY HEADLINE PERCENTAGE AND EVERY NRMSE NOW
+     CARRIES A BOOTSTRAP INTERVAL, and the resampling unit is the pLCA group.**
+     `[AUTHOR]` The study reported an NRMSE for every pLCA output and attached
+     uncertainty to none of them, which is awkward in a paper about uncertainty.
+
+     `plca.nrmse_ci` pivots the results table once and resamples groups of rows,
+     which is what makes an interval on forty outputs affordable. The unit is
+     the GROUP because the four materials of a pLCA share its total and its
+     variates; a row bootstrap comes back more than twice too narrow and a test
+     pins that.
+
+     **The headline: `eci_rank_1` has an NRMSE of 1.042 [1.033, 1.051].** A
+     value above 1 means the root mean squared difference between two UQ methods
+     exceeds the standard deviation of that output across every material and
+     method -- the choice of method moves the answer by more than the spread it
+     is trying to describe. The lowest of the main outputs is the uncertainty
+     index at 0.503 [0.491, 0.515], which is decision 103's finding from the
+     other direction: "where should I collect better data" is the steadiest
+     thing a probabilistic LCA says.
+
+111. **2026-09-18, Stage 2e. A SMOKE RUN CAN NO LONGER REACH `outputs/`.**
+     `[DELEGATED, 2e chose]` This closes discrepancy entry 87, which Stage 2d
+     opened after a smoke run reached a commit and replaced the 60,000-row pLCA
+     table with a 960-row one while redrawing seven figures from 40 groups.
+
+     Every path notebook 3 writes goes through `OUT`, which smoke mode points at
+     a fresh temporary directory, so the repository is untouched. Verified: an
+     8-group run wrote all nine tables and eight figures into a temporary
+     directory and left `outputs/` clean. Two tests hold it: no cell of notebook
+     3 may write a literal `outputs/` path and `OUT` must be defined before the
+     first write; and the committed pLCA table must be a full run, not flagged
+     as smoke in its metadata, at least 2,000 groups, with the row count that
+     metadata implies.
+
+     The roadmap gave this to Stage 3. It was done here because Stage 2e reruns
+     the most expensive artifact in the project and the rule that protects it
+     was a sentence in a document.
+
+112. **2026-09-18, Stage 2e. THREE CELLS OF NOTEBOOK 3 HAD NEVER RUN, and one of
+     them draws a figure in the paper.** `[DELEGATED, 2e chose]` Found by
+     running the notebook end to end under the smoke configuration, which had
+     never been done for the cells Stage 2d added.
+
+     The flip-calibration figure read `dct_empirical`, which notebook 3 never
+     defines, and called `fitting.fit_kde` when only the names imported FROM
+     `fitting` were in scope. Both work in a kernel that has run notebook 2
+     first, which is how they were written, and both fail in a headless run.
+     Separately, `plca` was a loop index in notebook 3 long before
+     `src/plca.py` existed, so importing the module left every later call
+     reading an integer.
+
+     **What this cost and why it matters beyond the fix:** decision 56 says
+     everything must be traceable back to the notebooks, and
+     `CompareUQMethods_FIG_FlipCalibration.png` could not be regenerated from
+     them as committed. `tests/test_notebooks.py` now refuses a variable that
+     shadows an imported module, and the notebook loads the one empirical
+     dataset that figure illustrates, spawning its stream after the calibration's
+     so that no Stage 2d number moves.

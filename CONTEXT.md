@@ -702,11 +702,11 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCAResults_runmeta.json` | NB3 | seed, neccs, versions, platform, and whether the run was a SMOKE run |
 | `TABLE_CRNComparison.csv` | NB3 | **read this before any statement about how far apart two methods are.** Each output's median change between two methods under shared variates, under independent variates, and under one method run twice |
 | `TABLE_CRNComparisonRows.csv.gz` | NB3 | the rows behind it, one per (pLCA, output, kind, method pair) |
-| `TABLE_PLCASweep.csv.gz` | NB3 | the crossed sweep: one row per (cell, pLCA, method pair), with the top-two contribution ratio and the leading material's share |
+| `TABLE_PLCASweep.parquet` | NB3 | the crossed sweep: one row per (cell, pLCA, method pair), with the top-two contribution ratio and the leading material's share. **Parquet and not CSV**: 432,000 rows of mostly floats, which decision 15 already settled for this project's large tidy tables |
 | `TABLE_PLCASweepSummary.csv` | NB3 | one row per (group size, intensity case): the flip rate and each output's shift, each with a bootstrap interval |
 | `TABLE_PLCAGroupSize.csv` | NB3 | the equal-intensity column of that sweep, which is how the effect of choosing a UQ method scales with the number of materials |
 | `TABLE_PLCARatioCrossings.csv` | NB3 | **the intensity sweep's deliverable.** The top-two contribution ratio at which the flip probability crosses 1, 5 and 10 percent, pooled and by group size |
-| `TABLE_PLCARatioCurve.csv` | NB3 | the observed flip rate in bins of that ratio |
+| `TABLE_PLCARatioCurve.csv` | NB3 | the observed flip rate in equal-count bins of that ratio, with the continuous outputs in the SAME bins, so the figure's two panels are read off one binning |
 | `TABLE_PLCARatioAnchor.csv` | NB3 | the one real top-two contribution ratio available, transcribed from the text of Marsh et al. (in press) |
 | `TABLE_FlipCrossingsByGroupSize.csv` | NB3 | the Stage 2d flip thresholds recalibrated at 2, 3, 4, 6, 8 and 12 materials |
 | `TABLE_FlipCalibrationByGroupSize.csv.gz` | NB3 | the calibration rows behind it |
@@ -714,6 +714,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCATruthSummary.csv` | NB3 | per method, the mean absolute error against the truth with an interval, and how often it names the true largest contributor |
 | `TABLE_PLCATruthWinShare.csv` | NB3 | how often each method is closest to the truth, with an interval |
 | `TABLE_PLCATruthPostStratified.csv` | NB3 | the same error at equal allocation and reweighted to the empirical size mix |
+| `TABLE_PLCATruthByIntensity.csv` | NB3 | the same error at 1:1, 2:1 and 10:1 intensities, which is what crosses the truth run with the dominance sweep |
 | `TABLE_PLCANRMSE.csv` | NB3 | every pLCA output's NRMSE between the six methods, with a bootstrap interval. None had one before |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
