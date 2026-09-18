@@ -78,22 +78,34 @@ with what to check in each. **The handoff's real reader has no repository, so
 these links are useless to them; this whole section comes out when the stage
 closes.** Everything below section 0 stands on its own without them.
 
+**A note on what changed after your first pass.** All three figures were
+rebuilt to `FIGURE_STYLE.md`, which did not exist when you reviewed them:
+titles now carry the finding, annotations were moved out of the data, the
+saturated A_IQR panel was deleted, and the calibration figure shows the whole
+distribution of method-to-method distances rather than one summary marker.
+
 ### 1. The deliverable: what a given W1 costs
 
 ![flip calibration](../outputs/figures/CompareUQMethods_FIG_FlipCalibration.png)
 
-What to check. The grey points are the observed flip rate in equal-count bins,
-the red line is the logistic fit and the blue step is the isotonic fit, which
-assumes only that the probability does not fall as two models separate. They
-should agree through the body; where they part, at the very bottom left, the data
-is thinnest. **The green star is where the six UQ methods of this study actually
-sit** -- a median separation of 0.30 and a 56 percent flip rate -- which is the
-point of the figure: every method pair is far past every threshold marked.
+What to check. The dark points are the observed flip rate in equal-count bins
+and the grey curve is a **logistic regression**: it models a yes/no outcome as a
+probability rising smoothly from zero to one with the logarithm of the distance,
+and the three crossings are read off it. An **isotonic fit** would impose no
+shape at all, assuming only that the probability never FALLS as two models
+separate; it gives 0.0026, 0.0129 and 0.0271 for the same three levels, which is
+close enough that the shape is not doing the work. It is in
+`TABLE_FlipCrossings.csv` and is no longer drawn, because a second curve saying
+the same thing is the clutter the style guide forbids.
 
-The right panel is shown to be dismissed. The full rank ordering of four
-near-exchangeable materials is so fragile that its crossings land at 2.1e-05, and
-its Monte Carlo noise floor alone is 34 percent. It is not a usable criterion and
-the paper should say so rather than report it.
+**The orange rug along the top is every pair of the six UQ methods**, at your
+request: the star alone binned away how common each distance is. The bar beneath
+it is the median and the 5th to 95th percentile. The point of the figure is that
+the entire distribution sits far to the right of every marked threshold.
+
+The full-ordering panel has been deleted. Its Monte Carlo noise floor alone is
+34 percent, so it is not a usable criterion, and a panel with no message is a
+panel the style guide removes.
 
 ### 2. A_IQR against what it was supposed to measure
 
@@ -104,9 +116,10 @@ and the two arms lie on top of one another. Middle panel: the same A_IQR against
 dispersion is a formless cloud. **That contrast is the whole finding** -- A_IQR
 is a measure of how many EPDs a category has.
 
-Right panel is the honest caveat about itself: the risk is saturated near 1.0 for
-most categories, which is why the marginal rank correlation on it should not be
-quoted. Figure 3 is the version that is not saturated.
+The third panel that was here has been deleted. You were right that it carried no
+takeaway: the risk saturates near 1.0 for three quarters of categories, so the
+panel showed a ceiling rather than a relationship. Figure 3 carries the
+unsaturated version of the same question.
 
 ### 3. What actually decides whether weighting matters
 
