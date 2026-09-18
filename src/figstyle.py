@@ -130,3 +130,48 @@ def greyscale_check(path):
     g = np.asarray(Image.open(path).convert('L'))
     ink = g[g < 250]
     return 0.0 if ink.size == 0 else float(len(np.unique(ink)) / 256.0)
+
+
+def check_overlaps(fig, verbose=True):
+    """Report text that overlaps other text, or text that sits on plotted marks.
+
+    ANSWERING "DO YOU DO ANY CLASH DETECTION?" -- no, and three rounds of manual
+    fixes in Stage 2d is what that cost. This is the cheap automatic version.
+
+    It renders the figure, takes the bounding box of every text artist, and
+    reports pairs that intersect. It also samples the rendered pixels under each
+    label and reports labels sitting on saturated ink, which is the "annotation
+    on top of the data" case.
+
+    It is a smell test, not a proof: a box can overlap while the glyphs do not,
+    and a label on a pale region may still be hard to read. Treat a report as a
+    prompt to look, and look at final size.
+    """
+    fig.canvas.draw()
+    texts = [t for ax in fig.get_axes() for t in ax.texts
+             if t.get_text().strip()]
+    texts += [t for t in fig.texts if t.get_text().strip()]
+    for ax in fig.get_axes():
+        if ax.get_title():
+            texts.append(ax.title)
+    boxes = []
+    for t in texts:
+        try:
+            boxes.append((t, t.get_window_extent(fig.canvas.get_renderer())))
+        except Exception:
+            continue
+    hits = []
+    for i in range(len(boxes)):
+        for j in range(i + 1, len(boxes)):
+            a, b = boxes[i][1], boxes[j][1]
+            if a.overlaps(b):
+                hits.append((boxes[i][0].get_text()[:38],
+                             boxes[j][0].get_text()[:38]))
+    if verbose:
+        if hits:
+            print(f'OVERLAPPING TEXT: {len(hits)} pair(s)')
+            for a, b in hits:
+                print(f'  {a!r}  <->  {b!r}')
+        else:
+            print('no overlapping text')
+    return hits

@@ -13,66 +13,78 @@ file.
 
 # IF YOU READ ONE PAGE, READ THIS ONE
 
-Everything below is the working record. **These ten sentences are what Stage 2d
+Everything below is the working record. **These eleven sentences are what Stage 2d
 contributes to the manuscript.** Each is a claim the paper can make, with the
 number that supports it. Nothing else in this file needs to reach the paper.
 
 **On the method comparison**
 
-1. **Which UQ method you choose changes a material's stated probability of being
-   the largest contributor by 5 to 19 percentage points** -- a median shift in
-   rank-1 frequency of 0.048 for the closest pair of the six methods and 0.188
-   for the furthest. This is the headline: it is continuous, it carries no Monte
-   Carlo noise floor, and it does not lean on the four-material construction.
-2. The probability that the identity of the largest contributor actually changes
-   crosses **1 percent at a relative W1 of 0.0018, 5 percent at 0.011 and 10
-   percent at 0.025**, so the study's goodness-of-fit scale can be read as a
-   consequence. **A relative W1 of 0.011 is a shift of about one percent of the
-   dataset mean** -- invisible on a plotted curve, and enough to change the
-   answer one time in twenty.
+1. **Every output of a probabilistic LCA discriminates between UQ methods by 7
+   to 24 times the Monte Carlo noise**, so the choice of method is not a detail.
+   The most sensitive outputs are the dispersion ones -- the coefficient of
+   variation of a material's contribution, and its standard deviation, both at 24
+   times noise -- which is what one would hope, since modelling spread is what a
+   UQ method is for.
+2. In absolute terms, **which UQ method you choose changes a material's stated
+   probability of being the largest contributor by 5 to 19 percentage points**: a
+   median shift in rank-1 frequency of 0.048 for the closest pair of the six
+   methods and 0.188 for the furthest.
+3. **The most robust thing a pLCA produces is its data-collection priority.**
+   Variance importance -- the share of total output variance attributable to one
+   material's uncertainty -- is the LEAST sensitive output at 7.4 times noise. So
+   which material is worth measuring better is a conclusion that survives the
+   choice of method, even where the magnitudes do not. Nothing in the study
+   currently reports it, and it should.
+4. The probability that the identity of the largest contributor changes crosses
+   **1 percent at a relative W1 of 0.0018, 5 percent at 0.011 and 10 percent at
+   0.025**. **A relative W1 of 0.011 is a shift of about one percent of the
+   dataset mean** -- invisible on a plotted curve, and enough to change the answer
+   one time in twenty.
 
 **On weighting, which is the stage's main contribution**
 
-3. The distance between uniform and variable weighting is about **three quarters
-   a shift of the mean** (median location share 0.725 on real data), so a
-   practitioner can tell whether market shares matter for their category by
-   computing a weighted mean and seeing how far it moves -- no distribution
-   fitting, no simulation.
-4. Whether weighting matters is predicted almost exactly by two numbers a
-   practitioner already has, the EPD count and the coefficient of variation:
-   **separation is about 0.73 * CV * n^-0.43**, R2 = 0.99 on both arms.
-5. Uniform weighting is therefore safe only when the coefficient of variation is
+5. Whether weighting matters is predicted almost exactly by two numbers a
+   practitioner already has, the EPD count `n` and the coefficient of variation
+   `CV` (the standard deviation divided by the mean): **the separation is about
+   0.73 * CV * n^-0.43**, R2 = 0.99 on both arms.
+6. Uniform weighting is therefore safe only when the coefficient of variation is
    below about **0.015 * n^0.43** -- 0.046 at 10 EPDs, 0.120 at 100, 0.315 at
-   1,000 -- and the median real category does not clear it.
-6. **For 91 percent of real ECC categories, a plausible market-share allocation
-   has at least a 5 percent chance of changing which material ranks first.**
-   Uniform weighting is defensible only above roughly a thousand EPDs. **This is
-   a call to collect market-share data**, which is the one input that would
-   remove the problem rather than bound it.
-7. Every one of those numbers is a **lower bound**, because a flat Dirichlet
+   1,000 -- and the median real category, at CV 0.63 and 47 EPDs, does not clear
+   it.
+7. **For 91 percent of real ECC categories the market-share assumption is not
+   safe**, in the sense that a plausible allocation moves the fitted density
+   further than the distance at which UQ methods begin to change the answer.
+   **This is the paper's call to collect market-share data**, which is the one
+   input that would remove the problem rather than bound it.
+8. Reweighting acts mostly on the MEAN -- median location share 0.725 -- but that
+   is a median and not a rule: the interquartile range is **0.457 to 0.933**, and
+   **28 of 147 categories are shape-dominated**, where reweighting changes the
+   distribution's shape and barely moves its mean. Which way a category behaves is
+   **not predictable** from its size or its dispersion (Spearman -0.11 and -0.10).
+   The useful consequence is that for most categories the uncertainty from unknown
+   weights is uncertainty about a mean, which is exactly what a production-weighted
+   industry-average EPD would supply.
+9. Every weighting number here is a **lower bound**, because a flat Dirichlet
    understates the separation by **1.5 to 3.1 times** when share clusters on
    similar products, which is how real market share behaves.
-8. This is the one place in the whole study where **dispersion matters as much as
-   dataset size**; everywhere else size is the only mechanism.
+10. This is the one place in the whole study where **dispersion matters as much as
+    dataset size**; everywhere else size is the only mechanism.
 
-**On method, which the paper owes as method rather than as findings**
+**One methods note, not a finding**
 
-9. A_IQR, the measure from the companion paper, is **a measure of dataset size**
-   in this study (R2 0.94 against log n, 1.5 percent added by dispersion), which
-   is what density-estimation theory predicts when the weight information is held
-   fixed and only n varies. It stays reported for consistency and is not the
-   instrument for this question.
-10. Comparing two UQ methods under independent random streams changes the
-    identity of the largest contributor **5.33 percent** of the time with no model
-    difference at all. The estimates are converged; the argmax of a near-tie is
-    not, and cannot be at any sample size. Common random numbers fix it exactly;
-    more draws only shrink it as the square root.
+11. A_IQR, the measure from the companion paper, is **a measure of dataset size**
+    in this study (R2 0.94 against log n). That is what density-estimation theory
+    predicts when the weight information is held fixed and only n varies, and it
+    does NOT make A_IQR a poor measure -- the companion paper's own scenarios show
+    it separating 0.22 from 0.12 on the same nine points when the weight
+    constraints differ. **Whether to mention it at all is the author's call**; the
+    paper's line needs only `n` and `CV`.
 
 **What the paper must state as conditional, in the same paragraph as the number
 and not in a footnote.** Every FLIP probability assumes four materials of equal
-material use intensity, which makes the ranking as fragile as it can be made and
-therefore makes those numbers upper bounds; the continuous SHIFT in sentence 1
-does not have that dependence, which is the main reason to lead with it. Stage 2e
+material use intensity, which makes a ranking as fragile as it can be made and
+therefore makes those numbers upper bounds. The continuous outputs in sentences 1
+to 3 do not have that dependence, which is the reason to lead with them. Stage 2e
 changes the number of materials per pLCA and will move every flip threshold.
 
 **One housekeeping item, not a finding.** The plausibility ceiling's inventory
@@ -94,11 +106,14 @@ other document to open. **The handoff's real reader has no repository, so
 these links are useless to them; this whole section comes out when the stage
 closes.** Everything below section 0 stands on its own without them.
 
-**A note on what changed after your first pass.** All three figures were
-rebuilt to `FIGURE_STYLE.md`, which did not exist when you reviewed them:
-titles now carry the finding, annotations were moved out of the data, the
-saturated A_IQR panel was deleted, and the calibration figure shows the whole
-distribution of method-to-method distances rather than one summary marker.
+**What changed after the second pass.** Figure 1 now draws the fifteen method
+pairs as POINTS at their own separation and their own flip rate -- as a rug at a
+fixed height they read as though every pair flipped almost always, which is a
+lie factor above one -- labels both point series in their own colour, and shows
+DENSITIES rather than cumulative curves. Figure 3 is rebuilt to the author's
+design, dispersion against dataset size with the separation in the colour and
+the safe boundary drawn from the fitted law. `figstyle.check_overlaps` now
+detects colliding text automatically; all three figures pass it.
 
 ### 1. The deliverable: what a given W1 costs
 
@@ -143,19 +158,21 @@ unsaturated version of the same question.
 
 What to check, and this is the one to spend time on.
 
-Left and middle: the same data twice, against size and against dispersion, with
-the fitted law drawn at three fixed values of the other variable. The points
-should sit between the guide lines rather than scattering across them -- that is
-what an R2 of 0.991 looks like. The red line in the middle panel is the 5 percent
-flip threshold, so **everything above it is a category where uniform weighting is
-not safe**, and you can see how few fall below.
+**Left panel, to the author's design.** Every real category placed by its
+dispersion and its size, coloured by how far a plausible market-share allocation
+moves its fitted density. The orange line is not drawn by eye: it is where the
+fitted law `0.73 * CV * n^-0.43` equals the 5 percent flip threshold, so it is
+the boundary of the safe region. **Only 12 of 147 categories fall inside it**,
+and eleven of the twelve are concrete strength classes or asphalt. The direction
+was checked against the data rather than read off the picture -- 11 of the 12
+safe categories sit left of the line and all 135 unsafe ones sit right of it.
 
-Right panel answers the clustering question directly. `scatter` (share
-concentrated on random products) lies on top of `flat` at every effective sample
-size, so concentration alone behaves exactly like having fewer points. `blocks`
-(share concentrated on products with adjacent coefficients) sits clearly above
-and the gap widens. **If those two lines had coincided, the flat Dirichlet would
-have been vindicated; they do not.**
+**Right panel** answers the clustering question. Share concentrated on RANDOM
+products lies on top of share spread evenly, at every effective sample size, so
+concentration alone behaves exactly like having fewer products -- which is what
+the effective sample size already captures. Share concentrated on SIMILAR
+products sits clearly above, and the gap widens. **If those two lines had
+coincided, the flat Dirichlet would have been vindicated. They do not.**
 
 ---
 

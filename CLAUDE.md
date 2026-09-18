@@ -2358,3 +2358,78 @@ rather than in conversation.
      continuous shift as primary, add variance importance as the
      data-collection-facing measure, and state any argmax result with its noise
      floor beside it. Discrepancy entry 94.
+
+103. **2026-09-17, Stage 2d review. EVERY pLCA OUTPUT DISCRIMINATES BETWEEN UQ
+     METHODS BY 7 TO 24 TIMES THE MONTE CARLO NOISE. Decision 91's headline
+     framing is WITHDRAWN.** `[AUTHOR]` The author proposed the right test --
+     plot the model distance for each method pair against the difference it makes
+     in every output metric, and see which move most -- and objected three times
+     that the 5.33 percent noise figure did not make sense. **They were right and
+     the framing was wrong.**
+
+     `audits/output_metric_sensitivity.py` measures both halves on the same
+     footing: NOISE is one method run twice on independent variates, SIGNAL is two
+     different methods on COMMON variates, each as the median absolute change
+     across the four materials divided by that metric's spread across them.
+
+         metric            noise   signal   ratio
+         eci_cov           0.017    0.417    24.4
+         eci_std           0.015    0.354    24.4
+         eci_rank_1        0.031    0.565    18.1
+         eci_p95           0.024    0.393    16.2
+         eci_mean          0.064    1.014    15.8
+         eci_perc_std      0.026    0.351    13.4
+         eci_meanrank      0.085    0.868    10.2
+         eci_perc_mean     0.090    0.835     9.3
+         ui                0.029    0.211     7.4
+         eci_rank_4        0.075    0.541     7.2
+
+     **NOTHING IS NOISE-DOMINATED.** The study's own pLCA answers "did the answer
+     change" perfectly well for every continuous output. What is fragile is only
+     the ARGMAX -- "which material has the highest rank-1 frequency" -- and that
+     was Stage 2d's own framing for the flip calibration, not a metric the study
+     reports. Decision 91 said the study's pLCA "cannot answer did the answer
+     change"; **that sentence is withdrawn.** What stands from it is narrower: an
+     argmax outcome carries a 5.33 percent floor, so common random numbers are
+     needed to CALIBRATE a flip curve, and Stage 2e's installation of them is a
+     refinement rather than a repair.
+
+     **Three findings worth carrying into the paper.** Dispersion outputs are the
+     most sensitive -- `eci_cov` and `eci_std` at 24 times noise -- which is what
+     one would hope, since modelling spread is what a UQ method is for.
+     `eci_mean` tracks the model distance most predictably, Spearman 0.919 with a
+     log-log slope of 1.48. And **variance importance `ui` is the LEAST sensitive
+     at 7.4**, which is the reassuring one: **which material to prioritise for
+     data collection is the most robust conclusion a pLCA produces**, even where
+     the magnitudes are not. Nothing in the study currently reports it.
+     Discrepancy entry 95.
+
+104. **2026-09-17, Stage 2d review. The location share is NOT universal, and
+     decision 92's "about three quarters" was a median quoted as though it were a
+     constant.** `[AUTHOR]` The author asked where a universal 0.725 came from,
+     and whether there are categories where reweighting changes the shape rather
+     than the mean. There are, and the spread is wide.
+
+     Across the 147 real categories the location share has a median of 0.725 but
+     an interquartile range of **0.457 to 0.933** and a full range of 0.024 to
+     1.000. **28 of 147 categories are SHAPE-DOMINATED**, with a location share
+     below 0.4: `CementGrout` at 0.024, `PowerCabling` at 0.077,
+     `CMU [>=6000 psi]` at 0.079, `RebarSteel` at 0.082, `AluminiumExtrusions` at
+     0.118. For those, reweighting changes the shape of the distribution and
+     barely moves its mean.
+
+     **And it is not predictable from anything.** Spearman of the location share
+     with log dataset size is **-0.113** and with the coefficient of variation
+     **-0.100**. So unlike the separation itself, which decision 96 shows is
+     almost fully determined by those two numbers, HOW the weighting acts is a
+     per-category property that neither predicts.
+
+     **The practical framing in decision 92 was also wrong** and the author named
+     it: "nobody has the information to compute a weighted mean. Weights for EPDs
+     aren't published." Correct, and it is the premise of the companion paper. The
+     finding is not a recipe; it is a statement about what KIND of uncertainty
+     unknown weights introduce -- mostly uncertainty about the mean, for most
+     categories -- which is why an industry-average EPD, the one published
+     quantity that IS production-weighted, would resolve most of it (decision
+     100). **The practitioner-facing rule is decision 96's size-and-dispersion
+     law, not this.**
