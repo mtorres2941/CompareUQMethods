@@ -91,6 +91,14 @@ below this page is the working record.
    at **0.503** (0.491 to 0.515), and the study computes it and reports it
    nowhere.
 
+**Two housekeeping items, neither of which is a finding.** A smoke run can no
+longer write into the results directory, which closes an item the previous stage
+opened after one reached a commit and replaced the 60,000-row results table with
+a 960-row one. And three cells of the third notebook had never run from a clean
+start, one of which draws a figure that is in the deposit -- so that figure could
+not be regenerated from the notebooks as they stood, which the project's own rule
+requires. Both are fixed and both are held by tests.
+
 **What must travel with the ranking numbers, in the same paragraph and not a
 footnote.** Every material in this study carries a use intensity of 1.0, so the
 contributions are exchangeable and a ranking is as fragile as it can be made.
@@ -152,7 +160,24 @@ the cluster bootstrap, NRMSE with an interval, and the run against the true
 parents. Everything the notebook does below is one call into it.
 
 **Notebook 3 gained five sections -- eleven cells -- and two figures**, and its
-main pLCA loop now uses common random numbers. Nothing else in the notebook changed.
+main pLCA loop now uses common random numbers.
+
+**Three cells of it had never run, and one of them draws a figure that is in
+the deposit.** Found by executing the whole notebook headless under the reduced
+configuration, which had not been done for the cells the previous stage added.
+The flip-calibration figure used a name the notebook never defines and called a
+module function when only the names imported from that module were in scope;
+both work in a session that has run the second notebook first, which is how they
+were written, and both fail from a clean start. Separately, a loop index shared
+its name with the new source module, so every call into it read an integer. All
+three are fixed, and a test now refuses any notebook variable that takes the name
+of a module the notebook imports.
+
+**A smoke run can no longer write into the results directory at all.** Every path
+notebook 3 writes goes through one variable, which the reduced configuration
+points at a temporary directory. This was the previous stage's open item and
+belonged to a later stage; it was done here because this stage reruns the
+artifact it protects.
 
 **The whole test suite is 423 tests and all pass**, including the eight
 regression fixtures that pin the empirical metrics, the synthetic metrics and
