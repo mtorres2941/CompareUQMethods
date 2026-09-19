@@ -375,3 +375,57 @@ def test_rows_used_by_band_sees_a_target_that_is_undefined_at_small_n():
     assert cv['available__n 3-9'] > 0
     assert insample['used__n 3-9'] == insample['available__n 3-9']
     assert cv.rows_used < cv.rows_total
+
+
+def test_partial_dependence_separates_a_real_effect_from_a_borrowed_one():
+    """The measurement the whole stage turns on.
+
+    A characteristic that is a copy of a real predictor has a steep MARGINAL
+    curve and a flat PARTIAL DEPENDENCE, because holding the real predictor
+    fixed leaves it nothing to explain. This plants exactly that: `entropy` is
+    made a noisy copy of log(n), and `n` is one of the two predictors the
+    target actually depends on.
+    """
+    frame, metrics = synthetic_frame(500, seed=31)
+    frame = frame.copy()
+    rng = np.random.default_rng(32)
+    frame['entropy'] = np.log(frame.n) + rng.normal(0, 0.05, len(frame))
+    pdt = R.partial_dependence_table(
+        frame, metrics, 'w1', which=['n', 'entropy'], arm='synthetic',
+        method='KDE, Uniform', rng=np.random.default_rng(33),
+        models=('boosted',))
+    assert len(pdt)
+    span = pdt.groupby('characteristic').partial_dependence.apply(
+        lambda s: s.max() - s.min())
+    # The genuine predictor keeps the larger partial dependence -- but NOT by
+    # a wide margin, and that is the caveat the docstring records rather than
+    # a defect. Two nearly collinear predictors SPLIT the effect, because no
+    # model can tell which of them the target depends on, so a copy retains a
+    # substantial fraction instead of collapsing to zero.
+    assert span['n'] > span['entropy']
+    assert span['entropy'] > 0.3 * span['n'], (
+        'a near-copy is expected to retain a large share; if it now collapses, '
+        'the docstring caveat is wrong and should be rewritten')
+
+
+def test_partial_dependence_is_centered_and_stays_inside_the_data():
+    frame, metrics = synthetic_frame(400, seed=34)
+    pdt = R.partial_dependence_table(
+        frame, metrics, 'w1', which=['coeffvar'], arm='synthetic',
+        method='KDE, Uniform', rng=np.random.default_rng(35),
+        models=('boosted',))
+    assert len(pdt)
+    assert abs(pdt.partial_dependence_centered.mean()) < 1e-9
+    # The grid must stay INSIDE the observed data, which is the property that
+    # matters: a spline extrapolated past its last knot is not a measurement.
+    # It is not asserted against numpy's percentiles, because sklearn places
+    # the grid with a different quantile convention and lands a hair outside
+    # them; the two disagree by about 0.006 on this fixture and agreeing with
+    # sklearn's choice is not the point.
+    sub = frame[(frame.arm == 'synthetic') & (frame.method == 'KDE, Uniform')
+                & frame.w1.notna()]
+    x = R.transform_frame(sub, ['coeffvar']).coeffvar
+    assert pdt.x.min() > np.nanmin(x)
+    assert pdt.x.max() < np.nanmax(x)
+    # and it covers the body rather than a sliver of it
+    assert (pdt.x.max() - pdt.x.min()) > 0.5 * (np.nanmax(x) - np.nanmin(x))

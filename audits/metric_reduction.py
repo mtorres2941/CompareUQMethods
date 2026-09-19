@@ -286,6 +286,32 @@ def run(quick=False):
                .sort_values(ascending=False).head(8))
         print(top.to_string())
 
+    # ---- partial dependence: the marginal view against the multivariate --
+    survivor_names = list(trimmed[trimmed.survivor].metric)
+    pdrows = []
+    for arm, value in (('empirical', 'w1_cv'), ('synthetic', 'w1_market'),
+                       ('synthetic', 'err_eci_mean')):
+        if value not in frame.columns:
+            continue
+        for method in methods:
+            d = RED.partial_dependence_table(frame, metrics, value,
+                                             which=survivor_names, arm=arm,
+                                             method=method, rng=rng)
+            if len(d):
+                pdrows.append(d)
+    if pdrows:
+        partial = pd.concat(pdrows, ignore_index=True)
+        write(partial, 'AUDIT_ReductionPartialDependence.csv')
+        curves = pd.concat(
+            [RED.curves_for(frame, survivor_names, methods, value='w1_market',
+                            arm='synthetic', rng=rng)], ignore_index=True)
+        mvp = RED.marginal_versus_partial(
+            curves, partial[(partial.arm == 'synthetic')
+                            & (partial.target == 'w1_market')])
+        write(mvp, 'AUDIT_ReductionMarginalVersusPartial.csv')
+        print('\nHOW MUCH OF EACH MARGINAL SLOPE SURVIVES HOLDING THE REST')
+        print(mvp.to_string(index=False))
+
     # ---- the generalization question -------------------------------------
     emp_chars = chars[chars.arm == 'empirical']
     syn_chars = chars[chars.arm == 'synthetic']

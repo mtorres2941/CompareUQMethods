@@ -1067,3 +1067,125 @@ def rows_used_by_band(frame, targets, methods=None):
                 row[f'available__{band}'] = int(len(h))
             rows.append(row)
     return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------
+# partial dependence: what a characteristic is worth with the others held
+# --------------------------------------------------------------------------
+
+def partial_dependence_table(frame, metrics, target, which, arm=None,
+                             method=None, rng=None, grid_points=30,
+                             models=('additive', 'boosted')):
+    """Partial dependence of the target on each of `which`, on one fitted model.
+
+    THE MARGINAL CURVE AND THIS ONE ANSWER DIFFERENT QUESTIONS, AND THE GAP
+    BETWEEN THEM IS THE POINT OF THE WHOLE STAGE. A binned mean, or the rolling
+    average it replaces, shows how the score varies ACROSS datasets that differ
+    in this characteristic -- and those datasets differ in every other
+    characteristic too, because the characteristics are correlated. Partial
+    dependence averages the fitted model over the observed joint distribution
+    of everything else, so it shows what moving this characteristic ALONE is
+    worth. A characteristic with a steep marginal curve and a flat partial
+    dependence is one whose apparent effect belongs to something it travels
+    with, and dataset size is what it usually travels with here.
+
+    The curve is on the MODELING scale of the characteristic, and the target is
+    on its own (log for every target here), so a slope reads as an elasticity.
+    `grid_points` values are taken between the 5th and 95th percentiles, which
+    keeps the curve inside the data rather than extrapolating a spline past its
+    last knot.
+
+    **TWO NEARLY COLLINEAR PREDICTORS SPLIT THE EFFECT RATHER THAN ONE TAKING
+    IT, and a reader of these curves has to know that.** Given a predictor and
+    a noisy copy of it, neither model can tell which one the target depends on,
+    so both come back with a partial dependence of intermediate size --
+    measured on a planted example, the copy keeps about two thirds of the
+    original's range rather than collapsing to zero. So a SMALL partial
+    dependence is evidence that a characteristic carries nothing, while a
+    moderate one is not evidence that it carries something of its own if it is
+    strongly correlated with a survivor. Read this table beside
+    `redundancy_table`, and treat a pair above about 0.9 as one quantity.
+    `tests/test_metricreduction.py` pins the behaviour on a planted copy.
+    """
+    from sklearn.inspection import partial_dependence
+
+    rng = rng if rng is not None else np.random.default_rng(0)
+    g = frame
+    if arm is not None:
+        g = g[g.arm == arm]
+    if method is not None:
+        g = g[g.method == method]
+    scale = TARGETS.get(target, {}).get('scale', 'identity')
+    X, y, _ = _prepare_xy(g, metrics, target, scale)
+    if len(y) < 60:
+        return pd.DataFrame()
+
+    builders = {
+        'additive': lambda: additive_model(random_state=int(rng.integers(1 << 30))),
+        'boosted': lambda: boosted_model(random_state=int(rng.integers(1 << 30))),
+    }
+    index = {m: i for i, m in enumerate(metrics)}
+    rows = []
+    for name in models:
+        model = builders[name]()
+        model.fit(X, y)
+        for m in which:
+            if m not in index:
+                continue
+            col = X[:, index[m]]
+            finite = col[np.isfinite(col)]
+            if len(finite) < 30 or np.ptp(finite) == 0:
+                continue
+            grid = np.linspace(np.percentile(finite, 5),
+                               np.percentile(finite, 95), grid_points)
+            try:
+                pd_res = partial_dependence(
+                    model, X, [index[m]], grid_resolution=grid_points,
+                    percentiles=(0.05, 0.95), kind='average')
+            except Exception:
+                continue
+            xs = np.asarray(pd_res['grid_values'][0], dtype=float)
+            ys = np.asarray(pd_res['average'][0], dtype=float)
+            rows.append(pd.DataFrame(dict(
+                arm=arm, method=method, target=target, model=name,
+                characteristic=m, x=xs, partial_dependence=ys,
+                n_rows=len(y))))
+    if not rows:
+        return pd.DataFrame()
+    out = pd.concat(rows, ignore_index=True)
+    # Centered, because only the SHAPE of a partial dependence is interpretable:
+    # its level absorbs the model intercept and every other predictor's mean.
+    out['partial_dependence_centered'] = (
+        out.groupby(['model', 'characteristic']).partial_dependence
+        .transform(lambda s: s - s.mean()))
+    return out
+
+
+def marginal_versus_partial(curves, pd_table):
+    """How much of a characteristic's marginal slope survives holding the rest.
+
+    One row per (characteristic, model): the range the marginal curve covers
+    and the range the partial dependence covers, over the same span of the
+    characteristic, and the ratio. A ratio near zero says the marginal picture
+    was borrowed from the other characteristics; near one says the effect is
+    the characteristic's own.
+    """
+    rows = []
+    marg = curves[curves.kind == 'lowess']
+    for (char,), g in marg.groupby(['characteristic']):
+        # The marginal spread is taken over METHODS as well, since every method
+        # is drawn on the panel; the widest method is the one a reader sees.
+        m_range = float(np.nanmax(
+            [gg['mean'].max() - gg['mean'].min()
+             for _, gg in g.groupby('method')] or [np.nan]))
+        h = pd_table[pd_table.characteristic == char]
+        for model, hh in h.groupby('model'):
+            p_range = float(hh.partial_dependence.max()
+                            - hh.partial_dependence.min())
+            rows.append(dict(characteristic=char, model=model,
+                             marginal_range=m_range,
+                             partial_range_log=p_range,
+                             partial_over_marginal=(
+                                 p_range / m_range if m_range else np.nan)))
+    return pd.DataFrame(rows).sort_values('partial_range_log',
+                                          ascending=False).reset_index(drop=True)
