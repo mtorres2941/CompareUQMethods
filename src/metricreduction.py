@@ -738,13 +738,25 @@ def binned_curve(x, y, n_bins=12, n_boot=1000, rng=None, equal_count=True):
     return pd.DataFrame(rows)
 
 
-def lowess_curve(x, y, frac=0.3, n_out=100, n_boot=400, rng=None):
-    """LOWESS with a bootstrap band, as the smooth companion to the bins.
+def lowess_curve(x, y, frac=0.3, n_out=100, n_boot=0, rng=None):
+    """A LOWESS smooth, optionally with a bootstrap band.
 
-    The band resamples the DATASETS and refits, so it carries the uncertainty
-    of the smoother itself and not only the scatter at a point. Where the
-    datasets thin out the band opens, which is the artifact the rolling average
-    hid.
+    **THE BAND COMES FROM `binned_curve`, NOT FROM HERE, AND THAT IS A COST
+    DECISION MADE ON A MEASUREMENT.** statsmodels' LOWESS runs three
+    robustifying iterations by default, and on 10,000 datasets one fit takes
+    about 600 ms, so a 400-replicate band for five characteristics by six
+    methods by three targets would be some 12,000 fits and several hours.
+    Turning the iterations off makes a fit 255 times faster and is NOT
+    available: measured on this data it moves the curve by 54 percent of its
+    own range on the target's scale and by 14 percent on the log scale, which
+    is six times the width of the band it would be drawn inside. A curve that
+    changes that much is a different curve, not a faster one.
+
+    So the division of labour is: `binned_curve` carries the uncertainty, with
+    a within-bin percentile bootstrap and equal-count bins that is exact,
+    cheap and reports its own counts; this function is the smooth read through
+    those bins, fitted once with the robustifying iterations intact.
+    `n_boot > 0` still gives a band, for a small arm where it is affordable.
     """
     from statsmodels.nonparametric.smoothers_lowess import lowess as _lowess
     rng = rng if rng is not None else np.random.default_rng(0)
@@ -757,15 +769,18 @@ def lowess_curve(x, y, frac=0.3, n_out=100, n_boot=400, rng=None):
     grid = np.linspace(np.percentile(x, 1), np.percentile(x, 99), n_out)
     fit = _lowess(y, x, frac=frac, xvals=grid, return_sorted=False)
 
-    boots = np.empty((n_boot, n_out))
-    for b in range(n_boot):
-        s = rng.integers(0, len(x), len(x))
-        try:
-            boots[b] = _lowess(y[s], x[s], frac=frac, xvals=grid,
-                               return_sorted=False)
-        except Exception:
-            boots[b] = np.nan
-    lo, hi = np.nanpercentile(boots, [2.5, 97.5], axis=0)
+    if n_boot:
+        boots = np.empty((n_boot, n_out))
+        for b in range(n_boot):
+            s = rng.integers(0, len(x), len(x))
+            try:
+                boots[b] = _lowess(y[s], x[s], frac=frac, xvals=grid,
+                                   return_sorted=False)
+            except Exception:
+                boots[b] = np.nan
+        lo, hi = np.nanpercentile(boots, [2.5, 97.5], axis=0)
+    else:
+        lo = hi = np.full(n_out, np.nan)
     # Local density, for the rug: how many datasets sit within one smoothing
     # window of each grid point. It is what makes a sparse region visible.
     half = frac * (x.max() - x.min()) / 2
@@ -774,8 +789,13 @@ def lowess_curve(x, y, frac=0.3, n_out=100, n_boot=400, rng=None):
 
 
 def curves_for(frame, metrics, methods, value='w1', arm=None, rng=None,
-               n_bins=12, frac=0.35):
-    """Binned and smoothed curves for every (metric, method) pair on one arm."""
+               n_bins=12, frac=0.35, lowess_boot=0):
+    """Binned and smoothed curves for every (metric, method) pair on one arm.
+
+    The BINNED rows carry the uncertainty and the counts; the LOWESS rows are
+    the smooth read through them. See `lowess_curve` for why the band is not
+    taken from the smoother.
+    """
     rng = rng if rng is not None else np.random.default_rng(0)
     g = frame if arm is None else frame[frame.arm == arm]
     scale = TARGETS.get(value, {}).get('scale', 'identity')
@@ -796,7 +816,8 @@ def curves_for(frame, metrics, methods, value='w1', arm=None, rng=None,
                 b['kind'] = 'binned'
                 b['scale'] = scale
                 out.append(b)
-            l = lowess_curve(xt[sel], y[sel], frac=frac, rng=rng)
+            l = lowess_curve(xt[sel], y[sel], frac=frac, rng=rng,
+                             n_boot=lowess_boot)
             if len(l):
                 l = l.rename(columns={'x': 'x_center', 'fit': 'mean',
                                       'local_count': 'count'})
