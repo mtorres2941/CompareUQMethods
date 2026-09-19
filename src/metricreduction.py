@@ -352,7 +352,7 @@ def size_confounding(frame, metrics):
     per_dataset = frame.drop_duplicates(['arm', 'dataset'])
     for arm, g in per_dataset.groupby('arm'):
         M = transform_frame(g, metrics)
-        logn = M['n'].to_numpy(float)
+        logn = transform(g['n'].to_numpy(float), METRIC_TRANSFORM['n'])
         for m in metrics:
             if m == 'n':
                 continue
@@ -514,7 +514,11 @@ def incremental_over_size(frame, metrics, target, arm=None, method=None):
     if scale == 'log':
         y_all = np.log(np.clip(y_all, 1e-12, None))
     M = transform_frame(g, metrics)
-    logn = M['n'].to_numpy(float)
+    # log(n) is the base model, so it has to come from the FRAME and not from
+    # the candidate list: `modality_head_to_head` offers only the modality
+    # measures, and taking size from the list would then ask the frame for a
+    # column the caller never named. It cost an audit run.
+    logn = transform(g['n'].to_numpy(float), METRIC_TRANSFORM['n'])
 
     def basis(v):
         return SplineTransformer(n_knots=5, degree=3).fit_transform(
@@ -966,9 +970,22 @@ def modality_agreement(frame):
                                                      method='spearman'))))
         for m in ('modes_fitted', 'modes_scipy_default'):
             if m in g:
-                rows.append(dict(arm=arm, measure_a=m, measure_b='share_unimodal',
-                                 n=int(g[m].notna().sum()),
-                                 spearman=float((g[m] == 1).mean())))
+                # OVER THE DATASETS THE MEASURE IS DEFINED ON, which is not the
+                # arm: a mode count needs at least 8 values, so 17 of the 147
+                # real categories and about 2,000 of the 10,000 synthetic ones
+                # have none. Dividing by the arm counts an undefined dataset as
+                # multimodal and understates the share -- it read 0.605 against
+                # a true 0.685 on the empirical arm before this was fixed. The
+                # count is returned beside it so the denominator is visible.
+                defined = g[m].notna()
+                rows.append(dict(arm=arm, measure_a=m,
+                                 measure_b='share_unimodal',
+                                 n=int(defined.sum()),
+                                 spearman=np.nan,
+                                 share_unimodal=(
+                                     float((g.loc[defined, m] == 1).mean())
+                                     if defined.any() else np.nan),
+                                 n_arm=int(len(g))))
     return pd.DataFrame(rows)
 
 

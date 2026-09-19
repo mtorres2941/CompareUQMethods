@@ -429,3 +429,48 @@ def test_partial_dependence_is_centered_and_stays_inside_the_data():
     assert pdt.x.max() < np.nanmax(x)
     # and it covers the body rather than a sliver of it
     assert (pdt.x.max() - pdt.x.min()) > 0.5 * (np.nanmax(x) - np.nanmin(x))
+
+
+def test_incremental_over_size_does_not_need_n_in_the_candidate_list():
+    """log(n) is the BASE model, so it comes from the frame, not the list.
+
+    `modality_head_to_head` offers only the modality measures, so asking the
+    transformed candidate frame for a size column the caller never named
+    raises a KeyError. It cost an audit run to find.
+    """
+    frame, metrics = synthetic_frame(300, seed=36)
+    out = R.incremental_over_size(frame, ['crit_bw_1', 'modality_index'], 'w1',
+                                  arm='synthetic', method='KDE, Uniform')
+    assert len(out) == 2
+    assert out.r2_size_only.notna().all()
+
+
+def test_modality_head_to_head_runs_on_the_modality_measures_alone():
+    frame, metrics = synthetic_frame(300, seed=37)
+    out = R.modality_head_to_head(frame, ('w1',), ['KDE, Uniform'],
+                                  'synthetic', rng=np.random.default_rng(38))
+    assert len(out)
+    assert set(out.metric) <= {'modality_index', 'modality_index_uw',
+                               'crit_bw_1', 'crit_bw_1_uw',
+                               'modes_fitted', 'modes_scipy_default'}
+    assert out.mean_incremental_r2.notna().all()
+
+
+def test_modality_agreement_shares_use_the_defined_denominator():
+    """A mode count needs at least 8 values, so it is undefined on the
+    smallest datasets. Dividing the unimodal share by the whole arm counts an
+    undefined dataset as multimodal, which understated the empirical share as
+    0.605 against a true 0.685.
+    """
+    frame, metrics = synthetic_frame(400, seed=39)
+    frame = frame.copy()
+    # built as float from the start: assigning NaN into an integer column is
+    # not a silent widening in this pandas, and the fixture must exercise the
+    # denominator, not pandas' dtype rules
+    frame['modes_fitted'] = np.where(frame.n.to_numpy() < 8, np.nan, 1.0)
+    out = R.modality_agreement(frame)
+    row = out[(out.measure_a == 'modes_fitted')
+              & (out.measure_b == 'share_unimodal')].iloc[0]
+    # every dataset it is DEFINED on is unimodal here, so the share is exactly 1
+    assert row.share_unimodal == pytest.approx(1.0)
+    assert row.n < row.n_arm
