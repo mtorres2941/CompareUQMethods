@@ -12,7 +12,7 @@ from scipy.stats import lognorm, gaussian_kde, wasserstein_distance, energy_dist
 import modality
 
 
-# from customstats import weighted_lognorm_fit, shapiro_wilk_weighted, _royston_pvalue, empirical_metadata, NestedDictValues, weighted_ecdf, estimate_maxima, weighted_kurtosis, weighted_skew, wasserstein1_weighted, wasserstein2_weighted, weighted_mean, weighted_var, weighted_distance_norm, weighted_quantile, weighted_bw, weighted_std
+# from customstats import weighted_lognorm_fit, shapiro_francia_weighted, _royston_pvalue, empirical_metadata, NestedDictValues, weighted_ecdf, estimate_maxima, weighted_kurtosis, weighted_skew, wasserstein1_weighted, wasserstein2_weighted, weighted_mean, weighted_var, weighted_distance_norm, weighted_quantile, weighted_bw, weighted_std
 
 ########################################################################
 def weighted_lognorm_fit(data, weights=None, method="MLE"):
@@ -87,20 +87,24 @@ def weighted_lognorm_fit(data, weights=None, method="MLE"):
 #     print(f"Fitted lognorm params: shape={s:.4f}, loc={loc:.4f}, scale={scale:.4f}")
 
 ########################################################################
-def _shapiro_statistic(x):
-    """`scipy.stats.shapiro`, with an honest p-value above n = 5000.
+def shapiro_wilk_scipy(x):
+    """The TRUE Shapiro-Wilk W from `scipy.stats.shapiro`, with an honest
+    p-value above n = 5000.
+
+    This is NOT what the study reports. It is kept so that the Shapiro-Francia
+    statistic the study does report can be measured against it; see
+    `audits/shapiro_estimator.py`. Nothing in the production path calls it.
 
     scipy's W statistic is exact at any n, but its p-value comes from Royston's
     approximation, which is fitted only to n <= 5000; above that scipy warns
     that the p-value may not be accurate. Several empirical categories run to
     tens of thousands of records, so that warning fires on ordinary input.
     Returning NaN says the same thing the warning says, in the return value
-    rather than on stderr. Only the statistic is used anywhere in this analysis,
-    by decision: a p-value at n = 77,548 measures the sample size, not the
-    departure from normality.
+    rather than on stderr.
     """
     if len(x) <= 5000:
-        return stats.shapiro(x)
+        res = stats.shapiro(x)
+        return float(res.statistic), float(res.pvalue)
 
     # scipy computes W exactly at any n and warns only that its Royston p-value
     # is extrapolated past the range that approximation was fitted to. There is
@@ -113,19 +117,28 @@ def _shapiro_statistic(x):
             'ignore', message='scipy.stats.shapiro: For N > 5000',
             category=UserWarning)
         res = stats.shapiro(x)
-    return res.statistic, np.nan
+    return float(res.statistic), np.nan
 
 
-def shapiro_wilk_weighted(x, weights=None):
+def shapiro_francia_weighted(x, weights=None):
     """
-    Shapiro-Wilk test of normality, extended to handle sample weights.
+    Shapiro-Francia test of normality, with sample weights.
 
-    For uniformly weighted (or unweighted) data, returns results identical
-    to ``scipy.stats.shapiro``. For non-uniform weights the W statistic is
-    the squared weighted Pearson correlation between the sorted data and
-    their weighted normal scores (a Shapiro-Francia generalisation), and
-    the p-value uses the Royston (1992) approximation evaluated at the
-    Kish (1965) effective sample size.
+    ONE STATISTIC UNDER BOTH WEIGHTINGS, WHICH IS THE POINT. Until Stage 2f
+    this function returned the true Shapiro-Wilk W for uniform weights and a
+    Shapiro-Francia W' for non-uniform weights, so `fit_norm_SF` and
+    `fit_norm_SF_uw` were two DIFFERENT statistics that four panels of the
+    main figure compared as though they were one. Shapiro-Francia is the only
+    one of the two with a weighted form, so it is the only choice under which
+    the uniform-versus-variable comparison is a comparison of one statistic
+    under two weightings. Decision 125.
+
+    **The two are not interchangeable where this study needs them most.** The
+    old docstring claimed they are indistinguishable for n >= 20, which is
+    about right -- the median absolute difference is 0.006 at n = 20 and
+    0.0004 at n = 2000 -- but the smallest size stratum here runs n = 3 to 9,
+    where the median difference is 0.010 and the largest observed is 0.029.
+    The equivalence argument fails exactly where the study needs it.
 
     Parameters
     ----------
@@ -133,38 +146,34 @@ def shapiro_wilk_weighted(x, weights=None):
         Sample data. Must contain at least 3 observations.
     weights : array-like, shape (n,), optional
         Non-negative importance/frequency weights. Need not be normalized.
-        ``None`` (default) is equivalent to uniform weights and produces
-        the same output as ``scipy.stats.shapiro(x)``.
+        ``None`` (default) is equivalent to uniform weights.
 
     Returns
     -------
     statistic : float
-        The W test statistic (0-1; values near 1 indicate normality).
+        The Shapiro-Francia W' statistic (0-1; near 1 indicates normality).
     pvalue : float
-        P-value for the null hypothesis that *x* is normally distributed.
+        Royston (1993) approximate p-value for W', evaluated at the Kish
+        effective sample size, or NaN where that approximation does not apply
+        (n_eff < 5 or > 5000). Only the STATISTIC is used anywhere in this
+        analysis, by decision: a p-value at n = 77,548 measures the sample
+        size, not the departure from normality.
 
     Notes
     -----
-    The weighted W statistic is
+    The statistic is
 
-        W = Cov_w(x, z)^2 / (Var_w(x) * Var_w(z))
+        W' = Cov_w(x, z)^2 / (Var_w(x) * Var_w(z))
 
-    where z_i = norm.ppf(p_i) and p_i is the midpoint of the i-th step of
-    the weighted empirical CDF.  With uniform weights this equals the
-    Shapiro-Francia W' (squared correlation with normal scores), which is
-    indistinguishable from Shapiro-Wilk W for n >= 20.
-
-    The n > 5000 restriction applies only to the uniform-weight path (where
-    scipy enforces it).  For weighted data, only the Kish effective sample
-    size n_eff = 1/sum(w_i^2) must be <= 5000, so large raw datasets with
-    unequal weights are fully supported.
-
-    The p-value approximation (Royston 1992) is most accurate for n_eff >= 12.
+    where z_i = norm.ppf(p_i) and p_i is the midpoint of the i-th step of the
+    weighted empirical CDF. With uniform weights this is the ordinary
+    Shapiro-Francia W', the squared correlation between the order statistics
+    and their normal scores.
 
     References
     ----------
-    Shapiro & Wilk (1965). Biometrika, 52, 591-611.
-    Royston (1992). Statistics and Computing, 2, 117-119.
+    Shapiro & Francia (1972). JASA, 67, 215-216.
+    Royston (1993). Applied Statistics, 42, 333-343.
     Kish (1965). Survey Sampling. Wiley.
     """
     x = np.asarray(x, dtype=float).ravel()
@@ -173,26 +182,17 @@ def shapiro_wilk_weighted(x, weights=None):
     if n < 3:
         raise ValueError(f"n must be >= 3, got {n}.")
 
-    # No weights supplied -> exact scipy result
     if weights is None:
-        return _shapiro_statistic(x)
-
-    w = np.asarray(weights, dtype=float).ravel()
-    if w.shape != (n,):
-        raise ValueError("weights must be 1-D and the same length as x.")
-    if np.any(w < 0):
-        raise ValueError("Weights must be non-negative.")
-    if w.sum() <= 0:
-        raise ValueError("Sum of weights must be positive.")
-
-    w = w / w.sum()  # normalize to sum to 1
-
-    # Uniform weights -> exact scipy result
-    if np.allclose(w, 1.0 / n):
-        return _shapiro_statistic(x)
-
-    # Kish effective sample size (used for p-value, not the raw n)
-    n_eff = max(3, min(5000, int(round(1.0 / (w ** 2).sum()))))
+        w = np.full(n, 1.0 / n)
+    else:
+        w = np.asarray(weights, dtype=float).ravel()
+        if w.shape != (n,):
+            raise ValueError("weights must be 1-D and the same length as x.")
+        if np.any(w < 0):
+            raise ValueError("Weights must be non-negative.")
+        if w.sum() <= 0:
+            raise ValueError("Sum of weights must be positive.")
+        w = w / w.sum()
 
     # Sort
     idx = np.argsort(x)
@@ -206,28 +206,83 @@ def shapiro_wilk_weighted(x, weights=None):
     # Normal scores
     z = stats.norm.ppf(p)
 
-    # Weighted W = (weighted correlation between x and z)^2
+    # Weighted W' = (weighted correlation between x and z)^2
     x_bar = (w_s * x_s).sum()
     z_bar = (w_s * z).sum()  # ~0 for symmetric weights / large n
     dx = x_s - x_bar
-    dz = z  - z_bar
+    dz = z - z_bar
     cov_xz = (w_s * dx * dz).sum()
-    var_x  = (w_s * dx ** 2).sum()
-    var_z  = (w_s * dz ** 2).sum()
+    var_x = (w_s * dx ** 2).sum()
+    var_z = (w_s * dz ** 2).sum()
+    if var_x <= 0 or var_z <= 0:
+        return np.nan, np.nan
     W = cov_xz ** 2 / (var_x * var_z)
 
-    pvalue = _royston_pvalue(W, n_eff)
-    return W, pvalue
+    # Kish effective sample size, for the p-value only, never for the statistic
+    n_eff = int(round(1.0 / (w ** 2).sum()))
+    return W, _royston_francia_pvalue(W, n_eff)
+
+
+def _royston_francia_pvalue(W, n):
+    """
+    Royston (1993) p-value approximation for the Shapiro-Francia W'.
+
+    This is the approximation `sfrancia` implements, and it is the right one
+    for the statistic this module returns. `_royston_pvalue` below is the
+    approximation for the Shapiro-WILK W and is a different curve; applying
+    one to the other's statistic is what the code did before Stage 2f.
+
+    Valid for 5 <= n <= 5000. Returns NaN outside that, rather than
+    extrapolating a fit past the range it was made on.
+
+    Parameters
+    ----------
+    W : float   Observed W' statistic.
+    n : int     Effective sample size.
+
+    Returns
+    -------
+    float
+        Approximate p-value, or NaN where the approximation does not apply.
+    """
+    W = float(W)
+    n = int(n)
+    if n < 5 or n > 5000 or not np.isfinite(W) or W >= 1.0 or W <= 0.0:
+        return np.nan
+
+    u = np.log(n)
+    v = np.log(u)
+    mu = -1.2725 + 1.0521 * (v - u)
+    sigma = 1.0308 - 0.26758 * (v + 2.0 / u)
+    z = (np.log(1.0 - W) - mu) / sigma
+    return max(float(1.0 - stats.norm.cdf(z)), 1e-99)
 
 
 def _royston_pvalue(W, n):
     """
-    Royston (1992) p-value approximation for the Shapiro-Wilk W statistic.
+    Royston (1992) p-value approximation for the Shapiro-WILK W statistic.
+
+    CORRECTED IN STAGE 2F, and it was wrong in two separate ways. Nothing this
+    study reports ever depended on it -- only the statistic is kept -- but a
+    known-wrong p-value does not belong in a public deposit. Decision 126.
+
+    1. The ``4 <= n <= 11`` branch applied the ``n >= 12`` polynomials, which
+       are in log(n), to a range whose coefficients are polynomials in n
+       itself, and subtracted the gamma shift from the transformed variable
+       instead of applying Royston's ``-log(gamma - log(1 - W))``
+       re-expression. At n = 10 and 11 the returned p-value was 1.0000 where
+       the correct value is about 0.50; the largest observed error was 0.99.
+    2. The ``n >= 12`` branch evaluated the sigma polynomial at log(log(n))
+       where Royston evaluates it at log(n), so the p-value was wrong at
+       EVERY n, not only at small n. Errors reached 0.07 in probability.
+
+    Both are now fixed and the result reproduces `scipy.stats.shapiro`'s own
+    p-value to 4e-12 for 4 <= n <= 5000; `tests/test_customstats.py` pins that.
 
     Parameters
     ----------
-    W : float   Observed W statistic.
-    n : int     Effective sample size (3 <= n <= 5000).
+    W : float   Observed Shapiro-Wilk W statistic.
+    n : int     Sample size (3 <= n <= 5000).
 
     Returns
     -------
@@ -243,35 +298,34 @@ def _royston_pvalue(W, n):
         return max(float(p), 1e-99)
 
     y = np.log(1.0 - W)
-    u = np.log(n)
 
     if 4 <= n <= 11:
-        # Royston (1992): small-n uses a gamma shift before the normal transform.
-        gamma = 0.459 * n - 2.273
-        mu = (-1.5861
-              + (-0.31082) * u
-              + (-0.083751) * u ** 2
-              +  0.0038915 * u ** 3)
-        lu = np.log(u)
-        log_sigma = (-0.4803
-                     + (-0.082676) * lu
-                     +  0.0030302 * lu ** 2)
-        sigma = np.exp(log_sigma)
-        z = (y - gamma - mu) / sigma
+        # Royston (1992) AS R94: a gamma shift and a log re-expression first,
+        # then mu and sigma as polynomials in n ITSELF, not in log(n).
+        gamma = -2.273 + 0.459 * n
+        if y >= gamma:
+            return 1e-99
+        yy = -np.log(gamma - y)
+        mu = (0.5440
+              + (-0.39978) * n
+              + 0.025054 * n ** 2
+              + (-0.0006714) * n ** 3)
+        log_sigma = (1.3822
+                     + (-0.77857) * n
+                     + 0.062767 * n ** 2
+                     + (-0.0020322) * n ** 3)
+        z = (yy - mu) / np.exp(log_sigma)
     else:
-        # n >= 12: Royston (1992) polynomial approximations
-        # mu: polynomial in log(n)
+        # n >= 12: mu and sigma are both polynomials in log(n).
+        u = np.log(n)
         mu = (-1.5861
               + (-0.31082) * u
               + (-0.083751) * u ** 2
-              +  0.0038915 * u ** 3)
-        # sigma: exp(polynomial in log(log(n)))
-        lu = np.log(u)
+              + 0.0038915 * u ** 3)
         log_sigma = (-0.4803
-                     + (-0.082676) * lu
-                     +  0.0030302 * lu ** 2)
-        sigma = np.exp(log_sigma)
-        z = (y - mu) / sigma
+                     + (-0.082676) * u
+                     + 0.0030302 * u ** 2)
+        z = (y - mu) / np.exp(log_sigma)
 
     p = 1.0 - stats.norm.cdf(z)
     return max(float(p), 1e-99)
@@ -360,9 +414,11 @@ def empirical_metadata(data: np.ndarray, weights: np.ndarray, num_bins: int = 25
     
         metadata[f'weight_outliers{label}'] = wt_outliers_lo + wt_outliers_hi
         
-        # Calculate strength of normal and lognormal fits
-        metadata[f'fit_norm_SW{label}'] = shapiro_wilk_weighted(data, W)[0]
-        metadata[f'fit_lognorm_SW{label}'] = shapiro_wilk_weighted(np.log(data), W)[0]
+        # Strength of the normal and lognormal fits, as the Shapiro-Francia
+        # statistic. ONE statistic under both weightings; see
+        # `shapiro_francia_weighted` for why it is not Shapiro-Wilk.
+        metadata[f'fit_norm_SF{label}'] = shapiro_francia_weighted(data, W)[0]
+        metadata[f'fit_lognorm_SF{label}'] = shapiro_francia_weighted(np.log(data), W)[0]
         # norm_results = weighted_distance_norm(data, W)
         # log_results = weighted_distance_norm(np.log(data), W)
         # for res, nln in zip([norm_results, log_results], ['norm', 'lognorm']):

@@ -184,7 +184,10 @@ class GeneratorConfig:
     visible: 0.3 gave 85.1 percent unimodal, 1e-1.5 gave 63.1 and 1e-2.5 gave
     49.5, but the last of those reached the right mode COUNT by opening gaps,
     and cost fit_lognorm_SW 1.828 and six-or-more modes in 6.5 percent of the
-    corpus against an empirical 0.7.
+    corpus against an empirical 0.7. (That column is now `fit_lognorm_SF`: the
+    statistic became Shapiro-Francia under both weightings in Stage 2f. The
+    figures here are left under the old name because they were measured under
+    the old statistic and renaming them would misattribute them.)
 
     THE COST, stated because it is real. Driving the lower bound down improves
     every weighted characteristic but makes the corpus less lognormal-looking

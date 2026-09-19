@@ -28,6 +28,10 @@ from customstats import (  # noqa: E402
     weighted_var,
     wasserstein1_weighted,
     wasserstein2_weighted,
+    shapiro_francia_weighted,
+    shapiro_wilk_scipy,
+    _royston_pvalue,
+    _royston_francia_pvalue,
 )
 
 
@@ -312,3 +316,115 @@ def test_bandwidth_method_names_are_validated():
     w = np.ones(4) / 4
     with pytest.raises(ValueError, match='silverman_guarded'):
         weighted_bw(x, w, 'sheather-jones')
+
+
+# ------------------------------------------------- normality statistics
+
+def test_royston_pvalue_reproduces_scipy_across_the_whole_range():
+    """The Shapiro-Wilk p-value approximation, against scipy's own.
+
+    This is the test that was missing. Before Stage 2f the 4 <= n <= 11 branch
+    applied the n >= 12 polynomials and the n >= 12 branch evaluated its sigma
+    polynomial at log(log(n)) instead of log(n), so the p-value was wrong at
+    every sample size -- catastrophically below n = 12, where it returned
+    1.0000 at n = 10 against a correct 0.50, and by up to 0.07 above it.
+    """
+    rng = np.random.default_rng(7)
+    worst = 0.0
+    for n in (4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 30, 50, 100, 500, 2000, 5000):
+        for i in range(30):
+            x = rng.normal(size=n) if i % 2 else rng.lognormal(size=n)
+            res = stats.shapiro(x)
+            ours = _royston_pvalue(res.statistic, n)
+            worst = max(worst, abs(ours - float(res.pvalue)))
+    assert worst < 1e-9, f'worst disagreement with scipy {worst:.2e}'
+
+
+def test_royston_pvalue_n3_is_the_closed_form():
+    # At n = 3 the null distribution of W is exact, so there is no
+    # approximation to get wrong.
+    W = 0.9
+    expected = (6.0 / np.pi) * (np.arcsin(np.sqrt(W)) - np.arcsin(np.sqrt(0.75)))
+    assert _royston_pvalue(W, 3) == pytest.approx(expected)
+
+
+def test_francia_pvalue_declines_to_extrapolate():
+    # Royston's W' transform is fitted on 5 <= n <= 5000. Outside it the
+    # honest answer is NaN, not a number from an extrapolated polynomial.
+    assert np.isnan(_royston_francia_pvalue(0.95, 4))
+    assert np.isnan(_royston_francia_pvalue(0.95, 5001))
+    assert np.isfinite(_royston_francia_pvalue(0.95, 50))
+
+
+def test_francia_pvalue_is_uniform_under_the_null():
+    # A p-value that is not roughly uniform on normal data is not a p-value.
+    rng = np.random.default_rng(3)
+    p = np.array([_royston_francia_pvalue(
+        shapiro_francia_weighted(rng.normal(size=60))[0], 60)
+        for _ in range(600)])
+    assert 0.40 < np.mean(p) < 0.60
+    assert 0.03 < np.mean(p < 0.05) < 0.09
+
+
+def test_shapiro_francia_is_ONE_statistic_under_both_weightings():
+    """The defect Stage 2f fixed, asserted directly.
+
+    Uniform weights must take the same code path as any other weights. Before
+    the fix, uniform weights short-circuited to scipy's Shapiro-WILK while
+    non-uniform weights got Shapiro-Francia, so the study's `_uw` and variable
+    columns were two different statistics compared as though they were one.
+    """
+    rng = np.random.default_rng(5)
+    x = rng.lognormal(sigma=0.7, size=40)
+    a = shapiro_francia_weighted(x)[0]
+    b = shapiro_francia_weighted(x, np.ones(40))[0]
+    c = shapiro_francia_weighted(x, np.full(40, 3.7))[0]
+    assert a == pytest.approx(b, rel=1e-12)
+    assert a == pytest.approx(c, rel=1e-12)
+    # and it is NOT scipy's Shapiro-Wilk, which is the whole point
+    assert a != pytest.approx(shapiro_wilk_scipy(x)[0], rel=1e-9)
+
+
+def test_shapiro_francia_is_the_squared_correlation_with_normal_scores():
+    # Hand-checkable definition: with uniform weights W' is the squared
+    # Pearson correlation between the order statistics and their normal
+    # scores at the ECDF step midpoints.
+    rng = np.random.default_rng(9)
+    x = np.sort(rng.lognormal(size=25))
+    p = (np.arange(1, 26) - 0.5) / 25
+    z = stats.norm.ppf(p)
+    expected = np.corrcoef(x, z)[0, 1] ** 2
+    assert shapiro_francia_weighted(x)[0] == pytest.approx(expected, rel=1e-12)
+
+
+def test_shapiro_francia_is_scale_and_location_free():
+    rng = np.random.default_rng(13)
+    x = rng.lognormal(size=30)
+    w = rng.random(30)
+    base = shapiro_francia_weighted(x, w)[0]
+    assert shapiro_francia_weighted(1e6 * x + 42.0, w)[0] == pytest.approx(
+        base, rel=1e-10)
+
+
+def test_shapiro_francia_is_1_for_perfectly_normal_scores():
+    # Data placed exactly at the normal scores must score exactly 1.
+    n = 40
+    x = stats.norm.ppf((np.arange(1, n + 1) - 0.5) / n)
+    assert shapiro_francia_weighted(x)[0] == pytest.approx(1.0, abs=1e-12)
+
+
+def test_shapiro_francia_and_wilk_diverge_where_the_study_needs_them():
+    """The equivalence claim fails exactly in the smallest size stratum.
+
+    The old docstring said the two are indistinguishable for n >= 20. That is
+    about right there and it is not right at n = 3 to 9, which is a whole
+    stratum of this study.
+    """
+    rng = np.random.default_rng(11)
+    def gap(n):
+        d = [abs(shapiro_francia_weighted(x)[0] - shapiro_wilk_scipy(x)[0])
+             for x in (rng.lognormal(sigma=0.6, size=n) for _ in range(300))]
+        return float(np.median(d))
+    small, large = gap(6), gap(500)
+    assert small > 4 * large
+    assert small > 0.005

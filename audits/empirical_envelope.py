@@ -96,7 +96,7 @@ def main():
           f'min {met["crit_bw_1"].min():.4f}   max {met.crit_bw_1.max():.4f}')
 
     print('\n=== other characteristics, median / min / max ===')
-    for c in ['entropy', 'weight_outliers', 'fit_norm_SW', 'fit_lognorm_SW',
+    for c in ['entropy', 'weight_outliers', 'fit_norm_SF', 'fit_lognorm_SF',
               'w_v_uw_wasserstein', 'modality_index']:
         s = met[c].replace([np.inf, -np.inf], np.nan).dropna()
         print(f'  {c:<20} {s.median():8.4f}  {s.min():8.4f}  {s.max():8.4f}')

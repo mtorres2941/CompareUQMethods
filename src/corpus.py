@@ -237,8 +237,16 @@ def remetric_corpus(label, source=None, out_root=PROCESSED, progress=True):
         src_meta = json.load(f)
 
     os.makedirs(out)
+    # The two `_spec`/`labels` files are DERIVED caches: `rebuild_parents` and
+    # `rebuild_mode_labels` replay the generator and verify the result against
+    # `values.parquet` element by element. Since that file is copied byte for
+    # byte and the generation record comes across unchanged, the caches are
+    # still exactly what a replay would produce, so copying them is correct and
+    # saves the 27 minutes the two replays cost. Nothing else in a corpus
+    # directory depends on the characteristics this function rewrites.
     for fn in ('values.parquet', 'parents.json.gz', 'combos.csv',
-               'invalid_datasets.json'):
+               'invalid_datasets.json', 'parents_spec.json.gz',
+               'mode_labels.parquet'):
         if os.path.exists(os.path.join(src, fn)):
             shutil.copy2(os.path.join(src, fn), os.path.join(out, fn))
 
@@ -383,8 +391,8 @@ if __name__ == '__main__':
 METRIC_COLUMNS = ('n', 'mean', 'mean_uw', 'coeffvar', 'coeffvar_uw', 'skewness',
                   'skewness_uw', 'kurtosis', 'kurtosis_uw', 'entropy', 'entropy_uw',
                   'modality_index', 'modality_index_uw', 'crit_bw_1', 'crit_bw_1_uw',
-                  'weight_outliers', 'weight_outliers_uw', 'fit_norm_SW',
-                  'fit_norm_SW_uw', 'fit_lognorm_SW', 'fit_lognorm_SW_uw',
+                  'weight_outliers', 'weight_outliers_uw', 'fit_norm_SF',
+                  'fit_norm_SF_uw', 'fit_lognorm_SF', 'fit_lognorm_SF_uw',
                   'w_v_uw_wasserstein')
 
 

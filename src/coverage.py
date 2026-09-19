@@ -22,7 +22,7 @@ import genconfig as G
 import generator as GEN
 
 CORE_METRICS = ('coeffvar', 'skewness', 'kurtosis', 'entropy', 'crit_bw_1',
-                'weight_outliers', 'fit_norm_SW', 'fit_lognorm_SW',
+                'weight_outliers', 'fit_norm_SF', 'fit_lognorm_SF',
                 'w_v_uw_wasserstein')
 ALL_METRICS = ('n',) + CORE_METRICS
 

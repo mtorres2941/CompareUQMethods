@@ -85,8 +85,8 @@ def characteristics(values, name):
     m = empirical_metadata(values / np.mean(values), w)
     return {'dataset': name, 'n': len(values),
             **{k: m[k] for k in ('coeffvar_uw', 'skewness_uw', 'kurtosis_uw',
-                                 'entropy_uw', 'fit_norm_SW_uw',
-                                 'fit_lognorm_SW_uw', 'crit_bw_1_uw')}}
+                                 'entropy_uw', 'fit_norm_SF_uw',
+                                 'fit_lognorm_SF_uw', 'crit_bw_1_uw')}}
 
 
 def surviving_records(df, mult=empirical.CLEAN_IQR_MULT, min_n=empirical.MIN_N):
