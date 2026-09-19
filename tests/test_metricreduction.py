@@ -498,3 +498,21 @@ def test_marginal_versus_partial_compares_like_with_like():
     # magnitude as the marginal one rather than several times it
     assert out.partial_over_marginal.between(0.2, 3.0).all(), \
         out[['characteristic', 'partial_over_marginal']].to_string()
+
+
+def test_lowess_does_not_extrapolate_past_the_bins():
+    """A local linear fit projects its edge slope outward.
+
+    On the empirical arm that carried the dataset-size curve from 0.026 at the
+    last populated bin down through zero to a NEGATIVE Wasserstein distance.
+    `curves_for` bounds the smooth to the span the binned summary covers.
+    """
+    frame, metrics = synthetic_frame(400, seed=43)
+    cur = R.curves_for(frame, ['n'], ['KDE, Uniform'], 'w1', arm='synthetic',
+                       rng=np.random.default_rng(44))
+    b = cur[cur.kind == 'binned']
+    l = cur[cur.kind == 'lowess']
+    assert l.x_center.min() >= b.x_center.min() - 1e-9
+    assert l.x_center.max() <= b.x_center.max() + 1e-9
+    # and the target is a distance, so a fitted value below zero is a failure
+    assert (l['mean'] > 0).all()

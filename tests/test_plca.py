@@ -780,3 +780,36 @@ def test_the_figure_style_writes_ascii_minus_signs():
     labels = [t.get_text() for t in ax.get_xticklabels()]
     plt.close(fig)
     assert all(lab.isascii() for lab in labels), labels
+
+
+def test_the_overlap_check_sees_a_LEFT_aligned_panel_title():
+    """The clash detector had never checked a single title in this project.
+
+    matplotlib keeps a separate Text artist for the centre, left and right
+    title; `ax.get_title()` reads the CENTRE one, and `figstyle.apply` sets
+    `axes.titlelocation` to 'left'. So every title this project draws lives in
+    `_left_title`, the old guard `if ax.get_title()` was always false, and the
+    function reported no overlap on a five-column figure whose titles plainly
+    collided. Found in Stage 2f.
+    """
+    import figstyle
+    figstyle.apply()
+    fig, axes = plt.subplots(1, 5, figsize=(7.2, 1.6))
+    for ax in axes:
+        ax.set_title('A Very Long Panel Title That Will Certainly Collide',
+                     fontsize=8)
+    hits = figstyle.check_overlaps(fig, verbose=False)
+    plt.close(fig)
+    assert hits, 'colliding left-aligned titles were not reported'
+
+
+def test_the_overlap_check_is_quiet_when_nothing_collides():
+    """The control: a detector that always fires is not a detector."""
+    import figstyle
+    figstyle.apply()
+    fig, axes = plt.subplots(1, 3, figsize=(7.2, 1.6))
+    for ax in axes:
+        ax.set_title('Short', fontsize=8)
+    hits = figstyle.check_overlaps(fig, verbose=False)
+    plt.close(fig)
+    assert not hits, hits

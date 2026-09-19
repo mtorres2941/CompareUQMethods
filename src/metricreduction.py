@@ -738,7 +738,8 @@ def binned_curve(x, y, n_bins=12, n_boot=1000, rng=None, equal_count=True):
     return pd.DataFrame(rows)
 
 
-def lowess_curve(x, y, frac=0.3, n_out=100, n_boot=0, rng=None):
+def lowess_curve(x, y, frac=0.3, n_out=100, n_boot=0, rng=None,
+                 bounds=None):
     """A LOWESS smooth, optionally with a bootstrap band.
 
     **THE BAND COMES FROM `binned_curve`, NOT FROM HERE, AND THAT IS A COST
@@ -757,6 +758,14 @@ def lowess_curve(x, y, frac=0.3, n_out=100, n_boot=0, rng=None):
     cheap and reports its own counts; this function is the smooth read through
     those bins, fitted once with the robustifying iterations intact.
     `n_boot > 0` still gives a band, for a small arm where it is affordable.
+
+    **`bounds` STOPS THE SMOOTHER EXTRAPOLATING PAST ITS DATA.** A local linear
+    fit at the edge of the sample projects the local slope outward, and on the
+    empirical arm that carried the curve for dataset size from 0.026 at the last
+    populated bin down through zero to **-0.0067**, a negative Wasserstein
+    distance. Passing the first and last bin centers confines the curve to the
+    span the binned summary actually covers, which is where the band is drawn
+    and so the only place the two can be read together.
     """
     from statsmodels.nonparametric.smoothers_lowess import lowess as _lowess
     rng = rng if rng is not None else np.random.default_rng(0)
@@ -766,7 +775,13 @@ def lowess_curve(x, y, frac=0.3, n_out=100, n_boot=0, rng=None):
     x, y = x[ok], y[ok]
     if len(x) < 20:
         return pd.DataFrame()
-    grid = np.linspace(np.percentile(x, 1), np.percentile(x, 99), n_out)
+    if bounds is not None and np.isfinite(bounds).all():
+        glo, ghi = float(bounds[0]), float(bounds[1])
+    else:
+        glo, ghi = np.percentile(x, 1), np.percentile(x, 99)
+    if not (ghi > glo):
+        return pd.DataFrame()
+    grid = np.linspace(glo, ghi, n_out)
     fit = _lowess(y, x, frac=frac, xvals=grid, return_sorted=False)
 
     if n_boot:
@@ -809,6 +824,7 @@ def curves_for(frame, metrics, methods, value='w1', arm=None, rng=None,
             sel = (g.method == method).to_numpy()
             y = pd.to_numeric(g[value], errors='coerce').to_numpy(float)
             b = binned_curve(xt[sel], y[sel], n_bins=n_bins, rng=rng)
+            span = ((b.x_center.min(), b.x_center.max()) if len(b) else None)
             if len(b):
                 b.insert(0, 'method', method)
                 b.insert(0, 'characteristic', metric)
@@ -817,7 +833,7 @@ def curves_for(frame, metrics, methods, value='w1', arm=None, rng=None,
                 b['scale'] = scale
                 out.append(b)
             l = lowess_curve(xt[sel], y[sel], frac=frac, rng=rng,
-                             n_boot=lowess_boot)
+                             n_boot=lowess_boot, bounds=span)
             if len(l):
                 l = l.rename(columns={'x': 'x_center', 'fit': 'mean',
                                       'local_count': 'count'})
