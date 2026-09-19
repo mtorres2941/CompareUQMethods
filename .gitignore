@@ -44,6 +44,24 @@ data/processed/DATA_all.json
 data/processed/corpus_*/values.parquet
 data/processed/corpus_*/metrics.parquet
 data/processed/corpus_*/parents.json.gz
+# The two DERIVED replay caches, added in Stages 2c and 2e and not covered by
+# this rule until Stage 2f. Both are rebuilt from values.parquet by replaying
+# the generator -- `corpus.rebuild_parents` and `corpus.rebuild_mode_labels`,
+# which verify the replay against those values element by element -- so they
+# are data and not provenance, and the same argument that excludes the corpus
+# excludes them. Together they are 6.6 MB per corpus, re-stored whole on every
+# commit that touches them, in a repository whose history reached 2.5 GB in
+# Stage 2e. A clean clone has no corpus at all and regenerates, so nothing is
+# lost by not shipping a cache of it.
+#
+# corpus_2026-09-19's pair was committed before this rule existed and is
+# untracked here, because Stage 2f created that corpus and so it is this
+# stage's own mess. corpus_2026-09-15b's pair is ALSO tracked, from Stages 2c
+# and 2e, and STAYS so: gitignore does not untrack a tracked file, and removing
+# something an earlier stage deliberately committed is a change to the
+# deposit's contents that belongs to Stage 4 rather than here.
+data/processed/corpus_*/parents_spec.json.gz
+data/processed/corpus_*/mode_labels.parquet
 
 # Nested git repo (cloned GitHub copy — not needed here)
 CompareUQMethods/

@@ -27,6 +27,19 @@ randomness in NB2 affects only two illustrative figures.
 
 `SHA256SUMS.txt` records the checksums as frozen.
 
+## Re-freezings
+
+A fixture is re-frozen in the same commit that moves the number, with the delta
+in the commit message, per CONTEXT.md section 7.
+
+**Stage 2f, 2026-09-19.** `fit_norm_SW` and `fit_lognorm_SW` became
+`fit_norm_SF` and `fit_lognorm_SF`: the study's normality statistic is
+Shapiro-Francia under BOTH weightings, where the uniform column used to be the
+true Shapiro-Wilk. **Only the two `_uw` columns moved** -- 141 of 147 empirical
+rows to a maximum of 0.0266, and 9,388 of 10,000 synthetic rows to a maximum of
+0.0358. No W1 column and no other characteristic moved by more than 1e-9, which
+is the check that the change reaches only what it should.
+
 ## What is deliberately absent
 
 There is no pLCA fixture here. NB3 writes no table at all, and its Monte Carlo
