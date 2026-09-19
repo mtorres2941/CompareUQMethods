@@ -575,9 +575,14 @@ in which capping this material both bound and gave the largest reduction.
 **Nothing else moved.** The previous stage's flip calibration tables are BYTE
 IDENTICAL, because their random streams are spawned from the seed sequence
 rather than taken from the consumed stream, and the eight regression fixtures
-pass unchanged. The aggregate truth-run figures are stable to four decimal
-places across runs with different draws, which is itself the check that 2,500
-groups of 10,000 iterations is enough.
+pass unchanged.
+
+**The truth-run aggregates are stable to about one part in a thousand across
+runs that differ only in their random draws**, which is itself the check that
+2,500 probabilistic LCAs of 10,000 iterations is enough: the error in a
+material's rank-1 frequency moved by 0.0001 between two such runs, against its
+own bootstrap interval of about 0.0018. Every number quoted in this file is
+taken from the tables now on disk rather than from an earlier run of them.
 
 ## 6. What is still open
 
@@ -588,6 +593,7 @@ groups of 10,000 iterations is enough.
 | Shapiro-Wilk versus Shapiro-Francia, and the reduction of the characteristic set to three to five survivors | 2f |
 | The metric set: **this stage recommends reporting the five statements above, with the uncertainty index added, since it is the steadiest output measured and appears in no table, figure or section**. The `(1-capecc)` divisor is partly resolved here and should still be reviewed | 2g |
 | The profile-likelihood guard sweep; the Dirichlet concentration sweep, which should vary the BLOCK STRUCTURE and not only the parameter; multiple weight realizations; the deduplicated variant; the mode-share coupling | 2h |
+| **THE PEDIGREE MATRIX, added by the author at the close of this stage and scoped to 2h.** Every method compared here is data-driven; the probabilistic LCA methods in general use, above all the pedigree matrix, are formulaic expert judgment applied where data is absent. They cannot be compared like for like -- but **this stage's yardstick does not care how a model was built**, so a judgment-driven model can be placed on the same axis without claiming the two approaches are comparable in kind. The plan is to sweep the geometric standard deviation across the range the matrix produces rather than choose pedigree scores, since the scores describe a data-collection context a generated dataset does not have, and to ask at what spread a judgment-driven model starts to give different answers from a data-driven one. **The manuscript should expect this result and leave room for it**, because it is what connects this paper to the practice most readers actually use | 2h |
 | Every figure brought to the style guide, **including the Unicode minus, which this stage fixed for the figures that call the style module and which the older ones still carry**; the figure manifest; one results table is 92 MB | 3 |
 | A real-building anchor, if citing Marsh et al. (in press) is not enough. **This stage used that paper's stated contribution percentages and found one exactly stated pair at a ratio of 1.02** | 2i, optional |
 | An industry-average EPD as a direct estimate of the market-weighted mean | unowned |

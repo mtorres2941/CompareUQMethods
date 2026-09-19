@@ -199,6 +199,24 @@ Each handoff file contains, in order:
 6. **Inputs and outputs.** Files read and files written by the stage.
 7. **Next stage.** What the next stage should pick up first.
 
+### Two requirements added by the author at the close of Stage 2e
+
+**EMBED THE FIGURES IN THE HANDOFF.** Not a link and not a filename: the image,
+inline, with a caption that carries the numbers. The author reviews the handoff
+and the figures together and should not have to open a second window to do it.
+Use a relative path from `reports/`, and write the caption so that it still
+says everything a reader needs if the image does not render, because the
+handoff's other reader has no checkout.
+
+**GIVE EVERY CLAIM A PLAIN-LANGUAGE "SO WHAT".** The analysis stays as
+statistical as it needs to be -- that is not negotiable and it is what makes the
+result defensible -- but every headline claim carries one or two sentences
+underneath it saying what it means for someone who designs buildings and does
+not read statistics. The author's advisor pushes back on statistics-heavy
+writing, and a claim that cannot be restated in plain words has not been
+understood well enough to publish. Write the number first and the translation
+second; do not replace one with the other.
+
 ### Continuity across sessions and windows
 
 This project is worked on from several Claude Code windows at once, and

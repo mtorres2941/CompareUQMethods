@@ -504,6 +504,7 @@ Each corpus directory holds:
 | `metrics.parquet` | one row per dataset: stratum, metrics, generation record |
 | `parents.json.gz` | how each parent was ASKED for: component moment targets, the overlap target, the shift, the bounds. **NOT enough to rebuild its CDF**; see below |
 | `parents_spec.json.gz` | the finished parent of each dataset, written by `corpus.rebuild_parents`. Derived, and the file the recovery score reads |
+| `mode_labels.parquet` | which mixture component each stored value was drawn from, written by `corpus.rebuild_mode_labels`. Derived the same way and for the same reason -- the parent shuffles the points it draws, so nothing else records it -- and read by the oracle-weight counterfactual. About 4.5 MB; the replay that builds it takes 14 minutes and happens once per corpus |
 | `combos.csv` | the 2,500 disjoint pLCA groups of four |
 | `runmeta.json` | seed, full config, git commit, library versions, platform, counts |
 | `invalid_datasets.json` | what the validity filter rejected, and why |
@@ -551,6 +552,14 @@ COMPAREUQ_SMOKE_COMBOS=20 python -m nbconvert --to notebook --execute ...
 
 Use it before any full run. It caught two defects in Stage 1 that had
 previously only surfaced eleven minutes into a full execution.
+
+**AND VERIFY THAT AN EDIT LANDED BEFORE STARTING A LONG RUN.** In Stage 2e a
+patch script hit an assertion on a string a previous edit had already changed,
+so it exited before writing the notebook; because it shared a command line with
+a backgrounded `nbconvert`, the failure was invisible and the 45-minute run that
+followed faithfully reproduced the unedited notebook. Grep the notebook for the
+new text before launching. This costs two seconds and the alternative costs an
+hour.
 
 Smoke mode validates the pLCA loop, the results table and the inter-method
 distance cell. The correlation and figure cells further down assume every
