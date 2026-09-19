@@ -1537,3 +1537,52 @@ relative figure beside it.**
 | **What was found** | `FIGURE_STYLE.md` requires plain ASCII and names the Unicode minus explicitly. Nothing had ever set matplotlib's `axes.unicode_minus`, so its default U+2212 went into every figure with a negative axis value. |
 | **Fix** | **Code, done**: one line in the style module, and a test that draws a figure and asserts its tick labels are ASCII. It reaches the figures built since the style guide existed; the older figures do not call the style module and are Stage 3's, which owns bringing every figure to the guide. |
 | **Status** | RESOLVED in Stage 2e for the figures that use the style module. Decision 123. |
+
+---
+
+## New, found in Stage 2f
+
+## 114. RESOLVES entry 11. The two normality columns were two different statistics, and both are now Shapiro-Francia
+
+| | |
+|---|---|
+| **What entry 11 recorded** | `customstats.shapiro_wilk_weighted` returned the true Shapiro-Wilk W from scipy when the weights were uniform and a Shapiro-Francia W' when they were not. So `fit_norm_SW` and `fit_norm_SW_uw` came from two different estimators, and the same for the lognormal pair. Figure 4e to 4h present them side by side as one statistic computed two ways. |
+| **The decision** | **Shapiro-Francia for both.** It is the only one of the two with a weighted form, so it is the only choice under which the uniform-versus-variable comparison is a comparison of one statistic under two weightings, which is what those four panels claim to show. Author decision. |
+| **What the columns are called now** | `fit_norm_SF` and `fit_lognorm_SF`, renamed so the column name says which statistic it holds. The display labels read "Shapiro-Francia". |
+| **How much it moved** | Only the two UNIFORM columns can move; the variable-weighted ones were already Shapiro-Francia and are bit-identical. Median absolute change in `fit_norm_SF_uw` on the empirical arm: **0.0103** at n = 3-9 (20 datasets), **0.0062** at n = 10-99, **0.0029** at n = 100-999, **0.00005** above n = 1,000. Arm mean 0.7862 to 0.7834. Largest single change on either arm 0.0358. |
+| **The equivalence claim in the old docstring fails where it matters** | It said the two are indistinguishable for n >= 20. At n = 20 the median absolute difference is 0.006 and at n = 2,000 it is 0.0004, so that is about right there -- and the smallest size stratum in this study is **n = 3 to 9**, where it is 0.010 with a maximum of 0.029. The equivalence argument does not hold in the regime the study most depends on. |
+| **What did NOT move** | The generator calibration, exactly. The tuning objective reads only variable-weighted columns, so every one of the ten standardized distances is unchanged to the last digit and no generation decision is reopened. No fit, no W1 score and no pLCA number moves either: the Shapiro statistic is a reported characteristic and enters nothing. |
+| **Fix** | **Text.** Say Shapiro-Francia, say it is one statistic under two weightings, and give the reason: it is the only one of the two that admits sample weights. `audits/shapiro_estimator.py`, `outputs/tables/audits/AUDIT_ShapiroEstimatorByStratum.csv`. |
+| **Status** | RESOLVED in Stage 2f. Decision 125. |
+
+## 115. `_royston_pvalue` was wrong in two ways, not the one that was known
+
+| | |
+|---|---|
+| **What was known** | The `4 <= n <= 11` branch applied the `n >= 12` polynomials. |
+| **What was actually wrong** | **Two separate defects.** (1) That branch applied polynomials in log(n) to a range whose Royston coefficients are polynomials in **n itself**, and subtracted the gamma shift from the transformed variable instead of applying Royston's `-log(gamma - log(1 - W))` re-expression. At n = 10 and 11 it returned **1.0000** where the correct value is about 0.50; the largest observed error was **0.99**. (2) The `n >= 12` branch evaluated its sigma polynomial at **log(log(n))** where Royston evaluates it at **log(n)**, so the p-value was wrong at EVERY sample size, by up to **0.077** at n = 5,000. |
+| **What depended on it** | Nothing. Only the statistic is kept, by decision, because a p-value at n = 77,548 measures the sample size rather than the departure from normality. |
+| **Fix** | **Code, done.** Both defects corrected; the function now reproduces `scipy.stats.shapiro`'s own p-value to **4e-12** for 4 <= n <= 5000, and a test pins that. Since the statistic the module returns is now Shapiro-Francia, it gets Royston's (1993) W' transform instead, which returns NaN outside 5 <= n_eff <= 5000 rather than extrapolating a fit past the range it was made on. |
+| **Why it is in this log at all** | It reaches no number in the paper, but the repository is a public Zenodo deposit and a known-wrong statistical routine in it is a defect a reader can find. |
+| **Status** | RESOLVED in Stage 2f. Decision 126. |
+
+## 116. RESOLVES entry 9. The panel count: 18 was wrong, 19 was right then, and it is 21 now
+
+| | |
+|---|---|
+| **Manuscript** | "the 18 statistical metrics calculated for each synthetic ECC dataset", with panels referenced 4a through 4r. |
+| **Confirmed composition** | The figure draws every characteristic both arms carry, except `mean_uw`, which is identically 1.0 by construction because every dataset is divided by its own unweighted mean. Before Stage 2a that was **19**: eight characteristics with a uniform and a variable version (coefficient of variation, entropy, the two Shapiro fits, kurtosis, the modality index, skewness, weight of outliers) = 16 panels, plus **three single panels** -- dataset size, the uniform-to-variable Wasserstein distance, and **the variable-weighted MEAN**, which is the one the earlier count could not name. |
+| **So** | **The manuscript's 18 is wrong and 19 was correct for the figure as the manuscript describes it.** |
+| **And 19 is no longer correct either** | Stage 2a added Silverman's critical bandwidth under both weightings, so the figure as the code now draws it has **21** panels. |
+| **Fix** | **Text, but wait for Stage 2f's reduced figure.** The whole point of the reduction is that 21 marginal panels represent about four to five independent quantities, so the number in the manuscript should be the reduced figure's, not 21. State the full candidate count in the supplement and the survivor count in the main text. |
+| **Status** | RESOLVED as a count; the sentence depends on the reduced figure. Decision 127. |
+
+## 117. The visible-mode counts were a 500-dataset sample, which is now the whole corpus
+
+| | |
+|---|---|
+| **What was found** | Notebook 1 computed `TABLE_VisibleModes.csv` on 500 of 10,000 synthetic datasets, on the assumption that counting modes is expensive. Timed in Stage 2f: all 10,000 take **under a minute**. |
+| **Why it mattered** | It kept the two visible-mode counts out of the Stage 2f reduction as first-class predictors: a complete-case model over 402 usable rows of 10,000 drops the corpus, and the complete-case cost the stage was asked to report would have been dominated by that artifact rather than by the undefined kurtosis it is about. |
+| **What moves** | The synthetic share with one, two and three or more visible modes, by sampling error only, since the 500 were a random draw. The empirical arm is unchanged in method and now covers every category with n >= 8. Any figure quoting a synthetic mode share must be taken from the rebuilt table. |
+| **Fix** | **Code, done.** Notebook 1 computes both counts for every dataset. **Text**: quote the full-corpus numbers. |
+| **Status** | RESOLVED in Stage 2f. Decision 128. |

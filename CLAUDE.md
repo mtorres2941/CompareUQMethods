@@ -3079,3 +3079,122 @@ rather than in conversation.
      geometric standard deviation is within X of the data's own does not change
      the answer, and beyond that it does", which is the form a practitioner
      without the data can act on. Owner 2h.
+
+125. **2026-09-19, Stage 2f. THE TWO NORMALITY COLUMNS WERE TWO DIFFERENT
+     STATISTICS. Both are now SHAPIRO-FRANCIA, and the columns are renamed
+     `fit_norm_SF` and `fit_lognorm_SF`.** `[AUTHOR]` "Decided: use
+     Shapiro-Francia for both columns."
+
+     `customstats.shapiro_wilk_weighted` returned scipy's true Shapiro-WILK W
+     when the weights were uniform and a Shapiro-FRANCIA W' when they were not.
+     So `fit_norm_SW` and `fit_norm_SW_uw` were not one statistic under two
+     weightings, and **four panels of the main characteristic figure compared
+     them as though they were**. Discrepancy entry 11 had this open since
+     Stage 0.
+
+     **Why Shapiro-Francia and not Shapiro-Wilk.** It is the only one of the two
+     with a weighted form. Shapiro-Wilk's coefficients come from the covariance
+     matrix of normal order statistics at a given n and there is no accepted
+     weighted generalization, so choosing it would mean either dropping the
+     variable-weighted column or inventing one. Shapiro-Francia is the squared
+     correlation between the order statistics and their normal scores, which
+     takes weights directly, and it is the choice that makes the comparison the
+     panels claim to show.
+
+     **The columns are RENAMED, not silently redefined.** A column called
+     `fit_norm_SW` holding a Shapiro-Francia statistic is the kind of thing this
+     project keeps having to catch. `shapiro_wilk_scipy` is kept as the true
+     Shapiro-Wilk for `audits/shapiro_estimator.py` and is called from nothing
+     in the production path.
+
+     **WHAT MOVED, and it is confined exactly where it should be.** Only the two
+     UNIFORM columns; the variable-weighted ones were already Shapiro-Francia
+     and are BIT-IDENTICAL on both arms. Median absolute change in
+     `fit_norm_SF_uw`, empirical arm by stratum: **0.0103** at n = 3-9,
+     **0.0062** at n = 10-99, **0.0029** at n = 100-999, **0.00005** above
+     n = 1,000. Arm mean 0.7862 to 0.7834. Largest single change on either arm
+     0.0358.
+
+     **THE OLD DOCSTRING'S EQUIVALENCE CLAIM FAILS WHERE THE STUDY NEEDS IT.**
+     It said the two are indistinguishable for n >= 20. Measured: median
+     absolute difference 0.006 at n = 20 and 0.0004 at n = 2,000, so that is
+     about right -- and the smallest stratum here is n = 3 to 9, where it is
+     0.010 with a maximum of 0.029. At n = 3 the two are identical.
+
+     **NOTHING ELSE MOVED, AND THAT IS CHECKED RATHER THAN ASSUMED.** No fit, no
+     W1 score and no pLCA number can move, because the Shapiro statistic is a
+     reported characteristic and enters nothing. The GENERATOR CALIBRATION is
+     bit-identical: `coverage.distribution_comparison` reads only
+     variable-weighted columns, so all ten standardized distances agree to the
+     last digit and **no generation decision is reopened**. The corpus was
+     recomputed by `corpus.remetric_corpus`, not regenerated --
+     `corpus_2026-09-19`, with `values.parquet`, `parents.json.gz`,
+     `combos.csv`, `parents_spec.json.gz` and `mode_labels.parquet` all verified
+     byte-identical to `corpus_2026-09-15b`. Decisions 47, 48, 55 and 58 stand.
+     Discrepancy entry 114.
+
+126. **2026-09-19, Stage 2f. `_royston_pvalue` WAS WRONG IN TWO WAYS, not the
+     one that was known, and is now correct to 4e-12 against scipy.**
+     `[AUTHOR]` "leaving a known-wrong p-value in a public deposit is not
+     acceptable."
+
+     1. The `4 <= n <= 11` branch applied the `n >= 12` polynomials, which are
+        in log(n), to a range whose Royston coefficients are polynomials in
+        **n itself**, and subtracted the gamma shift from the transformed
+        variable instead of applying Royston's `-log(gamma - log(1 - W))`
+        re-expression. **At n = 10 and 11 it returned 1.0000 where the correct
+        value is about 0.50**, and the largest observed error was 0.99.
+     2. **The `n >= 12` branch was also wrong, which nobody had noticed.** It
+        evaluated the sigma polynomial at `log(log(n))` where Royston evaluates
+        it at `log(n)`, so the p-value was wrong at EVERY sample size, by up to
+        0.077 at n = 5,000.
+
+     **Nothing reported ever depended on it**: only the statistic is kept, by
+     decision, because a p-value at n = 77,548 measures the sample size rather
+     than the departure from normality. It is fixed because the repository is a
+     public deposit.
+
+     The statistic the module now returns is Shapiro-Francia, so it gets
+     **Royston's (1993) W' transform** rather than the Shapiro-Wilk one, and
+     that transform returns NaN outside 5 <= n_eff <= 5000 instead of
+     extrapolating a fit past the range it was made on. Discrepancy entry 115.
+
+127. **2026-09-19, Stage 2f. THE PANEL COUNT IS SETTLED: the manuscript's 18 is
+     wrong, 19 was right for the figure it describes, and the code now draws
+     21.** `[DELEGATED, 2f confirmed]`
+
+     The figure draws every characteristic both arms carry except `mean_uw`,
+     which is identically 1.0 by construction because every dataset is divided
+     by its own unweighted mean (decision 6). Before Stage 2a that is **19**:
+     **eight characteristics with a uniform and a variable version** --
+     coefficient of variation, entropy, the normal and lognormal Shapiro
+     statistics, kurtosis, the modality index, skewness, weight of outliers --
+     giving 16 panels, plus **three single panels**: dataset size, the
+     uniform-to-variable Wasserstein distance, and **the variable-weighted
+     MEAN**, which is the panel the earlier count could not name.
+
+     Stage 2a added Silverman's critical bandwidth under both weightings
+     (decision 23), so the figure as the code now draws it has **21**.
+
+     **The number the manuscript should print is neither**, because this stage's
+     whole purpose is that 21 marginal panels represent about four to five
+     independent quantities. The full candidate count belongs in the supplement
+     and the survivor count in the main text. Discrepancy entry 116.
+
+128. **2026-09-19, Stage 2f. The visible-mode counts were a 500-dataset sample
+     and are now the whole corpus, because the sample cost more than it saved.**
+     `[DELEGATED, 2f chose]` Notebook 1 drew 500 of 10,000 synthetic datasets
+     for `TABLE_VisibleModes.csv`. Timed: all 10,000 take **under a minute**.
+
+     The sample was what kept `modes_fitted` and `modes_scipy_default` out of
+     this stage's reduction as first-class predictors -- a complete-case model
+     over 402 usable rows of 10,000 drops the corpus -- and it would have made
+     the complete-case cost this stage was asked to report a statement about the
+     sampling rather than about the undefined kurtosis it is about.
+
+     **What moves**: the synthetic share with one, two and three or more visible
+     modes, by sampling error only, the 500 having been a random draw. The
+     empirical arm's method is unchanged and now covers every category with
+     n >= 8. Any figure or sentence quoting a synthetic mode share must be taken
+     from the rebuilt table and not from decision 82's text.
+     Discrepancy entry 117.

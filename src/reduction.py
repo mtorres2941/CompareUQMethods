@@ -415,6 +415,13 @@ def boosted_model(random_state=0, **kw):
     return HistGradientBoostingRegressor(**params)
 
 
+#: Cores for permutation importance. It is bit-identical across `n_jobs` for a
+#: fixed `random_state` -- sklearn derives each feature's permutation seed
+#: deterministically -- so parallelising changes the wall clock and nothing
+#: else. `tests/test_reduction.py` pins that.
+PERMUTATION_JOBS = -1
+
+
 def _fit_score_permute(model, X, y, rng, n_repeats=10, n_splits=5):
     """Out-of-sample R2 and permutation importance, averaged over CV folds.
 
@@ -434,7 +441,7 @@ def _fit_score_permute(model, X, y, rng, n_repeats=10, n_splits=5):
         r2s.append(r2_score(y[te], pred))
         pi = permutation_importance(
             m, X[te], y[te], scoring='r2', n_repeats=n_repeats,
-            random_state=seed, n_jobs=1)
+            random_state=seed, n_jobs=PERMUTATION_JOBS)
         imps.append(pi.importances_mean)
     return np.mean(r2s), np.std(r2s), np.mean(imps, axis=0), np.std(imps, axis=0)
 
@@ -634,7 +641,8 @@ def winner_importance(winners, metrics, arm=None, weighting=None, rng=None,
             accs.append(accuracy_score(y[te], m.predict(X[te])))
             pi = permutation_importance(m, X[te], y[te], scoring='accuracy',
                                         n_repeats=n_repeats,
-                                        random_state=seed, n_jobs=1)
+                                        random_state=seed,
+                                        n_jobs=PERMUTATION_JOBS)
             imps.append(pi.importances_mean)
         imp = np.mean(imps, axis=0)
         spread = np.std(imps, axis=0)

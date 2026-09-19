@@ -332,3 +332,25 @@ def test_rank_survivors_ignores_models_that_predict_nothing():
     surv = R.rank_survivors(both, top=3, min_r2=0.3)
     assert set(surv[surv.survivor].metric) >= {'n', 'coeffvar'}
     assert surv.n_models.max() <= 2
+
+
+def test_permutation_importance_is_identical_across_cores():
+    """Parallelising must change the wall clock and nothing else.
+
+    `reduction.PERMUTATION_JOBS` is -1 so a notebook run finishes in an hour
+    instead of three. sklearn derives each feature's permutation seed
+    deterministically from `random_state`, so the result does not depend on
+    how the work is split, and this pins that rather than assuming it.
+    """
+    from sklearn.ensemble import HistGradientBoostingRegressor
+    from sklearn.inspection import permutation_importance
+    rng = np.random.default_rng(0)
+    X = rng.normal(size=(600, 6))
+    y = 2 * X[:, 0] + X[:, 1] + rng.normal(0, 0.3, 600)
+    m = HistGradientBoostingRegressor(random_state=0, max_iter=50).fit(X, y)
+    one = permutation_importance(m, X, y, scoring='r2', n_repeats=6,
+                                 random_state=7, n_jobs=1).importances_mean
+    many = permutation_importance(m, X, y, scoring='r2', n_repeats=6,
+                                  random_state=7,
+                                  n_jobs=R.PERMUTATION_JOBS).importances_mean
+    np.testing.assert_array_equal(one, many)
