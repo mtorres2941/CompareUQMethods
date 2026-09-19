@@ -237,18 +237,37 @@ def remetric_corpus(label, source=None, out_root=PROCESSED, progress=True):
         src_meta = json.load(f)
 
     os.makedirs(out)
-    # The two `_spec`/`labels` files are DERIVED caches: `rebuild_parents` and
-    # `rebuild_mode_labels` replay the generator and verify the result against
-    # `values.parquet` element by element. Since that file is copied byte for
-    # byte and the generation record comes across unchanged, the caches are
-    # still exactly what a replay would produce, so copying them is correct and
-    # saves the 27 minutes the two replays cost. Nothing else in a corpus
-    # directory depends on the characteristics this function rewrites.
+    # The two derived caches -- the rebuilt parent specs and the mode labels --
+    # are copied too. `rebuild_parents` and `rebuild_mode_labels` replay the
+    # generator and verify the result against `values.parquet` element by
+    # element; that file is copied byte for byte here and the generation record
+    # comes across unchanged, so the caches are still exactly what a replay
+    # would produce. Copying them saves the 27 minutes the two replays cost.
     for fn in ('values.parquet', 'parents.json.gz', 'combos.csv',
                'invalid_datasets.json', 'parents_spec.json.gz',
                'mode_labels.parquet'):
         if os.path.exists(os.path.join(src, fn)):
             shutil.copy2(os.path.join(src, fn), os.path.join(out, fn))
+
+    # THE PARENT-SPEC CACHE CARRIES THE NAME OF THE CORPUS IT WAS BUILT FOR,
+    # AND `load_parent_specs` REFUSES A MISMATCH. That guard is right and stays:
+    # a cache from a genuinely different corpus must not be read. But a copy
+    # made here is not from a different corpus in any sense that matters, so
+    # the label is rewritten and `copied_from` records where it came from, so
+    # the provenance is not lost by the relabelling. Notebook 2 failed on this
+    # nineteen minutes in, the first time a remetriced corpus was used.
+    spec_path = os.path.join(out, PARENT_SPEC_FILE)
+    if os.path.exists(spec_path):
+        with gzip.open(spec_path, 'rt') as f:
+            payload = json.load(f)
+        payload['copied_from'] = payload.get('corpus')
+        payload['corpus'] = os.path.basename(out)
+        payload['copied_note'] = (
+            'Copied by remetric_corpus, which rewrites values.parquet byte for '
+            'byte, so this cache is what a replay of the new corpus would '
+            'produce.')
+        with gzip.open(spec_path, 'wt') as f:
+            json.dump(payload, f)
 
     record = old[[c for c in GENERATION_RECORD_COLUMNS if c in old.columns]]
     record = record.set_index('dataset')
