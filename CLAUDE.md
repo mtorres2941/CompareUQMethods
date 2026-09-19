@@ -287,7 +287,7 @@ and generation is closed; neither input moves again.
 | **2e DONE** | pLCA construction: common random numbers installed in the study's own pLCA, the crossed sweep over group size and material use intensity, resampled groupings, bootstrap intervals on every headline percentage and NRMSE, the flip thresholds recomputed at every group size, and the pLCA against the TRUE parents. Decisions 105 to 113. `reports/HANDOFF_stage-2e.md` | Changing what the headline metric is (2g). It did NOT redesign the metric set, and it did not touch the fitting, the corpus or the empirical arm |
 | **2f** | Resolve Shapiro-Wilk versus Shapiro-Francia and `_royston_pvalue`, then the multivariate model of W1 and of which method wins, to cut the metric set to three to five survivors | Regenerating, or redesigning figures (3) |
 | **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
-| **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling | Anything not framed as a sweep with a tabulated result |
+| **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124** | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
@@ -2973,3 +2973,41 @@ rather than in conversation.
      in `figstyle.apply`, and a test that draws a figure and asserts its tick
      labels are ASCII. It reaches the figures built since the style guide
      existed; the older ones do not call `figstyle` and are Stage 3's.
+
+124. **2026-09-18. THE PEDIGREE MATRIX BELONGS IN STAGE 2h, AS A SWEEP OVER THE
+     GEOMETRIC STANDARD DEVIATION AND NOT AS A CHOICE OF SCORES.** `[AUTHOR]`
+     The author's observation, and it reframes what this paper contributes:
+     "we're comparing data-driven methods. Existing probabilistic LCA methods
+     like the pedigree matrix aren't data driven, they're driven by formulaic
+     expert judgment in the absence of data... our contributions in terms of how
+     far apart a probabilistic model can be until it makes a difference will be
+     very important here."
+
+     **WHY THE COMPARISON IS POSSIBLE AT ALL.** This study's yardstick -- a model
+     this far from another changes the answer this often -- does not care how
+     either model was built. So a judgment-driven model can be placed on the same
+     axis as a data-driven one without any claim that the two approaches are
+     comparable in kind, which is the claim that would not survive review.
+
+     **WHAT TO BUILD.** A pedigree model here is a lognormal whose geometric MEAN
+     is the single value a practitioner would report for the category and whose
+     geometric STANDARD DEVIATION comes from the basic uncertainty plus the five
+     indicators rather than from the data. It is one more entry in
+     `src/families.py` and reuses everything else unchanged: the truth run, the
+     interventions and the design comparison all take a fitted model and ask
+     what it does.
+
+     **SWEEP THE GSD; DO NOT CHOOSE SCORES.** Picking pedigree scores for a
+     synthetic dataset is a judgment this project would then have to defend, and
+     it is not defensible, because the scores describe a data COLLECTION context
+     that a generated dataset does not have. Sweeping the geometric standard
+     deviation across the range the matrix produces for plausible scores avoids
+     it entirely and answers a better question: **at what GSD does a
+     judgment-driven model start to give different answers from a data-driven
+     one**, measured against the truth and against the calibrated thresholds this
+     project already has.
+
+     **The deliverable is one sentence of the form** "a pedigree model whose
+     geometric standard deviation is within X of the data's own does not change
+     the answer, and beyond that it does", which is the form a practitioner
+     without the data can act on. Owner 2h.

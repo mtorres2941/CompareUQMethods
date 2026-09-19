@@ -15,8 +15,10 @@ copy does not render the images loses nothing.
 
 **Stage 2e asks what the choice of UQ method does to a probabilistic LCA, and
 it is organised around the five statements such a study makes.** Each claim
-below is one the paper can make, with the number behind it. The order is the
-order the results section should take.
+below is one the paper can make, with the number behind it, and each is
+followed by a plain-language **so what** for a reader who builds buildings
+rather than statistical models. The order is the order the results section
+should take.
 
 ## The decision a designer actually makes is not sensitive to the choice
 
@@ -29,6 +31,11 @@ order the results section should take.
    and 0.953**, and the spread across the six methods is **0.006, 0.006, 0.007,
    0.012, 0.020 and 0.012**. This is the cleanest result the stage produced and
    it is a null: on the comparison a designer makes, the choice is safe.
+
+   **So what:** if you are choosing between two designs, use whichever of these
+   six ways of describing uncertainty you prefer and you will reach the same
+   decision. The disagreement between the methods is about a fiftieth of the
+   difference you are deciding on.
 2. **A material must lead the next by about a factor of two before the choice
    of method cannot change which one leads.** The probability that it changes
    the leading material crosses 1 percent at a top-two contribution ratio of
@@ -38,6 +45,13 @@ order the results section should take.
    staircase's top two products at 42 and 41 percent under the ICE recommended
    factors.
 
+   **So what:** if one material's carbon is more than about twice the next
+   material's, you can say "this is my biggest source" and no reasonable
+   modelling choice will contradict you. If the two are closer than that, the
+   claim rests on how the uncertainty was modelled rather than on the building
+   -- and real designs do sit that close, as the staircase above did at 42
+   against 41 percent.
+
 ## Where the choice does matter
 
 3. **Every method understates the building's upper tail**, its 90th percentile
@@ -45,6 +59,13 @@ order the results section should take.
    they disagree about the budget statement in both directions: at a budget the
    truth meets 90.0 percent of the time, `Lognormal, Variable` reports **91.3**
    percent and `Normal, Uniform` reports **86.8**.
+
+   **So what:** every one of these methods will tell you the high end of your
+   building's carbon is better than it really is. If you are reporting a
+   worst-case figure or checking a carbon budget, expect the true high-end
+   number to be a few percent worse than any of them says, and expect two
+   methods to disagree about your chance of meeting the budget by several
+   points in either direction.
 4. **The value of a specification policy is where the normal fails hardest.**
    Against a true mean saving of **5.39 percent** of the building from capping
    a material at the 75th percentile of the declarations held, the normal
@@ -52,11 +73,22 @@ order the results section should take.
    least a 5 percent saving, **the truth is 23.2 percent and the normal says
    30.5**, an overstatement of 7.4 points, while the kernel estimate is within
    1.3 and the lognormal within 0.3.
+
+   **So what:** if you use a normal distribution to work out what specifying
+   low-carbon products buys you, you will be told that policy is about a third
+   more likely to deliver a 5 percent saving than it really is. That is the kind
+   of number that ends up in a client report and then does not materialise.
 5. **A quantity reduction is method-independent to four decimal places**, and
    the contrast explains the whole stage: using 25 percent less of a material
    is a deterministic fraction of its own contribution, so no distributional
    assumption enters, while specifying a cap acts entirely through the upper
    tail, which is exactly what the methods disagree about.
+
+   **So what:** "use 25 percent less concrete" needs no uncertainty model at
+   all, and every method agrees on what it saves. "Only buy products below a
+   threshold" depends entirely on how the high end was modelled. If the
+   interventions you actually pursue are of the first kind, the choice of
+   method does not matter to you.
 
 ## How the methods fail
 
@@ -64,20 +96,39 @@ order the results section should take.
    the tail.** A material's estimated contribution is biased **high** by the
    normal (+0.044 uniform, +0.050 variable), **low** by the lognormal (-0.038,
    -0.027), and almost not at all by the kernel estimate (-0.014, +0.003); its
-   95th percentile is understated by all six, by 0.086 under the KDE and 0.193
+   95th percentile is understated by all six, by 0.085 under the KDE and 0.193
    under the normal.
+
+   **So what, and this is the one to say out loud:** on a single material a bias
+   of 0.04 disappears into the noise. But bias ADDS across the materials of a
+   building while the random part cancels out, so it is the bias that survives:
+   a normal overstates a four-material building by **4.4 percent**, and it would
+   still overstate a twenty-material building by about 4.4 percent, while the
+   random error would have shrunk to almost nothing. A method that leans one way
+   is a worse problem at building scale than a method that is merely
+   imprecise.
 7. **They fail on the same materials, and the family is not what separates
    them.** Per-material errors correlate **0.892 to 0.970 between methods that
    share a weighting scheme** and only **0.581 to 0.714 across weighting
    schemes**, and all six err in the same direction on **51.2 percent** of
    materials against about 3 percent if they were independent. **Choosing a
    different family does not hedge the risk.**
+
+   **So what:** switching from one distribution shape to another will not
+   protect you from a bad answer. When one method misreads a material the others
+   usually misread it the same way. What does change the answer is whether you
+   account for how much of each product is actually sold.
 8. **No method recovers the answer, and the spread matters more than the
    average.** The mean absolute error in a material's estimated contribution is
    0.12 to 0.17 where every material contributes 1.00, but the error on ANY ONE
    material has a standard deviation of **0.23 to 0.30** and a 99th percentile
    of **0.89 to 1.26** -- for one material in a hundred the method is wrong by
    more than the material's entire expected contribution.
+
+   **So what:** expect any of these methods to get a single material's carbon
+   wrong by roughly a quarter of that material's own footprint, and about once
+   in a hundred to be wrong by more than the whole of it. An average that looks
+   close is not a promise that your material is close.
 
 ## Weighting, and the machinery
 
@@ -91,12 +142,24 @@ order the results section should take.
    on weighting**: the contrast is between knowing shares and guessing them, and
    what separates the oracle from the drawn weights is noise this generator
    introduces by construction and the real world does not have.
+
+   **So what:** knowing which products actually sell, rather than treating every
+   declaration as equally representative, would improve the answer by about a
+   sixth. Guessing at it -- which is the best anyone can do today -- recovers
+   about a third of that. This is the argument for collecting real production
+   volumes.
 10. **Common random numbers were worth about one percent**, which is why
     installing them is a refinement and not a repair. The sampling noise is 4 to
     15 percent of the difference between two methods and adds nearly
     orthogonally, so no median moved by more than 2 percent. Where it mattered
     is an argmax: **3.67 percent** of comparisons named a different top
     contributor with no model difference at all, and that floor is now zero.
+
+    **So what:** this one is bookkeeping rather than a finding. It makes the
+    comparison between two methods fair by giving them the same random draws,
+    and it moved the published numbers by about a tenth of a percent. It matters
+    only for statements of the form "which material is biggest", where two
+    near-tied materials used to swap places for no reason at all.
 11. **The steadiest output is the one that sets data-collection priorities.**
     The uncertainty index has the lowest NRMSE between methods of any main
     output, **0.503** against **1.042** for a material's rank-1 frequency, and
@@ -106,6 +169,12 @@ order the results section should take.
     reduces the variance of the answer, which is what obtaining a
     supplier-specific declaration buys.
 
+    **So what:** the most reliable thing a probabilistic LCA tells you is where
+    to spend your next hour of data collection -- which material's uncertainty
+    is driving the uncertainty in the whole building. That answer barely changes
+    with the method, it is the one a designer can act on immediately, and this
+    study computes it and reports it nowhere.
+
 **What must travel with the ranking numbers, in the same paragraph and not a
 footnote.** In the study's own pLCA every material carries a use intensity of
 1.0, so the contributions are exchangeable and a ranking is as fragile as it
@@ -113,6 +182,11 @@ can be made; the sweeps in claims 1 and 2 vary that deliberately, and the
 magnitude results do not depend on it. Material use intensity is also
 deterministic here, while a real quantity take-off carries its own uncertainty,
 which in practice can exceed the coefficient uncertainty this paper is about.
+
+**So what:** the numbers above about which material ranks first are a worst
+case. They come from four materials contributing equally, which is the hardest
+case for a ranking; a real building where one material dominates is much harder
+to get wrong. The numbers about magnitude do not depend on that.
 
 **Two housekeeping items, neither a finding.** A smoke run -- a reduced
 execution used to check the pipeline runs end to end in a minute rather than
@@ -127,9 +201,12 @@ they stood.
 
 ## The two figures
 
-![A dominant material protects the ranking, not the result](../outputs/figures/CompareUQMethods_FIG_MaterialDominance.png)
+![One big material makes the order safe and leaves the numbers alone](../outputs/figures/CompareUQMethods_FIG_MaterialDominance.png)
 
-**Figure: a dominant material protects the ranking, not the result.** Each grey
+**Figure: one big material makes the ORDER safe and leaves the NUMBERS alone.**
+In one sentence for a designer: once a material is clearly your biggest, no
+reasonable modelling choice will argue about that -- but the number you put
+against it is just as uncertain as it ever was. Each grey
 point is one probabilistic LCA -- its own top-two contribution ratio against the
 share of its fifteen method pairs that name a different leader -- with a rolling
 mean through them. The upper panel falls from about 55 percent at equal
@@ -161,7 +238,11 @@ dominance, which is a group-size effect wearing a dominance label.
 
 ![The methods differ in which way they are wrong, not in how far](../outputs/figures/CompareUQMethods_FIG_PLCATruth.png)
 
-**Figure: the methods differ in which way they are wrong, not in how far.** The
+**Figure: the methods differ in which way they are wrong, not in how far.** In
+one sentence for a designer: these six ways of describing uncertainty are about
+equally imprecise, and what separates them is which direction they lean -- a
+normal reads high, a lognormal reads low -- which is the part that adds up
+across a whole building. The
 signed error of each method against the true distributions, for one material's
 contribution and for the whole building's total, with the mean error marked.
 The lognormals sit left of zero and the normals right of it while the kernel
