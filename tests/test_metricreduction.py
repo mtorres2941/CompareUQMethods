@@ -474,3 +474,27 @@ def test_modality_agreement_shares_use_the_defined_denominator():
     # every dataset it is DEFINED on is unimodal here, so the share is exactly 1
     assert row.share_unimodal == pytest.approx(1.0)
     assert row.n < row.n_arm
+
+
+def test_marginal_versus_partial_compares_like_with_like():
+    """Both ranges must be in LOG units of the target.
+
+    The partial dependence is fitted on log(target) while the marginal curve
+    is drawn on the target's own scale, so ranging them as they come compares
+    a distance in W1 with a distance in log W1. An earlier version did that
+    and returned "fractions surviving" above 7.
+    """
+    frame, metrics = synthetic_frame(400, seed=40)
+    curves = R.curves_for(frame, ['n', 'coeffvar'], ['KDE, Uniform'], 'w1',
+                          arm='synthetic', rng=np.random.default_rng(41))
+    pdt = R.partial_dependence_table(
+        frame, metrics, 'w1', which=['n', 'coeffvar'], arm='synthetic',
+        method='KDE, Uniform', rng=np.random.default_rng(42),
+        models=('boosted',))
+    out = R.marginal_versus_partial(curves, pdt)
+    assert 'marginal_range_log' in out.columns
+    assert out.marginal_range_log.notna().all()
+    # both planted effects are real, so the partial range is the same order of
+    # magnitude as the marginal one rather than several times it
+    assert out.partial_over_marginal.between(0.2, 3.0).all(), \
+        out[['characteristic', 'partial_over_marginal']].to_string()

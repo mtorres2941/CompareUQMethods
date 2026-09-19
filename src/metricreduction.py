@@ -1181,28 +1181,44 @@ def partial_dependence_table(frame, metrics, target, which, arm=None,
 def marginal_versus_partial(curves, pd_table):
     """How much of a characteristic's marginal slope survives holding the rest.
 
-    One row per (characteristic, model): the range the marginal curve covers
-    and the range the partial dependence covers, over the same span of the
-    characteristic, and the ratio. A ratio near zero says the marginal picture
-    was borrowed from the other characteristics; near one says the effect is
-    the characteristic's own.
+    BOTH RANGES ARE IN LOG UNITS OF THE TARGET, and that is not a detail. The
+    partial dependence is fitted on `log(target)`, while `curves_for` draws the
+    marginal curve on the target's own scale, so ranging the two as they come
+    compares a distance in W1 with a distance in log W1 and produces a ratio
+    that means nothing. An earlier version did exactly that and returned
+    "fractions surviving" above 7. The marginal curve is therefore logged here
+    before it is ranged.
+
+    One row per (characteristic, model): the log range the marginal curve
+    covers, the log range the partial dependence covers, and the ratio. A ratio
+    near zero says the marginal picture was borrowed from the other
+    characteristics; near one says the effect is the characteristic's own.
+
+    A ratio ABOVE one is possible and is not an error: holding the other
+    characteristics fixed can expose an effect that the marginal view masks,
+    when two correlated characteristics push the target in opposite directions.
     """
     rows = []
     marg = curves[curves.kind == 'lowess']
-    for (char,), g in marg.groupby(['characteristic']):
-        # The marginal spread is taken over METHODS as well, since every method
-        # is drawn on the panel; the widest method is the one a reader sees.
-        m_range = float(np.nanmax(
-            [gg['mean'].max() - gg['mean'].min()
-             for _, gg in g.groupby('method')] or [np.nan]))
+    for char, g in marg.groupby('characteristic'):
+        # Over METHODS as well, since every method is drawn on the panel and
+        # the widest one is what a reader sees.
+        spans = []
+        for _, gg in g.groupby('method'):
+            v = pd.to_numeric(gg['mean'], errors='coerce').to_numpy(float)
+            v = v[np.isfinite(v) & (v > 0)]
+            if len(v) > 1:
+                spans.append(float(np.log(v.max()) - np.log(v.min())))
+        m_range = float(np.nanmax(spans)) if spans else np.nan
         h = pd_table[pd_table.characteristic == char]
         for model, hh in h.groupby('model'):
             p_range = float(hh.partial_dependence.max()
                             - hh.partial_dependence.min())
             rows.append(dict(characteristic=char, model=model,
-                             marginal_range=m_range,
+                             marginal_range_log=m_range,
                              partial_range_log=p_range,
                              partial_over_marginal=(
-                                 p_range / m_range if m_range else np.nan)))
+                                 p_range / m_range
+                                 if m_range and np.isfinite(m_range) else np.nan)))
     return pd.DataFrame(rows).sort_values('partial_range_log',
                                           ascending=False).reset_index(drop=True)
