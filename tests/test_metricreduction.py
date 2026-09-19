@@ -354,3 +354,24 @@ def test_permutation_importance_is_identical_across_cores():
                                   random_state=7,
                                   n_jobs=R.PERMUTATION_JOBS).importances_mean
     np.testing.assert_array_equal(one, many)
+
+
+def test_rows_used_by_band_sees_a_target_that_is_undefined_at_small_n():
+    """The second exclusion, which the predictor-side report cannot see.
+
+    The empirical cross-validated target is undefined below n = 10, so the
+    out-of-sample reduction on the real arm silently has nothing to say about
+    the smallest size band. A model that used 127 of 147 datasets must report
+    WHICH 20 it did not use, and per band, or the reduction reads as though it
+    covered the arm.
+    """
+    frame, metrics = synthetic_frame(400, seed=30)
+    frame = frame.copy()
+    frame.loc[frame.n < 10, 'w1_cv'] = np.nan
+    used = R.rows_used_by_band(frame, ['w1', 'w1_cv'])
+    cv = used[used.target == 'w1_cv'].iloc[0]
+    insample = used[used.target == 'w1'].iloc[0]
+    assert cv['used__n 3-9'] == 0
+    assert cv['available__n 3-9'] > 0
+    assert insample['used__n 3-9'] == insample['available__n 3-9']
+    assert cv.rows_used < cv.rows_total

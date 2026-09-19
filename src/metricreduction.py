@@ -1031,3 +1031,39 @@ def definitional_check(frame, scores, metrics=CANDIDATE_METRICS,
     if 'spearman_definitional' in out:
         out['is_an_identity'] = out.spearman_definitional.abs() > 0.9999
     return out
+
+
+def rows_used_by_band(frame, targets, methods=None):
+    """How many datasets each model ACTUALLY uses, per size band.
+
+    THE EXPLICIT ANSWER TO "report how many datasets each model uses, per
+    stratum", and it catches a second exclusion that the predictor-side
+    missingness report does not see. A row is used when its TARGET is defined:
+    the predictors never remove one, because the additive model imputes with an
+    indicator and the boosted model splits on missingness natively.
+
+    **The cross-validated empirical target is undefined below n = 10**, because
+    a half of a nine-value dataset is four values and a held-out score on four
+    values is not a measurement. So the out-of-sample reduction on the real arm
+    cannot speak about the smallest size band AT ALL -- 20 of 147 categories --
+    which is exactly the band where a parametric family is expected to beat a
+    kernel estimate. That is a limitation of the target and not of the models,
+    the in-sample target covers all 147, and the two must be read together.
+    """
+    rows = []
+    methods = methods if methods is not None else sorted(frame.method.unique())
+    for target in targets:
+        if target not in frame.columns:
+            continue
+        for (arm, method), g in frame.groupby(['arm', 'method']):
+            if method not in methods:
+                continue
+            row = dict(arm=arm, method=method, target=target,
+                       rows_total=len(g),
+                       rows_used=int(g[target].notna().sum()))
+            for band in SIZE_BAND_LABELS:
+                h = g[g.size_band == band]
+                row[f'used__{band}'] = int(h[target].notna().sum())
+                row[f'available__{band}'] = int(len(h))
+            rows.append(row)
+    return pd.DataFrame(rows)

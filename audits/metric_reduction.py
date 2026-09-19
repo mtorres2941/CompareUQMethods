@@ -93,6 +93,11 @@ def run(quick=False):
     print('\nWHAT A COMPLETE-CASE MODEL WOULD DROP')
     print(cost.to_string(index=False))
 
+    used = RED.rows_used_by_band(frame, FIT_TARGETS + ANSWER_TARGETS)
+    write(used, 'AUDIT_ReductionRowsUsed.csv')
+    print('\nROWS EACH MODEL ACTUALLY USES, per size band')
+    print(used[used.method == 'KDE, Uniform'].to_string(index=False))
+
     red = RED.redundancy_table(frame, metrics)
     write(red, 'AUDIT_ReductionRedundancy.csv')
     print('\nEFFECTIVE DIMENSION of the candidate set')

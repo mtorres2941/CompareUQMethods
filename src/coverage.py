@@ -415,6 +415,14 @@ def modality_comparison(empirical_datasets, synthetic_values, synthetic_ids,
     The metric that matters most and the one the corpus gets most wrong. A
     modality index that falls inside the empirical range can still have
     completely the wrong distribution, which is exactly what happened.
+
+    **EVERY SHARE HERE CARRIES ESTIMATOR NOISE AND THE TABLE NOW SAYS HOW
+    MUCH.** Silverman's test is a bootstrap, so the share it calls multimodal
+    moves with `nboot`: the empirical multimodal share reads 49.3 percent at
+    nboot = 100 and 45.6 at 60, a difference of nearly four points that is the
+    estimator and not the data. `nboot` and the number of datasets behind each
+    arm are returned as columns so a figure drawn from this table cannot quote
+    a share without its provenance. Added in Stage 2f.
     """
     import modality as _md
     emp = np.array([_md.n_modes_silverman(x, rng=rng, nboot=nboot, kmax=kmax)
@@ -436,6 +444,9 @@ def modality_comparison(empirical_datasets, synthetic_values, synthetic_ids,
     out.loc[len(out)] = dict(modes='multimodal',
                              empirical_share=float((emp > 1).mean()),
                              synthetic_share=float((syn > 1).mean()))
+    out['nboot'] = nboot
+    out['n_empirical'] = len(emp)
+    out['n_synthetic'] = len(syn)
     return out, emp, syn
 
 
