@@ -764,6 +764,9 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCAOracleSummary.csv` | NB3 | that, per family and weighting. **Read the framing note in the notebook before quoting it**: the contrast is knowing shares against guessing them, not uniform against variable |
 | `TABLE_PLCAFlipDrivers.csv` | NB3 | whether the top-two ratio decides a flip on its own. It nearly does |
 | `TABLE_PLCASafeLead.csv` | NB3 | the lead a material needs, as a function of how spread the two materials are |
+| `TABLE_PLCAFlipByLeadAndSpread.csv` | NB3 | **the table to print for that question.** The risk at a given lead, split by how many standard deviations the lead is worth, with counts beside every cell |
+| `TABLE_PLCASeparationCeiling.csv` | NB3 | why the rule cannot be written in standard deviations: the measure saturates at 1 over the leading material's coefficient of variation |
+| `TABLE_PLCABias.csv` | NB3 | each method's bias per material, its noise per material, and the systematic error that bias implies for the whole building |
 | `TABLE_PLCANRMSE.csv` | NB3 | every pLCA output's NRMSE between the six methods, with a bootstrap interval. None had one before |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per

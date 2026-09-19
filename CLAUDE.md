@@ -2946,24 +2946,74 @@ rather than in conversation.
      real world does not have, which is decision 79's finding reaching the
      decision level.
 
-122. **2026-09-18, Stage 2e review. DISPERSION DOES ENTER THE SAFE-LEAD RULE,
-     IN THE DIRECTION THE AUTHOR EXPECTED, AND IT IS WEAK.** `[AUTHOR]` The
-     author's question about decision 107: "Is it just the relationships of the
-     means? I would've thought CV also plays a role." It does, and the ratio of
-     the means does nearly all the work.
+122. **2026-09-18, Stage 2e review. DISPERSION ENTERS THE SAFE-LEAD RULE AND
+     CANNOT REPLACE IT, BECAUSE THE NATURAL WAY TO WRITE IT DOWN SATURATES.**
+     `[AUTHOR]` The author asked twice, and the second time pointed out that the
+     first answer had not addressed the question: "I figured this would be
+     framed in terms of how many standard deviations apart they are or something
+     like that." That is the right instrument and the first test did not use it.
 
-     A logistic on the log ratio alone reaches a pseudo R2 of **0.3251**; adding
-     the log dispersion of the two materials whose order a flip would exchange
-     takes it to **0.3288**, with coefficients -6.36 on the ratio and **+0.37**
-     on the dispersion. Positive is the expected direction: at the same lead, a
-     wider pair is riskier.
+     **WHAT WAS WRONG THE FIRST TIME.** The flip was regressed on log(ratio) and
+     log(CV) as separate additive terms. The quantity the author named is the
+     standardized separation, which for a leader whose mean contribution is `r`
+     times the runner-up's is
 
-     **What it does to the rule.** The lead a material needs before the choice
-     of UQ method changes the leader less than 1 percent of the time runs from
-     **2.05** for a tightly spread pair to **2.19** for a widely spread one, as
-     the pair's dispersion goes from 0.39 to 1.18. A factor of three in
-     dispersion moves the required lead by 7 percent. **So the rule stays "about
-     two" and the dispersion term is a refinement, not a second mechanism.**
+         z = (r - 1) / sqrt((r * CV_lead) ** 2 + CV_second ** 2)
+
+     and log(r) is the wrong numerator near r = 1, where every flip happens: the
+     gap goes to zero much faster than log(r) does. The first test therefore
+     understated dispersion by construction.
+
+     **WHAT THE PROPER TEST SAYS.** Dispersion moves the risk at a fixed lead,
+     and by a factor of two on solid counts: at a lead of 1.6 to 2.2 the flip
+     rate runs **4.2 percent** for a pair worth 0.3 to 0.6 standard deviations
+     (17,055 comparisons) and **2.0 percent** for one worth more than 1.6
+     (7,845). At a lead of 2.2 to 3.5 it runs 2.6 percent to 0.1 percent.
+
+     **AND THE RULE BARELY MOVES.** The lead needed for a 1 percent risk is
+     **2.24** when both materials sit at a coefficient of variation of 0.25 and
+     **2.36** at 1.5, across a six-fold range of dispersion. So the answer to
+     decision 107 is unchanged and now rests on the right instrument.
+
+     **WHY IT CANNOT BE STATED IN STANDARD DEVIATIONS AT ALL, which is the part
+     worth printing.** The standardized separation SATURATES: as the lead grows,
+     `z` tends to `1 / CV_lead`, because the leading material's own spread grows
+     with its size. The median material in this corpus has a coefficient of
+     variation of 0.55, so **it can never be more than about 1.8 standard
+     deviations clear of a smaller material however large its lead** -- the
+     observed median z goes 0.09, 0.76, 1.19, 1.60, 1.84 as the lead goes from
+     1.2x to over 20x, pinned against its own ceiling of 1.79 to 1.86. A rule
+     written in standard deviations could not tell a 10x lead from a 100x one.
+     The ratio can, which is why it is the rule.
+
+     `TABLE_PLCAFlipByLeadAndSpread.csv` is the table to print: the risk at a
+     given lead, split by how many standard deviations that lead is worth, with
+     counts beside every cell because the extreme corners are thin.
+
+122b. **2026-09-18, Stage 2e review. A SMALL BIAS PER MATERIAL IS A LARGE ERROR
+     FOR A BUILDING, because bias adds and noise does not.** `[AUTHOR]` Asked
+     whether the bias directions of decision 120 were significant or minimal.
+     They are minimal per material and decisive per building.
+
+     On one material a method's bias is about a sixth of its noise: 0.044
+     against 0.269 for `Normal, Uniform`. But summing four materials multiplies
+     the bias by four and the noise by two, and the study's own numbers show the
+     first exactly:
+
+         method                bias per     building      building
+                               material     bias          bias, pct
+         Normal, Variable       +0.0498      +0.1992        +4.98
+         Normal, Uniform        +0.0441      +0.1764        +4.41
+         KDE, Variable          +0.0035      +0.0139        +0.35
+         KDE, Uniform           -0.0141      -0.0564        -1.41
+         Lognormal, Variable    -0.0273      -0.1093        -2.73
+         Lognormal, Uniform     -0.0381      -0.1524        -3.81
+
+     The implied and observed building columns agree to four decimal places
+     because the bias is exactly additive. **So the choice of method shifts a
+     whole building's estimate by up to nine percentage points from end to end,
+     and running more materials will not average it away**, while the random
+     part falls as one over the square root of the count. `TABLE_PLCABias.csv`.
 
 123. **2026-09-18, Stage 2e review. Every negative tick label this project has
      ever drawn was a Unicode minus.** `[DELEGATED, 2e chose to fix]`

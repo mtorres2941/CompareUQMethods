@@ -100,13 +100,17 @@ should take.
    under the normal.
 
    **So what, and this is the one to say out loud:** on a single material a bias
-   of 0.04 disappears into the noise. But bias ADDS across the materials of a
-   building while the random part cancels out, so it is the bias that survives:
-   a normal overstates a four-material building by **4.4 percent**, and it would
-   still overstate a twenty-material building by about 4.4 percent, while the
-   random error would have shrunk to almost nothing. A method that leans one way
-   is a worse problem at building scale than a method that is merely
-   imprecise.
+   of 0.04 disappears into the noise, which is six times larger. But bias ADDS
+   across the materials of a building while the random part cancels out, so the
+   bias is what survives. Measured: the normal overstates a four-material
+   building by **+4.4 and +5.0 percent**, the lognormal understates it by
+   **-3.8 and -2.7 percent**, and the kernel estimate is within **1.4 percent**
+   either way. **So which method you choose shifts your whole building's
+   estimate by up to nine percentage points, systematically, and running more
+   materials will not average it away** -- the same percentages would hold for a
+   twenty-material building while the random error shrank to almost nothing. A
+   method that leans one way is a worse problem at building scale than one that
+   is merely imprecise.
 7. **They fail on the same materials, and the family is not what separates
    them.** Per-material errors correlate **0.892 to 0.970 between methods that
    share a weighting scheme** and only **0.581 to 0.714 across weighting
@@ -206,7 +210,11 @@ they stood.
 **Figure: one big material makes the ORDER safe and leaves the NUMBERS alone.**
 In one sentence for a designer: once a material is clearly your biggest, no
 reasonable modelling choice will argue about that -- but the number you put
-against it is just as uncertain as it ever was. Each grey
+against it is just as uncertain as it ever was. The two vertical stripes of
+points in the lower panel, at 10 and 100 on the horizontal axis, are the
+deliberate 10:1 and 100:1 test cases, which put six thousand comparisons each
+at exactly those ratios; they are a feature of the experiment and not of the
+data. Each grey
 point is one probabilistic LCA -- its own top-two contribution ratio against the
 share of its fifteen method pairs that name a different leader -- with a rolling
 mean through them. The upper panel falls from about 55 percent at equal

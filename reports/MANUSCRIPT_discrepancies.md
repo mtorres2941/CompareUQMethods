@@ -1507,15 +1507,28 @@ relative figure beside it.**
 | **Fix** | **Text**, and it strengthens the call for real production volumes. `TABLE_PLCAOracleSummary.csv`. |
 | **Status** | Open, text. Decision 121. |
 
-## 112. Dispersion enters the safe-lead rule in the expected direction and is weak
+## 112. Dispersion enters the safe-lead rule, and the natural way to write it down saturates
 
 | | |
 |---|---|
-| **The question** | Whether the lead a material needs is just the ratio of the means, when the coefficient of variation should surely matter too. |
-| **What was measured** | A logistic on the log ratio alone reaches a pseudo R2 of **0.3251**; adding the log dispersion of the two materials whose order a flip would exchange takes it to **0.3288**, with coefficients -6.36 on the ratio and **+0.37** on the dispersion. Positive is the expected direction: at the same lead, a wider pair is riskier. |
-| **What it does to the rule** | The lead needed before the choice of method changes the leader less than 1 percent of the time runs from **2.05** for a tightly spread pair to **2.19** for a widely spread one, as the pair's dispersion triples from 0.39 to 1.18. |
-| **Fix** | **Text.** The rule stays "about two"; the dispersion term is a refinement and not a second mechanism, and saying so is more useful than a two-variable rule nobody would apply. `TABLE_PLCAFlipDrivers.csv`, `TABLE_PLCASafeLead.csv`. |
+| **The question, asked twice** | Whether the lead a material needs is just the ratio of the means, when the spread should surely matter -- and whether it would be better expressed as how many standard deviations apart the two materials are. |
+| **What was wrong the first time** | The flip was regressed on log(ratio) and log(CV) as separate terms. The right quantity is the standardized separation, `(r - 1) / sqrt((r x CV_lead)^2 + CV_second^2)`, and `log(r)` is the wrong numerator near r = 1 where every flip happens, so that test understated dispersion by construction. |
+| **What the proper test says** | Dispersion moves the risk at a fixed lead by a factor of two: at a lead of 1.6 to 2.2 the flip rate runs **4.2 percent** for a pair worth 0.3 to 0.6 standard deviations and **2.0 percent** for one worth more than 1.6. At a lead of 2.2 to 3.5 it runs 2.6 percent to 0.1. |
+| **And the rule barely moves** | The lead needed for a 1 percent risk is **2.24** at a coefficient of variation of 0.25 and **2.36** at 1.5 -- a six-fold range of dispersion moves it by 5 percent. |
+| **Why it cannot be written in standard deviations, which is the part to print** | The measure **saturates**: as the lead grows it tends to `1 / CV_lead`, because the leading material's own spread grows with its size. The median material here has a CV of 0.55, so it can never be more than about **1.8 standard deviations** clear of a smaller one however large its lead; the observed median runs 0.09, 0.76, 1.19, 1.60, 1.84 as the lead goes from 1.2x to over 20x, pinned against its ceiling. A rule in standard deviations could not tell a 10x lead from a 100x one. |
+| **Fix** | **Text**, and print the two-way table rather than a coefficient: the risk at a given lead, split by how many standard deviations that lead is worth, with counts. `TABLE_PLCAFlipByLeadAndSpread.csv`, `TABLE_PLCASafeLead.csv`, `TABLE_PLCASeparationCeiling.csv`. |
 | **Status** | Open, text. Decision 122. |
+
+## 112b. A small bias per material is a large error for a building, because bias adds and noise does not
+
+| | |
+|---|---|
+| **The question** | Whether the bias directions of entry 110 are significant or minimal. |
+| **The answer** | Minimal per material and decisive per building. On one material a method's bias is about a sixth of its noise -- 0.044 against 0.269 for `Normal, Uniform` -- but summing four materials multiplies the bias by four and the noise by two. |
+| **Measured** | Building-level systematic error: `Normal, Variable` **+4.98 percent**, `Normal, Uniform` +4.41, `KDE, Variable` +0.35, `KDE, Uniform` -1.41, `Lognormal, Variable` -2.73, `Lognormal, Uniform` **-3.81**. The implied and observed columns agree to four decimal places because the bias is exactly additive. |
+| **What the paper should say** | **The choice of method shifts a whole building's estimate by up to nine percentage points from end to end, systematically, and using more materials will not average it away** -- the same percentages hold for a twenty-material building while the random part falls as one over the square root of the count. |
+| **Fix** | **Text.** `TABLE_PLCABias.csv`. |
+| **Status** | Open, text. Decision 122b. |
 
 ## 113. Every negative tick label this project has drawn was a Unicode minus
 
