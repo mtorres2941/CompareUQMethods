@@ -3199,3 +3199,190 @@ rather than in conversation.
      n >= 8. Any figure or sentence quoting a synthetic mode share must be taken
      from the rebuilt table and not from decision 82's text.
      Discrepancy entry 117.
+
+129. **2026-09-19, Stage 2f. THE TWENTY-ONE-PANEL CHARACTERISTIC FIGURE IS WORTH
+     FIVE PANELS, AND THE FIVE ARE TWO QUANTITIES: DISPERSION AND DATASET
+     SIZE.** `[AUTHOR]` The stage's deliverable, and the author said in advance
+     that a reduction landing on size and little else is a result rather than a
+     failure. It lands on size AND dispersion, which is slightly richer.
+
+     Pooled over both target families, both arms, all six methods and both model
+     families -- 96 models, ranked by mean permutation-importance rank on the
+     held-out fold, with the definitional candidate of decision 130 removed:
+
+         metric         mean rank   in the top five
+         coeffvar          3.09         84 pct
+         coeffvar_uw       3.80         78 pct
+         entropy           3.93         83 pct
+         n                 5.06         70 pct
+         entropy_uw        5.24         70 pct
+         mean              6.79         49 pct
+         ...
+         crit_bw_1        13.2           0 pct
+         modes_fitted     19.5           0 pct
+
+     **THE FIVE COLLAPSE TO TWO.** `entropy` is a histogram entropy over 256
+     bins, so it counts how many bins the data fill: its spline R2 on log(n)
+     alone is **0.924 on the corpus and 0.839 on the real arm**, at Spearman
+     +0.88 and +0.90. It IS dataset size. And `coeffvar_uw` is `coeffvar`, at a
+     correlation of 0.979. What is left is dispersion and size, which are nearly
+     independent of each other -- +0.11 empirical and +0.30 synthetic -- which is
+     why neither looked like the whole answer alone. That orthogonality is the
+     same one decision 96 found for the weighting question, arrived at from a
+     different direction.
+
+     **THE EFFECTIVE DIMENSION SAYS THE SAME THING BEFORE ANY MODEL IS FITTED.**
+     The participation ratio of the correlation eigenvalues over all 23
+     candidates is **4.33 on the empirical arm and 5.43 on the synthetic**, so
+     twenty-three marginal panels were always showing about four or five
+     independent quantities.
+
+     **THE SET IS STABLE AND THE ORDER IS NOT.** The audit script and the
+     notebook run on different random streams and return the same five; the mean
+     ranks agree to 0.03 to 0.25 and the second and third places swap. The paper
+     states a SET, never a ranking within it. `TABLE_ReductionSurvivors.csv`.
+
+130. **2026-09-19, Stage 2f. `w_v_uw_wasserstein` IS THE DEFINITIONAL TERM OF A
+     FIT SCORE, NOT A PREDICTOR OF IT, and every survivor ranking is reported
+     with and without it.** `[DELEGATED, 2f measured]`
+
+     Every model in this study is scored against the VARIABLE-weighted empirical
+     CDF, including the three uniform-weighted fits, so a uniform-weighted model
+     is charged a distance no estimator can remove. That distance is exactly the
+     Wasserstein distance between the uniform-weighted and variable-weighted
+     versions of the dataset, which is what `w_v_uw_wasserstein` measures.
+
+     **Measured, its Spearman correlation with `w1_definitional` is 1.000000 for
+     all three uniform-weighted methods on both arms.** That is an identity, not
+     a relationship, and on its strength alone it reaches a Spearman of **0.966**
+     with the in-sample W1 of `KDE, Uniform`. A reduction that ranked it first on
+     a fit target would be rediscovering an identity.
+
+     **ITS STANDING ON THE DOWNSTREAM ERROR IS REAL, and that is the part worth
+     keeping.** The variable-weighted methods have a definitional term of exactly
+     zero, and it still correlates **0.72, 0.72 and 0.57** with the error in a
+     material's estimated contribution for the three uniform methods and 0.56 to
+     0.59 for the variable ones. So it predicts how wrong the ANSWER is without
+     any identity to lean on.
+
+     `reduction.definitional_check` reports the correlation per method and
+     candidate and flags an exact identity; `DEFINITIONAL_CANDIDATES` names it.
+     **A later stage adding a candidate derived from the scoring target must add
+     it to that list.** Discrepancy entry 118.
+
+131. **2026-09-19, Stage 2f. THE TWO TARGETS DISAGREE ABOUT DATASET SIZE, AND THE
+     GOODNESS-OF-FIT FIGURE WAS WEIGHTING THE WRONG THINGS.** `[AUTHOR]` This is
+     what the stage's instruction to run the reduction twice was for: a
+     characteristic that predicts the distance between a fitted curve and its
+     target, but not the error in the ANSWER, is not worth keeping.
+
+     Rank against the FIT score beside rank against the DOWNSTREAM error, where a
+     NEGATIVE shift means the characteristic matters more for the answer:
+
+         n                    6.90 -> 4.42   -2.48
+         skewness_uw         15.02 -> 12.65  -2.38
+         kurtosis_uw         14.35 -> 12.04  -2.31
+         entropy_uw           7.13 ->  4.90  -2.23
+         ...
+         coeffvar_uw          3.38 ->  5.40  +2.02
+         fit_lognorm_SF      14.13 -> 16.35  +2.23
+         fit_norm_SF          9.88 -> 13.85  +3.98
+         weight_outliers     13.25 -> 17.29  +4.04
+
+     **Size and its proxy move UP when the target becomes the answer; the shape
+     statistics move DOWN.** `n` has the largest negative shift of any
+     characteristic and `weight_outliers` and the normal Shapiro statistic the
+     largest positive ones. So the figure this stage replaces was over-weighting
+     how well a curve fits relative to what decides the probabilistic LCA's
+     error, and the correction points at dataset size -- which is the mechanism
+     decisions 84, 86 and 88 already identified from the method-choice side.
+
+     **ONE OUTPUT IS ALMOST UNPREDICTABLE FROM THE DATA, AND IT IS THE RANKING
+     ONE.** The models reach an out-of-sample R2 of 0.62 to 0.66 for the error in
+     a material's estimated contribution, 0.52 to 0.54 for its 95th percentile
+     and 0.54 for its share of total variance -- and **0.085 to 0.096 for the
+     error in its chance of leading**. That is not a failure of the model: a
+     rank-1 frequency is a property of the GROUP of four materials, not of the
+     dataset, so the dataset's own characteristics cannot carry it. It is a third
+     independent argument for decision 102's demotion of the ranking metrics.
+
+132. **2026-09-19, Stage 2f. THE THREE MODALITY MEASURES ARE NOT THREE READINGS
+     OF ONE THING, THE ONE THAT PREDICTS IS SILVERMAN'S CRITICAL BANDWIDTH, AND
+     IT PREDICTS NOTHING OF ITS OWN.** `[AUTHOR]` The question Stage 2a-2 could
+     not answer, and the answer reproduces this stage's own lesson.
+
+     **They disagree, which had to be established first.** Spearman between
+     `modality_index` and `modes_fitted` is **+0.168 on the real arm and +0.018
+     on the corpus**; between `crit_bw_1` and `modes_fitted`, **+0.283 and
+     -0.115**. A negative correlation between two measures of the same property
+     settles that they are not measuring the same property.
+
+     **Offered ALONE over a spline in log(n), Silverman's critical bandwidth wins
+     by a distance**: mean incremental R2 **0.210 empirical and 0.175 synthetic**,
+     significant on every one of the 12 and 18 models. The continuous index adds
+     0.128 and 0.042. **The mode COUNTS add almost nothing** -- `modes_fitted`
+     0.012 on both arms, and on the empirical arm it is not significant on ANY of
+     the twelve models, median p = 0.27.
+
+     **AND IN THE FULL MODEL THE CRITICAL BANDWIDTH IS 14th OF 22 AND IN THE TOP
+     FIVE OF ZERO OF 96 MODELS.** It correlates **+0.54 empirical and +0.60
+     synthetic with the coefficient of variation**, so everything it appeared to
+     carry over size alone is dispersion it travels with. The two mode counts
+     rank 21st and 22nd with a mean importance of essentially zero.
+
+     **So the honest statement is one sentence with two halves:** among the
+     modality measures, only Silverman's critical bandwidth carries any signal,
+     and none of that signal is its own. This CONFIRMS decision 88, which found
+     multimodality last of eleven, and explains it: decision 88 tested a mode
+     COUNT, which is indeed worthless, and the critical bandwidth is not
+     worthless -- it is dispersion under another name.
+
+     **It is also this stage's own trap, appearing inside its own results**, and
+     that is why the paper should show it: tested against size alone a
+     characteristic can look decisive and contribute nothing once the rest of the
+     set is present. Discrepancy entry 119.
+
+133. **2026-09-19, Stage 2f. THE CORPUS HAS MARGIN WHERE IT DOES NOT MATTER AND
+     NONE WHERE IT DOES, SO THE GENERALIZATION CLAIM IS NARROWER THAN THE
+     COVERAGE FIGURE SUGGESTS.** `[AUTHOR]` The conceptual question the stage was
+     given: the tuning objective matches the SHAPE of the synthetic
+     characteristic distribution to the empirical one, while the study also needs
+     to SPAN that space with margin so its conclusions generalize past the
+     categories EC3 happens to hold, and those two goals can pull apart. They do.
+
+     `margin_above` is how far the synthetic range reaches past the empirical
+     maximum, in units of the empirical range. Negative means the corpus does not
+     reach the empirical maximum at all.
+
+         the five survivors        margin above the empirical max
+           coeffvar                    -0.629
+           coeffvar_uw                 -0.656
+           n                           -0.678
+           entropy                     +0.126
+           entropy_uw                  +0.132
+
+         characteristics that predict nothing
+           modality_index              +6.864
+           kurtosis                    +5.249
+           skewness                    +7.186
+
+     **Median margin: -0.629 for the five survivors and +0.509 for the other
+     seventeen.** Spearman between importance rank and margin is **+0.484**, and
+     since a lower rank means more important, positive means the metrics that
+     matter have the least headroom.
+
+     **WHAT THIS DOES AND DOES NOT SAY.** It does not say the corpus fails to
+     cover the empirical data: 98 to 100 percent of real datasets sit inside the
+     synthetic range on every metric, so INTERPOLATION is supported. It says that
+     EXTRAPOLATION beyond the range EC3 happens to contain is supported on the
+     characteristics that carry no signal and not on the three that do.
+
+     **It sharpens decision 48 rather than reversing it.** That decision accepted
+     the dispersion shortfall as a stated limitation on the grounds that what the
+     corpus cannot reach is the shape of a contaminated EC3 category rather than
+     the shape of a material -- an argument about WHICH datasets are uncovered.
+     This adds that the shortfall sits on the single most predictive
+     characteristic in the study, which bounds how far the conclusions carry
+     regardless of which categories are uncovered. **Generation stays closed**,
+     decisions 47, 48 and 55 unchanged; what the manuscript owes is the
+     limitation stated in these terms. Discrepancy entry 120.

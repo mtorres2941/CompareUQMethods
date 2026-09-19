@@ -1586,3 +1586,58 @@ relative figure beside it.**
 | **What moves** | The synthetic share with one, two and three or more visible modes, by sampling error only, since the 500 were a random draw. The empirical arm is unchanged in method and now covers every category with n >= 8. Any figure quoting a synthetic mode share must be taken from the rebuilt table. |
 | **Fix** | **Code, done.** Notebook 1 computes both counts for every dataset. **Text**: quote the full-corpus numbers. |
 | **Status** | RESOLVED in Stage 2f. Decision 128. |
+
+## 118. A characteristic in the metric set IS part of the score it was being compared against
+
+| | |
+|---|---|
+| **What was found** | Every model in this study is scored against the VARIABLE-weighted empirical CDF, including the three uniform-weighted fits, so a uniform-weighted model carries a distance no estimator can remove. That distance is exactly `w_v_uw_wasserstein`, the Wasserstein distance between the uniform-weighted and variable-weighted versions of the dataset, which the study reports as one of its statistical characteristics. |
+| **Measured** | Its Spearman correlation with the definitional term of the score is **1.000000** for all three uniform-weighted methods on both arms. On that identity alone it reaches a Spearman of **0.966** with the in-sample W1 of `KDE, Uniform`, 0.943 for `Lognormal, Uniform` and 0.767 for `Normal, Uniform`. |
+| **Why it matters to the text** | Any sentence of the form "W1 rises with the uniform-to-variable distance" is, for a uniform-weighted method, a restatement of the definition of the score rather than a finding about ECC data. The manuscript must not present that panel as a relationship. |
+| **What IS a real result** | On the DOWNSTREAM error there is no identity: the variable-weighted methods have a definitional term of exactly zero, and the characteristic still correlates **0.72, 0.72 and 0.57** with the error in a material's estimated contribution under the three uniform methods and 0.56 to 0.59 under the variable ones. So it genuinely predicts how wrong the answer is. |
+| **Fix** | **Text**, and **code, done**: the survivor ranking is reported with and without it, and `reduction.definitional_check` flags an exact identity so a later candidate derived from the scoring target cannot slip in unnoticed. |
+| **Status** | RESOLVED in Stage 2f. Decision 130. |
+
+## 119. The three modality measures disagree, and the one that predicts predicts nothing of its own
+
+| | |
+|---|---|
+| **Manuscript** | Reports a modality index among the statistical characteristics, and quotes a share of ECC datasets as unimodal. |
+| **They are three different measures** | Spearman between the continuous index and the fitted-bandwidth mode count is **+0.168 on the real arm and +0.018 on the corpus**; between Silverman's critical bandwidth and that count, **+0.283 and -0.115**. A negative correlation settles that they are not measuring one property. |
+| **Which one carries signal** | Offered alone over a spline in log(n), Silverman's critical bandwidth adds a mean incremental R2 of **0.210** on the real arm and **0.175** on the corpus, significant on every model. The continuous index adds 0.128 and 0.042. The mode COUNTS add **0.012**, and on the real arm the fitted-bandwidth count is significant on **none** of the twelve models, median p = 0.27. |
+| **And it is not its own** | In the full multivariate model the critical bandwidth ranks **14th of 22** and is in the top five of **zero of 96** models, because it correlates **+0.54 and +0.60 with the coefficient of variation**. Everything it appeared to carry over size alone is dispersion it travels with. |
+| **How this relates to entry 79** | It CONFIRMS it and explains it. That entry found multimodality last of eleven characteristics; it tested a mode COUNT, which is indeed worthless. The critical bandwidth is not worthless, it is dispersion under another name. |
+| **Fix** | **Text.** State that the modality measures disagree, give the correlation, and say that the only one with predictive content is carrying dispersion. Do not present modality as an independent driver. |
+| **Status** | Open, text. Decision 132. |
+
+## 120. The corpus has margin where it does not matter and none where it does
+
+| | |
+|---|---|
+| **Manuscript** | Rests a generalizability claim on the coverage figure: the synthetic datasets span the range of statistical characteristics the empirical datasets occupy. |
+| **That claim is true and is not the one that matters** | 98 to 100 percent of real datasets sit inside the synthetic range on every metric, so INTERPOLATION is supported. What supports generalizing past the categories EC3 happens to hold is the MARGIN beyond the empirical range, and that is where the two goals pull apart. |
+| **Measured** | `margin_above`, in units of the empirical range, for the five characteristics that carry the signal: coefficient of variation **-0.629**, its uniform-weighted twin **-0.656**, dataset size **-0.678**, entropy +0.126 and +0.132. For three that carry none: skewness **+7.186**, modality index **+6.864**, kurtosis **+5.249**. Median margin **-0.629 for the survivors and +0.509 for the other seventeen**; Spearman between importance rank and margin **+0.484**. |
+| **How this relates to entry 34 and the coverage decision** | It sharpens rather than reverses it. That decision accepted the dispersion shortfall on the grounds that what the corpus cannot reach is the shape of a contaminated EC3 category rather than of a material, which is an argument about WHICH datasets are uncovered. This adds that the shortfall sits on the single most predictive characteristic in the study, which bounds how far the conclusions carry regardless of which categories are uncovered. |
+| **Fix** | **Text.** State the limitation in these terms: the study's conclusions are supported across the range of dispersion and dataset size that real EC3 categories occupy, and are not supported beyond it. Generation stays closed. |
+| **Status** | Open, text. Decision 133. |
+
+## 121. The characteristic figure is 21 marginal panels of about four independent quantities
+
+| | |
+|---|---|
+| **Manuscript** | Presents goodness-of-fit against each statistical metric as a rolling average, one panel per metric, and discusses the panels individually. |
+| **Three defects in that presentation** | It carries no uncertainty band, so a wiggle and a result look the same; it shows no data density, so a curve through four datasets in a sparse tail looks like one through four hundred; and the metrics are correlated, so the marginal panels overstate how many independent effects exist. |
+| **Measured** | The effective dimension of the 23 candidates -- the participation ratio of the correlation eigenvalues, which would be 23 if they were independent -- is **4.33 on the empirical arm and 5.43 on the synthetic**. Seven empirical pairs correlate above 0.9, the worst being entropy against its uniform-weighted twin at 0.991 and the coefficient of variation against its twin at 0.979. |
+| **And the marginal view is misleading in a specific direction** | Holding the other characteristics fixed, dataset size keeps **0.73 to 0.82** of its marginal slope and the coefficient of variation **0.43 to 0.66**, while **entropy -- which has the STEEPEST marginal curve of the five survivors, 4.05 log units -- keeps 0.15**. The characteristic whose panel looks most impressive is the one that is almost entirely borrowed. |
+| **Fix** | **Text and figure.** Report the survivors with bootstrap bands and a density rug; put the full candidate set in the supplement; and give the effective dimension, which is the number that justifies the cut. |
+| **Status** | Open, text and figure. Decisions 129 and 131. |
+
+## 122. Two exclusions the models had to be told about, and the smallest datasets are both
+
+| | |
+|---|---|
+| **What was found** | Two different things remove the smallest size band from an analysis, and neither announces itself. |
+| **Undefined characteristics** | Unbiased excess kurtosis divides by (n-1)(n-2)(n-3), so it is undefined below n = 4: **6 of the 20** real categories with 3 to 9 EPDs and **612 of 2,500** synthetic ones. A visible-mode count needs at least 8 values: **17 of 20** and **2,026 of 2,500**. Every other band is complete on every characteristic. A model that dropped incomplete rows would therefore discard **85 percent of the real n = 3-9 band and 81 percent of the synthetic one** while leaving the rest untouched -- which is precisely the regime where a parametric family is expected to beat a kernel estimate. |
+| **An undefined TARGET, which the first check cannot see** | The cross-validated empirical score is undefined below n = 10, because half of a nine-value dataset is four values. So the out-of-sample reduction on the real arm uses **127 of 147** categories and **0 of the 20** in the smallest band. The in-sample target covers all 147 and the two have to be read together. |
+| **Fix** | **Code, done**: the additive model imputes with a missingness indicator and the boosted model splits on missingness natively, so both keep every row, and two tables report what would otherwise have been lost, per arm and per band. **Text**: any size-banded claim on the real arm below n = 10 comes from the in-sample target only, and must say so. |
+| **Status** | RESOLVED in code; a text note is owed. Decision 129. |
