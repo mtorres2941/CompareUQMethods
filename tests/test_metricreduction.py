@@ -1,4 +1,4 @@
-"""Tests for src/reduction.py, the Stage 2f metric reduction.
+"""Tests for src/metricreduction.py, the Stage 2f metric reduction.
 
 The properties worth pinning here are the ones that would let a reduction be
 WRONG QUIETLY rather than fail: a model that silently drops the smallest
@@ -18,7 +18,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-import reduction as R  # noqa: E402
+import metricreduction as R  # noqa: E402
 
 
 # ---------------------------------------------------------------- fixtures

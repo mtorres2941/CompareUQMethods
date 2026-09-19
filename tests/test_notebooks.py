@@ -187,6 +187,20 @@ _WRITE = re.compile(
     r"""\.(?:to_csv|to_excel|savefig)\(\s*f?['"](?:\{OUT\}|[^'"]*outputs)/([^'"]+)['"]""")
 
 
+#: An output filename appearing as a plain string literal anywhere in a cell.
+#: A figure helper is typically called as `plot(arm, 'CompareUQMethods_FIG_X.png')`,
+#: so the name never appears inside the `savefig` call and the write regex
+#: above captures only the `{fname}` placeholder. Matching the literals
+#: directly is what makes the duplicate check work across such helpers.
+#: A line that is reading rather than writing. Notebook 3 reads the tables
+#: notebooks 1 and 2 commit, and naming one of them is not a claim to write it.
+_READS = re.compile(r'\bread_(?:csv|excel|parquet|json|table)\b|\bimread\b')
+
+_OUTPUT_LITERAL = re.compile(
+    r"""['"]((?:CompareUQMethods_|TABLE_)[A-Za-z0-9_.]+"""
+    r"""\.(?:png|pdf|svg|csv|gz|xlsx|parquet))['"]""")
+
+
 def test_no_two_notebooks_write_the_same_output_file():
     """Two notebooks writing one filename means the second silently wins.
 
@@ -200,7 +214,26 @@ def test_no_two_notebooks_write_the_same_output_file():
     for path in NOTEBOOKS:
         for _, source in code_cells(path):
             for target in _WRITE.findall(source):
-                writers.setdefault(Path(target).name, set()).add(path.name)
+                name = Path(target).name
+                # A write whose BASENAME is an f-string placeholder -- a
+                # plotting helper called several times with a different
+                # `fname` -- cannot be resolved here, so matching two
+                # notebooks on the placeholder itself would report a
+                # collision between two files that are never the same file.
+                # Those are covered by the literal-filename check below, which
+                # reads the actual names passed in.
+                if '{' in name:
+                    continue
+                writers.setdefault(name, set()).add(path.name)
+            # The names a helper is CALLED with, wherever they appear as plain
+            # string literals. This is what catches a duplicate that the write
+            # regex cannot see, and it is strictly more coverage than the
+            # placeholder rows it replaces.
+            for line in source.splitlines():
+                if _READS.search(line):
+                    continue  # a READ of another notebook's table is not a write
+                for literal in _OUTPUT_LITERAL.findall(line):
+                    writers.setdefault(literal, set()).add(path.name)
     clashes = {name: sorted(who) for name, who in writers.items()
                if len(who) > 1}
     assert not clashes, f'written by more than one notebook: {clashes}'
@@ -250,12 +283,21 @@ def test_the_plca_notebook_writes_only_through_its_output_root():
     which smoke mode points at a temporary directory, so a smoke run cannot
     touch the repository at all. This asserts that no cell has been written
     since with a literal path back into outputs/.
+
+    TWO NAMES ARE EXEMPT, and only their definitions. `OUT` is where the
+    notebook writes. `UPSTREAM` is where it READS the tables notebooks 1 and 2
+    commit, which the Stage 2f metric reduction needs and which is not the
+    hazard this test exists for: a smoke run should still see the full
+    empirical arm, and reading a committed table cannot damage it. Every other
+    literal path into outputs/ is refused, so a new write cannot creep in under
+    either name.
     """
     offenders = []
     for index, source in code_cells(PLCA_NOTEBOOK):
         for line in source.splitlines():
             code = line.split('#', 1)[0]
-            if '../outputs' in code and not re.match(r'\s*OUT\s*=', code):
+            if ('../outputs' in code
+                    and not re.match(r'\s*(?:OUT|UPSTREAM)\s*=', code)):
                 offenders.append(f'cell {index}: {line.strip()}')
     assert not offenders, (
         'notebook 3 must write through OUT, not a literal outputs/ path, or a '

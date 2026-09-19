@@ -44,7 +44,7 @@ CompareUQMethods/
 │   │                          a material IS (Stage 2c)
 │   ├── figstyle.py            FIGURE_STYLE.md in code: palette, rcParams,
 │   │                          direct labelling, the greyscale check
-│   ├── reduction.py           which characteristics carry signal (Stage 2f):
+│   ├── metricreduction.py     which characteristics carry signal (Stage 2f):
 │   │                          the candidate set and its transforms, explicit
 │   │                          missingness, the size confound, two model
 │   │                          families ranked by permutation importance, the
@@ -444,7 +444,7 @@ back more than twice too narrow.
 
 ## 2c. Which characteristics carry signal
 
-`src/reduction.py`, Stage 2f, called from the last section of notebook 3.
+`src/metricreduction.py`, Stage 2f, called from the last section of notebook 3.
 
 **IT IS IN NOTEBOOK 3 AND NOT NOTEBOOK 2 FOR A REASON.** The reduction is run
 against two kinds of target: the FIT score, how far a fitted curve sits from

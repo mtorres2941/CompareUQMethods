@@ -1,7 +1,7 @@
 """The full multivariate reduction of the characteristic set. Stage 2f.
 
 This is the measurement behind the stage's headline. Notebook 2 runs the same
-functions from `src/reduction.py` and writes the tables the paper reads; this
+functions from `src/metricreduction.py` and writes the tables the paper reads; this
 script exists so the reduction can be re-run and argued with on its own, and
 because the decision log quotes its numbers.
 
@@ -36,7 +36,7 @@ sys.path.insert(0, HERE)
 
 import corpus  # noqa: E402
 import coverage  # noqa: E402
-import reduction as RED  # noqa: E402
+import metricreduction as RED  # noqa: E402
 from _common import write  # noqa: E402
 
 TABLES = os.path.join(ROOT, 'outputs', 'tables')
