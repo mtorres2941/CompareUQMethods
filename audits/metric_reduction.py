@@ -102,6 +102,16 @@ def run(quick=False):
     print(red.head(10)[['arm', 'metric_a', 'metric_b', 'correlation']]
           .to_string(index=False))
 
+    defn = RED.definitional_check(frame, scores, metrics=metrics)
+    write(defn, 'AUDIT_ReductionDefinitional.csv')
+    print('\nIS A CANDIDATE PREDICTING A TARGET, OR IS IT PART OF ONE?')
+    ident = defn[defn.is_an_identity]
+    if len(ident):
+        print(ident[['arm', 'method', 'metric', 'spearman_definitional',
+                     'spearman_w1']].to_string(index=False))
+    else:
+        print('  no candidate reproduces the definitional term exactly')
+
     conf = RED.size_confounding(frame, metrics)
     write(conf, 'AUDIT_ReductionSizeConfounding.csv')
     print('\nHOW MUCH OF EACH METRIC IS DATASET SIZE (spline R2 on log n)')
@@ -156,11 +166,25 @@ def run(quick=False):
     pooled = RED.rank_survivors(importances)
     pooled.insert(0, 'target_family', 'both')
     out.append(pooled)
+    # The same ranking with the definitional candidate removed, because on a
+    # fit target it is an identity rather than a predictor. On the downstream
+    # error no identity exists, so both rankings are reported.
+    trimmed = RED.rank_survivors(
+        importances[~importances.metric.isin(RED.DEFINITIONAL_CANDIDATES)])
+    trimmed.insert(0, 'target_family', 'both, definitional removed')
+    out.append(trimmed)
+    for fam in ('fit', 'answer'):
+        t = RED.rank_survivors(
+            importances[(importances.target_family == fam)
+                        & ~importances.metric.isin(RED.DEFINITIONAL_CANDIDATES)])
+        if len(t):
+            t.insert(0, 'target_family', f'{fam}, definitional removed')
+            out.append(t)
     survivors = pd.concat(out, ignore_index=True)
     write(survivors, 'AUDIT_ReductionSurvivors.csv')
 
     print('\nSURVIVORS, by target family')
-    for fam in ('fit', 'answer', 'both'):
+    for fam in sorted(survivors.target_family.unique()):
         s = survivors[survivors.target_family == fam]
         if len(s):
             print(f'\n  {fam.upper()}')
@@ -178,6 +202,51 @@ def run(quick=False):
     print('\nSURVIVES ONE TARGET AND NOT THE OTHER (negative = matters more '
           'for the ANSWER than for the fit)')
     print(pd.concat([both.head(5), both.tail(5)]).to_string(index=False))
+
+    # ---- the three modality measures head to head -----------------------
+    mrows = []
+    for arm, tg in (('empirical', ('w1', 'w1_cv')),
+                    ('synthetic', ('w1', 'w1_market', 'err_eci_mean'))):
+        d = RED.modality_head_to_head(frame, tg, methods, arm, rng=rng)
+        if len(d):
+            mrows.append(d)
+    if mrows:
+        modality = pd.concat(mrows, ignore_index=True)
+        write(modality, 'AUDIT_ReductionModality.csv')
+        print('\nTHE THREE MODALITY MEASURES, over a spline in log(n)')
+        print(modality.to_string(index=False))
+    agree = RED.modality_agreement(frame)
+    write(agree, 'AUDIT_ReductionModalityAgreement.csv')
+    print('\nHOW FAR APART THE MODALITY MEASURES ARE')
+    print(agree.to_string(index=False))
+
+    # ---- post-stratified -------------------------------------------------
+    shares = RED.empirical_size_shares(frame)
+    ps_frame = RED.size_mix_resample(frame, shares, rng=rng)
+    print('\nempirical size mix: '
+          + ', '.join(f'{k} {v:.3f}' for k, v in shares.items())
+          + f'  -> {ps_frame.dataset.nunique():,} synthetic datasets')
+    ps = []
+    for target in ('w1', 'w1_market', 'err_eci_mean'):
+        for method in methods:
+            d = RED.importance(ps_frame, metrics, target, arm='synthetic',
+                               method=method, rng=rng,
+                               n_repeats=n_rep, n_splits=n_spl)
+            if len(d):
+                ps.append(d)
+    if ps:
+        imp_ps = pd.concat(ps, ignore_index=True)
+        imp_ps['allocation'] = 'empirical size mix'
+        eq = importances[(importances.arm == 'synthetic')
+                         & importances.target.isin(('w1', 'w1_market',
+                                                    'err_eci_mean'))].copy()
+        eq['allocation'] = 'equal'
+        both_alloc = pd.concat([eq, imp_ps], ignore_index=True)
+        write(both_alloc, 'AUDIT_ReductionPostStratified.csv')
+        print('\nMEAN IMPORTANCE AT BOTH ALLOCATIONS, synthetic arm')
+        print(both_alloc.groupby(['allocation', 'metric']).importance.mean()
+              .unstack(0).sort_values('equal', ascending=False)
+              .head(12).round(4).to_string())
 
     # ---- which method wins ----------------------------------------------
     wrows = []
@@ -213,7 +282,7 @@ def run(quick=False):
     cov = coverage.coverage_table(emp_chars, syn_chars,
                                   metrics=tuple(m for m in metrics
                                                 if m in emp_chars.columns))
-    cvi = RED.coverage_versus_importance(cov, pooled)
+    cvi = RED.coverage_versus_importance(cov, trimmed)
     write(cvi, 'AUDIT_ReductionCoverageVsImportance.csv')
     print('\nDO THE METRICS THAT MATTER SIT WHERE THE CORPUS IS DENSEST?')
     print(cvi.to_string(index=False))

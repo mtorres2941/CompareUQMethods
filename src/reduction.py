@@ -834,3 +834,192 @@ def coverage_versus_importance(coverage, survivors):
                 sub.mean_rank.corr(sub.synthetic_beyond_empirical,
                                    method='spearman'))
     return out
+
+
+# --------------------------------------------------------------------------
+# post-stratification, and the three modality measures head to head
+# --------------------------------------------------------------------------
+
+def empirical_size_shares(frame):
+    """The share of the EMPIRICAL arm's datasets in each size band.
+
+    Measured from the arm rather than taken from a stored constant, which is
+    the mistake Stage 2c had to correct once: a reweighting that silently used
+    a stale denominator would move every post-stratified number and leave
+    nothing to catch it.
+    """
+    one = frame[frame.arm == 'empirical'].drop_duplicates('dataset')
+    counts = one.size_band.value_counts()
+    total = float(counts.sum())
+    return {b: float(counts.get(b, 0)) / total for b in SIZE_BAND_LABELS}
+
+
+def size_mix_resample(frame, shares=None, rng=None, n_datasets=None):
+    """The corpus resampled to the EMPIRICAL size mix, so an aggregate can be
+    reported both ways.
+
+    WHY THIS AND NOT A WEIGHTED FIT. The corpus allocates 2,500 datasets to
+    each of four size bands for equal PRECISION, while the empirical arm is
+    nothing like that -- about 14 / 53 / 26 / 7 percent. The KDE improves with
+    dataset size and the lognormal degrades, so an aggregate over the corpus is
+    partly a statement about the allocation. Permutation importance has no
+    sample-weight argument that means what is wanted here, so the honest
+    reweighting is to resample DATASETS to the empirical mix and refit. Every
+    row of a resampled dataset travels with it, so a method's six rows stay
+    together and the pairing is preserved.
+    """
+    rng = rng if rng is not None else np.random.default_rng(0)
+    shares = shares or empirical_size_shares(frame)
+    syn = frame[frame.arm == 'synthetic']
+    per_dataset = syn.drop_duplicates('dataset')[['dataset', 'size_band']]
+    if n_datasets is None:
+        # The largest corpus size that can supply every band at the empirical
+        # mix without sampling any band with replacement.
+        avail = per_dataset.size_band.value_counts()
+        n_datasets = int(min(avail.get(b, 0) / s
+                             for b, s in shares.items() if s > 0))
+    picked = []
+    for band, share in shares.items():
+        pool = per_dataset[per_dataset.size_band == band].dataset.to_numpy()
+        k = int(round(share * n_datasets))
+        if k == 0 or len(pool) == 0:
+            continue
+        picked.append(rng.choice(pool, size=min(k, len(pool)), replace=False))
+    keep = set(np.concatenate(picked)) if picked else set()
+    return syn[syn.dataset.isin(keep)].copy()
+
+
+def modality_head_to_head(frame, targets, methods, arm, rng=None,
+                          n_repeats=10, n_splits=5):
+    """The three modality measures as three candidates, judged against each
+    other and against log(n).
+
+    THE QUESTION STAGE 2A-2 COULD NOT ANSWER. `modality_index` is a continuous
+    index off a Scott's-bandwidth density; `crit_bw_1` is Silverman's critical
+    bandwidth; `modes_fitted` counts the modes of the density the study
+    actually fits. They disagree profoundly on real data, so "is the dataset
+    multimodal" is not one predictor with three readings, and which reading
+    predicts anything is a separate question from whether modality matters.
+
+    Each is offered ALONE over a spline in log(n), so the three are compared on
+    equal terms and none of them can borrow credit from another.
+    """
+    rng = rng if rng is not None else np.random.default_rng(0)
+    measures = [m for m in ('modality_index', 'modality_index_uw',
+                            'crit_bw_1', 'crit_bw_1_uw',
+                            'modes_fitted', 'modes_scipy_default')
+                if m in frame.columns]
+    rows = []
+    for target in targets:
+        if target not in frame.columns:
+            continue
+        for method in methods:
+            inc = incremental_over_size(frame, measures, target, arm=arm,
+                                        method=method)
+            if len(inc):
+                rows.append(inc)
+    if not rows:
+        return pd.DataFrame()
+    out = pd.concat(rows, ignore_index=True)
+    summary = (out.groupby('metric')
+               .agg(mean_incremental_r2=('incremental_r2', 'mean'),
+                    max_incremental_r2=('incremental_r2', 'max'),
+                    median_p_value=('p_value', 'median'),
+                    share_p_below_05=('p_value', lambda s: float((s < 0.05).mean())),
+                    mean_r2_size_only=('r2_size_only', 'mean'),
+                    n_models=('incremental_r2', 'size'))
+               .reset_index()
+               .sort_values('mean_incremental_r2', ascending=False))
+    summary.insert(0, 'arm', arm)
+    return summary
+
+
+def modality_agreement(frame):
+    """How far apart the three modality measures actually are, per arm.
+
+    Reported as a correlation and as the share of datasets each calls
+    multimodal, because "they disagree" is a claim that needs a number: at
+    Scott's bandwidth 94.9 percent of real categories have one visible mode
+    while only about half are unimodal by Silverman.
+    """
+    rows = []
+    per_dataset = frame.drop_duplicates(['arm', 'dataset'])
+    for arm, g in per_dataset.groupby('arm'):
+        measures = [m for m in ('modality_index', 'crit_bw_1',
+                                'modes_fitted', 'modes_scipy_default')
+                    if m in g.columns]
+        M = transform_frame(g, measures)
+        for i, a in enumerate(measures):
+            for b in measures[i + 1:]:
+                ok = M[a].notna() & M[b].notna()
+                rows.append(dict(
+                    arm=arm, measure_a=a, measure_b=b, n=int(ok.sum()),
+                    spearman=float(M.loc[ok, a].corr(M.loc[ok, b],
+                                                     method='spearman'))))
+        for m in ('modes_fitted', 'modes_scipy_default'):
+            if m in g:
+                rows.append(dict(arm=arm, measure_a=m, measure_b='share_unimodal',
+                                 n=int(g[m].notna().sum()),
+                                 spearman=float((g[m] == 1).mean())))
+    return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------
+# the tautology guard
+# --------------------------------------------------------------------------
+
+#: A candidate that is DEFINITIONALLY tied to a fit target rather than
+#: predictive of it. `w_v_uw_wasserstein` is the Wasserstein distance between
+#: the uniform-weighted and the variable-weighted version of the same dataset,
+#: and the study scores every model against the VARIABLE-weighted target, so
+#: for a uniform-weighted method it is exactly the part of the score that no
+#: estimator can remove. Its Spearman correlation with `w1_definitional` is
+#: 1.000 for all three uniform methods, by construction. Ranking it first on a
+#: fit target is therefore an identity being rediscovered, not a finding; its
+#: standing on the DOWNSTREAM error, where no such identity exists, is a real
+#: result and is reported separately.
+DEFINITIONAL_CANDIDATES = ('w_v_uw_wasserstein',)
+
+
+def definitional_check(frame, scores, metrics=CANDIDATE_METRICS,
+                       targets=('w1', 'w1_market', 'w1_parent',
+                                'err_eci_mean', 'err_eci_rank_1')):
+    """Is a candidate predicting a target, or IS it part of that target?
+
+    A fit score decomposes into the part an estimator can remove and a
+    definitional part it cannot. A candidate that reproduces the definitional
+    part exactly is not a predictor of the score, and a reduction that ranks
+    it first has rediscovered an identity. This reports, per method and
+    candidate, the rank correlation with the definitional term and with each
+    target, so the identity is visible in a table instead of being argued
+    about.
+    """
+    defn = scores[['arm', 'dataset', 'method']].copy()
+    for c in ('w1_definitional',):
+        if c in scores.columns:
+            defn[c] = scores[c]
+    g = frame.merge(defn, on=['arm', 'dataset', 'method'], how='left',
+                    suffixes=('', '__d'))
+    rows = []
+    for (arm, method), h in g.groupby(['arm', 'method']):
+        M = transform_frame(h, metrics)
+        for m in metrics:
+            row = dict(arm=arm, method=method, metric=m,
+                       is_declared_definitional=m in DEFINITIONAL_CANDIDATES)
+            for col, tag in [('w1_definitional', 'definitional')] + \
+                            [(t, t) for t in targets]:
+                src = h[col] if col in h.columns else None
+                if src is None or src.notna().sum() < 30:
+                    row[f'spearman_{tag}'] = np.nan
+                    continue
+                ok = M[m].notna() & src.notna()
+                row[f'spearman_{tag}'] = (
+                    float(M.loc[ok, m].corr(src[ok], method='spearman'))
+                    if ok.sum() >= 30 else np.nan)
+            rows.append(row)
+    out = pd.DataFrame(rows)
+    # A correlation of 1.000 with the definitional term is an identity, not a
+    # strong relationship, and the flag says so without a threshold argument.
+    if 'spearman_definitional' in out:
+        out['is_an_identity'] = out.spearman_definitional.abs() > 0.9999
+    return out

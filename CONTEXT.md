@@ -44,6 +44,13 @@ CompareUQMethods/
 │   │                          a material IS (Stage 2c)
 │   ├── figstyle.py            FIGURE_STYLE.md in code: palette, rcParams,
 │   │                          direct labelling, the greyscale check
+│   ├── reduction.py           which characteristics carry signal (Stage 2f):
+│   │                          the candidate set and its transforms, explicit
+│   │                          missingness, the size confound, two model
+│   │                          families ranked by permutation importance, the
+│   │                          tautology guard, and the binned and LOWESS
+│   │                          curves with bootstrap bands that replace the
+│   │                          rolling averages
 │   ├── weighting.py           does the weighting scheme matter, per dataset
 │   │                          (Stage 2d): the location/shape split of the
 │   │                          uniform-to-variable W1, the named relative
@@ -174,6 +181,31 @@ the known parent, which disagree -- the first peaks at 20 to 30, the second at 5
 Stepping down one value at a time, every step from 200 to 20 is free or better
 than free and the step 20 to 18 is the first that costs more than it buys.
 `audits/guard_threshold_sweep.py`.
+
+### The normality statistic is Shapiro-FRANCIA, under both weightings
+
+`customstats.shapiro_francia_weighted`, and the columns are `fit_norm_SF` and
+`fit_lognorm_SF`. Until Stage 2f the function was `shapiro_wilk_weighted` and
+it returned scipy's true Shapiro-WILK W when the weights were uniform and a
+Shapiro-Francia W' when they were not, so `fit_norm_SW` and `fit_norm_SW_uw`
+were two DIFFERENT statistics that four panels of the characteristic figure
+compared as though they were one.
+
+**Shapiro-Francia is the only one of the two with a weighted form**, so it is
+the only choice under which the uniform-versus-variable comparison is one
+statistic under two weightings. Decision 125.
+
+**The old claim that the two agree for n >= 20 is about right there and is not
+the relevant range.** Median absolute difference: 0.010 at n = 4 to 10, 0.006
+at n = 20, 0.0004 at n = 2,000. The smallest size stratum in this study is
+n = 3 to 9.
+
+`shapiro_wilk_scipy` is the true Shapiro-Wilk, kept for
+`audits/shapiro_estimator.py` and called from nothing in the production path.
+`_royston_pvalue` was wrong in two ways until Stage 2f and is now correct to
+4e-12 against scipy; the statistic this module returns gets Royston's (1993)
+Shapiro-FRANCIA transform instead, which declines to extrapolate outside
+5 <= n_eff <= 5000. Nothing reported has ever used a p-value. Decision 126.
 
 ### Three scores per fit, and why one is not enough
 
@@ -410,6 +442,49 @@ method pairs inside a group share its materials and its variates and the four
 materials share its total; `tests/test_plca.py` pins that a row bootstrap comes
 back more than twice too narrow.
 
+## 2c. Which characteristics carry signal
+
+`src/reduction.py`, Stage 2f, called from the last section of notebook 3.
+
+**IT IS IN NOTEBOOK 3 AND NOT NOTEBOOK 2 FOR A REASON.** The reduction is run
+against two kinds of target: the FIT score, how far a fitted curve sits from
+its target, and the ANSWER, how wrong the probabilistic LCA's output is against
+the true parent. The second exists only after `plca.truth_run`, so putting the
+reduction in notebook 2 would make notebook 2 read a table notebook 3 writes
+and break the run order on a clean clone.
+
+**23 candidates**: the 21 characteristics the old figure drew, plus the two
+visible-mode counts, so that all three modality measures are separate
+predictors. `METRIC_TRANSFORM` gives each one its modeling scale, because a
+spline basis on a raw quantity spanning four orders of magnitude puts every
+knot in the first percent of the range.
+
+**Two model families, one instrument.** A penalized additive model (natural
+cubic splines per predictor, elastic net) and gradient boosting, both scored
+out of sample and both ranked by permutation importance on the HELD-OUT fold,
+so the rankings are comparable. `rank_survivors` refuses to rank a model whose
+out-of-sample R2 is below `min_r2`, because inside such a model the importance
+ordering is noise.
+
+**Missingness is handled rather than defaulted.** The additive model imputes
+with an indicator and the boosted model splits on missingness natively, so both
+keep every row. `complete_case_cost` reports what dropping the rows would have
+cost, per arm and size band, which is the number that says why.
+
+**The tautology guard.** `definitional_check` reports each candidate's rank
+correlation with `w1_definitional`, the part of a fit score no estimator can
+remove. `w_v_uw_wasserstein` reproduces it EXACTLY for all three
+uniform-weighted methods, so ranking it first on a fit target is an identity
+being rediscovered; `DEFINITIONAL_CANDIDATES` names it and every survivor
+ranking is reported with and without it. On the downstream error no such
+identity exists.
+
+**The curves that replace the rolling averages.** `binned_curve` gives
+equal-count bins with a within-bin percentile bootstrap and the count on every
+row; `lowess_curve` gives a smooth whose band comes from resampling the
+datasets and a local count for the density rug. The old rolling-average figure
+is kept beside the new one so the two can be checked against each other.
+
 ---
 
 ## 3. Seeding and caching
@@ -515,7 +590,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 440 tests, about 110 seconds
+python -m pytest tests/          # 471 tests, about 160 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -574,8 +649,13 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 `df_stds.index`. `corpus.describe_combos` names the held-out datasets and both
 notebooks print it, so the remainder is stated rather than inferred.
 
-Approximate runtimes on a 2026 laptop: NB1 about 3 min, **NB2 about 35 min**,
-**NB3 about 55 min** at `neccs = 10000`, measured end to end in Stage 2e, which
+Approximate runtimes on a 2026 laptop: **NB1 about 30 min**, **NB2 about 35
+min**, **NB3 about 2 h** at `neccs = 10000`. NB1's figure was recorded as
+3 min through Stage 2c and has been wrong since Stage 2d added the per-dataset
+weighting risk at 1,000 Dirichlet draws, which is almost all of it; NB3 grew
+again in Stage 2f, which added the metric reduction. The Stage 2e figures,
+which the rest of this paragraph describes, were measured end to end in Stage
+2e, which
 roughly trebled it by adding the sweep, the flip recalibration at six group
 sizes, the run against the true parents, the design comparison and the
 oracle-weight counterfactual. **The first run on a new corpus adds 14 minutes**
