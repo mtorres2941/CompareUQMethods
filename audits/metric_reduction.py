@@ -1,9 +1,14 @@
 """The full multivariate reduction of the characteristic set. Stage 2f.
 
-This is the measurement behind the stage's headline. Notebook 2 runs the same
-functions from `src/metricreduction.py` and writes the tables the paper reads; this
-script exists so the reduction can be re-run and argued with on its own, and
-because the decision log quotes its numbers.
+NOTEBOOK 3 IS WHERE THE PAPER'S NUMBERS COME FROM, not this script. Its last
+section calls the same functions from `src/metricreduction.py` and writes the
+`TABLE_Reduction*` tables; this script exists so the reduction can be re-run
+and argued with on its own without a two-hour notebook execution.
+
+**It runs on its own random stream, so its importances differ from the
+notebook's within fold-to-fold noise.** Quote the notebook's tables. A number
+in the decision log that came from a different seed than the table the paper
+prints is the mistake Stage 2c's tenth habit records.
 
 THE REDUCTION IS RUN TWICE, AGAINST TWO DIFFERENT KINDS OF TARGET, and that is
 the design rather than a robustness check:
