@@ -1,0 +1,11 @@
+arm,size_band,n_datasets,n_complete,share_dropped
+empirical,n 10-99,78,78,0.0
+empirical,n 100-999,38,38,0.0
+empirical,n 3-9,20,3,0.85
+empirical,n >= 1000,11,11,0.0
+synthetic,n 10-99,2500,2500,0.0
+synthetic,n 100-999,2500,2500,0.0
+synthetic,n 3-9,2500,474,0.8104
+synthetic,n >= 1000,2500,2500,0.0
+empirical,all,147,130,0.11564625850340138
+synthetic,all,10000,7974,0.2026

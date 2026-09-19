@@ -1,0 +1,9 @@
+arm,size_band,n_datasets,defined__n,defined__coeffvar,defined__coeffvar_uw,defined__skewness,defined__skewness_uw,defined__kurtosis,defined__kurtosis_uw,defined__entropy,defined__entropy_uw,defined__crit_bw_1,defined__crit_bw_1_uw,defined__modality_index,defined__modality_index_uw,defined__fit_norm_SF,defined__fit_norm_SF_uw,defined__fit_lognorm_SF,defined__fit_lognorm_SF_uw,defined__weight_outliers,defined__weight_outliers_uw,defined__mean,defined__w_v_uw_wasserstein,defined__modes_fitted,defined__modes_scipy_default
+empirical,n 3-9,20,20,20,20,20,20,14,14,20,20,20,20,20,20,20,20,20,20,20,20,20,20,3,3
+empirical,n 10-99,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78,78
+empirical,n 100-999,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38
+empirical,n >= 1000,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11
+synthetic,n 3-9,2500,2500,2500,2500,2500,2500,1888,1888,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,474,474
+synthetic,n 10-99,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500
+synthetic,n 100-999,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500
+synthetic,n >= 1000,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500,2500
