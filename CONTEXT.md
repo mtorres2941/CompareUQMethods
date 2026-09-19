@@ -481,9 +481,24 @@ identity exists.
 
 **The curves that replace the rolling averages.** `binned_curve` gives
 equal-count bins with a within-bin percentile bootstrap and the count on every
-row; `lowess_curve` gives a smooth whose band comes from resampling the
-datasets and a local count for the density rug. The old rolling-average figure
-is kept beside the new one so the two can be checked against each other.
+row; `lowess_curve` gives the smooth read through them. The old rolling-average
+figure is kept beside the new one so the two can be checked against each other.
+
+**THE BAND COMES FROM THE BINS AND NOT FROM THE SMOOTHER, and that is a cost
+decision made on a measurement.** statsmodels' LOWESS runs three robustifying
+iterations by default; at 10,000 datasets one fit takes about 600 ms, so
+bootstrapping the smoother 400 times over five characteristics, six methods and
+three targets is some 12,000 fits and several hours. Turning the iterations off
+is 255 times faster and is NOT available: it moves the curve by 54 percent of
+its own range on the target's scale and 14 percent on the log scale, six times
+the width of the band it would be drawn inside. So the binned bootstrap carries
+the uncertainty -- it is exact, cheap and reports its own counts -- and the
+smoother is fitted once with the iterations intact. The whole synthetic arm
+takes 17 seconds.
+
+**The density rug is a DENSITY.** The bins hold equal counts, so a bar of
+constant height would tile the axis and say nothing; the height is the count
+over the bin width, so a narrow bin stands tall.
 
 ---
 
@@ -809,6 +824,14 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_VisibleModes.csv` | NB1 | visible modes per dataset at scipy's default bandwidth and at the one the study fits |
 | `TABLE_VisibleModeSummary.csv` | NB1 | the share with one, two, three or more visible modes, at both bandwidths |
 
+**Figures added in Stage 2f:** `FIG_CharacteristicSurvivors_Empirical` and
+`_Synthetic`, which are what the 21-panel characteristic figure becomes;
+`FIG_MarginalVersusPartial`, the marginal view above the multivariate one,
+which is the stage's claim in one panel; and three supplements,
+`SUPP_CharacteristicSurvivors_Answer`, `SUPP_MarginalVersusPartial_Empirical`
+and `SUPP_RollingVersusBinned_*`, the last of which keeps the rolling average
+beside its replacement so the two can be checked against each other.
+
 **Figures added in Stage 2c:** `FIG_EvaluationTarget`, `FIG_TargetBySize`,
 `FIG_Regret`, `FIG_MethodByMaterial` (which is the POLICY comparison, not a
 material breakdown -- the tier is not a mechanism, decision 84) and
@@ -857,6 +880,24 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCASeparationCeiling.csv` | NB3 | why the rule cannot be written in standard deviations: the measure saturates at 1 over the leading material's coefficient of variation |
 | `TABLE_PLCABias.csv` | NB3 | each method's bias per material, its noise per material, and the systematic error that bias implies for the whole building |
 | `TABLE_PLCANRMSE.csv` | NB3 | every pLCA output's NRMSE between the six methods, with a bootstrap interval. None had one before |
+| `TABLE_ReductionSurvivors.csv` | NB3 | **the Stage 2f table to read.** Each candidate's mean permutation-importance rank pooled over every model that predicted anything, by target family, and with the definitional candidate removed |
+| `TABLE_ReductionImportance.csv` | NB3 | one row per (arm, method, target, model, metric): the permutation importance, its spread across folds, and the model's own out-of-sample R2 |
+| `TABLE_ReductionIncremental.csv` | NB3 | what each characteristic adds to predicting a target once a spline in log(n) is already in the model |
+| `TABLE_ReductionFitVersusAnswer.csv` | NB3 | **the table the stage's design exists for.** Each characteristic's rank against the FIT score beside its rank against the DOWNSTREAM error, and the shift |
+| `TABLE_ReductionDefinitional.csv` | NB3 | whether a candidate PREDICTS a fit score or IS part of one. `w_v_uw_wasserstein` reproduces the definitional term exactly for every uniform-weighted method |
+| `TABLE_ReductionSizeConfounding.csv` | NB3 | how much of each characteristic log(n) alone explains, by a spline fit |
+| `TABLE_ReductionRedundancy.csv` | NB3 | the correlation structure and the effective dimension of the candidate set |
+| `TABLE_ReductionMissingness.csv` | NB3 | how many datasets each characteristic is DEFINED on, per size band |
+| `TABLE_ReductionRowsUsed.csv` | NB3 | how many datasets each MODEL uses, per size band. Catches the exclusion the missingness table cannot see: the cross-validated empirical target is undefined below n = 10 |
+| `TABLE_ReductionCompleteCaseCost.csv` | NB3 | what a model that dropped incomplete rows would have thrown away |
+| `TABLE_ReductionPostStratified.csv` | NB3 | every importance at equal allocation and on a corpus resampled to the empirical size mix |
+| `TABLE_ReductionWinner.csv` | NB3 | whether WHICH METHOD WINS can be predicted, with the majority-class baseline beside every accuracy |
+| `TABLE_ReductionModality.csv` | NB3 | the three modality measures head to head, each offered alone over a spline in log(n) |
+| `TABLE_ReductionModalityAgreement.csv` | NB3 | how far apart the modality measures are, and the share each calls unimodal over the datasets it is DEFINED on |
+| `TABLE_ReductionPartialDependence.csv.gz` | NB3 | what each survivor is worth with the others HELD, as a curve |
+| `TABLE_ReductionMarginalVersusPartial.csv` | NB3 | the marginal range beside the partial one, BOTH IN LOG UNITS of the target, and the ratio |
+| `TABLE_ReductionCurves.csv.gz` | NB3 | the curves that replace the rolling averages: equal-count bins with a bootstrap band and a count, plus a LOWESS smooth |
+| `TABLE_ReductionCoverageVsImportance.csv` | NB3 | **the generalization question, as a join.** Each candidate's importance beside how far the corpus reaches past the empirical range on it |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
 (pLCA, UQ method, dataset). It did not exist before Stage 1: notebook 3 wrote
