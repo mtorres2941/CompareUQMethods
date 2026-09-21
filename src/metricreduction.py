@@ -1499,3 +1499,309 @@ def principal_components(frame, metrics, n_report=5):
                 loadings=', '.join(f'{k} {v:+.2f}' for k, v in top.head(5).items()),
             ))
     return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------
+# Out-of-sample selection. Stage 2f review, decision 136.
+#
+# WHY EVERYTHING BELOW EXISTS AND WHAT IT REPLACES. `choice_increments` above
+# reports an IN-SAMPLE incremental R2 with an F-test p-value beside it. Both
+# halves of that are wrong for this question and the author rejected both.
+#
+# In sample, adding a five-knot spline to 127 datasets raises R2 by about 0.043
+# UNDER THE NULL, so an increment of 0.10 is part signal and part arithmetic and
+# nothing in the number says which. Measured out of sample on the same 127
+# categories the base model's R2 is NEGATIVE, -0.724 under variable weighting:
+# it predicts worse than the mean. No ranking taken from that arm is a
+# measurement, which is why the synthetic arm is primary.
+#
+# And a p-value answers "could this be zero", which is not the question. The
+# question is how big the gain is and how firm, so `cv_gain` reports the gain
+# beside the spread of that gain across folds and nothing else. A gain smaller
+# than its own fold spread is not reportable however small its p-value.
+#
+# Redundancy is handled by SELECTION rather than by pruning correlated columns.
+# Skewness, kurtosis and the normality statistic are three views of one shape
+# and each looks good alone; `forward_select` adds only what still helps once
+# everything already chosen is in the model.
+# --------------------------------------------------------------------------
+
+CV_ALPHAS = np.logspace(-3, 3, 13)
+#: Ridge penalties searched at every fit. A five-knot spline per characteristic
+#: is more columns than rows once a few are in on the real arm, and an
+#: unpenalized fit there is noise rather than a model.
+
+MIN_ROWS_FOR_CV = 40
+#: Below this many complete cases a cross-validated R2 is not reported at all.
+#: Returning a number computed on 30 rows invites it being quoted.
+
+
+def _spline_design(M, cols, ok, n_knots=5, degree=3):
+    """Intercept plus a spline basis per column, on the complete cases."""
+    parts = [np.ones(int(ok.sum()))]
+    for c in cols:
+        parts.append(SplineTransformer(n_knots=n_knots, degree=degree)
+                     .fit_transform(M[c].to_numpy(float)[ok].reshape(-1, 1)))
+    return np.column_stack(parts)
+
+
+def cv_r2(M, cols, y, seed=0, n_splits=5, n_knots=5):
+    """Out-of-sample R2 of a ridge on spline bases, and its spread over folds.
+
+    Returns `(overall_r2, fold_sd, n_rows)`. `overall_r2` pools the squared
+    error across folds rather than averaging per-fold R2, so a fold that
+    happens to contain little variance cannot dominate. `fold_sd` is the
+    standard deviation of the per-fold R2 and is the honest uncertainty on the
+    number: it is what says whether a gain of 0.03 against a spread of 0.24 is
+    a finding or an accident.
+    """
+    from sklearn.linear_model import RidgeCV
+
+    y = np.asarray(y, float)
+    ok = np.isfinite(y)
+    for c in cols:
+        ok = ok & np.isfinite(M[c].to_numpy(float))
+    n = int(ok.sum())
+    if n < MIN_ROWS_FOR_CV:
+        return np.nan, np.nan, n
+    X = _spline_design(M, cols, ok, n_knots=n_knots)
+    yy = y[ok]
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    num, den = [], []
+    for tr, te in kf.split(X):
+        m = RidgeCV(alphas=CV_ALPHAS).fit(X[tr], yy[tr])
+        p = m.predict(X[te])
+        num.append(float(((yy[te] - p) ** 2).sum()))
+        den.append(float(((yy[te] - yy[tr].mean()) ** 2).sum()))
+    num, den = np.array(num), np.array(den)
+    overall = float(1.0 - num.sum() / den.sum())
+    per_fold = 1.0 - num / den
+    return overall, float(np.std(per_fold)), n
+
+
+def cv_gain(choice, metrics, base=('n', 'coeffvar'), target='log_ratio',
+            arm=None, weighting=None, seed=0, n_splits=5):
+    """What each characteristic adds OUT OF SAMPLE over a base model.
+
+    One row per candidate: the base model's R2, the R2 with the candidate
+    added, the gain, and the spread of that gain's R2 across folds. The last
+    column is the one that decides whether a gain is reportable, and it
+    replaces the p-value `choice_increments` used to return.
+    """
+    g = choice
+    if arm is not None:
+        g = g[g.arm == arm]
+    if weighting is not None:
+        g = g[g.weighting == weighting]
+    base = [b for b in base if b in g.columns]
+    cand = [m for m in metrics if m in g.columns and m not in base]
+    M = transform_frame(g, base + cand)
+    y = g[target].to_numpy(float)
+    base_r2, base_sd, _ = cv_r2(M, base, y, seed=seed, n_splits=n_splits)
+    rows = []
+    for c in cand:
+        r2, sd, n = cv_r2(M, base + [c], y, seed=seed, n_splits=n_splits)
+        rows.append(dict(arm=arm, weighting=weighting, metric=c, n_rows=n,
+                         base_cv_r2=base_r2, cv_r2=r2,
+                         cv_gain=r2 - base_r2 if np.isfinite(r2) else np.nan,
+                         fold_sd=sd))
+    out = pd.DataFrame(rows)
+    if len(out):
+        out['exceeds_fold_spread'] = out.cv_gain > out.fold_sd
+        out = out.sort_values('cv_gain', ascending=False)
+    return out.reset_index(drop=True)
+
+
+def forward_select(choice, metrics, base=('n', 'coeffvar'), target='log_ratio',
+                   arm=None, weighting=None, min_gain=0.002, max_steps=6,
+                   seed=0, n_splits=5):
+    """Add characteristics one at a time, keeping only what still helps.
+
+    This is the redundancy control. A one-at-a-time table credits skewness,
+    kurtosis and the normality statistic separately for the same underlying
+    shape, so reading the top of that table as "the five that matter" counts
+    one effect three times. Here a candidate enters only if it raises the
+    OUT-OF-SAMPLE R2 of the model that already contains everything chosen
+    before it, by at least `min_gain`.
+    """
+    g = choice
+    if arm is not None:
+        g = g[g.arm == arm]
+    if weighting is not None:
+        g = g[g.weighting == weighting]
+    base = [b for b in base if b in g.columns]
+    cand = [m for m in metrics if m in g.columns and m not in base]
+    M = transform_frame(g, base + cand)
+    y = g[target].to_numpy(float)
+    cur, _sd, _n = cv_r2(M, base, y, seed=seed, n_splits=n_splits)
+    chosen, rows = list(base), []
+    start = cur
+    for step in range(max_steps):
+        best, best_r2 = None, cur
+        for c in cand:
+            if c in chosen:
+                continue
+            r2, _s, _nn = cv_r2(M, chosen + [c], y, seed=seed,
+                                n_splits=n_splits)
+            if np.isfinite(r2) and r2 > best_r2 + min_gain:
+                best, best_r2 = c, r2
+        if best is None:
+            break
+        chosen.append(best)
+        rows.append(dict(arm=arm, weighting=weighting, step=step + 1,
+                         added=best, cv_r2=best_r2, gain=best_r2 - cur,
+                         base_cv_r2=start))
+        cur = best_r2
+    return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------
+# The practitioner-facing statements. Stage 2f review, decisions 139 and 140.
+#
+# The reduction says which characteristics carry signal. That is not yet a
+# statement anyone can act on. These turn it into the three forms the author
+# asked for -- "use the kernel estimate above N EPDs", "is one method best
+# regardless", "when does variable weighting pay" -- each as a measured curve
+# with the flat region reported rather than a single number quoted to three
+# figures it does not have.
+# --------------------------------------------------------------------------
+
+def best_method_share(scores, sizes, value='w1_market', arm='synthetic',
+                      bands=((3, 9), (10, 99), (100, 999), (1000, 10 ** 9))):
+    """Share of datasets on which each method is closest, by size band.
+
+    The direct answer to "is one method best no matter what". It is a WIN
+    SHARE and not a mean, because a mean over W1 is carried by the datasets
+    with the largest scores while the question is about how often a
+    practitioner following a fixed policy would have been right.
+
+    `value` must be a target all six methods are scored against on equal
+    terms. On the synthetic arm that is `w1_market`, the market-weighted
+    parent: `w1_parent` grades each weighting scheme against a DIFFERENT
+    population, so a comparison across schemes under it is meaningless, and the
+    in-sample `w1` scores every model against the variable-weighted data, which
+    makes variable weighting win by construction.
+    """
+    s = scores[(scores.arm == arm) & scores[value].notna()].copy()
+    s['n'] = s.dataset.map(pd.Series(sizes))
+    edges = [bands[0][0] - 1] + [b[1] for b in bands]
+    labels = [f'{lo}-{hi}' if hi < 10 ** 8 else f'{lo}+' for lo, hi in bands]
+    s['band'] = pd.cut(s.n, edges, labels=labels)
+    best = s.loc[s.groupby('dataset', observed=True)[value].idxmin()]
+    tab = best.groupby(['band', 'method'], observed=True).size().unstack(
+        fill_value=0)
+    share = (tab.T / tab.sum(axis=1)).T * 100
+    share['n_datasets'] = tab.sum(axis=1)
+    return share.reset_index()
+
+
+def policy_curve(scores, sizes, high, low, value='w1_market', arm='synthetic',
+                 thresholds=None):
+    """Cost of "use `high` above the threshold, `low` below" over the oracle.
+
+    The oracle is the best of the six methods ON EACH DATASET, which nobody can
+    reach because it needs the answer first. Reporting a policy against it
+    turns "which method is best on average" into "how much does this rule cost
+    you", which is the question a practitioner has.
+
+    Returns one row per threshold with the mean and worst-case excess. **Read
+    the FLAT REGION off this curve, never the argmin.** The minimum of a noisy
+    curve is not a threshold anyone should print; the span within a few percent
+    of it is, and it is what licenses a round number.
+    """
+    s = scores[(scores.arm == arm) & scores[value].notna()]
+    wide = s.pivot_table(index='dataset', columns='method', values=value)
+    wide = wide.dropna()
+    n = wide.index.map(pd.Series(sizes))
+    oracle = wide.min(axis=1)
+    if thresholds is None:
+        thresholds = np.unique(np.round(10 ** np.linspace(0, 4, 80)).astype(int))
+    rows = []
+    for t in thresholds:
+        chosen = pd.Series(np.where(np.asarray(n, float) >= t,
+                                    wide[high], wide[low]), index=wide.index)
+        rel = (chosen - oracle) / oracle
+        rows.append(dict(threshold=int(t), mean_cost_pct=float(100 * rel.mean()),
+                         median_cost_pct=float(100 * rel.median()),
+                         worst_case_x=float(rel.max() + 1),
+                         share_above=float((np.asarray(n, float) >= t).mean())))
+    out = pd.DataFrame(rows)
+    lo = out.mean_cost_pct.min()
+    out['within_5pct_of_best'] = out.mean_cost_pct <= lo * 1.05
+    return out
+
+
+def flat_region(curve, col='mean_cost_pct', tol=0.05):
+    """The span of thresholds that are as good as the best, and the best itself.
+
+    "As good as" is measured against WHAT THE RULE IS WORTH -- the distance
+    between the best threshold and the better of the two fixed policies at the
+    ends of the curve -- and not as a percentage of the best cost itself.
+
+    That distinction is not pedantic and a test caught it. A tolerance relative
+    to the best cost degenerates as that cost approaches zero: on a curve whose
+    minimum is 0.84 percent, five percent of it is 0.04 points and the "flat
+    region" collapses onto the single argmin, which is exactly the
+    over-precise number this function exists to avoid printing. Measured
+    against the span instead, the region is wide when the choice of threshold
+    barely matters and narrow when it does, which is what a reader needs to
+    know before rounding it.
+    """
+    lo = float(curve[col].min())
+    ends = float(min(curve.iloc[0][col], curve.iloc[-1][col]))
+    span = max(ends - lo, 0.0)
+    flat = curve[curve[col] <= lo + tol * span]
+    return dict(best_threshold=int(curve.loc[curve[col].idxmin(), 'threshold']),
+                best_cost=lo, worst_fixed_policy_cost=ends,
+                lo=int(flat.threshold.min()), hi=int(flat.threshold.max()))
+
+
+def effective_sample_fraction(values, dataset_col='dataset_id',
+                              weight_col='weight'):
+    """Kish effective sample size per dataset, and its fraction of n.
+
+    `sum(w)**2 / sum(w**2)`: how many equally-weighted observations the weight
+    vector is worth. A flat Dirichlet over three points is worth about 2.
+    """
+    g = values.groupby(dataset_col, observed=True)[weight_col]
+    neff = g.apply(lambda w: float(w.sum() ** 2 / (w ** 2).sum()))
+    count = g.size()
+    out = pd.DataFrame({'n_eff': neff, 'n': count})
+    out['eff_frac'] = out.n_eff / out.n
+    out.index = out.index.astype(str)
+    return out.reset_index().rename(columns={dataset_col: 'dataset'})
+
+
+def weighting_by_concentration(scores, eff, family='KDE', value='w1_market',
+                               arm='synthetic', n_lo=100, n_hi=999,
+                               quartiles=4):
+    """Does variable weighting pay more when the weights are CONCENTRATED?
+
+    The intuition everyone starts with is that concentration just shrinks the
+    effective sample, so a concentrated weight vector should be worse. That is
+    half right and the other half is the important half: a weight vector that
+    is nearly uniform carries no information about the market, so the variable
+    fit is the uniform fit plus noise. Splitting the paired comparison by
+    `n_eff / n` separates the two, and it has to be done INSIDE a size band,
+    because otherwise the split is dataset size wearing another name.
+    """
+    s = scores[(scores.arm == arm) & scores[value].notna()]
+    wide = s.pivot_table(index='dataset', columns='method', values=value)
+    u, v = f'{family}, Uniform', f'{family}, Variable'
+    wide = wide[[c for c in (u, v) if c in wide.columns]].dropna()
+    d = wide.join(eff.set_index('dataset'), how='inner')
+    d = d[(d.n >= n_lo) & (d.n <= n_hi)]
+    if len(d) < quartiles * 25:
+        return pd.DataFrame()
+    d = d.copy()
+    d['q'] = pd.qcut(d.eff_frac, quartiles,
+                     labels=[f'q{i + 1}' for i in range(quartiles)])
+    out = d.groupby('q', observed=True).apply(
+        lambda g: pd.Series(dict(
+            median_eff_frac=float(g.eff_frac.median()),
+            variable_closer_pct=float(100 * (g[v] < g[u]).mean()),
+            n_datasets=int(len(g)))))
+    out = out.reset_index()
+    out.insert(0, 'family', family)
+    out.insert(1, 'n_band', f'{n_lo}-{n_hi}')
+    return out

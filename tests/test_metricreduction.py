@@ -646,3 +646,174 @@ def test_choice_importance_rows_survive_a_concat_and_groupby():
     ranked = R.rank_survivors(both[both.target_family == 'choice'])
     assert len(ranked), 'the choice family was dropped by the groupby'
     assert set(ci.method) == {'KDE vs Lognormal'}
+
+
+# ------------------------------------------------- out-of-sample selection
+# Stage 2f review, decision 136. These pin the properties that make the
+# cross-validated selection an improvement on the in-sample one rather than a
+# rearrangement of it: a gain that cannot be bought by adding terms, a fold
+# spread that actually widens when the data thin, selection that refuses a
+# redundant copy, and a policy curve read as a region rather than an argmin.
+
+def _choice_frame(n=1200, seed=3, noise=0.4):
+    """A choice-shaped frame: log_ratio driven by n and one shape metric."""
+    rng = np.random.default_rng(seed)
+    nn = 10 ** rng.uniform(0.5, 4.0, n)
+    shape = rng.normal(0, 1, n)
+    junk = rng.normal(0, 1, n)
+    log_ratio = (-0.5 * (np.log10(nn) - 2.0) + 0.6 * shape
+                 + rng.normal(0, noise, n))
+    return pd.DataFrame(dict(
+        arm='synthetic', dataset=[f'd{i}' for i in range(n)],
+        weighting='Uniform', log_ratio=log_ratio, n=nn,
+        coeffvar=np.abs(rng.normal(0.6, 0.2, n)),
+        skewness=shape, kurtosis=junk,
+        skewness_copy=shape + rng.normal(0, 1e-6, n)))
+
+
+def test_cv_gain_finds_the_planted_metric_and_not_the_junk():
+    ch = _choice_frame()
+    out = R.cv_gain(ch, ['skewness', 'kurtosis'], base=('n', 'coeffvar'))
+    top = out.iloc[0]
+    assert top.metric == 'skewness'
+    assert top.cv_gain > 0.1
+    junk = out[out.metric == 'kurtosis'].iloc[0]
+    assert junk.cv_gain < 0.02
+
+
+def test_cv_gain_cannot_be_bought_by_adding_a_useless_term():
+    """The whole reason for cross-validating. In sample, adding a spline basis
+    always raises R2; out of sample a useless term must not."""
+    ch = _choice_frame()
+    out = R.cv_gain(ch, ['kurtosis'], base=('n', 'coeffvar'))
+    assert out.iloc[0].cv_gain < 0.02
+
+
+def test_cv_gain_reports_a_fold_spread_that_grows_when_data_thin():
+    big = R.cv_gain(_choice_frame(n=2000), ['skewness'], base=('n',))
+    small = R.cv_gain(_choice_frame(n=120), ['skewness'], base=('n',))
+    assert small.iloc[0].fold_sd > big.iloc[0].fold_sd
+
+
+def test_cv_r2_refuses_to_report_below_the_row_floor():
+    ch = _choice_frame(n=30)
+    r2, sd, rows = R.cv_r2(R.transform_frame(ch, ['n']), ['n'],
+                           ch.log_ratio.to_numpy(float))
+    assert rows == 30 and np.isnan(r2)
+
+
+def test_cv_r2_can_be_negative_when_the_model_predicts_worse_than_the_mean():
+    """The empirical arm's actual behaviour: base R2 -0.724. A clipped-at-zero
+    score would have hidden it."""
+    rng = np.random.default_rng(0)
+    n = 60
+    ch = pd.DataFrame(dict(arm='synthetic', dataset=[f'd{i}' for i in range(n)],
+                           weighting='Uniform',
+                           log_ratio=rng.normal(0, 1, n),
+                           n=10 ** rng.uniform(0.5, 4, n),
+                           coeffvar=np.abs(rng.normal(0.6, 0.2, n))))
+    r2, _sd, rows = R.cv_r2(R.transform_frame(ch, ['n', 'coeffvar']),
+                            ['n', 'coeffvar'], ch.log_ratio.to_numpy(float))
+    assert rows == n
+    assert r2 < 0.0
+
+
+def test_forward_select_refuses_a_redundant_copy():
+    """`skewness_copy` is `skewness` to six decimals. A one-at-a-time table
+    credits both; selection must take one and stop."""
+    ch = _choice_frame()
+    steps = R.forward_select(ch, ['skewness', 'skewness_copy', 'kurtosis'],
+                             base=('n', 'coeffvar'), max_steps=4)
+    added = list(steps.added)
+    assert 'skewness' in added or 'skewness_copy' in added
+    assert not ('skewness' in added and 'skewness_copy' in added)
+    assert 'kurtosis' not in added
+
+
+def test_forward_select_gains_are_positive_and_shrink():
+    ch = _choice_frame()
+    steps = R.forward_select(ch, ['skewness', 'kurtosis'],
+                             base=('n',), min_gain=0.001, max_steps=3)
+    assert (steps.gain > 0).all()
+    assert steps.cv_r2.is_monotonic_increasing
+
+
+# ------------------------------------------------------- policy thresholds
+
+def _policy_scores(n=900, seed=5):
+    """Two methods crossing over at n = 100, plus a bad third."""
+    rng = np.random.default_rng(seed)
+    nn = 10 ** rng.uniform(0.5, 4.0, n)
+    ds = [f'd{i}' for i in range(n)]
+    kde = 0.30 * (nn / 100.0) ** -0.45 * np.exp(rng.normal(0, .15, n))
+    logn = 0.30 * (nn / 100.0) ** -0.12 * np.exp(rng.normal(0, .15, n))
+    norm = logn * 1.8
+    rows = []
+    for name, v in (('KDE, Variable', kde), ('Lognormal, Uniform', logn),
+                    ('Normal, Uniform', norm)):
+        rows.append(pd.DataFrame(dict(arm='synthetic', dataset=ds,
+                                      method=name, w1_market=v)))
+    return pd.concat(rows, ignore_index=True), pd.Series(nn, index=ds)
+
+
+def test_policy_curve_puts_its_flat_region_around_the_true_crossover():
+    sc, sizes = _policy_scores()
+    curve = R.policy_curve(sc, sizes, 'KDE, Variable', 'Lognormal, Uniform')
+    reg = R.flat_region(curve)
+    assert reg['lo'] <= 100 <= reg['hi']
+    assert reg['best_cost'] >= 0.0
+
+
+def test_policy_curve_beats_both_fixed_policies():
+    """A threshold rule must cost less than always using either method, or it
+    is not worth printing."""
+    sc, sizes = _policy_scores()
+    curve = R.policy_curve(sc, sizes, 'KDE, Variable', 'Lognormal, Uniform')
+    best = curve.mean_cost_pct.min()
+    always_high = curve.iloc[0].mean_cost_pct
+    always_low = curve.iloc[-1].mean_cost_pct
+    assert best < always_high and best < always_low
+
+
+def test_best_method_share_rows_sum_to_one_hundred():
+    sc, sizes = _policy_scores()
+    tab = R.best_method_share(sc, sizes)
+    cols = [c for c in tab.columns if ', ' in str(c)]
+    assert np.allclose(tab[cols].sum(axis=1), 100.0)
+    assert tab.n_datasets.sum() == len(sizes)
+
+
+# -------------------------------------------------- effective sample size
+
+def test_effective_sample_fraction_matches_the_closed_forms():
+    """Uniform weights are worth n; a weight vector on one point is worth 1."""
+    vals = pd.DataFrame(dict(
+        dataset_id=['a'] * 4 + ['b'] * 4,
+        weight=[0.25, 0.25, 0.25, 0.25, 1.0, 1e-12, 1e-12, 1e-12]))
+    eff = R.effective_sample_fraction(vals).set_index('dataset')
+    assert np.isclose(eff.loc['a', 'n_eff'], 4.0)
+    assert np.isclose(eff.loc['a', 'eff_frac'], 1.0)
+    assert eff.loc['b', 'n_eff'] < 1.01
+
+
+def test_weighting_by_concentration_is_taken_inside_a_size_band():
+    """If the split leaked dataset size it would report a gradient on data
+    where concentration is assigned at random."""
+    rng = np.random.default_rng(11)
+    n = 800
+    ds = [f'd{i}' for i in range(n)]
+    nn = rng.integers(100, 999, n)
+    eff = pd.DataFrame(dict(dataset=ds, n=nn,
+                            n_eff=nn * rng.uniform(.2, .9, n)))
+    eff['eff_frac'] = eff.n_eff / eff.n
+    base = np.abs(rng.normal(0.1, 0.02, n))
+    sc = pd.concat([
+        pd.DataFrame(dict(arm='synthetic', dataset=ds, method='KDE, Uniform',
+                          w1_market=base)),
+        pd.DataFrame(dict(arm='synthetic', dataset=ds, method='KDE, Variable',
+                          w1_market=base * np.exp(rng.normal(0, .05, n))))],
+        ignore_index=True)
+    out = R.weighting_by_concentration(sc, eff)
+    assert len(out) == 4
+    assert out.variable_closer_pct.between(25, 75).all()
+    assert out.n_datasets.sum() == n
