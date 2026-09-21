@@ -3514,3 +3514,177 @@ rather than in conversation.
      **The level and the answer targets are kept and reported**, because the
      contrast between the three is the finding; what changes is which one is
      presented as the answer. Discrepancy entry 124.
+
+136. **2026-09-21, Stage 2f review. THE CHOICE ANALYSIS MOVES TO THE SYNTHETIC
+     ARM, BECAUSE 127 REAL CATEGORIES CANNOT MEASURE IT AT ALL. Decision 134's
+     "2nd of 23" is WITHDRAWN as an out-of-sample claim and decision 135's
+     increments are withdrawn with it.** `[AUTHOR]` "Why not the synthetic
+     datasets?? I know 127 categories isn't very many, that's why we created
+     synthetic datasets. Why would we base our findings on just the empirical
+     datasets? That would be an extremely flimsy approach to this analysis."
+     And, on the significance criterion: "P-value is such an antiquated,
+     arbitrary, silly metric. We can do way better than that."
+
+     **WHAT WAS WRONG.** Decisions 134 and 135 ranked characteristics by
+     IN-SAMPLE incremental R2 on 127 datasets. Adding a five-knot spline to 127
+     points raises in-sample R2 by about **0.043 under the null**, so increments
+     of 0.10 to 0.14 are part signal and part free lunch, and there was no way
+     to tell which from the numbers reported.
+
+     **THE SAME DATA, MEASURED OUT OF SAMPLE.** Five-fold cross-validated, gain
+     reported beside the spread across folds:
+
+         empirical arm, 127 categories
+           base model, size and dispersion, Variable weighting   CV R2  -0.724
+           median gain over base                                        0.032
+           median spread across folds                                   0.242
+           gains larger than their own fold spread                  9 of 46
+
+     A base R2 BELOW ZERO means size and dispersion together predict the choice
+     WORSE than predicting its mean. **The empirical arm cannot support this
+     model, and no ranking taken from it is a measurement.**
+
+     **THE SYNTHETIC ARM CAN, AND IT SAYS SOMETHING DIFFERENT.** 10,000
+     datasets, out-of-sample gain over size and dispersion, fold spread beside:
+
+         uniform-to-variable W1      uniform  +0.170 (sd 0.027)
+         the variable-weighted mean  variable +0.034 (sd 0.007)
+         weight of outliers          variable +0.026 (sd 0.009)
+         visible mode COUNT, fitted  variable +0.019 (sd 0.010)
+         kurtosis                    variable +0.018 (sd 0.012)
+         the author's modality INDEX, fitted bandwidth
+                                     uniform  +0.0015 (sd 0.007)
+                                     variable +0.0027 (sd 0.011)
+         Silverman critical bandwidth         +0.005 / +0.008
+
+     **SO DECISION 134 IS NARROWED, NOT REVERSED.** The bandwidth defect it
+     found is real and the fix stands: `estimate_maxima` was hardcoded to
+     Scott's rule after the study moved to a guarded Silverman, and
+     `modality_index_fitted` is the corrected column. What does NOT survive is
+     the claim built on it. Out of sample the index is indistinguishable from
+     zero, and the visible mode COUNT -- which decisions 132 and 134 both called
+     worthless -- is the modality measure forward selection actually keeps.
+     **Decision 23's reversal stands on the bandwidth argument alone.**
+
+     **SIGNIFICANCE IS NOW A CROSS-VALIDATED GAIN AGAINST ITS OWN FOLD SPREAD,
+     and no p-value appears in any figure, table or claim of this stage.**
+
+     **AND REDUNDANCY IS HANDLED BY SELECTION RATHER THAN BY CORRELATION
+     PRUNING.** One-at-a-time increments credit skewness, kurtosis and the
+     normality statistic separately for the same shape. Forward selection adds
+     only what still helps once everything already chosen is in:
+
+         uniform weights   uniform-to-variable W1, mode count, dispersion (uw),
+                           entropy, outlier weight x2      R2 0.280 -> 0.581
+         variable weights  the mean, outlier weight, mode count, dispersion
+                           (uw), normal fit (uw), skewness (uw)
+                                                           R2 0.524 -> 0.634
+
+     The empirical arm is reported as a consistency check with its interval
+     shown and is stated to be too small to confirm anything. No claim about
+     which method to use rests on it. Discrepancy entry 126.
+
+137. **2026-09-21, Stage 2f review. THE SIZE CAP STAYS AT 9,999, and the author
+     was right to challenge it.** `[AUTHOR]` "Do you really think there's a
+     material difference between a dataset of 10,000 and 30,000? I'm not saying
+     explicitly one way or the other, but I want to challenge whether that's
+     entirely necessary."
+
+     There is not, on three measurements of `log(W1_KDE / W1_lognormal)`:
+
+     **The curve is not accelerating.** Slope per decade of n on the corpus
+     under uniform weighting: **-0.131** at n = 10-99, **-0.307** at 100-999,
+     **-0.233** at 1000-9999. Extending to 31,025 is 0.49 of a decade and worth
+     about -0.11, which moves no threshold.
+
+     **The decision is already unanimous up there.** The kernel estimate is
+     closer on **85.9 percent** of corpus datasets at n = 4000-9999 under
+     uniform weighting and **96.2 percent** under variable. More size would
+     refine a magnitude in a regime where the answer does not change.
+
+     **The three real categories above the cap behave like the band below it.**
+     `ReadyMix [5000-5999 psi]` at n = 14,366, `[3000-3999]` at 20,814 and
+     `[4000-4999]` at 31,025 give log ratios of -0.351, -0.056 and -0.080 under
+     uniform weighting, inside the spread of the 1000-9999 band rather than
+     beyond it. They are 3 of 147 categories, 2.0 percent of the arm.
+
+     Decision 14's reasoning is unchanged and this adds the measurement it
+     lacked. The `margin_above` shortfall on `n` reported in decision 133 is
+     therefore a number without a consequence.
+
+138. **2026-09-21, Stage 2f review. THE DISPERSION GAP IS ONE CONTAMINATED
+     CATEGORY, WIDENING THE GENERATOR COSTS THE PAPER'S CENTRAL QUANTITY, AND
+     THE RECOMMENDATION IS NOT TO. THIS CONTRADICTS AN AUTHOR INSTRUCTION AND
+     IS BROUGHT BACK RATHER THAN ACTED ON.** `[AUTHOR ASKED, MEASUREMENT
+     DISAGREES, AWAITING THE AUTHOR]` The instruction was "Definitely widen
+     dispersion", given against a stated gap of 2.58 against 6.93. That framing
+     was a ratio of maxima, and the maxima are set by one category.
+
+     **WHERE THE DISPERSION IS LOST, which no earlier audit had separated.** A
+     dataset's coefficient of variation passes through a drawn TARGET, a solved
+     PARENT and a finite SAMPLE. Measured at 400 datasets per configuration:
+
+         CV target drawn    median 1.26   p99 13.93
+         parent solved      median 0.70   p99  1.28   max 1.31
+         sample drawn       median 0.54   p99  1.28   max 2.02
+
+     **60 percent of targets come back `clipped_max_cv`**: the generator asks
+     for a spread it cannot build. The binding constraint is the truncation,
+     `Q1 / r**mult` and `Q3 * r**mult` with `r = q3/q1` capped at
+     `1 + 1/min_q1_over_iqr` = 3. **`audits/dispersion_reach.py` swept the
+     target and the floor and never swept `trunc_iqr_mult`**, which is the
+     lever that actually binds, so decision 48's "not reachable by any
+     parameter" was measured with that parameter held fixed.
+
+     **IT IS REACHABLE, AND THE PRICE IS THE QUANTITY THE PAPER IS ABOUT.**
+     Eight configurations at 440 datasets, full calibration objective; the
+     seed-to-seed standard deviation of the objective is 0.0066:
+
+         configuration                     objective  coeffvar  weighting  max CV
+         current                             0.2251     0.380     0.275     1.65
+         mult 5, floor 0.02, centre +0.3     0.2666     0.188     0.661     3.52
+         mult 8, floor 0.02, centre +0.3     0.2638     0.262     0.355     1.83
+         mult 8, floor 0.01, centre +0.5     0.3063     0.297     0.869     2.01
+         mult 12, floor 0.01, centre +0.5    0.3917     0.325     1.168     1.92
+
+     The best dispersion match halves the coefficient-of-variation distance,
+     0.380 to 0.188, and **multiplies the uniform-to-variable Wasserstein
+     distance by 2.4**, 0.275 to 0.661, while Silverman's critical bandwidth
+     doubles and skewness goes 0.156 to 0.272. The overall objective worsens by
+     **6.3 seed standard deviations**. This is the failure decision 39 already
+     records: a configuration that improves the statistic being watched while
+     the corpus gets worse on the quantity the study is built on.
+
+     **AND IT STILL DOES NOT REACH THE TARGET.** The best candidate puts 0.2
+     percent of datasets above a coefficient of variation of 2 against the real
+     arm's 4.1 percent, and reaches 3.52 against 6.93.
+
+     **THE GAP IS ONE CATEGORY, BY NAME.** Exactly **1 of 147** real categories
+     sits above the corpus maximum of 2.576: **`Aggregates`, n = 378,
+     coefficient of variation 6.929, skewness 12.5, kurtosis 163.9**. Six
+     categories exceed 2.0 and one exceeds 2.5. `Aggregates` is the category
+     decisions 48, 49, 60 and 61 all name as a contaminated EC3 bin -- the one
+     where a relative outlier filter puts its upper bound at 41,238,610 times
+     the median and trims nothing.
+
+     **AND NOTHING DEPENDS ON IT, WHICH IS THE MEASUREMENT THAT DECIDES THIS.**
+     Removing every category above the corpus maximum:
+
+         kernel estimate closest, uniform    40.2 pct -> 40.5 pct
+         kernel estimate closest, variable   34.6 pct -> 34.9 pct
+         size crossover, uniform             n = 124.2 -> 122.1
+         size crossover, variable            n = 204.0 -> 196.3
+
+     **DECISION 133 IS NARROWED and its framing withdrawn.** It reported that
+     the corpus has margin on the characteristics that predict nothing and none
+     on the three that predict, and concluded that extrapolation is unsupported
+     where it matters. The margin figures are correct; the conclusion is not,
+     because the shortfall is a single contaminated category and excising it
+     moves every headline by less than half a percentage point.
+
+     **WHAT IS RECOMMENDED INSTEAD.** State the limitation in terms of what is
+     actually missing: the corpus spans the dispersion of every real material
+     category and does not span one contaminated EC3 bin, which is a statement
+     about EC3's taxonomy rather than about the generalization of the result.
+     **Generation stays closed unless the author overrules this**, decisions
+     47, 48 and 55 unchanged. Discrepancy entry 127.
