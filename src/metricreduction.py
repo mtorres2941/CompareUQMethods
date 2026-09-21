@@ -98,6 +98,13 @@ CANDIDATE_METRICS = (
 #: target, kept as a third candidate so the disagreement can be measured.
 MODE_METRICS = ('modes_fitted', 'modes_scipy_default')
 
+#: The author's modality index computed at the bandwidth the study FITS, added
+#: in Stage 2f. `modality_index` is the same index at Scott's rule, which is
+#: what it was written with and what the study stopped using in Stage 2b; the
+#: two are kept side by side because only the second is the author's measure
+#: applied to the density a reader is shown. Decision 134.
+EXTRA_METRICS = ('modality_index_fitted', 'modality_index_fitted_uw')
+
 #: How each candidate enters a LINEAR model. The flexible model needs none of
 #: this -- a tree does not care about monotone reparameterization -- but knots
 #: placed on a raw scale that spans four orders of magnitude all land in the
@@ -124,6 +131,8 @@ METRIC_TRANSFORM = {
     'mean': 'log',
     'w_v_uw_wasserstein': 'log',
     'modes_fitted': 'identity', 'modes_scipy_default': 'identity',
+    'modality_index_fitted': 'identity',
+    'modality_index_fitted_uw': 'identity',
 }
 
 #: The targets the reduction is run against, and what each one is FOR.
@@ -148,6 +157,10 @@ TARGETS = {
                    label="error in a material's share of total variance"),
     'err_eci_p95': dict(family='answer', scale='log',
                         label="error in a material's 95th percentile"),
+    # the CHOICE between two families, which is the question the paper asks.
+    # Already a log ratio, so it is modeled on its own scale.
+    'log_ratio': dict(family='choice', scale='identity',
+                      label='log(W1_KDE / W1_lognormal), same weighting'),
 }
 
 #: Size bands, matching the corpus strata, so every count can be reported per
@@ -218,6 +231,15 @@ def assemble(characteristics, scores, truth=None, modes=None,
     chars = characteristics.copy()
     if modes is not None:
         keep = ['arm', 'dataset'] + [m for m in MODE_METRICS if m in modes]
+        # `modes` is the source of truth for these columns, so any copy already
+        # sitting in `characteristics` is dropped rather than merged alongside.
+        # Merging both leaves pandas' `_x`/`_y` suffixes and every later lookup
+        # by the bare name raises. It cannot happen with the production tables,
+        # where the mode counts live only in `modes`, which is exactly why it
+        # would have surfaced first in somebody's new caller.
+        dupes = [m for m in keep[2:] if m in chars.columns]
+        if dupes:
+            chars = chars.drop(columns=dupes)
         chars = chars.merge(modes[keep], on=['arm', 'dataset'], how='left')
 
     cols = ['arm', 'dataset', 'method', 'w1', 'w1_cv', 'w1_market', 'w1_parent']
@@ -589,7 +611,8 @@ def winner_frame(frame, value='w1', within_weighting=False):
             columns={'method': 'winner', value: 'winning_score'})
     chars = frame.drop_duplicates(['arm', 'dataset'])
     carry = [c for c in chars.columns
-             if c in CANDIDATE_METRICS + MODE_METRICS + ('size_band',)]
+             if c in CANDIDATE_METRICS + MODE_METRICS + EXTRA_METRICS
+             or c == 'size_band']
     return out.merge(chars[['arm', 'dataset'] + carry], on=['arm', 'dataset'],
                      how='left')
 
@@ -1259,3 +1282,201 @@ def marginal_versus_partial(curves, pd_table):
                                  if m_range and np.isfinite(m_range) else np.nan)))
     return pd.DataFrame(rows).sort_values('partial_range_log',
                                           ascending=False).reset_index(drop=True)
+
+
+# --------------------------------------------------------------------------
+# the target the paper actually asks about: WHICH METHOD, not how big the score
+# --------------------------------------------------------------------------
+
+#: The pair whose comparison the paper makes. The normal is excluded because
+#: every arm and every criterion already agrees it loses; the live question is
+#: kernel estimate against three-parameter lognormal.
+CHOICE_PAIR = ('KDE', 'Lognormal')
+
+
+def choice_frame(frame, value, pair=CHOICE_PAIR):
+    """One row per (arm, dataset, weighting): log(W1_first / W1_second).
+
+    **THIS IS A DIFFERENT QUESTION FROM THE ONE `importance` ASKS, AND THE
+    ANSWERS DIFFER.** `importance` predicts the LEVEL of a single method's
+    score, and the level is dominated by dispersion and dataset size because
+    every method gets worse on spread data and on small samples. What the paper
+    asks is which method to USE, which is the DIFFERENCE between two of them,
+    and a difference is about whose shape assumption fits -- so it is where
+    skewness, kurtosis, lognormality and the weight of outliers live. Ranking
+    characteristics on the level and then reporting the ranking as an answer to
+    the choice question is a mistake this module made until decision 135.
+
+    TWO PROPERTIES OF THE RATIO WORTH KNOWING. It is taken WITHIN a weighting
+    scheme, so the definitional part of the score -- the distance a
+    uniform-weighted model cannot remove, which `definitional_check` shows is
+    exactly `w_v_uw_wasserstein` -- is common to both terms and CANCELS. That
+    makes `w_v_uw_wasserstein` a legitimate predictor here, where on the level
+    target it was an identity. And a ratio is scale free, so it does not
+    inherit the level's dependence on how spread the data happen to be.
+    """
+    g = frame.dropna(subset=[value]).copy()
+    g['weighting'] = np.where(g.method.str.endswith('Variable'),
+                              'Variable', 'Uniform')
+    g['family'] = g.method.str.split(',').str[0]
+    keys = ['arm', 'dataset', 'weighting']
+    wide = (g[g.family.isin(pair)]
+            .pivot_table(index=keys, columns='family', values=value))
+    wide = wide.dropna(subset=list(pair))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        wide['log_ratio'] = np.log(wide[pair[0]] / wide[pair[1]])
+    wide = wide.replace([np.inf, -np.inf], np.nan).dropna(subset=['log_ratio'])
+    out = wide.reset_index()[keys + ['log_ratio']]
+    chars = frame.drop_duplicates(['arm', 'dataset'])
+    carry = [c for c in chars.columns
+             if c in CANDIDATE_METRICS + MODE_METRICS + EXTRA_METRICS
+             or c == 'size_band']
+    return out.merge(chars[['arm', 'dataset'] + carry], on=['arm', 'dataset'],
+                     how='left')
+
+
+def choice_importance(choice, metrics, arm=None, weighting=None, rng=None,
+                      n_repeats=10, n_splits=5, models=('additive', 'boosted')):
+    """Permutation importance for predicting WHICH of two families fits better.
+
+    The target is already a log ratio, so it is modeled on its own scale.
+    """
+    rng = rng if rng is not None else np.random.default_rng(0)
+    g = choice
+    if arm is not None:
+        g = g[g.arm == arm]
+    if weighting is not None:
+        g = g[g.weighting == weighting]
+    if len(g) < 40:
+        return pd.DataFrame()
+    X = transform_frame(g, metrics).to_numpy(float)
+    y = g.log_ratio.to_numpy(float)
+    keep = np.isfinite(y)
+    X, y = X[keep], y[keep]
+    builders = {
+        'additive': lambda: additive_model(random_state=int(rng.integers(1 << 30))),
+        'boosted': lambda: boosted_model(random_state=int(rng.integers(1 << 30))),
+    }
+    rows = []
+    for name in models:
+        r2m, r2s, imp, spread = _fit_score_permute(
+            builders[name], X, y, rng, n_repeats=n_repeats, n_splits=n_splits)
+        for m, v, s in zip(metrics, imp, spread):
+            rows.append(dict(arm=arm, weighting=weighting, target='log_ratio',
+                             target_family='choice', model=name, metric=m,
+                             importance=float(v),
+                             importance_sd_across_folds=float(s),
+                             model_r2=float(r2m), model_r2_sd=float(r2s),
+                             n_rows=int(len(y))))
+    return pd.DataFrame(rows)
+
+
+def choice_increments(choice, metrics, arm, weighting, base=('n',),
+                      bonferroni=True):
+    """What each characteristic adds to the CHOICE once `base` is in the model.
+
+    Reported over two bases, because the two answer different questions: over
+    dataset size alone, which is the mechanism every earlier stage found, and
+    over size AND dispersion together, which is what the level-target reduction
+    said was all that mattered. A characteristic that still adds something over
+    the second base is one the level target was hiding.
+
+    **A BONFERRONI COLUMN, BECAUSE FIFTEEN CANDIDATES ARE TESTED ON 127
+    DATASETS.** Fifteen tests at the five percent level expect about one false
+    positive, so the raw p-value is not the right threshold and the corrected
+    one is carried beside it rather than left to the reader.
+    """
+    from scipy import stats as sps
+    from sklearn.preprocessing import SplineTransformer
+
+    g = choice[(choice.arm == arm) & (choice.weighting == weighting)]
+    cand = [m for m in metrics if m not in base]
+    M = transform_frame(g, list(base) + cand)
+    y = g.log_ratio.to_numpy(float)
+
+    def basis(v):
+        return SplineTransformer(n_knots=5, degree=3).fit_transform(
+            np.asarray(v, float).reshape(-1, 1))
+
+    rows = []
+    for m in cand:
+        ok = np.isfinite(y)
+        for c in list(base) + [m]:
+            ok &= np.isfinite(M[c].to_numpy(float))
+        n = int(ok.sum())
+        if n < 40:
+            continue
+        yy = y[ok]
+        B0 = np.column_stack([np.ones(n)]
+                             + [basis(M[c].to_numpy(float)[ok]) for c in base])
+        B1 = np.column_stack([B0, basis(M[m].to_numpy(float)[ok])])
+
+        def rss(B):
+            b, *_ = np.linalg.lstsq(B, yy, rcond=None)
+            r = yy - B @ b
+            return float((r ** 2).sum()), np.linalg.matrix_rank(B)
+
+        r0, k0 = rss(B0)
+        r1, k1 = rss(B1)
+        sst = float(((yy - yy.mean()) ** 2).sum())
+        df1, df2 = max(k1 - k0, 1), max(n - k1, 1)
+        F = ((r0 - r1) / df1) / (r1 / df2) if r1 > 0 else np.nan
+        p = float(sps.f.sf(F, df1, df2)) if np.isfinite(F) and F > 0 else np.nan
+        rows.append(dict(arm=arm, weighting=weighting, base='+'.join(base),
+                         metric=m, n_rows=n,
+                         r2_base=1 - r0 / sst if sst else np.nan,
+                         incremental_r2=(r0 - r1) / sst if sst else np.nan,
+                         f_stat=F, p_value=p))
+    out = pd.DataFrame(rows)
+    if len(out) and bonferroni:
+        out['n_tests'] = len(out)
+        out['bonferroni_threshold'] = 0.05 / len(out)
+        out['survives_bonferroni'] = out.p_value < out.bonferroni_threshold
+    return out.sort_values('incremental_r2', ascending=False).reset_index(drop=True)
+
+
+# --------------------------------------------------------------------------
+# what the independent directions ARE
+# --------------------------------------------------------------------------
+
+def principal_components(frame, metrics, n_report=5):
+    """Name the independent directions in the characteristic set.
+
+    The effective dimension says HOW MANY independent quantities there are; it
+    does not say what they are, and "about four or five" is not something a
+    reader can act on. This gives each component its variance share and the
+    characteristics that load on it, so the axes can be named.
+
+    Correlations, not covariances, because the characteristics are on
+    incommensurate scales, and on the MODELING scale of each so that a
+    quantity spanning four orders of magnitude does not dominate by virtue of
+    its units.
+    """
+    rows = []
+    per_dataset = frame.drop_duplicates(['arm', 'dataset'])
+    for arm, g in per_dataset.groupby('arm'):
+        M = transform_frame(g, metrics).replace([np.inf, -np.inf], np.nan).dropna()
+        if len(M) < 30:
+            continue
+        names = list(M.columns)
+        sd = M.std()
+        names = [n for n in names if sd[n] > 0]
+        M = M[names]
+        Z = ((M - M.mean()) / M.std()).to_numpy(float)
+        lam, vec = np.linalg.eigh(np.corrcoef(Z, rowvar=False))
+        order = np.argsort(lam)[::-1]
+        lam, vec = lam[order], vec[:, order]
+        share = lam / lam.sum()
+        for i in range(min(n_report, len(lam))):
+            load = pd.Series(vec[:, i], index=names)
+            top = load.reindex(load.abs().sort_values(ascending=False).index)
+            rows.append(dict(
+                arm=arm, component=f'PC{i+1}', n_datasets=len(M),
+                n_characteristics=len(names),
+                eigenvalue=float(lam[i]), variance_share=float(share[i]),
+                cumulative_share=float(share[:i + 1].sum()),
+                participation_ratio=float(lam.sum() ** 2 / (lam ** 2).sum()),
+                eigenvalues_above_one=int((lam > 1).sum()),
+                loadings=', '.join(f'{k} {v:+.2f}' for k, v in top.head(5).items()),
+            ))
+    return pd.DataFrame(rows)

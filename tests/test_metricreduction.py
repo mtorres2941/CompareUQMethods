@@ -516,3 +516,99 @@ def test_lowess_does_not_extrapolate_past_the_bins():
     assert l.x_center.max() <= b.x_center.max() + 1e-9
     # and the target is a distance, so a fitted value below zero is a failure
     assert (l['mean'] > 0).all()
+
+
+# -------------------------------------------- the CHOICE target, decision 135
+
+def choice_fixture(n_datasets=500, seed=50):
+    """A frame where the LEVEL of both methods is driven by dispersion and size,
+    and which one WINS is driven by skewness alone.
+
+    That is the situation the level-target reduction cannot see, and it is why
+    the choice target exists: ranking characteristics on the level would put
+    skewness last, while the question the paper asks is exactly the one
+    skewness answers.
+    """
+    rng = np.random.default_rng(seed)
+    frame, metrics = synthetic_frame(n_datasets, seed=seed)
+    per = frame.drop_duplicates('dataset')
+    level = (-0.5 * np.log(per.n.to_numpy(float))
+             + 0.8 * np.log(per.coeffvar.to_numpy(float)))
+    # The tilt is SMALL against the level, which is the real situation: every
+    # method gets worse on spread, small data by far more than any one family
+    # is favoured by shape. So skewness explains about 2 percent of the level
+    # and essentially all of the ratio, because the shared level cancels.
+    tilt = 0.15 * per.skewness.to_numpy(float)
+    rows = []
+    for meth, sign in (('KDE, Uniform', +0.5), ('Lognormal, Uniform', -0.5)):
+        s = per[['arm', 'dataset', 'n']].copy()
+        s['method'] = meth
+        s['w1'] = np.exp(level + sign * tilt
+                         + rng.normal(0, 0.05, len(per)))
+        rows.append(s)
+    scores = pd.concat(rows, ignore_index=True)
+    modes = per[['arm', 'dataset']].copy()
+    for m in R.MODE_METRICS:
+        modes[m] = per[f'{m}_x'] if f'{m}_x' in per else per[m]
+    per = per.rename(columns={f'{m}_x': m for m in R.MODE_METRICS})
+    chars = per.drop(columns=['method', 'w1', 'w1_cv', 'w1_market',
+                              'w1_parent', 'size_band'], errors='ignore')
+    return R.assemble(chars, scores, modes=modes)
+
+
+def test_choice_frame_is_one_row_per_dataset_and_weighting():
+    frame, metrics = choice_fixture(200, seed=51)
+    ch = R.choice_frame(frame, 'w1')
+    assert set(ch.weighting) == {'Uniform'}
+    assert len(ch) == ch.dataset.nunique()
+    assert np.isfinite(ch.log_ratio).all()
+
+
+def test_the_choice_target_finds_what_the_level_target_hides():
+    """The test that justifies decision 135.
+
+    Both methods' LEVELS are built from dispersion and size; which one WINS is
+    built from skewness. So the level reduction must rank skewness low and the
+    choice reduction must rank it first. If these two ever agree on this
+    fixture, the choice target has stopped being a separate question.
+    """
+    frame, metrics = choice_fixture(500, seed=52)
+    level = R.importance(frame, metrics, 'w1', arm='synthetic',
+                         method='KDE, Uniform', rng=np.random.default_rng(53),
+                         n_repeats=3, n_splits=3, models=('boosted',))
+    top_level = set(level.nlargest(2, 'importance').metric)
+    assert 'skewness' not in top_level, top_level
+
+    ch = R.choice_frame(frame, 'w1')
+    choice = R.choice_importance(ch, metrics, arm='synthetic',
+                                 weighting='Uniform',
+                                 rng=np.random.default_rng(54),
+                                 n_repeats=3, n_splits=3, models=('boosted',))
+    assert choice.metric.iloc[choice.importance.argmax()] == 'skewness'
+    assert choice.model_r2.iloc[0] > 0.5
+
+
+def test_choice_increments_carry_a_bonferroni_threshold():
+    """Fifteen candidates on 127 datasets is a multiple-comparison problem and
+    the corrected threshold travels with the p-value rather than being left to
+    the reader."""
+    frame, metrics = choice_fixture(400, seed=55)
+    ch = R.choice_frame(frame, 'w1')
+    inc = R.choice_increments(ch, metrics, 'synthetic', 'Uniform')
+    assert {'bonferroni_threshold', 'survives_bonferroni', 'n_tests'} <= set(inc.columns)
+    assert inc.bonferroni_threshold.iloc[0] == pytest.approx(0.05 / inc.n_tests.iloc[0])
+    assert inc.iloc[0].metric == 'skewness'
+    assert bool(inc.iloc[0].survives_bonferroni)
+
+
+def test_principal_components_name_the_independent_directions():
+    """The effective dimension says how many; this says what they are."""
+    frame, metrics = synthetic_frame(400, seed=56)
+    pcs = R.principal_components(frame, metrics)
+    assert len(pcs) == 5
+    assert pcs.cumulative_share.is_monotonic_increasing
+    assert 0 < pcs.variance_share.iloc[0] < 1
+    # coeffvar and its uniform twin are near-copies in the fixture, so they
+    # must load on the SAME component
+    first = pcs.iloc[0].loadings
+    assert 'coeffvar' in first

@@ -68,7 +68,12 @@ RENAMED_SINCE_FIXTURES = {
     "mode_count_est": "modality_index",
     "mode_count_est_uw": "modality_index_uw",
 }
-ADDED_SINCE_FIXTURES = ("crit_bw_1", "crit_bw_1_uw")
+ADDED_SINCE_FIXTURES = ("crit_bw_1", "crit_bw_1_uw",
+                        # Stage 2f: the author's modality index at the
+                        # bandwidth the study FITS, beside the existing column
+                        # which is the same index at Scott's rule. Additions,
+                        # not changes: `modality_index` is untouched.
+                        "modality_index_fitted", "modality_index_fitted_uw")
 
 
 def align_to_fixture(actual, expected):
@@ -263,9 +268,11 @@ def test_synthetic_metrics_recomputed():
     # that every one of them is still produced so a dropped metric cannot pass
     # as an absent column.
     shared = [c for c in actual.columns if c in expected_full.columns]
-    assert len(shared) == len(actual.columns), (
-        f"metrics no longer in the fixture: "
-        f"{sorted(set(actual.columns) - set(expected_full.columns))}"
+    unexpected = (set(actual.columns) - set(expected_full.columns)
+                  - set(ADDED_SINCE_FIXTURES))
+    assert not unexpected, (
+        f"metrics produced that are neither in the fixture nor declared in "
+        f"ADDED_SINCE_FIXTURES: {sorted(unexpected)}"
     )
     compare_frames(expected_full.loc[sample, shared], actual[shared],
                    "synthetic metrics recomputed")

@@ -387,6 +387,14 @@ def empirical_metadata(data: np.ndarray, weights: np.ndarray, num_bins: int = 25
         # p-value, per decision 11.
         modality_index = estimate_maxima(data, weights=W, gran=1_000)
         metadata[f'modality_index{label}'] = modality_index
+        # THE SAME INDEX AT THE BANDWIDTH THE STUDY FITS. The column above is
+        # at Scott's rule, which is what this measure was written with and
+        # which the study stopped using in Stage 2b; both are kept because the
+        # Scott version is the one every earlier stage quoted, and the fitted
+        # one is the author's measure applied to the density a reader is
+        # actually shown. Decision 134.
+        metadata[f'modality_index_fitted{label}'] = estimate_maxima(
+            data, weights=W, gran=1_000, bw_method=None)
         metadata[f'crit_bw_1{label}'] = modality.critical_bandwidth(data, 1, W)
 
         # find the proportion of data classified as an outlier (farther than 1.5*IQR from the IQR)
@@ -466,17 +474,44 @@ def weighted_ecdf(data, weights=None, kind='previous'):
 
     return xcdf, ycdf, func
 ########################################################################
-def estimate_maxima(data, weights=None, gran=1_000):
-    """
+def estimate_maxima(data, weights=None, gran=1_000, bw_method='scott'):
+    """The author's modality index: how many humps, as a continuous number.
+
+    Summed heights of the local maxima less the summed heights of the local
+    minima, over the tallest peak. It is 1.0 for a single mode and rises toward
+    the number of humps, and subtracting the minima is what stops two maxima
+    with a shallow dip between them registering as two full modes.
+
+    **THE BANDWIDTH IS NOW AN ARGUMENT, AND IT WAS STUCK ON SCOTT'S RULE.**
+    This function was written when Scott's rule was the study's bandwidth;
+    decision 54 moved the study to a guarded Silverman rule and nothing brought
+    this measure with it. That mattered more than it sounds: at Scott's
+    bandwidth the index spans only 1.000 to 1.074 across the 147 real
+    categories, which is what Stage 2a's decision 23 read as "constant at 1"
+    when it set the measure aside, and at the bandwidth the study actually fits
+    it spans 1.000 to 1.249 -- three times the range, on the same data. The
+    apparent degeneracy was a property of the smoothing choice.
+
+    `bw_method` defaults to `'scott'` so the existing `modality_index` column
+    is unchanged; `empirical_metadata` also computes the index at
+    `fitting.BW_METHOD` as `modality_index_fitted`, which is the density the
+    study puts in front of a reader and samples from. Decision 134.
+
     INPUT:
-        data    array of data
-        gran    number of data points in plot used to find local maxima
-    
+        data      array of data
+        weights   array of weights, or None for equal
+        gran      number of grid points used to find the local extrema
+        bw_method any rule `weighted_bw` accepts, or None for the rule the
+                  study fits
+
     OUTPUT:
-        nmodes      the height of ymaxima minus the height of yminima where max(ymaxima)=1
+        nmodes    the continuous index described above
     """
     if weights is None: weights=np.ones_like(data)
-    bw = weighted_bw(data, weights, bw_method='scott')
+    if bw_method is None:
+        import fitting as _ft          # deferred: fitting imports this module
+        bw_method = _ft.BW_METHOD
+    bw = weighted_bw(data, weights, bw_method=bw_method)
     kde = gaussian_kde(data, bw_method=1.0, weights=weights)
     bw_base = (kde.covariance**0.5)[0][0]
     kde.set_bandwidth(bw/bw_base)
