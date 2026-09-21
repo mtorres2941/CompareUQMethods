@@ -813,3 +813,37 @@ def test_the_overlap_check_is_quiet_when_nothing_collides():
     hits = figstyle.check_overlaps(fig, verbose=False)
     plt.close(fig)
     assert not hits, hits
+
+
+def test_the_overlap_check_sees_a_label_sitting_on_the_data():
+    """The check claimed to do this from the day it was written and did not.
+
+    `check_overlaps` compared text against text only, so a legend label
+    squarely on a data point passed -- the exact fault FIGURE_STYLE.md section
+    5 names, and it happened on a Stage 2f figure. It now renders the canvas
+    with the text hidden and counts plotted ink inside each label's box.
+    """
+    import figstyle
+    import numpy as np
+    figstyle.apply()
+    fig, ax = plt.subplots(figsize=(4, 2.5))
+    x = np.linspace(0, 1, 50)
+    ax.fill_between(x, 0, 1, color='#0072B2')
+    ax.text(0.5, 0.5, 'LABEL ON INK', ha='center')
+    hits = figstyle.check_overlaps(fig, verbose=False)
+    plt.close(fig)
+    assert hits, 'a label on a solid band was not reported'
+
+
+def test_the_overlap_check_is_quiet_for_a_label_in_white_space():
+    """The control, and the reason the background is the figure facecolor and
+    not the median pixel: a median over a canvas the data fill IS the data's
+    colour, so every label would read as sitting on background."""
+    import figstyle
+    figstyle.apply()
+    fig, ax = plt.subplots(figsize=(4, 2.5))
+    ax.plot([0, 1], [0, 1])
+    ax.text(0.05, 0.9, 'clear label')
+    hits = figstyle.check_overlaps(fig, verbose=False)
+    plt.close(fig)
+    assert not hits, hits

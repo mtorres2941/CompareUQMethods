@@ -148,6 +148,15 @@ def check_overlaps(fig, verbose=True):
     label and reports labels sitting on saturated ink, which is the "annotation
     on top of the data" case.
 
+    **THE INK CHECK IS REAL AND WAS NOT, UNTIL STAGE 2F.** This docstring
+    claimed to sample the rendered pixels under each label from the day it was
+    written, and the function only ever compared text against text. A legend
+    label sitting squarely on a data point therefore passed -- which is the
+    exact fault FIGURE_STYLE.md section 5 names, and it happened on a Stage 2f
+    figure. It now renders the canvas and counts non-background pixels inside
+    each label's box, excluding the label's own glyphs by comparing against a
+    render with the text hidden.
+
     It is a smell test, not a proof: a box can overlap while the glyphs do not,
     and a label on a pale region may still be hard to read. Treat a report as a
     prompt to look, and look at final size.
@@ -182,11 +191,49 @@ def check_overlaps(fig, verbose=True):
             if a.overlaps(b):
                 hits.append((boxes[i][0].get_text()[:38],
                              boxes[j][0].get_text()[:38]))
+    # TEXT SITTING ON DATA, which is a different fault from text on text.
+    # Render once with every text artist hidden, so whatever ink remains inside
+    # a label's box belongs to the plot and not to the label itself.
+    on_ink = []
+    try:
+        import numpy as _np
+        shown = [t for t in texts if t.get_visible()]
+        for t in shown:
+            t.set_visible(False)
+        fig.canvas.draw()
+        bare = _np.asarray(fig.canvas.buffer_rgba())[:, :, :3].astype(int)
+        for t in shown:
+            t.set_visible(True)
+        fig.canvas.draw()
+        h = bare.shape[0]
+        # The BACKGROUND is the figure's own facecolor, not the median pixel.
+        # A median over the canvas is the plot's dominant colour whenever the
+        # data fill the axes, which is exactly the case this check exists for:
+        # a label on a solid band then reads as sitting on 'background'.
+        import matplotlib.colors as _mc
+        bg = _np.array(_mc.to_rgb(fig.get_facecolor())) * 255.0
+        for t, box in boxes:
+            x0, x1 = int(max(box.x0, 0)), int(max(box.x1, 0))
+            # matplotlib's y runs up from the bottom, the buffer's runs down
+            y0, y1 = int(h - max(box.y1, 0)), int(h - max(box.y0, 0))
+            patch = bare[max(y0, 0):y1, x0:x1]
+            if patch.size == 0:
+                continue
+            inked = (_np.abs(patch - bg).sum(axis=2) > 40).mean()
+            if inked > 0.04:
+                on_ink.append((t.get_text()[:38], float(inked)))
+    except Exception:
+        pass
+
     if verbose:
+        if on_ink:
+            print(f'TEXT ON TOP OF DATA: {len(on_ink)} label(s)')
+            for a, frac in on_ink:
+                print(f'  {a!r}  covers {frac*100:.0f} pct plotted ink')
         if hits:
             print(f'OVERLAPPING TEXT: {len(hits)} pair(s)')
             for a, b in hits:
                 print(f'  {a!r}  <->  {b!r}')
-        else:
-            print('no overlapping text')
-    return hits
+        if not hits and not on_ink:
+            print('no overlapping text, no text on data')
+    return hits + on_ink
