@@ -34,7 +34,10 @@ def code_cells(path):
 
 
 def test_notebooks_found():
-    assert len(NOTEBOOKS) == 3, [p.name for p in NOTEBOOKS]
+    # FOUR since Stage 2f: the metric reduction was moved out of notebook 3
+    # into its own, because it needs none of the pLCA machinery and made a
+    # fifteen-minute analysis wait behind a forty-three-minute one.
+    assert len(NOTEBOOKS) == 4, [p.name for p in NOTEBOOKS]
 
 
 @pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
