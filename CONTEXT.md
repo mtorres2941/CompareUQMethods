@@ -19,7 +19,9 @@ CompareUQMethods/
 ├── notebooks/
 │   ├── 01_CompareUQ_CreateData.ipynb    generate/read data, compute metrics
 │   ├── 02_CompareUQ_AnalyzeData.ipynb   fit 6 methods, score by W1/W2/KS
-│   └── 03_CompareUQ_PerformPLCA.ipynb   2,499 pLCAs, downstream results
+│   ├── 03_CompareUQ_PerformPLCA.ipynb   2,500 pLCAs, downstream results
+│   └── 04_CompareUQ_ReduceMetrics.ipynb which characteristics matter, and
+│                                        which method to use (Stage 2f)
 ├── src/
 │   ├── components.py          moment-targeted component families (Stage 2a)
 │   ├── mixture.py             the truncated-mixture parent (Stage 2a)
@@ -444,14 +446,27 @@ back more than twice too narrow.
 
 ## 2c. Which characteristics carry signal
 
-`src/metricreduction.py`, Stage 2f, called from the last section of notebook 3.
+`src/metricreduction.py`, Stage 2f, called from **notebook 4**, which exists
+only for it.
 
-**IT IS IN NOTEBOOK 3 AND NOT NOTEBOOK 2 FOR A REASON.** The reduction is run
-against two kinds of target: the FIT score, how far a fitted curve sits from
-its target, and the ANSWER, how wrong the probabilistic LCA's output is against
-the true parent. The second exists only after `plca.truth_run`, so putting the
-reduction in notebook 2 would make notebook 2 read a table notebook 3 writes
-and break the run order on a clean clone.
+**IT IS ITS OWN NOTEBOOK, and that was worth doing.** The reduction reads three
+tables the pipeline has already written -- the characteristics from notebook 1,
+the scores from notebook 2, the run against the true parents from notebook 3 --
+and needs none of the pLCA machinery. Kept inside notebook 3 it made a
+15-minute analysis wait behind a 43-minute one, which is the wrong shape for
+something still being iterated on. The run order is NB1, NB2, NB3, NB4.
+
+**THERE ARE THREE TARGETS AND THEY ANSWER DIFFERENT QUESTIONS.** The LEVEL of a
+method's own score, which is dominated by dispersion and dataset size because
+every method gets worse on spread, small data. The CHOICE between two families,
+which is `log(W1_KDE / W1_lognormal)` within a weighting scheme and is the
+question the paper asks. And the ANSWER, how wrong the probabilistic LCA's
+output is against the true parent. **Reporting the LEVEL ranking as an answer
+to the CHOICE question is the mistake this module made in its first pass**;
+decision 135 records it and `choice_frame` is the fix. Two properties of the
+ratio matter: within a weighting scheme it CANCELS the definitional part of the
+score, so `w_v_uw_wasserstein` is a legitimate predictor there and an identity
+on the level, and it is scale free.
 
 **23 candidates**: the 21 characteristics the old figure drew, plus the two
 visible-mode counts, so that all three modality measures are separate
@@ -605,7 +620,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 487 tests, about 135 seconds
+python -m pytest tests/          # 504 tests, about 140 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -665,7 +680,14 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 notebooks print it, so the remainder is stated rather than inferred.
 
 Approximate runtimes on a 2026 laptop: **NB1 about 30 min**, **NB2 about 35
-min**, **NB3 about 2 h** at `neccs = 10000`. NB1's figure was recorded as
+min**, **NB3 about 45 min** at `neccs = 10000`, and **NB4 about 15 min**.
+Profiled cell by cell in the Stage 2f review, which also corrected a wrong
+figure: NB3 was reported as two hours, which was wall clock while other jobs
+competed for the processor, against 58 minutes of actual cell time -- 43 of it
+the pLCA and its sweeps, 15 the metric reduction, which then moved to NB4. The
+single most expensive cell in the project is NB3's crossed sweep over group
+size and material use intensity at 13.5 minutes, which is 23 percent of that
+notebook. NB1's figure was recorded as
 3 min through Stage 2c and has been wrong since Stage 2d added the per-dataset
 weighting risk at 1,000 Dirichlet draws, which is almost all of it; NB3 grew
 again in Stage 2f, which added the metric reduction. The Stage 2e figures,

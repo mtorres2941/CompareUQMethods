@@ -15,179 +15,206 @@ reader whose copy does not render the images loses nothing.
 
 **Stage 2f asks which of the statistical characteristics of an ECC dataset
 actually carry information, and cuts the figure that shows them from 21 panels
-to five.** Each claim carries the number behind it and a plain-language **so
+to six.** Each claim carries the number behind it and a plain-language **so
 what** for a reader who builds buildings rather than statistical models.
 
-## The answer is two quantities, not twenty-one
+**THIS PAGE WAS REWRITTEN AFTER THE AUTHOR'S REVIEW, AND THE FIRST VERSION HAD
+THE HEADLINE WRONG.** It reported that only dispersion and dataset size matter.
+That is true of the wrong quantity -- see claim 1 -- and the corrected answer
+is richer. Nothing below is the first version's ordering.
 
-1. **The 21-panel figure is worth five panels, and the five are two
-   quantities: how SPREAD the data are and HOW MANY EPDs there are.** Ranked
-   by how much each characteristic independently helps predict the results --
-   pooled over both arms, all six UQ methods, two kinds of target and two
-   kinds of model, which is 96 models in all -- the survivors are the
-   coefficient of variation under both weightings, entropy under both, and
-   dataset size. Everything else, including every measure of multimodality,
-   every measure of skewness and both normality statistics, ranks below them
-   and is in the top five of at most 15 percent of models.
+## The question the paper asks is which method to use, and that is a different
+## question from how big the score is
 
-   **So what:** of the ten things this study measures about a set of
-   environmental product declarations, two matter. How widely the declared
-   values scatter, and how many declarations you have. The rest can be left
-   out of the paper's main figure without losing anything a reader could act
-   on.
-2. **Those five collapse to two because entropy IS dataset size.** Entropy
-   here is computed over a 256-bin histogram, so it counts how many bins the
-   data fill: a spline fit on the logarithm of the EPD count alone explains
-   **92.4 percent** of it on the synthetic corpus and **83.9 percent** on the
-   real categories, at a rank correlation of **+0.88 and +0.90**. And the
-   uniform-weighted coefficient of variation is the variable-weighted one, at
-   a correlation of **0.979**. Spread and count are themselves nearly
-   independent of each other, correlating **+0.11** on the real arm and
-   **+0.30** on the corpus, which is why neither looked like the whole answer
-   on its own.
+1. **RANKING CHARACTERISTICS BY HOW WELL THEY PREDICT A METHOD'S OWN SCORE IS
+   NOT AN ANSWER TO "WHICH METHOD SHOULD I USE".** The size of any one method's
+   goodness-of-fit score is dominated by two things -- how spread the data are
+   and how many declarations there are -- because **every** method gets worse
+   on spread, small data. Which method is BETTER is a difference between two of
+   them, and a difference is about whose assumed shape fits. Measured on the
+   real categories, with spread and count already accounted for, five to eight
+   further characteristics change which method wins, at between 0.09 and 0.14
+   of added explanatory power.
 
-   **So what:** entropy sounds like it measures something else and does not.
-   It is a slower way of counting your declarations.
-3. **The correlation structure says the same thing before any model is
-   fitted.** The effective dimension of all 23 candidate characteristics --
-   which would be 23 if they were independent of one another and 1 if they
-   were all the same quantity -- is **4.33 on the real categories and 5.43 on
-   the corpus**. Seven pairs on the real arm correlate above 0.9.
+   **So what:** "what makes this dataset hard" and "what makes a kernel
+   estimate better than a lognormal here" are two questions with two different
+   answers, and the paper asks the second. The first version of this analysis
+   answered the first and reported it as the second.
+2. **EIGHT OF TWENTY-THREE CHARACTERISTICS CHANGE WHICH METHOD FITS BETTER
+   UNDER EQUAL WEIGHTS, THREE UNDER MARKET-SHARE WEIGHTS, AND ONLY ONE UNDER
+   BOTH.** With dataset size and dispersion in the model, on 127 real
+   categories, corrected for the 23 characteristics tested:
 
-   **So what:** twenty-one panels were always showing about four or five
-   independent things. A reader looking at them had no way to know that.
+       equal weights                        market-share weights
+       the variable-weighted mean   0.125   lognormal fit statistic   0.140
+       the modality index           0.111   the same, equal weights   0.103
+       Silverman critical bandwidth 0.107   Silverman crit bandwidth  0.091
+       weight of outliers           0.105
+       kurtosis                     0.103
+       kurtosis, equal weights      0.100
+       lognormal fit statistic      0.094
+       entropy                      0.091
 
-## The two targets disagree, and the old figure weighted the wrong things
+   The lognormal fit statistic is the only one that matters under both. Ten
+   matter under one or the other; thirteen matter under neither.
 
-4. **Dataset size matters MORE for the error in the answer than for the
-   goodness of fit, and the shape statistics matter less.** The reduction was
-   run twice: once against how far a fitted curve sits from its target, and
-   once against how wrong the probabilistic LCA's answer is, which is possible
-   because the previous stage ran the whole study against the true
-   distributions the synthetic data was drawn from. Dataset size moves from
-   rank **6.90 on the fit to 4.42 on the answer**, the largest such shift of
-   any characteristic; the weight of statistical outliers moves the other way,
-   **13.25 to 17.29**, and the normal-fit statistic **9.88 to 13.85**.
+   **So what:** a practitioner deciding between a kernel estimate and a
+   lognormal can look at a handful of properties of their declarations and know
+   which is likely to fit better. Which handful depends on whether they are
+   accounting for market share, and that dependence is real rather than noise.
+3. **THE AUTHOR'S OWN MODALITY MEASURE IS THE SECOND-STRONGEST OF THE
+   TWENTY-THREE, AND FOUR STAGES MEASURED IT AT THE WRONG BANDWIDTH.** The
+   measure sums the heights of a smoothed density's peaks, subtracts the
+   heights of the dips between them, and divides by the tallest peak. It was
+   written when the study smoothed with one rule and the study changed to
+   another in an earlier stage; nothing brought the measure along. At the
+   abandoned setting it adds **0.018 at p = 0.69, ranking 21st of 23**. At the
+   setting the study actually uses it adds **0.111 at p = 0.0002, ranking 2nd
+   of 23**. Nothing about the measure changed but the smoothing.
 
-   **So what:** the figure this stage replaces was ranking characteristics by
-   how well a curve fits, which is not the same as how wrong the final answer
-   is. Judged on the answer, the number of declarations you have matters more
-   than any measure of the shape of their distribution.
-5. **One output is almost unpredictable from the data, and it is the ranking
-   one.** The models reach an out-of-sample R2 of **0.62 to 0.66** for the
-   error in a material's estimated contribution, 0.52 to 0.54 for its 95th
-   percentile and 0.54 for its share of total variance -- and **0.085 to
-   0.096** for the error in its chance of being the largest contributor.
+   **So what:** how many humps a category's distribution has does tell you
+   which method to use -- it was being measured through a blur that hid it. And
+   the simpler substitute adopted in its place, counting the humps instead of
+   weighing them, is the WORST of all twenty-three characteristics.
+4. **SKEWNESS MATTERS, IN THE DIRECTION A READER WOULD EXPECT, AND IS NOT THE
+   STRONGEST.** It adds **0.077 at p = 0.0041**, which is just short of
+   significance once the twenty-three tests are corrected for. The sign is the
+   expected one: the more right-skewed the declarations, the better the
+   lognormal does relative to the kernel estimate, because a lognormal is a
+   right-skewed shape and starts with that assumption already correct.
 
-   **So what:** you can tell from a category's own statistics roughly how
-   wrong your estimate of its carbon will be. You cannot tell how wrong your
-   statement about which material ranks first will be, because that depends on
-   the other materials in the building and not on this one. It is a third
-   independent reason to lead with magnitudes rather than rankings.
+   **So what:** if your declarations pile up at the low end with a long tail to
+   the high end -- which most do -- a lognormal is playing to its strength.
+   That is worth saying, and it is a smaller effect than the paper should lead
+   with.
+5. **LEFT SKEW IS THE QUESTION THE REAL DATA CANNOT ANSWER.** On the synthetic
+   corpus, where 1,674 of 10,000 datasets lean the other way, they are harder
+   for all six methods -- a mean score of 0.24 to 0.29 against 0.14 to 0.23.
+   **Of the 147 real categories, 8 are left-skewed.**
 
-## Modality, open since Stage 2a-2, answered
+   **So what:** embodied carbon declarations almost never pile up at the high
+   end with a tail to the low end. The synthetic data is the only place the
+   question can be asked at all, and the answer there is that it is hard for
+   everything rather than for one method in particular.
 
-6. **The three modality measures do not agree, the only one that predicts
-   anything is Silverman's critical bandwidth, and all of its signal is
-   dispersion under another name.** Rank correlation between the continuous
-   modality index and the count of visible modes is **+0.168 on the real arm
-   and +0.018 on the corpus**; between the critical bandwidth and that count,
-   **+0.283 and -0.115**. Offered on its own over dataset size, the critical
-   bandwidth adds **0.210 and 0.175** of explained variance, significant every
-   time, while the mode counts add **0.012** and on the real arm are not
-   significant in any of twelve models. **But in the full model the critical
-   bandwidth ranks 14th of 22 and is in the top five of ZERO of 96 models**,
-   because it correlates **+0.54 and +0.60 with the coefficient of variation**.
+## How many independent things there are, and what they are
 
-   **So what:** "is this category multimodal" turns out not to be one question
-   with three answers -- the three ways of asking it barely agree, and one
-   pair of them disagrees outright. The version that looks informative is
-   really telling you how spread the data are, which you already knew from a
-   simpler number.
+6. **TWENTY-THREE CHARACTERISTICS ARE ABOUT FIVE INDEPENDENT QUANTITIES, AND
+   THEY HAVE NAMES.** A principal component analysis, agreeing across both
+   arms: **shape** (42.8 percent of the variation on real data), on which the
+   normality statistic, skewness, kurtosis and dispersion all load; **count**
+   (17.6 percent), on which the number of declarations and entropy load
+   together; **modality** (8.2 percent), on which all four modality measures
+   load; **outlier weight** (5.6 percent); and **lognormality** (4.7 percent).
+   Five components carry 79 percent of the variation on real data and 72 on the
+   corpus.
 
-## How far the study generalizes
+   **So what:** the twenty-one-panel figure was showing about five things
+   twenty-one times. Modality is one of those five -- a genuinely separate
+   property, not a restatement of something else -- which is the second reason
+   the measure in claim 3 deserved better treatment.
+7. **ENTROPY IS A SLOWER WAY OF COUNTING DECLARATIONS.** A smooth fit on the
+   logarithm of the count alone explains **92.4 percent** of it on the corpus
+   and **83.9 percent** on the real categories.
 
-7. **The corpus has room to spare on the characteristics that do not matter
-   and none on the three that do.** Measured as how far the synthetic range
-   reaches past the largest real value, in units of the real range: the
-   coefficient of variation **-0.629**, its uniform-weighted twin **-0.656**,
-   dataset size **-0.678** -- all negative, meaning the corpus does not reach
-   the real maximum at all -- against skewness **+7.19**, the modality index
-   **+6.86** and kurtosis **+5.25**. Median margin **-0.63 for the five that
-   matter and +0.51 for the other seventeen**.
+   **So what:** it looks like a measure of how disordered the data are and it
+   is not. It is out of the figure.
+8. **THE TWO WEIGHTINGS OF A CHARACTERISTIC ARE SOMETIMES ONE QUANTITY AND
+   SOMETIMES TWO.** Entropy correlates with its own market-share-weighted
+   version at 0.991 and dispersion at 0.979 -- one quantity, one panel -- while
+   the weight of outliers correlates at only **0.620**.
 
-   **So what:** the synthetic datasets do cover the real ones -- 98 to 100
-   percent of real categories sit inside the synthetic range on every
-   measure -- so the study's conclusions hold across the range of real data.
-   What they do not do is reach beyond it on the two things that turn out to
-   drive the results. So the paper can say its findings hold for categories
-   like the ones in the database, and should not claim they hold for
-   categories more extreme than any it has seen.
+   **So what:** the paper should not treat the "(Var)" and "(Uni)" pairs as
+   uniformly redundant. For the weight of outliers they are two different
+   measurements of two different things.
 
-## The normality statistic, which was two statistics
+## How far the study generalizes, and the one thing the corpus cannot do
 
-8. **The two normality columns were computed by two different tests and the
-   figure compared them as one.** For equal weights the code returned the true
-   Shapiro-Wilk statistic and for unequal weights a Shapiro-Francia statistic.
-   Both columns are now Shapiro-Francia, which is the only one of the two that
-   accepts weights at all. On the real categories the uniform column moves by
-   a median of **0.0103** where there are 3 to 9 EPDs, 0.0062 at 10 to 99,
-   0.0029 at 100 to 999 and 0.00005 above 1,000.
+9. **THE CORPUS CANNOT SEE THE EFFECTS THE REAL DATA SHOW.** Every added
+   contribution above is an order of magnitude smaller on the synthetic arm --
+   **0.01 to 0.03 against 0.08 to 0.14**. It reaches a coefficient of variation
+   of **2.58** where the real categories reach **6.93**, and its largest
+   dataset has **9,978** values against a real **31,025**.
 
-   **So what:** two panels of the paper's main figure were comparing a
-   measurement taken one way against the same measurement taken another way,
-   and calling the difference a result about weighting. They now use one test.
+   **So what:** this is lost sensitivity, not a distortion -- the synthetic
+   data still covers 98 to 100 percent of real categories on every measure, so
+   conclusions drawn inside that range hold. What it means is that the
+   synthetic data cannot CONFIRM an effect the real data show, which is the
+   opposite of the usual worry that simulated data flatters the method being
+   tested. **Closing the gap means redesigning the data generator and
+   re-running everything downstream, and that is an author decision this stage
+   did not take.**
+10. **THE TWO NORMALITY COLUMNS WERE TWO DIFFERENT TESTS.** For equal weights
+    the code computed one statistic and for unequal weights another, and two
+    panels of the paper's main figure compared them as one. Both are now the
+    only one of the two that accepts weights at all. On the real categories the
+    equal-weighted column moves by a median of **0.0103** where there are 3 to
+    9 declarations, and by **0.00005** above a thousand.
 
-**What must travel with these numbers.** The survivor SET is stable -- two
-independent runs on different random streams return the same five -- but the
-ORDER within it is not, the second and third places swapping between runs, so
-the paper states a set and never a ranking within it. And the out-of-sample
-reduction on the real categories cannot speak about the smallest datasets at
-all: a cross-validated score needs at least ten values, so 20 of the 147
-categories are absent from it, and those claims rest on the in-sample score.
+    **So what:** a comparison the paper presented as "what changes when you
+    account for market share" was partly just the difference between two ways
+    of computing the same idea.
+
+**What must travel with these numbers.** Every claim above about which method
+wins rests on 127 real categories, because a cross-validated score needs at
+least ten values and 20 of the 147 are smaller than that; the in-sample score
+covers all 147 and is reported beside it. The corrected significance threshold
+is 0.0022, and two of the effects quoted -- skewness and the modality index
+under market-share weights -- sit just the wrong side of it and are reported as
+suggestive rather than established.
 
 ---
 
 ## The two figures
 
-![What is left of the characteristic figure once the bands are drawn](../outputs/figures/CompareUQMethods_FIG_CharacteristicSurvivors_Empirical.png)
+![Ten of twenty-three characteristics change which method fits better](../outputs/figures/CompareUQMethods_FIG_WhatMattersForTheChoice.png)
 
-**Figure: what is left of the characteristic figure once the uncertainty is
-drawn, on the real ECC categories.** In one sentence for a designer:
-goodness-of-fit gets worse as the declared values scatter more and better as
-you collect more declarations, and almost nothing else about the data matters.
-Five panels replace twenty-one. Each line is one of the six UQ methods, each
-shaded ribbon is a bootstrap interval computed within equal-count bins, and the
-grey bars along the bottom are a density rug -- the count of datasets divided by
-the bin width, so a narrow bar means a crowded region and a wide flat one means
-a sparse one. **The two things the rolling average it replaces did not show are
-exactly these**: how uncertain each part of the curve is, and how many datasets
-it is drawn from. The vertical axis is logarithmic because the intervals span
-two orders of magnitude; on a linear axis a single honest interval, the one
-around the normal fit where dispersion is highest, set the scale for every panel
-and flattened the rest. The two panels headed (Var) and (Uni) are the same
-characteristic computed under market-share weights and under equal weights, and
-keeping both tags is what makes the weighting comparison visible at all.
+**Figure: ten of twenty-three characteristics change which method fits better,
+and only one does so under both weighting schemes.** In one sentence for a
+designer: a handful of things about your set of declarations tell you whether a
+kernel estimate or a lognormal will describe them better, and most things do
+not. Each row is one characteristic. Its position on the axis is how much it
+adds to predicting which of the two methods fits better, AFTER the number of
+declarations and how spread they are have already been accounted for -- so a
+row far to the right is telling you something those two do not. A **filled**
+mark is significant once the twenty-three tests are corrected for, at
+p < 0.0022; an **open** mark is not. The circle is with equal weights and the
+diamond with market-share weights, and they are drawn separately rather than
+averaged because averaging them leaves exactly one characteristic significant
+and hides the real pattern: **eight matter under equal weights, three under
+market-share weights, and only the lognormal fit statistic under both.** The
+bottom three rows -- the two mode COUNTS and the modality index measured at the
+abandoned bandwidth -- are the ones that carry nothing, and they are named
+rather than omitted so a reader can see what was tested.
 
-![The steepest curve in the old figure is the one least its own](../outputs/figures/CompareUQMethods_FIG_MarginalVersusPartial.png)
+![Above the line the lognormal fits better, below it the kernel estimate does](../outputs/figures/CompareUQMethods_FIG_ChoiceDrivers.png)
 
-**Figure: the characteristic with the steepest curve is the one that survives
-least.** In one sentence for a designer: some of what the old figure showed was
-real and some of it was a characteristic borrowing the effect of another, and
-this separates the two. The top row is the marginal view a reader has always
-been shown -- the score across datasets that differ in this characteristic, and
-in everything correlated with it. The bottom row is the partial dependence: what
-the characteristic is worth once the others are held fixed. **Dataset size keeps
-0.73 to 0.82 of its marginal slope and the coefficient of variation 0.43 to
-0.66, while entropy -- which has the steepest marginal curve of the five, 4.05
-in log units -- keeps 0.15.** Where the bottom panel is flat under a sloping top
-panel, the apparent effect belonged to something else. Both rows carry all six
-methods; the bottom row shares one vertical scale so the comparison between
-panels is positional. **The caveat that travels with this figure:** two strongly
-correlated characteristics SPLIT an effect rather than one taking it, because no
-model can tell which of them the target depends on, so a small partial
-dependence is evidence that a characteristic carries nothing while a moderate
-one is not evidence that it carries something of its own.
+**Figure: which method fits better, against each of the six characteristics
+that decide it.** In one sentence for a designer: the kernel estimate wins on
+large collections of declarations and the lognormal wins on skewed,
+heavy-tailed, lognormal-looking ones, and the line through zero is where the
+choice stops mattering. The vertical axis is the ratio of the two methods'
+scores, so **zero is a tie**: below it the kernel estimate is closer to the
+truth and above it the lognormal is. That is the whole reading and it needs no
+legend. Two lines per panel rather than six, because the ratio is taken within
+a weighting scheme; the shaded band is a bootstrap interval computed within
+equal-count bins, and the grey bars along the bottom are a density rug showing
+where the categories actually sit, so a stretch of curve drawn from a handful
+of them is visibly thin.
+
+**THERE IS NO DATASET-SIZE PANEL HERE AND THAT IS NOT AN OMISSION.** The number
+of declarations and how spread they are are already in the model these six are
+measured on top of, so they cannot appear as panels in it; what each panel
+shows is what that characteristic is worth AFTER size and spread have had
+their say. Size's own effect is the crossover an earlier stage established --
+the kernel estimate overtakes the lognormal at roughly 120 to 200 declarations
+-- and it is reported there rather than restated here.
+
+**The six panels all slope the same way, which is the reading to take**: the
+more lognormal-looking, the more skewed, the heavier-tailed, the more
+multi-humped and the more outlier-weighted a category is, the better the
+lognormal does relative to the kernel estimate. Every one of those is a way of
+saying "this data already has the shape a lognormal assumes".
 
 ---
 

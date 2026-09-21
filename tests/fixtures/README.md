@@ -40,6 +40,15 @@ rows to a maximum of 0.0266, and 9,388 of 10,000 synthetic rows to a maximum of
 0.0358. No W1 column and no other characteristic moved by more than 1e-9, which
 is the check that the change reaches only what it should.
 
+**Stage 2f review, 2026-09-21.** `TABLE_EmpiricalECCMetrics.xlsx` gains
+`modality_index_fitted` and `modality_index_fitted_uw`: the author's modality
+index computed at the bandwidth the study FITS, beside the existing column,
+which is the same index at Scott's rule and is untouched. **Two columns added,
+nothing moved** -- every shared column agrees to better than 1e-9 on all three
+fixtures. The bandwidth is what the measure had been missing: at Scott's rule
+it ranks 21st of 23 characteristics for predicting which method fits better,
+and at the fitted bandwidth 2nd.
+
 ## What is deliberately absent
 
 There is no pLCA fixture here. NB3 writes no table at all, and its Monte Carlo
