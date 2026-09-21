@@ -3202,7 +3202,13 @@ rather than in conversation.
 
 129. **2026-09-19, Stage 2f. THE TWENTY-ONE-PANEL CHARACTERISTIC FIGURE IS WORTH
      FIVE PANELS, AND THE FIVE ARE TWO QUANTITIES: DISPERSION AND DATASET
-     SIZE.** `[AUTHOR]` The stage's deliverable, and the author said in advance
+     SIZE.** `[AUTHOR]`
+
+     **NARROWED BY DECISION 135: this holds for the LEVEL of a method's score
+     and is NOT the answer to which method to use.** On the choice between two
+     families, with size and dispersion already in the model, five further
+     characteristics add 0.10 to 0.14 of explained variance on the real arm.
+     Read 135 before quoting the five-panel figure as the reduction's result. The stage's deliverable, and the author said in advance
      that a reduction landing on size and little else is a result rather than a
      failure. It lands on size AND dispersion, which is slightly richer.
 
@@ -3271,8 +3277,14 @@ rather than in conversation.
      it to that list.** Discrepancy entry 118.
 
 131. **2026-09-19, Stage 2f. THE TWO TARGETS DISAGREE ABOUT DATASET SIZE, AND THE
-     GOODNESS-OF-FIT FIGURE WAS WEIGHTING THE WRONG THINGS.** `[AUTHOR]` This is
-     what the stage's instruction to run the reduction twice was for: a
+     GOODNESS-OF-FIT FIGURE WAS WEIGHTING THE WRONG THINGS.** `[AUTHOR]`
+
+     **THERE ARE THREE TARGETS, NOT TWO. Decision 135 adds the one the paper
+     actually asks about**, the choice between two families, and the ordering
+     under it differs from both of the two here. This entry stands on its own
+     terms; it is not the whole comparison.
+
+     This is what the stage's instruction to run the reduction twice was for: a
      characteristic that predicts the distance between a fitted curve and its
      target, but not the error in the ANSWER, is not worth keeping.
 
@@ -3310,6 +3322,15 @@ rather than in conversation.
      OF ONE THING, THE ONE THAT PREDICTS IS SILVERMAN'S CRITICAL BANDWIDTH, AND
      IT PREDICTS NOTHING OF ITS OWN.** `[AUTHOR]` The question Stage 2a-2 could
      not answer, and the answer reproduces this stage's own lesson.
+
+     **SUPERSEDED IN ITS CONCLUSION BY DECISION 134, WHICH IS THE ONE TO READ.**
+     This entry tested three modality measures and none of them was the
+     author's own index at the bandwidth the study fits -- the only combination
+     that had never been computed. At that bandwidth the author's index is the
+     SECOND-best predictor of which method to use, of 23 candidates, at
+     p = 0.0002. What survives from this entry is that the mode COUNTS carry
+     nothing and that the measures disagree with each other; the claim that no
+     modality measure has predictive content of its own is withdrawn.
 
      **They disagree, which had to be established first.** Spearman between
      `modality_index` and `modes_fitted` is **+0.168 on the real arm and +0.018
@@ -3386,3 +3407,110 @@ rather than in conversation.
      regardless of which categories are uncovered. **Generation stays closed**,
      decisions 47, 48 and 55 unchanged; what the manuscript owes is the
      limitation stated in these terms. Discrepancy entry 120.
+
+134. **2026-09-21, Stage 2f review. THE AUTHOR'S MODALITY INDEX WAS NEVER THE
+     PROBLEM. IT WAS ON THE WRONG BANDWIDTH, AND AT THE RIGHT ONE IT IS THE
+     SECOND-BEST PREDICTOR OF WHICH METHOD TO USE. This SUPERSEDES decision
+     132 and REVERSES decision 23.** `[AUTHOR]` "I had a previous method I was
+     pretty happy with, and you got rid of it in favor of methods that
+     apparently don't work."
+
+     The author's measure is `customstats.estimate_maxima`: the summed heights
+     of the local maxima of a kernel density, less the summed heights of the
+     local minima, over the tallest peak. Subtracting the minima is what stops
+     two maxima with a shallow dip between them registering as two full modes.
+
+     **It was hardcoded to Scott's rule.** It was written when Scott was the
+     study's bandwidth; decision 54 moved the study to `silverman_guarded` in
+     Stage 2b and nothing brought this measure with it. Four stages then
+     measured the author's idea at a bandwidth the study had abandoned.
+
+     **WHAT THE BANDWIDTH WAS WORTH, on the real categories, predicting which
+     of the kernel estimate and the three-parameter lognormal fits better, with
+     dataset size AND dispersion already in the model, 127 datasets, Bonferroni
+     threshold 0.0022 for the 23 candidates tested:**
+
+         measure                            incremental R2    p     rank of 23
+         the author's index, FITTED bw          0.1114     0.0002        2
+         the author's index, Scott's bw         0.0179     0.6944       21
+         Silverman's critical bandwidth      0.0777-0.1070 0.0003-0.007 3, 15
+         visible mode COUNT, fitted bw          0.0100     0.3340       23
+         visible mode COUNT, Scott's bw         0.0155     0.1817       22
+
+     **The same measure goes from 21st of 23 and entirely insignificant to 2nd
+     of 23 at p = 0.0002. Nothing about it changed but the smoothing.**
+
+     **DECISION 23 IS REVERSED.** It discarded this metric because it "spans
+     only 1.000 to 1.159 across the 138 empirical datasets, so as a count it is
+     constant at 1". That range is a property of Scott's oversmoothing: at the
+     bandwidth the study fits, the same index spans **1.000 to 1.249** on the
+     real arm. The readout was not the defect; the bandwidth was.
+
+     **AND THE REPLACEMENT WAS WORSE THAN WHAT IT REPLACED.** The visible mode
+     COUNT that Stage 2a-2 adopted in its place (decision 38) is the worst of
+     all 23 candidates on this target at either bandwidth. Counting modes
+     throws away exactly the information subtracting the minima preserves.
+
+     `estimate_maxima` now takes a `bw_method`, and `modality_index_fitted` is
+     computed beside the existing column, which is untouched because it is what
+     every earlier stage quoted. **`modality_index_fitted` is the modality
+     measure the paper should report.** The corpus was recomputed for the new
+     column, not regenerated: values, parents, groupings and mode labels are
+     byte-identical and no existing characteristic moved. Discrepancy entry 123.
+
+135. **2026-09-21, Stage 2f review. THE REDUCTION ANSWERED THE WRONG QUESTION.
+     Ranking characteristics by how well they predict the LEVEL of a score is
+     not an answer to "which method should I use". This NARROWS decisions 129,
+     131 and 132.** `[AUTHOR]` Raised by the author on skewness: "I'm surprised
+     skew doesn't matter. Wouldn't left skew make it difficult for lognormal or
+     normal to get a good fit?"
+
+     The instinct was right and the reduction could not see it. It modeled the
+     LEVEL of each method's own W1, and the level is dominated by dispersion and
+     dataset size because **every** method gets worse on spread data and on
+     small samples. The paper asks which method to USE, which is the DIFFERENCE
+     between two of them -- and a difference is about whose shape assumption
+     fits, so it is exactly where skewness, kurtosis, lognormality, modality and
+     outlier weight live.
+
+     **On the real categories, predicting `log(W1_KDE / W1_lognormal)` within a
+     weighting scheme, with size AND dispersion already in the model:**
+
+         uniform weights                 variable weights
+         mean                  0.125     lognormal Shapiro     0.140
+         modality index (fit)  0.111     lognormal Shapiro uw  0.103
+         critical bandwidth uw 0.107     critical bandwidth    0.091
+         weight of outliers    0.105     critical bandwidth uw 0.078
+         kurtosis              0.103     skewness              0.077
+         kurtosis uw           0.100     modality index (fit)  0.075
+
+     Base R2 0.483 and 0.513. The first five under uniform weighting and the
+     first three under variable survive a Bonferroni correction for 23 tests;
+     skewness at p = 0.0041 sits just past it, which is **real but not the
+     strongest**, and the paper should say so rather than claim more.
+
+     **TWO PROPERTIES OF THE RATIO MATTER AND ARE WHY IT IS THE RIGHT TARGET.**
+     Taken within a weighting scheme it CANCELS the part of the score no
+     estimator can remove, so `w_v_uw_wasserstein` becomes a legitimate
+     predictor here where on the level it was the identity decision 130
+     records. And it is scale free, so it does not inherit the level's
+     dependence on how spread the data happen to be.
+
+     **LEFT SKEW, which the author asked about specifically.** On the corpus,
+     where 1,674 of 10,000 datasets are left skewed, they are harder for all
+     six methods -- mean score 0.24 to 0.29 against 0.14 to 0.23 on the
+     right-skewed ones -- so the author's expectation holds there. **The real
+     arm has only 8 left-skewed categories of 147**, so it cannot support a
+     claim either way, and that asymmetry is itself worth a sentence: real ECC
+     data is almost never left skewed, and the corpus is the only place the
+     question can be asked.
+
+     **THE CORPUS IS THE WEAKER ARM FOR THIS WHOLE QUESTION.** Every increment
+     above is an order of magnitude smaller on the synthetic arm, 0.01 to 0.03
+     against 0.08 to 0.14, which is the coverage shortfall of decision 133
+     showing up as a loss of statistical power rather than as a bias. Decision
+     136 is the author's call on that.
+
+     **The level and the answer targets are kept and reported**, because the
+     contrast between the three is the finding; what changes is which one is
+     presented as the answer. Discrepancy entry 124.

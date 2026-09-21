@@ -1641,3 +1641,39 @@ relative figure beside it.**
 | **An undefined TARGET, which the first check cannot see** | The cross-validated empirical score is undefined below n = 10, because half of a nine-value dataset is four values. So the out-of-sample reduction on the real arm uses **127 of 147** categories and **0 of the 20** in the smallest band. The in-sample target covers all 147 and the two have to be read together. |
 | **Fix** | **Code, done**: the additive model imputes with a missingness indicator and the boosted model splits on missingness natively, so both keep every row, and two tables report what would otherwise have been lost, per arm and per band. **Text**: any size-banded claim on the real arm below n = 10 comes from the in-sample target only, and must say so. |
 | **Status** | RESOLVED in code; a text note is owed. Decision 129. |
+
+## New, found in the Stage 2f review
+
+## 123. The modality measure the paper should report is the author's own, at the bandwidth the study fits
+
+| | |
+|---|---|
+| **Manuscript** | Reports a modality index among the statistical characteristics, computed as the summed heights of a kernel density's local maxima less the summed heights of its local minima, over the tallest peak. |
+| **What was wrong** | Not the measure. The code computes it at **Scott's rule**, which is what the study used when the function was written; the study moved to a guarded Silverman bandwidth in Stage 2b and nothing brought this measure with it. Four stages then measured the idea at a bandwidth the study had abandoned. |
+| **What the bandwidth was worth** | Predicting which of the kernel estimate and the three-parameter lognormal fits better on the 127 real categories, with dataset size AND dispersion already in the model: the index at the **fitted** bandwidth adds an incremental R2 of **0.1114 at p = 0.0002**, which is **2nd of the 23 characteristics tested**; the same index at **Scott's** bandwidth adds **0.0179 at p = 0.69**, which is **21st of 23**. Nothing about the measure changed but the smoothing. |
+| **And the replacement was worse than what it replaced** | The visible mode COUNT adopted in its place is the **worst of all 23** candidates at either bandwidth -- 0.0100 at p = 0.33. Counting modes discards exactly the information that subtracting the minima preserves. |
+| **A reversal the text must carry** | The reason given for setting this metric aside was that it "spans only 1.000 to 1.159, so read as a count it is constant at 1". That range is Scott's oversmoothing: at the bandwidth the study fits the same index spans **1.000 to 1.249** on the real arm. The readout was never the defect. |
+| **Fix** | **Code, done**: the bandwidth is an argument and `modality_index_fitted` is computed beside the untouched original. **Text**: report the index at the fitted bandwidth, say which bandwidth, and do not describe modality as carrying no information. |
+| **Status** | RESOLVED in code; text owed. Decision 134, superseding decision 132 and reversing decision 23. |
+
+## 124. The metric reduction answered the level of the score, not which method to use
+
+| | |
+|---|---|
+| **What was found** | The reduction ranked characteristics by how well they predict the LEVEL of a single method's goodness-of-fit score. The level is dominated by dispersion and dataset size because **every** method gets worse on spread data and on small samples. The paper asks which method to USE, which is the DIFFERENCE between two of them -- and a difference is about whose shape assumption fits. |
+| **What the right target says** | Predicting `log(W1_KDE / W1_lognormal)` within a weighting scheme on the real categories, with size and dispersion already in the model (base R2 0.483 and 0.513, 127 datasets, Bonferroni threshold 0.0022 for 23 tests). Uniform weights: the variable-weighted mean **0.125**, the modality index at the fitted bandwidth **0.111**, Silverman's critical bandwidth **0.107**, the weight of outliers **0.105**, kurtosis **0.103**. Variable weights: the lognormal Shapiro statistic **0.140**, its uniform twin 0.103, the critical bandwidth 0.091, skewness **0.077**. |
+| **Skewness specifically** | Real, as a reader would expect of a comparison involving a lognormal, and **not the strongest**: 0.077 at p = 0.0041, just past the corrected threshold. The sign is the expected one -- the more right-skewed the data, the better the lognormal does relative to the kernel estimate, because a lognormal is a right-skewed family. |
+| **Left skew** | On the corpus, where 1,674 of 10,000 datasets are left skewed, they are harder for all six methods (mean score 0.24 to 0.29 against 0.14 to 0.23). **The real arm has only 8 left-skewed categories of 147**, so it cannot support a claim. Real ECC data is almost never left skewed, and that asymmetry belongs in the text. |
+| **Why the ratio is the right target and not a convenience** | Taken within a weighting scheme it CANCELS the part of the score no estimator can remove, so the uniform-to-variable distance becomes a legitimate predictor where on the level it was an identity (entry 118). And it is scale free, so it does not inherit the level's dependence on dispersion. |
+| **Fix** | **Text.** Report the choice target as the reduction's result, keep the level and the downstream error beside it because the contrast between the three is the finding, and state that other characteristics were tested and where they fell. |
+| **Status** | Open, text. Decision 135, narrowing decisions 129, 131 and 132. |
+
+## 125. The corpus is the weaker arm for the question the paper asks
+
+| | |
+|---|---|
+| **What was found** | Every incremental contribution on the choice target is an order of magnitude smaller on the synthetic arm than on the real one: **0.01 to 0.03 against 0.08 to 0.14**. |
+| **Why** | The corpus does not span the shape variety the real categories do. In real units its coefficient of variation reaches **2.58** against the real arm's **6.93**, its uniform-weighted twin 2.50 against 7.24, and its dataset size stops at **9,978** against **31,025**. Kurtosis and skewness are short by only 1.08x and 1.25x, which is noise. |
+| **What it is and is not** | It is a loss of statistical power, not a bias: the corpus covers 98 to 100 percent of real datasets on every characteristic, so interpolation is supported. It means the corpus cannot confirm an effect that the real data show, which is the opposite of the usual worry about synthetic data flattering a method. |
+| **Fix** | **Author decision, not a text edit.** Closing the dispersion gap is a generator redesign -- heavier-tailed parents or a different truncation rule -- because eight candidate parameters were measured and none took the achieved coefficient of variation above 2.15. The size cap is a cost decision: the corpus stops at 9,999 by construction and only the three largest ReadyMix strength classes exceed it. Generation is currently closed. |
+| **Status** | Open, awaiting an author decision. Decisions 133 and 135. |

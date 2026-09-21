@@ -701,6 +701,18 @@ def rank_survivors(importances, top=5, min_r2=0.02):
     if not len(usable):
         return pd.DataFrame()
     keys = ['arm', 'method', 'target', 'model']
+    # A MISSING KEY WOULD SILENTLY DROP A WHOLE TARGET FAMILY. pandas' groupby
+    # discards a NaN key by default, so concatenating importances whose key
+    # columns do not all line up loses rows with no error at all -- the choice
+    # family disappeared this way once. Fail loudly instead.
+    missing = [k for k in keys if k not in usable.columns]
+    if missing:
+        raise ValueError(f'importances lack the grouping keys {missing}')
+    blank = usable[keys].isna().any(axis=1)
+    if blank.any():
+        raise ValueError(
+            f'{int(blank.sum())} importance rows have a missing grouping key; '
+            f'groupby would drop them silently')
     usable['rank_within_model'] = (usable.groupby(keys).importance
                                    .rank(ascending=False, method='average'))
     agg = (usable.groupby('metric')
@@ -1336,7 +1348,8 @@ def choice_frame(frame, value, pair=CHOICE_PAIR):
 
 
 def choice_importance(choice, metrics, arm=None, weighting=None, rng=None,
-                      n_repeats=10, n_splits=5, models=('additive', 'boosted')):
+                      n_repeats=10, n_splits=5, models=('additive', 'boosted'),
+                      pair=CHOICE_PAIR):
     """Permutation importance for predicting WHICH of two families fits better.
 
     The target is already a log ratio, so it is modeled on its own scale.
@@ -1364,6 +1377,12 @@ def choice_importance(choice, metrics, arm=None, weighting=None, rng=None,
         for m, v, s in zip(metrics, imp, spread):
             rows.append(dict(arm=arm, weighting=weighting, target='log_ratio',
                              target_family='choice', model=name, metric=m,
+                             # A `method` value so these rows SURVIVE being
+                             # concatenated with the per-method importances and
+                             # grouped: pandas' groupby drops a NaN key by
+                             # default, so without this the whole choice family
+                             # vanished from `rank_survivors` without an error.
+                             method=f'{pair[0]} vs {pair[1]}',
                              importance=float(v),
                              importance_sd_across_folds=float(s),
                              model_r2=float(r2m), model_r2_sd=float(r2s),

@@ -612,3 +612,37 @@ def test_principal_components_name_the_independent_directions():
     # must load on the SAME component
     first = pcs.iloc[0].loadings
     assert 'coeffvar' in first
+
+
+def test_rank_survivors_refuses_rows_with_a_missing_grouping_key():
+    """A missing key would drop a whole target family without an error.
+
+    pandas' groupby discards a NaN key by default, so concatenating the
+    per-method importances with the choice importances -- which have no
+    `method` of their own -- lost the entire choice family silently. The
+    choice rows now carry a method label, and this refuses the shape that
+    caused it in case a future caller reintroduces it.
+    """
+    frame, metrics = synthetic_frame(300, seed=57)
+    imp = R.importance(frame, metrics, 'w1', arm='synthetic',
+                       method='KDE, Uniform', rng=np.random.default_rng(58),
+                       n_repeats=2, n_splits=3, models=('boosted',))
+    broken = imp.copy()
+    broken.loc[broken.index[:5], 'method'] = np.nan
+    with pytest.raises(ValueError, match='missing grouping key'):
+        R.rank_survivors(broken)
+
+
+def test_choice_importance_rows_survive_a_concat_and_groupby():
+    frame, metrics = choice_fixture(300, seed=59)
+    ch = R.choice_frame(frame, 'w1')
+    ci = R.choice_importance(ch, metrics, arm='synthetic', weighting='Uniform',
+                             rng=np.random.default_rng(60), n_repeats=2,
+                             n_splits=3, models=('boosted',))
+    lvl = R.importance(frame, metrics, 'w1', arm='synthetic',
+                       method='KDE, Uniform', rng=np.random.default_rng(61),
+                       n_repeats=2, n_splits=3, models=('boosted',))
+    both = pd.concat([lvl, ci], ignore_index=True)
+    ranked = R.rank_survivors(both[both.target_family == 'choice'])
+    assert len(ranked), 'the choice family was dropped by the groupby'
+    assert set(ci.method) == {'KDE vs Lognormal'}
