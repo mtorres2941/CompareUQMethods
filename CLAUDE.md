@@ -4060,6 +4060,16 @@ rather than in conversation.
      frequencies across materials and the metric carries no information about
      which material is which.
 
+     **THE INSTABILITY IS CORROBORATED ON A REAL DESIGN AND IS NOT AN ARTIFACT
+     OF THIS CONSTRUCTION.** Every material here is normalized to a mean of 1.0
+     and carries a use intensity of 1.0, which makes a ranking as fragile as it
+     can be made, and that is a fair objection to the numbers above. But Marsh,
+     Lewis, Hattam and Allen (in press) report the same thing for a real
+     four-option staircase: the top-contributing product changes with the
+     uncertainty characterisation scenario. **So it is a property of ranking
+     near-equal contributors rather than of synthetic data, and the paper should
+     report it plainly rather than defensively.**
+
      **AND WHICH METHOD LOOKS BEST DEPENDS ON WHICH METRIC IS REPORTED.** On a
      win share against the truth, `KDE, Variable` leads on the chance of
      leading, the 95th percentile and the spread; `Lognormal, Variable` leads on

@@ -54,10 +54,25 @@ contribute equally, that it carries a 3.67 percent noise floor from an arbitrary
 tie-break, and that it is only 9 percent predictable from a material's own data
 because it is a property of the GROUP the material sits in.
 
+**AND THE INSTABILITY IS NOT AN ARTIFACT OF THIS STUDY'S CONSTRUCTION, which
+is why the paper should report it plainly rather than defensively.** Every
+material here is normalized to the same average and given the same use
+intensity, which makes a ranking as fragile as it can be made, and that is a
+fair objection to the numbers above. But Marsh, Lewis, Hattam and Allen (in
+press) find the same thing in a real four-option staircase design: the
+top-contributing product changes with which uncertainty characterisation
+scenario is used. An independent study, on a real element, with real
+quantities, sees the ranking move for the same reason. **So this is a property
+of ranking near-equal contributors, not a property of synthetic data**, and the
+right response is to report the magnitudes and say what the ranking is worth,
+not to defend the ranking.
+
 > **So what.** "There is a 30 percent chance this material is your biggest
 > source of carbon" is the least trustworthy sentence a probabilistic LCA
 > produces. How much the material contributes, and how uncertain that is, are
-> both recovered far better. Lead with those.
+> both recovered far better. Lead with those. And a published study of a real
+> staircase saw the same thing happen, so this is not an artifact of the
+> synthetic test.
 
 ## 2. Which method looks best depends on which number you report
 
