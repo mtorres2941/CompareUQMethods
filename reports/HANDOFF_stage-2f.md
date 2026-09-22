@@ -22,15 +22,22 @@ statistical models.
 **THIS PAGE HAS BEEN REWRITTEN TWICE AND BOTH EARLIER VERSIONS WERE WRONG IN
 THE SAME WAY: they ranked characteristics using a statistic that rewards
 adding terms, computed on 127 real material categories.** What survives that
-correction is below. Two specific claims are withdrawn and are named in claim 8,
-because a reader who saw the earlier version needs to know which sentences to
-stop repeating.
+correction is below. Two specific claims are withdrawn and are named in claim
+8, because a reader who saw the earlier version needs to know which sentences
+to stop repeating. **A third item is not withdrawn but handed on:** the two
+arms of the study draw market-share weights by different rules, which is a
+structural inconsistency on the quantity the paper is built on. Nothing in this
+stage depends on it and no number here moves because of it; claim 11 states it
+and the next stage owns it.
 
 ## 1. The cutoff above which a kernel estimate beats a lognormal is 59 to 134 declarations
 
-Above roughly 100 environmental product declarations in a category, fit a
-kernel density estimate, and use market-share weights if you know the market
-shares. Below it, fit a three-parameter lognormal. Measured against the best
+Above that many environmental product declarations in a category, fit a kernel
+density estimate, and use market-share weights if you know the market shares.
+Below it, fit a three-parameter lognormal. **The interval is the result** --
+the lowest cost sits at 75 declarations and every threshold from 59 to 134 is
+indistinguishable from it, so the paper should print the range rather than a
+point inside it. Measured against the best
 choice that could possibly be made for each dataset individually -- a standard
 nobody can reach, because it requires knowing the answer first -- that rule
 costs **38.4 percent** more error at its best setting, against **53.6 percent**
@@ -44,13 +51,12 @@ interval, not a point inside it. The worst case halves across the same region: a
 the rule goes badly wrong costs 26.6 times the best possible below a threshold
 of 53, and 13.1 times above it.
 
-> **So what.** If a material category in your model has more than about a
-> hundred declarations behind it, the flexible method is worth using and it is
-> worth paying attention to which products actually sell. Below that, a simple
-> skewed curve fits better, because there is not enough data to learn a shape
-> from. The exact number is not delicate -- anywhere between 60 and 130 works
-> identically -- so "about a hundred" is an honest way to state it and a
-> precise-sounding number would be false precision.
+> **So what.** If a material category in your model has more than roughly sixty
+> to a hundred and thirty declarations behind it, the flexible method is worth
+> using and it is worth paying attention to which products actually sell. Below
+> that, a simple skewed curve fits better, because there is not enough data to
+> learn a shape from. Anywhere in that interval performs identically, so it is
+> a range you can sit inside rather than a threshold to hit precisely.
 
 ## 2. No single method is best regardless, and the leader changes twice
 
@@ -264,6 +270,57 @@ corpus's maximum behave like the band below them.
 > **So what.** Nothing downstream was invalidated and no number in the paper
 > moved. The limitation to state is narrow and specific, rather than a general
 > caveat about synthetic data.
+
+## 11. The two arms weight their data by different rules, and the next stage owns it
+
+This stage did not set out to look at market-share weighting and found
+something in it that has to be written down. **The real material categories get
+their market shares from a flat draw over their individual declarations; the
+synthetic ones get theirs attached to the humps of the distribution and split
+inside each hump.** So on one arm the shares are correlated with the carbon
+coefficients and on the other they are not, and that is the dimension the paper
+is built on.
+
+The consequence is measurable. Weights drawn independently of the values must
+wash out as a category grows -- that is what independence means -- while
+correlated weights do not. Median distance between the equal-weighted and
+market-share-weighted versions of the same data:
+
+    declarations    real categories    synthetic
+    3 to 9              0.083            0.138
+    10 to 99            0.109            0.125
+    100 to 999          0.074            0.071
+    1000 and up         0.005            0.050
+
+The decline with size is **-0.397 on the real categories against -0.167 on the
+synthetic ones**, and above a thousand declarations the synthetic arm shows ten
+times the effect. Reweighting the synthetic arm's own values by the real arm's
+rule reproduces the real arm's behaviour, which is what proves the gap is the
+rule rather than the data. The two agree in the middle, at ten to ninety-nine
+declarations, and 78 of the 147 real categories sit there -- which is why
+nothing caught it.
+
+**The fix is one rule on both arms, and it must not be a fitted mixture model.**
+A mixture cannot be estimated at three to nine declarations, mode counts on
+real data swing from 95 percent unimodal to 68 percent depending on one
+smoothing choice, and it would place a modeling decision inside the paper's
+central quantity. Cutting the sorted values into contiguous blocks achieves the
+same correlation with none of that.
+
+**And the choice of how strongly shares cluster is not avoidable by declining
+to choose.** Assuming no clustering is not neutrality: it asserts that market
+share is unrelated to carbon intensity, and the published production volumes
+say otherwise, with 63.75 percent of world steel on the higher-carbon route and
+the lower-carbon route small. Saying "weighting stops mattering once you have
+enough declarations" would be reporting a property of the weight model rather
+than a fact about markets.
+
+> **So what.** Two of the paper's claims about market-share weighting rest on a
+> modeling choice that differs between its two halves, and the half that says
+> weighting fades away as data accumulates is the half whose assumption we can
+> already see is wrong. Nothing in this stage's results depends on it, and no
+> number in this stage moved because of it, but the weighting claims elsewhere
+> in the paper should not be finalized until the next stage settles the rule.
 
 ## The two figures
 
