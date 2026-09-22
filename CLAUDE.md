@@ -992,12 +992,39 @@ rather than in conversation.
     held-out datasets are gone and the manuscript's "2,500 pLCAs" is correct
     again.
 56. **2026-09-15. `outputs/` is written by the notebooks and by nothing else.**
+    **NARROWED 2026-09-22 for one tool; see the end of this entry.**
     `[AUTHOR]` "Everything should be traceable back to the notebooks. The
     notebooks should reproduce the entirety of this analysis." Two figures dated
     2026-03 had no producer anywhere in the repository and were deleted; one
     figure had been written by a scratch script and its code is now a notebook
     cell. **Audit scripts may write only under `outputs/tables/audits/`, never
     to `outputs/figures/` or the top level of `outputs/tables/`.**
+
+    **THE NARROWING, 2026-09-22.** `audits/render_figures.py` may write to
+    `outputs/figures/`. The author allowed it after a twenty-minute notebook run
+    was spent moving a label: "I want all figures to be reproducible in the
+    notebooks, but if you have a faster way to reproduce the figure so we can
+    iterate, I'm open to it. As long as the notebook reflects those changes."
+
+    **It is a different EXECUTOR for the same bytes, not a second author of
+    figures, and that is enforced rather than promised.** The script contains no
+    figure code and no analysis code at all: it reads the notebook, executes the
+    notebook's own setup cell to get the imports and the output root, then
+    executes the notebook's own figure cells verbatim.
+    `tests/test_render_figures.py` asserts that the source executed is
+    byte-identical to the notebook's and that the module holds no plotting call.
+
+    **It REFUSES rather than skips**, and that mattered immediately: a cell that
+    saves a figure without starting with `# FIGURE` or `# SUPPLEMENT` makes the
+    tool exit naming that cell, because redrawing some figures and reporting
+    success would leave stale figures committed beside fresh ones with nothing
+    to say so. An earlier version of the marker matched two of notebook 4's
+    three figure cells and would have done exactly that. Notebook 4 is fully
+    marked; notebooks 1 and 2 define no `OUT` and notebooks 1 to 3 have unmarked
+    figure cells, so the tool declines them until Stage 3's figure work.
+
+    Seven seconds against about twenty minutes, which is the difference between
+    iterating on a figure and not.
 57. **2026-09-15. `weight_outliers` was measured from the ECDF's padding, and is
     corrected on BOTH arms.** `[DELEGATED, chose to fix]` `weighted_ecdf` pads
     its arrays with `-inf` and `+inf` so the interpolator it returns extrapolates
