@@ -26,7 +26,7 @@ correction is below. Two specific claims are withdrawn and are named in claim 8,
 because a reader who saw the earlier version needs to know which sentences to
 stop repeating.
 
-## 1. The rule: use a kernel density estimate above about 100 declarations
+## 1. The cutoff above which a kernel estimate beats a lognormal is 59 to 134 declarations
 
 Above roughly 100 environmental product declarations in a category, fit a
 kernel density estimate, and use market-share weights if you know the market
@@ -37,9 +37,10 @@ costs **38.4 percent** more error at its best setting, against **53.6 percent**
 for always using a kernel estimate and **178.5 percent** for always using a
 lognormal.
 
-**The cutoff is a basin and not a point, and the paper must say so.** The
-lowest cost is at 75 declarations, and every threshold from **59 to 134** is
-just as good. The worst case halves across the same region: a category where
+**That range is the result, and it should be quoted as a range rather than
+rounded.** The lowest cost is at 75 declarations and every threshold from
+**59 to 134** is indistinguishable from it, so the honest statement is the
+interval, not a point inside it. The worst case halves across the same region: a category where
 the rule goes badly wrong costs 26.6 times the best possible below a threshold
 of 53, and 13.1 times above it.
 
@@ -86,10 +87,12 @@ that the data outweigh the assumption. **The figure draws the dip rather than
 smoothing it**, because a clean monotone curve there would be the conclusion
 and not the measurement.
 
-> **So what.** The advice is not "more data is always better for the flexible
-> method". There is a genuinely awkward middle -- roughly ten to fifty
-> declarations -- where a simple assumed shape beats trying to learn one, and
-> that is where a great many real material categories sit.
+> **So what.** More declarations are always better -- every method fits better
+> with more data, and nothing here should discourage collecting it. What
+> changes with the count is WHICH method to use. There is a genuinely awkward
+> middle, roughly ten to fifty declarations, where a simple assumed shape beats
+> trying to learn one from the data, and that is where a great many real
+> material categories sit.
 
 ## 4. Nothing except dataset size gives a usable threshold, multimodality least
 
@@ -222,8 +225,12 @@ percent and the size crossover from 124 to 122 declarations.
 No p-value appears in any figure, table or claim of this stage. Each
 characteristic's contribution is measured as the improvement in prediction on
 data the model has not seen, reported beside the spread of that improvement
-across folds. **An effect smaller than its own spread is not reported as an
-effect**, however small its p-value would have been.
+across folds, and **the statistic that ranks them is the ratio of the two** --
+the gain in units of its own fold-to-fold spread. That is a test statistic in
+the sense that matters: it is directly comparable across characteristics, across
+weighting schemes and across the two arms, and it does not move when the sample
+size changes the way a p-value does. **An effect smaller than its own spread is
+not reported as an effect**, however small its p-value would have been.
 
 Redundancy is handled by selection rather than by discarding correlated
 columns. Skewness, kurtosis and the two normality statistics are four views of
@@ -549,6 +556,13 @@ stays closed.** Decision 133, entry 120.
 | Every figure brought to the style guide. **This stage found that the guide's own clash detector had never checked a single panel title** and fixed it, so a session doing that work now has a tool that works. The older figures still carry a Unicode minus | 3 |
 | **The reduced figure is what the manuscript's metric count should describe.** The full candidate set belongs in the supplement and the survivors in the main text | manuscript |
 | A real-building anchor, if citing the staircase paper is not enough | 2i, optional |
+
+### Opened by the author's review and handed to a later stage
+
+| Item | Owner |
+|---|---|
+| **THE WEIGHT MODEL, and it is the largest open item this stage produced.** The two arms draw market-share weights by different rules -- a flat Dirichlet over points on the real categories, mode-coupled weights on the synthetic ones -- so the paper's central quantity decays with dataset size on one arm and not the other. Decay slope on log(n): **-0.397 real against -0.167 synthetic**, and above 1,000 declarations the median separation is **0.0049 real against 0.0501 synthetic**, a factor of ten. Reweighting the corpus's own values flat gives 0.0116, which is what proves the gap is the rule rather than the data. The fix is one rule on both arms with a swept coherence parameter, controlling separately for how concentrated the shares are. **Nothing was changed here and no number moved** | 2h, first item |
+| Drawing mode SIZES from a flat Dirichlet instead of at concentration 10, which the author proposes and which is more realistic -- at two modes the largest holds 0.52 to 0.97 of the points instead of 0.51 to 0.71. It measured 5.0 seed standard deviations worse on the calibration, but that comparison used the mismatched weight rules above and must be redone once the arms agree | 2h |
 
 ### Closed by the author's review, and recorded so they are not reopened
 

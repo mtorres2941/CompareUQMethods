@@ -1805,3 +1805,41 @@ def weighting_by_concentration(scores, eff, family='KDE', value='w1_market',
     out.insert(0, 'family', family)
     out.insert(1, 'n_band', f'{n_lo}-{n_hi}')
     return out
+
+
+def best_method_curve(scores, sizes, value='w1_market', arm='synthetic',
+                      window=800, step=40, min_n=3):
+    """`best_method_share` without the bins: a local share against dataset size.
+
+    Four size bands were an artifact of how the corpus is stratified rather
+    than a property of the question, and binning a continuous predictor into
+    four buckets both discards the shape between them and implies steps that
+    are not there. This slides a window of `window` datasets along the sorted
+    size axis and reports, at each position, the share on which each method is
+    closest. The window is a COUNT rather than a width, so every point rests on
+    the same number of datasets and the curve does not get noisier in the
+    sparse tail -- which is the failure the rolling averages this module
+    replaced actually had.
+    """
+    s = scores[(scores.arm == arm) & scores[value].notna()]
+    wide = s.pivot_table(index='dataset', columns=value and 'method',
+                         values=value).dropna()
+    n = pd.Series(sizes).reindex(wide.index)
+    ok = n.notna() & (n >= min_n)
+    wide, n = wide[ok], n[ok]
+    order = np.argsort(n.to_numpy(float))
+    wide = wide.iloc[order]
+    nn = n.to_numpy(float)[order]
+    winner = wide.idxmin(axis=1).to_numpy()
+    methods = list(wide.columns)
+    rows = []
+    window = int(min(window, max(50, len(nn) // 6)))
+    for start in range(0, len(nn) - window + 1, step):
+        sl = slice(start, start + window)
+        centre = float(np.median(nn[sl]))
+        w = winner[sl]
+        for m in methods:
+            rows.append(dict(method=m, n=centre,
+                             closest_pct=float(100 * (w == m).mean()),
+                             n_datasets=window))
+    return pd.DataFrame(rows)

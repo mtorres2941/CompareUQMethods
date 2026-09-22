@@ -817,3 +817,27 @@ def test_weighting_by_concentration_is_taken_inside_a_size_band():
     assert len(out) == 4
     assert out.variable_closer_pct.between(25, 75).all()
     assert out.n_datasets.sum() == n
+
+
+def test_best_method_curve_windows_hold_equal_counts():
+    """The continuous version of the band table. Every point must rest on the
+    same number of datasets, which is what stops the curve getting noisier in
+    the sparse tail -- the defect the rolling averages this module replaced
+    actually had."""
+    sc, sizes = _policy_scores(n=1200)
+    curve = R.best_method_curve(sc, sizes, window=300, step=60)
+    assert curve.n_datasets.nunique() == 1
+    per_point = curve.groupby('n').closest_pct.sum()
+    assert np.allclose(per_point, 100.0)
+    assert curve.n.is_monotonic_increasing or curve.sort_values('n').equals(
+        curve.sort_values('n'))
+
+
+def test_best_method_curve_recovers_a_known_crossover():
+    """Two methods crossing at n = 100 must cross in the curve too."""
+    sc, sizes = _policy_scores(n=1500)
+    curve = R.best_method_curve(sc, sizes, window=400, step=50)
+    kde = curve[curve.method == 'KDE, Variable'].sort_values('n')
+    low = kde[kde.n < 60].closest_pct.mean()
+    high = kde[kde.n > 300].closest_pct.mean()
+    assert high > low + 20

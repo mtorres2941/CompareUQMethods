@@ -305,7 +305,7 @@ and generation is closed; neither input moves again.
 | **2e DONE** | pLCA construction: common random numbers installed in the study's own pLCA, the crossed sweep over group size and material use intensity, resampled groupings, bootstrap intervals on every headline percentage and NRMSE, the flip thresholds recomputed at every group size, and the pLCA against the TRUE parents. Decisions 105 to 113. `reports/HANDOFF_stage-2e.md` | Changing what the headline metric is (2g). It did NOT redesign the metric set, and it did not touch the fitting, the corpus or the empirical arm |
 | **2f DONE** | Shapiro-Wilk versus Shapiro-Francia resolved in favor of Francia under both weightings, `_royston_pvalue` corrected, then the multivariate reduction of the characteristic set against TWO targets -- the fit score and the downstream error -- with the survivors, the size confound, the three modality measures, the definitional tautology, partial dependence, and the curves that replace the rolling averages. Decisions 125 to 133. `reports/HANDOFF_stage-2f.md` | Regenerating, redesigning figures (3), and re-running the sweeps of 2h. It did NOT touch the fitting, the scoring criterion, the corpus's values or the empirical extract |
 | **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
-| **2h** | Robustness sweeps: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124** | Anything not framed as a sweep with a tabulated result |
+| **2h** | **FIRST ITEM, added 2026-09-22: THE WEIGHT MODEL.** The two arms draw market-share weights by different rules -- flat Dirichlet over points on the empirical arm, mode-coupled on the synthetic -- so the paper's central quantity decays with n on one arm and not the other, differing tenfold above n = 1,000. Give both arms one rule with a swept coherence parameter, controlling for concentration separately. Decisions 97 and 141. Then: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling, and `mode_share_alpha`, which the author proposes moving from 10 to 1. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124** | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
@@ -3825,3 +3825,86 @@ rather than in conversation.
      variable-weighted data it was fitted to. Decision 65 records why; this is
      the first place the three have been printed side by side, and the spread
      is the argument for doing so.
+
+141. **2026-09-22, Stage 2f review. THE TWO ARMS DRAW MARKET-SHARE WEIGHTS BY
+     DIFFERENT RULES, ON THE DIMENSION THE PAPER IS ABOUT. This is a real
+     structural inconsistency, it is NOT fixed here, and Stage 2h owns it.**
+     `[AUTHOR]` "Seems unfair to use a different weighting mechanism for
+     empirical and synthetic."
+
+     **WHAT THE TWO ARMS DO.** `empirical.py:389` draws a flat Dirichlet over
+     all n points, with no structure, because real data has no known modes.
+     `generator.py:329` gives each point `market[mode(i)] * within`, a
+     mode-level share split inside the mode, at `mode_coupling = 1.0`. So the
+     weights are correlated with the values on one arm and independent of them
+     on the other.
+
+     **WHY THAT MATTERS RATHER THAN BEING A DETAIL.** Weights drawn
+     independently of the values are exchangeable, so the weighted CDF
+     converges to the unweighted one and the measured weighting effect MUST
+     decay like n^-1/2. Correlated weights do not decay. Median
+     uniform-to-variable separation:
+
+         n           empirical (flat)   synthetic (coupled)   corpus values, reweighted flat
+         3-9              0.0831              0.1377                 0.1300
+         10-99            0.1090              0.1248                 0.0860
+         100-999          0.0737              0.0714                 0.0383
+         1000+            0.0049              0.0501                 0.0116
+
+     Decay slope on log(n): **-0.397 empirical against -0.167 synthetic.** The
+     third column is the corpus's OWN values reweighted flat, which is what
+     proves the gap is the weight rule and not the data. **At n >= 1000 the
+     corpus shows ten times the empirical arm's weighting effect.** The
+     apparent agreement in the aggregate is an accident of the size mix: 78 of
+     147 real categories are n = 10-99, the one band where the two rules agree.
+
+     **THE AUTHOR'S PROPOSED FIX, AND IT IS THE RIGHT DIRECTION.** Give both
+     arms the same rule. A mixture model is NOT the way to do it -- it cannot
+     be fitted at n = 3 to 9, mode counts on real data are badly
+     method-dependent (95 percent unimodal at one bandwidth against 68 at
+     another), and it would make the weights a function of a fitted model in
+     the middle of the paper's central quantity. `weighting.block_weights`
+     already does the job without any of that: cut the SORTED values into k
+     contiguous blocks, draw block shares from a flat Dirichlet, split flat
+     inside. What mode coupling actually produces is weights correlated with
+     values; the mode structure is only the device.
+
+     **A COHERENCE PARAMETER MAKES THE UNTESTABLE ASSUMPTION AN AXIS.** Rank
+     the values to r in [0, 1], draw u uniform, sort by
+     `s = rho * r + (1 - rho) * u`, cut into k contiguous blocks. rho = 1 is
+     maximal clustering, rho = 0 is random membership. Measured median
+     separation on the 147 real categories at n >= 1000: **0.0075 at rho = 0
+     rising to 0.1219 at rho = 1**, against 0.0049 today -- a factor of 25 at
+     the top end. Whether the effect survives large n, as the ratio of the
+     1000+ median to the 10-99 median: empirical 0.05 / 0.16 / 0.28 / 0.41 /
+     0.53 and synthetic 0.15 / 0.35 / 0.71 / 1.00 / 0.85 across
+     rho = 0, 0.25, 0.5, 0.75, 1.
+
+     **A BIGGER SEPARATION IS NOT EVIDENCE OF A BETTER MODEL, and the author
+     asked exactly this.** The separation measures what unknown shares do; it
+     is not a target. The 25 percent factor comes from ASSUMING maximal
+     clustering, which is as much an assumption as assuming none. What is a
+     defect, and worth fixing whichever rho is defensible, is that the two arms
+     differ at all.
+
+     **TWO CONFOUNDS A LATER STAGE MUST CONTROL.** The block model changes
+     CONCENTRATION as well as coherence -- with k blocks the weight is
+     concentrated into k groups whatever rho is, which is why rho = 0 already
+     sits above today's flat draw -- so k must be matched or swept alongside,
+     exactly as decision 97 matched the Kish effective sample size. And the
+     empirical arm's decay is PARTLY DISPERSION: the categories above n = 1,000
+     are the ReadyMix strength classes at a median coefficient of variation of
+     0.297 against 0.954 at n = 100-999, and decision 96's law says separation
+     scales with that, so some of the decay is concrete being tight rather than
+     weighting dying.
+
+     **WHAT IS DECIDED HERE: nothing about the weight model.** Mode coupling
+     stands, the corpus is not reweighted, no number moves, and Stage 2h takes
+     this as its first item with the numbers above. Decision 97 already
+     assigned the block-structure sweep there. **Also handed to 2h:** the
+     author's proposal to draw mode SIZES from a flat Dirichlet rather than at
+     concentration 10, which is more realistic -- at k = 2 the largest mode
+     spans 0.52 to 0.97 instead of 0.51 to 0.71 -- and which measured 5.0 seed
+     standard deviations worse on the calibration, though that comparison used
+     the mismatched weight rules above and must be redone once the arms agree.
+     Discrepancy entry 130.
