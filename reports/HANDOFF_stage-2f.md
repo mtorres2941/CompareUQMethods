@@ -638,7 +638,7 @@ probabilistic LCA, and the manuscript.
 
 **FIRST, WHAT THE NEXT SESSION MUST NOT REPEAT.** Three claims from this
 stage's first version are withdrawn and are recorded as withdrawn in the
-project's decision log at entries 134, 135 and 136: that the author's modality
+project's decision log, as decisions 134, 135 and 136: that the author's modality
 index is the second-best predictor of which method to use (it is an in-sample
 result on 127 categories and does not survive out of sample), that five further
 characteristics add 0.10 to 0.14 of explained variance to the choice (the same
