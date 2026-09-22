@@ -3706,3 +3706,122 @@ rather than in conversation.
      about EC3's taxonomy rather than about the generalization of the result.
      **Generation stays closed unless the author overrules this**, decisions
      47, 48 and 55 unchanged. Discrepancy entry 127.
+
+139. **2026-09-21, Stage 2f review. THE PRACTITIONER RULE, MEASURED: use a
+     kernel estimate above 75 to 100 declarations, with market-share weights if
+     you have them, and a three-parameter lognormal below. The cutoff is a
+     basin, not a point.** `[AUTHOR]` "I want to find the most useful versions
+     of those kinds of statements. Like 'KDE is best for n>100'. Is the cutoff
+     actually right at 100 or is it elsewhere?"
+
+     **THE CUTOFF IS 75 AND EVERYTHING FROM 59 TO 134 IS AS GOOD.** Cost of the
+     policy "kernel estimate with market-share weights above the threshold,
+     three-parameter lognormal with equal weights below" against the
+     unreachable per-dataset oracle, on 10,000 synthetic datasets scored
+     against the market-weighted parent:
+
+         always the kernel estimate          53.6 pct over the oracle
+         n >= 50                             39.8
+         n >= 75                             38.4   <- lowest
+         n >= 100                            38.5
+         n >= 200                            40.9
+         always the lognormal               178.5
+
+     The worst case halves across the same region, 26.6x below n = 53 and 13.1x
+     above it. **So 100 is a round number chosen inside a flat basin and the
+     paper must say so**; quoting it as an estimate claims a precision the
+     curve does not have. `flat_region` reads the span rather than the argmin
+     for exactly this reason. `TABLE_ReductionPolicyCurve.csv`.
+
+     **IS ONE METHOD BEST NO MATTER WHAT? No, and the answer changes twice.**
+     Share of datasets on which each method is closest to the truth:
+
+         n            KDE Var  KDE Uni  Logn Uni  Logn Var  Norm Uni  Norm Var
+         3-9            22.5     33.8      20.9       9.9       7.6       5.4
+         10-99          20.0     22.5      25.2      17.9       8.8       5.6
+         100-999        42.8     28.8       8.8      16.8       1.3       1.4
+         1000+          69.6     23.5       0.6       6.1       0.0       0.2
+
+     The kernel estimate under EQUAL weights leads at 3-9, the lognormal under
+     equal weights leads at 10-99, and the kernel estimate under MARKET-SHARE
+     weights leads everywhere above 100, reaching 69.6 percent.
+
+     **THE CURVE IS U-SHAPED AND THE DIP IS NOT NOISE.** The kernel estimate is
+     closer on 62.6 percent of datasets at n = 3-9, falls below half between
+     about 10 and 55, and rises to 86.5 percent (equal weights) and 96.8
+     percent (market-share weights) at the top of the corpus. With three to
+     nine values there is no shape to estimate and both families do equally
+     badly; between ten and fifty the lognormal's shape assumption is worth
+     more than the kernel's flexibility. **The figure draws the dip rather than
+     smoothing it**, because a monotone curve there would be the conclusion and
+     not the data.
+
+     **AND NO OTHER CHARACTERISTIC YIELDS A USABLE THRESHOLD.** Sweeping every
+     candidate for the value at which the kernel estimate overtakes the
+     lognormal, on the corpus: the modality index NEVER crosses under equal
+     weights (60.9 to 55.9 percent as it rises) and crosses DOWNWARD under
+     market-share weights (67.0 to 46.5), so more modality makes the kernel
+     estimate relatively WORSE, which is the opposite of the intuition and
+     survives holding dataset size fixed. Silverman's critical bandwidth is
+     flat, 77.5 to 76.0 percent. **This confirms decision 88 on 10,000 datasets
+     out of sample where that decision had 127 in sample.**
+
+     **THE ONE LARGE NON-SIZE EFFECT IS NOT A DATA CHARACTERISTIC.** The
+     variable-weighted mean of a dataset normalized to an unweighted mean of
+     1.0 -- which is exactly how far market weighting shifts the average --
+     crosses at 0.872 under equal weights (31.5 to 67.5 percent) and 1.17 under
+     market-share weights (81.5 to 34.7). A practitioner cannot compute it
+     without already knowing the shares, which is the same disqualification
+     decision 88 applied to the uniform-to-variable distance. **So the rule a
+     reader can act on still has exactly one number in it, and that number is
+     how many declarations they hold.**
+
+140. **2026-09-21, Stage 2f review. MARKET-SHARE WEIGHTING PAYS WHEN THE SHARES
+     ARE CONCENTRATED, NOT WHEN THEY ARE EVEN, AND THAT IS THE OPPOSITE OF THE
+     SAMPLE-SIZE INTUITION.** `[AUTHOR]` Asked whether the kernel estimate's
+     loss under market-share weights at n = 3-9 was just noise. It is not, and
+     answering it turned up the better finding.
+
+     **AT n = 3-9 IT IS REAL AND THE MECHANISM IS THE POINT COUNT.** A flat
+     Dirichlet over three to nine points leaves a Kish effective sample size of
+     **2.7 in the median**, and **93.1 percent of those datasets have fewer
+     than five effective observations**. The market-share fit beats its own
+     uniform twin on 39.0 percent of them, interval [37.2, 40.9] over 2,500
+     datasets, so it is far outside sampling error. With three to nine values
+     there is no shape to estimate under any weighting and putting weights on
+     them adds variance without adding information. Splitting that band by how
+     much effective sample survives shows no gradient at all -- 41.4, 36.5,
+     36.3, 41.9 percent across quartiles -- which is the confirmation: nothing
+     about the weights rescues it, because the problem is the point count.
+
+     **AT n = 100-999 THE SAME SPLIT INVERTS, AND STEEPLY.** Share of datasets
+     where the market-share fit beats its uniform twin, by how concentrated the
+     weight vector is:
+
+         n_eff / n     kernel estimate   lognormal
+         0.23 (most concentrated)  74.4        79.4
+         0.33                      70.7        76.0
+         0.42                      61.6        66.1
+         0.51 (most even)          29.8        37.9
+
+     **A nearly even weight vector carries no information about the market, so
+     the market-share fit is the uniform fit plus noise and it loses.** A
+     concentrated one says something, and it wins. Concentration is therefore
+     not merely a shrunken sample; the usual intuition captures only the
+     variance half and misses the signal half. `TABLE_ReductionWeightConcentration.csv`.
+
+     **This is the clean statement of what variable weighting is FOR**, and it
+     sharpens decision 97, which found at matched effective sample size that
+     COHERENT concentration moves the answer 1.5 to 3.1 times as much as random
+     concentration. Same mechanism from the other side: what pays is the
+     weights being informative, not their being many.
+
+     **AND IT IS MEASURED AGAINST THE MARKET-WEIGHTED PARENT, WHICH IS THE ONLY
+     TARGET THAT CAN ANSWER IT.** Share of datasets above n = 1,000 where the
+     market-share kernel fit beats its uniform twin: **75.8 percent** against
+     `w1_market`, **20.7 percent** against `w1_parent`, **98.2 percent** against
+     the in-sample `w1`. Under `w1_parent` the two schemes are graded against
+     different populations and under `w1` every model is scored against the
+     variable-weighted data it was fitted to. Decision 65 records why; this is
+     the first place the three have been printed side by side, and the spread
+     is the argument for doing so.
