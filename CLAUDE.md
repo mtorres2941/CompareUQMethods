@@ -305,7 +305,7 @@ and generation is closed; neither input moves again.
 | **2e DONE** | pLCA construction: common random numbers installed in the study's own pLCA, the crossed sweep over group size and material use intensity, resampled groupings, bootstrap intervals on every headline percentage and NRMSE, the flip thresholds recomputed at every group size, and the pLCA against the TRUE parents. Decisions 105 to 113. `reports/HANDOFF_stage-2e.md` | Changing what the headline metric is (2g). It did NOT redesign the metric set, and it did not touch the fitting, the corpus or the empirical arm |
 | **2f DONE** | Shapiro-Wilk versus Shapiro-Francia resolved in favor of Francia under both weightings, `_royston_pvalue` corrected, then the multivariate reduction of the characteristic set against TWO targets -- the fit score and the downstream error -- with the survivors, the size confound, the three modality measures, the definitional tautology, partial dependence, and the curves that replace the rolling averages. **The author's review then moved the whole reduction out of sample and onto the synthetic arm, removed every p-value, and measured the practitioner threshold rather than choosing a tolerance for it.** Decisions 125 to 142. `reports/HANDOFF_stage-2f.md` | Regenerating, redesigning figures (3), and re-running the sweeps of 2h. It did NOT touch the fitting, the scoring criterion, the corpus's values or the empirical extract |
 | **2g DONE** | The metric set, judged against the run to the TRUE parents rather than on stability: the rank-1 frequency recovers worst of seven candidates and exceeds its own between-material spread under a normal; three different methods lead across the seven; the normal's 40 percent penalty is 44 percent on attribution and 1 to 4 percent on the tail and information metrics; the `(1-capecc)` divisor settled by dividing by the APPLICABLE iterations and reporting the applicability; two magnitude companions, one of them new; the tail failure mode measured rather than assumed; and the last use of the retired in-sample target removed. Decisions 143 to 150. `reports/HANDOFF_stage-2g.md` | Re-running the sweeps of 2h. It did NOT touch the corpus, the fitting, the scoring criterion or the weight model |
-| **2h** | **FIRST ITEM, added 2026-09-22: THE WEIGHT MODEL.** The two arms draw market-share weights by different rules -- flat Dirichlet over points on the empirical arm, mode-coupled on the synthetic -- so the paper's central quantity decays with n on one arm and not the other, differing tenfold above n = 1,000. Give both arms one rule with a swept coherence parameter, controlling for concentration separately. Decisions 97 and 141. Then: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling, and `mode_share_alpha`, which the author proposes moving from 10 to 1. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124** | Anything not framed as a sweep with a tabulated result |
+| **2h** | **FIRST ITEM, added 2026-09-22: THE WEIGHT MODEL.** The two arms draw market-share weights by different rules -- flat Dirichlet over points on the empirical arm, mode-coupled on the synthetic -- so the paper's central quantity decays with n on one arm and not the other, differing tenfold above n = 1,000. Give both arms one rule with a swept coherence parameter, controlling for concentration separately. Decisions 97 and 141. Then: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling, and `mode_share_alpha`, which the author proposes moving from 10 to 1. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124**. **Stage 2g adds to that judgment arm: a UNIFORM and a TRIANGULAR over a plausible range, which is where those two belong because they are specified from bounds rather than fitted to data, decision 151.** **And an optional UPPER TRUNCATION of each fitted model, which would remove the thin-far-tail failure mode outright at the cost of one assumption, decision 152; whatever else it sweeps, the tail term stays in force and `model_sd_ratio` is reported at every value of `PROFILE_DELTA_LO_FRAC`, decision 149** | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
@@ -4339,3 +4339,91 @@ rather than in conversation.
      target under which all six methods estimate the same thing. The retired
      score is kept beside it, unused, and the cell prints how far the two
      disagree, so the change is measured rather than asserted.
+
+151. **2026-09-22, Stage 2g. UNIFORM, TRIANGULAR AND BETA DO NOT BELONG IN THIS
+     PAPER'S COMPARISON, AND UNIFORM AND TRIANGULAR DO BELONG IN STAGE 2h'S
+     JUDGMENT ARM. This EXTENDS decision 124 rather than opening a new
+     question.** `[AUTHOR ASKED]` The author asked whether other distributions
+     are worth comparing and what else is common in LCA.
+
+     **WHAT IS ACTUALLY USED.** The lognormal is dominant: it is ecoinvent's
+     default and it is what the pedigree matrix produces, since a geometric
+     standard deviation IS a lognormal parameterization. The normal is common
+     and usually wrong for a strictly positive right-skewed quantity. Both are
+     in the study. Uniform and triangular are used, and gamma, Weibull and beta
+     appear occasionally -- beta for bounded quantities such as efficiencies and
+     shares, which an embodied carbon coefficient is not.
+
+     **WHY UNIFORM AND TRIANGULAR ARE NOT COMPETITORS HERE, and it is a
+     question of what they are FOR rather than of how they perform.** This paper
+     compares ways of turning a SET of declarations into a distribution. A
+     uniform is not fitted to a dataset; it is specified from two numbers, and
+     its maximum likelihood fit to n values is exactly [min(x), max(x)], which
+     discards every value in between. A triangular adds a mode and discards the
+     rest. They would lose the comparison by a distance, and **that is the
+     reason not to include them**: a family that cannot use the data is a straw
+     man, and a straw man that flatters this paper's own method is worse than
+     no comparison at all.
+
+     **WHERE THEY DO BELONG IS EXACTLY WHERE THE PEDIGREE MATRIX BELONGS.**
+     Uniform and triangular are what a practitioner reaches for when there is no
+     dataset -- a plausible low and high, perhaps a most likely value -- which
+     is the same situation the pedigree matrix is built for. Decision 124 already
+     records the framing that makes such a model comparable: this study's
+     yardstick, how far apart two models have to be before the answer changes,
+     does not care how either model was built. **So Stage 2h's judgment-driven
+     arm should hold three things and not one: the pedigree matrix swept over its
+     geometric standard deviation, a uniform over a plausible range, and a
+     triangular over a range with a mode.** The question each answers is the
+     same: how far from the data-driven answer does a judgment-driven model sit,
+     and is that far enough to change the decision.
+
+     **GAMMA IS ALREADY DONE AND WEIBULL IS ALREADY SCHEDULED.** Out of sample on
+     the real categories the three-parameter lognormal is indistinguishable from
+     gamma -- every paired bootstrap interval straddles zero -- and on the
+     synthetic arm against the known parent it separates by +0.0117 and +0.0045,
+     winning 77.4 and 67.5 percent of datasets, so it is never worse and it
+     stands (decision 70). Weibull is on Stage 2h's list.
+
+152. **2026-09-22, Stage 2g. THE RUNAWAY TAIL IS RARE AND REAL IN THIS STUDY'S
+     OWN FITS, TWO GUARDS ALREADY CATCH IT, AND AN UPPER TRUNCATION IS THE EASY
+     FIX THIS PAPER STATES RATHER THAN IMPLEMENTS.** `[AUTHOR ASKED]` The author
+     asked whether bad tails make much difference here and whether truncation is
+     worth implementing or worth naming as a weakness with an easy fix. The
+     second, and here is the measurement that decides it.
+
+     **IT IS NOT HYPOTHETICAL.** `model_sd_ratio`, the fitted model's own
+     standard deviation over the data's, is near 1.0 in the median for every one
+     of the six methods on both arms -- so the typical fit is fine -- and
+     **0.25 percent of fits exceed five times the data's spread**. The worst
+     single fits are `Lognormal, Uniform` at **73.7** times on the synthetic arm
+     and 7.4 on the real one, `KDE, Uniform` at 50.1 and `Normal, Uniform` at
+     40.6. **Every one of the three is an EQUAL-WEIGHTED fit at small n**; the
+     market-weighted twins top out at 5.0, 1.4 and 1.0.
+
+     **AND THE TWO GUARDS ALREADY IN PLACE ARE WHY IT DOES NOT REACH THE
+     RESULTS.** The profile-likelihood guard on the lognormal threshold bounds it
+     at fitting time (decision 51, which records a model reaching a standard
+     deviation of 3,281 when that guard was set too loose), and the tail term in
+     the scoring criterion charges for whatever survives. Measured: the part of
+     the score lying BEYOND the grid is **exactly zero for the kernel estimate
+     and for the normal**, which put no mass there at all, and averages 6.0e-5
+     and 9.4e-5 for the two lognormals with a maximum of 0.076.
+
+     **WHY AN UPPER TRUNCATION IS NOT IMPLEMENTED HERE.** Every model in this
+     study is already truncated BELOW at zero, because a negative emission
+     coefficient is not admissible, and that bound is external and needs no
+     argument. An upper bound has no equally external anchor: the mass ceiling of
+     100 kgCO2e/kg this study applies to the DATA (decision 49) is a physical
+     bound in the data's own units, and every dataset here is normalized to a
+     mean of 1.0, so it is not a fixed multiple. Choosing a multiple is a
+     methodological decision with numbers attached to it, which is a sweep rather
+     than a metric stage's business.
+
+     **SO THE PAPER SAYS THIS, IN ONE SENTENCE, AND STAGE 2h MAY SWEEP IT.** A
+     goodness-of-fit distance between cumulative curves cannot see how far out a
+     model puts its rare values, so a model can score well and still wreck a
+     Monte Carlo; this study charges for it with a tail term and watches it with
+     the fitted-model spread ratio, and truncating each fitted model at a
+     plausible multiple of the largest observed value would remove the failure
+     mode outright at the cost of one more assumption.
