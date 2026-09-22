@@ -3882,10 +3882,35 @@ rather than in conversation.
 
      **A BIGGER SEPARATION IS NOT EVIDENCE OF A BETTER MODEL, and the author
      asked exactly this.** The separation measures what unknown shares do; it
-     is not a target. The 25 percent factor comes from ASSUMING maximal
-     clustering, which is as much an assumption as assuming none. What is a
-     defect, and worth fixing whichever rho is defensible, is that the two arms
-     differ at all.
+     is not a target. The factor of 25 comes from ASSUMING maximal clustering.
+     What is a defect, and worth fixing whichever rho is defensible, is that
+     the two arms differ at all.
+
+     **BUT rho = 0 IS NOT THE NEUTRAL CHOICE, AND CALLING IT AGNOSTIC WAS
+     WRONG.** The author's objection, and it is correct: "being agnostic is
+     making a decision in the wrong direction ... saying that weight doesn't
+     matter at high n is just a mathematical artifact, not a reflection of
+     reality." A flat Dirichlet is not the absence of an assumption. It is the
+     specific claim that market share is UNCORRELATED with carbon intensity,
+     and that claim is almost certainly false: the 63.75 percent
+     Rest-of-World BOF share of Marsh, Hattam and Allen (2025) sits on the
+     HIGHER-carbon steel route, while the lower-carbon EAF route is the small
+     one. Share tracking technology is exactly the correlation rho measures.
+
+     **And the decay itself is a property of the model rather than of markets.**
+     Weights drawn independently of the values must converge to uniform as n
+     grows, because that is what exchangeability means. Real market share does
+     not become more uniform as more manufacturers publish declarations. So the
+     n^-1/2 decay this corpus shows at rho = 0 is an artifact of the weight
+     model, and reporting it as a finding about weighting would be reporting an
+     artifact.
+
+     **WHAT THIS CHANGES FOR 2h.** The task is NOT "sweep rho and report the
+     range". It is: sweep rho, REJECT rho = 0 explicitly as a null that the
+     evidence contradicts, and anchor a primary value on the published
+     production-volume data rather than on agnosticism. The symmetric framing
+     -- both ends are equally assumptions -- is true and is not a reason to
+     default to the end we can already see is wrong.
 
      **TWO CONFOUNDS A LATER STAGE MUST CONTROL.** The block model changes
      CONCENTRATION as well as coherence -- with k blocks the weight is
