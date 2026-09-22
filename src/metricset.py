@@ -82,6 +82,7 @@ checked against the failure mode rather than assumed immune to it.
 import numpy as np
 import pandas as pd
 
+import fitting as FT
 import plca as PL
 
 
@@ -447,7 +448,15 @@ class Contaminated:
 #: how much mass goes there. The weights are deliberately small: the point of
 #: the failure mode is that a model can carry a tail the data does not support
 #: while still looking like a good fit.
-TAIL_FACTORS = (10.0, 100.0, 1000.0)
+#:
+#: THE DISTANCES ARE A CONTINUOUS LOG SWEEP AND THEY START INSIDE THE DATA.
+#: An earlier version used three round decades, which drew as three points and
+#: could not show WHERE the criterion goes blind. It goes blind at the top of
+#: its own scoring grid, `max(x) + 10 sd`, which on a dataset normalized to a
+#: mean of 1.0 is of order ten times the mean -- so the sweep has to run from
+#: inside the data, through that boundary, and out, or the transition is not in
+#: the picture.
+TAIL_FACTORS = tuple(np.round(np.logspace(0.0, np.log10(3000.0), 25), 4))
 TAIL_WEIGHTS = (1e-4, 1e-3, 1e-2)
 
 
@@ -481,6 +490,11 @@ def tail_stress(models, names, x_by_dataset, w_by_dataset, u, method,
     anchor = float(np.mean(x))
     base_out = PL.outputs(PL.draw_contributions(models, names, method, u))
     base_w1 = float(score(base_model, x, w)) if score is not None else np.nan
+    # WHERE THE SCORING GRID ENDS, in the same units the sweep is reported in.
+    # Beyond this the body of W1 cannot see the contamination at all, so a
+    # figure of the sweep has to be able to mark it.
+    grid = FT.score_grid_open(x, w)
+    grid_top = float(np.max(grid)) / anchor if anchor > 0 else np.nan
     rows = []
     for factor in factors:
         for weight in weights:
@@ -490,7 +504,8 @@ def tail_stress(models, names, x_by_dataset, w_by_dataset, u, method,
             patched[d][method] = bad
             got = PL.outputs(PL.draw_contributions(patched, names, method, u))
             row = dict(dataset=d, method=method, factor=factor, weight=weight,
-                       w1_base=base_w1)
+                       w1_base=base_w1, grid_top=grid_top,
+                       beyond_grid=bool(factor > grid_top))
             row['w1'] = (float(score(bad, x, w)) if score is not None
                          else np.nan)
             row['w1_rel'] = (abs(row['w1'] - base_w1) / base_w1

@@ -332,22 +332,40 @@ def _stress(seed=9, **kw):
         {k: v['weights'] for k, v in data.items()}, u, 'KDE, Variable', **kw)
 
 
-def test_the_body_of_w1_is_exactly_blind_to_how_far_out_the_tail_goes():
+def test_the_body_of_w1_goes_blind_exactly_where_its_own_grid_ends():
     """THE FAILURE MODE THE STAGE WAS TOLD TO CHECK, as an assertion.
 
     W1 integrated over the scoring grid alone charges for the MASS a model
-    moves and not for the DISTANCE it moves it, because above the grid's top
-    the integrand is clipped away. Moving a thousandth of the mass to ten, a
-    hundred or a thousand times the dataset mean gives the SAME body score to
-    five decimal places, while a Monte Carlo that samples the model is wrecked
-    by the third case and not by the first.
+    moves and, once that mass is past the top of the grid, stops charging for
+    the DISTANCE entirely, because the integrand is clipped away there. The
+    sweep runs from inside the data out to three thousand times its mean, so
+    the assertion is two-sided: the score still moves while the contamination
+    is inside the grid, and it is constant to a part in a million once the
+    contamination is beyond it.
     """
     got = _stress(score=lambda m, x, w: FT.score_w1_model(m, x, w, tail=False))
     for weight, block in got.groupby('weight'):
-        # Relative to the score itself, because the grid's own top point picks
-        # up a difference of order 1e-9 from the far component's CDF there.
-        assert block['w1'].std() / block['w1'].mean() < 1e-6, weight
-        assert block['factor'].nunique() == 3
+        inside = block[~block.beyond_grid]
+        # CLEARLY beyond, not merely past the boundary: the contamination has
+        # its own width, so the first point past the grid top still has a
+        # little of itself inside and is a transitional case rather than a
+        # counterexample.
+        outside = block[block.factor > 1.5 * block.grid_top]
+        assert len(inside) >= 3 and len(outside) >= 10, weight
+        # Seven significant figures across two and a half orders of magnitude
+        # in the contamination distance; the residual is float noise at the
+        # grid's far end, not a response to the distance.
+        assert outside['w1'].std() / outside['w1'].mean() < 1e-7, weight
+        assert inside['w1'].std() / inside['w1'].mean() > 1e-4, weight
+
+
+def test_the_grid_top_is_of_order_ten_times_the_dataset_mean():
+    """Which is why the blindness starts just past the data, and why the sweep
+    has to begin inside it."""
+    got = _stress(score=FT.score_w1_model)
+    top = float(got['grid_top'].iloc[0])
+    assert 3.0 < top < 60.0
+    assert got['beyond_grid'].any() and (~got['beyond_grid']).any()
 
 
 def test_the_tail_term_stage_2c_added_is_what_closes_that_blindness():
@@ -355,10 +373,10 @@ def test_the_tail_term_stage_2c_added_is_what_closes_that_blindness():
     term integrates the model's survival function beyond the grid, so the score
     rises with the distance instead of ignoring it."""
     got = _stress(score=FT.score_w1_model)
-    block = got[got['weight'] == 1e-4].sort_values('factor')
+    block = got[(got['weight'] == 1e-4) & got['beyond_grid']].sort_values('factor')
     rel = block['w1_rel'].to_numpy(float)
-    assert rel[0] < rel[1] < rel[2]
-    assert rel[2] > 10 * rel[0]
+    assert (np.diff(rel) > 0).all()
+    assert rel[-1] > 10 * rel[0]
 
 
 def test_a_share_is_immune_to_the_tail_and_a_level_is_not():
@@ -370,6 +388,11 @@ def test_a_share_is_immune_to_the_tail_and_a_level_is_not():
     standard deviation and a variance share have no such ceiling.
     """
     got = _stress(score=FT.score_w1_model)
+    # THE CLAIM IS ABOUT A FAR TAIL AND THE TEST HAS TO SAY SO. Contamination
+    # INSIDE the data moves everything, shares included, and that is not the
+    # failure mode: it is a badly fitting model, which the criterion charges
+    # for in full. The immunity claim is about mass the criterion cannot see.
+    got = got[got.factor > 1.5 * got.grid_top]
     exp = MS.tail_exposure(got).set_index('output')
     for bounded in ('eci_perc_mean', 'eci_perc_p95tot', 'eci_rank_1'):
         assert exp.loc[bounded, 'rel_max'] < 0.2, bounded
@@ -378,19 +401,14 @@ def test_a_share_is_immune_to_the_tail_and_a_level_is_not():
     assert exp.loc['eci_std', 'exposure'] > exp.loc['eci_perc_mean', 'exposure']
 
 
-def test_a_bounded_metric_does_not_move_when_the_tail_moves_further_out():
-    """Saturation, asserted directly rather than through a ratio: at a fixed
-    contamination weight the share metrics are the same number at ten times the
-    mean and at a thousand times it."""
+def test_a_bounded_metric_stops_moving_once_the_tail_is_far_enough_out():
+    """Saturation, asserted directly rather than through a ratio: past a
+    hundred times the dataset mean the share metrics are the same number at
+    every further distance, while the level metrics keep climbing."""
     got = _stress(score=FT.score_w1_model)
-    block = got[got['weight'] == 1e-3]
-    # Exactly flat: once a material is the whole tail, every further factor of
-    # ten leaves its share at the total's 95th percentile and its rank-1
-    # frequency untouched to the last digit.
+    block = got[(got['weight'] == 1e-3) & (got['factor'] > 100)]
+    assert len(block) >= 5
     for bounded in ('eci_perc_p95tot_rel', 'eci_rank_1_rel'):
         assert block[bounded].std() < 1e-12, bounded
-    # The mean share is not exactly flat, because at ten times the mean the
-    # material does not yet hold the whole of every iteration it dominates,
-    # but it is three orders of magnitude steadier than the level metrics.
     assert block['eci_perc_mean_rel'].max() < 0.01
-    assert block['eci_std_rel'].std() > 1.0
+    assert block['eci_std_rel'].max() / block['eci_std_rel'].min() > 5.0

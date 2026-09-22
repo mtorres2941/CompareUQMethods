@@ -472,7 +472,7 @@ def cap_reduction(model, col, cap, u, scale=1.0):
 
     Returns `(reduced, touched, cap)`. Where the model puts NO mass below the
     cap the conditional distribution does not exist, and those entries come
-    back as NaN rather than as a value above a cap that is labelled as capped.
+    back as NaN rather than as a value above a cap that is labeled as capped.
     """
     col = np.asarray(col, dtype=float)
     cap = float(cap)

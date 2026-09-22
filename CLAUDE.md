@@ -4066,7 +4066,7 @@ rather than in conversation.
      can be made, and that is a fair objection to the numbers above. But Marsh,
      Lewis, Hattam and Allen (in press) report the same thing for a real
      four-option staircase: the top-contributing product changes with the
-     uncertainty characterisation scenario. **So it is a property of ranking
+     uncertainty characterization scenario. **So it is a property of ranking
      near-equal contributors rather than of synthetic data, and the paper should
      report it plainly rather than defensively.**
 
