@@ -303,7 +303,7 @@ and generation is closed; neither input moves again.
 | **2c DONE** | The evaluation target: scored the synthetic arm against the known parent (recovered by replaying the generator, decision 64), cross-validated the empirical 147, the fit-versus-definitional decomposition, regret, post-stratification, overlap area, the gamma question, the bandwidth against the parent, and the scoring grid. `reports/HANDOFF_stage-2c.md` | The pLCA construction (2e) and the flip-probability threshold (2d). It did NOT split the uniform-to-variable W1 into location and shape, which is 2d's |
 | **2d DONE** | Decomposed the uniform-to-variable W1 into location and shape, named the relative measure and verified it un-normalized, built the per-dataset weighting risk and the size-and-dispersion law behind it, calibrated the flip probability, and measured what switching UQ method does to every pLCA output in real units. `reports/HANDOFF_stage-2d.md` | Building companion decision metrics (2g), and installing common random numbers in the STUDY's pLCA, which stays 2e's |
 | **2e DONE** | pLCA construction: common random numbers installed in the study's own pLCA, the crossed sweep over group size and material use intensity, resampled groupings, bootstrap intervals on every headline percentage and NRMSE, the flip thresholds recomputed at every group size, and the pLCA against the TRUE parents. Decisions 105 to 113. `reports/HANDOFF_stage-2e.md` | Changing what the headline metric is (2g). It did NOT redesign the metric set, and it did not touch the fitting, the corpus or the empirical arm |
-| **2f DONE** | Shapiro-Wilk versus Shapiro-Francia resolved in favor of Francia under both weightings, `_royston_pvalue` corrected, then the multivariate reduction of the characteristic set against TWO targets -- the fit score and the downstream error -- with the survivors, the size confound, the three modality measures, the definitional tautology, partial dependence, and the curves that replace the rolling averages. Decisions 125 to 133. `reports/HANDOFF_stage-2f.md` | Regenerating, redesigning figures (3), and re-running the sweeps of 2h. It did NOT touch the fitting, the scoring criterion, the corpus's values or the empirical extract |
+| **2f DONE** | Shapiro-Wilk versus Shapiro-Francia resolved in favor of Francia under both weightings, `_royston_pvalue` corrected, then the multivariate reduction of the characteristic set against TWO targets -- the fit score and the downstream error -- with the survivors, the size confound, the three modality measures, the definitional tautology, partial dependence, and the curves that replace the rolling averages. **The author's review then moved the whole reduction out of sample and onto the synthetic arm, removed every p-value, and measured the practitioner threshold rather than choosing a tolerance for it.** Decisions 125 to 142. `reports/HANDOFF_stage-2f.md` | Regenerating, redesigning figures (3), and re-running the sweeps of 2h. It did NOT touch the fitting, the scoring criterion, the corpus's values or the empirical extract |
 | **2g** | Sensitivity of ECI Rank #1 Frequency, magnitude-based companions, and the `(1-capecc)` divisor | Re-running the sweeps of 2h |
 | **2h** | **FIRST ITEM, added 2026-09-22: THE WEIGHT MODEL.** The two arms draw market-share weights by different rules -- flat Dirichlet over points on the empirical arm, mode-coupled on the synthetic -- so the paper's central quantity decays with n on one arm and not the other, differing tenfold above n = 1,000. Give both arms one rule with a swept coherence parameter, controlling for concentration separately. Decisions 97 and 141. Then: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling, and `mode_share_alpha`, which the author proposes moving from 10 to 1. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124** | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
@@ -3741,24 +3741,19 @@ rather than in conversation.
      of those kinds of statements. Like 'KDE is best for n>100'. Is the cutoff
      actually right at 100 or is it elsewhere?"
 
-     **THE CUTOFF IS 75 AND EVERYTHING FROM 59 TO 134 IS AS GOOD.** Cost of the
+     **THE CUTOFF IS 81 AND EVERYTHING FROM 68 TO 97 IS INDISTINGUISHABLE FROM
+     IT. Decision 142 supersedes the "59 to 134" this entry first reported**,
+     which came from a tolerance chosen rather than measured. Cost of the
      policy "kernel estimate with market-share weights above the threshold,
      three-parameter lognormal with equal weights below" against the
      unreachable per-dataset oracle, on 10,000 synthetic datasets scored
      against the market-weighted parent:
 
          always the kernel estimate          53.6 pct over the oracle
-         n >= 50                             39.8
-         n >= 75                             38.4   <- lowest
-         n >= 100                            38.5
-         n >= 200                            40.9
+         n >= 81                             38.3   <- lowest
          always the lognormal               178.5
 
-     The worst case halves across the same region, 26.6x below n = 53 and 13.1x
-     above it. **So 100 is a round number chosen inside a flat basin and the
-     paper must say so**; quoting it as an estimate claims a precision the
-     curve does not have. `flat_region` reads the span rather than the argmin
-     for exactly this reason. `TABLE_ReductionPolicyCurve.csv`.
+     `TABLE_ReductionPolicyCurve.csv` and `TABLE_ReductionThreshold.csv`.
 
      **IS ONE METHOD BEST NO MATTER WHAT? No, and the answer changes twice.**
      Share of datasets on which each method is closest to the truth:
@@ -3960,3 +3955,67 @@ rather than in conversation.
      standard deviations worse on the calibration, though that comparison used
      the mismatched weight rules above and must be redone once the arms agree.
      Discrepancy entry 130.
+
+
+142. **2026-09-22, Stage 2f review. THE PRACTITIONER THRESHOLD IS 81
+     DECLARATIONS AND EVERYTHING FROM 68 TO 97 IS INDISTINGUISHABLE FROM IT.
+     This SUPERSEDES the "59 to 134" of decision 139**, which was too wide.
+     `[AUTHOR]` "The question I'm more interested in is how precisely must I
+     set a threshold. 134 still feels too high for that, right?" It was.
+
+     **WHAT WAS WRONG WITH 59 TO 134.** `flat_region` calls a threshold as good
+     as the best when its cost sits within five percent of the span between the
+     best and the better fixed policy. Both the five percent and the span are
+     choices of mine rather than facts about the data, and the answer carried
+     no uncertainty at all, so it could not separate "really as good" from
+     "looks as good". It was too permissive at the top.
+
+     **THE INSTRUMENT.** `metricreduction.threshold_interval`, two bootstraps
+     over datasets. The first resamples, refits the whole cost curve and takes
+     its argmin, so its spread says how well the data pin the threshold down:
+     **68 to 116**. The second is PAIRED -- each threshold's excess cost over
+     whichever threshold won ON THAT SAME RESAMPLE -- so the variation common
+     to both cancels and the interval is about the difference rather than the
+     level. The thresholds whose interval reaches zero cannot be told apart
+     from the best: **68 to 97**, with the optimum at **81**.
+
+     **EIGHT INDEPENDENT BOOTSTRAP STREAMS RETURN 81, 68 AND 97 EXACTLY**, so
+     unlike several numbers this stage has had to withdraw, these are not one
+     draw from a distribution.
+
+     **THE PENALTY FOR MISSING IT**, in points of extra error over the best
+     choice that could be made per dataset, with 95 percent intervals:
+
+         threshold    penalty    interval
+            24          4.84     3.54 to 6.25
+            48          1.83     1.01 to 2.83
+            81          0.11     0.00 to 0.50
+            97          0.27     0.00 to 0.73
+           138          0.79     0.16 to 1.58   <- excludes zero
+           304          6.47     5.00 to 7.93
+
+     **TWO RANGES IN THIS STAGE ARE DIFFERENT QUANTITIES AND MUST NOT BE
+     QUOTED FOR EACH OTHER.** The kernel and lognormal FAMILIES change places
+     at **46 to 70** declarations, which is a property of the win-share curves
+     and moves by a few on a reseed (46 to 49 low, 70 to 73 high, across five
+     streams). The best place for a RULE is **68 to 97**, above the crossing
+     because the penalty curve is steeper on the high side -- 4.8 points at a
+     threshold of 24 against 6.5 at 304. `family_lead_curve` and
+     `crossover_band` produce the first, `threshold_interval` the second.
+
+     **A FIGURE BUG FOUND WHILE CHECKING THIS, and it is the kind that widens a
+     claim quietly.** Figure A took the MIN AND MAX of the indistinguishable
+     flag rather than its longest unbroken run, and one isolated threshold
+     beyond a distinguishably worse one stretched the reported band from 68-97
+     to 68-116. At the edge of a near-zero effect the flag jitters: 106 is
+     excluded with a lower bound of 0.120 while 116 is included at 0.000.
+     `metricreduction.longest_true_run` requires the run to be unbroken, and
+     the real case is its test.
+
+     **AND WHICH COMPARISON PRODUCES A CROSSING MATTERS MORE THAN THE CROSSING.**
+     The market-share kernel estimate passes the better single lognormal at 65
+     declarations, the kernel family passes the lognormal family at 46 to 70,
+     and against the two lognormals pooled it does not pull clear until past
+     200. An earlier draft of this stage quoted 65 without saying which
+     comparison it came from, which is how a figure ends up disagreeing with
+     the sentence beside it. Discrepancy entry 128.
