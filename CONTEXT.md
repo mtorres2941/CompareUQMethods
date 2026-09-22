@@ -788,7 +788,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 504 tests, about 140 seconds
+python -m pytest tests/          # 559 tests, about 160 seconds
 ```
 
 Headless execution, from `notebooks/`:

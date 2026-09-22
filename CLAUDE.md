@@ -4152,8 +4152,9 @@ rather than in conversation.
      **IT IS ALSO THE BEST OF THE SEVEN ON THE DECISION READING.** Asked which
      material's uncertainty dominates, the best method names the truth's answer
      **58.4 percent** of the time against a one-in-four chance level, which is
-     the highest agreement of any candidate; the chance of leading manages 52.5
-     percent and a material's estimated contribution only 49.1.
+     the highest agreement of any candidate -- effectively tied with the spread
+     of a material's contribution, also 58.4 percent -- against 52.5 percent for
+     the chance of leading and 49.1 for a material's estimated contribution.
 
      **AND IT IS NOT IMMUNE TO THE TAIL FAILURE MODE.** Its tail exposure is
      1.58 and a thousandth of a model's mass at a thousand times the dataset

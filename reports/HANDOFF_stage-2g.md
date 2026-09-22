@@ -74,8 +74,11 @@ Share of 10,000 materials on which each method comes closest to the truth:
 
 **Three different methods lead across seven metrics.** The rank correlation
 between the six methods' ordering on one metric and their ordering on the chance
-of being largest runs from **+1.00** down to **-0.54**: on three of the six
-companions the methods come out in nearly the opposite order.
+of being largest runs from **+1.00** down to **-0.54**, and it is NEGATIVE on
+three of the six companions: the 95th percentile of a material's contribution
+(-0.26), its share at the building's 95th percentile (-0.31) and the uncertainty
+index (-0.54). So the ordering is not merely different there, it partly
+reverses.
 
 > **So what.** A paper that reports one number and names a best method is
 > reporting the number, not the method. Any recommendation has to say which
@@ -161,7 +164,9 @@ the whole building -- has the lowest disagreement between methods of any main
 output, **0.5035** against **1.042** for a material's chance of being largest.
 Asked which material's uncertainty dominates, the best method names the truth's
 answer **58.4 percent** of the time against a one-in-four chance level, the
-highest of any candidate.
+highest of any candidate -- though effectively tied with the spread of a
+material's contribution at 58.4 percent as well, and against **52.5** percent
+for the chance of being largest and **49.1** for the estimated contribution.
 
 **And every one of the six methods is out by about half the metric's own spread
 between materials**, 0.508 to 0.531, a span of only 4.4 percent from best to
@@ -342,7 +347,7 @@ because the function that computes every output has to compute it too.
 module, plus four edits inside existing cells: the two magnitude companions, the
 corrected cap normalization, and the retired target replaced.
 
-**The whole test suite is 575 tests and all pass**, including the eight
+**The whole test suite is 559 tests, 556 passing and 3 skipped**, including the eight
 regression fixtures that pin the dataset characteristics and all six
 goodness-of-fit scores. That is the check that the fitting, the corpus and the
 empirical arm were not touched.
