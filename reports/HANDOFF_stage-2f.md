@@ -73,6 +73,18 @@ the true distribution the data were drawn from:
 **Normal distributions are never the answer**, at 0.0 to 8.8 percent in every
 band, which is the strongest negative result the study has.
 
+**THE EQUAL-WEIGHTS LEAD AT SMALL SIZES IS PROVISIONAL AND THE NEXT STAGE MAY
+OVERTURN IT.** That equal weighting beats market-share weighting below about a
+hundred declarations is the one result in this stage the author does not accept
+on its face, and the objection is well founded: it rests on a weight model that
+differs between the two arms, and on 20 percent of the synthetic datasets
+having only one component, for which the market population and the sampled
+population are the same distribution and weighting has nothing to find. **Claim
+11 sets this out and Stage 2h owns it. Do not build a recommendation about
+weighting at small sizes on this row until that stage reports.** Everything
+about the choice of FAMILY -- kernel estimate against lognormal against normal
+-- is unaffected, because it is measured within a weighting scheme.
+
 > **So what.** There is no method you can adopt once and stop thinking about.
 > But there is one you can stop using: fitting a normal curve to embodied
 > carbon data is the worst choice at every dataset size, and it is what most
