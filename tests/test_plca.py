@@ -847,3 +847,24 @@ def test_the_overlap_check_is_quiet_for_a_label_in_white_space():
     hits = figstyle.check_overlaps(fig, verbose=False)
     plt.close(fig)
     assert not hits, hits
+
+
+def test_finish_does_not_delete_deliberate_tick_labels():
+    """A categorical axis loses its labels if `finish` thins the locator, and
+    it fails silently: the figure just comes back with some bands unnamed."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import figstyle
+
+    figstyle.apply()
+    fig, ax = plt.subplots()
+    bands = ['3-9', '10-99', '100-999', '1000+']
+    ax.plot(range(len(bands)), [1, 2, 3, 4])
+    ax.set_xticks(range(len(bands)))
+    ax.set_xticklabels(bands)
+    figstyle.finish(ax, title='t', xlabel='x', ylabel='y')
+    fig.canvas.draw()
+    got = [t.get_text() for t in ax.get_xticklabels()]
+    plt.close(fig)
+    assert got == bands

@@ -92,10 +92,16 @@ def finish(ax, title=None, xlabel=None, ylabel=None, nticks=4):
     if ylabel is not None:
         ax.set_ylabel(ylabel, fontsize=LABEL_PT)
     ax.tick_params(labelsize=TICK_PT)
+    import matplotlib.ticker as _mticker
     for axis in (ax.xaxis, ax.yaxis):
+        # A FixedLocator means the caller set the ticks deliberately -- a
+        # categorical axis, a set of named bands -- and thinning it silently
+        # deletes their labels. This function did exactly that until a figure
+        # came back with two of four band names showing and no error anywhere.
+        if isinstance(axis.get_major_locator(), _mticker.FixedLocator):
+            continue
         if axis.get_scale() == 'linear':
-            axis.set_major_locator(__import__('matplotlib').ticker.MaxNLocator(
-                nticks, prune=None))
+            axis.set_major_locator(_mticker.MaxNLocator(nticks, prune=None))
     return ax
 
 

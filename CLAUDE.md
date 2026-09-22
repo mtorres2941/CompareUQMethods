@@ -3531,18 +3531,27 @@ rather than in conversation.
      of 0.10 to 0.14 are part signal and part free lunch, and there was no way
      to tell which from the numbers reported.
 
-     **THE SAME DATA, MEASURED OUT OF SAMPLE.** Five-fold cross-validated, gain
-     reported beside the spread across folds:
+     **THE SAME DATA, MEASURED OUT OF SAMPLE, AND THE REAL ARM'S R2 IS NOT A
+     NUMBER.** An earlier draft of this entry quoted a base R2 of -0.724 for
+     the empirical arm and the notebook's own run returned -2.441 on the same
+     data through the same code. Neither is wrong and neither is a
+     measurement: the only difference is which categories land in which fold.
+     Twenty fold assignments, base model of size and dispersion, nothing else
+     changed:
 
-         empirical arm, 127 categories
-           base model, size and dispersion, Variable weighting   CV R2  -0.724
-           median gain over base                                        0.032
-           median spread across folds                                   0.242
-           gains larger than their own fold spread                  9 of 46
+         arm         weighting   datasets   base R2 median   range         sd
+         synthetic   Uniform       10,000       +0.280       +0.279/+0.280  0.000
+         synthetic   Variable      10,000       +0.524       +0.523/+0.525  0.000
+         empirical   Uniform          127       +0.326       -0.442/+0.370  0.169
+         empirical   Variable         127       -0.952       -2.605/+0.337  0.900
 
-     A base R2 BELOW ZERO means size and dispersion together predict the choice
-     WORSE than predicting its mean. **The empirical arm cannot support this
-     model, and no ranking taken from it is a measurement.**
+     **The corpus reproduces its own R2 to three decimals on every reshuffle;
+     the real arm does not reproduce its own SIGN.** A base R2 below zero means
+     size and dispersion together predict the choice worse than predicting its
+     mean. So the empirical arm cannot support this model, no ranking taken
+     from it is a measurement, and quoting any single value from it -- a
+     flattering one included -- is quoting one draw from a three-point-wide
+     distribution. `TABLE_ReductionBaseStability.csv`.
 
      **THE SYNTHETIC ARM CAN, AND IT SAYS SOMETHING DIFFERENT.** 10,000
      datasets, out-of-sample gain over size and dispersion, fold spread beside:
@@ -3577,8 +3586,17 @@ rather than in conversation.
          uniform weights   uniform-to-variable W1, mode count, dispersion (uw),
                            entropy, outlier weight x2      R2 0.280 -> 0.581
          variable weights  the mean, outlier weight, mode count, dispersion
-                           (uw), normal fit (uw), skewness (uw)
-                                                           R2 0.524 -> 0.634
+                           (uw), normal fit (uw), critical bandwidth
+                                                           R2 0.525 -> 0.634
+
+     **UNDER MARKET-SHARE WEIGHTS MANY EFFECTS ARE MEASURABLE AND ALL OF THEM
+     ARE SMALL, which is a different claim from "only one matters".** 17 of 23
+     candidate gains exceed their own fold spread, because that spread is only
+     0.0028 on 10,000 datasets -- but the largest is +0.034 against a base of
+     0.525. Under equal weights only 1 of 23 does, and it is the
+     uniform-to-variable distance at +0.170. The paper should say the effects
+     are real and small rather than absent, and should not use the count of
+     things that clear a noise floor as a measure of how much they matter.
 
      The empirical arm is reported as a consistency check with its interval
      shown and is stated to be too small to confirm anything. No claim about
