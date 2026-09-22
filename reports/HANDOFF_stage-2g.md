@@ -48,6 +48,23 @@ past 1.0** -- 1.037 with equal weights and 1.074 with market-share weights. On
 that metric a normal fit's error is larger than the entire spread of true values
 across materials.
 
+**AND IT IS NOT ONE METHOD'S PROBLEM: the chance of being largest is the
+worst-recovered of the seven for EVERY ONE of the six methods**, without
+exception. Method by method, its recovery error and the next worst metric for
+that same method:
+
+    kernel estimate, equal weights          0.733   next worst 0.686
+    kernel estimate, market-share weights   0.743   next worst 0.699
+    lognormal, equal weights                0.719   next worst 0.658
+    lognormal, market-share weights         0.767   next worst 0.699
+    normal, equal weights                   1.037   next worst 0.840
+    normal, market-share weights            1.074   next worst 0.879
+
+That is what makes this a statement about probabilistic LCA rather than about
+one way of doing it. **Whichever method a practitioner uses, the least reliable
+number it gives them is the chance that a material is the largest
+contributor.**
+
 This is a fourth independent argument for demoting it, and the first one that is
 about accuracy. The other three were that it is fragile when four materials
 contribute equally, that it carries a 3.67 percent noise floor from an arbitrary
@@ -60,7 +77,7 @@ material here is normalized to the same average and given the same use
 intensity, which makes a ranking as fragile as it can be made, and that is a
 fair objection to the numbers above. But Marsh, Lewis, Hattam and Allen (in
 press) find the same thing in a real four-option staircase design: the
-top-contributing product changes with which uncertainty characterisation
+top-contributing product changes with which uncertainty characterization
 scenario is used. An independent study, on a real element, with real
 quantities, sees the ranking move for the same reason. **So this is a property
 of ranking near-equal contributors, not a property of synthetic data**, and the
@@ -74,30 +91,83 @@ not to defend the ranking.
 > staircase saw the same thing happen, so this is not an artifact of the
 > synthetic test.
 
-## 2. Which method looks best depends on which number you report
+## 1b. What to lead with instead: how much, and how uncertain
 
-Share of 10,000 materials on which each method comes closest to the truth:
+A probabilistic LCA answers two different questions about every material -- how
+much it contributes, and how confident you can be in that -- and the study has
+been leading with a third that conflates them into a single ordering. The
+replacement is the pair:
 
-    metric                              leader                  share
-    chance of being largest             kernel, market shares   0.221
-    95th percentile of contribution     kernel, market shares   0.258
-    spread of contribution              kernel, market shares   0.296
-    estimated contribution              lognormal, market       0.236
-    mean share of the total             lognormal, market       0.215
-    share at the building's 95th pct    lognormal, market       0.186
-    the uncertainty index               lognormal, equal        0.209
+**A material's estimated contribution**, which is the magnitude, recovered at
+0.51 to 0.71 of its own between-material spread; and **the spread of that
+contribution**, which is the confidence, recovered at 0.42 to 0.50 and the best
+of the seven candidates. Beside them, the **uncertainty index** answers the
+third question a designer actually acts on -- where to collect better data --
+and is the output the choice of method affects least.
 
-**Three different methods lead across seven metrics.** The rank correlation
-between the six methods' ordering on one metric and their ordering on the chance
-of being largest runs from **+1.00** down to **-0.54**, and it is NEGATIVE on
-three of the six companions: the 95th percentile of a material's contribution
-(-0.26), its share at the building's 95th percentile (-0.31) and the uncertainty
-index (-0.54). So the ordering is not merely different there, it partly
-reverses.
+**The chance of being the largest contributor stays in the paper as one
+statement among five, quoted with its noise floor**, because it is what the
+manuscript currently reports and because readers will look for it. It is not the
+frame.
 
-> **So what.** A paper that reports one number and names a best method is
-> reporting the number, not the method. Any recommendation has to say which
-> statement it is a recommendation about.
+**Why the pair and not a single number.** The two are not substitutes. The
+kernel estimate with market-share weights is the best of the six at the spread
+of a material's contribution; the lognormal with market-share weights is the
+best at its estimated contribution. A paper that reports only one of the two
+gives a reader no way to tell a material that is big from one that is uncertain,
+and those call for different actions: the first is a design problem and the
+second is a data-collection problem.
+
+> **So what.** Report how much each material contributes and how uncertain that
+> is, as two numbers, and report which material's uncertainty is worth reducing.
+> "Which material is biggest" is a summary of the first two and is the least
+> reliable thing on the page.
+
+## 2. No way of describing uncertainty is best for every claim
+
+Seventeen claims a probabilistic LCA makes, scored for all six methods against
+the truth, is the figure below. The summary:
+
+**The most successful single method is best on 6 of the 16 claims where the
+methods differ at all, and four of the six are best on something.** The
+lognormal with equal weights takes 6, the lognormal with market-share weights 5,
+the kernel estimate with market-share weights 4, and the kernel estimate with
+equal weights 1.
+
+**How much the choice costs varies by a factor of forty across the claims.** At
+the top, a material's chance of being largest (35.5 percent between the best and
+worst method), how often a specification cap applies (31.0) and the cap's chance
+of delivering 5 percent (30.6). At the bottom, the building total's 90th
+percentile (1.1), whether one design beats another (0.8) and what a quantity
+reduction saves, where the six agree to four decimal places and the choice costs
+**nothing at all**.
+
+**And which method looks best changes with the metric, though less than an
+earlier version of this stage claimed.** On a win share against the truth, five
+of the seven per-material metrics have a leader whose bootstrap interval clears
+the runner-up's: the kernel estimate with market-share weights leads on the
+chance of being largest (0.221), the 95th percentile (0.258) and the spread
+(0.296); the lognormal with market-share weights leads on the estimated
+contribution (0.236) and the mean share (0.215). **On the other two no method
+separates at all** -- a three-way tie on the share at the building's 95th
+percentile and a two-way tie on the uncertainty index, where the top two are
+0.2091 [0.1995, 0.2187] and 0.2082 [0.1993, 0.2177].
+
+**AN EARLIER VERSION OF THIS PAGE SAID "THREE DIFFERENT METHODS LEAD" AND THAT
+COUNTED A TIE AS A LEAD.** The third was the uncertainty index's, whose margin
+is 0.0009 on intervals about 0.019 wide. Two methods lead where a leader can be
+named.
+
+The ordering of the six is still not stable across metrics: its rank correlation
+with the ordering the chance of being largest gives runs from **+1.00** down to
+**-0.54**, and it is NEGATIVE on three of the six companions -- the 95th
+percentile (-0.26), the share at the building's 95th (-0.31) and the uncertainty
+index (-0.54).
+
+> **So what.** There is no single best way to describe uncertainty; there is a
+> best way for the statement you are making. A paper that reports one number and
+> names a winner is reporting the number. And where two methods are within each
+> other's error bars, the honest answer is that they are tied.
 
 ## 3. "Never use a normal distribution" is about attribution, not about everything
 
@@ -200,7 +270,7 @@ a supplier-specific declaration buys.
 
 > **So what.** "Where should I spend my next hour of data collection" is both
 > the most useful thing a probabilistic LCA tells a designer and the answer
-> least affected by how the uncertainty was modelled. It should be in the paper.
+> least affected by how the uncertainty was modeled. It should be in the paper.
 > It should also carry the warning that every method is roughly equally
 > imprecise about it.
 
@@ -241,6 +311,27 @@ thin far tail wrecks; the ones that are immune are shares, and they recover
 worse. What makes the levels safe to report is that the study's own criterion
 now charges for the thing that wrecks them, which it did not two stages ago.
 
+**AND IT IS NOT HYPOTHETICAL, WHICH HAD TO BE CHECKED RATHER THAN ASSUMED.**
+The fitted model's own spread over the data's is near 1.0 in the median for
+every one of the six methods on both halves of the study, so the typical fit is
+fine -- and **0.25 percent of fits exceed five times the data's spread**. The
+worst single fits reach **73.7**, 50.1 and 40.6 times, and all three are
+EQUAL-WEIGHTED fits to small datasets; their market-share-weighted twins top out
+at 5.0, 1.4 and 1.0. Two guards already keep this out of the results: a bound on
+the lognormal's third parameter at fitting time, and the tail correction in the
+criterion. Measured, the part of the score lying beyond the grid is **exactly
+zero** for the kernel estimate and for the normal, which put no mass there, and
+averages 0.00006 and 0.00009 for the two lognormals.
+
+**TRUNCATING EACH FITTED MODEL AT THE TOP WOULD REMOVE THE FAILURE MODE
+OUTRIGHT, and this stage states that rather than implementing it.** Every model
+here is already truncated BELOW at zero, because a negative emission coefficient
+is not admissible and that bound needs no argument. An upper bound has no
+equally external anchor -- the physical ceiling this study applies to the raw
+declarations is in their own units, and every dataset here is rescaled to an
+average of 1.0 -- so choosing one is a modeling decision with numbers attached,
+which belongs in a sweep. It is handed to the next stage.
+
 > **So what.** A curve that looks like a good fit can still hide a rare,
 > enormous value, and the simulation you run afterwards will be dominated by it.
 > The check is worth running on any goodness-of-fit number before trusting it.
@@ -267,8 +358,20 @@ with equal weights -- a method that puts more mass above the cap finds the cap
 binding more often. The old fudge factor forced that number to 0.25 for every
 material and every method.
 
+**WHICH MEANS IT CAN NOW BE SCORED AGAINST THE TRUTH, AND TWO METHODS GET IT
+RIGHT.** The true distributions say a cap helps in **0.279** of iterations. The
+lognormal with equal weights says 0.277 and the lognormal with market-share
+weights 0.282 -- both indistinguishable from the truth, their bootstrap
+intervals straddling zero error. The kernel estimate is high by 0.012 and 0.020,
+and **the normal is high by 0.088, which is 31 percent too often.**
+
+That ordering is the reverse of the one on a material's chance of being largest,
+where the kernel estimate with market-share weights leads. The lognormal's
+strength is the shape of the upper tail, which is what a cap acts on; the kernel
+estimate's is following the body of the data.
+
 > **So what.** "Cap the carbon of your worst-performing material" is worth more
-> under some ways of modelling uncertainty than others, because they disagree
+> under some ways of modeling uncertainty than others, because they disagree
 > about how often any product would actually exceed the cap. That disagreement
 > was previously invisible by construction.
 
@@ -352,15 +455,25 @@ target that was retired three stages ago.
 
 ## 3. What was done
 
-**One new source module with 22 tests.** It holds the recovery statistic and the
+**One new source module with 23 tests.** It holds the recovery statistic and the
 argmax agreement, the corrected normalization for the cap rank frequencies, and
 the tail stress test with its contaminated-model wrapper. The new magnitude
 companion lives beside the other outputs in the probabilistic LCA module,
 because the function that computes every output has to compute it too.
 
-**Eleven new cells at the end of the third notebook**, each one call into that
+**Fifteen new cells at the end of the third notebook**, each one call into that
 module, plus four edits inside existing cells: the two magnitude companions, the
 corrected cap normalization, and the retired target replaced.
+
+**A SECOND PASS AFTER THE AUTHOR'S REVIEW added five things.** The scorecard of
+seventeen claims against all six methods, which is the figure the review asked
+for. A test of whether the win-share leader is a leader or a tie, which found
+that one of the three leaders the first pass named was noise. The cap's
+applicability scored against the truth, which the old constant divisor could not
+have asked. A check on whether any model this study actually fits has the
+runaway tail the stress test simulates. And a continuous distance sweep for that
+stress test, replacing three round decades that drew as three points and could
+not show WHERE the criterion goes blind.
 
 **The whole test suite is 559 tests, 556 passing and 3 skipped**, including the eight
 regression fixtures that pin the dataset characteristics and all six
@@ -423,6 +536,8 @@ the corrected cap panels.
 | **THE WEIGHT MODEL, carried forward from the previous stage and still the largest open item.** The two halves of the study draw market-share weights by different rules -- a flat draw over individual declarations on the real categories, weights attached to the humps of the distribution on the synthetic ones -- so the weights are correlated with the carbon coefficients on one and independent of them on the other, which is the dimension the paper is built on. Measured decay with category size: **-0.397 on the real categories against -0.167 on the synthetic**, and above a thousand declarations the median effect is **0.0049 real against 0.0501 synthetic**, a factor of ten. **Nothing in this stage depends on it and no number here moved because of it.** The fix is one rule on both halves with a swept coherence parameter, controlling separately for how concentrated the shares are | 2h, first item |
 | The profile-likelihood guard sweep. **This stage adds a binding constraint on it:** the guard against a runaway tail is the only thing making the level metrics safe to report, so the tail term must stay in force and the fitted-model spread ratio must be reported at every value swept | 2h |
 | Drawing the sizes of the distribution's humps from a flat draw rather than at concentration 10; multiple weight realizations; the deduplicated variant; **and the pedigree matrix**, which is what connects this paper to the practice most readers use | 2h |
+| **A UNIFORM AND A TRIANGULAR DISTRIBUTION, in the same arm as the pedigree matrix and for the same reason.** The author asked whether other shapes are worth comparing. They are not competitors HERE: this paper compares ways of turning a set of declarations into a distribution, and a uniform is not fitted to a dataset -- its maximum likelihood fit is exactly the smallest and largest value, discarding everything between -- so including it would be a straw man, and a straw man that flatters this paper's own method. But a uniform and a triangular are exactly what a practitioner reaches for when there is NO dataset, which is the situation the pedigree matrix is built for, and the yardstick that stage uses does not care how a model was built. Gamma is already settled: out of sample on the real categories it is indistinguishable from the three-parameter lognormal | 2h |
+| **AN OPTIONAL UPPER TRUNCATION OF EACH FITTED MODEL**, which would remove the thin-far-tail failure mode outright at the cost of one more assumption. Not implemented here because the lower bound at zero is external and needs no argument while an upper one does not have that anchor | 2h |
 | Every figure brought to the style guide; the figure manifest; the older figures still carry a Unicode minus. **The two figures added here follow the guide and pass its own clash detector** | 3 |
 | A real-building anchor, if citing the staircase paper is not enough | 2i, optional |
 | An industry-average declaration as a direct estimate of the market-weighted mean | unowned |
@@ -433,7 +548,8 @@ the corrected cap panels.
 |---|---|
 | **The corpus's characteristic list omits the modality measure the paper should report.** The label file names it and the stored characteristics carry it, but the list that hands characteristics to the third notebook does not, so that notebook's exploratory correlation scan cannot see it. Adding it would change the shape of a table that is also a regression fixture and would need the second notebook rerun and the fixture re-frozen. **Nothing depends on it**: the analysis that uses that measure lives in the fourth notebook and reads the stored characteristics directly. Owned by whichever stage next reruns the second notebook |
 | **The tension between accuracy and tail-robustness is stated and not resolved.** The metrics that recover the truth best are levels and levels are what a far tail wrecks; the immune ones are shares and they recover worse. The paper should say so; there is no measurement that settles it |
-| **The reports directory holds four handoffs where the project brief says one.** The brief's rule is that only the current stage's handoff is kept, and the handoffs for the stages through 2a-3 were deleted on that basis; the four since then were not. **This stage did not delete them**, because removing three files the author may be working from is their call and not a defect this stage found. Everything in them that is still outstanding is carried in the decision log and the discrepancy log, so deleting them loses nothing |
+| **The reports directory holds five handoffs and that is DELIBERATE, by the author's decision of 2026-09-22: "I'm fine holding four handoffs in one spot ... Seems fine to have previous context."** The project brief's rule that only the current stage's handoff is kept is therefore relaxed for these. **A session starting from here should read all of them** -- stages 2c, 2d, 2e, 2f and this one -- rather than assuming this file is the only record. Nothing outstanding lives only in them: the decision log and the discrepancy log still carry every open item, which is what the rule was protecting |
+| **British spellings survive in files this stage did not write**, which the author caught in this one. Fixed here and in the decision log; still present in the figure style guide (which uses "colour" throughout), in decision-log entries from earlier stages, and in six cells of the third notebook that earlier stages wrote. Not swept, because it would put unrelated diffs from four stages into this one. Owned by the deposit tidy-up |
 
 ### Closed here
 
@@ -462,11 +578,11 @@ replaying the generator; the goodness-of-fit and cross-validated scores the
 second notebook writes, which is where the replacement for the retired target
 comes from; and the frozen extract of real declarations.
 
-**Written.** One source module and its test file; eleven new cells and four
-edited ones in the third notebook; nine new result tables; two new figures;
-eight decisions in the project's decision log, numbered 143 through 150; eight
-manuscript discrepancy entries, numbered 131 through 138, with entry 7 marked
-resolved; the mechanics documentation; and this file.
+**Written.** One source module and its test file; fifteen new cells and four
+edited ones in the third notebook; thirteen new result tables; three new
+figures; ten decisions in the project's decision log, numbered 143 through 152;
+eight manuscript discrepancy entries, numbered 131 through 138, with entry 7
+marked resolved; the mechanics documentation; and this file.
 
 **Not touched.** The generator, the corpus's values, the extract of real
 declarations, the fitting methods, the scoring criterion, the published flip
@@ -479,21 +595,38 @@ thresholds, the run against the true distributions, and the manuscript.
 **Stage 2h**, the sweeps, and its first item is the weight model rather than
 anything this stage produced.
 
-**What this stage hands it.** One constraint and one caution.
+**What this stage hands it.** Two constraints, two new sweep items and one
+caution.
 
-**The constraint.** The guard that stops a fitted lognormal running away into a
-far tail is the only thing making the level metrics this stage recommends safe
-to report. When that guard is swept, the tail correction in the scoring
+**The first constraint.** The guard that stops a fitted lognormal running away
+into a far tail is the only thing making the level metrics this stage recommends
+safe to report. When that guard is swept, the tail correction in the scoring
 criterion must stay in force and the fitted-model spread ratio must be reported
 at every value tried, because the criterion without that correction cannot see
-the failure at all -- it returns the same number to six decimal places whether
-the misplaced mass sits at a hundred times the dataset mean or a thousand.
+the failure at all -- it returns the same number to seven significant figures
+whether the misplaced mass sits at a hundred times the dataset mean or a
+thousand.
+
+**The second constraint.** Adding a family to the comparison is only fair if the
+family can use the data. A uniform fitted to n declarations is the smallest and
+largest of them and nothing else, so putting it in the main comparison would
+manufacture a win for this paper's own method. Uniform and triangular go in the
+judgment arm with the pedigree matrix, where the question is how far a model
+built without data sits from one built with it.
+
+**Two things to sweep that this stage found rather than inherited.** An upper
+truncation of each fitted model, which would remove the thin-far-tail failure
+mode outright. And the mode-share concentration, which is already on the list
+and which this stage's measurement makes more interesting: every one of the
+worst runaway tails in the study is an EQUAL-WEIGHTED fit to a small dataset,
+and the market-share-weighted twins do not have the problem.
 
 **The caution.** Every claim of the form "method X is best" in this project is a
-claim about one metric. Three different methods lead across the seven candidates
-measured here, and on three of the six companions the methods come out in nearly
-the opposite order from the study's own headline. A sweep that reports a winner
-should name the metric it won on.
+claim about one metric, and on two of the seven metrics measured here no method
+separates from the runner-up at all. Two methods lead where a leader can be
+named; the ordering of the six is negatively correlated with the study's own
+headline metric on three of the six companions. A sweep that reports a winner
+should name the metric it won on and show the interval.
 
 ### Habits, added by this stage
 
@@ -512,3 +645,15 @@ should name the metric it won on.
     minutes in on a defect an earlier stage had left: a cell iterating a label
     file rather than the frame's own columns, after that stage added a label
     without adding the column.
+23. **A leader is not a leader until its interval clears the runner-up.** This
+    stage drew a figure naming a best method on all seven metrics; on two of
+    them the top two overlapped, and one of the three "different methods" the
+    headline counted was that overlap.
+24. **Never divide by the best of a set to say how much the set varies.** The
+    first scorecard expressed the spread of six errors as a multiple of the
+    smallest, and returned 6,508 percent on a row whose best method was almost
+    exactly right. The denominator has to be the size of the thing being
+    claimed.
+25. **Sweep a knob continuously before drawing it.** Three round decades drew as
+    three points and hid the only interesting feature: that the criterion goes
+    blind exactly at the top of its own grid, and not before.
