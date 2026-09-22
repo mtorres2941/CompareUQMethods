@@ -82,8 +82,8 @@ claim. See entries 3, 4 and 6.
 |---|---|
 | **Manuscript** | "EC Reduction [Cap ECC / Mat Red] Rank #i Frequency: For each of 10,000 iterations, each of four PDFs is ranked from 1 to 4 based on which dataset resulted in the greatest to least reduction from this intervention. [It] represents the percentage of iterations in which a given dataset is 1st, 2nd, 3rd, and 4th." A plain percentage of iterations. |
 | **Code** | NB3 cell 21 computes `df_rank = df_rank.fillna(0)/neccs/(1-capecc)`, dividing by 0.25 as well as by the iteration count, so the reported values are four times a percentage of iterations. The inline comment concedes the problem: "Percentages look off because not all reduction strategies apply in all scenarios". |
-| **Fix** | **Undecided, and it needs a decision.** Either the divisor is a deliberate conditional normalization, in which case the manuscript must define the quantity as a percentage of the iterations in which the cap actually binds, or it is a patch, in which case the code should change. The matching material-reduction block has no such divisor, so the two reduction strategies are normalized differently while the manuscript states their definitions are "equivalent". |
-| **Status** | Open. Deferred to Stage 2 as a statistical judgment item. |
+| **Fix** | **Settled in Stage 2g: it is a conditional normalization and the manuscript must define it as one.** The denominator is the iterations in which capping SOMETHING helps, not all of them, and the applicability is a reported quantity beside the frequencies rather than a constant folded into them. The matching material-reduction block still has no divisor and needs none, because that strategy applies in every iteration; the manuscript's claim that the two definitions are "equivalent" is what is wrong. |
+| **Status** | RESOLVED in Stage 2g. See entry 134 for the corrected definition and what moved. Text edit outstanding. |
 
 ## 8. Variance inflation in synthetic data generation
 
@@ -1744,3 +1744,90 @@ relative figure beside it.**
 | **Two confounds to control** | The block model changes concentration as well as coherence, so the number of blocks must be matched or swept alongside, as entry 89 matched the effective sample size. And the empirical arm's decay is partly dispersion: its categories above n = 1,000 are the ReadyMix strength classes at a median coefficient of variation of 0.297 against 0.954 at n = 100-999, and separation scales with that. |
 | **Fix** | **Stage 2h**, as its first item. Nothing is changed here, no number moves, and the manuscript owes the limitation stated plainly until then: the two arms' weighting effects are not the same quantity. |
 | **Status** | Open, owned by 2h. Decision 141. |
+
+## New, found in Stage 2g
+
+## 131. The headline metric recovers the truth worst of every candidate tested
+
+| | |
+|---|---|
+| **What the manuscript reports** | "ECI Rank #1 Frequency", the share of Monte Carlo iterations in which a dataset is the largest contributor, as the principal downstream result. |
+| **The question that could not be asked before** | Until the probabilistic LCA was run against the datasets' TRUE parent distributions, a metric could only be judged on whether the six methods agreed about it. Now it can be judged on whether a fitted model gets it RIGHT. |
+| **The statistic** | Mean absolute error against the true parent, divided by the standard deviation of the TRUE value across every material. Below 1 a method's error is smaller than the between-material differences the metric exists to reveal; at or above 1 the metric cannot distinguish two materials at all. It is the same division as the study's own NRMSE on a different numerator, so the two can be read together. |
+| **The result, best method to worst** | spread of a material's contribution **0.42 to 0.50**; the 95th percentile of it 0.45 to 0.51; its estimated contribution 0.51 to 0.71; the uncertainty index 0.51 to 0.53; its share at the BUILDING's 95th percentile 0.61 to 0.69; its mean share of the total 0.66 to 0.88; **its chance of leading 0.72 to 1.07**. The study's headline is last on both ends, and **under a normal fit it exceeds 1.0** (1.037 and 1.074). |
+| **And which method looks best depends on the metric** | On a win share against the truth, `KDE, Variable` leads on the chance of leading, the 95th percentile and the spread; `Lognormal, Variable` on the mean contribution, the mean share and the share at the building's 95th; `Lognormal, Uniform` on the uncertainty index. **Three different methods across seven metrics**, and the rank correlation of the six methods' ordering with the rank metric's ordering runs from +1.00 to **-0.54**. |
+| **Fix** | **Text and figures.** Demote the rank metric to one statistic among five, reported with its noise floor. Lead the attribution section with a material's estimated contribution and carry its share at the building's 95th percentile beside it. Do not state a "best method" without naming the metric it is best on. |
+| **Status** | Open, text. Decisions 143 and 144. |
+
+## 132. The results section has an order, and the decision leads it
+
+| | |
+|---|---|
+| **The order, measured rather than argued** | **1. The design comparison**, because it is the decision a designer makes and the answer is a null: over 800 option pairs against the truth, the choice of method changes the stated probability that a substitution is an improvement by at most **0.020** and every method lands within **0.026** of the truth; at a claimed 5 percent saving the truth is 0.629 and the six span 0.630 to 0.642. **2. The safe-lead rule**: the chance that the method changes which material leads crosses 1 percent at a top-two contribution ratio of **2.13** [2.09, 2.17], and the one real building element available sits at **1.02**. **3. The building total and the budget**: every method understates the total's 90th percentile, by **0.087 to 0.356** on a building averaging 4.0, and at a budget the truth meets 90.0 percent of the time the six report **86.8 to 91.3**. **4. The specification result**: against a true mean saving of **5.39 percent** the six report 4.88 to 6.19, and asked for the chance of at least 5 percent the truth is **23.2** and the six span **22.9 to 30.5**. **5. Where the uncertainty sits.** |
+| **The contrast that explains the stage** | A QUANTITY reduction delivers 0.0625 of the building under every method and under the truth, identical to four decimal places, because it is a deterministic fraction of a material's own contribution; a specification cap acts entirely through the upper tail, which is exactly what the methods disagree about. |
+| **Fix** | **Text.** This is the results section's order. The attribution metrics are one of the five, not the frame. |
+| **Status** | Open, text. Decision 144, confirming the Stage 2e recommendation by measurement. |
+
+## 133. The uncertainty index is the steadiest output and no method recovers it well
+
+| | |
+|---|---|
+| **What the manuscript does** | Computes the uncertainty index and reports it in no table, figure or section. |
+| **The case for reporting it** | Its NRMSE between the six methods is **0.5035** [0.4918, 0.5158] against **1.042** for a material's chance of leading, the lowest of any main output; and asked which material's uncertainty dominates, the best method names the truth's answer **58.4 percent** of the time against a one-in-four chance level, which is the highest decision agreement of any candidate. It is also the fourth reduction strategy under another name: three strategies reduce the expected impact -- use less, specify better, substitute -- and this one reduces the VARIANCE of the answer, which is what obtaining a supplier-specific declaration buys. |
+| **The caveat that must travel with it** | **Every one of the six methods is out by about half the metric's own between-material spread**, 0.508 to 0.531, a span of only 4.4 percent from best to worst. So the choice of method genuinely does not matter for it and no method gets it right. A low NRMSE beside a high recovery error is a metric every method agrees on and every method is wrong about, and reporting only the first half would be the most misleading thing this study could do. |
+| **And it is not tail-immune** | It is a variance share, so one enormous material takes all the variance: a thousandth of a model's mass at a thousand times the dataset mean moves it by **145 percent**. |
+| **Fix** | **Text.** Report it, with the recovery caveat in the same paragraph as the stability claim. |
+| **Status** | Open, text. Decision 146. |
+
+## 134. RESOLVES entry 7. The (1-capecc) divisor, and what the manuscript's definition has to say instead
+
+| | |
+|---|---|
+| **Manuscript** | "EC Reduction [Cap ECC / Mat Red] Rank #i Frequency ... represents the percentage of iterations in which a given dataset is 1st, 2nd, 3rd, and 4th." A plain percentage of iterations, and the definition is stated as equivalent for the two strategies. |
+| **The history** | The divisor was a constant 1 / 0.25, exact only while the specification cap was each METHOD'S OWN 75th percentile and therefore bound in exactly a quarter of iterations for every material by construction. Stage 2e made the cap an absolute value per material and had to drop the divisor with it, leaving a plain count whose four columns summed to between **0.31 and 1.00** rather than to 1. |
+| **The correct normalization** | Divide by the iterations in which the strategy APPLIES. In an iteration where no cap binds there is no best material to cap, and counting those iterations against all four makes the column depend on how often the strategy applies rather than on which material is right. `capecc_rank_1` now sums to **exactly 1.0** across the materials of a pLCA, and across the four ranks of one material it sums to the share of applicable iterations in which that material's own cap bound. |
+| **The applicability is reported, not divided away** | It is signal. The share of iterations in which any cap binds runs from **0.727 under `Lognormal, Uniform` to 0.838 under `Normal, Uniform`**, with an NRMSE between methods of **1.204**, the highest of any cap column: a method that puts more mass above the cap finds it binding more often, and the old constant forced that to 0.25 for every method. |
+| **What moved** | Only the four `capecc_rank_*` columns; 36 of the 40 shared columns of the results table are bit-identical. `capecc_rank_1` mean **0.1929 to 0.2500**, rank 2 0.0922 to 0.1167, rank 3 0.0238 to 0.0294, rank 4 0.00255 to 0.00306. |
+| **Fix** | **Text.** The two strategies are NOT normalized the same way and the manuscript says they are. The quantity reduction applies in every iteration and its columns are a percentage of all of them; the cap's are a percentage of the iterations in which capping something helps, and the applicability is a reported quantity beside them. One sentence in the supplementary definitions. |
+| **Status** | Entry 7 RESOLVED. Text edit outstanding. Decision 147, completing 116. |
+
+## 135. "The normal is forty percent worse" is a statement about attribution, not about everything
+
+| | |
+|---|---|
+| **What was claimed** | On the run against the true parents, the four non-normal methods span 7 percent of each other and the normal is 40 percent worse than any of them. |
+| **What the companions say** | How much worse the better normal fit is than the best non-normal method, on recovery against the true parent: a material's chance of leading **44.2** percent, its estimated contribution 36.5, its mean share 27.6, the spread of its contribution 17.9 -- and then the 95th percentile of its contribution **4.4**, its share at the building's 95th **2.8**, and the uncertainty index **1.0**. **On the last three the normal is not the worst method at all.** |
+| **The ordering is not stable either** | Rank correlation of the six methods' ordering with the ordering the chance of leading gives: +1.00 on the mean share, +0.77 on the spread, +0.49 on the mean contribution, and **-0.26, -0.31 and -0.54** on the 95th percentile, the share at the building's 95th and the uncertainty index. |
+| **What DOES survive every metric** | The BIAS. On the three metrics where a signed error is informative -- the mean contribution, the 95th percentile, the spread -- the normal is the most biased of the six on all three, by **+0.21, -0.26 and -0.44** in units of the metric's own spread against the kernel estimate's +0.01, -0.11 and -0.22. Bias adds across the materials of a building while noise cancels. **On a share or a rank frequency the signed error is identically zero by construction**, because the four values sum to one, so that column says nothing about those metrics and must not be read as evidence of unbiasedness. |
+| **Fix** | **Text.** "Do not fit a normal distribution" is right for attribution and for anything a building total is summed from. Name the statement the claim applies to, and note that on the tail and information metrics the normal is as accurate as anything and merely more biased. |
+| **Status** | Open, text. Decision 148, narrowing 109. |
+
+## 136. The tail a goodness-of-fit score cannot see, and which metrics survive it
+
+| | |
+|---|---|
+| **The failure mode** | A statistic between CDFs is nearly blind to tail mass and a Monte Carlo is not, because it samples. A model that scores well while carrying a thin enormous tail would dominate any probabilistic LCA it enters. |
+| **How blind, measured** | One material of a real pLCA group has a thousandth of its fitted model's mass moved out, with the other three models, the variates and the group held. W1 taken over the scoring grid alone reads **0.262242** at ten times the dataset mean, **0.262571** at a hundred and **0.262571** at a thousand, against an uncontaminated 0.254474. The grid's top is `max(x) + 10 sd`, of order ten times the mean on a normalized dataset, so **beyond it the criterion cannot tell a hundred times the mean from a thousand to six decimal places**. |
+| **What closes it** | The tail term added in Stage 2c, which integrates the model's survival function beyond the grid. The same three read **0.262718, 0.353166 and 1.257643**. |
+| **Which metrics survive** | Relative change under the same contamination, at ten times the mean and at a thousand: the spread of a material's contribution **0.047 to 34.3**, the uncertainty index 0.051 to 1.45, its estimated contribution 0.006 to 0.66 -- against its share at the building's 95th percentile **0.0082 to 0.0082**, its mean share 0.0017 to 0.0024 and its chance of leading **0.0013 to 0.0013**. A share and a rank frequency saturate; a level has no ceiling, and the spread moves by a factor of 115 in the worst case measured. |
+| **The tension this creates, and it belongs in the text** | The metrics that recover the truth BEST are levels, and levels are exactly what a thin far tail wrecks; the metrics that are immune are shares, and they recover worse. **What makes the levels safe to report is that the study's criterion now charges for the thing that wrecks them.** So the tail term is not an accuracy refinement, it is the guard under every level metric the paper reports. |
+| **Fix** | **Text.** State the guard where the level metrics are reported. **Stage 2h must keep the tail term in force and report the fitted-model spread ratio at every value of the profile-likelihood guard it sweeps.** |
+| **Status** | Open, text, plus a constraint on Stage 2h. Decision 149. |
+
+## 137. Notebook 3 was still explaining pLCA outcomes with the retired in-sample target
+
+| | |
+|---|---|
+| **What the code did** | One cell scored every fitted model by W1 against the variable-weighted empirical CDF of the values it had been fitted to, and the cell below explained every pLCA outcome against that number. The target is circular twice over: it is the training data, and it is the variable-weighted curve, so a variable-weighted method is scored against itself. |
+| **What it does now** | Reads `w1_market`, the score against the market-weighted true parent, from the table notebook 2 writes. That is the population a probabilistic LCA of what gets built is a statement about and the only target under which all six methods estimate the same thing. The retired score is kept beside it, unused, and the cell prints how far the two disagree about which method is closest. |
+| **Fix** | **Code, done.** Any figure or sentence drawn from that section must be taken from the rerun. |
+| **Status** | RESOLVED in Stage 2g. Decision 150. |
+
+## 138. A break that would have killed any full run of notebook 3
+
+| | |
+|---|---|
+| **What happened** | One cell iterated the metric LABEL file rather than the frame's own columns. Stage 2f's review added `modality_index_fitted` and its uniform-weighted twin to that file and to the corpus, but not to `corpus.METRIC_COLUMNS`, which is what carries characteristics into the per-dataset dictionary notebook 3 reads. Notebook 3 had not been run since, so the first full run after that stage died there twenty minutes in. Two further labels, `modes_fitted` and `modes_scipy_default`, live in a table notebook 1 writes and were never in that frame either. |
+| **Fix** | **Code, done.** The cell takes the intersection and PRINTS what it skipped, because a characteristic silently missing from a correlation scan is the failure the crash would otherwise have hidden. |
+| **What is NOT fixed, and is left deliberately** | `corpus.METRIC_COLUMNS` still omits `modality_index_fitted`, so notebook 3's exploratory correlation scan does not see the modality measure the paper should report. Adding it would change the shape of `TABLE_SyntheticECCMetricsAndW1.xlsx`, which is a regression fixture, and would need notebook 2 rerun and the fixture re-frozen. Nothing depends on it: the metric reduction that uses that measure lives in notebook 4 and reads the corpus directly. |
+| **Status** | Crash RESOLVED in Stage 2g; the missing column is open and owned by whichever stage next reruns notebook 2. |
