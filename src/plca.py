@@ -73,8 +73,69 @@ MUI_RATIOS = (1.0, 2.0, 10.0, 100.0)
 #: Outputs compared between methods. Every one is a quantity notebook 3 already
 #: computes; they are gathered in one place so they can be compared on equal
 #: terms. The names match the columns of `TABLE_PLCAResults.csv`.
+#:
+#: `eci_perc_p95tot` was added in Stage 2g as a magnitude-based companion to
+#: the rank metric: each material's share of the total in the iterations where
+#: the BUILDING sits at its 95th percentile. Adding it consumes no randomness,
+#: so it is a new column beside the existing ones and moves none of them.
 OUTPUTS = ('eci_mean', 'eci_std', 'eci_cov', 'eci_perc_mean', 'eci_perc_std',
-           'eci_rank_1', 'eci_rank_4', 'eci_meanrank', 'eci_p95', 'ui')
+           'eci_perc_p95tot', 'eci_rank_1', 'eci_rank_4', 'eci_meanrank',
+           'eci_p95', 'ui')
+
+#: Where on the BUILDING TOTAL's own distribution `eci_perc_p95tot` is read.
+TOTAL_QUANTILE = 0.95
+
+#: Half-width of the window around that quantile, in quantile units. One
+#: iteration is one draw and would be pure noise; +/- 0.01 holds 200 of this
+#: study's 10,000 iterations, which is enough to average over and narrow enough
+#: that the total inside it really is at its 95th percentile.
+TOTAL_WINDOW = 0.01
+
+
+def share_at_total_quantile(draws, quantile=TOTAL_QUANTILE,
+                            window=TOTAL_WINDOW):
+    """Each material's share of the total, in the iterations where the TOTAL is
+    at its `quantile`. Stage 2g.
+
+    Parameters
+    ----------
+    draws : ndarray, shape (neccs, k)
+        One pLCA sample: material j's contribution in each iteration.
+    quantile, window : float
+        The iterations used are those whose total falls between the
+        `quantile - window` and `quantile + window` quantiles of the total.
+
+    Returns
+    -------
+    ndarray, shape (k,), summing to 1.0
+
+    WHY THIS AND NOT `eci_p95`. `eci_p95` is the 95th percentile of a
+    material's OWN contribution, taken over its own marginal distribution, and
+    the iteration that puts material A at its 95th percentile is usually not
+    the iteration that puts the BUILDING at its 95th percentile. A carbon
+    budget is written against the building, so the attribution question at the
+    bad end of the building's distribution has to read the shares in the
+    iterations where the building is actually there. Those are different
+    iterations and, where the materials differ in spread, a different answer.
+
+    It is a SHARE, so it is bounded in [0, 1] and sums to one across the
+    materials of a pLCA, which is what makes it comparable across group sizes
+    in a way `eci_p95` is not.
+    """
+    draws = np.asarray(draws, dtype=float)
+    total = draws.sum(axis=1)
+    lo, hi = float(quantile - window), float(quantile + window)
+    if not 0.0 <= lo < hi <= 1.0:
+        raise ValueError(f'the window [{lo}, {hi}] is not inside [0, 1]')
+    a, b = np.quantile(total, [lo, hi])
+    pick = (total >= a) & (total <= b)
+    if not pick.any():
+        # Only reachable if the total is degenerate, in which case every
+        # iteration is at every quantile and the whole sample is the window.
+        pick = np.ones(len(total), dtype=bool)
+    got = draws[pick].sum(axis=0)
+    denom = got.sum()
+    return got / denom if denom > 0 else np.full(draws.shape[1], np.nan)
 
 
 # ---------------------------------------------------------------------------
@@ -128,6 +189,13 @@ def outputs(draws):
     the output Stage 2d measured as the least sensitive to the choice of UQ
     method, and the one a practitioner would act on when deciding where to
     collect better data.
+
+    `eci_perc_p95tot` is Stage 2g's magnitude companion to the rank metric:
+    each material's share of the total in the iterations where the BUILDING
+    total sits at its 95th percentile. It is the attribution question asked at
+    the end of the distribution a carbon budget is written against, and it is
+    not `eci_p95`, which is the 95th percentile of the material's own
+    contribution taken over its own marginal.
     """
     draws = np.asarray(draws, dtype=float)
     k = draws.shape[1]
@@ -144,6 +212,7 @@ def outputs(draws):
         'eci_cov': draws.std(axis=0) / draws.mean(axis=0),
         'eci_perc_mean': perc.mean(axis=0),
         'eci_perc_std': perc.std(axis=0),
+        'eci_perc_p95tot': share_at_total_quantile(draws),
         'eci_rank_1': (order == 0).mean(axis=0),
         'eci_rank_4': (order == k - 1).mean(axis=0),
         'eci_meanrank': order.mean(axis=0) + 1.0,
