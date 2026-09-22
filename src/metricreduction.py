@@ -1843,3 +1843,157 @@ def best_method_curve(scores, sizes, value='w1_market', arm='synthetic',
                              closest_pct=float(100 * (w == m).mean()),
                              n_datasets=window))
     return pd.DataFrame(rows)
+
+
+def family_lead_curve(scores, sizes, families=(('KDE',), ('Lognormal',)),
+                      value='w1_market', arm='synthetic', window=800, step=40,
+                      n_boot=600, rng=None):
+    """Where one FAMILY overtakes another, with the uncertainty on the crossing.
+
+    `best_method_curve` shows six curves and a reader naturally reads a crossing
+    between two of them. That is the wrong comparison for "which family should
+    I use": a practitioner choosing a kernel estimate still has to pick a
+    weighting, so the decision is the family's total win share against the
+    other family's, not one column against one column.
+
+    **The two give different answers and the difference is large.** Comparing
+    the market-share kernel estimate with the better single lognormal puts the
+    crossing at 65 declarations; comparing the kernel family with the lognormal
+    family puts it in the high forties to low seventies, and comparing it with
+    the two lognormals pooled pushes it past 200. Reporting a crossing without
+    saying which comparison produced it is how a figure ends up disagreeing
+    with the sentence beside it.
+
+    Returns one row per window: the lead in percentage points and a bootstrap
+    interval over datasets, so the band where the lead is not distinguishable
+    from zero can be read off rather than asserted.
+    """
+    rng = np.random.default_rng() if rng is None else rng
+    s = scores[(scores.arm == arm) & scores[value].notna()]
+    wide = s.pivot_table(index='dataset', columns='method', values=value).dropna()
+    n = pd.Series(sizes).reindex(wide.index)
+    ok = n.notna()
+    wide, n = wide[ok], n[ok]
+    order = np.argsort(n.to_numpy(float))
+    wide, nn = wide.iloc[order], n.to_numpy(float)[order]
+    winner = wide.idxmin(axis=1).to_numpy()
+    a_cols = [c for c in wide.columns if c.split(',')[0].strip() in families[0]]
+    b_cols = [c for c in wide.columns if c.split(',')[0].strip() in families[1]]
+    rows = []
+    window = int(min(window, max(50, len(nn) // 6)))
+    for start in range(0, len(nn) - window + 1, step):
+        sl = slice(start, start + window)
+        w = winner[sl]
+        d = np.isin(w, a_cols).astype(float) - np.isin(w, b_cols).astype(float)
+        bs = [d[rng.integers(0, window, window)].mean() for _ in range(n_boot)]
+        rows.append(dict(n=float(np.median(nn[sl])), lead_pct=100 * float(d.mean()),
+                         lo95=100 * float(np.quantile(bs, .025)),
+                         hi95=100 * float(np.quantile(bs, .975)),
+                         n_datasets=window))
+    return pd.DataFrame(rows)
+
+
+def crossover_band(lead):
+    """The size range over which the leading family is genuinely in doubt.
+
+    The band runs from the last size at which one family is clearly ahead to
+    the first at which the other is, so it is an interval of IGNORANCE and not
+    a confidence interval on a parameter. Quoting a single crossing point from
+    a curve this noisy would claim a precision the win shares do not carry.
+    """
+    lead = lead.sort_values('n')
+    behind = lead[lead.hi95 < 0]
+    lo = float(behind.n.max()) if len(behind) else float(lead.n.min())
+    ahead = lead[(lead.n > lo) & (lead.lo95 > 0)]
+    hi = float(ahead.n.min()) if len(ahead) else float(lead.n.max())
+    return dict(lo=lo, hi=hi)
+
+
+def threshold_interval(scores, sizes, high, low, value='w1_market',
+                       arm='synthetic', thresholds=None, n_boot=2000, rng=None):
+    """How precisely does the size threshold have to be set?
+
+    **THIS REPLACES `flat_region` FOR THE QUESTION IT WAS BEING ASKED.** That
+    function calls a threshold "as good as the best" when its cost is within
+    five percent of the span to the better fixed policy, and both the five
+    percent and the span are choices of mine rather than facts about the data.
+    Worse, it carries no uncertainty at all, so it cannot say whether a
+    threshold is really worse or just looks it.
+
+    Two bootstraps over datasets, and the second is the one that answers the
+    question. `best_*` resamples the datasets, refits the whole cost curve and
+    takes its argmin, so its spread is how well the data pin the threshold
+    down. `penalty` is PAIRED: for every threshold, the excess cost over
+    whichever threshold was best ON THAT SAME RESAMPLE, so the variation common
+    to both cancels and the interval is about the difference rather than the
+    level. The thresholds whose paired interval reaches zero are the ones that
+    cannot be told apart from the best, and that run is the answer.
+    """
+    rng = np.random.default_rng() if rng is None else rng
+    s = scores[(scores.arm == arm) & scores[value].notna()]
+    wide = s.pivot_table(index='dataset', columns='method', values=value).dropna()
+    n = pd.Series(sizes).reindex(wide.index)
+    wide, n = wide[n.notna()], n[n.notna()].to_numpy(float)
+    if thresholds is None:
+        thresholds = np.unique(np.round(10 ** np.linspace(0, 3.4, 90)).astype(int))
+    thresholds = np.asarray(thresholds)
+    oracle = wide.min(axis=1).to_numpy()
+    chosen = np.where(n[None, :] >= thresholds[:, None],
+                      wide[high].to_numpy()[None, :], wide[low].to_numpy()[None, :])
+    rel = (chosen - oracle[None, :]) / oracle[None, :]
+    point = int(np.argmin(rel.mean(axis=1)))
+    best, pen = np.empty(n_boot), np.empty((n_boot, len(thresholds)))
+    for b in range(n_boot):
+        idx = rng.integers(0, len(n), len(n))
+        cost = rel[:, idx].mean(axis=1)
+        j = int(np.argmin(cost))
+        best[b] = thresholds[j]
+        pen[b] = cost - cost[j]
+    lo95 = np.percentile(pen, 2.5, axis=0)
+    hi95 = np.percentile(pen, 97.5, axis=0)
+    indistinguishable = lo95 <= 0
+    runs, cur = [], []
+    for t, good in zip(thresholds, indistinguishable):
+        if good:
+            cur.append(t)
+        elif cur:
+            runs.append(cur); cur = []
+    if cur:
+        runs.append(cur)
+    run = max(runs, key=len) if runs else [thresholds[point]]
+    table = pd.DataFrame(dict(
+        threshold=thresholds, mean_cost_pct=100 * rel.mean(axis=1),
+        penalty_pct=100 * pen.mean(axis=0), penalty_lo95=100 * lo95,
+        penalty_hi95=100 * hi95, indistinguishable_from_best=indistinguishable))
+    summary = dict(best=int(thresholds[point]),
+                   best_lo95=float(np.percentile(best, 2.5)),
+                   best_hi95=float(np.percentile(best, 97.5)),
+                   same_lo=int(run[0]), same_hi=int(run[-1]))
+    return table, summary
+
+
+def longest_true_run(values, flags):
+    """The longest CONTIGUOUS run of `values` where `flags` is true.
+
+    Written because a figure took the min and max of the flag instead, and a
+    single isolated threshold beyond a distinguishably worse one widened the
+    reported band from 68-97 to 68-116. At the edge of a near-zero effect the
+    flag jitters: on the real data 106 is excluded with a lower bound of 0.120
+    while 116 is included at 0.000, which is bootstrap noise rather than a
+    second region of indifference. A run that has to be unbroken cannot be
+    widened by one lucky draw.
+    """
+    values = np.asarray(values)
+    flags = np.asarray(flags, bool)
+    runs, cur = [], []
+    for v, ok in zip(values, flags):
+        if ok:
+            cur.append(v)
+        elif cur:
+            runs.append(cur); cur = []
+    if cur:
+        runs.append(cur)
+    if not runs:
+        return None, None
+    best = max(runs, key=len)
+    return best[0], best[-1]

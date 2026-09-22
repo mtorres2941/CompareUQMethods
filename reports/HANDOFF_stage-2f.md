@@ -30,33 +30,67 @@ structural inconsistency on the quantity the paper is built on. Nothing in this
 stage depends on it and no number here moves because of it; claim 11 states it
 and the next stage owns it.
 
-## 1. The cutoff above which a kernel estimate beats a lognormal is 59 to 134 declarations
+## 1. Use a kernel density estimate above about 80 declarations
 
 Above that many environmental product declarations in a category, fit a kernel
 density estimate, and use market-share weights if you know the market shares.
-Below it, fit a three-parameter lognormal. **The interval is the result** --
-the lowest cost sits at 75 declarations and every threshold from 59 to 134 is
-indistinguishable from it, so the paper should print the range rather than a
-point inside it. Measured against the best
-choice that could possibly be made for each dataset individually -- a standard
-nobody can reach, because it requires knowing the answer first -- that rule
-costs **38.4 percent** more error at its best setting, against **53.6 percent**
-for always using a kernel estimate and **178.5 percent** for always using a
-lognormal.
+Below it, fit a three-parameter lognormal.
 
-**That range is the result, and it should be quoted as a range rather than
-rounded.** The lowest cost is at 75 declarations and every threshold from
-**59 to 134** is indistinguishable from it, so the honest statement is the
-interval, not a point inside it. The worst case halves across the same region: a category where
-the rule goes badly wrong costs 26.6 times the best possible below a threshold
-of 53, and 13.1 times above it.
+**The best threshold is 81 declarations, and every value from 68 to 97 is
+indistinguishable from it.** Those three numbers are reproduced exactly by
+eight independent bootstrap streams, so they are not an artifact of one draw. That range is measured rather than chosen: the
+datasets are resampled, the whole cost curve refitted, and each threshold's
+extra error compared against whichever threshold won on that same resample, so
+the comparison is paired and the interval is about the difference rather than
+the level. The thresholds whose interval reaches zero are the ones that cannot
+be told apart from the best. Separately, the spread of the refitted optimum
+across resamples runs from 68 to 116.
 
-> **So what.** If a material category in your model has more than roughly sixty
-> to a hundred and thirty declarations behind it, the flexible method is worth
-> using and it is worth paying attention to which products actually sell. Below
-> that, a simple skewed curve fits better, because there is not enough data to
-> learn a shape from. Anywhere in that interval performs identically, so it is
-> a range you can sit inside rather than a threshold to hit precisely.
+**What it costs to put the cutoff in the wrong place**, in points of extra
+error over the best choice that could be made for each dataset individually:
+
+    threshold    penalty    95 pct interval
+       24          4.84      3.54 to 6.25
+       48          1.83      1.01 to 2.83
+       74          0.16      0.00 to 0.58
+       81          0.11      0.00 to 0.50
+       97          0.28      0.00 to 0.73
+      138          0.79      0.16 to 1.58
+      196          2.59      1.59 to 3.73
+      304          6.47      5.00 to 7.93
+
+Against the alternatives: always using a kernel estimate costs 53.6 percent
+more error than the per-dataset best, always using a lognormal costs 178.5
+percent, and the threshold rule costs 38.4.
+
+**AN EARLIER VERSION OF THIS CLAIM SAID 59 TO 134 AND THAT RANGE WAS TOO WIDE.**
+It came from calling a threshold as good as the best when its cost sat within
+five percent of the span to the better fixed policy -- a tolerance chosen
+rather than measured, carrying no uncertainty, so it could not separate
+"really as good" from "looks as good". At 138 the penalty is 0.79 points with
+an interval that excludes zero, so that end of the old range is distinguishably
+worse.
+
+**TWO RANGES APPEAR IN THIS STAGE AND THEY ARE DIFFERENT QUANTITIES.** The
+kernel and lognormal FAMILIES change places at **46 to 70** declarations, which
+is a property of the win-share curves and is what the figure names alongside
+the band. That one moves a little on a reseed -- 46 to 49 at the low end and 70
+to 73 at the high across five bootstrap streams -- so it is quoted to two
+figures and no further.
+The best place to put a RULE is **68 to 97**, which does NOT move on a reseed:
+eight independent bootstrap streams return 81, 68 and 97 every time. It sits
+slightly above the crossing because
+being wrong in the two directions does not cost the same: at 24 declarations
+the penalty is 4.8 points and at 304 it is 6.5, so the curve is steeper on the
+high side and the optimum sits above the crossing. Both are reported; neither
+should be quoted as the other.
+
+> **So what.** Count the declarations behind a material category. Above roughly
+> eighty, the flexible method is worth using and it is worth paying attention
+> to which products actually sell. Below that, a simple skewed curve fits
+> better, because there is not enough data to learn a shape from. Anywhere
+> between about seventy and a hundred performs identically, so this is a range
+> to sit inside rather than a number to hit.
 
 ## 2. No single method is best regardless, and the leader changes twice
 
@@ -343,29 +377,32 @@ six methods comes closest to the true distribution, against how many
 declarations the category holds, on a continuous size axis rather than in
 bands. Each curve is a local share over a sliding window holding the same
 number of datasets at every position, so it does not get noisier where the data
-thin out. **A kernel estimate under equal weights leads below about twelve
-declarations; a lognormal under equal weights leads from there to about fifty;
-the kernel estimate with market-share weights passes both lognormals at 65 and
-takes the lead outright from 107 on, reaching 77 percent at the top of the
-range.** The two dashed lines mark those crossings and are read directly off
-the curves. **Both normal fits run flat along the bottom, under 12 percent
-everywhere and effectively zero above a few hundred declarations** -- the
-clearest negative result in the study.
+thin out. **The shaded band, 68 to 97, is where to set the cutoff**: the longest
+unbroken run of thresholds whose extra error over the best-possible choice
+cannot be told apart from zero. It sits slightly right of where the curves
+visibly cross, at 46 to 70, because the cost of setting the rule too low is
+smaller than the cost of setting it too high. **A kernel estimate under equal weights leads below about
+twelve declarations, a lognormal under equal weights from there to about fifty,
+and the kernel estimate with market-share weights from roughly a hundred on,
+reaching 77 percent at the top of the range.** Both normal fits run flat along
+the bottom, under 12 percent everywhere and effectively zero above a few
+hundred declarations, which is the clearest negative result in the study.
 
-![What else helps once you know the size](../outputs/figures/CompareUQMethods_FIG_ChoiceDrivers.png)
+![Is dataset size enough on its own](../outputs/figures/CompareUQMethods_FIG_ChoiceDrivers.png)
 
-**Figure B.** How much each characteristic adds to predicting which of the
-kernel estimate and the lognormal fits better, **once the number of
-declarations is already known**. The orange line is what the count achieves on
-its own: **0.23 under equal weights and 0.47 under market-share weights**, as a
-share of the variation explained on datasets the model was not fitted to. Bars
-are the extra each characteristic buys on top of it, with the spread across
-folds. **Under market-share weights nothing reaches a seventh of the orange
-line** -- the best is dispersion at 0.054 -- so counting declarations is most
-of the answer and the practitioner rule stays one number. **The single large
-bar under equal weights, 0.153, is a property of the WEIGHTS and not of the
-data**: it is how far market weighting moves the category's distribution, which
-needs the market shares, which is precisely what a practitioner does not have.
+**Figure B.** Whether anything beyond the number of declarations helps you
+predict which of the kernel estimate and the lognormal will fit better. **Every
+bar is the same quantity** -- the share of the variation explained, on datasets
+the model was not fitted to, by a model holding dataset size plus one further
+characteristic. The top bar is dataset size on its own, which is by
+construction the shortest, since adding anything to it can only help; the
+dashed lines mark it. **Under market-share weights the count alone reaches 0.47
+and no single addition lifts it past 0.53**; under equal weights it reaches
+0.23, and the one substantial addition is the distance between the
+equal-weighted and market-share-weighted versions of the dataset, which is a
+property of the WEIGHTS rather than of the data and needs market shares a
+practitioner does not have. So the rule stays one number, and this figure is
+the evidence that twenty-five candidate characteristics reduce to it.
 
 ## 1. Stage and branch
 

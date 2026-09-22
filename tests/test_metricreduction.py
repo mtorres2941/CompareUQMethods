@@ -841,3 +841,77 @@ def test_best_method_curve_recovers_a_known_crossover():
     low = kde[kde.n < 60].closest_pct.mean()
     high = kde[kde.n > 300].closest_pct.mean()
     assert high > low + 20
+
+
+def test_family_lead_curve_brackets_a_known_crossover():
+    """The band must contain the size at which the planted families swap."""
+    sc, sizes = _policy_scores(n=1500)
+    lead = R.family_lead_curve(sc, sizes, families=(('KDE',), ('Lognormal',)),
+                               window=400, step=50, n_boot=200,
+                               rng=np.random.default_rng(0))
+    band = R.crossover_band(lead)
+    assert band['lo'] < 100 < band['hi'], band
+    assert (lead.lo95 <= lead.lead_pct).all()
+    assert (lead.hi95 >= lead.lead_pct).all()
+
+
+def test_crossover_band_is_an_interval_of_ignorance_not_a_point():
+    """A band of zero width would mean the curves are noiseless, which they are
+    not; the guard is that it never collapses onto a single size."""
+    sc, sizes = _policy_scores(n=1200)
+    lead = R.family_lead_curve(sc, sizes, window=350, step=40, n_boot=200,
+                               rng=np.random.default_rng(1))
+    band = R.crossover_band(lead)
+    assert band['hi'] > band['lo']
+
+
+def test_threshold_interval_brackets_the_true_crossover():
+    sc, sizes = _policy_scores(n=1500)
+    tab, summ = R.threshold_interval(sc, sizes, 'KDE, Variable',
+                                     'Lognormal, Uniform', n_boot=300,
+                                     rng=np.random.default_rng(0))
+    assert summ['best_lo95'] <= summ['best'] <= summ['best_hi95']
+    assert summ['same_lo'] <= summ['best'] <= summ['same_hi']
+    # the interval on the best threshold must cover the planted crossover; the
+    # indistinguishable RUN is a tighter object and need not, since on clean
+    # data very few thresholds are genuinely tied with the winner
+    assert summ['best_lo95'] <= 100 <= summ['best_hi95']
+    assert 0.6 < summ['same_hi'] / 100 < 1.7
+
+
+def test_threshold_interval_is_tighter_than_the_tolerance_rule():
+    """The paired bootstrap is the point: a rule that calls anything within an
+    arbitrary tolerance 'as good' is wider than one that asks whether the
+    difference is distinguishable at all."""
+    sc, sizes = _policy_scores(n=1500)
+    tab, summ = R.threshold_interval(sc, sizes, 'KDE, Variable',
+                                     'Lognormal, Uniform', n_boot=300,
+                                     rng=np.random.default_rng(1))
+    curve = R.policy_curve(sc, sizes, 'KDE, Variable', 'Lognormal, Uniform')
+    flat = R.flat_region(curve)
+    assert (summ['same_hi'] - summ['same_lo']) <= (flat['hi'] - flat['lo']) * 1.5
+
+
+def test_penalty_is_zero_at_the_best_threshold_and_grows_away_from_it():
+    sc, sizes = _policy_scores(n=1500)
+    tab, summ = R.threshold_interval(sc, sizes, 'KDE, Variable',
+                                     'Lognormal, Uniform', n_boot=300,
+                                     rng=np.random.default_rng(2))
+    at_best = tab[tab.threshold == summ['best']].penalty_pct.iloc[0]
+    assert at_best < tab[tab.threshold <= 10].penalty_pct.min()
+    assert at_best < tab[tab.threshold >= 600].penalty_pct.min()
+    assert (tab.penalty_pct >= -1e-9).all()
+
+
+def test_longest_true_run_ignores_an_isolated_flag_beyond_a_gap():
+    """The real failure: thresholds [68, 74, 81, 89, 97, 116] were flagged with
+    106 excluded between them, and taking min and max reported 68-116."""
+    vals = [62, 68, 74, 81, 89, 97, 106, 116, 126]
+    flags = [False, True, True, True, True, True, False, True, False]
+    lo, hi = R.longest_true_run(vals, flags)
+    assert (lo, hi) == (68, 97)
+
+
+def test_longest_true_run_handles_all_false_and_all_true():
+    assert R.longest_true_run([1, 2, 3], [False, False, False]) == (None, None)
+    assert R.longest_true_run([1, 2, 3], [True, True, True]) == (1, 3)
