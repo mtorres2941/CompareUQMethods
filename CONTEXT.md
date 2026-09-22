@@ -1012,10 +1012,35 @@ the worst observed value.
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbors on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
 | `test_plca.py` | 55 | common random numbers make a method identical to itself while independent variates do not, and sharing them leaves each method's own marginal distribution alone, which is what makes installing them a refinement rather than a change of estimand; materials stay independent within an iteration; the outputs are the notebook's own definitions, checked against its pandas ranking and against NRMSE computed the way the plotting function computes it; an infinite Dirichlet concentration reproduces the equal-intensity case EXACTLY and every intensity vector averages to 1.0; concentration makes the top contributor stop moving; resampled groups hold distinct datasets; the cluster bootstrap is more than twice as wide as a row bootstrap; the tabulated parent sampler inverts the parent's own bisection and stays inside its support; a method that IS the parent has exactly zero error, which is the truth run's control; the lazy samplers agree with eager ones while bounding their memory; and the committed pLCA table is a full run rather than a smoke one |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
-| `test_metricreduction.py` | 48 | a cross-validated gain cannot be bought by adding a useless term and its fold spread grows as the data thin; a negative R2 is reported rather than clipped, which is what exposed the empirical arm; forward selection refuses a near-duplicate column; the policy curve puts its flat region around the true crossover and beats both fixed policies; the effective sample size matches its closed forms; a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
+| `test_metricreduction.py` | 50 | a cross-validated gain cannot be bought by adding a useless term and its fold spread grows as the data thin; a negative R2 is reported rather than clipped, which is what exposed the empirical arm; forward selection refuses a near-duplicate column; the policy curve puts its flat region around the true crossover and beats both fixed policies; the effective sample size matches its closed forms; a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
 | `test_remetric.py` | 3 | `remetric_corpus` relabels the parent-spec replay cache it copies, a cache from a genuinely DIFFERENT corpus is still refused, and the values are copied byte for byte while the characteristics really are recomputed |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch
 script silently dropped the final line of any cell whose source did not end in
 a newline, truncating a cell mid-statement. The only symptom was a SyntaxError
 twelve minutes into a headless run.
+
+
+## Redrawing a figure without re-running its notebook
+
+`audits/render_figures.py`, 2026-09-22. Notebook 4 takes about twenty minutes
+end to end and almost all of it is model fitting; a figure iteration changes
+twenty lines that read tables already on disk.
+
+    python audits/render_figures.py 04_CompareUQ_ReduceMetrics --out /tmp/figs
+    python audits/render_figures.py 04_CompareUQ_ReduceMetrics --into-outputs
+    python audits/render_figures.py 04_CompareUQ_ReduceMetrics --only "FIGURE B"
+
+Seven seconds against twenty minutes. **The script holds no figure code**: it
+executes the notebook's own setup cell and then its own figure cells, verbatim,
+so there is nothing here to drift out of step with the notebook.
+`tests/test_render_figures.py` asserts the executed source is byte-identical to
+the notebook's and that the module contains no plotting call of its own, which
+is what narrows decision 56 safely.
+
+Without `--into-outputs` it writes to a scratch directory whose `tables/` is a
+symlink to the real one, so the figures read production data while `outputs/`
+is untouched. It REFUSES a notebook with an unmarked figure cell rather than
+redrawing only some of them; a figure cell announces itself by starting with
+`# FIGURE` or `# SUPPLEMENT`. Notebook 4 is marked, notebooks 1 to 3 are not
+and the tool declines them until Stage 3 does that work.
