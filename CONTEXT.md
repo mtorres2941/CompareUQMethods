@@ -60,6 +60,11 @@ CompareUQMethods/
 │   ├── flip.py                what a given W1 COSTS (Stage 2d): the
 │   │                          common-random-numbers pLCA, model-to-model
 │   │                          distances, and the calibration curve
+│   ├── metricset.py           which downstream metric the paper leads with
+│   │                          (Stage 2g): does a metric RECOVER the truth
+│   │                          rather than merely being stable, the argmax
+│   │                          agreement, the corrected cap normalization, and
+│   │                          the thin-far-tail stress test
 │   ├── plca.py                the pLCA CONSTRUCTION (Stage 2e): common random
 │   │                          numbers, the group-size and material-use-
 │   │                          intensity sweep, the cluster bootstrap, NRMSE
@@ -443,6 +448,99 @@ resampling unit is the pLCA GROUP and never the row**, because the fifteen
 method pairs inside a group share its materials and its variates and the four
 materials share its total; `tests/test_plca.py` pins that a row bootstrap comes
 back more than twice too narrow.
+
+## 2bb. Which downstream metric the paper leads with
+
+`src/metricset.py`, Stage 2g, called from the seven cells at the end of
+notebook 3. The study's headline had always been ECI Rank #1 Frequency and
+nothing had ever asked whether it is the right one.
+
+**THE QUESTION CHANGED WHEN THE TRUTH RUN EXISTED.** Before Stage 2e a metric
+could only be judged on whether it was stable, and "the six methods disagree
+about this a lot" is not a reason to report it or to stop reporting it. With
+every pLCA group run against its materials' TRUE parents on the same variates,
+the question becomes whether a fitted model gets the metric right, and that is
+what `recovery_table` measures.
+
+**TWO STATISTICS, THE SAME DIVISION ON TWO NUMERATORS.** `plca.nrmse` is the
+root mean squared difference BETWEEN two methods over the spread of the metric
+across every material and method; `metricset.recovery_table`'s `recovery` is
+the mean absolute difference between a method and the TRUTH over that same
+spread. They are therefore directly comparable, and the pair says what neither
+says alone: **a low NRMSE beside a high recovery error is a metric every method
+agrees on and every method is wrong about**, which is the one thing a study
+must not report as stable. `metric_verdict` is the join.
+
+**THE DIVISOR IS THE TRUTH'S SPREAD AND NOT THE METHOD'S OWN.** Dividing by the
+method's spread would let a method that reports nearly the same number for every
+material improve its score by being less informative; `tests/test_metricset.py`
+plants exactly that case and asserts the flat method loses. The truth's spread
+is one number per (arm, metric) and is shared by all six methods, so the column
+is a pure measure of error.
+
+**`decision_agreement` IS THE SAME QUESTION WITH NO UNITS IN IT.** Every one of
+these metrics is read as an argmax at some point -- which material is the
+biggest -- and this is that reading scored against the right answer, with the
+chance level `1 / k` printed beside it. It is the only comparison between two
+candidate metrics that carries nothing of either metric's scale.
+
+### The magnitude companions
+
+`eci_perc_mean`, each material's mean share of the building total, already
+existed and no stage had compared it against the rank metric.
+`plca.share_at_total_quantile` is new: each material's share of the total in the
+iterations where the BUILDING sits at its 95th percentile, over a window of
+plus or minus 0.01 in quantile units, which is 200 of the study's 10,000
+iterations.
+
+**IT IS NOT `eci_p95`.** That is the 95th percentile of a material's OWN
+contribution taken over its own marginal, and the iteration that puts one
+material at its 95th percentile is usually not the iteration that puts the
+building at its 95th. A carbon budget is written against the building, so the
+attribution question at the bad end has to read the shares where the building
+actually is.
+
+### The strategy rank frequencies, and the divisor
+
+`strategy_rank_frequencies`. The cap rank frequencies carried a
+`1 / (1 - capecc)` divisor, exact only while the cap was each method's own 75th
+percentile and so bound in exactly 25 percent of iterations for every material
+by construction; Stage 2e made the cap absolute and dropped the divisor with
+it, leaving a plain count whose four columns summed to between 0.31 and 1.00.
+
+**THE CORRECT DENOMINATOR IS THE ITERATIONS IN WHICH THE STRATEGY APPLIES**,
+which is what the old divisor was reaching for and got only by assuming a
+constant. `capecc_rank_1` now sums to exactly 1.0 across the materials of a
+pLCA, like every other rank-1 frequency in the study, and the applicability is
+REPORTED rather than divided away as `capecc_applies` and `capecc_binds`,
+because under an absolute cap it is a property of the material and the method
+and it is signal.
+
+The ranking is among the materials whose cap BOUND. A material the cap does not
+bind delivers exactly zero and any material it does bind delivers a strictly
+negative change, so rank 1 is unambiguous; the lower ranks read "second best of
+those that bound". Filling the non-binding materials with zero instead puts two
+or three exact ties at the bottom whose averaged rank of 3.5 belongs to no
+integer column, so those iterations would vanish from every column rather than
+appear as the shortfall.
+
+### The tail failure mode
+
+`Contaminated` wraps any fitted model as a mixture with a narrow lognormal a
+long way out and exposes the same pdf, cdf, ppf and `rvs_from_uniform`, so it
+can be scored by the study's own W1 and sampled by the study's own pLCA without
+either knowing it is not a fit. `tail_stress` replaces one material's model
+with it, holds everything else, and reports what the contamination costs in W1
+beside what it costs in every output; `tail_exposure` is the ratio.
+
+**W1 TAKEN OVER THE SCORING GRID ALONE CHARGES FOR THE MASS AND NOT FOR THE
+DISTANCE**, and that is asserted rather than described: the same contamination
+weight at ten, a hundred and a thousand times the dataset mean gives the same
+body score to within a part in a million, because above the grid's top the
+integrand is clipped away. **The tail term Stage 2c added is what closes it**,
+and the two are computed side by side in the notebook so the pair is visible.
+A share and a rank frequency saturate and are immune; a mean, a standard
+deviation and a variance share have no ceiling.
 
 ## 2c. Which characteristics carry signal
 
@@ -990,6 +1088,15 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_ReductionMarginalVersusPartial.csv` | NB3 | the marginal range beside the partial one, BOTH IN LOG UNITS of the target, and the ratio |
 | `TABLE_ReductionCurves.csv.gz` | NB3 | the curves that replace the rolling averages: equal-count bins with a bootstrap band and a count, plus a LOWESS smooth |
 | `TABLE_ReductionCoverageVsImportance.csv` | NB3 | **the generalization question, as a join.** Each candidate's importance beside how far the corpus reaches past the empirical range on it |
+| `TABLE_MetricRecovery.csv` | NB3 | **the Stage 2g table to read.** Per (truth parent, candidate metric, method): the mean absolute error against the true parent with an interval, the spread of the TRUE value across materials, and their ratio |
+| `TABLE_MetricDecisionAgreement.csv` | NB3 | the same question as an argmax: how often the method names the material the truth names, against chance |
+| `TABLE_MetricVerdict.csv` | NB3 | **the join.** Recovery, agreement and NRMSE per metric in one row, which is what makes a metric every method agrees on and every method gets wrong visible |
+| `TABLE_MetricWinShare.csv` | NB3 | how often each method is closest to the truth, for every candidate metric rather than the three an earlier stage picked |
+| `TABLE_MetricTailStress.csv` | NB3 | what a thin far tail costs in W1, with the tail term and without it, beside what it costs in every output |
+| `TABLE_MetricTailExposure.csv` | NB3 | the ratio: how far a metric moves per unit the goodness-of-fit criterion moves |
+| `TABLE_CapReductionNormalization.csv` | NB3 | the two sums of the corrected cap rank frequencies, which are now both quantities |
+| `TABLE_CapReductionByMethod.csv` | NB3 | how often the cap binds under each method, which the old constant divisor forced to 0.25 |
+| `TABLE_FiveStatements.csv` | NB3 | **the results section in order.** The five statements a pLCA makes, each with the truth and the span across the six methods, assembled from the tables already on disk |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
 (pLCA, UQ method, dataset). It did not exist before Stage 1: notebook 3 wrote
@@ -1047,6 +1154,7 @@ the worst observed value.
 | `test_plca.py` | 55 | common random numbers make a method identical to itself while independent variates do not, and sharing them leaves each method's own marginal distribution alone, which is what makes installing them a refinement rather than a change of estimand; materials stay independent within an iteration; the outputs are the notebook's own definitions, checked against its pandas ranking and against NRMSE computed the way the plotting function computes it; an infinite Dirichlet concentration reproduces the equal-intensity case EXACTLY and every intensity vector averages to 1.0; concentration makes the top contributor stop moving; resampled groups hold distinct datasets; the cluster bootstrap is more than twice as wide as a row bootstrap; the tabulated parent sampler inverts the parent's own bisection and stays inside its support; a method that IS the parent has exactly zero error, which is the truth run's control; the lazy samplers agree with eager ones while bounding their memory; and the committed pLCA table is a full run rather than a smoke one |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 | `test_metricreduction.py` | 59 | a cross-validated gain cannot be bought by adding a useless term and its fold spread grows as the data thin; a negative R2 is reported rather than clipped, which is what exposed the empirical arm; forward selection refuses a near-duplicate column; the policy curve puts its flat region around the true crossover and beats both fixed policies; the effective sample size matches its closed forms; a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
+| `test_metricset.py` | 22 | the new companion is a SHARE read at the BUILDING's bad end and not at the material's, with a planted case where one material drives the total's upper tail and the two metrics have to disagree; the corrected cap rank-1 frequencies sum to exactly 1.0 across the materials and are the old count divided by the measured applicability; a method that IS the truth has exactly zero recovery error, recovery grows with the error, and a method that reports one number for every material cannot score better than one that tracks the truth with noise; the argmax agreement is 1.0 for the truth and chance for a shuffle; the contaminated model inverts its own mixture CDF and reduces to its base at zero weight; **W1 over the scoring grid alone gives the SAME score at ten, a hundred and a thousand times the mean while the tail term rises with the distance**; and a share saturates under contamination while a mean, a standard deviation and a variance share do not |
 | `test_remetric.py` | 3 | `remetric_corpus` relabels the parent-spec replay cache it copies, a cache from a genuinely DIFFERENT corpus is still refused, and the values are copied byte for byte while the characteristics really are recomputed |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch

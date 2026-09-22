@@ -4019,3 +4019,312 @@ rather than in conversation.
      200. An earlier draft of this stage quoted 65 without saying which
      comparison it came from, which is how a figure ends up disagreeing with
      the sentence beside it. Discrepancy entry 128.
+
+143. **2026-09-22, Stage 2g. THE HEADLINE METRIC IS JUDGED BY WHETHER IT
+     RECOVERS THE TRUTH, AND "ECI RANK #1 FREQUENCY" IS THE WORST OF SEVEN
+     CANDIDATES.** `[AUTHOR]` Three earlier arguments said to demote it -- it is
+     fragile with four exchangeable materials (Stage 2d), it carries a 3.67
+     percent argmax noise floor (Stage 2e), and it is only 9 percent predictable
+     from a material's own dataset because it belongs to the GROUP (Stage 2f).
+     None of them is the deciding one. Stage 2e's run against the true parents
+     means the question is no longer "is this sensitive" but "does this recover
+     the right answer".
+
+     **THE STATISTIC.** Mean absolute error against the true parent, divided by
+     the standard deviation of the TRUE value across every material in the arm.
+     Below 1 a method's error is smaller than the differences between materials
+     the metric exists to reveal; at or above 1 the metric cannot distinguish
+     two materials at all. It is the same division as the study's own NRMSE on a
+     different numerator, so the two are directly comparable.
+
+     **THE DIVISOR IS THE TRUTH'S SPREAD AND NOT THE METHOD'S OWN**, because
+     dividing by the method's spread would let a method that reports nearly the
+     same number for every material improve its score by being less
+     informative. `tests/test_metricset.py` plants exactly that case and asserts
+     the flat method loses.
+
+     **THE RESULT, on 10,000 materials against the market-weighted parent, best
+     method to worst:**
+
+         spread of a material's contribution      0.42 to 0.50
+         95th percentile of its contribution      0.45 to 0.51
+         its estimated contribution               0.51 to 0.71
+         the uncertainty index                    0.51 to 0.53
+         its share at the BUILDING's 95th pct     0.61 to 0.69
+         its mean share of the total              0.66 to 0.88
+         ITS CHANCE OF LEADING                    0.72 to 1.07
+
+     **The study's own headline is last on both ends, and under a normal fit it
+     exceeds 1.0** -- 1.037 uniform and 1.074 variable -- so on that metric a
+     normal fit's error is larger than the whole spread of true rank-1
+     frequencies across materials and the metric carries no information about
+     which material is which.
+
+     **AND WHICH METHOD LOOKS BEST DEPENDS ON WHICH METRIC IS REPORTED.** On a
+     win share against the truth, `KDE, Variable` leads on the chance of
+     leading, the 95th percentile and the spread; `Lognormal, Variable` leads on
+     the mean contribution, the mean share and the share at the building's 95th;
+     `Lognormal, Uniform` leads on the uncertainty index. **Three different
+     methods across seven metrics**, and the rank correlation of the six
+     methods' ordering with the ordering the rank metric gives runs from +1.00
+     to **-0.54**. A paper that reports one metric and calls a method best is
+     reporting the metric. `TABLE_MetricRecovery.csv`, `TABLE_MetricVerdict.csv`,
+     `TABLE_MetricWinShare.csv`.
+
+144. **2026-09-22, Stage 2g. WHAT THE PAPER SHOULD LEAD WITH, in the order the
+     results section takes.** `[AUTHOR]` Stage 2e recommended the five
+     statements and this confirms the order by measurement rather than by
+     argument.
+
+     1. **The design comparison**, because it is the decision a designer makes
+        and the answer is a null: over 800 option pairs scored against the true
+        distributions, the choice of UQ method changes the stated probability
+        that a substitution is an improvement by at most **0.020**, and every
+        method lands within **0.026** of the truth. At a claimed 5 percent
+        saving the truth is 0.629 and the six methods span 0.630 to 0.642.
+     2. **The safe-lead rule**: the chance that the choice of method changes
+        which material leads crosses 1 percent at a top-two contribution ratio
+        of **2.13** [2.09, 2.17], and the one real building element available
+        sits at **1.02**.
+     3. **The building total and the budget statement**: every method
+        understates the total's 90th percentile, by **0.087 to 0.356** on a
+        building averaging about 4.0, and at a budget the truth meets 90.0
+        percent of the time the six report **86.8 to 91.3** percent.
+     4. **The specification result**, which is where the choice costs most:
+        against a true mean saving of **5.39 percent** of the building the six
+        report 4.88 to 6.19 percent, and asked for the chance of achieving at
+        least 5 percent the truth is **23.2** percent while the six span
+        **22.9 to 30.5**. Beside it, the QUANTITY reduction is 0.0625 of the
+        building under every method and under the truth, identical to four
+        decimal places, because it is a deterministic fraction of a material's
+        own contribution and no distributional assumption enters.
+     5. **Where the uncertainty sits**, the uncertainty index, which appears in
+        no table, figure or section of this study so far. See decision 146.
+
+     **The attribution metrics are ONE of the five and not the frame.** Report a
+     material's estimated contribution as the primary magnitude, its share at
+     the building's 95th percentile as the companion, and the chance of leading
+     as a secondary statistic quoted with its noise floor.
+     `TABLE_FiveStatements.csv`.
+
+145. **2026-09-22, Stage 2g. THE MAGNITUDE COMPANIONS, AND THE NEW ONE IS NOT
+     THE OLD ONE UNDER ANOTHER NAME.** `[AUTHOR]` Two were asked for: each
+     dataset's mean share of the total, which already existed as
+     `eci_perc_mean` and which no stage had compared against the rank metric,
+     and its share at the 95th percentile of the total, which is new.
+
+     **`eci_perc_p95tot` is each material's share of the building total in the
+     iterations where the BUILDING sits at its 95th percentile**, read over a
+     window of plus or minus 0.01 in quantile units, which is 200 of the study's
+     10,000 iterations. It is the attribution question asked at the end of the
+     distribution a carbon budget is written against.
+
+     **IT IS NOT `eci_p95`**, which is the 95th percentile of a material's OWN
+     contribution over its own marginal, and the iteration that puts one
+     material at its 95th percentile is usually not the iteration that puts the
+     building at its 95th.
+
+     **AND IT IS NOT THE MEAN SHARE EITHER, which had to be checked rather than
+     assumed.** Across the 60,000 rows the two correlate at only **0.317**, with
+     a mean absolute difference of **0.061** where the average share is 0.25 and
+     a maximum of **0.569**. A planted test where one material is the only
+     source of the building's upper tail gives it a mean share below 0.35 and a
+     share at the total's 95th percentile above 0.85.
+
+     Adding it consumed no randomness: 36 of the 40 columns of
+     `TABLE_PLCAResults.csv` are bit-identical to the previous run and the three
+     new columns are pure additions. Decision 147 names the four that moved.
+
+146. **2026-09-22, Stage 2g. THE UNCERTAINTY INDEX IS THE STEADIEST OUTPUT AND
+     NO METHOD RECOVERS IT WELL, and reporting only the first half would be the
+     most misleading thing this study could do.** `[AUTHOR]` Stage 2e
+     recommended adding it on the strength of its NRMSE between methods, 0.503
+     against 1.042 for a material's chance of leading. That holds -- it is
+     0.5035 [0.4918, 0.5158] here -- and it is only half of what a metric has to
+     answer for.
+
+     **The other half: every one of the six methods is out by about half the
+     spread between materials.** Recovery error 0.508 to 0.531, a span of 4.4
+     percent from best to worst. So the choice of method genuinely does not
+     matter for it, which is the case for reporting it, and no method gets it
+     right, which is the caveat that has to travel in the same sentence.
+
+     **IT IS ALSO THE BEST OF THE SEVEN ON THE DECISION READING.** Asked which
+     material's uncertainty dominates, the best method names the truth's answer
+     **58.4 percent** of the time against a one-in-four chance level, which is
+     the highest agreement of any candidate; the chance of leading manages 52.5
+     percent and a material's estimated contribution only 49.1.
+
+     **AND IT IS NOT IMMUNE TO THE TAIL FAILURE MODE.** Its tail exposure is
+     1.58 and a thousandth of a model's mass at a thousand times the dataset
+     mean moves it by 145 percent. It is a variance share, so one enormous
+     material takes all the variance and the index follows.
+
+     **THE PAIRING IS THE GENERAL LESSON AND IT IS WHY THE TWO STATISTICS ARE
+     REPORTED TOGETHER.** A low NRMSE beside a high recovery error is a metric
+     every method agrees on and every method is wrong about. `metric_verdict`
+     joins them for exactly that reason.
+
+147. **2026-09-22, Stage 2g. THE `(1 - capecc)` DIVISOR IS SETTLED: divide by
+     the iterations in which the strategy APPLIES, and report the applicability
+     instead of assuming it. This COMPLETES decision 116 and supersedes its
+     final form.** `[AUTHOR]` The column carried an inline comment conceding
+     that "percentages look off because not all reduction strategies apply in
+     all scenarios". The comment named the right problem and the divisor was the
+     wrong fix.
+
+     **THE HISTORY, because three stages touched it.** It was a constant
+     1 / 0.25, exact only while the specification cap was each METHOD'S OWN 75th
+     percentile and therefore bound in exactly a quarter of iterations for every
+     material by construction. Stage 2e made the cap an absolute value per
+     material (decision 115) and had to drop the divisor with it (decision 116),
+     leaving a plain count over all iterations whose four columns summed to
+     between **0.31 and 1.00** rather than to 1.
+
+     **THE CORRECT DENOMINATOR.** The question is "if I can pursue one
+     specification cap, which material should I cap", and in an iteration where
+     no cap binds there is no answer: every choice delivers nothing. Counting
+     those iterations against all four materials makes the columns depend on how
+     often the strategy applies rather than on which material is the right one.
+     `capecc_rank_1` now sums to **exactly 1.0** across the materials of a pLCA,
+     like every other rank-1 frequency in the study, and across the four ranks
+     of one material it sums to the share of applicable iterations in which that
+     material's own cap bound.
+
+     **THE APPLICABILITY IS REPORTED AND NOT DIVIDED AWAY, and it is signal.**
+     `capecc_applies` is the share of iterations in which any cap binds and
+     `capecc_binds` the share in which this material's own does. The first runs
+     from **0.727 under `Lognormal, Uniform` to 0.838 under `Normal, Uniform`**
+     and has an NRMSE between methods of **1.204**, the highest of any cap
+     column: a method that puts more mass above the cap finds it binding more
+     often, and under the old constant divisor that was forced to 0.25 for every
+     material and every method.
+
+     **WHAT MOVED.** Only the four `capecc_rank_*` columns of
+     `TABLE_PLCAResults.csv`; 36 of the 40 shared columns are bit-identical.
+     `capecc_rank_1` mean **0.1929 to 0.2500**, `capecc_rank_2` 0.0922 to
+     0.1167, `capecc_rank_3` 0.0238 to 0.0294, `capecc_rank_4` 0.00255 to
+     0.00306. **The manuscript's definition needs one sentence changed**: it
+     says these are "the percentage of iterations in which a given dataset is
+     1st, 2nd, 3rd, and 4th", which is true of the quantity-reduction columns
+     and not of the cap ones, whose denominator is the applicable iterations.
+
+     **The same stale comment sat on the material-reduction block and was never
+     true there**: that strategy applies in every iteration, so its columns are
+     a complete ranking summing to 1 both ways. Removed. Discrepancy entry 7 is
+     resolved.
+
+148. **2026-09-22, Stage 2g. THE CONCLUSIONS DO NOT ALL SURVIVE THE COMPANIONS,
+     AND "THE NORMAL IS FORTY PERCENT WORSE" IS A STATEMENT ABOUT ATTRIBUTION
+     RATHER THAN ABOUT EVERYTHING A pLCA SAYS. This NARROWS decision 109.**
+     `[AUTHOR]` Adding a companion metric is only worth something if the paper's
+     claims are re-read against it, and three of them do not survive.
+
+     How much worse the better of the two normal fits is than the best of the
+     four non-normal methods, on recovery against the true parent:
+
+         a material's chance of leading         44.2 pct   normal is worst
+         its estimated contribution             36.5 pct   normal is worst
+         its mean share of the total            27.6 pct   normal is worst
+         the spread of its contribution         17.9 pct   normal is worst
+         the 95th percentile of it               4.4 pct   normal is NOT worst
+         its share at the building's 95th        2.8 pct   normal is NOT worst
+         the uncertainty index                   1.0 pct   normal is NOT worst
+
+     **On three of the seven the normal is not the worst method and is within
+     four percent of the best.** The ordering of the six methods is not stable
+     either: its rank correlation with the ordering the chance of leading gives
+     runs +1.00 on the mean share, +0.77 on the spread, +0.49 on the mean
+     contribution, and **-0.26, -0.31 and -0.54** on the 95th percentile, the
+     share at the building's 95th and the uncertainty index.
+
+     **WHAT DOES SURVIVE EVERY METRIC IS THE BIAS, and it is the part that
+     matters at building scale.** On the three metrics where a signed error is
+     informative -- the mean contribution, the 95th percentile and the spread --
+     the normal is the MOST biased of the six on all three, by **+0.21, -0.26
+     and -0.44** in units of the metric's own between-material spread against
+     the kernel estimate's +0.01, -0.11 and -0.22. Bias adds across the
+     materials of a building while noise cancels, which is decision 122b. **On a
+     share or a rank frequency the signed error is identically zero by
+     construction**, because the four values sum to one, so that column carries
+     no information for those metrics and must not be read as evidence of
+     unbiasedness.
+
+     **So the paper's sentence has to name the statement.** "Do not fit a normal
+     distribution" is right for attribution and for anything a building total is
+     summed from, and it is not supported by the tail and information metrics,
+     where the normal is as good as anything and merely more biased.
+     `TABLE_MetricConclusions.csv`.
+
+149. **2026-09-22, Stage 2g. THE TAIL A GOODNESS-OF-FIT SCORE CANNOT SEE: the
+     body of W1 charges for the MASS a model misplaces and not for the DISTANCE,
+     and the tail term Stage 2c added is what closes it.** `[AUTHOR]` Stage 2b
+     handed this stage the downstream end of the question: a statistic between
+     CDFs is nearly blind to tail mass and a Monte Carlo is not, because it
+     samples. It was checked rather than assumed, and the check is sharper than
+     the question.
+
+     One material of a real pLCA group has a fraction of its fitted model's mass
+     moved to 10, 100 or 1,000 times the dataset mean, with the other three
+     models, the uniform variates and the group all held.
+
+     **W1 TAKEN OVER THE SCORING GRID ALONE GOES BLIND THE MOMENT THE MASS
+     LEAVES THE GRID, AND THE GRID ENDS JUST PAST THE DATA.** Its top is
+     `max(x) + 10 sd`, which on a dataset normalized to a mean of 1.0 is of
+     order ten times the mean. At a thousandth of the mass the body score reads
+     **0.262242 at ten times the mean, 0.262571 at a hundred and 0.262571 at a
+     thousand**, against an uncontaminated 0.254474. The first two differ by
+     0.13 percent because at ten times the mean part of the contamination is
+     still inside the grid; **the second and third are the same number to six
+     decimal places, so beyond the grid the criterion cannot tell a hundred
+     times the mean from a thousand at all.** With the tail term the same three
+     read **0.262718, 0.353166 and 1.257643**, rising with the distance as they
+     must.
+
+     **AND THE METRICS SPLIT BY WHETHER THEY HAVE A CEILING.** Relative change
+     under the same contamination, at ten times the mean and at a thousand:
+
+         spread of a material's contribution   0.047 -> 34.3
+         the uncertainty index                 0.051 ->  1.45
+         its estimated contribution            0.006 ->  0.66
+         its share at the building's 95th      0.0082 -> 0.0082
+         its mean share of the total           0.0017 -> 0.0024
+         its chance of leading                 0.0013 -> 0.0013
+
+     **A share and a rank frequency saturate: once a material's draw is enormous
+     it holds the whole share and takes rank one, and making it a thousand times
+     more enormous changes neither to the last digit.** A mean, a standard
+     deviation and a variance share have no such ceiling; the spread moves by a
+     factor of 115 in the worst case measured.
+
+     **THE CONSEQUENCE FOR THE RECOMMENDATION, and it is a tension rather than a
+     clean answer.** The metrics that recover the truth BEST are levels, and
+     levels are exactly what a thin far tail wrecks; the metrics that are immune
+     are shares, and they recover worse. **What makes the levels safe to report
+     is that the study's criterion now charges for the thing that wrecks them**,
+     which it did not before Stage 2c. So `W1_TAIL_TERM` is not an accuracy
+     refinement, it is the guard under every level metric this paper reports,
+     and **Stage 2h must keep it in force and report `model_sd_ratio` at every
+     value of `PROFILE_DELTA_LO_FRAC` it sweeps**, as decision 69 already
+     requires.
+
+     One caveat on the 95th percentile of a material's own contribution: its
+     immunity is conditional on the contamination being thinner than 5 percent
+     of the mass, because above that the misplaced mass is inside the quantile
+     being read. `TABLE_MetricTailStress.csv`, `TABLE_MetricTailExposure.csv`.
+
+150. **2026-09-22, Stage 2g. NOTEBOOK 3 STOPPED READING THE TARGET STAGE 2c
+     RETIRED, and it was the last place in the study that still did.**
+     `[AUTHOR]` One cell scored every fitted model by W1 against the
+     variable-weighted empirical CDF of the values it had been fitted to, and
+     the cell below it explained every pLCA outcome with that number. The target
+     is circular twice over: it is the training data, and it is the
+     variable-weighted curve, so a variable-weighted method is scored against
+     itself.
+
+     It now reads `w1_market`, the score against the market-weighted true
+     parent, from the table notebook 2 writes. That is the population a
+     probabilistic LCA of what gets built is a statement about and the only
+     target under which all six methods estimate the same thing. The retired
+     score is kept beside it, unused, and the cell prints how far the two
+     disagree, so the change is measured rather than asserted.
