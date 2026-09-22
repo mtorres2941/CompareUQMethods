@@ -474,6 +474,42 @@ predictors. `METRIC_TRANSFORM` gives each one its modeling scale, because a
 spline basis on a raw quantity spanning four orders of magnitude puts every
 knot in the first percent of the range.
 
+**EVERY RANKING IS OUT OF SAMPLE AND THE SYNTHETIC ARM IS PRIMARY.** The first
+pass ranked on IN-SAMPLE incremental R2 with an F-test beside it, and both
+halves were wrong for this question (decision 136). Adding a five-knot spline to
+127 datasets raises in-sample R2 by about 0.043 UNDER THE NULL, and
+cross-validated on those same 127 real categories the base model reaches an R2
+of **-0.724** under market-share weights: it predicts worse than the mean, and
+only 9 of 46 candidate gains exceed their own fold-to-fold spread. **No claim
+about which method to use rests on the empirical arm.** The 10,000 synthetic
+datasets are where the question is answered and the real ones are a check whose
+interval is shown.
+
+`cv_gain` reports a gain beside the standard deviation of that gain across
+folds, and **no p-value appears anywhere in this module's output**. A gain
+smaller than its own fold spread is not reportable however small its p-value
+would have been. `forward_select` is the redundancy control: skewness, kurtosis
+and the two normality statistics are four views of one shape, so a
+one-at-a-time table credits the same effect four times, and selection admits a
+candidate only if it still helps once everything already chosen is present.
+
+**THE PRACTITIONER-FACING END.** `best_method_share` answers "is one method best
+regardless", `policy_curve` gives the cost of a size-threshold rule against the
+per-dataset oracle, and `flat_region` reads the SPAN of thresholds that are as
+good as the best rather than the argmin -- measured against what the rule is
+worth, not against the best cost, because a relative tolerance collapses onto a
+single point as the best cost approaches zero, which a test caught.
+`effective_sample_fraction` and `weighting_by_concentration` answer when
+market-share weighting pays, split by how concentrated the weights are INSIDE a
+size band so the split is not dataset size under another name.
+
+**ALL THREE ARE SCORED AGAINST `w1_market` AND THE TARGET IS DOING REAL WORK.**
+Under `w1_parent` each weighting scheme is graded against a different
+population; under the in-sample `w1` every model is scored against the
+variable-weighted data. The variable kernel fit beats its uniform twin above
+n = 1,000 on 75.8 percent of datasets under `w1_market`, 20.7 percent under
+`w1_parent` and 98.2 percent under `w1`. Only the first answers the question.
+
 **Two model families, one instrument.** A penalized additive model (natural
 cubic splines per predictor, elastic net) and gradient boosting, both scored
 out of sample and both ranked by permutation importance on the HELD-OUT fold,
@@ -976,7 +1012,7 @@ the worst observed value.
 | `test_families.py` | 105 | the support is open at zero and no sampler can emit an inadmissible value, cdf inverts ppf on every family, inverse-CDF sampling reproduces the model CDF, `rvs_from_uniform` is the same map `rvs` uses, truncation renormalizes rather than discarding mass, the weighted KDE matches gaussian_kde's density and integrates to its own CDF, the closed-form lognormal and gamma estimators beat their neighbors on the likelihood, the profile threshold stays strictly below min(x) and reaches the normal limit when the data asks for it, an unguarded joint fit walks into the pathology and the guarded one does not, the W1-optimal fit never scores worse than the MLE fit |
 | `test_plca.py` | 55 | common random numbers make a method identical to itself while independent variates do not, and sharing them leaves each method's own marginal distribution alone, which is what makes installing them a refinement rather than a change of estimand; materials stay independent within an iteration; the outputs are the notebook's own definitions, checked against its pandas ranking and against NRMSE computed the way the plotting function computes it; an infinite Dirichlet concentration reproduces the equal-intensity case EXACTLY and every intensity vector averages to 1.0; concentration makes the top contributor stop moving; resampled groups hold distinct datasets; the cluster bootstrap is more than twice as wide as a row bootstrap; the tabulated parent sampler inverts the parent's own bisection and stays inside its support; a method that IS the parent has exactly zero error, which is the truth run's control; the lazy samplers agree with eager ones while bounding their memory; and the committed pLCA table is a full run rather than a smoke one |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
-| `test_metricreduction.py` | 30 | a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
+| `test_metricreduction.py` | 48 | a cross-validated gain cannot be bought by adding a useless term and its fold spread grows as the data thin; a negative R2 is reported rather than clipped, which is what exposed the empirical arm; forward selection refuses a near-duplicate column; the policy curve puts its flat region around the true crossover and beats both fixed policies; the effective sample size matches its closed forms; a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
 | `test_remetric.py` | 3 | `remetric_corpus` relabels the parent-spec replay cache it copies, a cache from a genuinely DIFFERENT corpus is still refused, and the values are copied byte for byte while the characteristics really are recomputed |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch
