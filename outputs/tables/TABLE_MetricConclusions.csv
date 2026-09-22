@@ -1,0 +1,8 @@
+output,best,worst,normal_is_worst,nonnormal_spread,normal_penalty,ordering
+eci_rank_1,"Lognormal, Uniform","Normal, Variable",True,0.06701157377971678,0.44155636748127347,"Lognormal, Uniform|KDE, Uniform|KDE, Variable|Lognormal, Variable|Normal, Uniform|Normal, Variable"
+eci_mean,"Lognormal, Variable","Normal, Variable",True,0.0932736952977884,0.36489453812350536,"Lognormal, Variable|KDE, Variable|Lognormal, Uniform|KDE, Uniform|Normal, Uniform|Normal, Variable"
+eci_perc_mean,"Lognormal, Uniform","Normal, Variable",True,0.06228579188773775,0.27554777872210234,"Lognormal, Uniform|KDE, Uniform|KDE, Variable|Lognormal, Variable|Normal, Uniform|Normal, Variable"
+eci_perc_p95tot,"Lognormal, Variable","KDE, Uniform",False,0.13195370739567824,0.02796163150775932,"Lognormal, Variable|Normal, Variable|Lognormal, Uniform|KDE, Variable|Normal, Uniform|KDE, Uniform"
+eci_p95,"Lognormal, Variable","KDE, Uniform",False,0.1259677043637908,0.04369180463848599,"Lognormal, Variable|KDE, Variable|Normal, Variable|Lognormal, Uniform|Normal, Uniform|KDE, Uniform"
+eci_std,"KDE, Variable","Normal, Variable",True,0.13642875845695968,0.17921472218768364,"KDE, Variable|KDE, Uniform|Lognormal, Uniform|Lognormal, Variable|Normal, Uniform|Normal, Variable"
+ui,"KDE, Variable","Lognormal, Uniform",False,0.04419599341758462,0.009736353832889622,"KDE, Variable|Normal, Variable|Normal, Uniform|KDE, Uniform|Lognormal, Variable|Lognormal, Uniform"

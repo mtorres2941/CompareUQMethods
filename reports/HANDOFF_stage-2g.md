@@ -353,8 +353,12 @@ goodness-of-fit scores. That is the check that the fitting, the corpus and the
 empirical arm were not touched.
 
 **The third notebook was run end to end twice**, once to produce the tables and
-once with the figure cells added. **The second run reproduced every table
-byte-identically**, which is the determinism check the figure work paid for.
+once with the figure cells added at the end. **The second run reproduced every
+table exactly**, which is the determinism check the figure work paid for: the
+uncompressed tables are byte-identical and the compressed ones are identical
+once decompressed, differing only in the timestamp the compression format
+embeds in its own header. The only other difference between the two runs is the
+recorded write time in the run-metadata file.
 
 ---
 
@@ -378,10 +382,20 @@ Adding an output consumes no randomness; the safe-lead crossing of **2.132671**
 is identical to the last digit across the two runs, and a test recomputes every
 other output from the same draws to assert nothing else changed.
 
+**One second-order movement, and it is bootstrap noise on an interval rather
+than on an estimate.** The table reporting each method's error against the truth
+now covers seven metrics where it covered five, and its confidence intervals
+come from a resampling stream shared across the metrics in order, so adding two
+shifts the draws the later ones get. **Every point estimate in that table is
+unchanged**; the interval BOUNDS move by at most **0.0011**, on intervals
+themselves about 0.004 wide.
+
 **Everything else is unchanged and that was checked rather than assumed.** The
 run against the true distributions, the design comparison, the flip calibration,
 the sweep over group size and material use intensity, and the eight regression
-fixtures all reproduce.
+fixtures all reproduce. Three figures change and all three for the same reason:
+they draw every result column, so they gain panels for the new ones and redraw
+the corrected cap panels.
 
 ---
 
