@@ -336,39 +336,36 @@ than a fact about markets.
 
 ## The two figures
 
-![Which method, and when](../outputs/figures/CompareUQMethods_FIG_WhenToUseWhich.png)
+![Which method is closest, by category size](../outputs/figures/CompareUQMethods_FIG_WhenToUseWhich.png)
 
-**Figure A. Left:** the share of datasets on which a kernel density estimate is
-closer to the truth than a three-parameter lognormal, against the number of
-declarations, with a bootstrap band. It starts at 62.6 percent at three to nine
-declarations, dips below half between about 10 and 55, and rises to 86.5
-percent under equal weights and 96.8 percent under market-share weights. The
-grey band marks 59 to 134 declarations. **Middle:** the cost of a
-"kernel estimate above the cutoff, lognormal below" rule against the best
-choice that could be made per dataset, as the cutoff moves. The minimum is 38.4
-percent at 75 declarations and the curve is flat from 59 to 134, which is what
-licenses quoting a round hundred. Always using a kernel estimate costs 53.6
-percent; always using a lognormal costs 178.5 percent. **Right:** which of the
-six methods is actually closest, by size band. The kernel estimate with equal
-weights leads below ten declarations, the lognormal with equal weights from ten
-to ninety-nine, and the kernel estimate with market-share weights above a
-hundred, reaching 69.6 percent.
+**Figure A.** The share of the 10,000 synthetic datasets on which each of the
+six methods comes closest to the true distribution, against how many
+declarations the category holds, on a continuous size axis rather than in
+bands. Each curve is a local share over a sliding window holding the same
+number of datasets at every position, so it does not get noisier where the data
+thin out. **A kernel estimate under equal weights leads below about twelve
+declarations; a lognormal under equal weights leads from there to about fifty;
+the kernel estimate with market-share weights passes both lognormals at 65 and
+takes the lead outright from 107 on, reaching 77 percent at the top of the
+range.** The two dashed lines mark those crossings and are read directly off
+the curves. **Both normal fits run flat along the bottom, under 12 percent
+everywhere and effectively zero above a few hundred declarations** -- the
+clearest negative result in the study.
 
-![What else changes the answer](../outputs/figures/CompareUQMethods_FIG_ChoiceDrivers.png)
+![What else helps once you know the size](../outputs/figures/CompareUQMethods_FIG_ChoiceDrivers.png)
 
-**Figure B.** How much each characteristic improves a prediction of which
-method fits better, measured on data the model has not seen, once dataset size
-and dispersion are already accounted for. Bars in orange are the ones kept once
-everything already chosen is in the model; the whisker is the spread across
-folds, and a bar shorter than its whisker is not an effect. **Left, equal
-weights:** one characteristic stands out, the distance between the
-equal-weighted and market-share-weighted versions of the same dataset, at
-+0.170; everything else is at or below 0.003. **Right, market-share weights:**
-the shift in the average leads at +0.034, then the weight carried by outliers
-at +0.026 and the visible mode count at +0.019. **All of these are small**
-against baselines of 0.280 and 0.525, which is the point: once you know how
-many declarations there are and how spread out they are, little else changes
-the answer.
+**Figure B.** How much each characteristic adds to predicting which of the
+kernel estimate and the lognormal fits better, **once the number of
+declarations is already known**. The orange line is what the count achieves on
+its own: **0.23 under equal weights and 0.47 under market-share weights**, as a
+share of the variation explained on datasets the model was not fitted to. Bars
+are the extra each characteristic buys on top of it, with the spread across
+folds. **Under market-share weights nothing reaches a seventh of the orange
+line** -- the best is dispersion at 0.054 -- so counting declarations is most
+of the answer and the practitioner rule stays one number. **The single large
+bar under equal weights, 0.153, is a property of the WEIGHTS and not of the
+data**: it is how far market weighting moves the category's distribution, which
+needs the market shares, which is precisely what a practitioner does not have.
 
 ## 1. Stage and branch
 
