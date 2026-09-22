@@ -358,6 +358,45 @@ figure cell that would have run for hours. They are described in section 5.
 
 ## 4. What the measurements say
 
+**READ THIS BEFORE THE SUBSECTIONS BELOW. Sections 4.1 to 4.4 are the stage's
+FIRST pass and their rankings are superseded.** They rank characteristics by
+permutation importance and by an in-sample incremental R2, both computed with
+the 127 real material categories carrying equal standing with the 10,000
+synthetic ones. That was wrong in a way the numbers themselves could not show:
+adding five spline terms to 127 observations raises an in-sample R2 by about
+0.043 for free, and the real arm's out-of-sample baseline does not reproduce
+its own sign across fold assignments. **The corrected rankings are the ones on
+the headline page and in section 4.9.** The subsections are kept because the
+contrast between the three targets -- the level of a score, the choice between
+two methods, and the error in the answer -- is itself a finding, and because a
+later session needs to see what was measured and why it was set aside.
+
+### 4.9 The corrected ranking, out of sample and on the synthetic arm
+
+Out-of-sample gain over a baseline of dataset size and dispersion, on 10,000
+synthetic datasets, with the spread of each gain across folds beside it. A gain
+smaller than its own spread is not an effect.
+
+| characteristic | equal weights | market-share weights |
+|---|---|---|
+| distance between the equal- and market-share-weighted dataset | **+0.170** (sd 0.027) | cancels |
+| the market-share-weighted mean | +0.012 | **+0.034** (sd 0.007) |
+| weight carried by outliers | small | **+0.026** (sd 0.009) |
+| visible mode COUNT, at the fitted bandwidth | -0.002 | **+0.019** (sd 0.010) |
+| kurtosis | small | +0.018 (sd 0.012) |
+| the author's modality INDEX, at the fitted bandwidth | +0.0015 (sd 0.007) | +0.0027 (sd 0.011) |
+| Silverman's critical bandwidth | +0.005 | +0.008 |
+
+Baseline R2 0.280 and 0.525. Forward selection, which admits a characteristic
+only if it still helps once everything already chosen is present, keeps six
+under each weighting and raises the R2 to **0.581** and **0.634**.
+
+**Under market-share weights 17 of 23 candidates clear their own fold spread**,
+because that spread is only 0.003 on 10,000 datasets; under equal weights only
+1 of 23 does. So the honest statement is that the effects are real and small,
+not that they are absent, and the count of characteristics clearing a noise
+floor is not a measure of how much they matter.
+
 ### 4.1 The survivors
 
 Pooled over both target families, both arms, all six methods and both model
@@ -510,6 +549,15 @@ stays closed.** Decision 133, entry 120.
 | Every figure brought to the style guide. **This stage found that the guide's own clash detector had never checked a single panel title** and fixed it, so a session doing that work now has a tool that works. The older figures still carry a Unicode minus | 3 |
 | **The reduced figure is what the manuscript's metric count should describe.** The full candidate set belongs in the supplement and the survivors in the main text | manuscript |
 | A real-building anchor, if citing the staircase paper is not enough | 2i, optional |
+
+### Closed by the author's review, and recorded so they are not reopened
+
+| Item | How it was settled |
+|---|---|
+| Whether to widen the synthetic datasets' dispersion | **No.** Measured: the widening is reachable, costs 2.4x on the quantity the paper is about, and the gap it closes is one contaminated database category whose removal moves every headline by under half a percentage point. Decision 138 |
+| Whether to extend the synthetic dataset size past 9,999 | **No.** The advantage curve flattens, the answer is already unanimous above 1,000, and the three real categories above the cap behave like the band below. Decision 137 |
+| Which arm the analysis rests on | **The synthetic one**, by author decision and by measurement: the real arm's baseline ranges -2.605 to +0.337 across fold assignments while the corpus reproduces +0.524 every time. Decision 136 |
+| How significance is decided | **Cross-validated gain against its own fold spread.** No p-value appears in any figure, table or claim. Decision 136 |
 | An industry-average EPD as a direct estimate of the market-weighted mean | unowned |
 
 ### Known and accepted
@@ -536,7 +584,18 @@ previous corpus is still tracked and removing it belongs to the deposit stage.
 ## 6. Numbers that moved
 
 **Three changes moved a committed number and no fit, score or probabilistic LCA
-result is among them.**
+result is among them. The author's review added no fourth: it changed which
+numbers are REPORTED, not what any of them are.** The corpus, the empirical
+extract, the fitting, the scoring criterion and the probabilistic LCA are all
+untouched by it, and the one regenerated table was verified identical in every
+numeric column across all 16,800 rows.
+
+**What the review withdrew rather than moved.** The claim that the author's
+modality index is the second-best predictor of which method to use, at an
+incremental R2 of 0.1114; the claim that five further characteristics add 0.10
+to 0.14 to the choice; and the claim that the corpus is the weaker arm for this
+question. All three rest on in-sample fits to 127 categories. The replacements
+are in section 4.9.
 
 **The normality statistic.** Only the two EQUAL-WEIGHTED columns; the
 market-weighted ones were already Shapiro-Francia and are bit-identical on both
