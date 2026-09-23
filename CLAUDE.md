@@ -4457,3 +4457,90 @@ rather than in conversation.
      the fitted-model spread ratio, and truncating each fitted model at a
      plausible multiple of the largest observed value would remove the failure
      mode outright at the cost of one more assumption.
+
+153. **2026-09-22, Stage 2g review. THE FIGURE GUIDE WAS INCOMPLETE AND THE
+     FIGURES BUILT TO IT WERE UNREADABLE. A takeaway title needs a subtitle
+     saying what is plotted, and an axis label is a noun phrase and not a
+     sentence.** `[AUTHOR]` The author's words, on three figures built to
+     `FIGURE_STYLE.md`: "I'm really starting to regret telling you to follow
+     Jean Luc Doumont's advice for using strong takeaways as titles ... you're
+     so bad at coming up with strong takeaways as titles. They're so vague, have
+     no description, and leave you completely in the dark about what's actually
+     shown in the plot. And axis labels keep getting drawn out to 2-3 sentences
+     rather than just a succinct, clear label."
+
+     **THE FAULT IS THE GUIDE'S AND IT IS NOW FIXED THERE.** Section 1 said the
+     title carries the message and said nothing about where the DESCRIPTION
+     goes. A writer following it puts the message in the title and then has
+     nowhere to say what is on the axes except the axis label, which becomes a
+     paragraph. Three slots, three jobs: **title** the message, **subtitle**
+     small and grey under it saying what is plotted, **axis label** a short noun
+     phrase with units.
+
+     **AND A TAKEAWAY TITLE IS NOT A LICENCE TO HIDE THE DATA.** The author on
+     the figure that was cut: "Why are we showing a range without labeling the
+     UQ methods? We have a color coding system for which UQ method is which,
+     what's the purpose of hiding that?" It showed each metric's recovery error
+     as a best-to-worst range with no method named, vague row labels, and a
+     title that asserted a recommendation the panel could not support.
+     **`CompareUQMethods_FIG_MetricChoice` is deleted**, cell and PNG, and its
+     one unique content is now the grey half of the scorecard's stacked bar.
+
+154. **2026-09-22, Stage 2g review. THE SCORECARD IS THE STAGE'S FIGURE, and
+     three changes made it readable.** `[AUTHOR]` "I have a feeling this figure
+     will succinctly capture every single point we make in this stage if we do
+     it right."
+
+     **ONE SHARED COLOR SCALE, not one per row.** The first version normalized
+     each row to itself, so 35.5 percent and 8.0 percent came out the same
+     shade: "Why aren't these on the same scale? 35.5 has the same color as 8.0
+     and 5.7." The best method in each row is boxed instead, which keeps the
+     within-row reading without lying about the between-row one.
+
+     **CONTINUOUS VALUES, NOT RANKS 1 TO 6.** "Can we show more continuous
+     values for each of these so it's easy to tell how close it is?" A rank says
+     nothing about whether second place is a hair behind the best or twice as
+     wrong. Each cell is now the method's excess over the BEST method on that
+     row, in percent of the size of the thing being claimed.
+
+     **AND THE BAR IS STACKED, WHICH IS THE MOST INFORMATIVE THING IN THE
+     STAGE.** The worst method's total error, split into what the best method
+     still gets wrong and what the choice of method adds. Without the first half
+     a claim where every method is badly wrong looks identical to one where
+     every method is right. Measured: on a material's chance of being the
+     largest contributor the total is **107 percent** of the spread between
+     materials and **72 of it is there under the best method too**; on how often
+     a specification cap binds the total is 31 percent and almost all of it is
+     the choice. **So for most claims a better method moves the answer closer to
+     the truth rather than to it.**
+
+155. **2026-09-22, Stage 2g review. THE FIVE QUESTIONS ARE THE FRAME, AND
+     ATTRIBUTION IS "WHICH MATERIAL IS BIGGEST, AND HOW OFTEN".** `[AUTHOR]`
+     "Let's make sure we're framing this around the major categories of
+     takeaways a user can glean from a probabilistic LCA." Decision 114 named
+     five statements; this makes them the organizing structure of the results
+     and of the scorecard, in a reader's words rather than in the study's:
+
+         what is the building's total embodied carbon?      magnitude
+         which materials contribute most, and how often?    attribution
+         which materials contribute most to the UNCERTAINTY? information
+         how effective is a reduction strategy?             action
+         is this design better than that one?               comparison
+
+     **Attribution is deliberately two things in one question**, because "which
+     material is biggest" and "how often is it biggest" are the same question
+     asked as a point estimate and as a probability, and the study reports six
+     numbers that sit between them.
+
+     **THE COST OF CHOOSING A METHOD, BY QUESTION**, on the claim that costs
+     most in each, as a percentage of that claim's own size: attribution
+     **35.5**, action **30.6**, magnitude **4.9**, information **2.2**,
+     comparison **0.8**. The two questions a designer acts on most directly are
+     the two the choice affects least.
+
+     **AND THE ACTION HEADLINE IS EFFECTIVENESS, NOT APPLICABILITY.** An earlier
+     draft quoted "how often a specification cap applies" as the action
+     question's cost, and the author objected: "Shouldn't we be more concerned
+     about the calculated effectiveness of that strategy with different UQ
+     methods?" Correct. Applicability is the MECHANISM behind the spread and is
+     reported as a diagnostic; the claim is what the strategy delivers.

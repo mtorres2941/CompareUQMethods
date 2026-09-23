@@ -40,6 +40,43 @@ usually took work.
 Tufte's first demand: the representation must be proportional to the quantity,
 and the words must be proportional to the evidence.
 
+### A takeaway title needs a subtitle saying what is plotted
+
+**Added 2026-09-22, Stage 2g, after the author reviewed three figures built to
+this file and could not tell what any of them showed.** Their words: the titles
+"are so vague, have no description, and leave you completely in the dark about
+what's actually shown in the plot", and the axis labels "keep getting drawn out
+to 2-3 sentences rather than just a succinct, clear label".
+
+That is a failure of THIS FILE, not of the author's reading. Section 1 says the
+title carries the message and says nothing about where the description goes, so
+a writer following it puts the message in the title and then has nowhere to say
+what is on the axes except the axis label, which then becomes a paragraph.
+
+**Three slots, three jobs, and none of them does two:**
+
+    title       the message. What the panel means. A sentence.
+    subtitle    what is plotted. Small, grey, directly under the title.
+                One line, occasionally two.
+    axis label  a short noun phrase with its units. NOT a sentence.
+
+`CompareUQMethods_FIG_TailBlindSpot` is the worked example: "W1 stops charging
+once the tail leaves its grid" over "one fitted model, a thousandth of its mass
+moved out. orange: with the tail term. grey: over the grid alone", with
+"distance of the misplaced mass (multiples of the dataset mean)" on the axis.
+
+**The subtitle is also where a series legend belongs when direct labelling will
+not fit.** Naming two lines in a subtitle costs one short line; labelling them
+at their ends cost a collision with the panel next door.
+
+### A takeaway title is not a licence to hide the data
+
+The same review: "Why are we showing a range without labeling the UQ methods? We
+have a color coding system for which UQ method is which, what's the purpose of
+hiding that?" A figure that aggregates away the thing a reader came for is not
+saved by a good title. **If the panel has room to show all the levels of a
+factor, show them.** The figure that prompted this was cut rather than fixed.
+
 ---
 
 ## 2. Data-ink: erase, then erase again
@@ -233,6 +270,12 @@ direct labels would serve.
 primary sources rather than working from memory. The first draft attributed to
 Tufte and Doumont several rules neither of them states; section 9 now separates
 what is sourced from what is ours.
+
+**Revised 2026-09-22, Stage 2g**, after the author reviewed three figures built
+to this file and found the titles uninformative and the axis labels running to
+sentences. Section 1 gained the three-slot rule -- title, subtitle, axis label --
+and the note that a takeaway title does not license hiding the data. One figure
+was cut rather than repaired.
 
 **Before this file existed the guide lived only in conversation, which is the
 condition this project's own continuity rule forbids.** If a figure convention is
