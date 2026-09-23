@@ -4544,3 +4544,45 @@ rather than in conversation.
      about the calculated effectiveness of that strategy with different UQ
      methods?" Correct. Applicability is the MECHANISM behind the spread and is
      reported as a diagnostic; the claim is what the strategy delivers.
+
+156. **2026-09-23, Stage 2g review. THE SCORECARD SHOWS EACH METHOD'S TOTAL
+     DISTANCE FROM THE TRUTH, NOT ITS EXCESS OVER THE BEST METHOD. This
+     REPLACES the cell quantity chosen in decision 154.** `[AUTHOR]` "Rather
+     than Figure B showing extra error over the best method, shouldn't it just
+     show the total error relative to the parent distribution?" Yes, and the
+     reason is a gap the author named exactly: "it's not clear to me that, when
+     it comes to attribution, how close the 'right' method is to the parent
+     distribution. That seems like an important detail here."
+
+     **IT IS THE DETAIL, AND THE EXCESS FRAMING HID IT.** The two numbers answer
+     different questions. The SPREAD between the best and worst of the six says
+     what the choice of method costs; the BEST METHOD'S OWN ERROR says whether
+     the answer is any good at all. A claim can have a small spread because
+     every method is right or because every method is wrong, and only the second
+     number separates them.
+
+     **THREE SITUATIONS THE EXCESS FRAMING MADE LOOK ALIKE**, all in units of
+     the size of the claim:
+
+         claim                          choice costs   best method is off by
+         a material's chance of being
+           the largest contributor          35.5              71.9
+         how often a cap binds              31.0               0.5
+         the uncertainty index               2.2              50.8
+
+     On the first, picking well is about a third of the problem and the rest is
+     there whatever you do. On the second, picking well is nearly the whole
+     problem. On the third, picking makes no difference and none of the six is
+     close. **`total_error` is the new column and it is what the cells show;
+     `excess` and `stakes` are kept, and `stakes` is the right-hand bar.**
+
+     **AND EACH QUESTION NOW NAMES ITS OWN DENOMINATOR ON THE FIGURE**, because
+     the five do not share one and a shared colour scale without that is
+     misleading. A material's mean contribution is 1.0 for every material by
+     construction -- every dataset is normalized to an unweighted mean of 1.0,
+     decision 6 -- so the only meaningful scale for an attribution claim is how
+     much the number varies BETWEEN materials; a building total has a level of
+     its own and is scaled by it. **A cross-question comparison of these
+     percentages therefore depends on that choice of denominator and the paper
+     must say so**, which is why the denominator is printed under each question
+     rather than left in a caption.

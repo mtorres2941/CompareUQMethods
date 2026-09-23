@@ -48,15 +48,39 @@ questions -- not the study's subject, which is how the study has been reading it
 And the uncertainty index is the whole of the third question rather than a
 footnote to the second.
 
-**How much the choice of UQ method costs, by question**, as the gap between the
-best and worst of the six on the claim that costs most in each, in percent of
-the size of the claim itself:
+**TWO DIFFERENT QUESTIONS, AND THE PAPER NEEDS BOTH.** "How much does the
+choice of method cost" is the spread between the best of the six and the worst.
+"How good is the answer at all" is the best method's own distance from the
+truth. A claim can have a small spread because every method is equally right or
+because every method is equally wrong, and only the second number tells them
+apart.
+
+**HOW MUCH THE CHOICE COSTS**, as the gap between the best and worst of the six
+on the claim that costs most in each question, in percent of the size of the
+claim:
 
     attribution   35.5 pct   a material's chance of being the largest
     action        30.6 pct   a specification cap's chance of saving 5 pct
     magnitude      4.9 pct   the building total, as a whole distribution
     information    2.2 pct   the uncertainty index
     comparison     0.8 pct   the probability one design beats another
+
+**AND HOW GOOD THE BEST METHOD IS**, on the same claims, in the same units:
+
+    attribution   71.9 pct   and the worst is 107.4, past the whole signal
+    action         1.1 pct
+    magnitude      9.1 pct
+    information   50.8 pct
+    comparison     0.5 pct
+
+**Read the two together and the picture changes.** On attribution the choice
+costs 35.5 and the best method is still 71.9 off, so switching method is a third
+of the problem and the other two thirds are there whatever you do. On the
+specification cap the choice costs 30.6 and the best method is 1.1 off, so
+almost the whole error IS the choice and picking well nearly solves it. On the
+uncertainty index the choice costs almost nothing and every method is about half
+the signal wrong. Those are three different situations and the spread alone
+calls them all "a number between 2 and 36 percent".
 
 **The two questions a designer acts on most directly -- what will the building
 be, and is this design better -- are the two the choice of method affects
@@ -447,30 +471,41 @@ estimate's is following the body of the data.
 
 ![Every claim a probabilistic LCA makes, scored for all six UQ methods](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
 
-**Figure B: no UQ method is best for every claim a probabilistic LCA makes.**
+**Figure B: no UQ method is best for every claim a probabilistic LCA makes, and
+on the claims that matter most the best one is still a long way off.**
 Seventeen claims, grouped under the five questions, each scored for all six
-methods as an absolute error against the true distributions.
+methods against the true distributions.
 
-**Left panel:** each cell is how much worse that method is than the best method
-on that row, as a percentage of the size of the thing being claimed. Zero is
-the best method and its cell is boxed. One shared colour scale across the whole
-panel, so 35.5 really is darker than 8.0 -- an earlier version normalized each
-row to itself and made those two the same shade. **The boxes move around**: the
-lognormal with equal weights is best on 6 of the 16 claims where the six differ
-at all, the lognormal with market-share weights on 5, the kernel estimate with
-market-share weights on 4, the kernel estimate with equal weights on 1.
-**Neither normal fit is ever boxed**, and on the attribution rows it is 18 to 36
-percent behind.
+**Left panel: every cell is that method's own distance from the truth**, as a
+percentage of the size of the thing being claimed, and the best method in each
+row is boxed. One shared colour scale across the whole panel. **Each question
+names its own denominator under its heading**, because the five do not share
+one: a material's mean contribution is 1.0 for every material by construction,
+so the only meaningful scale there is how much the number varies BETWEEN
+materials, while a building total has a level of its own and is scaled by it.
 
-**Right panel, and it is the half that keeps the left honest:** the worst
-method's TOTAL error, split into what the best method still gets wrong (grey)
-and what the choice of method adds (orange). Without it a claim where every
-method is badly wrong looks the same as one where every method is right. On a
-material's chance of being the largest contributor the total is **107** percent
-of the spread between materials, of which **72 is there under the best method
-too**; on how often a specification cap binds it is **31** percent and almost
-all of it is the choice. **So for most claims a better method moves you closer
-to the truth rather than to it.**
+**What the cells say.** On attribution the best method is **71.9** percent of
+the between-material spread away from the truth on a material's chance of being
+largest, and the worst is **107.4** -- past the whole signal. On the building
+total the best is 8 to 15 percent off. On whether one design beats another the
+best is **0.5** percent off and the worst 1.4. And on what using 25 percent less
+of a material saves, **every method is exactly right**, because that
+intervention is a deterministic fraction of the material's own contribution and
+no distributional assumption enters.
+
+**Right panel: what the CHOICE of method costs**, the worst method's error minus
+the best method's, in the same units. It runs from 35.5 percent on a material's
+chance of being largest down to 0.8 on the design comparison and to nothing on
+the quantity reduction.
+
+**THE TWO PANELS ARE DIFFERENT QUESTIONS AND READING ONLY ONE MISLEADS.** On
+attribution the choice costs 35.5 and the best method is still 71.9 off: picking
+well is a third of the problem. On how often a specification cap binds the
+choice costs 31.0 and the best method is 0.5 off: picking well is almost the
+whole problem. On the uncertainty index the choice costs 2.2 and every method is
+about 51 off: picking makes no difference and none of them is close. **An
+earlier version of this figure showed only each method's excess over the best,
+which made those three look alike.**
 
 ![The tail the criterion cannot see, and the numbers that survive it](../outputs/figures/CompareUQMethods_FIG_TailBlindSpot.png)
 
