@@ -26,6 +26,37 @@ that is a different and better question.
 Each claim below carries the number behind it and a plain-language **so what**
 for a reader who builds buildings rather than statistical models.
 
+## 0. The frame: a probabilistic LCA answers five questions
+
+Every result in this study belongs to one of five, and the paper should be
+organized by them. In a designer's words:
+
+    what is the building's total embodied carbon?          magnitude
+    which materials contribute most to it?                 attribution
+    which materials contribute most to the UNCERTAINTY?    information
+    how effective is a reduction strategy?                 action
+    is this design better than that one?                   comparison
+
+**That frame is what makes this stage's main finding legible.** "Which material
+is the largest contributor" is one of six numbers inside ONE of the five
+questions -- not the study's subject, which is how the study has been reading it.
+And the uncertainty index is the whole of the third question rather than a
+footnote to the second.
+
+**How much the choice of UQ method costs, by question**, as the gap between the
+best and worst of the six at the top of each question's range:
+
+    attribution   35.5 pct      which material is biggest
+    action        31.0 pct      how often a specification cap applies
+    magnitude      4.9 pct      the building total as a distribution
+    information    2.2 pct      which material drives the uncertainty
+    comparison     0.8 pct      whether one design beats another
+
+**The two questions a designer acts on most directly -- what will the building
+be, and is this design better -- are the two the choice of method affects
+least.** The two it affects most are the two that involve ranking materials
+against each other, which is the reading this stage demotes.
+
 ## 1. The number this study HAS led with is the one its methods get most wrong
 
 For each candidate metric, take the distance between the answer a fitted model
@@ -204,10 +235,12 @@ quoted as though a method were unbiased on those metrics.
 > anything else. It just leans the same way every time, and that lean is what
 > accumulates.
 
-## 4. The five statements, in the order the results section should take
+## 4. The five questions, with the numbers, in the order the results section should take
 
-Each is a statement a probabilistic LCA makes; the study reported one and a half
-of them.
+The order below is NOT the order of section 0, and the difference is
+deliberate: section 0 is how a reader thinks about a probabilistic LCA, and this
+is how the results read best -- the decision first, because the answer there is
+a null and a null is the strongest thing this stage has.
 
 1. **The comparison, which leads, because it is the decision a designer makes
    and the answer is a null.** Over 800 pairs of designs differing in one
@@ -504,6 +537,20 @@ because the function that computes every output has to compute it too.
 module, plus four edits inside existing cells: the two magnitude companions, the
 corrected cap normalization, and the retired target replaced.
 
+**ONE NEAR-MISS WORTH RECORDING, because it is the failure the project has a
+rule against.** The scratch script used to iterate the figures wrote its
+derived tables into a scratch directory whose entries are symlinks to the real
+results, so that the figures read production data while nothing is written to
+it. Writing a file through one of those symlinks follows it, and one derived
+table therefore landed in the real results directory and replaced the
+notebook's own. It was caught by a timestamp within the hour, restored from
+version control, and the scratch script now refuses to write to any path that
+resolves inside the results directory. **Nothing reached a commit and no
+published number moved**, and the mechanism is the same one the project's rule
+"the results directory is written by the notebooks and by nothing else" exists
+to prevent -- the rule held for the notebooks and said nothing about a scratch
+script's symlinks.
+
 **A SECOND PASS AFTER THE AUTHOR'S REVIEW added five things.** The scorecard of
 seventeen claims against all six methods, which is the figure the review asked
 for. A test of whether the win-share leader is a leader or a tie, which found
@@ -575,6 +622,7 @@ the corrected cap panels.
 | **THE WEIGHT MODEL, carried forward from the previous stage and still the largest open item.** The two halves of the study draw market-share weights by different rules -- a flat draw over individual declarations on the real categories, weights attached to the humps of the distribution on the synthetic ones -- so the weights are correlated with the carbon coefficients on one and independent of them on the other, which is the dimension the paper is built on. Measured decay with category size: **-0.397 on the real categories against -0.167 on the synthetic**, and above a thousand declarations the median effect is **0.0049 real against 0.0501 synthetic**, a factor of ten. **Nothing in this stage depends on it and no number here moved because of it.** The fix is one rule on both halves with a swept coherence parameter, controlling separately for how concentrated the shares are | 2h, first item |
 | The profile-likelihood guard sweep. **This stage adds a binding constraint on it:** the guard against a runaway tail is the only thing making the level metrics safe to report, so the tail term must stay in force and the fitted-model spread ratio must be reported at every value swept | 2h |
 | Drawing the sizes of the distribution's humps from a flat draw rather than at concentration 10; multiple weight realizations; the deduplicated variant; **and the pedigree matrix**, which is what connects this paper to the practice most readers use | 2h |
+| **THE MANUSCRIPT OWES A PARAGRAPH SAYING WHY THESE THREE FAMILIES AND NOT THE OTHERS**, and it is owed because the others are common rather than obscure. The lognormal is ecoinvent's default and is what a pedigree matrix produces, since a geometric standard deviation IS a lognormal parameterization; the normal is what a great deal of practice uses and is wrong for a strictly positive right-skewed quantity; a kernel estimate is the flexible alternative under test. Gamma was compared and is indistinguishable from the three-parameter lognormal out of sample. **Uniform, triangular and beta are excluded because of what they are for, not because of how they would score:** this paper compares ways of turning a SET of declarations into a distribution, and a uniform is specified from two numbers rather than fitted -- its maximum likelihood fit to n values is exactly the smallest and largest of them. Beta is for bounded quantities such as efficiencies, which an emission coefficient is not. Without that paragraph a reader will assume the three were chosen for convenience | manuscript |
 | **A UNIFORM AND A TRIANGULAR DISTRIBUTION, in the same arm as the pedigree matrix and for the same reason.** The author asked whether other shapes are worth comparing. They are not competitors HERE: this paper compares ways of turning a set of declarations into a distribution, and a uniform is not fitted to a dataset -- its maximum likelihood fit is exactly the smallest and largest value, discarding everything between -- so including it would be a straw man, and a straw man that flatters this paper's own method. But a uniform and a triangular are exactly what a practitioner reaches for when there is NO dataset, which is the situation the pedigree matrix is built for, and the yardstick that stage uses does not care how a model was built. Gamma is already settled: out of sample on the real categories it is indistinguishable from the three-parameter lognormal | 2h |
 | **AN OPTIONAL UPPER TRUNCATION OF EACH FITTED MODEL**, which would remove the thin-far-tail failure mode outright at the cost of one more assumption. Not implemented here because the lower bound at zero is external and needs no argument while an upper one does not have that anchor | 2h |
 | Every figure brought to the style guide; the figure manifest; the older figures still carry a Unicode minus. **The two figures added here follow the guide and pass its own clash detector** | 3 |
@@ -696,3 +744,13 @@ should name the metric it won on and show the interval.
 25. **Sweep a knob continuously before drawing it.** Three round decades drew as
     three points and hid the only interesting feature: that the criterion goes
     blind exactly at the top of its own grid, and not before.
+26. **A symlink is a write path, not just a read path.** A scratch directory of
+    symlinks into the results is a good way to let a figure read production
+    data and a direct route to overwriting it, because writing a file follows
+    the link. Guard the write, not the read.
+27. **Check a claim about the manuscript against the manuscript.** "The study
+    computes the uncertainty index and reports it nowhere" was carried forward
+    from an earlier stage and repeated here; the manuscript reports it in two
+    figure panels, defines it in the supplement and draws a conclusion from it.
+    The recommendation survived, but it changed from "introduce this" to
+    "promote this", which is a different instruction.
