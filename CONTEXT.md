@@ -1034,6 +1034,15 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_VisibleModes.csv` | NB1 | visible modes per dataset at scipy's default bandwidth and at the one the study fits |
 | `TABLE_VisibleModeSummary.csv` | NB1 | the share with one, two, three or more visible modes, at both bandwidths |
 
+**Figures added in Stage 2g:** `FIG_ClaimScorecard`, the seventeen claims by
+the six methods under the five questions, with a stacked bar separating the
+error every method makes from the error the choice of method adds; and
+`FIG_TailBlindSpot`, the continuous contamination sweep. A third,
+`FIG_MetricChoice`, was built and then cut in the same stage: it showed the same
+recovery error as a best-to-worst range, hid which method was which, and the
+scorecard says everything it said. Its unique content is the grey half of the
+scorecard's bar.
+
 **Figures added in Stage 2f:** `FIG_CharacteristicSurvivors_Empirical` and
 `_Synthetic`, which are what the 21-panel characteristic figure becomes;
 `FIG_MarginalVersusPartial`, the marginal view above the multivariate one,
@@ -1117,7 +1126,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_CapReductionNormalization.csv` | NB3 | the two sums of the corrected cap rank frequencies, which are now both quantities |
 | `TABLE_CapReductionByMethod.csv` | NB3 | how often the cap binds under each method, which the old constant divisor forced to 0.25 |
 | `TABLE_FiveStatements.csv` | NB3 | **the results section in order.** The five statements a pLCA makes, each with the truth and the span across the six methods, assembled from the tables already on disk |
-| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** Seventeen claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks -- what is the total, which material contributes most, which material drives the uncertainty, how well does a reduction strategy work, is this design better -- each an absolute error against the truth for all six methods. `excess` is how much worse than the best method on that row in units of an explicit scale for the row, `stakes` is the largest excess in the row, and `methods_differ` is false where the six agree to within a thousandth of that scale. **The scale is never the best method's error**: dividing by that returned stakes of 6,508 percent on a row whose best method was almost exactly right |
+| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** Seventeen claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks -- what is the building total, which material contributes most and how often, which material drives the uncertainty, how effective is a reduction strategy, is this design better -- each an absolute error against the truth for all six methods. `excess` is how much worse than the best method on that row in units of an explicit scale for the row, `best_error` is what the BEST method still gets wrong in the same units, `stakes` is the largest excess in the row, and `methods_differ` is false where the six agree to within a thousandth of the scale. **The scale is never the best method's error**: dividing by that returned stakes of 6,508 percent on a row whose best method was almost exactly right |
 | `TABLE_MetricConclusions.csv` | NB3 | whether the paper's existing claims survive the companion metrics: the method ordering under each, how much worse the normal is, and how far the four non-normal methods span |
 | `TABLE_MetricWinLeaders.csv` | NB3 | whether each metric's win-share leader is separated from the runner-up or tied with it. On two of seven it is tied |
 | `TABLE_CapApplicabilityVsTruth.csv` | NB3 | how often each method finds the specification cap binding, against how often it really does. Only the two lognormals are indistinguishable from the truth |
