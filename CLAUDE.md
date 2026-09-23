@@ -2435,6 +2435,13 @@ rather than in conversation.
      TO TOTAL VARIANCE moves least, so **"where should I collect better data" is
      the most robust output a probabilistic LCA produces**, more robust than any
      magnitude it reports. The study computes it as `ui` and reports it nowhere.
+     **CORRECTED 2026-09-22, Stage 2g: "reports it nowhere" IS FALSE.** The
+     manuscript reports the uncertainty index in Figure 5b and 5d, defines it in
+     Supplement 3(c) and draws a conclusion from it in the results and in the
+     conclusions. What is true is that it is reported as a secondary observation
+     about NRMSE rather than as one of the questions a probabilistic LCA
+     answers, so the instruction is to PROMOTE it, not to introduce it. Decision
+     146, discrepancy entry 145.
      Discrepancy entry 95.
 
 104. **2026-09-17, Stage 2d review. The location share is NOT universal, and
@@ -2812,6 +2819,10 @@ rather than in conversation.
 
      **What it does to WHERE THE UNCERTAINTY SITS.** The uncertainty index,
      which is the most stable output measured and is reported nowhere.
+     **THAT LAST CLAUSE IS FALSE and is corrected by decision 146**: the
+     manuscript reports it in two panels of Figure 5, defines it in the
+     supplement, and concludes from it that the methods give similar uncertainty
+     indices. It is under-reported, not unreported.
 
      **What it does to THE DECISION.** The two interventions with their
      confidence, and the design swap, which is the comparison this study had
@@ -4153,10 +4164,10 @@ rather than in conversation.
      0.5035 [0.4918, 0.5158] here -- and it is only half of what a metric has to
      answer for.
 
-     **FIRST, A CORRECTION TO STAGE 2e THAT THIS STAGE REPEATED BEFORE CHECKING.
-     Decision 114 and the Stage 2e handoff both say the uncertainty index
-     "appears in no table, figure or section" and is "reported nowhere". THAT IS
-     FALSE and the author caught it.** The manuscript reports it in Figure 5b
+     **FIRST, A CORRECTION TO AN EARLIER CLAIM THAT THIS STAGE REPEATED BEFORE
+     CHECKING. It originates in Stage 2d's decision 103 -- "the study computes it
+     as `ui` and reports it nowhere" -- and is repeated in Stage 2e's decision
+     114 and in discrepancy entry 95. THAT IS FALSE and the author caught it.** The manuscript reports it in Figure 5b
      and 5d, defines it in Supplement 3(c), and draws a conclusion from it in as
      many words: "The NRMSE for the uncertainty index is much smaller than that
      for the ECI Rank #1 Frequency, indicating that different UQ methods result

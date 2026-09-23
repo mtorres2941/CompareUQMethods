@@ -277,9 +277,10 @@ a null and a null is the strongest thing this stage has.
 
 ## 5. The steadiest number a probabilistic LCA produces deserves promoting, and no method gets it right
 
-**A correction first, because the previous stage got this wrong and this one
-repeated it.** Two earlier records said the uncertainty index "appears in no
-table, figure or section" and is "reported nowhere". **That is false.** The
+**A correction first, because two earlier stages got this wrong and this one
+repeated it.** The claim originates three stages back and was carried forward
+twice: that the uncertainty index "appears in no table, figure or section" and
+is "reported nowhere". **That is false.** The
 manuscript reports it in two panels of Figure 5, defines it in the supplement,
 and draws a conclusion from it in as many words -- that the methods give similar
 uncertainty indices. What is true is narrower: it is reported as a secondary
