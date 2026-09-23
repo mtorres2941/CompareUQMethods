@@ -8,7 +8,7 @@ therefore stated in full where it is made, and a trailing `decision N` or
 `entry N` is a citation into the project's decision log or its manuscript
 discrepancy log, never the substance of the sentence. Where a file has to be
 opened, the instruction is addressed to the NEXT CLAUDE CODE SESSION and says
-so. The three figures are embedded and their captions carry the numbers, so a
+so. The two figures are embedded and their captions carry the numbers, so a
 reader whose copy does not render the images loses nothing.
 
 ---
@@ -31,11 +31,16 @@ for a reader who builds buildings rather than statistical models.
 Every result in this study belongs to one of five, and the paper should be
 organized by them. In a designer's words:
 
-    what is the building's total embodied carbon?          magnitude
-    which materials contribute most to it?                 attribution
-    which materials contribute most to the UNCERTAINTY?    information
-    how effective is a reduction strategy?                 action
-    is this design better than that one?                   comparison
+    what is the building's total embodied carbon?             magnitude
+    which materials contribute most, and how often?           attribution
+    which materials contribute most to the UNCERTAINTY?       information
+    how effective is a reduction strategy?                    action
+    is this design better than that one?                      comparison
+
+The second is deliberately two things in one question, and it is the right
+grouping: "which material is biggest" and "how often is it biggest" are the
+same attribution question asked as a point estimate and as a probability, and
+the study reports six numbers that sit somewhere between them.
 
 **That frame is what makes this stage's main finding legible.** "Which material
 is the largest contributor" is one of six numbers inside ONE of the five
@@ -44,13 +49,14 @@ And the uncertainty index is the whole of the third question rather than a
 footnote to the second.
 
 **How much the choice of UQ method costs, by question**, as the gap between the
-best and worst of the six at the top of each question's range:
+best and worst of the six on the claim that costs most in each, in percent of
+the size of the claim itself:
 
-    attribution   35.5 pct      which material is biggest
-    action        31.0 pct      how often a specification cap applies
-    magnitude      4.9 pct      the building total as a distribution
-    information    2.2 pct      which material drives the uncertainty
-    comparison     0.8 pct      whether one design beats another
+    attribution   35.5 pct   a material's chance of being the largest
+    action        30.6 pct   a specification cap's chance of saving 5 pct
+    magnitude      4.9 pct   the building total, as a whole distribution
+    information    2.2 pct   the uncertainty index
+    comparison     0.8 pct   the probability one design beats another
 
 **The two questions a designer acts on most directly -- what will the building
 be, and is this design better -- are the two the choice of method affects
@@ -59,25 +65,45 @@ against each other, which is the reading this stage demotes.
 
 ## 1. The number this study HAS led with is the one its methods get most wrong
 
-For each candidate metric, take the distance between the answer a fitted model
-gives and the answer the true distribution gives, and divide it by how much that
-metric actually varies between materials. Below 1 the error is smaller than the
-differences the number exists to show. At or above 1 it is not, and the number
-cannot tell two materials apart at all.
+**THE MEASUREMENT, in plain terms, because it is the statistic the whole stage
+rests on.** Every synthetic dataset was drawn from a distribution this study
+knows, so the same probabilistic LCA can be run twice on the same random draws:
+once with the fitted models and once with those true distributions. The second
+run is the right answer. For each number the study reports about a material --
+what it contributes, how uncertain that is, its chance of being largest, and so
+on -- take the typical gap between the two runs.
 
-    metric                                     best method to worst
-    spread of a material's contribution            0.42 to 0.50
-    the 95th percentile of its contribution        0.45 to 0.51
-    its estimated contribution                     0.51 to 0.71
-    the uncertainty index                          0.51 to 0.53
-    its share at the BUILDING's 95th percentile    0.61 to 0.69
-    its mean share of the building total           0.66 to 0.88
-    ITS CHANCE OF BEING THE LARGEST CONTRIBUTOR    0.72 to 1.07
+**A raw gap is not comparable between one number and another**, because a
+contribution is about 1.0 and a chance of being largest is about 0.25. So the
+gap is divided by **how much that number genuinely varies from one material to
+the next**, which is the signal the number exists to carry. If material A really
+contributes 1.3 and material B really contributes 0.8, the difference between
+them is what a reader is trying to see; the question is how the error compares
+with it.
+
+    0.4   the typical error is four tenths of the real spread between
+          materials. A reader can still tell materials apart.
+    1.0   the error is as large as the whole real spread between materials.
+          The number carries no usable information about which is which.
+
+Lower is better, and it is an error against the TRUTH -- not a comparison with
+the other methods, which is the separate reading in the figures below.
+
+    number the study reports about a material    best method to worst
+    its standard deviation                           0.42 to 0.50
+    its 95th percentile                              0.45 to 0.51
+    its mean contribution                            0.51 to 0.71
+    the uncertainty index                            0.51 to 0.53
+    its share when the building is at its 95th       0.61 to 0.69
+    its mean share of the building total             0.66 to 0.88
+    ITS CHANCE OF BEING THE LARGEST CONTRIBUTOR      0.72 to 1.07
 
 **The study's own headline is last on both ends, and under a normal fit it goes
-past 1.0** -- 1.037 with equal weights and 1.074 with market-share weights. On
-that metric a normal fit's error is larger than the entire spread of true values
-across materials.
+past 1.0** -- 1.037 with equal weights and 1.074 with market-share weights. So
+with a normal fit, the error in a material's chance of being the largest
+contributor is larger than the entire real spread of that number across
+materials: the ranking it produces carries no information about which material
+is which.
 
 **AND IT IS NOT ONE METHOD'S PROBLEM: the chance of being largest is the
 worst-recovered of the seven for EVERY ONE of the six methods**, without
@@ -141,10 +167,10 @@ statement among five, quoted with its noise floor**, because it is what the
 manuscript currently reports and because readers will look for it. It is not the
 frame.
 
-**Why the pair and not a single number.** The two are not substitutes. The
-kernel estimate with market-share weights is the best of the six at the spread
-of a material's contribution; the lognormal with market-share weights is the
-best at its estimated contribution. A paper that reports only one of the two
+**Why the pair and not a single number.** The two are not substitutes, and no
+one method is best at both: the kernel estimate with market-share weights is the
+best of the six at a material's standard deviation, and the lognormal with
+market-share weights is the best at its mean contribution. A paper that reports only one of the two
 gives a reader no way to tell a material that is big from one that is uncertain,
 and those call for different actions: the first is a design problem and the
 second is a data-collection problem.
@@ -154,86 +180,70 @@ second is a data-collection problem.
 > "Which material is biggest" is a summary of the first two and is the least
 > reliable thing on the page.
 
-## 2. No way of describing uncertainty is best for every claim
+## 2. No UQ method is best for every claim, and the best one changes
 
-Seventeen claims a probabilistic LCA makes, scored for all six methods against
-the truth, is the figure below. The summary:
+"Way of describing uncertainty" was the wrong phrase and is dropped: what the
+study compares is six **UQ methods** -- three shapes (kernel estimate,
+three-parameter lognormal, normal) crossed with two weighting schemes (equal,
+market-share). The claim is about those six, not about how a result is written
+up.
 
-**The most successful single method is best on 6 of the 16 claims where the
-methods differ at all, and four of the six are best on something.** The
-lognormal with equal weights takes 6, the lognormal with market-share weights 5,
-the kernel estimate with market-share weights 4, and the kernel estimate with
-equal weights 1.
+Seventeen claims a probabilistic LCA makes, scored for all six against the
+truth, is Figure B below. Three things come out of it.
 
-**How much the choice costs varies by a factor of forty across the claims.** At
-the top, a material's chance of being largest (35.5 percent between the best and
-worst method), how often a specification cap applies (31.0) and the cap's chance
-of delivering 5 percent (30.6). At the bottom, the building total's 90th
-percentile (1.1), whether one design beats another (0.8) and what a quantity
-reduction saves, where the six agree to four decimal places and the choice costs
-**nothing at all**.
+**No single method is best everywhere.** The strongest is best on 6 of the 16
+claims where the six differ at all, and four of the six are best on something:
+the lognormal with equal weights takes 6, the lognormal with market-share
+weights 5, the kernel estimate with market-share weights 4, the kernel estimate
+with equal weights 1. **Neither normal fit is ever first.**
 
-**And which method looks best changes with the metric, though less than an
-earlier version of this stage claimed.** On a win share against the truth, five
-of the seven per-material metrics have a leader whose bootstrap interval clears
-the runner-up's: the kernel estimate with market-share weights leads on the
-chance of being largest (0.221), the 95th percentile (0.258) and the spread
-(0.296); the lognormal with market-share weights leads on the estimated
-contribution (0.236) and the mean share (0.215). **On the other two no method
-separates at all** -- a three-way tie on the share at the building's 95th
-percentile and a two-way tie on the uncertainty index, where the top two are
-0.2091 [0.1995, 0.2187] and 0.2082 [0.1993, 0.2177].
+**How much the choice costs varies by a factor of forty across the claims**, from
+35.5 percent of the claim's own size on a material's chance of being largest,
+down to 0.8 percent on whether one design beats another, and to nothing at all
+on what a quantity reduction saves.
 
-**AN EARLIER VERSION OF THIS PAGE SAID "THREE DIFFERENT METHODS LEAD" AND THAT
-COUNTED A TIE AS A LEAD.** The third was the uncertainty index's, whose margin
-is 0.0009 on intervals about 0.019 wide. Two methods lead where a leader can be
-named.
+**And most of the error is there whatever you choose.** On a material's chance
+of being largest the worst method's total error is 107 percent of the spread
+between materials, of which 72 is there under the best method too and 35 is what
+the choice adds. On how often a specification cap binds the split is the other
+way: almost all of the error is the choice. That contrast is the second panel of
+Figure B and it is the thing a reader should take from it -- for most claims,
+picking a better method helps at the margin and does not rescue the answer.
 
-The ordering of the six is still not stable across metrics: its rank correlation
-with the ordering the chance of being largest gives runs from **+1.00** down to
-**-0.54**, and it is NEGATIVE on three of the six companions -- the 95th
-percentile (-0.26), the share at the building's 95th (-0.31) and the uncertainty
-index (-0.54).
-
-> **So what.** There is no single best way to describe uncertainty; there is a
-> best way for the statement you are making. A paper that reports one number and
-> names a winner is reporting the number. And where two methods are within each
-> other's error bars, the honest answer is that they are tied.
+> **So what.** There is no method you can adopt once and stop thinking about,
+> and for most of what a probabilistic LCA says, switching method moves you a
+> little closer to the truth rather than to it.
 
 ## 3. "Never use a normal distribution" is about attribution, not about everything
 
-How much worse the better of the two normal fits is than the best of the four
-non-normal methods:
+Neither normal fit is ever the best method on any of the seventeen claims, and
+on the attribution claims it is the worst by a distance -- 35.5 percent of the
+claim's size behind the best on a material's chance of being largest, 22.1 on
+its share of the total, 20.3 on its mean contribution. **On three claims it is
+within 5 percent of the best and is not the worst method**: a material's 95th
+percentile, its share when the building is at its 95th, and the uncertainty
+index. Figure B shows all six methods on all seventeen; the earlier version of
+this section reduced that to a column saying only whether the normal was worst,
+which threw away everything a reader would want.
 
-    a material's chance of being largest      44.2 pct    normal is worst
-    its estimated contribution                36.5 pct    normal is worst
-    its mean share of the total               27.6 pct    normal is worst
-    the spread of its contribution            17.9 pct    normal is worst
-    the 95th percentile of its contribution    4.4 pct    normal is NOT worst
-    its share at the building's 95th pct       2.8 pct    normal is NOT worst
-    the uncertainty index                      1.0 pct    normal is NOT worst
+**What survives every claim is the BIAS, and that is the part that matters for a
+whole building.** On the three numbers where a signed error means something --
+a material's mean contribution, its 95th percentile, its standard deviation --
+the normal is the most biased of the six on all three, by **+0.21, -0.26 and
+-0.44** in units of the spread between materials, against the kernel estimate's
++0.01, -0.11 and -0.22. Bias adds across the materials of a building while
+random error cancels, so a method that leans is a worse problem at building
+scale than one that is merely imprecise.
 
-**On three of the seven the normal is not the worst method and is within four
-percent of the best.**
-
-**What does survive every metric is the BIAS, and that is the part that matters
-for a whole building.** On the three metrics where a signed error means
-something, the normal is the most biased of the six on all three -- **+0.21,
--0.26 and -0.44** in units of the metric's own spread, against the kernel
-estimate's +0.01, -0.11 and -0.22. Bias adds across the materials of a building
-while random error cancels.
-
-**One warning about reading that column.** On a share or a rank frequency the
-signed error is identically zero for every method, because the four values sum
-to one. That is arithmetic, not evidence of unbiasedness, and it must not be
-quoted as though a method were unbiased on those metrics.
+**One warning about reading that.** On a share or a rank frequency the signed
+error is identically zero for every method, because the four values sum to one.
+That is arithmetic, not evidence of unbiasedness.
 
 > **So what.** The advice to stop fitting normal curves stands where it was
 > made: for saying which material dominates, and for anything a building total
 > is added up from. For describing the high end of a single material, or for
 > deciding where to collect better data, a normal is about as accurate as
-> anything else. It just leans the same way every time, and that lean is what
-> accumulates.
+> anything else -- it just leans the same way every time.
 
 ## 4. The five questions, with the numbers, in the order the results section should take
 
@@ -404,12 +414,22 @@ with equal weights -- a method that puts more mass above the cap finds the cap
 binding more often. The old fudge factor forced that number to 0.25 for every
 material and every method.
 
-**WHICH MEANS IT CAN NOW BE SCORED AGAINST THE TRUTH, AND TWO METHODS GET IT
-RIGHT.** The true distributions say a cap helps in **0.279** of iterations. The
-lognormal with equal weights says 0.277 and the lognormal with market-share
-weights 0.282 -- both indistinguishable from the truth, their bootstrap
-intervals straddling zero error. The kernel estimate is high by 0.012 and 0.020,
-and **the normal is high by 0.088, which is 31 percent too often.**
+**BUT APPLICABILITY IS A DIAGNOSTIC, NOT THE DELIVERABLE, and the paper should
+lead with the effectiveness.** What a reader wants from a specification cap is
+what it saves and how likely it is to: against a true mean saving of **5.39
+percent** of the building the six report 4.88 to 6.19, and asked for the chance
+of achieving at least 5 percent the truth is **23.2** percent while the six span
+**22.9 to 30.5**. That is the claim, and it is the one quoted in the cost table
+at the top of this file.
+
+**Applicability earns its place as the MECHANISM behind that spread**, and it
+can now be scored against the truth, which the constant divisor made impossible.
+The true distributions say a cap helps in **0.279** of iterations. The lognormal
+with equal weights says 0.277 and with market-share weights 0.282 -- both
+indistinguishable from the truth, their bootstrap intervals straddling zero
+error. The kernel estimate is high by 0.012 and 0.020, and **the normal is high
+by 0.088, which is 31 percent too often** -- which is why it also overstates
+what the strategy delivers.
 
 That ordering is the reverse of the one on a material's chance of being largest,
 where the kernel estimate with market-share weights leads. The lognormal's
@@ -423,71 +443,60 @@ estimate's is following the body of the data.
 
 ---
 
-## The three figures
+## The two figures
 
-![What to lead with](../outputs/figures/CompareUQMethods_FIG_MetricChoice.png)
+![Every claim a probabilistic LCA makes, scored for all six UQ methods](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
 
-**Figure A: lead with how much a material contributes and how uncertain that is
--- not with its chance of being the largest contributor, which is the one its
-methods recover worst.** For each of seven numbers a probabilistic LCA reports
-about a material, a bar from the best of the six methods to the worst, measured
-as the error against the true distribution divided by how much that number
-varies between materials. The grey rule at 1.0 is where a method's error is as
-large as the whole spread the number exists to reveal: **only the chance of
-being largest crosses it**, reaching 1.07 under a normal fit. The two in orange
-are the recommendation -- what a material contributes (0.51 to 0.71) and how
-uncertain that is (**0.42 to 0.50**, the best of the seven).
+**Figure B: no UQ method is best for every claim a probabilistic LCA makes.**
+Seventeen claims, grouped under the five questions, each scored for all six
+methods as an absolute error against the true distributions.
 
-![Every claim a probabilistic LCA makes, scored for all six methods](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
+**Left panel:** each cell is how much worse that method is than the best method
+on that row, as a percentage of the size of the thing being claimed. Zero is
+the best method and its cell is boxed. One shared colour scale across the whole
+panel, so 35.5 really is darker than 8.0 -- an earlier version normalized each
+row to itself and made those two the same shade. **The boxes move around**: the
+lognormal with equal weights is best on 6 of the 16 claims where the six differ
+at all, the lognormal with market-share weights on 5, the kernel estimate with
+market-share weights on 4, the kernel estimate with equal weights on 1.
+**Neither normal fit is ever boxed**, and on the attribution rows it is 18 to 36
+percent behind.
 
-**Figure B: no way of describing uncertainty is best for every claim a
-probabilistic LCA makes.** Seventeen claims, grouped under the five questions a
-reader actually asks, each scored for all six methods as an absolute error
-against the true distributions. **Left:** each cell is how much worse that
-method is than the best method on that row, in percent of the size of the thing
-being claimed -- so 0 is the best method, and a reader can see at a glance
-whether second place is a hair behind or twice as wrong. **The strongest single
-method is best on 6 of the 16 claims where the six differ at all, and four of
-the six are best on something**: the lognormal with equal weights takes 6, the
-lognormal with market-share weights 5, the kernel estimate with market-share
-weights 4, the kernel estimate with equal weights 1. **Neither normal fit is
-ever first**, and both are worst or next to worst on almost every row.
-**Right:** how far apart the best and worst methods are on that claim, against
-the size of the claim. It runs from **35.5 percent** on a material's chance of
-being largest and **31.0** on how often a specification cap applies, down to
-**0.8 percent** on whether one design beats another, and to **nothing at all**
-on what using 25 percent less of a material saves, where the six agree to four
-decimal places because that intervention is a deterministic fraction of the
-material's own contribution. That row is drawn blank rather than shaded,
-because ranking six identical numbers invites exactly the misreading this stage
-had to correct elsewhere.
+**Right panel, and it is the half that keeps the left honest:** the worst
+method's TOTAL error, split into what the best method still gets wrong (grey)
+and what the choice of method adds (orange). Without it a claim where every
+method is badly wrong looks the same as one where every method is right. On a
+material's chance of being the largest contributor the total is **107** percent
+of the spread between materials, of which **72 is there under the best method
+too**; on how often a specification cap binds it is **31** percent and almost
+all of it is the choice. **So for most claims a better method moves you closer
+to the truth rather than to it.**
 
-**Read down the five questions and the whole stage is in the figure**: the two
-questions a designer acts on most directly -- what will the building be, is
-this design better -- are the two the choice of method affects least; the two
-it affects most are the two that rank materials against each other; the
-uncertainty index is its own question and the methods nearly agree about it;
-and one intervention needs no distribution at all.
+![The tail the criterion cannot see, and the numbers that survive it](../outputs/figures/CompareUQMethods_FIG_TailBlindSpot.png)
 
-![The tail the criterion cannot see, and the metrics that survive it](../outputs/figures/CompareUQMethods_FIG_TailBlindSpot.png)
+**Figure C: a goodness-of-fit score charges for the mass a model misplaces, not
+for how far out it puts it.** One material of a real probabilistic LCA has a
+thousandth of its fitted model's mass moved out to each of 25 distances from 1
+to 3,000 times the dataset mean; everything else is held. The grey rule is the
+top of the evaluation grid, at **9.9 times the mean**.
 
-**Figure C: the goodness-of-fit score charges for the mass a model misplaces,
-not for how far out it puts it, and a share survives that while a level does
-not.** One material of a real probabilistic LCA has a thousandth of its fitted
-model's mass moved out to each of 25 distances from 1 to 3,000 times the dataset
-mean; everything else is held. The grey rule marks the top of the evaluation
-grid, at **9.9 times the mean**, which is where the blindness begins and is the
-reason the sweep starts inside the data. **Left:** taken over the grid alone the
-score is flat past that rule -- **the same number, 0.262571, at all 16 distances
-beyond it**, against an uncontaminated 0.254474 -- while with the tail
-correction added two stages ago it climbs to **3.27**. **Right:** what the same
-contamination does to each reported number, on a logarithmic scale. In orange,
-the shares and the rank frequency are flat beyond the rule: a share saturates,
-because once a material's draw is enormous it holds all of it. In grey, the
-spread of a material's contribution moves by a factor of **517** over the same
-range, the uncertainty index by 1.5 and the estimated contribution by 2.0. The
-95th percentile of a material's own contribution is flat here only because the
-contamination is thinner than 5 percent of the mass; above that it moves too.
+**Left:** scored over the grid alone the criterion is flat past that rule --
+**the same number, 0.262571, at all 16 distances beyond it**, against an
+uncontaminated 0.254474. With the tail correction added two stages ago it climbs
+to **3.27**. **Right:** what the same contamination does to each number the
+study reports about a material. Beyond the rule the shares and the rank
+frequency stop moving entirely, because a share is bounded in [0, 1] and
+saturates; a material's standard deviation moves by a factor of **517** over the
+same range, the uncertainty index by 1.5 and its mean contribution by 2.0. The
+95th percentile is flat here only because the contamination is thinner than 5
+percent of the mass.
+
+**A THIRD FIGURE WAS CUT.** It showed the same recovery error as a range from
+the best method to the worst, with the metric names on one axis; it hid which
+method was which, its labels were vague, and the scorecard above says everything
+it said and more. Its one unique content -- the absolute size of the error, and
+that the chance of being largest is the only number whose error exceeds the
+spread it has to reveal -- is now the grey half of Figure B's right panel.
 
 ---
 
