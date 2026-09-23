@@ -4281,32 +4281,34 @@ rather than in conversation.
 
      **W1 TAKEN OVER THE SCORING GRID ALONE GOES BLIND THE MOMENT THE MASS
      LEAVES THE GRID, AND THE GRID ENDS JUST PAST THE DATA.** Its top is
-     `max(x) + 10 sd`, which on a dataset normalized to a mean of 1.0 is of
-     order ten times the mean. At a thousandth of the mass the body score reads
-     **0.262242 at ten times the mean, 0.262571 at a hundred and 0.262571 at a
-     thousand**, against an uncontaminated 0.254474. The first two differ by
-     0.13 percent because at ten times the mean part of the contamination is
-     still inside the grid; **the second and third are the same number to six
-     decimal places, so beyond the grid the criterion cannot tell a hundred
-     times the mean from a thousand at all.** With the tail term the same three
-     read **0.262718, 0.353166 and 1.257643**, rising with the distance as they
-     must.
+     `max(x) + 10 sd`, which on the group measured is **9.902 times the dataset
+     mean**. The distance is swept continuously over 25 log-spaced points from 1
+     to 3,000 times that mean, and at a thousandth of the mass **all 16 points
+     beyond the grid give the same body score, 0.262571, to the last digit**,
+     against an uncontaminated 0.254474. Inside the grid it does move, so it is
+     charging for the contamination it can see and for nothing further. **With
+     the tail term the same 16 points run from 0.2729 to 3.268, a factor of
+     twelve.**
+
+     An earlier version of this entry reported three round decades, which could
+     not show WHERE the blindness starts and made it look like a property of
+     large distances rather than of the grid's own edge.
 
      **AND THE METRICS SPLIT BY WHETHER THEY HAVE A CEILING.** Relative change
-     under the same contamination, at ten times the mean and at a thousand:
+     over the 17 distances beyond the grid, first to last:
 
-         spread of a material's contribution   0.047 -> 34.3
-         the uncertainty index                 0.051 ->  1.45
-         its estimated contribution            0.006 ->  0.66
-         its share at the building's 95th      0.0082 -> 0.0082
-         its mean share of the total           0.0017 -> 0.0024
-         its chance of leading                 0.0013 -> 0.0013
+         spread of a material's contribution   0.203   -> 104.8
+         the uncertainty index                 0.215   ->   1.46
+         its estimated contribution            0.013   ->   1.99
+         its share at the building's 95th      0.00823 ->   0.00823
+         its mean share of the total           0.00203 ->   0.00246
+         its chance of leading                 0.00129 ->   0.00129
 
      **A share and a rank frequency saturate: once a material's draw is enormous
-     it holds the whole share and takes rank one, and making it a thousand times
-     more enormous changes neither to the last digit.** A mean, a standard
-     deviation and a variance share have no such ceiling; the spread moves by a
-     factor of 115 in the worst case measured.
+     it holds the whole share and takes rank one, and making it two hundred
+     times more enormous changes neither to the last digit.** A mean, a standard
+     deviation and a variance share have no such ceiling; the spread of a
+     material's contribution moves by a factor of 517 over that range.
 
      **THE CONSEQUENCE FOR THE RECOMMENDATION, and it is a tension rather than a
      clean answer.** The metrics that recover the truth BEST are levels, and

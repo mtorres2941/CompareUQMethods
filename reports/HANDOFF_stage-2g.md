@@ -281,29 +281,31 @@ misplaces; a Monte Carlo simulation samples from the model and is wrecked by how
 FAR out that mass sits. A model with a thin enormous tail would therefore score
 well and dominate any simulation it entered.
 
-Measured, by moving a thousandth of one fitted model's mass out to 10, 100 or
-1,000 times the dataset's mean and holding everything else: the score taken over
-the study's evaluation grid alone reads **0.262242, 0.262571 and 0.262571**. The
-grid ends just past the data, so **beyond it the criterion cannot tell a hundred
-times the mean from a thousand to six decimal places.** With the correction the
+Measured, by moving a thousandth of one fitted model's mass out to each of 25
+distances from 1 to 3,000 times the dataset's mean, holding the other three
+models, the random draws and the group: **the evaluation grid ends at 9.9 times
+the mean, and at all 16 distances beyond it the score taken over that grid alone
+is the same number -- 0.262571 -- to the last digit**, against an uncontaminated
+0.254474. It cannot tell 15 times the mean from 3,000. With the correction the
 previous-but-one stage added, which integrates the model's remaining tail
-analytically, the same three read **0.262718, 0.353166 and 1.257643**.
+analytically, the same 16 distances run from **0.2729 to 3.268**, a factor of
+twelve.
 
-**And the metrics split by whether they have a ceiling.** Relative change under
-the same contamination, at ten times the mean and at a thousand:
+**And the metrics split by whether they have a ceiling.** Relative change over
+those same 16 distances, from the first beyond the grid to the last:
 
-    spread of a material's contribution       0.047  ->  34.3
-    the uncertainty index                     0.051  ->   1.45
-    its estimated contribution                0.006  ->   0.66
-    its share at the building's 95th pct      0.0082 ->  0.0082
-    its mean share of the total               0.0017 ->  0.0024
-    its chance of being largest               0.0013 ->  0.0013
+    spread of a material's contribution      0.203   ->  104.8
+    the uncertainty index                    0.215   ->    1.46
+    its estimated contribution               0.013   ->    1.99
+    its share at the building's 95th pct     0.00823 ->    0.00823
+    its mean share of the total              0.00203 ->    0.00246
+    its chance of being largest              0.00129 ->    0.00129
 
 A share and a rank frequency saturate: once a material's draw is enormous it
-holds the whole share and takes first place, and making it a thousand times more
-enormous changes neither to the last digit. A mean, a standard deviation and a
-variance share have no such ceiling; the spread moves by a factor of 115 in the
-worst case measured.
+holds the whole share and takes first place, and making it two hundred times
+more enormous changes neither to the last digit. A mean, a standard deviation
+and a variance share have no such ceiling; the spread of a material's
+contribution moves by a factor of 517 over the same range.
 
 **This creates a tension the paper has to state rather than resolve.** The
 metrics that recover the truth best are levels, and levels are exactly what a
@@ -377,44 +379,71 @@ estimate's is following the body of the data.
 
 ---
 
-## The two figures
+## The three figures
 
 ![Which metric recovers the truth, and which method wins under each](../outputs/figures/CompareUQMethods_FIG_MetricChoice.png)
 
-**Figure A: the number this study leads with is the one its methods recover
-worst, and which method looks best depends on which number is reported.** Both
-panels share the same seven rows, so the comparison between them is positional.
-**Left:** for each metric, a bar from the best of the six methods to the worst,
-measured as the error against the true distribution divided by how much that
-metric varies between materials. A material's chance of being the largest
-contributor, in orange at the top, runs from **0.72 to 1.07**; the grey line at
-1.0 marks the point at which a method's error is as large as the whole spread
-the metric exists to reveal, and only that metric crosses it. The spread of a
-material's contribution is best at **0.42 to 0.50**. **Right:** the share of
-materials on which each method comes closest to the truth, six grey points per
-row with the leader in orange and named. **Three different methods lead across
-the seven rows** -- a kernel estimate with market-share weights on three, a
-lognormal with market-share weights on three, and a lognormal with equal weights
-on the uncertainty index -- against a chance level of one in six.
+**Figure A: lead with how much a material contributes and how uncertain that is
+-- not with its chance of being the largest contributor, which is the one its
+methods recover worst.** Both panels share the same seven rows, so the
+comparison between them is positional. **Left:** for each metric, a bar from the
+best of the six methods to the worst, measured as the error against the true
+distribution divided by how much that metric varies between materials. The
+chance of being largest, at the top, runs from **0.72 to 1.07**; the grey line
+at 1.0 marks where a method's error is as large as the whole spread the metric
+exists to reveal, and only that metric crosses it. The two in orange are the
+recommendation: a material's estimated contribution (0.51 to 0.71) and the
+spread of that contribution (**0.42 to 0.50**, the best of the seven).
+**Right:** the share of materials on which each method comes closest to the
+truth, six points per row, with the leader in orange and named **only where its
+bootstrap interval clears the runner-up's**. On five of the seven it does, and
+two distinct methods lead -- the kernel estimate with market-share weights on
+three, the lognormal with market-share weights on two. **On the other two the
+top methods are tied** and the panel draws the tie as open markers rather than
+picking one; an earlier version named a leader there and counted it as a third
+method.
+
+![Every claim a probabilistic LCA makes, scored for all six methods](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
+
+**Figure B: no way of describing uncertainty is best for every claim a
+probabilistic LCA makes.** Seventeen claims, grouped by the kind of statement
+they belong to, each scored for all six methods as an absolute error against
+the true distributions. **Left:** each cell is that method's rank on that claim,
+1 best of six, colored by how far it sits between the best and worst on that
+row. **The strongest single method is best on 6 of the 16 claims where the six
+differ at all, and four of the six are best on something** -- the lognormal with
+equal weights takes 6, the lognormal with market-share weights 5, the kernel
+estimate with market-share weights 4, the kernel estimate with equal weights 1.
+The two normal fits are 5th and 6th on almost every row and are never first.
+**Right:** how far apart the best and worst methods are on that claim, against
+the size of the thing being claimed. It runs from **35.5 percent** on a
+material's chance of being largest down to **0.8 percent** on whether one design
+beats another, and to **nothing at all** on what using 25 percent less of a
+material saves, where the six agree to four decimal places because that
+intervention is a deterministic fraction of the material's own contribution and
+no distributional assumption enters. That row is drawn gray and marked rather
+than ranked, because ranking six identical numbers would invite exactly the
+misreading the tied leaders in Figure A did.
 
 ![The tail the criterion cannot see, and the metrics that survive it](../outputs/figures/CompareUQMethods_FIG_TailBlindSpot.png)
 
-**Figure B: the goodness-of-fit score charges for the mass a model misplaces,
+**Figure C: the goodness-of-fit score charges for the mass a model misplaces,
 not for how far out it puts it, and a share survives that while a level does
 not.** One material of a real probabilistic LCA has a thousandth of its fitted
-model's mass moved out to 10, 100 or 1,000 times the dataset mean; everything
-else is held. **Left:** taken over the evaluation grid alone the score is flat
-at about **0.2626** whatever the distance, against an uncontaminated
-**0.2545** -- the grid ends just past the data, so beyond it the criterion
-cannot tell a hundred times the mean from a thousand. With the tail correction
-added two stages ago it rises to **1.258**. **Right:** what the same
+model's mass moved out to each of 25 distances from 1 to 3,000 times the dataset
+mean; everything else is held. The grey rule marks the top of the evaluation
+grid, at **9.9 times the mean**, which is where the blindness begins and is the
+reason the sweep starts inside the data. **Left:** taken over the grid alone the
+score is flat past that rule -- **the same number, 0.262571, at all 16 distances
+beyond it**, against an uncontaminated 0.254474 -- while with the tail
+correction added two stages ago it climbs to **3.27**. **Right:** what the same
 contamination does to each reported metric, on a logarithmic scale. In orange,
-the shares and the rank frequency are flat: a share saturates, because once a
-material's draw is enormous it holds all of it. In grey, the spread of a
-material's contribution moves by a factor of **34**, the uncertainty index by
-**1.45** and the estimated contribution by **0.66**. The 95th percentile of a
-material's own contribution is flat here only because the contamination is
-thinner than 5 percent of the mass; above that it moves too.
+the shares and the rank frequency are flat beyond the rule: a share saturates,
+because once a material's draw is enormous it holds all of it. In grey, the
+spread of a material's contribution moves by a factor of **517** over the same
+range, the uncertainty index by 1.5 and the estimated contribution by 2.0. The
+95th percentile of a material's own contribution is flat here only because the
+contamination is thinner than 5 percent of the mass; above that it moves too.
 
 ---
 
@@ -475,7 +504,7 @@ runaway tail the stress test simulates. And a continuous distance sweep for that
 stress test, replacing three round decades that drew as three points and could
 not show WHERE the criterion goes blind.
 
-**The whole test suite is 559 tests, 556 passing and 3 skipped**, including the eight
+**The whole test suite is 560 tests, 557 passing and 3 skipped**, including the eight
 regression fixtures that pin the dataset characteristics and all six
 goodness-of-fit scores. That is the check that the fitting, the corpus and the
 empirical arm were not touched.

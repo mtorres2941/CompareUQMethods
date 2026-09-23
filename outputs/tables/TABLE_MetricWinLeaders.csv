@@ -1,0 +1,8 @@
+output,leader,win_share,ci_lo,ci_hi,runner_up,runner_up_share,separated,n_tied_at_top,tied_at_top
+eci_mean,"Lognormal, Variable",0.2363,0.228,0.2443,"KDE, Variable",0.2069,True,1,"Lognormal, Variable"
+eci_p95,"KDE, Variable",0.2583,0.2498,0.2671,"KDE, Uniform",0.1939,True,1,"KDE, Variable"
+eci_perc_mean,"Lognormal, Variable",0.2147,0.2054,0.2245025,"Lognormal, Uniform",0.194,True,1,"Lognormal, Variable"
+eci_perc_p95tot,"Lognormal, Variable",0.1863,0.1778,0.19490249999999998,"KDE, Variable",0.1837,False,3,"Lognormal, Variable|KDE, Variable|Lognormal, Uniform"
+eci_rank_1,"KDE, Variable",0.2205706304868316,0.21189750000000002,0.2302,"Lognormal, Uniform",0.19134078212290503,True,1,"KDE, Variable"
+eci_std,"KDE, Variable",0.2958,0.2872,0.30460249999999994,"KDE, Uniform",0.2625,True,1,"KDE, Variable"
+ui,"Lognormal, Uniform",0.2091,0.1995,0.2187,"Lognormal, Variable",0.2082,False,2,"Lognormal, Uniform|Lognormal, Variable"
