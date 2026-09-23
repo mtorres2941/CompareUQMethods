@@ -487,7 +487,8 @@ materials, while a building total has a level of its own and is scaled by it.
 **What the cells say.** On attribution the best method is **71.9** percent of
 the between-material spread away from the truth on a material's chance of being
 largest, and the worst is **107.4** -- past the whole signal. On the building
-total the best is 8 to 15 percent off. On whether one design beats another the
+total the best method is 5.5 to 14.9 percent off, depending on which property
+of the total is being claimed. On whether one design beats another the
 best is **0.5** percent off and the worst 1.4. And on what using 25 percent less
 of a material saves, **every method is exactly right**, because that
 intervention is a deterministic fraction of the material's own contribution and
