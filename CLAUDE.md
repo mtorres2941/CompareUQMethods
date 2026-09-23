@@ -4148,10 +4148,27 @@ rather than in conversation.
 146. **2026-09-22, Stage 2g. THE UNCERTAINTY INDEX IS THE STEADIEST OUTPUT AND
      NO METHOD RECOVERS IT WELL, and reporting only the first half would be the
      most misleading thing this study could do.** `[AUTHOR]` Stage 2e
-     recommended adding it on the strength of its NRMSE between methods, 0.503
-     against 1.042 for a material's chance of leading. That holds -- it is
+     recommended promoting it on the strength of its NRMSE between methods,
+     0.503 against 1.042 for a material's chance of leading. That holds -- it is
      0.5035 [0.4918, 0.5158] here -- and it is only half of what a metric has to
      answer for.
+
+     **FIRST, A CORRECTION TO STAGE 2e THAT THIS STAGE REPEATED BEFORE CHECKING.
+     Decision 114 and the Stage 2e handoff both say the uncertainty index
+     "appears in no table, figure or section" and is "reported nowhere". THAT IS
+     FALSE and the author caught it.** The manuscript reports it in Figure 5b
+     and 5d, defines it in Supplement 3(c), and draws a conclusion from it in as
+     many words: "The NRMSE for the uncertainty index is much smaller than that
+     for the ECI Rank #1 Frequency, indicating that different UQ methods result
+     in similar uncertainty indices", and again in the conclusions, "pLCA
+     results related to the variance of total embodied carbon, such as the
+     uncertainty index, did not differ substantially between UQ methods."
+
+     **What is true is narrower and is still worth acting on.** It is reported
+     as a secondary observation about NRMSE rather than as one of the questions
+     a probabilistic LCA answers. The recommendation is to PROMOTE it to one of
+     the five headline categories -- "which material drives the uncertainty in
+     the total" -- not to introduce it. Discrepancy entry 145.
 
      **The other half: every one of the six methods is out by about half the
      spread between materials.** Recovery error 0.508 to 0.531, a span of 4.4

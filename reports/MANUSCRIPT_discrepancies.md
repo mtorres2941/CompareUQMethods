@@ -1896,3 +1896,23 @@ relative figure beside it.**
 | **Why truncation is not implemented** | Every model here is already truncated below at zero, and that bound is external and needs no argument. An upper bound has no equally external anchor: the physical ceiling this study applies to raw declarations is in their own units and every dataset is rescaled to an average of 1.0. Choosing a multiple is a modeling decision with numbers attached. |
 | **Fix** | **Text**, one sentence: a distance between cumulative curves cannot see how far out a model puts its rare values, this study charges for it with a tail term and watches it with the fitted-model spread ratio, and truncating each model at a plausible multiple of the largest observed value would remove the failure mode outright at the cost of one more assumption. **The sweep is Stage 2h's.** |
 | **Status** | Open, text. Decision 152. |
+
+## 145. CORRECTS an earlier stage: the uncertainty index is NOT "reported nowhere"
+
+| | |
+|---|---|
+| **What was claimed** | Stage 2e recorded, in its decision log and its handoff, that the uncertainty index "appears in no table, figure or section of this study" and is "reported nowhere". Stage 2g repeated it before checking. |
+| **What the manuscript actually does** | Reports it in **Figure 5b and Figure 5d**; defines it in **Supplement 3(c)**, including the formula; discusses it in the results -- "The NRMSE for the uncertainty index is much smaller than that for the ECI Rank #1 Frequency, indicating that different UQ methods result in similar uncertainty indices" -- and again in the conclusions: "pLCA results related to the variance of total embodied carbon, such as the uncertainty index, did not differ substantially between UQ methods." |
+| **What IS true, and is the thing worth acting on** | It is reported as a secondary observation about how far apart the methods are, not as one of the questions a probabilistic LCA answers. **The recommendation is to PROMOTE it** to one of the five headline categories -- "which material drives the uncertainty in the total" -- with the finding Stage 2g adds beside it: the methods agree about it to within 4.4 percent of each other and every one of them is out by about half the metric's own between-material spread, and its argmax reading names the truth's answer 58.4 percent of the time against a one-in-four chance level, the best of the seven candidates. |
+| **Fix** | **Text.** Do not write "reported nowhere" anywhere. Promote the index from a sentence about NRMSE to a results subsection. |
+| **Status** | Correction recorded. Decision 146, correcting decision 114. |
+
+## 146. The five questions a probabilistic LCA answers, as the organizing frame
+
+| | |
+|---|---|
+| **The frame** | A probabilistic LCA answers five questions, and every result this study reports belongs to one of them: **what is the building's total embodied carbon** (magnitude); **which materials contribute most to it** (attribution); **which materials contribute most to the UNCERTAINTY in it** (information); **how effective is a reduction strategy** (action); and **is this design better than that one** (comparison). |
+| **Why it matters here** | It is the structure of the results section and of the claim scorecard, and it is what makes the demotion of the rank metric legible: "which material is biggest" is one of six numbers inside ONE of the five questions, not the study's subject. It also puts the uncertainty index where it belongs -- as the whole of the third question rather than as a footnote to the second. |
+| **What the choice of method costs, by question** | Attribution 35.5 percent between the best and worst method at the top of its range, action 31.0, magnitude 4.9, information 2.2, comparison 0.8. **The two questions a designer acts on most directly -- what will the building be, and is this design better -- are the two the choice of method affects least.** |
+| **Fix** | **Text and structure.** Use the five questions as the results section's headings. |
+| **Status** | Open, structural. Decision 114 established the five; this is the evidence for using them as the frame. |

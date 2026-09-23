@@ -26,7 +26,7 @@ that is a different and better question.
 Each claim below carries the number behind it and a plain-language **so what**
 for a reader who builds buildings rather than statistical models.
 
-## 1. The number this study leads with is the one its methods get most wrong
+## 1. The number this study HAS led with is the one its methods get most wrong
 
 For each candidate metric, take the distance between the answer a fitted model
 gives and the answer the true distribution gives, and divide it by how much that
@@ -242,7 +242,17 @@ of them.
 > low-carbon-specification policy will buy you is where the method you picked
 > shows up in the answer.
 
-## 5. The steadiest number a probabilistic LCA produces is reported nowhere, and no method gets it right
+## 5. The steadiest number a probabilistic LCA produces deserves promoting, and no method gets it right
+
+**A correction first, because the previous stage got this wrong and this one
+repeated it.** Two earlier records said the uncertainty index "appears in no
+table, figure or section" and is "reported nowhere". **That is false.** The
+manuscript reports it in two panels of Figure 5, defines it in the supplement,
+and draws a conclusion from it in as many words -- that the methods give similar
+uncertainty indices. What is true is narrower: it is reported as a secondary
+observation about how far apart the methods are, rather than as one of the five
+questions a probabilistic LCA answers. **The recommendation is to promote it,
+not to introduce it.**
 
 The uncertainty index -- which material's uncertainty drives the uncertainty in
 the whole building -- has the lowest disagreement between methods of any main
