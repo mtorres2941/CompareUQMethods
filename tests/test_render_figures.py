@@ -40,11 +40,14 @@ def test_sources_executed_are_byte_identical_to_the_notebook(path):
         pytest.skip(f"{path.name} has no setup cell")
     import re as _re
     cells = nb["cells"]
-    assert setup == "".join(cells[
-        next(i for i, c in enumerate(cells)
-             if c["cell_type"] == "code"
-             and _re.search(r"^OUT\s*=", "".join(c["source"]), _re.M))
-    ]["source"])
+    # The setup is every CODE cell up to and including the one defining OUT,
+    # concatenated: notebook 3 keeps its imports two cells above its output
+    # root, and taking only the OUT cell there executes figure code with no
+    # numpy in scope. Still the notebook's own bytes, in the notebook's order.
+    code = [c for c in cells if c["cell_type"] == "code"]
+    upto = next(j for j, c in enumerate(code)
+                if _re.search(r"^OUT\s*=", "".join(c["source"]), _re.M))
+    assert setup == ["".join(c["source"]) for c in code[:upto + 1]]
     for i, _title, src in figs:
         assert src == "".join(cells[i]["source"]), (
             f"{path.name} cell {i}: renderer would execute source that is not "
@@ -79,8 +82,17 @@ def test_configuration_is_not_mistaken_for_a_figure(tmp_path):
     p = tmp_path / "nb.ipynb"
     p.write_text(json.dumps(nb))
     setup, figs = RF.read_cells(p)
-    assert "rcParams" in setup
+    assert any("rcParams" in cell for cell in setup)
     assert [i for i, _t, _s in figs] == [1]
+
+
+def test_notebook_three_is_fully_marked():
+    """Marked 2026-09-23, so that iterating a figure costs seconds instead of
+    the 48-minute run that regenerates the tables underneath it. Eight cells
+    predated the convention; they draw figures the paper and supplement use."""
+    path = ROOT / "notebooks" / "03_CompareUQ_PerformPLCA.ipynb"
+    _setup, figs = RF.read_cells(path)
+    assert len(figs) >= 12
 
 
 def test_notebook_four_is_fully_marked():

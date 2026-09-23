@@ -1,10 +1,10 @@
 order,statement,quantity,truth,methods_lo,methods_hi,spread,note
-1,comparison: is option B an improvement,P(B beats A) at a claimed 0% saving,0.50507125,0.4989674999999999,0.504549,0.005581500000000128,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 1% saving,0.529310375,0.5248103749999999,0.531167875,0.006357500000000016,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 2% saving,0.5539766249999999,0.551176,0.55839225,0.007216250000000035,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 5% saving,0.629225,0.630027375,0.64196825,0.011940875000000073,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 10% saving,0.7536485,0.7589891249999999,0.7787594999999999,0.019770375000000007,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 20% saving,0.9533021250000001,0.957151,0.969222125,0.012071125000000071,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 0% saving,0.5016536400000001,0.50046916,0.5040673999999999,0.003598239999999975,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 1% saving,0.5273170399999999,0.52798648,0.53246412,0.0044776399999999494,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 2% saving,0.5532868400000001,0.55581468,0.5612295599999999,0.0054148799999999,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 5% saving,0.63044456,0.63805808,0.64690196,0.008843880000000026,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 10% saving,0.75490636,0.7664567999999999,0.78104728,0.014590480000000072,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 20% saving,0.95297652,0.95758352,0.96856992,0.010986399999999952,lo and hi are the six UQ methods
 2,attribution: how far a material must lead,top-two contribution ratio at a 1% chance of a flip,2.1326706242621674,2.0913342335566596,2.170950764802131,0.0796165312454713,lo and hi are the 95 percent bootstrap interval
 2,attribution: how far a material must lead,top-two contribution ratio at a 5% chance of a flip,1.643134603715142,1.62298450111661,1.6610247988108866,0.03804029769427664,lo and hi are the 95 percent bootstrap interval
 2,attribution: how far a material must lead,top-two contribution ratio at a 10% chance of a flip,1.460185141294423,1.4467802011036666,1.4719615318495725,0.025181330745905894,lo and hi are the 95 percent bootstrap interval

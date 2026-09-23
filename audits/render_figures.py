@@ -61,15 +61,30 @@ def read_cells(path):
     the stale ones would be committed alongside the fresh ones.
     """
     nb = json.load(open(path))
-    setup, figs, unmarked = None, [], []
+    setup, figs, unmarked, lead = None, [], [], []
     for i, c in enumerate(nb['cells']):
         if c['cell_type'] != 'code':
             continue
         src = ''.join(c['source'])
         head = src.lstrip().split('\n', 1)[0]
         marked = head.startswith(FIGURE_MARKERS)
-        if setup is None and re.search(r'^OUT\s*=', src, re.M):
-            setup = src
+        if setup is None:
+            # THE SETUP IS EVERY CODE CELL UP TO AND INCLUDING THE ONE THAT
+            # DEFINES `OUT`, executed ONE CELL AT A TIME in the notebook's own
+            # order. Notebook 4 puts its imports and its output root in one
+            # cell; notebook 3 does not -- its imports are two cells earlier --
+            # and taking only the `OUT` cell there gave a NameError on numpy
+            # before the first figure drew.
+            #
+            # A LIST AND NOT A CONCATENATION, because a cell whose source has
+            # no trailing newline runs fine in a notebook and glues onto the
+            # next one here: joining them produced `generate_dontread = False`
+            # followed immediately by `import sys` and a SyntaxError. Running
+            # each cell separately is what the notebook does anyway, and it
+            # keeps the bytes executed exactly the notebook's.
+            lead.append(src)
+            if re.search(r'^OUT\s*=', src, re.M):
+                setup = list(lead)
         if marked:
             figs.append((i, head.lstrip('# ').strip().rstrip('.'), src))
         elif SAVE_CALL in src:
@@ -128,7 +143,8 @@ def main(argv=None):
     matplotlib.use('Agg')
 
     g = {'__name__': '__main__'}
-    exec(compile(setup, 'setup', 'exec'), g)          # the notebook's imports
+    for j, cell in enumerate(setup):                   # the notebook's imports
+        exec(compile(cell, f'setup{j}', 'exec'), g)
     g['OUT'] = out                                     # ... redirected
     g['display'] = lambda *a, **k: None                # no rich display here
     for i, title, src in figs:

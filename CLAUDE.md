@@ -4643,6 +4643,27 @@ rather than in conversation.
      is stable, is defined on every row, and is what the magnitude and action
      rows were already computing.
 
+     **MEASURED 2026-09-23, after the author asked whether the natural per-pLCA
+     reading is what is computed. It is, on most rows, and the exception is the
+     reason for the choice.** Per method, `KDE, Uniform`:
+
+         claim                      ratio of means   mean of ratios   median of ratios
+         a material's contribution       12.63            12.88             6.23
+         its chance of being largest     32.60            53.04            24.99
+         the uncertainty index           45.04           134.81            40.57
+
+     On the magnitude claims the two forms agree to a couple of tenths, so the
+     author's reading of the figure is right there. On the uncertainty index
+     the mean of per-case ratios is 135 percent and its MEDIAN is 40.6, next to
+     the ratio of means at 45.0 -- which shows the 135 is a handful of
+     near-zero denominators rather than typical performance.
+
+     **AND IT MUST BE THE ABSOLUTE ERROR.** The mean SIGNED percentage
+     difference is exactly 0.00 for every share and every rank frequency,
+     because the four materials' values sum to one and the errors cancel by
+     construction. A signed reading would report the uncertainty index as
+     perfect.
+
      **`total_w1` IS DROPPED and the scorecard is 16 claims, not 17.** It is the
      Wasserstein distance between the method's building total and the truth's,
      so its true value is zero by definition and it has no level to be a
@@ -4686,3 +4707,354 @@ rather than in conversation.
      MASS a model misplaces and not for how far out it puts it.
      `CompareUQMethods_FIG_TailBlindSpot` is deleted, cell and PNG. **Decision
      149 is unchanged**; only its figure is gone.
+
+159. **2026-09-23, Stage 2g review. THE UNCERTAINTY INDEX IS BOTH THINGS AT
+     ONCE, AND THE EXPLANATION IS DATASET SIZE: nine tenths of each method's
+     error is an error ALL SIX make, and it is the error of estimating a
+     variance from a handful of declarations.** `[AUTHOR]` "For the uncertainty
+     index, the fact that the best is off by 43.6 percent doesn't make any
+     sense to me. I thought that was the most consistent value across UQ
+     methods -- why would they disagree so significantly but so similarly
+     against the parent distribution?" The two facts are not in tension and the
+     measurement says why.
+
+     **FIRST, WHAT THE TRUE VALUE LOOKS LIKE.** `ui_j` is
+     `Var(material j) / Var(total)`, a variance share, so its mean is 0.25 with
+     four materials by construction. It is NOT a stable number near 0.25: across
+     the 10,000 materials the TRUE value runs from **0.009 at the 10th
+     percentile to 0.558 at the 90th**, with a standard deviation of 0.214 and a
+     maximum of 0.984. So 43.6 percent of 0.25 is an absolute error of
+     **0.109** on a quantity that genuinely spans almost nothing to almost
+     everything.
+
+     **SECOND, THE ERROR IS SHARED RATHER THAN METHOD-SPECIFIC.** Decomposing
+     each method's error into the part common to all six and the residual:
+
+         method                mean |error|   shared part   method-specific
+         KDE, Uniform             0.1126        0.1017          0.0395
+         KDE, Variable            0.1089        0.1017          0.0380
+         Lognormal, Uniform       0.1137        0.1017          0.0540
+         Lognormal, Variable      0.1130        0.1017          0.0566
+         Normal, Uniform          0.1112        0.1017          0.0369
+         Normal, Variable         0.1100        0.1017          0.0369
+
+     **About 90 percent of it is shared.** The six methods' per-material errors
+     correlate **0.66 to 0.99** and all six err in the SAME DIRECTION on **56.9
+     percent** of materials, against about 3 percent if they were independent.
+     That is exactly what a low NRMSE between methods beside a high error
+     against the truth means, and decision 146 already records the pair; this
+     names the mechanism.
+
+     **THIRD, THE MECHANISM, AND IT IS THE ONE THIS PROJECT KEEPS FINDING.**
+
+         n of the material   true ui   mean |error|   signed error
+         3-9                  0.270       0.166          -0.093
+         10-99                0.253       0.112          +0.005
+         100-999              0.241       0.084          +0.042
+         1000+                0.237       0.073          +0.046
+
+     Every method understates the variance of a material estimated from three
+     to nine values, because the spread of a distribution is not visible in nine
+     points. A variance SHARE has to sum to one, so the share the small material
+     loses is handed to the large ones -- which is why the signed error goes
+     from -0.093 at the bottom to +0.046 at the top. **It is a property of the
+     DATA, not of the method, which is why swapping methods does not fix it and
+     why all six are wrong together.**
+
+     **SO THE PAPER SAYS BOTH HALVES IN ONE SENTENCE.** Which material drives
+     the uncertainty is the one question where the choice of UQ method barely
+     matters, and it is also the question every method answers worst; a reader
+     given only the first half would conclude the number is reliable.
+
+160. **2026-09-23, Stage 2g review. "VARIABLE" IS RENAMED TO "DIRICHLET SHARES"
+     FOR DISPLAY, because the old word carried a claim the method does not make
+     -- and the oracle run shows the author's objection was right about
+     weighting and wrong about what the column is.** `[AUTHOR]` "It still
+     doesn't make any sense to me that lognormal with uniform weights would ever
+     outperform lognormal with variable weights. To me, that's indicative of
+     some mistake in our modeling process. It simply doesn't make sense that
+     accounting for weights wouldn't improve the model."
+
+     **THE PREMISE IS CORRECT AND THE MEASUREMENT CONFIRMS IT.** Mean absolute
+     error in a material's estimated contribution against the market-weighted
+     truth, 1,200 pLCA groups:
+
+         family      equal    Dirichlet-drawn    the TRUE shares
+         KDE         0.1285       0.1215             0.1064
+         Lognormal   0.1243       0.1168             0.1007
+         Normal      0.1620       0.1629             0.1550
+
+         its chance of being largest
+         KDE         0.0815       0.0818             0.0717
+         Lognormal   0.0798       0.0847             0.0731
+         Normal      0.1153       0.1187             0.1130
+
+     **KNOWING THE SHARES BEATS EQUAL WEIGHTING ON EVERY METRIC AND EVERY
+     FAMILY, without exception.** Accounting for weights does improve the model,
+     exactly as the author says.
+
+     **WHAT LOSES IS THE STAND-IN, NOT THE WEIGHTING.** Guessing the shares from
+     a flat Dirichlet captures about a third of the available gain on the
+     magnitude and LESS THAN NOTHING on the ranking: the lognormal's ranking
+     error goes 0.0798 to 0.0847 when the shares are guessed, and would have
+     gone to 0.0731 had they been known. The mechanism is the effective sample
+     size -- a flat Dirichlet over n points leaves a Kish effective sample of
+     about n/2, so guessing throws away half the data, and in this generator the
+     within-mode split of a mode's share is uninformative by construction
+     (decision 79).
+
+     **THE SCORECARD DIFFERENCES ARE REAL, NOT NOISE**, which had to be checked
+     before any of this could be said. Paired cluster bootstrap over pLCA
+     groups, equal minus Dirichlet-drawn, negative meaning equal weighting is
+     closer:
+
+         its chance of being largest       -2.14  [-3.12, -1.35]
+         its share of the total            -0.62  [-0.91, -0.29]
+         the total's standard deviation    -1.62  [-2.27, -0.95]
+         a material's mean contribution    +0.61  [+0.35, +0.91]
+         its 95th percentile               +1.34  [+0.96, +1.73]
+         its share at the building's 95th  +0.87  [+0.33, +1.43]
+
+     Guessed shares help the LEVELS and hurt the RANKING, which is decision
+     121 reaching the claim level.
+
+     **SO THE WORD IS THE DEFECT.** "Variable" reads as "market shares accounted
+     for". It means "market shares drawn from a flat Dirichlet because nobody
+     publishes them". `fitting.WT_DISPLAY` maps Uniform to "equal weights",
+     Variable to **"Dirichlet shares"** and the oracle scheme to "true shares".
+
+     **WHY "DIRICHLET" AND NOT "GUESSED" OR "ASSUMED".** The Dirichlet is the
+     instrument Torres, Lupton, Marsh, Srubar and Allen (2026) puts in its own
+     title, so this names the companion paper's mechanism rather than inventing
+     a third vocabulary, and it cannot be read as "the shares are known". A
+     judgment word would also editorialize in a figure axis.
+
+     **IT IS A DISPLAY LABEL AND THE DATA IS UNCHANGED.** The stored `method`
+     values keep "Uniform" and "Variable" because they are the join key between
+     every table this study writes and the eight regression fixtures that pin
+     them; renaming the data would move numbers for a presentation fix.
+     `tests/test_metricset.py` pins the mapping and pins that `fitting.PEWT` is
+     untouched. **Stage 3 owns the figures and should carry the display labels
+     into the rest of them**; Stage 2g applies them to its own figure only.
+
+161. **2026-09-23, Stage 2g review. THE SCORECARD GAINS A SIZE-BAND PANEL,
+     because counting boxes on the pooled figure reads as a verdict for the
+     lognormal and the ordering INVERTS at about 100 declarations.** `[AUTHOR]`
+     "Do you think this figure makes it look like lognormal is preferred to KDE?
+     That makes me a bit worried, because I don't want people to take that away
+     from this paper. But it has 10 categories it performs best in vs 5 for KDE.
+     What exactly is our narrative here?"
+
+     **THE WORRY IS JUSTIFIED AND THE MISREADING CUTS AGAINST THE KERNEL
+     ESTIMATE.** Mean error across the seven per-material claims, each as a
+     percentage of its own true level, by the material's own dataset size:
+
+         n          KDE eq  KDE Dir  Logn eq  Logn Dir  Norm eq  Norm Dir
+         3-9          40.4    43.6     40.1     45.5      41.8     45.6
+         10-99        25.7    26.8     23.7     25.9      27.5     28.3
+         100-999      18.1    15.8     18.1     15.3      22.1     20.5
+         1000+        16.3    11.0     17.2     12.6      20.8     17.9
+
+     Closest method by band: the lognormal under EQUAL weights at 3-9 and at
+     10-99, the lognormal under DIRICHLET shares at 100-999, and the KERNEL
+     ESTIMATE under Dirichlet shares above 1,000. Counting claim by claim
+     instead of pooling them: 3-9 goes 4 to the equal-weighted lognormal, 2 to
+     the equal-weighted normal and 1 to the equal-weighted kernel estimate;
+     10-99 goes 6 to the equal-weighted lognormal; 100-999 goes 5 to the
+     Dirichlet lognormal and 2 to the Dirichlet kernel estimate; and 1000+ goes
+     4 to the Dirichlet kernel estimate and 3 to the Dirichlet lognormal.
+
+     **BOTH AXES INVERT, not just the family.** Equal weights win every band
+     below 100 declarations and Dirichlet shares win every band above, which is
+     decision 140 from the claim side.
+
+     **WHY THE POOLED COUNT FAVORS THE LOGNORMAL: it is an average over a size
+     mix that is a design choice.** The corpus allocates 2,500 datasets to each
+     of four size bands (decision 19), so half of every pLCA sits below 100
+     declarations. **Reweighting to the real size mix of the 147 EC3 categories
+     -- 14 / 54 / 26 / 6 percent -- moves it FURTHER toward the lognormal**, to
+     three claims for the equal-weighted lognormal, because two thirds of real
+     categories hold fewer than 100 declarations.
+
+     **SO THE NARRATIVE IS NOT "USE THE KERNEL ESTIMATE", and this figure is not
+     evidence for it.** What the paper can say: the normal is the one clear
+     loser, and even that is conditional, because at three to nine declarations
+     nothing can be estimated and a normal is as good as anything. Kernel
+     estimate versus lognormal is a SIZE RULE and not a verdict, at a threshold
+     of about 81 declarations (decision 142). And whether to weight is a size
+     rule too. **A box count on a pooled figure is not a ranking of methods**,
+     and before this review nothing on the figure said so.
+
+     **THE FIX IS THE MECHANISM, NOT A WARNING.** A caption telling the reader
+     not to count boxes would have asked them to take it on trust. The figure
+     now carries a second panel, four size bands by six methods, on the same
+     colour scale because it is the same quantity in the same units, with the
+     closest method in each band boxed exactly as in the panel above.
+     `metricset.size_band_recovery`, `TABLE_MetricSizeBands.csv`.
+
+162. **2026-09-23, Stage 2g review. THE DESIGN COMPARISON GOES FROM 800 PAIRS TO
+     2,500, because 800 was a cost cap and the interval on the stage's headline
+     null was as wide as the null.** `[AUTHOR]` "Did we only do 800 comparisons
+     here? Seems like a small n, right? Why wouldn't we do more?"
+
+     **THE CONCLUSION WAS NEVER AT RISK AND THE PRECISION WAS.** Bootstrapping
+     over pairs at 800:
+
+         B claimed to save   the truth        spread over the six methods
+         0 pct               0.505 +/- 0.009  0.006   (97.5th pct 0.019)
+         5 pct               0.629 +/- 0.010  0.012   (97.5th pct 0.023)
+         10 pct              0.754 +/- 0.009  0.020   (97.5th pct 0.028)
+
+     The spread never approaches anything a design decision turns on, so the
+     null of decision 118 stands. But the interval on that spread is as wide as
+     the spread itself, so "at most two percentage points" was really "at most
+     about three".
+
+     **2,500 IS THE NUMBER EVERY OTHER TRUTH-RUN RESULT IN THIS STUDY USES**, so
+     it also removes an unexplained inconsistency: the design comparison was the
+     one experiment run at a tenth of the sample. It tightens both intervals by
+     a factor of 1.8 and costs a few minutes of the notebook run.
+
+163. **2026-09-23, Stage 2g review. THE "81 DECLARATIONS" THRESHOLD IS A
+     GOODNESS-OF-FIT THRESHOLD AND THE CLAIM-LEVEL ONE IS NEAR 500. Quoting the
+     first as though it settled the second is a conflation this project has
+     been making, and it is why the kernel estimate does not sweep the
+     scorecard.** `[AUTHOR]` "If KDE is better than lognormal at n > 81, why
+     isn't KDE dominating most of these? After all, most datasets by a large
+     majority are n > 81, right? Why does lognormal still look so good? That
+     doesn't make any sense to me."
+
+     **FOUR REASONS, AND THE PREMISE IS THE SMALLEST OF THEM.**
+
+     **One, the size mix.** Above n = 81 is **52.1 percent** of the corpus, a
+     coin flip rather than a large majority, because the corpus allocates 2,500
+     datasets to each of four size bands. In the real EC3 arm it is **31.3
+     percent** above n = 100.
+
+     **Two, and this is the substantive one: the two thresholds measure
+     different things.** Decision 142's 81 is where the kernel estimate
+     overtakes the three-parameter lognormal on **W1 against the parent for one
+     dataset**. The downstream claims cross much later. Mean error over the
+     seven per-material claims, each as a pct of its own true level, under
+     Dirichlet shares:
+
+         n            KDE   lognormal   KDE minus lognormal
+         3-9         43.6     45.5           -1.9   KDE ahead
+         10-30       30.0     29.7           +0.3
+         31-81       24.1     22.6           +1.5   lognormal ahead
+         82-200      19.8     18.2           +1.6   lognormal ahead
+         201-500     14.8     14.5           +0.3
+         501-1000    13.3     13.7           -0.4   KDE ahead
+         1001-3000   11.8     13.1           -1.3
+         3000+       10.4     12.2           -1.9
+
+     **NARROWED THE SAME DAY, BEFORE ANY OF IT WAS PUBLISHED. The first version
+     of this entry called 500 "the claim-level crossover", as though it were a
+     second law beside the 81. It is not, and the author's follow-up is what
+     exposed it: "are you suggesting that stronger fit doesn't translate to
+     agreeing on these claims?"**
+
+     **FIT DOES TRANSLATE, and that had to be measured before anything else
+     could be said.** Holding the material fixed and ranking the six methods by
+     their fit and by their claim error: the median within-material Spearman is
+     **+0.600**, it is positive on **82.2 percent** of materials, and the
+     best-FITTING method is also the most claim-accurate on **39.0 percent** of
+     materials against a **16.7 percent** chance level. It holds at every size,
+     from +0.600 at n = 3-9 to +0.600 above 1,000. **So there is no finding here
+     that a good fit fails to buy a good answer.**
+
+     **WHAT THE 500 ACTUALLY IS: a group decision indexed on one member's
+     size.** All four materials in a pLCA are fitted by the SAME method, so the
+     group's composition decides which method wins the group, and binning by
+     the focal material's own n asks a question the decision does not answer.
+     The same 10,000 materials, binned instead by the GROUP'S MEDIAN n, put the
+     kernel estimate ahead in **seven of eight bins** -- +1.9 at a group median
+     of 3-9, +0.6 at 10-30, +0.1 at 31-81, -0.8 at 82-200, +0.6 at 201-500,
+     +1.0 at 501-1000, +0.8 at 1001-3000 and +2.1 at 3000+, where positive
+     means the kernel estimate is closer. Two partitions of the same rows,
+     two different pictures.
+
+     **SO THE CLAIM IS THE NARROW ONE AND 500 IS NOT A THRESHOLD TO QUOTE.** A
+     threshold measured on ONE dataset's fit does not transfer unchanged to a
+     decision made once for a GROUP of four, and the paper must say which
+     criterion -- and which unit -- a threshold belongs to every time it quotes
+     one. The kernel estimate lagging through the 82-200 band when binned on
+     the focal material is the visible symptom of that mismatch, not evidence of
+     a second crossover.
+
+     **Three, a probabilistic LCA claim belongs to the GROUP of four, not to one
+     material.** Groups are formed at random, so a large material almost always
+     sits beside a small one and the group's worst member sets the group's
+     error. Materials with n > 1000, split by the SMALLEST dataset in their own
+     group:
+
+         smallest in the group   materials   KDE   lognormal   KDE advantage
+         3-9                       1,409     13.9     15.7          1.8
+         10-99                       757      8.3      9.4          1.1
+         100-999                     286      5.3      7.0          1.7
+         1000+                        48      3.6      6.9          3.3
+
+     A big material among big neighbours sits at **3.6 against 6.9** and the
+     kernel estimate's edge nearly doubles. That configuration occurs **48 times
+     in 10,000**. So the benefit of fitting one material well is diluted by
+     whatever it is grouped with, and random grouping guarantees the dilution.
+
+     **Four, where the kernel estimate wins is the SPREAD and not the LEVEL.**
+     At n > 1000 under Dirichlet shares its advantage is +6.1 points on a
+     material's standard deviation, +2.2 on its chance of being largest, +1.8
+     on the uncertainty index and +1.4 on its 95th percentile -- and it **ties
+     or slightly loses** on the mean contribution (1.6 against 1.5) and the mean
+     share (5.6 against 5.6). Representing shape is what a kernel estimate buys;
+     a mean is easy for every method.
+
+     **SO "THE KERNEL ESTIMATE SHOULD DOMINATE" WAS NEVER WHAT THE EVIDENCE
+     SAID**, and the scorecard is not hiding anything. The margins above the
+     crossover are 1 to 2 points, which is a preference and not a dominance.
+
+164. **2026-09-23, Stage 2g review. NOTEBOOK 3'S FIGURE CELLS ARE MARKED AND THE
+     RENDERER ACCEPTS IT: a figure round is 1.6 seconds instead of a 48-minute
+     run.** `[AUTHOR]` "Is this always going to take an hour between runs? That
+     seems exhausting. Surely this figure doesn't take that long to produce,
+     right? Can't we have tighter rounds of editing?"
+
+     **THE FIGURE NEVER TOOK AN HOUR; THE TABLES UNDER IT DID.** The run is
+     2,500 probabilistic LCAs by six methods by 10,000 draws, plus the sweeps,
+     the run against the true parents and the design comparison.
+     `audits/render_figures.py` has existed since Stage 2f to re-execute a
+     notebook's own figure cells against the tables already on disk, and it
+     **refused notebook 3** for two reasons, both now fixed.
+
+     **One: eight figure-saving cells predated the `# FIGURE` convention** --
+     cells 8, 29, 30, 35, 40, 49, 50 and 51, which draw figures the paper and
+     the supplement use. The tool refuses rather than redrawing a subset
+     silently (decision 56), so one unmarked cell disabled it for the whole
+     notebook. They are marked, with the marker added above the cell and
+     nothing else changed.
+
+     **Two: the setup was taken to be the single cell that defines `OUT`.**
+     Notebook 4 puts its imports and its output root in one cell; notebook 3
+     keeps its imports two cells earlier, so executing only the `OUT` cell gave
+     a NameError on numpy before the first figure drew. `read_cells` now returns
+     every code cell up to and including the one defining `OUT`, **as a list
+     executed one cell at a time in the notebook's own order**. A list and not a
+     concatenation: a cell whose source has no trailing newline runs fine in a
+     notebook and glues onto the next one when joined, which produced
+     `generate_dontread = Falseimport sys` and a SyntaxError.
+
+     **THE GUARANTEE IS UNCHANGED and is what makes the second executor safe.**
+     The script still holds no figure code and no analysis code; it executes the
+     notebook's own bytes. `tests/test_render_figures.py` pins that the sources
+     executed are byte-identical to the notebook's and that notebook 3 is fully
+     marked. **Verified end to end: rendering the scorecard alone took 1.6
+     seconds and produced a PNG with the same sha256 as the one the 48-minute
+     run wrote.**
+
+         python audits/render_figures.py 03_CompareUQ_PerformPLCA \
+             --only "every claim" --into-outputs
+
+     **WHEN A FULL RUN IS STILL REQUIRED: whenever a TABLE changes.** A figure
+     edit is seconds; a change to what is computed is a run. Of this stage's
+     review, the denominator change and the design comparison's sample size
+     needed runs and the size-band panel did not, because its table is derived
+     from one already on disk -- and bundling the two cost the author an hour of
+     waiting that better sequencing would have saved.

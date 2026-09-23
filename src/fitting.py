@@ -28,6 +28,50 @@ PE_METHODS = ["Normal", "Lognormal", "KDE"]
 WT_METHODS = ["Uniform", "Variable"]
 PEWT = [f"{pe}, {wt}" for pe in PE_METHODS for wt in WT_METHODS]
 
+# HOW A WEIGHTING SCHEME IS NAMED TO A READER, which is not what it is named in
+# the data. Stage 2g review, 2026-09-23, after the author read "Variable" as
+# "market shares accounted for" and concluded that a result where equal
+# weighting beat it had to be a modeling error. It is not: "Variable" means the
+# shares were DRAWN FROM A FLAT DIRICHLET because nobody publishes them, and
+# the oracle run shows that knowing the real shares beats equal weighting on
+# every metric and every family while guessing them gains nothing on the
+# ranking. The word was carrying a claim the method does not make.
+#
+# "Dirichlet shares" rather than "guessed" or "assumed" shares, deliberately:
+# the Dirichlet is the mechanism Torres et al. (2026) puts in its own title, so
+# this names the companion paper's instrument rather than inventing a third
+# vocabulary, and it cannot be read as "the market shares are known".
+#
+# THESE ARE DISPLAY LABELS ONLY. The stored `method` values keep "Uniform" and
+# "Variable", because they are the join key between every table this study
+# writes and the regression fixtures that pin them. Renaming the data would
+# move numbers; renaming the display moves nothing.
+WT_DISPLAY = {
+    "Uniform": "equal weights",
+    "Variable": "Dirichlet shares",
+    "Oracle": "true shares",
+}
+#: One word each, for an axis tick where the full phrase will not fit.
+WT_DISPLAY_SHORT = {
+    "Uniform": "equal",
+    "Variable": "Dirichlet",
+    "Oracle": "true",
+}
+
+
+def display_method(name, short=False, sep=", "):
+    """'KDE, Variable' -> 'KDE, Dirichlet shares'.
+
+    Unknown weighting labels are returned unchanged rather than raising, so a
+    sweep that invents a scheme still plots; `tests/test_fitting.py` pins the
+    three that exist.
+    """
+    table = WT_DISPLAY_SHORT if short else WT_DISPLAY
+    if sep not in name:
+        return name
+    family, _, weighting = name.partition(sep)
+    return f"{family}{sep}{table.get(weighting, weighting)}"
+
 # The data are offset by this much before the lognormal fit and the location is
 # shifted back afterwards, which is a 3-parameter lognormal with the threshold
 # fixed at -LOGFIT_OFFSET rather than estimated. It exists because a handful of

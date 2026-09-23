@@ -1940,3 +1940,49 @@ relative figure beside it.**
 | **Where it lives** | `TABLE_MetricTailStress.csv` and `TABLE_MetricTailReality.csv`, printed by two notebook cells. |
 | **Fix** | **Text.** One paragraph in the limitations, pointing at the truncation sweep. Decision 158; decision 149's numbers are unchanged. |
 | **Status** | Resolved in the analysis. |
+
+## 149. The uncertainty index is the most consistent output AND the worst recovered, and the reason is dataset size
+
+| | |
+|---|---|
+| **The apparent contradiction** | The manuscript concludes that "different UQ methods result in similar uncertainty indices", and that is right: the NRMSE between methods is 0.5035 [0.4918, 0.5158], the lowest of any output. Against the TRUE parent every method is out by about **43.6 to 45.5 percent** of the true level, the worst of the sixteen claims. |
+| **Why both are true** | Decomposing each method's per-material error into the part all six share and the residual: the shared part is **0.1017** of a total error of about **0.11**, so **nine tenths of the error is common to every method**. The six errors correlate 0.66 to 0.99 and all six err in the same direction on **56.9 percent** of materials against about 3 percent if independent. |
+| **The mechanism** | Error by the material's own dataset size: **0.166** at n = 3-9 with a signed error of **-0.093**, 0.112 at 10-99, 0.084 at 100-999, and **0.073** at n >= 1000 with a signed error of **+0.046**. Every method understates the variance of a material estimated from three to nine values, and because the index is a variance SHARE summing to one, the share the small material loses is handed to the large ones. It is a property of the data, not of the method. |
+| **And the true value is not a stable 0.25** | Across 10,000 materials the true index runs from **0.009 at the 10th percentile to 0.558 at the 90th**, standard deviation 0.214, maximum 0.984. So 43.6 percent of 0.25 is an absolute error of 0.109 on a quantity that genuinely spans almost nothing to almost everything. |
+| **Fix** | **Text.** Both halves in one sentence wherever the index is promoted: the choice of method barely matters for it, and every method answers it worst. Decision 159. |
+| **Status** | Open, and it sharpens rather than contradicts the existing conclusion. |
+
+## 150. "Variable weighting" names a claim the method does not make
+
+| | |
+|---|---|
+| **The defect** | "Variable" reads as "market shares accounted for". It means the shares were drawn from a flat Dirichlet because nobody publishes them. Read the first way, a result where equal weighting beats it looks like a modeling error, which is how the author read it. |
+| **What the oracle run settles** | Mean absolute error in a material's estimated contribution against the market-weighted truth, over 1,200 pLCA groups -- equal weights, Dirichlet-drawn shares, then the TRUE shares: KDE **0.1285 / 0.1215 / 0.1064**, lognormal **0.1243 / 0.1168 / 0.1007**, normal 0.1620 / 0.1629 / 0.1550. On a material's chance of being largest: KDE 0.0815 / 0.0818 / **0.0717**, lognormal 0.0798 / 0.0847 / **0.0731**. |
+| **The claim the paper can make** | **Knowing the market shares beats equal weighting on every metric and every family.** Guessing them with a flat Dirichlet captures about a third of that on the magnitude and less than nothing on the ranking -- the lognormal's ranking error goes 0.0798 to 0.0847 when guessed and would have gone to 0.0731 had they been known. The mechanism is the effective sample size: a flat Dirichlet over n points leaves a Kish effective sample of about n/2. |
+| **And the scorecard differences are real** | Paired cluster bootstrap over pLCA groups, equal minus Dirichlet-drawn, negative meaning equal weighting is closer: chance of being largest **-2.14 [-3.12, -1.35]**, share of the total -0.62 [-0.91, -0.29], the total's standard deviation -1.62 [-2.27, -0.95], mean contribution **+0.61 [+0.35, +0.91]**, 95th percentile +1.34 [+0.96, +1.73]. Guessed shares help the levels and hurt the ranking. |
+| **Fix** | **Figures, tables and text.** Display label becomes "Dirichlet shares"; the stored column keeps "Variable" as the join key. "Dirichlet" rather than "guessed" because it is the instrument Torres et al. (2026) puts in its own title, so the two papers stay consistent. Decision 160. |
+| **Status** | Applied to this stage's figure. **Stage 3 owns the remaining figures.** The manuscript owes the same change wherever it names the scheme. |
+
+## 151. The claim scorecard's box count is not a ranking of methods
+
+| | |
+|---|---|
+| **The risk** | Pooled over every dataset size the scorecard gives the lognormal 10 best-method rows to the kernel estimate's 5, which reads as a verdict for the lognormal. |
+| **Why it is not one** | Mean error across the seven per-material claims, by the material's own dataset size, as a pct of each claim's true level: at n = 3-9 the equal-weighted lognormal leads at 40.1, at 10-99 it leads at 23.7, at 100-999 the Dirichlet lognormal leads at 15.3, and at n >= 1000 the **Dirichlet kernel estimate** leads at **11.0** against the equal-weighted lognormal's 17.2. Both axes invert: equal weights win every band below 100 declarations and Dirichlet shares win every band above. |
+| **Where the pooled count comes from** | The corpus allocates 2,500 datasets to each of four size bands, so half of every pLCA sits below 100 declarations. That allocation is an experimental design choice, not a claim about the world. |
+| **And the real world does not rescue it** | Reweighting to the real size mix of the 147 EC3 categories -- 14 / 54 / 26 / 6 percent -- moves the count FURTHER toward the lognormal, because two thirds of real categories hold fewer than 100 declarations. |
+| **The narrative the paper can defend** | The normal is the one clear loser, and even that is conditional: at three to nine declarations nothing can be estimated and a normal is as good as anything. Kernel estimate versus lognormal is a size rule at about 81 declarations, not a verdict. Whether to weight is a size rule too. |
+| **Fix** | **Figure and text.** The scorecard carries a second panel of four size bands by six methods on the same colour scale. A caption warning was rejected: it would ask the reader to take the caveat on trust rather than showing the mechanism. Decision 161. |
+| **Status** | Resolved in the analysis. The manuscript must not quote the pooled count as a ranking. |
+
+## 152. A threshold measured on one dataset's fit does not transfer to a group's answer
+
+| | |
+|---|---|
+| **The conflation** | The study's practitioner rule -- use a kernel estimate above about **81** declarations and a three-parameter lognormal below -- is measured on W1 against the parent for a single dataset. It has been quoted as though it also described when a probabilistic LCA's ANSWERS get better, and it does not. |
+| **A better fit DOES give a better answer, which had to be established first** | Holding the material fixed and ranking the six methods by fit and by claim error: median within-material Spearman **+0.600**, positive on **82.2 percent** of materials, and the best-fitting method is also the most claim-accurate on **39.0 percent** against a 16.7 percent chance level. There is no finding that fit fails to translate. |
+| **What differs is the UNIT, not the relationship** | All four materials in a pLCA are fitted by the same method, so the group decides. Binned by the FOCAL material's n the kernel estimate lags through 82-200 (19.8 vs 18.2) and leads above 500; binned by the GROUP's MEDIAN n it leads in **seven of eight bins**. Two partitions of the same 10,000 materials. **"500" is therefore not a second threshold and must not be quoted as one.** |
+| **The group dilution, measured** | Materials with n > 1000 whose group's smallest dataset is also above 1,000 sit at **3.6 against the lognormal's 6.9**; with a 3-9 material in the group it is 13.9 vs 15.7. That configuration occurs **48 times in 10,000**, because groups are random. |
+| **And the advantage is in the spread, not the level** | At n > 1000 the kernel estimate's margin is +6.1 points on a material's standard deviation, +2.2 on its chance of being largest, +1.8 on the uncertainty index, +1.4 on its 95th percentile -- and it ties or slightly loses on the mean contribution and the mean share. |
+| **Fix** | **Text.** Every threshold this study quotes must name the criterion AND the unit it was measured on -- one dataset's fit, or one group's answer. Decision 163, narrowed the day it was written. |
+| **Status** | Open. It narrows how decisions 139 and 142 may be quoted; it does not change what they measured. |

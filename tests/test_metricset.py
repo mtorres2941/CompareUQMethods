@@ -450,3 +450,81 @@ def test_rel_error_is_a_ratio_of_means_and_not_a_mean_of_ratios():
     row = got[got.method == 'B'].iloc[0]
     assert np.isfinite(row['rel_error'])
     assert 0.05 < row['rel_error'] < 0.5
+
+
+def test_display_method_renames_only_the_weighting_and_only_for_display():
+    """THE STORED `method` VALUE IS THE JOIN KEY AND MUST NOT MOVE.
+
+    "Variable" means the market shares were drawn from a flat Dirichlet because
+    nobody publishes them. Read as "market shares accounted for" it makes a
+    result where equal weighting wins look like a modeling error, which is what
+    happened. The display label says what the method does; the data keeps the
+    key, because every table this study writes and every regression fixture
+    joins on it.
+    """
+    assert FT.display_method('KDE, Variable') == 'KDE, Dirichlet shares'
+    assert FT.display_method('KDE, Uniform') == 'KDE, equal weights'
+    assert FT.display_method('KDE, Oracle') == 'KDE, true shares'
+    assert FT.display_method('KDE, Variable', short=True) == 'KDE, Dirichlet'
+    # The family is never touched, and an unknown scheme passes through rather
+    # than raising, so a sweep that invents one still plots.
+    assert FT.display_method('Lognormal, Somethingelse') == 'Lognormal, Somethingelse'
+    assert FT.display_method('NoComma') == 'NoComma'
+    # The canonical list itself is unchanged: this is a view, not a rename.
+    assert FT.PEWT == ['Normal, Uniform', 'Normal, Variable',
+                       'Lognormal, Uniform', 'Lognormal, Variable',
+                       'KDE, Uniform', 'KDE, Variable']
+
+
+def a_size_banded_truth_frame(seed=1, per_band=30, k=4):
+    """A truth frame where the ORDERING of two methods flips with dataset size.
+
+    Method 'small_is_good' is accurate below 100 and poor above; 'big_is_good'
+    is the reverse. Pooling the two bands hides both facts, which is exactly
+    the misreading `size_band_recovery` exists to prevent.
+    """
+    rng = np.random.default_rng(seed)
+    rows, plca = [], 0
+    for n, small_err, big_err in ((10, 0.02, 0.30), (5000, 0.30, 0.02)):
+        for _ in range(per_band):
+            truth = rng.lognormal(0.0, 0.4, size=k)
+            for m, e in (('small_is_good', small_err), ('big_is_good', big_err)):
+                got = truth + e * rng.normal(size=k)
+                for j in range(k):
+                    rows.append(dict(
+                        plca=plca, dataset=f'd{plca}_{j}', method=m, n=n,
+                        truth_parent='market',
+                        eci_mean=got[j], eci_mean__truth=truth[j],
+                        eci_mean__error=got[j] - truth[j]))
+            plca += 1
+    return pd.DataFrame(rows)
+
+
+def test_size_band_recovery_shows_an_ordering_the_pooled_table_hides():
+    frame = a_size_banded_truth_frame()
+    banded = MS.size_band_recovery(frame, outputs=('eci_mean',))
+    got = banded.pivot(index='band', columns='method', values='rel_error')
+    # Each band picks the method built to win it.
+    assert got.loc['10-99'].idxmin() == 'small_is_good'
+    assert got.loc['1000+'].idxmin() == 'big_is_good'
+    # Pooled, the two are indistinguishable, which is the whole point: a single
+    # scorecard row cannot report a flip.
+    pooled = MS.recovery_table(frame, outputs=('eci_mean',), resamples=40,
+                               rng=np.random.default_rng(0))
+    a, b = pooled.set_index('method')['rel_error']
+    assert abs(a - b) < 0.25 * max(a, b)
+    # Every band divides by the SAME true level, so the four rows of a column
+    # are comparable with each other rather than each being self-normalized.
+    assert banded.truth_level.nunique() == 1
+    # And a band reports how many materials it holds, so a thin one is visible.
+    assert set(banded.n_materials) == {30 * 4}
+
+
+def test_size_band_recovery_skips_an_output_with_no_usable_level():
+    """A distance has a true value of zero, so it has no level to divide by and
+    must be left out rather than dividing by something near zero."""
+    frame = a_size_banded_truth_frame()
+    frame['w1__truth'] = 0.0
+    frame['w1__error'] = 0.1
+    got = MS.size_band_recovery(frame, outputs=('eci_mean', 'w1'))
+    assert set(got.output) == {'eci_mean'}

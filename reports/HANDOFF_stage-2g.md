@@ -80,7 +80,7 @@ on the claim that costs most in each question:
     attribution   15.8 pct   a material's chance of being the largest
     magnitude      8.6 pct   the standard deviation of the building total
     information    1.9 pct   the uncertainty index
-    comparison     0.8 pct   the probability one design beats another
+    comparison     0.9 pct   the probability one design beats another
 
 **AND HOW FAR THE BEST METHOD IS FROM THE TRUTH**, on the worst claim in each
 question, in the same units:
@@ -89,7 +89,7 @@ question, in the same units:
     attribution   32.0 pct   a material's chance of being the largest
     magnitude     22.1 pct   the standard deviation of the building total
     action         1.1 pct   a cap's chance of saving 5 pct of the building
-    comparison     0.5 pct   the probability one design beats another
+    comparison     0.8 pct   the probability one design beats another
 
 **THE TWO ORDERINGS ARE ALMOST REVERSED, AND THAT IS THE SECTION'S POINT.**
 Three claims that the first list alone would make look alike:
@@ -103,6 +103,20 @@ the rest is there whatever you do. On the second, picking well is almost the
 whole problem: the best method is within half a percent and the worst is 31.5
 percent out. On the third, picking makes almost no difference and none of the
 six is close.
+
+**AND THE UNCERTAINTY INDEX'S 43.6 PERCENT IS NOT SIX METHODS DISAGREEING; IT
+IS SIX METHODS WRONG TOGETHER.** Splitting each method's error into the part
+all six share and the part that is its own, the shared part is **0.1017 of a
+total of about 0.11** -- nine tenths of it. The six methods' per-material
+errors correlate 0.66 to 0.99 and all six err in the SAME DIRECTION on **56.9
+percent** of materials, against about 3 percent if they were independent. The
+mechanism is dataset size: the error is **0.166** for a material estimated from
+three to nine declarations and **0.073** above a thousand, and the signed error
+runs from **-0.093** to **+0.046** across that range. Every method understates
+the variance of a material it has seen nine values of, and because the index is
+a variance SHARE that must sum to one, the share the small material loses is
+handed to the large ones. It is a property of the DATA, not of the method,
+which is why changing method does not help.
 
 > **So what.** For most of what a probabilistic LCA says, choosing a better way
 > of modeling uncertainty moves the answer a little closer to the truth rather
@@ -257,14 +271,38 @@ on one definition, is the figure below. Three things come out of it.
 **No single method is best everywhere.** The six differ measurably on 15 of the
 16 claims, and on those 15 four different methods are best on something: the
 three-parameter lognormal with equal weights takes 5, the same lognormal with
-market-share weights 5, the kernel estimate with market-share weights 4, and
-the kernel estimate with equal weights 1. **Neither normal fit is ever first.**
-The one claim on which the six do not differ is what a quantity reduction
-saves, where all six and the truth agree to four decimal places.
+Dirichlet-drawn shares 5, the kernel estimate with Dirichlet shares 3, and the
+kernel estimate with equal weights 2. **Neither normal fit is ever first.** The
+one claim on which the six do not differ is what a quantity reduction saves,
+where all six and the truth agree to four decimal places.
 
-**How much the choice costs varies by a factor of about forty across the
+**THAT COUNT IS NOT A RANKING OF METHODS AND MUST NOT BE QUOTED AS ONE.** It is
+an average over every dataset size, and the ordering INVERTS with size. Mean
+error across the seven per-material claims, each as a percentage of its own
+true level:
+
+    n           KDE eq  KDE Dir  Logn eq  Logn Dir  Norm eq  Norm Dir
+    3-9           40.4    43.6     40.1     45.5      41.8     45.6
+    10-99         25.7    26.8     23.7     25.9      27.5     28.3
+    100-999       18.1    15.8     18.1     15.3      22.1     20.5
+    1000+         16.3    11.0     17.2     12.6      20.8     17.9
+
+The lognormal under equal weights is closest in the two bands below 100
+declarations, the lognormal under Dirichlet shares at 100 to 999, and the
+KERNEL ESTIMATE under Dirichlet shares above 1,000, at **11.0 against the
+equal-weighted lognormal's 17.2**. Both axes turn over: equal weights win every
+band below 100 and Dirichlet shares win every band above.
+
+**The pooled count leans to the lognormal because the corpus puts 2,500
+datasets in each of four size bands**, so half of every probabilistic LCA sits
+below 100 declarations. That allocation is an experimental design choice.
+Reweighting to the real size mix of the 147 EC3 categories -- 14 / 54 / 26 / 6
+percent -- moves it FURTHER toward the lognormal, because two thirds of real
+categories hold fewer than 100 declarations.
+
+**How much the choice costs varies by a factor of about thirty-five across the
 claims**, from 31.0 percent of the true value on how often a specification cap
-binds, down to 0.8 percent on whether one design beats another, and to nothing
+binds, down to 0.9 percent on whether one design beats another, and to nothing
 at all on what a quantity reduction saves.
 
 **And on most claims most of the error is there whatever you choose.** On a
@@ -278,10 +316,12 @@ against its cells.
 
 > **So what.** There is no method you can adopt once and stop thinking about,
 > and for most of what a probabilistic LCA says, switching method moves you a
-> little closer to the truth rather than to it. The exception is worth knowing:
-> if you want to know how often a specification cap will actually bite, the
-> method you pick decides the answer, and a normal distribution gets it badly
-> wrong.
+> little closer to the truth rather than to it. Two exceptions are worth
+> knowing. If you want to know how often a specification cap will actually
+> bite, the method you pick decides the answer and a normal distribution gets
+> it badly wrong. And how many declarations you hold decides which of the other
+> two to reach for: a three-parameter lognormal on a thin category, a kernel
+> estimate on a well-populated one.
 
 ## 3. "Never use a normal distribution" is about three of the five questions, not about everything
 
@@ -300,8 +340,8 @@ percent-of-the-true-value units as everywhere else:
     a material's share of the total               2.76   normal is worst
     the mean of the total                         2.40   normal is worst
     a material's 95th percentile                  0.82   NOT worst
-    the probability one design beats another      0.74   normal is worst
     the 90th percentile of the total              0.74   normal is worst
+    the probability one design beats another      0.62   normal is worst
     a material's share at the building's 95th     0.63   NOT worst
     the uncertainty index                         0.42   NOT worst
     what using 25 pct less saves                  0.00   NOT worst
@@ -342,11 +382,14 @@ is how the results read best -- the decision first, because the answer there is
 a null and a null is the strongest thing this stage has.
 
 1. **The comparison, which leads, because it is the decision a designer makes
-   and the answer is a null.** Over 800 pairs of designs differing in one
+   and the answer is a null.** Over **2,500** pairs of designs differing in one
    material, the choice of method changes the stated probability that the
-   substitution is an improvement by at most **0.020**, and every method lands
+   substitution is an improvement by at most **0.015**, and every method lands
    within **0.026** of the truth. At a claimed 5 percent saving the truth is
-   **0.629** and the six methods span 0.630 to 0.642.
+   **0.630** and the six methods span 0.638 to 0.647. **This was 800 pairs
+   until the author asked why the stage's headline null used a tenth of the
+   sample every other truth-run result uses; at 800 the interval on that
+   0.015 was as wide as the number itself.**
 2. **The safe-lead rule.** The chance that the choice of method changes which
    material leads crosses 1 percent at a top-two contribution ratio of **2.13**
    (95 percent interval 2.09 to 2.17). The one real building element available,
@@ -534,50 +577,71 @@ estimate's is following the body of the data.
 
 ## The figure
 
-![Every claim a probabilistic LCA makes, scored for all six UQ methods against the truth](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
+![Every claim a probabilistic LCA makes, scored for all six UQ methods against the truth, and the same comparison split by dataset size](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
 
-**Figure: under the best of the six methods a probabilistic LCA is right to 0.5
+**Figure: under the best of the six methods a probabilistic LCA is right to 0.8
 percent on the design comparison and wrong by 32.0 percent on which material
-leads.** Sixteen claims, grouped under the five questions, each scored for all
-six methods against the true distributions.
+leads -- and the pooled count in the upper panel is not a ranking of methods,
+because the ordering inverts with dataset size.**
 
-**EVERY CELL IS THE SAME QUANTITY**, which is what makes two rows comparable:
-that method's mean absolute error against the truth, as a percentage of the
-mean true level of the thing being claimed. A black box marks the method
-closest to the truth on each row.
+**EVERY CELL OF BOTH PANELS IS THE SAME QUANTITY**, which is what makes two
+rows, and the two panels, comparable: that method's mean absolute error against
+the truth, as a percentage of the mean true level of the thing being claimed. A
+black box marks the method closest to the truth in each row. **"Dirichlet
+shares" is what the study has been calling "Variable"**: the market shares were
+drawn from a flat Dirichlet because nobody publishes them. "Equal" means every
+declaration counts the same.
 
-**What the cells say, by question.**
+**UPPER PANEL, what the cells say by question.**
 
 - **The building total.** The best method is 8.0 percent out on the total's
   mean, 10.7 on its 90th percentile, 5.5 on the chance of meeting a budget and
-  **22.1 on its standard deviation**, which is the magnitude claim every method
-  gets worst.
+  **22.1 on its standard deviation**, the magnitude claim every method gets
+  worst.
 - **Attribution.** The best method is **32.0 percent out on a material's chance
   of being the largest contributor** and the worst is 47.7. Its mean
   contribution is better served, 11.6 to 16.2, and its share of the total
   better still, 10.0 to 13.4.
 - **Information.** The uncertainty index is the worst-recovered claim on the
-  figure: **43.6 to 45.5 percent**, with only 1.9 points between the best and
-  worst of the six.
-- **Action.** The widest row on the figure, and it is a split between families
-  rather than a spread: the two lognormals are 0.5 and 1.0 percent out on how
-  often a specification cap binds, the two kernel estimates 4.2 and 7.2, and
-  the two normal fits **27.5 and 31.5**. And **on what using 25 percent less of
-  a material saves, every method is exactly right**, because that intervention
-  is a deterministic fraction of the material's own contribution and no
+  figure, **43.6 to 45.5 percent**, with only 1.9 points between best and
+  worst. Nine tenths of that error is common to all six methods and is the
+  error of estimating a variance from few declarations, so no choice of method
+  repairs it.
+- **Action.** The widest row, and it is a split between families rather than a
+  spread: the two lognormals are 0.5 and 1.0 percent out on how often a
+  specification cap binds, the two kernel estimates 4.2 and 7.2, and the two
+  normal fits **27.5 and 31.5**. And **on what using 25 percent less of a
+  material saves, every method is exactly right**, because that intervention is
+  a deterministic fraction of the material's own contribution and no
   distributional assumption enters.
-- **Comparison.** The best method is **0.5 percent** out on the probability one
-  design beats another and the worst 1.4.
+- **Comparison.** The best method is **0.8 percent** out and the worst 1.7.
 
-**The right-hand bar is a different question from the cells and reading only one
-misleads.** It is the worst method's error minus the best method's, so it is
-what the CHOICE of method costs, where the cells say how good the answer is at
-all. On how often a specification cap binds the choice costs 31.0 and the best
-method is 0.5 out: picking well is nearly the whole problem. On a material's
-chance of being largest the choice costs 15.8 and the best method is 32.0 out:
-picking well is about a third of it. On the uncertainty index the choice costs
-1.9 and every method is about 44 out: picking makes no difference and none of
-them is close.
+**The right-hand bar is a different question from the cells, and reading only
+one misleads.** It is the worst method's error minus the best method's, so it
+is what the CHOICE of method costs, where the cells say how good the answer is
+at all. On how often a specification cap binds the choice costs 31.0 and the
+best method is 0.5 out: picking well is nearly the whole problem. On a
+material's chance of being largest the choice costs 15.8 and the best method is
+32.0 out: picking well is about a third of it. On the uncertainty index the
+choice costs 1.9 and every method is about 44 out: picking makes no difference
+and none of them is close.
+
+**LOWER PANEL: the same seven per-material claims, pooled, split by the
+material's own dataset size.** The lognormal under equal weights is closest
+below 100 declarations, the lognormal under Dirichlet shares from 100 to 999,
+and the kernel estimate under Dirichlet shares above 1,000, at **11.0 against
+the equal-weighted lognormal's 17.2**. **Both axes turn over**: equal weights
+win every band below 100 declarations and Dirichlet shares win every band
+above.
+
+**Why the panel is there rather than a caption warning.** Counting boxes in the
+upper panel gives the lognormal 10 rows to the kernel estimate's 5, which reads
+as a verdict between the families. It is an average over a corpus that puts
+2,500 datasets in each of four size bands, so half of every probabilistic LCA
+sits below 100 declarations -- and reweighting to the real size mix of the 147
+EC3 categories moves the count further toward the lognormal still, because two
+thirds of real categories hold fewer than 100 declarations. A caption telling
+the reader not to count would have asked them to take that on trust.
 
 **TWO OTHER FIGURES WERE BUILT AND CUT IN THIS STAGE.**
 
@@ -613,10 +677,13 @@ needs its own vocabulary explained is not a title.
 
 Commits, in order: the source module and its tests; the notebook changes; the
 decisions and the mechanics documentation; the manuscript discrepancy entries;
-the run; then the author's review, which redrew the figures, cut two of them,
-moved the scorecard from each method's excess over the best method to its total
-distance from the truth, put every scorecard row on one definition of that
-distance, and re-ran the notebook after each of the last two.
+the run; then the author's review, in four rounds -- redrawing the figures and
+cutting two of them; moving the scorecard from each method's excess over the
+best method to its total distance from the truth; putting every scorecard row
+on one definition of that distance; and finally adding the size-band panel,
+renaming the weighting schemes for display, and raising the design comparison
+from 800 pairs to 2,500. The notebook was re-run after each round that changed
+a table.
 
 ---
 
@@ -691,14 +758,15 @@ job it is right for: ranking one candidate METRIC against another by whether it
 can tell two materials apart. The tail figure was cut in the same pass and its
 finding is a paragraph beside the surviving figure.
 
-**The whole test suite is 562 tests, 559 passing and 3 skipped**, including the
+**The whole test suite is 566 tests, 564 passing and 2 skipped**, including the
 eight regression fixtures that pin the dataset characteristics and all six
 goodness-of-fit scores. That is the check that the fitting, the corpus and the
-empirical arm were not touched.
+empirical arm were not touched. One test stopped skipping rather than starting
+to pass: the figure renderer now accepts notebook 3.
 
-**The third notebook was run end to end three times**, once to produce the
-tables, once with the figure cells added at the end, and once after the
-denominator change. **Every run reproduced every table exactly** except the two
+**The third notebook was run end to end four times**, once to produce the
+tables, once with the figure cells added at the end, once after the denominator
+change and once after the design comparison's sample size was raised. **Every run reproduced every table exactly** except the two
 the change was meant to touch: the uncompressed tables are byte-identical and
 the compressed ones are identical once decompressed, differing only in the
 timestamp the compression format embeds in its own header. The recovery table
@@ -751,6 +819,27 @@ gained four columns -- the true level, and the error divided by it with its two
 interval bounds -- with **every pre-existing column bit-identical**, so the
 spread-based statistic every earlier section of this handoff quotes did not
 move by a digit.
+
+**AND A THIRD RUN, FOR THE DESIGN COMPARISON'S SAMPLE SIZE.** Raising it from
+800 pairs to 2,500 moved that experiment and nothing else: **every other table
+is byte-identical or identical once decompressed**, and the only files that
+changed are the design-comparison rows, its summary, the five-statement table
+that quotes it, the scorecard's one comparison row and the figure. The truth
+it is measured against moves within its old interval -- 0.5051 to 0.5017 at a
+claimed nought percent saving, 0.6292 to 0.6304 at five percent -- and **the
+spread across the six methods tightens as intended**, 0.0198 to 0.0146 at a
+claimed 10 percent saving and 0.0119 to 0.0088 at five.
+
+**One best-method box changed with it, and that is the sample size doing its
+job.** On the design comparison all six methods sit within 0.9 points of each
+other, and at 800 pairs the closest was the kernel estimate with Dirichlet
+shares at 0.53; at 2,500 it is the kernel estimate with equal weights at 0.81,
+with Dirichlet shares second at 0.88. The best-method counts over the 15 claims
+where the six differ therefore go from 5 / 5 / 4 / 1 to **5 / 5 / 3 / 2** across
+the equal-weighted lognormal, the Dirichlet lognormal, the Dirichlet kernel
+estimate and the equal-weighted kernel estimate. **A "best method" on a row
+whose six values span less than a point was noise, and the larger sample is
+what shows it.**
 
 **What the scorecard's own numbers become, because they are quoted in section
 0 and they did move.** The claim on which the choice of method costs most is no
@@ -820,12 +909,13 @@ replaying the generator; the goodness-of-fit and cross-validated scores the
 second notebook writes, which is where the replacement for the retired target
 comes from; and the frozen extract of real declarations.
 
-**Written.** One source module and its test file; fourteen new cells and four
-edited ones in the third notebook; thirteen new result tables; **one** figure,
-two others having been built and cut inside the stage; sixteen decisions in the
-project's decision log, numbered 143 through 158; eighteen manuscript
-discrepancy entries, numbered 131 through 148, with entry 7 marked resolved and
-entry 95 corrected in place; the figure style guide; the mechanics
+**Written.** One source module and its test file; fifteen new cells and five
+edited ones in the third notebook, plus a marker line on eight older figure
+cells; fourteen new result tables; **one** figure, two others having been built
+and cut inside the stage; twenty-two decisions in the project's decision log,
+numbered 143 through 164; twenty-two manuscript discrepancy entries, numbered
+131 through 152, with entry 7 marked resolved and entry 95 corrected in place;
+the figure style guide; the figure renderer and its test; the mechanics
 documentation; and this file.
 
 **Not touched.** The generator, the corpus's values, the extract of real

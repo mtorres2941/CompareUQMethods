@@ -194,6 +194,60 @@ MAGNITUDE_CANDIDATES = ('eci_mean', 'eci_perc_mean', 'eci_perc_p95tot',
                         'eci_p95', 'eci_std', 'ui')
 
 
+#: The dataset-size bands the corpus is stratified over, as (low, high) with
+#: None for "no upper bound". These are the generator's own strata, so each
+#: holds 2,500 of the 10,000 datasets by construction rather than by a cut
+#: chosen here.
+SIZE_BANDS = (('3-9', 3, 9), ('10-99', 10, 99), ('100-999', 100, 999),
+              ('1000+', 1000, None))
+
+
+def size_band_recovery(truth, outputs=CANDIDATES, method='method', n='n',
+                       truth_parent='truth_parent', parent='market',
+                       bands=SIZE_BANDS):
+    """Per (size band, method, output): the error as a pct of the true LEVEL.
+
+    WHY THIS EXISTS, and it is the figure's own caveat made measurable. The
+    claim scorecard pools every dataset size, so counting which method is
+    closest on the most rows reads as a verdict between the families. It is
+    not: the corpus allocates 2,500 datasets to each of four size bands
+    (decision 19), so half of every pLCA sits below 100 declarations, which is
+    where a three-parameter lognormal is already established to beat a kernel
+    estimate. Split by band, the ordering INVERTS -- and so does the weighting.
+
+    The divisor is the output's true level taken over the WHOLE arm, not within
+    the band, so the four rows of a column are on one scale and can be read
+    down as well as across. Using each band's own level would make a band with
+    a smaller true value look better for free.
+
+    Returns a tidy frame with one row per (band, method, output) carrying
+    `rel_error`, plus `n_materials` so a thin band is visible as one.
+    """
+    work = truth[truth[truth_parent] == parent] if truth_parent in truth else truth
+    rows = []
+    for out in outputs:
+        col, tcol = f'{out}__error', f'{out}__truth'
+        if col not in work.columns or tcol not in work.columns:
+            continue
+        level = abs(float(np.nanmean(
+            pd.to_numeric(work[tcol], errors='coerce').to_numpy(float))))
+        if not level > 0:
+            continue
+        for label, lo, hi in bands:
+            pick = work[n] >= lo
+            if hi is not None:
+                pick &= work[n] <= hi
+            band = work[pick]
+            if band.empty:
+                continue
+            for name, sub in band.groupby(method, sort=True):
+                err = pd.to_numeric(sub[col], errors='coerce').abs()
+                rows.append(dict(band=label, method=name, output=out,
+                                 rel_error=float(err.mean() / level),
+                                 truth_level=level, n_materials=int(len(sub))))
+    return pd.DataFrame(rows)
+
+
 def recovery_table(truth, outputs=CANDIDATES, method='method',
                    cluster='plca', truth_parent='truth_parent',
                    resamples=400, rng=None):
