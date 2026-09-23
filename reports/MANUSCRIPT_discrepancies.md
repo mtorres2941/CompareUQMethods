@@ -1916,3 +1916,27 @@ relative figure beside it.**
 | **What the choice of method costs, by question** | Attribution 35.5 percent between the best and worst method at the top of its range, action 31.0, magnitude 4.9, information 2.2, comparison 0.8. **The two questions a designer acts on most directly -- what will the building be, and is this design better -- are the two the choice of method affects least.** |
 | **Fix** | **Text and structure.** Use the five questions as the results section's headings. |
 | **Status** | Open, structural. Decision 114 established the five; this is the evidence for using them as the frame. |
+
+## 147. The claim scorecard's percentages were two statistics in one unit, and are now one
+
+| | |
+|---|---|
+| **The defect** | Seventeen claims were drawn on one colour scale as percentages. Seven of them -- the six attribution claims and the uncertainty index -- divided the mean absolute error by the SPREAD of the true value across materials, a signal-to-noise ratio; the other ten divided it by the true LEVEL, a relative error. The percent sign made the two look like one unit. |
+| **Why "just name the denominators" is not enough** | The two are not a fixed multiple of each other, so the seven spread-scaled rows were not comparable with each other either. Level over spread runs from **1.17** on the uncertainty index to **6.57** on a material's share of the total, a factor of 5.6. A third inconsistency sat inside the magnitude block: all four of its rows divided by the true building TOTAL, so the error in the total's standard deviation was a fraction of the total's MEAN. |
+| **The fix, applied** | Every row now divides by the mean TRUE LEVEL of the same quantity. Every attribution number has a well-defined level -- 1.0397 for a material's mean contribution, 0.6200 for its standard deviation, 2.0812 for its 95th percentile, 0.2500 for each of the three shares and frequencies and for the uncertainty index -- so nothing is dropped for want of a denominator. |
+| **What the paper must say about the definition** | It is the mean absolute error divided by the mean true level: a RATIO OF MEANS, not the ordinary mean absolute percentage error, which is a mean of per-case ratios and is not usable here. The true uncertainty index reaches **-0.000671** and **2,904 of 60,000** materials carry a true value below a hundredth of the mean, so a per-material ratio is unbounded and sometimes signless. |
+| **One claim is dropped** | `total_w1`, the Wasserstein distance between the method's building total and the truth's. Its true value is zero by definition so it has no level to be a percentage of. The scorecard is 16 claims. It stays in `TABLE_PLCABuildingSummary.csv`. |
+| **Both statistics are kept** | `recovery` (error over spread) in `TABLE_MetricRecovery.csv` ranks CANDIDATE METRICS by whether they can tell two materials apart, which is the right question for it and is what the "which metric should the paper lead with" result rests on. `rel_error` (error over level), new in the same table, compares one CLAIM with another and is what the scorecard draws. They must never appear on one axis. |
+| **Fix** | **Figure and text.** Decisions 156 and 157; the last paragraph of 156 is annotated as superseded in place. |
+| **Status** | Resolved in the analysis. The manuscript owes the definition in one sentence wherever the scorecard is described. |
+
+## 148. The tail figure is cut; the finding is a paragraph
+
+| | |
+|---|---|
+| **What was cut** | `CompareUQMethods_FIG_TailBlindSpot`, cell and PNG. It showed that a goodness-of-fit score charges for the mass a model misplaces and not for how far out it puts it. |
+| **Why** | It is a stress test rather than an observation. Across 60,000 fits on both arms the mean charge for mass beyond the scoring grid is **0.0000 to 0.0001**, and a fraction of a percent of fits exceed five times the data's own spread, because the profile-likelihood guard already bounds it. An upper truncation removes the failure mode outright and Stage 2h owns it. A limitation with a scheduled fix is a paragraph, not a figure. |
+| **What survives, with the numbers the sentence needs** | Scored over the scoring grid alone the criterion is FLAT past the grid's top at **9.9 times the dataset mean** -- the same value, **0.262571**, at all 16 contamination distances beyond it, against an uncontaminated 0.254474 -- while over the same range a material's standard deviation moves by a factor of **517**, its mean contribution by 2.0 and the uncertainty index by 1.5. With the tail term Stage 2c added the score climbs to **3.27** instead of staying flat. Shares and rank frequencies saturate because they are bounded in [0, 1]. |
+| **Where it lives** | `TABLE_MetricTailStress.csv` and `TABLE_MetricTailReality.csv`, printed by two notebook cells. |
+| **Fix** | **Text.** One paragraph in the limitations, pointing at the truncation sweep. Decision 158; decision 149's numbers are unchanged. |
+| **Status** | Resolved in the analysis. |

@@ -478,6 +478,25 @@ plants exactly that case and asserts the flat method loses. The truth's spread
 is one number per (arm, metric) and is shared by all six methods, so the column
 is a pure measure of error.
 
+**AND THERE IS A SECOND DIVISOR IN THE SAME TABLE, WHICH IS A DIFFERENT
+STATISTIC AND MUST NOT SHARE AN AXIS WITH THE FIRST.** `recovery` divides by the
+SPREAD and answers "can this metric tell two materials apart under this method",
+which ranks a CANDIDATE METRIC. `rel_error` divides by `truth_mean`, the LEVEL,
+and answers "how wrong is this number", which is what compares one CLAIM with
+another and is the only definition that can also be written for a building
+total, a strategy's saving and a design comparison -- none of which has a
+between-material spread at all. The two are not a fixed multiple of each other:
+across the seven per-material outputs the level runs from 1.17 to 6.57 times the
+spread, so a figure mixing them is not comparing like with like even within one
+block of rows. Stage 2g's first scorecard did exactly that and decision 157
+is the correction.
+
+**`rel_error` IS A RATIO OF MEANS AND NOT A MEAN OF RATIOS**, so it is not the
+ordinary mean absolute percentage error. The true uncertainty index reaches
+-0.000671 and 2,904 of 60,000 materials carry a true value below a hundredth of
+the mean, so a per-material ratio is unbounded and sometimes signless. Two tests
+pin this.
+
 **`decision_agreement` IS THE SAME QUESTION WITH NO UNITS IN IT.** Every one of
 these metrics is read as an argmax at some point -- which material is the
 biggest -- and this is that reading scored against the right answer, with the
@@ -1034,14 +1053,15 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_VisibleModes.csv` | NB1 | visible modes per dataset at scipy's default bandwidth and at the one the study fits |
 | `TABLE_VisibleModeSummary.csv` | NB1 | the share with one, two, three or more visible modes, at both bandwidths |
 
-**Figures added in Stage 2g:** `FIG_ClaimScorecard`, the seventeen claims by
-the six methods under the five questions, with a stacked bar separating the
-error every method makes from the error the choice of method adds; and
-`FIG_TailBlindSpot`, the continuous contamination sweep. A third,
-`FIG_MetricChoice`, was built and then cut in the same stage: it showed the same
-recovery error as a best-to-worst range, hid which method was which, and the
-scorecard says everything it said. Its unique content is the grey half of the
-scorecard's bar.
+**Figures added in Stage 2g: ONE, `FIG_ClaimScorecard`.** Sixteen claims by the
+six methods under the five questions, every cell the method's own distance from
+the truth on one definition, with a bar beside it for what the choice of method
+costs. **Two others were built and cut in the same stage.** `FIG_MetricChoice`
+showed the same recovery error as a best-to-worst range, hid which method was
+which, and the scorecard says everything it said. `FIG_TailBlindSpot` showed the
+contamination sweep; it is a stress test rather than an observation, the guard
+already bounds the failure mode, and Stage 2h's upper truncation removes it, so
+the finding is two tables and a paragraph. Decisions 153 and 158.
 
 **Figures added in Stage 2f:** `FIG_CharacteristicSurvivors_Empirical` and
 `_Synthetic`, which are what the 21-panel characteristic figure becomes;
@@ -1117,7 +1137,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_ReductionMarginalVersusPartial.csv` | NB3 | the marginal range beside the partial one, BOTH IN LOG UNITS of the target, and the ratio |
 | `TABLE_ReductionCurves.csv.gz` | NB3 | the curves that replace the rolling averages: equal-count bins with a bootstrap band and a count, plus a LOWESS smooth |
 | `TABLE_ReductionCoverageVsImportance.csv` | NB3 | **the generalization question, as a join.** Each candidate's importance beside how far the corpus reaches past the empirical range on it |
-| `TABLE_MetricRecovery.csv` | NB3 | **the Stage 2g table to read.** Per (truth parent, candidate metric, method): the mean absolute error against the true parent with an interval, the spread of the TRUE value across materials, and their ratio |
+| `TABLE_MetricRecovery.csv` | NB3 | **the Stage 2g table to read.** Per (truth parent, candidate metric, method): the mean absolute error against the true parent with an interval, and TWO normalizations of it that answer different questions. `recovery` divides by `truth_sd`, the spread of the TRUE value across materials, and says whether the metric can tell two materials apart -- this is what ranks the CANDIDATE METRICS. `rel_error` divides by `truth_mean`, the LEVEL, and says how wrong the number is -- this is what compares one CLAIM with another and is what the scorecard draws. The level runs from 1.17 to 6.57 times the spread across the seven outputs, so the two are not interchangeable and must not share an axis |
 | `TABLE_MetricDecisionAgreement.csv` | NB3 | the same question as an argmax: how often the method names the material the truth names, against chance |
 | `TABLE_MetricVerdict.csv` | NB3 | **the join.** Recovery, agreement and NRMSE per metric in one row, which is what makes a metric every method agrees on and every method gets wrong visible |
 | `TABLE_MetricWinShare.csv` | NB3 | how often each method is closest to the truth, for every candidate metric rather than the three an earlier stage picked |
@@ -1126,7 +1146,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_CapReductionNormalization.csv` | NB3 | the two sums of the corrected cap rank frequencies, which are now both quantities |
 | `TABLE_CapReductionByMethod.csv` | NB3 | how often the cap binds under each method, which the old constant divisor forced to 0.25 |
 | `TABLE_FiveStatements.csv` | NB3 | **the results section in order.** The five statements a pLCA makes, each with the truth and the span across the six methods, assembled from the tables already on disk |
-| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** Seventeen claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks, each an absolute error against the truth for all six methods. **`total_error` is what the figure shows in every cell**: that method's own distance from the truth, in units of an explicit scale for the row. `excess` is its excess over the best method on that row, `best_error` is what the best method still gets wrong, and `stakes` is worst minus best, which is what the CHOICE of method costs and is the right-hand bar. **The two answer different questions**: a small spread can mean every method is right or every method is wrong. **The scale is never the best method's error**, which returned stakes of 6,508 percent on a row whose best method was almost exactly right, and it is not the same KIND of quantity in every question -- attribution is scaled by the spread BETWEEN materials, because a material's mean contribution is 1.0 for all of them by construction, while a building total is scaled by its own level. The figure prints the denominator under each question for that reason |
+| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** SIXTEEN claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks, each scored for all six methods against the truth on **one definition for every row**: `total_error` is the mean absolute error divided by the mean TRUE LEVEL of the same quantity, and it is what the figure shows in every cell. `best_error` is what the closest of the six still gets wrong, `excess` is each method's excess over it, and `stakes` is worst minus best, which is what the CHOICE of method costs and is the right-hand bar. **The last two answer different questions**: a small spread can mean every method is right or every method is wrong. **An earlier version used two denominators** -- the between-material spread for the attribution rows and the true level for the rest -- and drew both on one colour scale; those are a signal-to-noise ratio and a relative error, they are not a fixed multiple of each other, and decision 157 is the correction. `total_w1` was dropped with that change, because a distance has a true value of zero and no level to be a percentage of |
 | `TABLE_MetricConclusions.csv` | NB3 | whether the paper's existing claims survive the companion metrics: the method ordering under each, how much worse the normal is, and how far the four non-normal methods span |
 | `TABLE_MetricWinLeaders.csv` | NB3 | whether each metric's win-share leader is separated from the runner-up or tied with it. On two of seven it is tied |
 | `TABLE_CapApplicabilityVsTruth.csv` | NB3 | how often each method finds the specification cap binding, against how often it really does. Only the two lognormals are indistinguishable from the truth |
@@ -1188,7 +1208,7 @@ the worst observed value.
 | `test_plca.py` | 55 | common random numbers make a method identical to itself while independent variates do not, and sharing them leaves each method's own marginal distribution alone, which is what makes installing them a refinement rather than a change of estimand; materials stay independent within an iteration; the outputs are the notebook's own definitions, checked against its pandas ranking and against NRMSE computed the way the plotting function computes it; an infinite Dirichlet concentration reproduces the equal-intensity case EXACTLY and every intensity vector averages to 1.0; concentration makes the top contributor stop moving; resampled groups hold distinct datasets; the cluster bootstrap is more than twice as wide as a row bootstrap; the tabulated parent sampler inverts the parent's own bisection and stays inside its support; a method that IS the parent has exactly zero error, which is the truth run's control; the lazy samplers agree with eager ones while bounding their memory; and the committed pLCA table is a full run rather than a smoke one |
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 | `test_metricreduction.py` | 59 | a cross-validated gain cannot be bought by adding a useless term and its fold spread grows as the data thin; a negative R2 is reported rather than clipped, which is what exposed the empirical arm; forward selection refuses a near-duplicate column; the policy curve puts its flat region around the true crossover and beats both fixed policies; the effective sample size matches its closed forms; a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
-| `test_metricset.py` | 23 | the new companion is a SHARE read at the BUILDING's bad end and not at the material's, with a planted case where one material drives the total's upper tail and the two metrics have to disagree; the corrected cap rank-1 frequencies sum to exactly 1.0 across the materials and are the old count divided by the measured applicability; a method that IS the truth has exactly zero recovery error, recovery grows with the error, and a method that reports one number for every material cannot score better than one that tracks the truth with noise; the argmax agreement is 1.0 for the truth and chance for a shuffle; the contaminated model inverts its own mixture CDF and reduces to its base at zero weight; **W1 over the scoring grid alone gives the SAME score at ten, a hundred and a thousand times the mean while the tail term rises with the distance**; and a share saturates under contamination while a mean, a standard deviation and a variance share do not |
+| `test_metricset.py` | 25 | the new companion is a SHARE read at the BUILDING's bad end and not at the material's, with a planted case where one material drives the total's upper tail and the two metrics have to disagree; the corrected cap rank-1 frequencies sum to exactly 1.0 across the materials and are the old count divided by the measured applicability; a method that IS the truth has exactly zero recovery error, recovery grows with the error, and a method that reports one number for every material cannot score better than one that tracks the truth with noise; the argmax agreement is 1.0 for the truth and chance for a shuffle; the contaminated model inverts its own mixture CDF and reduces to its base at zero weight; **W1 over the scoring grid alone gives the SAME score at ten, a hundred and a thousand times the mean while the tail term rises with the distance**; and a share saturates under contamination while a mean, a standard deviation and a variance share do not. **Two tests pin the two divisors apart**: `rel_error` is the error over the true LEVEL and `recovery` the error over the true SPREAD, their ratio is not one, and a single planted near-zero truth cannot move `rel_error`, which is why it is a ratio of means and not the ordinary mean absolute percentage error |
 | `test_remetric.py` | 3 | `remetric_corpus` relabels the parent-spec replay cache it copies, a cache from a genuinely DIFFERENT corpus is still refused, and the values are copied byte for byte while the characteristics really are recomputed |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch

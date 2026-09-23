@@ -4576,6 +4576,14 @@ rather than in conversation.
      close. **`total_error` is the new column and it is what the cells show;
      `excess` and `stakes` are kept, and `stakes` is the right-hand bar.**
 
+     **THE PARAGRAPH THAT FOLLOWED THIS ONE IS SUPERSEDED BY DECISION 157.** It
+     kept two denominators on one figure and printed each under its question,
+     on the reasoning that naming them made them comparable. It does not: they
+     are two different statistics, one a signal-to-noise ratio and one a
+     relative error, and a shared colour scale over both compares unlike things
+     however they are labelled. Every row now divides by the true LEVEL. The
+     original paragraph follows unchanged.
+
      **AND EACH QUESTION NOW NAMES ITS OWN DENOMINATOR ON THE FIGURE**, because
      the five do not share one and a shared colour scale without that is
      misleading. A material's mean contribution is 1.0 for every material by
@@ -4586,3 +4594,95 @@ rather than in conversation.
      percentages therefore depends on that choice of denominator and the paper
      must say so**, which is why the denominator is printed under each question
      rather than left in a caption.
+
+157. **2026-09-23, Stage 2g review. EVERY ROW OF THE SCORECARD NOW DIVIDES BY
+     THE TRUE LEVEL, AND THE TWO-DENOMINATOR SCHEME OF DECISION 156 IS
+     WITHDRAWN. The percentages on that figure were two different statistics
+     wearing one unit.** `[AUTHOR]` "Why does it matter if the denominators are
+     different in the figure? They're all expressed as percentages - isn't that
+     effectively the same unit? I'm open to discussion here, because I want to
+     be careful that we're not comparing numbers that shouldn't be compared ...
+     Wouldn't expressing these in percent error mean they're comparable?"
+
+     **THE ANSWER IS NO, THEY WERE NOT THE SAME UNIT, AND YES, PERCENT ERROR
+     FIXES IT.** Seven rows -- the six attribution claims and the uncertainty
+     index -- divided the mean absolute error by the SPREAD of the true value
+     across materials; the other ten divided it by the true LEVEL. Error over
+     spread is a signal-to-noise ratio and error over level is a relative error,
+     and the percent sign made them look alike.
+
+     **AND THE TWO ARE NOT A FIXED MULTIPLE OF EACH OTHER, so the seven rows
+     were not comparable with each other either.** Level divided by spread, on
+     the market-weighted truth run:
+
+         a material's share of the total        6.57
+         its mean contribution                  4.39
+         its share at the building 95th         2.70
+         its 95th percentile                    2.43
+         its chance of being largest            2.25
+         its standard deviation                 1.54
+         the uncertainty index                  1.17
+
+     A third inconsistency sat inside the magnitude block: all four of its rows
+     divided by the true building TOTAL, so the error in the total's standard
+     deviation was expressed as a fraction of the total's MEAN.
+
+     **THE ONE DEFINITION, and it is available for every row**: the mean
+     absolute error against the true parent, divided by the mean TRUE LEVEL of
+     the same quantity. Every attribution number has a well-defined,
+     non-degenerate level -- 1.0397 for a material's mean contribution, 0.6200
+     for its standard deviation, 2.0812 for its 95th percentile, 0.2500 for each
+     of the three shares and frequencies and for the uncertainty index -- so
+     nothing has to be dropped for want of a denominator.
+
+     **IT IS A RATIO OF MEANS AND NOT A MEAN OF RATIOS, which is the ordinary
+     mean absolute percentage error and is NOT usable here.** The true
+     uncertainty index reaches **-0.000671** and **2,904 of 60,000** materials
+     carry a true value below a hundredth of the mean, so a per-material ratio
+     is unbounded and, where the truth is negative, signless. The ratio of means
+     is stable, is defined on every row, and is what the magnitude and action
+     rows were already computing.
+
+     **`total_w1` IS DROPPED and the scorecard is 16 claims, not 17.** It is the
+     Wasserstein distance between the method's building total and the truth's,
+     so its true value is zero by definition and it has no level to be a
+     percentage of. It stays in `TABLE_PLCABuildingSummary.csv`.
+
+     **BOTH STATISTICS ARE KEPT, IN TWO PLACES, BECAUSE THEY ANSWER DIFFERENT
+     QUESTIONS.** `recovery` in `TABLE_MetricRecovery.csv` divides by the spread
+     and answers "can this metric tell two materials apart under this method",
+     which is what ranks a CANDIDATE METRIC and is what section 1 of the handoff
+     reports. `rel_error`, new in the same table, divides by the level and
+     answers "how wrong is this number", which is what compares one CLAIM with
+     another and is what the scorecard draws. `tests/test_metricset.py` pins the
+     distinction and pins why the mean-of-ratios form is not used.
+
+158. **2026-09-23, Stage 2g review. THE TAIL FIGURE IS CUT. The finding is a
+     paragraph and two tables, and decision 149's numbers stand unchanged.**
+     `[AUTHOR]` "Figure C I'm still on the fence about. I'm not sure it earns
+     its place. What point is it supposed to make? 'W1 stops charging' doesn't
+     make any sense. What does charging mean in this context? ... Are we making
+     a whole figure devoted to what extreme values do to a dataset? That doesn't
+     seem super important since you can just truncate those out."
+
+     **THE JARGON WAS THE WRITER'S FAULT.** "Charging" meant "adding to the W1
+     score" and the two lines were W1 with and without the tail term Stage 2c
+     added. A title needing that much explanation is not a title.
+
+     **AND THE SUBSTANCE DOES NOT CARRY A MAIN-TEXT FIGURE.** It is a stress
+     test, not an observation: across 60,000 fits on both arms the mean charge
+     for mass beyond the scoring grid is 0.0000 to 0.0001 and a fraction of a
+     percent of fits exceed five times the data's own spread, because the
+     profile-likelihood guard of decision 51 already bounds it. The author's own
+     point settles the rest -- an upper truncation removes the failure mode
+     outright, and Stage 2h already owns it.
+
+     **WHAT SURVIVES, AND IT IS ENOUGH.** The measurement stays in
+     `TABLE_MetricTailStress.csv` and `TABLE_MetricTailReality.csv` and is
+     printed by two notebook cells: scored over the grid alone the criterion is
+     flat past the grid's top at 9.9 times the dataset mean, the same 0.262571
+     at all 16 distances beyond it, while a material's standard deviation moves
+     by a factor of 517 over the same range. So the criterion charges for the
+     MASS a model misplaces and not for how far out it puts it.
+     `CompareUQMethods_FIG_TailBlindSpot` is deleted, cell and PNG. **Decision
+     149 is unchanged**; only its figure is gone.

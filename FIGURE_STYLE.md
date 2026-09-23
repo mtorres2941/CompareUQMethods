@@ -60,10 +60,23 @@ what is on the axes except the axis label, which then becomes a paragraph.
                 One line, occasionally two.
     axis label  a short noun phrase with its units. NOT a sentence.
 
-`CompareUQMethods_FIG_TailBlindSpot` is the worked example: "W1 stops charging
-once the tail leaves its grid" over "one fitted model, a thousandth of its mass
-moved out. orange: with the tail term. grey: over the grid alone", with
-"distance of the misplaced mass (multiples of the dataset mean)" on the axis.
+`CompareUQMethods_FIG_ClaimScorecard` is the worked example: "Under the BEST of
+the six methods a probabilistic LCA is right to 1 pct on the design comparison
+and wrong by 32 pct on which material leads" as the message, "a black box marks
+the method closest to the truth on that row" as the grey subtitle, and "mean
+absolute error against the true parent, as a pct of the true level of the same
+quantity" as the colorbar label.
+
+**Both numbers in that title are COMPUTED from the table the figure draws**,
+never typed. A title with a hardcoded number drifts away from its own panel on
+the next run, and nothing catches it.
+
+An earlier worked example here was `CompareUQMethods_FIG_TailBlindSpot`, whose
+title was "W1 stops charging once the tail leaves its grid". It was cut, and it
+is worth recording why the title failed: "charging" was internal shorthand for
+"adding to the W1 score". **A title that needs its own vocabulary explained is
+not a title.** Write the message in the words a reader of the paper already
+has.
 
 **The subtitle is also where a series legend belongs when direct labelling will
 not fit.** Naming two lines in a subtitle costs one short line; labelling them
@@ -145,6 +158,14 @@ Colour encodes, it does not decorate.
 - **One accent.** Reserve a single saturated colour for the thing the message is
   about, and render everything else in grey. A figure where everything is
   coloured emphasises nothing.
+- **One colour scale means ONE quantity.** Added 2026-09-23, Stage 2g, after a
+  heatmap drew seventeen rows on a shared ramp where seven of them were divided
+  by one thing and ten by another. Both were percentages, so nothing on the page
+  said they were different statistics. **If the cells of a shared scale are not
+  computed the same way, the scale is a lie, and naming the denominators in the
+  row headers does not repair it** -- the reader still has to do arithmetic the
+  colour has already done wrongly. Either put every cell on one definition or
+  use separate panels with separate scales.
 
 ---
 
@@ -276,6 +297,12 @@ to this file and found the titles uninformative and the axis labels running to
 sentences. Section 1 gained the three-slot rule -- title, subtitle, axis label --
 and the note that a takeaway title does not license hiding the data. One figure
 was cut rather than repaired.
+
+**Revised again 2026-09-23, same stage.** A second figure was cut, its title
+having needed a glossary. Section 4 gained the rule that one colour scale means
+one quantity, and section 1's worked example moved to the figure that survived
+and gained the requirement that a number in a title be computed from the table
+rather than typed.
 
 **Before this file existed the guide lived only in conversation, which is the
 condition this project's own continuity rule forbids.** If a figure convention is
