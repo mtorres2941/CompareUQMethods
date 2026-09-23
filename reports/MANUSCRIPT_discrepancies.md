@@ -1831,3 +1831,68 @@ relative figure beside it.**
 | **Fix** | **Code, done.** The cell takes the intersection and PRINTS what it skipped, because a characteristic silently missing from a correlation scan is the failure the crash would otherwise have hidden. |
 | **What is NOT fixed, and is left deliberately** | `corpus.METRIC_COLUMNS` still omits `modality_index_fitted`, so notebook 3's exploratory correlation scan does not see the modality measure the paper should report. Adding it would change the shape of `TABLE_SyntheticECCMetricsAndW1.xlsx`, which is a regression fixture, and would need notebook 2 rerun and the fixture re-frozen. Nothing depends on it: the metric reduction that uses that measure lives in notebook 4 and reads the corpus directly. |
 | **Status** | Crash RESOLVED in Stage 2g; the missing column is open and owned by whichever stage next reruns notebook 2. |
+
+## New, found in the Stage 2g review
+
+## 139. The chance of being the largest contributor is the worst-recovered metric for EVERY method
+
+| | |
+|---|---|
+| **What was asked** | Whether the finding that the rank metric recovers worst holds across all six UQ methods, or is an artifact of one. |
+| **It holds for all six, without exception** | Recovery error on the chance of being largest, and the next worst metric for that same method: kernel estimate with equal weights **0.733** against 0.686; with market-share weights **0.743** against 0.699; lognormal with equal weights **0.719** against 0.658; with market-share weights **0.767** against 0.699; normal with equal weights **1.037** against 0.840; with market-share weights **1.074** against 0.879. |
+| **Why that matters for how it is written** | It makes the finding a statement about probabilistic LCA rather than about one way of doing it: **whichever method a practitioner uses, the least reliable number it gives them is the chance that a material is the largest contributor.** It also means the demotion does not depend on which method the paper recommends. |
+| **Fix** | **Text.** State it as a property of the metric and not of a method. |
+| **Status** | Open, text. Decision 143. |
+
+## 140. No method is best for every claim, and how much the choice costs varies forty-fold
+
+| | |
+|---|---|
+| **What was built** | Seventeen claims across the five kinds of statement -- attribution, magnitude, action, comparison -- each scored for all six methods as an absolute error against the true distributions, with each row normalized within itself and its stakes measured against the size of the thing being claimed. |
+| **The result** | **The strongest single method is best on 6 of the 16 claims where the six differ at all, and four of the six are best on something.** The lognormal with equal weights takes 6, the lognormal with market-share weights 5, the kernel estimate with market-share weights 4, the kernel estimate with equal weights 1. Neither normal is ever first, and both are 5th or 6th on almost every row. |
+| **The stakes, which is the part a reader acts on** | How far apart the best and worst methods are, against the size of the claim: **35.5 percent** on a material's chance of being largest, 31.0 on how often a specification cap applies, 30.6 on the cap's chance of delivering 5 percent, 22.1 on a material's share of the total, 20.3 on its contribution -- down to 1.1 on the building total's 90th percentile, **0.8** on whether one design beats another, and **nothing at all** on what a quantity reduction saves. |
+| **Fix** | **Text and a figure.** The paper should carry this as a table or a heatmap rather than a single verdict, because a reader's question is "which method for the statement I am making", not "which method". |
+| **Status** | Open, text and figure. Decision 143 and the scorecard table. |
+
+## 141. Two of the seven win-share leaders are ties, and an earlier draft named them anyway
+
+| | |
+|---|---|
+| **What was wrong** | The first version of this stage reported that "three different methods lead" across the seven per-material metrics. It took the argmax of each win share without consulting the bootstrap interval already attached to it. |
+| **Measured** | Five of the seven have a leader whose interval clears the runner-up's: the kernel estimate with market-share weights on the chance of being largest (0.221), the 95th percentile (0.258) and the spread (0.296); the lognormal with market-share weights on the estimated contribution (0.236) and the mean share (0.215). **On the uncertainty index the top two are 0.2091 [0.1995, 0.2187] and 0.2082 [0.1993, 0.2177]** -- a margin of 0.0009 on intervals about 0.019 wide -- and on the share at the building's 95th percentile three methods are tied. |
+| **So the corrected claim is TWO methods**, not three, and on two metrics the honest answer is that nothing separates. |
+| **Fix** | **Text and figure, done in the figure.** Do not name a best method without showing the interval. |
+| **Status** | RESOLVED in the analysis; the text must not repeat "three". |
+
+## 142. Only the two lognormals get the specification cap's applicability right
+
+| | |
+|---|---|
+| **What became askable** | Once the cap's applicability was reported rather than divided away by a constant (entry 134), it could be scored against the truth. |
+| **The result** | The true distributions say a cap helps in **0.2786** of iterations. The lognormal with equal weights says 0.2773 and with market-share weights 0.2815 -- **both indistinguishable from the truth**, their bootstrap intervals straddling zero error. The kernel estimate is high by 0.0118 and 0.0200. **The normal is high by 0.0877, which is 31.5 percent too often.** |
+| **Why the ordering differs from the rank metric's** | The lognormal's strength is the shape of the upper tail, which is what a cap acts on; the kernel estimate's is following the body of the data, which is what a contribution and its spread are made of. The two orderings are not in conflict; they are about different parts of the distribution. |
+| **Fix** | **Text.** Where the paper discusses specification caps, the lognormal is the accurate method and the normal overstates how often the intervention applies by nearly a third. |
+| **Status** | Open, text. Decision 147. |
+
+## 143. Uniform, triangular and beta: where they belong, and where they do not
+
+| | |
+|---|---|
+| **What was asked** | Whether other distributions are worth comparing, and what else is common in LCA. |
+| **What is common** | The lognormal is dominant -- it is ecoinvent's default and it is what the pedigree matrix produces, since a geometric standard deviation IS a lognormal parameterization. The normal is common and usually wrong for a strictly positive right-skewed quantity. Both are in the study. Uniform and triangular are used; gamma, Weibull and beta appear occasionally, beta for bounded quantities such as efficiencies, which an embodied carbon coefficient is not. |
+| **Why uniform and triangular are not competitors in this comparison** | This paper compares ways of turning a SET of declarations into a distribution. A uniform is not fitted to a dataset: its maximum likelihood fit to n values is exactly the smallest and largest of them, discarding everything between. It would lose by a distance, and **that is the reason to leave it out** -- a family that cannot use the data is a straw man, and a straw man that flatters this paper's own method is worse than no comparison. |
+| **Where they do belong** | The judgment-driven arm, with the pedigree matrix, because they are what a practitioner reaches for when there is no dataset. The yardstick that arm uses -- how far apart two models must be before the answer changes -- does not care how either was built. |
+| **Gamma is settled and Weibull is scheduled** | Out of sample on the real categories the three-parameter lognormal is indistinguishable from gamma; against the known parent it separates by +0.0117 and +0.0045, winning 77.4 and 67.5 percent of datasets, so it is never worse. |
+| **Fix** | **Text**, one paragraph in the methods explaining which families are compared and why these three are not among them. The sweep is Stage 2h's. |
+| **Status** | Open, text. Decision 151. |
+
+## 144. The runaway tail exists in this study's own fits, and truncation is the easy fix the paper names
+
+| | |
+|---|---|
+| **What was asked** | Whether bad tails make much difference here, and whether truncation is worth implementing or worth naming as a weakness with an easy fix. |
+| **It is rare and real** | The fitted model's own spread over the data's is near 1.0 in the median for all six methods on both arms, and **0.25 percent of fits exceed five times the data's spread**. The worst reach **73.7**, 50.1 and 40.6 times, and all three are EQUAL-WEIGHTED fits to small datasets; the market-share-weighted twins top out at 5.0, 1.4 and 1.0. |
+| **Two guards already catch it** | The bound on the lognormal's threshold at fitting time, and the tail term in the criterion. The part of the score lying beyond the grid is **exactly zero** for the kernel estimate and the normal, which put no mass there, and averages 0.00006 and 0.00009 for the two lognormals. |
+| **Why truncation is not implemented** | Every model here is already truncated below at zero, and that bound is external and needs no argument. An upper bound has no equally external anchor: the physical ceiling this study applies to raw declarations is in their own units and every dataset is rescaled to an average of 1.0. Choosing a multiple is a modeling decision with numbers attached. |
+| **Fix** | **Text**, one sentence: a distance between cumulative curves cannot see how far out a model puts its rare values, this study charges for it with a tail term and watches it with the fitted-model spread ratio, and truncating each model at a plausible multiple of the largest observed value would remove the failure mode outright at the cost of one more assumption. **The sweep is Stage 2h's.** |
+| **Status** | Open, text. Decision 152. |
