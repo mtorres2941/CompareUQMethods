@@ -412,3 +412,41 @@ def test_a_bounded_metric_stops_moving_once_the_tail_is_far_enough_out():
         assert block[bounded].std() < 1e-12, bounded
     assert block['eci_perc_mean_rel'].max() < 0.01
     assert block['eci_std_rel'].max() / block['eci_std_rel'].min() > 5.0
+
+
+def test_rel_error_divides_by_the_level_and_recovery_by_the_spread():
+    """THE TWO DIVISORS ARE DIFFERENT STATISTICS, which is why both are kept.
+
+    The claim scorecard needs one definition it can write for a building total
+    and for a material's share alike, and only the LEVEL exists for both. The
+    candidate ranking needs to know whether a metric can tell two materials
+    apart, and only the SPREAD says that. Their ratio is not a constant, so a
+    figure mixing them is not comparing like with like.
+    """
+    got = MS.recovery_table(a_truth_frame(offset=0.20), outputs=('eci_mean',),
+                            resamples=40, rng=np.random.default_rng(0))
+    row = got[got.method == 'B'].iloc[0]
+    assert np.isclose(row['rel_error'], row['abs_error'] / abs(row['truth_mean']))
+    assert np.isclose(row['recovery'], row['abs_error'] / row['truth_sd'])
+    # A lognormal(0, 0.5) has a mean of about 1.13 and a standard deviation of
+    # about 0.60, so the two readings of the same error differ by about two.
+    assert row['truth_mean'] > 1.5 * row['truth_sd']
+    assert row['rel_error'] < 0.8 * row['recovery']
+
+
+def test_rel_error_is_a_ratio_of_means_and_not_a_mean_of_ratios():
+    """WHY IT IS NOT THE ORDINARY MEAN ABSOLUTE PERCENTAGE ERROR.
+
+    A per-material ratio is unbounded where the true value approaches zero, and
+    the real truth run has 2,904 materials of 60,000 whose true uncertainty
+    index is below a hundredth of the mean and some that are negative. One
+    near-zero material must not be able to move the statistic.
+    """
+    frame = a_truth_frame(offset=0.10)
+    near_zero = frame.eci_mean__truth.idxmin()
+    frame.loc[near_zero, 'eci_mean__truth'] = 1e-9
+    got = MS.recovery_table(frame, outputs=('eci_mean',), resamples=40,
+                            rng=np.random.default_rng(0))
+    row = got[got.method == 'B'].iloc[0]
+    assert np.isfinite(row['rel_error'])
+    assert 0.05 < row['rel_error'] < 0.5

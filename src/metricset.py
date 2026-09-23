@@ -221,13 +221,41 @@ def recovery_table(truth, outputs=CANDIDATES, method='method',
                          together: a `recovery` made mostly of `bias` is a
                          systematic error that ADDS over the materials of a
                          building, which is the failure Stage 2e measured.
+        `truth_mean`     the mean of the TRUE value over every material in the
+                         arm, which is the LEVEL of the thing being estimated
+                         rather than its spread
+        `rel_error`      `abs_error / abs(truth_mean)`, with `rel_error_lo`
+                         and `rel_error_hi`. **This is the statistic the claim
+                         scorecard uses**, because it is the one definition
+                         that can also be written for a building total, a
+                         strategy's saving and a design comparison, none of
+                         which has a between-material spread at all.
 
-    THE DIVISOR IS THE TRUTH'S SPREAD AND NOT THE METHOD'S. Dividing by the
+    TWO DIVISORS, TWO QUESTIONS, AND THEY MUST NOT APPEAR ON ONE AXIS.
+
+    `recovery` divides by the SPREAD and answers "can this metric tell two
+    materials apart under this method", which is what ranks a candidate metric
+    for the headline. `rel_error` divides by the LEVEL and answers "how wrong
+    is this number", which is what compares one claim against another. They
+    are not the same unit and the ratio between them is not a constant: across
+    the seven per-material outputs here the level is 1.17 to 6.57 times the
+    spread, so a figure mixing the two is not comparing like with like even
+    within one block of rows.
+
+    THE SPREAD DIVISOR IS THE TRUTH'S AND NOT THE METHOD'S. Dividing by the
     method's own spread would let a method that compresses every material
     toward the mean improve its score by being less informative, which is
     exactly backwards. The truth's spread is one number per (arm, output) and
     is the same for all six methods, so the six are comparable and the column
     is a pure measure of error.
+
+    `rel_error` IS A RATIO OF MEANS AND NOT A MEAN OF RATIOS, which is the
+    ordinary mean absolute percentage error and is not usable here. The true
+    uncertainty index reaches -0.000671 and 2,904 of 60,000 materials carry a
+    true value below a hundredth of the mean, so a per-material ratio is
+    unbounded and, where the truth is negative, signless. Dividing the mean
+    absolute error by the mean true level is stable, is defined for every row,
+    and is what the magnitude and action rows were already doing.
     """
     rng = rng or np.random.default_rng(0)
     rows = []
@@ -236,8 +264,9 @@ def recovery_table(truth, outputs=CANDIDATES, method='method',
             col, tcol = out, f'{out}__truth'
             if col not in block.columns or tcol not in block.columns:
                 continue
-            sd = float(np.nanstd(
-                pd.to_numeric(block[tcol], errors='coerce').to_numpy(float)))
+            tvals = pd.to_numeric(block[tcol], errors='coerce').to_numpy(float)
+            sd = float(np.nanstd(tvals))
+            lvl = float(np.nanmean(tvals))
             for name, sub in block.groupby(method, sort=True):
                 err = pd.to_numeric(sub[f'{out}__error'], errors='coerce')
                 work = sub.assign(_abs=err.abs(), _signed=err)
@@ -249,13 +278,17 @@ def recovery_table(truth, outputs=CANDIDATES, method='method',
                     abs_error=got['statistic'], abs_error_lo=got['ci_lo'],
                     abs_error_hi=got['ci_hi'],
                     bias_raw=float(np.nanmean(work['_signed'])),
-                    truth_sd=sd, n=got['n'], n_clusters=got['n_clusters']))
+                    truth_sd=sd, truth_mean=lvl,
+                    n=got['n'], n_clusters=got['n_clusters']))
     frame = pd.DataFrame(rows)
     if frame.empty:
         return frame
     for c, src in (('recovery', 'abs_error'), ('recovery_lo', 'abs_error_lo'),
                    ('recovery_hi', 'abs_error_hi'), ('bias', 'bias_raw')):
         frame[c] = frame[src] / frame['truth_sd']
+    for c, src in (('rel_error', 'abs_error'), ('rel_error_lo', 'abs_error_lo'),
+                   ('rel_error_hi', 'abs_error_hi')):
+        frame[c] = frame[src] / frame['truth_mean'].abs()
     return frame
 
 
