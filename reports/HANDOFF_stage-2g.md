@@ -8,7 +8,7 @@ therefore stated in full where it is made, and a trailing `decision N` or
 `entry N` is a citation into the project's decision log or its manuscript
 discrepancy log, never the substance of the sentence. Where a file has to be
 opened, the instruction is addressed to the NEXT CLAUDE CODE SESSION and says
-so. The two figures are embedded and their captions carry the numbers, so a
+so. The three figures are embedded and their captions carry the numbers, so a
 reader whose copy does not render the images loses nothing.
 
 ---
@@ -424,49 +424,49 @@ estimate's is following the body of the data.
 
 ## The three figures
 
-![Which metric recovers the truth, and which method wins under each](../outputs/figures/CompareUQMethods_FIG_MetricChoice.png)
+![What to lead with](../outputs/figures/CompareUQMethods_FIG_MetricChoice.png)
 
 **Figure A: lead with how much a material contributes and how uncertain that is
 -- not with its chance of being the largest contributor, which is the one its
-methods recover worst.** Both panels share the same seven rows, so the
-comparison between them is positional. **Left:** for each metric, a bar from the
-best of the six methods to the worst, measured as the error against the true
-distribution divided by how much that metric varies between materials. The
-chance of being largest, at the top, runs from **0.72 to 1.07**; the grey line
-at 1.0 marks where a method's error is as large as the whole spread the metric
-exists to reveal, and only that metric crosses it. The two in orange are the
-recommendation: a material's estimated contribution (0.51 to 0.71) and the
-spread of that contribution (**0.42 to 0.50**, the best of the seven).
-**Right:** the share of materials on which each method comes closest to the
-truth, six points per row, with the leader in orange and named **only where its
-bootstrap interval clears the runner-up's**. On five of the seven it does, and
-two distinct methods lead -- the kernel estimate with market-share weights on
-three, the lognormal with market-share weights on two. **On the other two the
-top methods are tied** and the panel draws the tie as open markers rather than
-picking one; an earlier version named a leader there and counted it as a third
-method.
+methods recover worst.** For each of seven numbers a probabilistic LCA reports
+about a material, a bar from the best of the six methods to the worst, measured
+as the error against the true distribution divided by how much that number
+varies between materials. The grey rule at 1.0 is where a method's error is as
+large as the whole spread the number exists to reveal: **only the chance of
+being largest crosses it**, reaching 1.07 under a normal fit. The two in orange
+are the recommendation -- what a material contributes (0.51 to 0.71) and how
+uncertain that is (**0.42 to 0.50**, the best of the seven).
 
 ![Every claim a probabilistic LCA makes, scored for all six methods](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
 
 **Figure B: no way of describing uncertainty is best for every claim a
-probabilistic LCA makes.** Seventeen claims, grouped by the kind of statement
-they belong to, each scored for all six methods as an absolute error against
-the true distributions. **Left:** each cell is that method's rank on that claim,
-1 best of six, colored by how far it sits between the best and worst on that
-row. **The strongest single method is best on 6 of the 16 claims where the six
-differ at all, and four of the six are best on something** -- the lognormal with
-equal weights takes 6, the lognormal with market-share weights 5, the kernel
-estimate with market-share weights 4, the kernel estimate with equal weights 1.
-The two normal fits are 5th and 6th on almost every row and are never first.
+probabilistic LCA makes.** Seventeen claims, grouped under the five questions a
+reader actually asks, each scored for all six methods as an absolute error
+against the true distributions. **Left:** each cell is how much worse that
+method is than the best method on that row, in percent of the size of the thing
+being claimed -- so 0 is the best method, and a reader can see at a glance
+whether second place is a hair behind or twice as wrong. **The strongest single
+method is best on 6 of the 16 claims where the six differ at all, and four of
+the six are best on something**: the lognormal with equal weights takes 6, the
+lognormal with market-share weights 5, the kernel estimate with market-share
+weights 4, the kernel estimate with equal weights 1. **Neither normal fit is
+ever first**, and both are worst or next to worst on almost every row.
 **Right:** how far apart the best and worst methods are on that claim, against
-the size of the thing being claimed. It runs from **35.5 percent** on a
-material's chance of being largest down to **0.8 percent** on whether one design
-beats another, and to **nothing at all** on what using 25 percent less of a
-material saves, where the six agree to four decimal places because that
-intervention is a deterministic fraction of the material's own contribution and
-no distributional assumption enters. That row is drawn gray and marked rather
-than ranked, because ranking six identical numbers would invite exactly the
-misreading the tied leaders in Figure A did.
+the size of the claim. It runs from **35.5 percent** on a material's chance of
+being largest and **31.0** on how often a specification cap applies, down to
+**0.8 percent** on whether one design beats another, and to **nothing at all**
+on what using 25 percent less of a material saves, where the six agree to four
+decimal places because that intervention is a deterministic fraction of the
+material's own contribution. That row is drawn blank rather than shaded,
+because ranking six identical numbers invites exactly the misreading this stage
+had to correct elsewhere.
+
+**Read down the five questions and the whole stage is in the figure**: the two
+questions a designer acts on most directly -- what will the building be, is
+this design better -- are the two the choice of method affects least; the two
+it affects most are the two that rank materials against each other; the
+uncertainty index is its own question and the methods nearly agree about it;
+and one intervention needs no distribution at all.
 
 ![The tail the criterion cannot see, and the metrics that survive it](../outputs/figures/CompareUQMethods_FIG_TailBlindSpot.png)
 
@@ -480,7 +480,7 @@ reason the sweep starts inside the data. **Left:** taken over the grid alone the
 score is flat past that rule -- **the same number, 0.262571, at all 16 distances
 beyond it**, against an uncontaminated 0.254474 -- while with the tail
 correction added two stages ago it climbs to **3.27**. **Right:** what the same
-contamination does to each reported metric, on a logarithmic scale. In orange,
+contamination does to each reported number, on a logarithmic scale. In orange,
 the shares and the rank frequency are flat beyond the rule: a share saturates,
 because once a material's draw is enormous it holds all of it. In grey, the
 spread of a material's contribution moves by a factor of **517** over the same

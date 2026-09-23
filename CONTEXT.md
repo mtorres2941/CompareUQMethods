@@ -484,6 +484,26 @@ biggest -- and this is that reading scored against the right answer, with the
 chance level `1 / k` printed beside it. It is the only comparison between two
 candidate metrics that carries nothing of either metric's scale.
 
+### The five questions, and why the scorecard is grouped by them
+
+A probabilistic LCA answers five questions and every result this study reports
+belongs to one of them: **magnitude**, what is the building's total; **attribution**,
+which materials contribute most to it; **information**, which materials
+contribute most to the UNCERTAINTY in it; **action**, how effective is a
+reduction strategy; and **comparison**, is this design better than that one.
+Stage 2e named them; Stage 2g's scorecard is the evidence for using them as the
+paper's frame, and it is grouped by them.
+
+**It is what makes the demotion of the rank metric legible.** "Which material is
+the largest contributor" is one of six numbers inside ONE of the five questions,
+not the study's subject. And the uncertainty index is the whole of the third
+question rather than a footnote to the second.
+
+**The cost of choosing a method, by question**, as the gap between the best and
+worst of the six at the top of each question's range: attribution 35.5 percent,
+action 31.0, magnitude 4.9, information 2.2, comparison 0.8. **The two questions
+a designer acts on most directly are the two the choice affects least.**
+
 ### The magnitude companions
 
 `eci_perc_mean`, each material's mean share of the building total, already
@@ -1097,7 +1117,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_CapReductionNormalization.csv` | NB3 | the two sums of the corrected cap rank frequencies, which are now both quantities |
 | `TABLE_CapReductionByMethod.csv` | NB3 | how often the cap binds under each method, which the old constant divisor forced to 0.25 |
 | `TABLE_FiveStatements.csv` | NB3 | **the results section in order.** The five statements a pLCA makes, each with the truth and the span across the six methods, assembled from the tables already on disk |
-| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table.** Seventeen claims across the five kinds of statement, each an absolute error against the truth for all six methods, with each row's rank, its normalized position between best and worst, and its STAKES against an explicit scale for that row. The scale is never the best method's error |
+| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** Seventeen claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks -- what is the total, which material contributes most, which material drives the uncertainty, how well does a reduction strategy work, is this design better -- each an absolute error against the truth for all six methods. `excess` is how much worse than the best method on that row in units of an explicit scale for the row, `stakes` is the largest excess in the row, and `methods_differ` is false where the six agree to within a thousandth of that scale. **The scale is never the best method's error**: dividing by that returned stakes of 6,508 percent on a row whose best method was almost exactly right |
 | `TABLE_MetricConclusions.csv` | NB3 | whether the paper's existing claims survive the companion metrics: the method ordering under each, how much worse the normal is, and how far the four non-normal methods span |
 | `TABLE_MetricWinLeaders.csv` | NB3 | whether each metric's win-share leader is separated from the runner-up or tied with it. On two of seven it is tied |
 | `TABLE_CapApplicabilityVsTruth.csv` | NB3 | how often each method finds the specification cap binding, against how often it really does. Only the two lognormals are indistinguishable from the truth |
