@@ -750,6 +750,137 @@ over the bin width, so a narrow bin stands tall.
 
 ---
 
+## 2d. The robustness sweeps, and what they settled
+
+Stage 2h. Every item here closes a "you only tested one variant" objection, so
+each is a sweep with a tabulated result under `outputs/tables/audits/` rather
+than a one-off check. Decision 56 permits audit scripts to write there and
+nowhere else in `outputs/`.
+
+### One market-share rule for both arms
+
+`weighting.coherent_weights`. Until Stage 2h the two arms drew market shares by
+DIFFERENT rules on the dimension the paper is built on: a flat Dirichlet over
+individual declarations on the real categories, a share per mixture component
+split inside the component on the synthetic ones. Independent weights are
+exchangeable, so the weighted CDF converges to the unweighted one and the
+measured effect MUST decay like n^-1/2 whatever markets do.
+
+The rule is the synthetic arm's, ported. Cut the declarations into k groups,
+draw each group's share from a Dirichlet, split it inside the group. Groups
+stand in for the components real data does not label, and the cut is a
+contiguous run of the SORTED values, ordered by
+
+    s = rho * rank + (1 - rho) * uniform
+
+so `rho` is the coherence axis and `k` the concentration axis. Decision 97
+requires the two be separated and this is how.
+
+**A MIXTURE MODEL WAS REFUSED for the proxy**: it cannot be estimated at three
+to nine declarations, mode counts on real data swing from 95 to 68 percent
+unimodal on one smoothing choice, and it would put a fitted model inside the
+paper's central quantity.
+
+**THE BLOCK COUNT IS `draw_blocks`, uniform on 1 to 5 and INDEPENDENT of n**,
+because that is what `genconfig.k_min` and `k_max` do. A first version grew it
+with n up to 12; that is a different weight model, and it reintroduces the
+artifact the port exists to remove. `blocks_for_n` is kept only so a sweep can
+measure what the wrong rule costs.
+
+**THE PROXY IS VALIDATED AGAINST THE TRUE MODE LABELS**, which only the
+synthetic arm can do because only it has both. At `rho = 0.5` a contiguous cut
+reproduces the true-label weighting effect to within 4 percent on the typical
+dataset, and orders the categories most like the truth (Spearman 0.935). That
+is the anchor for the port.
+
+**rho = 0 IS NOT THE NEUTRAL CHOICE.** It is the claim that market share is
+uncorrelated with carbon intensity, which published production volumes
+contradict. A bigger separation is not evidence of a better model either; the
+separation measures what unknown shares do and is not a target.
+
+**NOTHING IS REWEIGHTED IN THE PRODUCTION PATH.** The rule, its validation and
+its sweeps are measurements. Applying it would move every weighted
+characteristic of the empirical arm, which the generator is calibrated against.
+
+### The judgment arm
+
+`src/judgment.py`. The pedigree matrix as a lognormal specified by a centre and
+a geometric standard deviation, plus a uniform and a triangular over a
+plausible range derived from the SAME two inputs, so the three differ in SHAPE
+and not in information. All three expose the same pdf/cdf/ppf/rvs_from_uniform
+interface, so the truth run, the scoring and the pLCA take them unchanged.
+
+**THEY ARE NOT IN THE MAIN COMPARISON AND THAT IS A DECISION ABOUT WHAT THEY
+ARE FOR.** A uniform fitted to n declarations is exactly their smallest and
+largest and nothing else, so it would lose a goodness-of-fit comparison by a
+distance that says nothing. Decision 151. What makes the comparison possible at
+all is the yardstick: the error against the TRUE distribution does not care how
+a model was built.
+
+**TWO DIMENSIONS, AND THE MODE OF THE OFFSET MATTERS MORE THAN ITS SIZE.** A
+displacement applied identically to every material cancels EXACTLY in a design
+comparison, because both options' totals scale by the same factor; one drawn
+per material does not. `OFFSET_MODES` separates them, and sweeping only the
+common case would have reported a null that was an artifact of the sweep. The
+primary location model has no free parameter: the centre is ONE declaration
+drawn at random, which is what a practitioner without a dataset holds.
+
+**THE SPREAD IS SWEPT RELATIVE TO THE DATA'S OWN.** The pedigree matrix's
+factor table is not in `refs/`, and this project has already had to withdraw a
+figure quoted from memory (decision 49's amendment), so no table is asserted.
+`gsd_ratio` answers decision 124's deliverable sentence without one. **The
+manuscript owes a sourced factor table before laying a specific pedigree score
+on this axis.**
+
+### The upper truncation
+
+`families.Truncated` takes an optional `hi`, defaulting to infinity and
+verified bit-identical by the regression fixtures. `TruncatedAbove` caps any
+fitted model, including the kernel estimate, and `cap_models` applies a cap
+read off the data as a multiple of the largest observation, which is the only
+anchor available once every dataset is normalized to a mean of 1.0.
+
+**THE TAIL TERM STAYS IN FORCE THROUGHOUT THE SWEEP.** Without it the criterion
+returns the same number to seven significant figures whether the misplaced mass
+sits at a hundred times the dataset mean or a thousand, so the sweep would be
+measuring nothing. Decision 149.
+
+### Two more data-driven families
+
+`weibull` joins `gamma` in `fitting.FAMILIES`. Both are natively on (0, inf)
+with no threshold, so the renormalizing constant is exactly 1 and decision 13's
+support costs them nothing. **`_fit_w1` keeps a named list of parameter keys on
+the way back to the builder and the Weibull shape 'c' was not on it**, which
+dropped the shape silently rather than raising; a test pins the round trip.
+
+### The scorecard's numerator
+
+`metricset.claim_scorecard` and `per_unit_error`. Stage 2g's decision 157 put
+every scorecard row on one DIVISOR; this puts every row on one NUMERATOR.
+
+    total_error      mean |error| PER UNIT over the true level. The error in a
+                     SINGLE decision, and what the figure draws.
+    portfolio_error  |mean error| over the true level. The error in the AVERAGE
+                     claim over many decisions, which is the right quantity for
+                     a stock model and the wrong one for one design.
+
+Both are kept for all sixteen rows because they are different questions, not a
+better and a worse answer.
+
+### How many digits of a fitted crossing to print
+
+`flip.prose_digits`, `prose_crossing`, `crossing_precision`. Every crossing this
+project publishes is inverted from a FITTED curve, and the bootstrap interval
+around one fit says how well the data pin down THAT curve, not whether the
+curve is the right shape. The isotonic fit falls outside the logistic interval
+on five of the six published constants.
+
+**PROSE AND FIGURE ANNOTATIONS print the significant figures the two fits agree
+on plus the first they part at, and print BOTH values where they still differ
+there. Result tables and the supplement keep both fits and the interval at FULL
+precision.** `flip.FLIP_THRESHOLDS` is a computational constant rather than
+prose and is untouched.
+
 ## 3. Seeding and caching
 
 **Seeding.** All randomness comes from an explicitly passed
