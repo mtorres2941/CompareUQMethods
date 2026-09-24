@@ -245,6 +245,7 @@ FAMILIES = {
     'lognormal_3p': (families.fit_lognorm3_profile, families.make_lognorm),
     'lognormal_offset': (None, families.make_lognorm),
     'gamma': (families.fit_gamma_mle, families.make_gamma),
+    'weibull': (families.fit_weibull_mle, families.make_weibull),
 }
 
 PARAMETRIC_FAMILIES = tuple(FAMILIES)
@@ -503,6 +504,10 @@ def _w1_pack(name, p, x):
         v = np.array([np.log(p['a']), np.log(p['scale'])])
         return v, (lambda z: dict(a=float(np.exp(z[0])), loc=0.0,
                                   scale=float(np.exp(z[1]))))
+    if name == 'weibull':
+        v = np.array([np.log(p['c']), np.log(p['scale'])])
+        return v, (lambda z: dict(c=float(np.exp(z[0])), loc=0.0,
+                                  scale=float(np.exp(z[1]))))
     raise ValueError(name)
 
 
@@ -531,10 +536,14 @@ def _fit_w1(name, x, weights, p_mle, builder, logfit_offset):
         p = unpack(res.x)
     else:
         p = dict(p_mle)
-    p = {k: v for k, v in p.items() if k in ('s', 'a', 'loc', 'scale')}
+    # 'c' is the Weibull shape. It was absent from this list until Stage 2h
+    # added the family, and its absence silently dropped the shape parameter on
+    # the way back to the builder rather than raising anywhere useful.
+    SHAPE_KEYS = ('s', 'a', 'c', 'loc', 'scale')
+    p = {k: v for k, v in p.items() if k in SHAPE_KEYS}
     p['w1_opt_iterations'] = int(res.nit)
     p['w1_opt_improved'] = bool(res.fun < objective(v0))
-    keep = {k: v for k, v in p.items() if k in ('s', 'a', 'loc', 'scale')}
+    keep = {k: v for k, v in p.items() if k in SHAPE_KEYS}
     return builder(keep), p
 
 

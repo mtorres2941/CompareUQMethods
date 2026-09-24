@@ -38,7 +38,7 @@ import numpy as np
 from scipy import optimize
 from scipy.special import digamma
 from scipy.stats import gamma as gamma_dist
-from scipy.stats import lognorm, norm
+from scipy.stats import lognorm, norm, weibull_min
 
 #: The support is (0, inf), OPEN at zero. Decision 13, confirmed by the author.
 #: `ppf(0)` therefore returns the smallest representable positive double rather
@@ -596,3 +596,52 @@ def cap_models(models, x, multiple):
         except ValueError:
             out[name] = m       # the cap is above everything the model has
     return out
+
+
+def fit_weibull_mle(x, w, tol=1e-12):
+    """Two-parameter Weibull by weighted maximum likelihood.
+
+    A DATA-DRIVEN FAMILY AND SO A LEGITIMATE MEMBER OF THE MAIN COMPARISON,
+    unlike the uniform and the triangular, which are specified from bounds and
+    live in `src/judgment.py`. Like gamma it is natively on (0, inf) with no
+    threshold parameter, so it has no unbounded likelihood to guard against and
+    needs no truncation under decision 13's support.
+
+    The shape solves the weighted profile score
+
+        1/c + mean_w(log x) - sum_w(x^c log x) / sum_w(x^c) = 0
+
+    by bracketing and Brent, after which the scale is
+    `(sum_w x^c) ** (1/c)`. The left-hand side is decreasing in `c`, so the
+    bracket is unambiguous.
+    """
+    x, w = np.asarray(x, float), _norm_weights(w)
+    if np.any(x <= 0):
+        raise ValueError('the Weibull fit needs strictly positive data')
+    lx = np.log(x)
+    mlx = float(w @ lx)
+
+    def score(c):
+        xc = np.exp(c * lx)
+        s = float(w @ xc)
+        if not s > 0:
+            return np.inf
+        return 1.0 / c + mlx - float(w @ (xc * lx)) / s
+
+    lo, hi = 1e-3, 1.0
+    while score(hi) > 0 and hi < 1e6:
+        hi *= 2.0
+    while score(lo) < 0 and lo > 1e-9:
+        lo /= 2.0
+    if score(lo) <= 0 or score(hi) >= 0:
+        c = 1.0                       # degenerate: fall back to exponential
+    else:
+        c = float(optimize.brentq(score, lo, hi, xtol=tol, rtol=1e-14))
+    scale = float((w @ np.exp(c * lx)) ** (1.0 / c))
+    return dict(c=c, loc=0.0, scale=scale)
+
+
+def make_weibull(p):
+    return Truncated(weibull_min(c=p['c'], loc=p['loc'], scale=p['scale']),
+                     label='weibull',
+                     params={k: p[k] for k in ('c', 'loc', 'scale')})

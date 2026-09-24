@@ -341,3 +341,48 @@ def test_profile_fit_is_a_usable_generative_distribution():
             assert np.std(draws) < 20 * max(data_sd, 0.1), (
                 f'{kind} n={n}: fitted sd {np.std(draws):.4g} against a data sd '
                 f'of {data_sd:.4g}, status {p["status"]}')
+
+
+# ---------------------------------------------------------------------------
+# Stage 2h: Weibull, a data-driven family for the main comparison
+# ---------------------------------------------------------------------------
+def test_weibull_mle_recovers_its_own_parameters():
+    """A family enters the main comparison only if it can USE the data, which
+    is the constraint that keeps the uniform and the triangular out of it. The
+    first thing to check is that the estimator works."""
+    rng = np.random.default_rng(0)
+    for shape, scale in ((0.8, 2.0), (1.5, 1.0), (3.0, 0.5)):
+        x = rng.weibull(shape, 20000) * scale
+        w = np.full(len(x), 1.0 / len(x))
+        p = F.fit_weibull_mle(x, w)
+        assert p['c'] == pytest.approx(shape, rel=0.05)
+        assert p['scale'] == pytest.approx(scale, rel=0.05)
+        assert p['loc'] == 0.0
+
+
+def test_weibull_is_natively_on_the_support_and_needs_no_truncation():
+    """Weibull and gamma are both on (0, inf) with no threshold, so the
+    renormalizing constant is exactly 1 and decision 13's support costs them
+    nothing -- unlike the normal, which loses real mass below zero."""
+    rng = np.random.default_rng(1)
+    x = rng.weibull(1.4, 500) + 1e-6
+    w = np.full(len(x), 1.0 / len(x))
+    m = F.make_weibull(F.fit_weibull_mle(x, w))
+    assert m.mass_below == pytest.approx(0.0, abs=1e-12)
+    assert m.mass_kept == pytest.approx(1.0)
+
+
+def test_weibull_survives_the_w1_optimal_control():
+    """THE SHAPE PARAMETER MUST SURVIVE THE ROUND TRIP. `_fit_w1` keeps only a
+    named list of parameter keys, and 'c' was not on it until this family was
+    added -- which dropped the shape silently rather than raising."""
+    import fitting as FT
+    rng = np.random.default_rng(2)
+    x = rng.lognormal(0.0, 0.7, 400)
+    x = x / x.mean()
+    w = np.full(len(x), 1.0 / len(x))
+    mle, _ = FT.fit_family('weibull', x, w)
+    opt, p = FT.fit_family('weibull', x, w, method='w1')
+    assert 'c' in p and np.isfinite(p['c'])
+    # The W1-optimal fit starts from the MLE, so it can never score worse.
+    assert FT.score_w1_model(opt, x, w) <= FT.score_w1_model(mle, x, w) + 1e-12
