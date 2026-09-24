@@ -2129,3 +2129,14 @@ relative figure beside it.**
 | **A sourcing gap the manuscript must close** | The pedigree matrix's uncertainty-factor table is not in this repository's reference folder, so the spread was swept RELATIVE to the data's own rather than in absolute pedigree units. **A specific pedigree score cannot be laid on this axis until that table is sourced.** This project has already had to withdraw one figure quoted from memory. |
 | **Fix** | **Text.** Report the two-dimensional result, lead with the centre, and source the factor table before quoting a score. Decision 184. |
 | **Status** | Open for the manuscript. |
+
+
+## 165. One scorecard claim is an identity of another
+
+| | |
+|---|---|
+| **What was found** | After the per-unit correction, "what using 25 percent less of a material saves" and "a material's share of the building total" carry identical numbers in all six cells of the scorecard. |
+| **Why** | Using 25 percent less of a material removes exactly a quarter of that material's share of the total, with no distribution entering, so the error in the first is exactly 0.25 times the error in the second and the true levels stand in the same ratio (0.0625 against 0.2500). Verified over all 60,000 rows: largest deviation 1.1e-15, correlation 1.00000000. |
+| **The old definition hid it** | Under the averaged form both rows read 0.00, which reads as two independent claims agreeing rather than as one claim counted twice. |
+| **Fix** | **Text.** Report one of the two, and state that a quantity reduction is a deterministic fraction of a material's own share so its accuracy IS that share's accuracy. Do not present them as two pieces of evidence. The figure keeps both rows because it is grouped by the five questions a reader asks. Decision 186. |
+| **Status** | Open for the manuscript. |

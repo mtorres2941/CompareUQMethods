@@ -431,7 +431,60 @@ rule, not on a measurement.
 
 ## The figure
 
-FIGURE_PLACEHOLDER
+![Every claim a probabilistic LCA makes, scored for all six methods against the truth, with the five corrected rows](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
+
+**Figure: under the best of the six methods a probabilistic LCA is right to
+12.0 percent on the design comparison and wrong by 32.0 percent on which
+material leads -- and the count of black boxes in the upper panel is not a
+ranking of methods, because the ordering inverts with dataset size.**
+
+**EVERY CELL OF BOTH PANELS IS THE SAME QUANTITY**: that method's mean absolute
+error against the truth PER DECISION, as a percentage of the mean true level of
+the thing being claimed. A black box marks the method closest to the truth in
+each row. "Sampled" means the market shares were drawn at random because nobody
+publishes them; "equal" means every declaration counts the same.
+
+**WHAT THE CORRECTION DID TO THIS FIGURE.** The four reduction-strategy rows
+and the design comparison moved, and nothing else did. Before and after, best
+method: how often a cap binds **0.5 to 30.6**, a cap's mean saving **0.6 to
+38.5**, a cap's chance of saving 5 percent **1.1 to 33.0**, what using 25
+percent less saves **0.0 to 10.0**, the probability B beats A **0.8 to 12.0**.
+The eleven other rows are bit-identical and the old values are reproduced
+exactly by the new portfolio column.
+
+**READING THE UPPER PANEL.** The building total is recovered to 8.0 percent on
+its mean and 22.1 on its standard deviation. Attribution runs from 10.0 percent
+on a material's share of the total to **32.0 on its chance of being the largest
+contributor**, which remains the worst-recovered claim in that block. The
+uncertainty index is **43.6 to 45.5 percent** with only 1.9 points between best
+and worst -- the one claim where the choice of method does not matter and no
+method is close. The reduction strategies are now the widest block on the
+figure: a cap's chance of saving 5 percent runs **33.0 to 58.1**, and the two
+normal fits are the whole of that spread. The design comparison is the best
+recovered claim at **12.0 to 17.1**.
+
+**THE RIGHT-HAND BAR IS A DIFFERENT QUESTION FROM THE CELLS.** It is worst
+minus best, so it is what the CHOICE of method costs, where the cells say how
+good the answer is at all. On a cap's chance of saving 5 percent the choice
+costs 25.1 and the best method is still 33.0 out. On the uncertainty index the
+choice costs 1.9 and every method is about 44 out.
+
+**THE LOWER PANEL IS THE UPPER ONE'S OWN CAVEAT.** The seven per-material
+claims pooled, split by the material's own dataset size. The equal-weighted
+lognormal is closest below 100 declarations, the sampled-share lognormal from
+100 to 999, and the sampled-share kernel estimate above 1,000 at **11.0 against
+the equal-weighted lognormal's 17.2**. Both axes turn over: equal weights win
+every band below 100 and sampled shares win every band above.
+
+**AND ONE OF THE SIXTEEN ROWS IS REDUNDANT, which the correction exposed.**
+"What using 25 percent less saves" and "a material's share of the total" now
+carry identical numbers in all six cells, and that is an identity rather than a
+coincidence: using 25 percent less of a material removes exactly a quarter of
+that material's share of the building, so the error in the first is exactly
+0.25 times the error in the second and their relative errors are equal to
+machine precision. Verified over all 60,000 rows, correlation 1.00000000.
+**Under the old averaged definition both rows read 0.00 and the identity was
+invisible.** The paper should report one of them, not both.
 
 ---
 
@@ -597,9 +650,9 @@ distributions; and the visible-hump counts.
 
 **Written.** Four source modules or module sections with their tests; seven
 audit scripts and one audit README; two notebook cells changed and three tables
-given extra columns; eleven decisions in the project's decision log, numbered
-174 through 184; seven manuscript discrepancy entries, numbered 158 through
-164; a new section of the mechanics documentation; and this file.
+given extra columns; thirteen decisions in the project's decision log, numbered
+174 through 186; eight manuscript discrepancy entries, numbered 158 through
+165; a new section of the mechanics documentation; and this file.
 
 **Not touched.** The generator, the corpus's values, the extract of real
 declarations, the fitting methods used in the production path, the scoring

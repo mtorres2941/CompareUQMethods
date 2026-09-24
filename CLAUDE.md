@@ -6360,3 +6360,41 @@ rather than in conversation.
 
      **A LATER STAGE MUST NOT READ THOSE TWO ROWS AS A TUNING OPPORTUNITY.**
      `audits/GENERATOR_SWEEP.md` carries the commands and this warning.
+
+
+186. **2026-09-24, Stage 2h. ONE OF THE SIXTEEN SCORECARD CLAIMS IS AN IDENTITY
+     OF ANOTHER, AND THE OLD AVERAGED DEFINITION HID IT.** `[DELEGATED, 2h
+     found while checking the corrected figure]`
+
+     After the per-unit correction of decision 174, "what using 25 percent less
+     of a material saves" and "a material's share of the building total" carry
+     IDENTICAL numbers in all six cells, to six decimal places.
+
+     **IT IS AN IDENTITY AND NOT A COINCIDENCE.** Using 25 percent less of a
+     material removes exactly a quarter of that material's share of the
+     building total, with no distribution entering, so
+
+         qty_reduction_mean__error  =  0.25 x eci_perc_mean__error
+
+     exactly. Verified over all 60,000 rows: the largest deviation is 1.1e-15
+     and the correlation is 1.00000000. The true levels stand in the same
+     ratio, 0.0625 against 0.2500, so the RELATIVE errors are equal.
+
+     **THE OLD DEFINITION MADE IT INVISIBLE.** Under the averaged form both
+     rows read 0.00 and 0.00, which looks like agreement between two
+     independent claims rather than one claim counted twice. The correction is
+     what exposed it.
+
+     **WHAT THE PAPER SHOULD DO.** Report one of the two, not both, and say
+     that a quantity reduction is a deterministic fraction of a material's own
+     share so that its accuracy IS the accuracy of that share. The scorecard
+     keeps both rows because the figure is grouped by the five questions a
+     reader asks and a reduction strategy belongs under `action`, but the text
+     must not present them as two pieces of evidence.
+
+     **AND A CAUTION ABOUT HOW THIS WAS FOUND.** The first two checks of it
+     were wrong, both because they divided by -0.25 where the saving is
+     reported as a positive magnitude. One printed "CONFIRMED" unconditionally
+     regardless of what it measured. A verification script that cannot fail is
+     not a verification; the working check is the one that prints the residual
+     and the correlation and lets the reader see them.
