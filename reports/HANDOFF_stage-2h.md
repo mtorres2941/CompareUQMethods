@@ -427,6 +427,100 @@ way. It is redone here under the same mismatched rules, because they still do
 not -- so the question is waiting on the author's decision about the weight
 rule, not on a measurement.
 
+## 10. The certification credit: near the bar, the methods disagree two thirds of the time
+
+**THE QUESTION, in a practitioner's words.** Green-building certification
+awards points for demonstrating a reduction against a baseline -- typically 10
+percent. Under a probabilistic LCA that claim naturally becomes "demonstrate a
+10 percent reduction with 75 percent confidence". Does the choice of UQ method
+change whether you earn it?
+
+The study already computed the probability and scored its error. It had never
+asked the DECISION that probability is used for, which is a different and more
+fragile question: it inherits the error in the probability AND a cliff at the
+threshold.
+
+**THE ANSWER**, on 600 design pairs built at five different true savings, 3,000
+cases in all:
+
+    the truth earns the credit                      17.4 pct of cases
+    at least two of the six methods disagree        18.2 pct
+    the best method calls it wrong                   8.8 pct
+    the worst method calls it wrong                 12.5 pct
+
+**AND THE FRAGILITY IS THE THRESHOLD, NOT THE METHODS.** Split by how far the
+TRUE confidence sits from the 75 percent line:
+
+    distance from the line    designs   the six disagree
+    within 0.05                   305       65.3 pct
+    0.05 to 0.10                  281       46.3 pct
+    0.10 to 0.25                  800       20.5 pct
+    beyond 0.25                 1,614        3.4 pct
+
+The same story read by how much the design actually beats the baseline: the
+methods disagree on 0.2 percent of designs with no real saving, 6.5 percent at
+a true 10 percent saving, 31.3 at 15 percent and 52.0 at 20.
+
+> **So what. A design comfortably over or under the bar is called the same way
+> by every method, and a design sitting on the bar is a coin toss.** That is
+> not an argument against writing credits this way -- it is an argument for
+> writing them with the margin stated, because a certification scheme that
+> awards a point at exactly 75 percent confidence is awarding it on the
+> modeling choice rather than on the building whenever an applicant is close.
+> A normal distribution is the worst method for this on 8 of the 15 tier and
+> confidence combinations tested.
+
+**TWO CONSTRUCTIONS WERE WRONG BEFORE ONE WAS RIGHT**, and both are recorded
+because the second is a defect in the study's own code.
+
+A credit is a WHOLE-DESIGN claim, not a one-material one. Capping a single
+material almost never moves a whole building by 10 percent, so asking the
+question of a single-material intervention answers it where nobody is near the
+bar: the truth clears it in **0.24 percent** of cases.
+
+And the study's existing comparison margin points the wrong way for this
+question. It computes the share of simulations in which the proposal comes in
+below the baseline times a margin, and the study's margins are 1.0, 1.05 and
+1.2 -- all ABOVE one, which asks "is the proposal better, **or worse by less
+than** 20 percent". That is a tolerance. A credit needs the margin BELOW one.
+Confirmed on the study's own output: at a true 20 percent saving the 1.2 margin
+reads **0.9993** against a plain "is it better" of 0.9628 -- looser, not
+stricter. **The code comment described it as "the share in which A beats B by a
+margin worth acting on", which describes the other direction.** Corrected, with
+a test. **No published number moves**: the 1.05 and 1.2 figures are what the
+comparative-LCA literature reports and are correct as tolerances; the sentence
+describing them was wrong.
+
+**A SOURCING CONSTRAINT.** The tiers used are the study's own 5, 10 and 20
+percent, which match the tiered structure certification schemes use. **The
+exact wording, tier and confidence of any specific credit must be sourced
+before the paper cites one** -- the same discipline this stage applies to the
+pedigree matrix's factor table, and for the same reason.
+
+---
+
+## 11. Two sensitivities that changed nothing, reported because they could have
+
+**THE BANDWIDTH.** The rule for how much to smooth a kernel estimate was
+settled two stages ago on held-out likelihood. Swept again: on the synthetic
+half of the study the older rule beats the current one on that criterion **61
+to 63 percent** of the time, which is the opposite of what the real categories
+said. On the study's own criterion they do not disagree -- the current rule
+gives 0.1517 against 0.1649 under equal weights and **0.0621 against 0.1016**
+under market-share weights, a 64 percent difference.
+
+**What the headline does under the older rule, which is the configuration the
+manuscript was written against:** the kernel estimate looks WORSE, by 9 percent
+under equal weights and 64 under market-share weights. So the manuscript's
+configuration understates this paper's own method, which is the conservative
+direction and should be stated rather than quietly corrected.
+
+**TWO MORE DISTRIBUTION FAMILIES.** Gamma and Weibull were added to blunt the
+objection that only two shapes were tested. Weibull ranks below gamma, which an
+earlier stage already established is indistinguishable from the
+three-parameter lognormal, so the ordering of the paper's own methods is
+untouched. **The family list is not short for want of trying.**
+
 ---
 
 ## The figure
@@ -626,7 +720,7 @@ not regenerated.
 | Item | |
 |---|---|
 | **THE GENERATOR-PARAMETER SWEEP IS DONE and is section 9 above.** All sixteen configurations completed. The next session that wants to repeat or extend it should read `audits/GENERATOR_SWEEP.md`, which carries the commands, what each parameter is and how to read a result against the objective's noise -- **including the warning that the two configurations which beat the default are the objective asking for the wrong fix** |
-| **THE BANDWIDTH SWEEP WAS NOT RUN IN THIS STAGE.** It is a sensitivity rather than an open choice -- the rule was settled two stages ago on held-out likelihood -- and the existing audit scripts for it are in place and unchanged. **The next session should run `audits/bandwidth_rules.py` and `audits/guard_threshold_sweep.py` and report what the headline does under the older rule specifically**, because that is the configuration the manuscript was written against |
+| **THE BANDWIDTH SWEEP IS DONE and is section 11 above.** The shipped rule stands, and what the headline does under the older rule is reported: the kernel estimate looks 9 to 64 percent worse, which is the conservative direction |
 | **A per-unit and a per-portfolio error are different questions and the paper now has both for sixteen claims.** Which one each published sentence means is not yet decided anywhere but in this file |
 | **The weight-draw noise in the calibration objective had never been measured and is as large as the generator's seed noise.** Any later stage judging a calibration change must quote it |
 
@@ -650,8 +744,8 @@ distributions; and the visible-hump counts.
 
 **Written.** Four source modules or module sections with their tests; seven
 audit scripts and one audit README; two notebook cells changed and three tables
-given extra columns; thirteen decisions in the project's decision log, numbered
-174 through 186; eight manuscript discrepancy entries, numbered 158 through
+given extra columns; sixteen decisions in the project's decision log, numbered
+174 through 189; eight manuscript discrepancy entries, numbered 158 through
 165; a new section of the mechanics documentation; and this file.
 
 **Not touched.** The generator, the corpus's values, the extract of real

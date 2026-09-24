@@ -868,3 +868,33 @@ def test_finish_does_not_delete_deliberate_tick_labels():
     got = [t.get_text() for t in ax.get_xticklabels()]
     plt.close(fig)
     assert got == bands
+
+
+# ---------------------------------------------------------------------------
+# Stage 2h: which way a comparison margin points
+# ---------------------------------------------------------------------------
+def test_comparison_margin_above_one_loosens_and_below_one_tightens():
+    """THE DIRECTION IS NOT OBVIOUS AND THE DOCSTRING HAD IT BACKWARDS.
+
+    `mci_g` is `P(a < g * b)`. A margin ABOVE one is a TOLERANCE -- "a is
+    better, or worse by less than g" -- and a margin BELOW one is the credit
+    form, "a beats b by at least 1 - g". Caught on the study's own output,
+    where mci_1.2 read 0.9993 at a true 20 percent saving against a
+    discernibility of 0.9628.
+    """
+    rng = np.random.default_rng(0)
+    base = rng.lognormal(0.0, 0.25, 40000)
+    # A proposal 10 percent better in expectation, with its own spread, which
+    # is the realistic case: an exact multiple makes every margin degenerate.
+    prop = base * 0.90 * rng.lognormal(0.0, 0.10, 40000)
+    got = PL.comparison_statement(prop, base, margins=(1.0, 1.2, 0.90, 0.80))
+    # A TOLERANCE is satisfied at least as often as plain superiority.
+    assert got['mci_1.2'] >= got['discernibility']
+    # A CREDIT margin is satisfied less often, and a stricter credit less
+    # often still. This is the ordering the docstring had backwards.
+    assert got['mci_0.9'] < got['discernibility']
+    assert got['mci_0.8'] < got['mci_0.9']
+    # And all four are genuine interior probabilities rather than 0 or 1, so
+    # the ordering is not an artifact of a degenerate case.
+    for key in ('discernibility', 'mci_1.2', 'mci_0.9', 'mci_0.8'):
+        assert 0.01 < got[key] < 0.999, (key, got[key])

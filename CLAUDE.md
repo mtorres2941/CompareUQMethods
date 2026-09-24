@@ -6398,3 +6398,125 @@ rather than in conversation.
      regardless of what it measured. A verification script that cannot fail is
      not a verification; the working check is the one that prints the residual
      and the correlation and lets the reader see them.
+187. **2026-09-24, Stage 2h. THE CERTIFICATION CREDIT AS A DECISION: when a
+     design sits near the bar, the six methods disagree about whether it EARNS
+     THE CREDIT two thirds of the time. And the study's comparison margin
+     points the WRONG WAY for this question.** `[AUTHOR]` The author's framing,
+     and it is a better one than the study was using: "practitioners often
+     perform LCAs for LEED points ... with probabilistic LCA, I think this
+     credit would evolve to something more like 'demonstrate a 10 percent
+     reduction with 75 percent confidence'."
+
+     **WHAT THE STUDY ALREADY HAD AND NEVER ASKED.**
+     `plca.reduction_statement` has computed P(an intervention delivers at
+     least 5, 10 or 20 percent of the building) since Stage 2e, and the truth
+     run scores the error in that probability. Nothing had asked the DECISION
+     it is used for: is P at or above the required confidence, so the credit is
+     earned? That inherits the error in the probability AND a cliff at the
+     threshold, so it is a different and more fragile question.
+
+     **TWO CONSTRUCTIONS WERE WRONG BEFORE ONE WAS RIGHT, and both are worth
+     recording.**
+
+     First, a credit is a WHOLE-DESIGN claim and not a one-material one.
+     Capping a single material almost never moves a building by 10 percent, so
+     asking the question of `cap_p_reduction_over_10` answers it where nobody
+     is near the bar: the true distributions clear it in **0.24 percent** of
+     cases. `audits/credit_threshold.py` is that attempt and is kept because
+     its own output is the evidence for the point.
+
+     Second, **`plca.comparison_statement` computes `P(a < g * b)`, so a margin
+     ABOVE one LOOSENS the test**: `mci_1.2` is "the proposal is better, OR
+     worse by less than 20 percent", which is a tolerance. A credit needs `g`
+     BELOW one. Verified on the study's own run: at a true 20 percent saving
+     `mci_1.2` reads **0.9993** against a discernibility of 0.9628, the looser
+     condition and not the stricter one. **The docstring said "the share in
+     which A beats B by a margin worth acting on", which describes `g < 1` and
+     not what the code computes.** Corrected, with a test pinning the
+     direction; `swap_run` now takes `margins`. **No reported number moves:
+     `mci_1.05` and `mci_1.2` are what Marsh et al. (in press) report and are
+     correct AS TOLERANCES; what was wrong is the sentence describing them.**
+
+     **THE RESULT, on 600 design pairs at five true savings, 3,000 cases, with
+     credit margins of 0.95, 0.90 and 0.80.** A credit of "beat the baseline by
+     10 percent with 75 percent confidence":
+
+         the truth earns it                            17.4 pct of cases
+         at least two of the six methods disagree      18.2 pct
+         the best method calls it wrong                 8.8 pct
+         the worst method calls it wrong               12.5 pct  (Normal, Variable)
+
+     **AND THE FRAGILITY IS THE THRESHOLD, NOT THE METHODS, which is the
+     finding.** Splitting by how far the TRUE confidence sits from the line:
+
+         distance from the line    cases   methods disagree
+         0.00 to 0.05               305        65.3 pct
+         0.05 to 0.10               281        46.3 pct
+         0.10 to 0.25               800        20.5 pct
+         beyond 0.25              1,614         3.4 pct
+
+     A design comfortably over or under the bar is called the same way by all
+     six; a design within five points of it is a coin toss. The same story by
+     how much the design actually beats the baseline, at a 10 percent credit
+     and 75 percent confidence: methods disagree on 0.2 percent of designs with
+     no true saving, 6.5 percent at a true 10 percent saving, 31.3 at 15 and
+     52.0 at 20.
+
+     **THE NORMAL IS THE WORST METHOD ON 8 OF THE 15 CELLS**, the
+     market-share lognormal on 5 and a kernel estimate on 2, which is the same
+     ordering the rest of the study finds.
+
+     **A SOURCING CONSTRAINT FOR THE MANUSCRIPT.** The tiers used are the
+     study's own 5, 10 and 20 percent, which match the tiered structure
+     certification schemes use. **The exact wording, tier and confidence level
+     of any specific credit must be sourced before the paper cites one**, on
+     the same grounds as decision 49's withdrawn figure and decision 184's
+     pedigree table. `audits/credit_design.py`.
+
+188. **2026-09-24, Stage 2h. THE BANDWIDTH SENSITIVITY: the two arms disagree
+     about the DENSITY criterion and agree about the study's own, so the
+     shipped rule stands.** `[DELEGATED, 2h measured]` A sensitivity rather
+     than an open choice; the rule was settled in Stage 2c on held-out
+     likelihood.
+
+     **THE ARMS DISAGREE ON THE CRITERION THE RULE WAS CHOSEN BY.** On the
+     synthetic arm Scott beats Silverman on leave-one-out likelihood on **60.9
+     percent** of datasets under equal weights and 62.7 under market-share
+     weights, which is the opposite of the empirical arm where Stage 2c found
+     Silverman winning. On the study's own criterion they do not disagree:
+     mean W1 is **0.1517 for Silverman against 0.1649 for Scott** under equal
+     weights and **0.0621 against 0.1016** under market-share weights.
+
+     **THE CROSS-VALIDATED BANDWIDTH IS BEST ON HELD-OUT LIKELIHOOD BY A
+     DISTANCE** -- mean -0.2006 against Scott's -0.4914 -- and is NOT better on
+     W1, at 0.1569 against Silverman's 0.1517. That is decision 71's
+     reconciliation arriving from a third direction: a density criterion and a
+     CDF criterion want different bandwidths.
+
+     **WHAT THE HEADLINE DOES UNDER SCOTT, which the manuscript was written
+     against:** the kernel estimate's mean W1 rises from 0.1517 to 0.1649
+     under equal weights and from 0.0621 to 0.1016 under market-share weights,
+     the latter a 64 percent increase. So the manuscript's configuration
+     understates the kernel estimate on the study's own criterion, which is the
+     conservative direction for this paper's recommendation and must be stated
+     as such rather than quietly corrected.
+
+189. **2026-09-24, Stage 2h. WEIBULL IS THE WEAKEST DATA-DRIVEN FAMILY AND
+     CHANGES NOTHING, WHICH IS WHY IT IS WORTH REPORTING.** `[DELEGATED, 2h
+     measured]` Added to blunt the objection that only two families were
+     tested. Mean rank over the twelve (family, weighting) pairs, best
+     estimator for each family:
+
+         lognormal_3p, market shares   2.922
+         kernel estimate, market       2.927
+         lognormal_offset, market      4.953
+         gamma, market                 5.278
+         lognormal_2p, market          5.537
+         weibull, market               6.235
+         normal, market                6.468
+
+     Weibull sits below gamma, which decision 70 already established is
+     indistinguishable from the three-parameter lognormal out of sample. Under
+     W1-optimal fitting it improves by a median of 11.85 percent and still does
+     not reach gamma. **So the family list is not short for want of trying, and
+     nothing in the paper's conclusions moves.**

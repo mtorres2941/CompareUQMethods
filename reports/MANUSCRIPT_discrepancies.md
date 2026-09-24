@@ -2140,3 +2140,27 @@ relative figure beside it.**
 | **The old definition hid it** | Under the averaged form both rows read 0.00, which reads as two independent claims agreeing rather than as one claim counted twice. |
 | **Fix** | **Text.** Report one of the two, and state that a quantity reduction is a deterministic fraction of a material's own share so its accuracy IS that share's accuracy. Do not present them as two pieces of evidence. The figure keeps both rows because it is grouped by the five questions a reader asks. Decision 186. |
 | **Status** | Open for the manuscript. |
+
+## 166. The comparison margin is a tolerance, and the text describing it says the opposite
+
+| | |
+|---|---|
+| **The code** | `plca.comparison_statement` computes `P(a < g * b)` where `a` is the proposal and `b` the baseline. With `g` ABOVE one this asks "is the proposal better, OR worse by less than `g`", which is a TOLERANCE. |
+| **The text that was wrong** | The docstring read "the share in which A beats B by a margin worth acting on", which describes `g` BELOW one. |
+| **Confirmed on the study's own run** | At a true 20 percent saving `mci_1.2` reads **0.9993** against a discernibility of 0.9628. A stricter condition cannot exceed a looser one, so the margin is the loose direction. |
+| **What does NOT change** | The reported `mci_1.05` and `mci_1.2` values are correct AS TOLERANCES and are what Marsh et al. (in press) report at 1.2. **No number moves.** |
+| **Fix** | **Text.** Wherever the manuscript describes the modified comparison index, say that a margin above 1 admits a proposal that is slightly worse, and do not describe it as a margin of superiority. Decision 187. |
+| **Status** | RESOLVED in the code comment and the tests. The manuscript text is open. |
+
+## 167. The certification credit is a decision the paper can speak to, and it is fragile at the bar
+
+| | |
+|---|---|
+| **The framing** | Certification awards points for demonstrating a reduction against a baseline. Under a probabilistic LCA that becomes "demonstrate a 10 percent reduction with 75 percent confidence". The study computes the probability and never asked whether the method says the credit is EARNED. |
+| **The result** | Over 600 design pairs at five true savings: the truth earns the credit in 17.4 percent of cases, at least two of the six methods disagree in **18.2 percent**, the best method is wrong 8.8 percent of the time and the worst 12.5. |
+| **And the fragility is the THRESHOLD** | Split by how far the true confidence sits from the line: **65.3 percent** disagreement within 0.05 of it, 46.3 between 0.05 and 0.10, 20.5 between 0.10 and 0.25, and **3.4 percent** beyond 0.25. |
+| **Which method is worst** | A normal fit, on 8 of the 15 tier-and-confidence combinations. |
+| **The claim the paper can make** | A design comfortably over or under the bar is called the same way by every method; a design sitting on the bar is decided by the modeling choice. That is an argument for stating the margin, not against writing credits probabilistically. |
+| **A SOURCING CONSTRAINT** | The tiers used are the study's own 5, 10 and 20 percent. **The exact wording, tier and confidence of any specific credit must be sourced before the paper cites one**, on the same grounds as the withdrawn ICE figure and the pedigree factor table. |
+| **Fix** | **Text, a new result.** Decision 187. |
+| **Status** | Open for the manuscript. |

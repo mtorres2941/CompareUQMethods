@@ -1169,9 +1169,19 @@ def comparison_statement(total_a, total_b, margins=COMPARISON_MARGINS):
     """Statement 5: is option A better than option B, and by enough to act on.
 
     `margin` 1.0 is the discernibility index of Heijungs (2021), the share of
-    Monte Carlo iterations in which A comes out below B. Above 1.0 it is the
-    modified comparison index: the share in which A beats B by a margin worth
-    acting on, which is what Marsh et al. (in press) report at 1.2.
+    Monte Carlo iterations in which A comes out below B.
+
+    **READ THE DIRECTION BEFORE USING A MARGIN.** The quantity is
+    `P(a < g * b)`, so `g` ABOVE one LOOSENS the test -- "A is better, or worse
+    by less than g" -- and `g` BELOW one tightens it to "A beats B by at least
+    `1 - g`". The study's own margins of 1.05 and 1.2 are therefore
+    TOLERANCES, which is what Marsh et al. (in press) report at 1.2, and a
+    certification credit of the form "demonstrate a 10 percent reduction" is
+    `g = 0.90`. An earlier version of this docstring called the g > 1 case "the
+    share in which A beats B by a margin worth acting on", which describes
+    g < 1; Stage 2h caught it on the study's own output, where `mci_1.2` reads
+    0.9993 at a true 20 percent saving against a discernibility of 0.9628 --
+    the looser condition, not the stricter one.
 
     THE TWO OPTIONS MUST BE DRAWN ON THE SAME VARIATES for their shared
     materials, which is dependent sampling and is what Henriksson et al. (2015)
@@ -1237,7 +1247,8 @@ def swap_totals(models, shared, alt_a, alt_b, u, method, saving=0.0,
 
 
 def swap_run(models, groups, rng, savings=SWAP_SAVINGS, neccs=NECCS,
-             methods=None, samplers=None, progress=None):
+             methods=None, samplers=None, progress=None,
+             margins=COMPARISON_MARGINS):
     """Statement 5, over many option pairs and many claimed savings.
 
     Each row of `groups` is `k + 1` datasets: the first `k - 1` are shared
@@ -1263,7 +1274,7 @@ def swap_run(models, groups, rng, savings=SWAP_SAVINGS, neccs=NECCS,
             for sv in savings:
                 ta, tb = swap_totals(tmod, shared, alt_a, alt_b, u,
                                      '__truth__', sv, n_materials=k)
-                truth[sv] = comparison_statement(tb, ta)
+                truth[sv] = comparison_statement(tb, ta, margins=margins)
         for m in methods:
             for sv in savings:
                 ta, tb = swap_totals(models, shared, alt_a, alt_b, u, m, sv,
@@ -1272,7 +1283,7 @@ def swap_run(models, groups, rng, savings=SWAP_SAVINGS, neccs=NECCS,
                 # is judged an improvement, which is the direction a designer
                 # reads.
                 row = dict(pair=i, method=m, saving=sv, nmats=k,
-                           **comparison_statement(tb, ta))
+                           **comparison_statement(tb, ta, margins=margins))
                 if sv in truth:
                     for key, val in truth[sv].items():
                         row[f'{key}__truth'] = val
