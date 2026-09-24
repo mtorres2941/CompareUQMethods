@@ -5568,3 +5568,61 @@ rather than in conversation.
      market shares, so breaking the trade means changing the WEIGHT model at
      the same time as the shape model -- which is Stage 2h's first item
      (decision 141) and should not be attempted separately from it.
+
+171. **2026-09-24, Stage 2g review. FIVE OF THE SIXTEEN SCORECARD ROWS AVERAGE
+     SIGNED ERRORS BEFORE TAKING THE ABSOLUTE VALUE, AND THE OTHER ELEVEN DO
+     NOT. The design comparison's "right to 0.8 percent" is an error in the
+     AVERAGE over 2,500 comparisons, not the error on the one comparison a
+     designer makes.** `[DELEGATED, found while answering the manuscript
+     session's question about where the methods separate]`
+
+     **WHAT DIFFERS.** The eleven magnitude and attribution rows read tables
+     that take `|error|` per pLCA group or per material and then average --
+     `total_mean__error_absmean`, and `recovery_table`'s `abs_error`. The four
+     action rows and the comparison row read SUMMARY tables whose error column
+     was already averaged over groups, so signed errors cancel before the
+     absolute value is taken. Measured, as a percentage of each claim's true
+     level:
+
+         claim                          scorecard   per-group   best method
+         a cap: how often it binds        0.48        33.01      per-group
+         a cap: its mean saving           0.56        38.29
+         a cap: its chance of saving 5    1.09        32.97
+         using 25 pct less: mean saving   0.00        10.02
+         the probability B beats A        0.81        11.95
+
+     **THE MOST MISLEADING ONE IS THE QUANTITY REDUCTION.** The scorecard says
+     every method is EXACTLY right on it, to four decimal places, and decision
+     119 says the same. That is true of the average over 2,500 buildings. On a
+     single building every method is **10 to 13 percent** out.
+
+     **AND IT QUALIFIES THE STAGE'S HEADLINE NULL.** Decision 118 reports that
+     the choice of method moves the stated probability that a substitution is
+     an improvement by at most 0.015. That is the spread of the AVERAGE. On a
+     single comparison the six methods span a median of:
+
+         B claims to save    0 pct   1 pct   2 pct   5 pct  10 pct  20 pct
+         median spread       0.182   0.182   0.180   0.165   0.119   0.025
+         disagree on WHICH
+           design is better  93 pct  80 pct  64 pct  28 pct  5.9 pct 0.04 pct
+
+     The 0 percent column is the control -- the truth is a coin flip there, so
+     disagreement means nothing. **What the table says is that the null holds
+     where the design difference is real and fails where it is small: at a
+     claimed 5 percent saving the six methods disagree about which design is
+     better on 28 percent of individual comparisons, while their AVERAGE
+     probabilities sit within 0.009 of each other.**
+
+     **SO DECISION 118 IS NOT WRONG AND IS NOT THE WHOLE STATEMENT.** "The
+     choice of UQ method is safe for a design comparison" is true of a
+     practice averaged over many comparisons and false of one comparison near a
+     tie, which is the same fragility this project records for the rank metric
+     (decision 95, 101, 107) arriving at the design question.
+
+     **NOT FIXED HERE, BECAUSE IT CHANGES THE STAGE'S HEADLINE FIGURE AND IS
+     THE AUTHOR'S CALL.** Making all sixteen rows per-unit would move the
+     figure's title from "right to 0.8 pct on the design comparison" to "right
+     to 12.0 pct" and would raise the four action rows by 10 to 38 points. The
+     alternative is to keep the averaged form and SAY on the figure that these
+     five rows are errors in an average. Either is defensible; mixing them
+     without saying so is not.

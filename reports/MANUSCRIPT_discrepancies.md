@@ -2030,3 +2030,16 @@ relative figure beside it.**
 | **What was searched** | 36 configurations -- 13 draft corpora and 23 fast probes. The modality-shape correlation is negative in every one; the best is -0.083 on the coefficient of variation against a real +0.163. |
 | **Fix** | **Text, in the limitations.** State the joint gap and what it bounds: the study cannot speak to the sixth of real categories that are both multimodal and dispersed. Do not claim the corpus spans the space of real ECC datasets; claim it spans each margin. Decisions 168, 169, 170. |
 | **Status** | Open for the manuscript. The code is committed, defaulted off and tested, so a later stage can revisit it -- but only together with the weight model, which is Stage 2h's first item, because the two are coupled. |
+
+## 157. The design-comparison null is about an average, not about one comparison
+
+| | |
+|---|---|
+| **What the paper currently says** | That the choice of UQ method changes the stated probability that a substitution is an improvement by at most **0.015**, and every method lands within 0.026 of the truth. Decision 118. |
+| **What that number is** | The spread of the AVERAGE probability over 2,500 design pairs. It is not the error on any one comparison. |
+| **On a single comparison** | The six methods span a median of **0.182** in probability when B claims no saving, **0.165** at a claimed 5 percent saving, **0.119** at 10 percent and 0.025 at 20. The median per-comparison absolute error against the truth runs **0.039 for the best method and 0.079 for the worst**. |
+| **And they disagree about the answer** | Share of individual comparisons on which at least two of the six land on opposite sides of 0.5 -- that is, disagree about which design is better: **93 pct** at a claimed 0 pct saving (the control: the truth is a coin flip there, so this means nothing), 80 at 1 pct, **64 at 2 pct**, **28 at 5 pct**, 5.9 at 10 pct, 0.04 at 20 pct. |
+| **The honest statement** | The null holds where the design difference is real and fails where it is small. A practice that makes many comparisons is safe under any of these methods; a designer comparing two options that are within a few percent of each other is not. This is the same near-tie fragility the paper already records for the ranking metrics, arriving at the design question. |
+| **A related defect in the scorecard** | Five of its sixteen rows -- the four reduction-strategy rows and the design comparison -- are computed from summary tables whose errors were averaged over groups before the absolute value, while the other eleven take the absolute value per group or per material. The most misleading is "using 25 percent less", which reads as every method being EXACTLY right when on a single building every method is 10 to 13 percent out. |
+| **Fix** | **Text, and a decision about the figure.** Either make all sixteen rows per-unit, which moves the figure's headline from "right to 0.8 pct" to "right to 12.0 pct", or keep the averaged form and say on the figure that those five rows are errors in an average. Decision 171. |
+| **Status** | Open, author's call. Nothing is wrong with the underlying run. |
