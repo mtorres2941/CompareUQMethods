@@ -5213,6 +5213,33 @@ rather than in conversation.
      group of four -- and decision 166 shows it is not because fit fails to
      translate.
 
+     **THE FAIR-COMPARISON CONTROL, added 2026-09-23 from
+     `audits/family_comparison.py` at 1,200 datasets, because a reviewer will
+     ask it.** Every parametric family in this study is fitted by maximum
+     likelihood and judged by W1, which are different criteria, so a family can
+     lose for having been fitted under the wrong rule. Refitting each one by
+     direct W1 minimization -- which no practitioner does, since it means
+     minimizing the very distance you will then report -- the two-parameter
+     lognormal improves by a median of **17.4 percent** and the normal by 18.2.
+     **It does not overturn the comparison.** In-sample W1, equal weights,
+     share of datasets on which the maximum-likelihood KERNEL ESTIMATE is still
+     closer:
+
+         two-parameter lognormal, fitted by MLE          75.6 pct
+         two-parameter lognormal, fitted W1-optimally    67.7 pct
+         three-parameter lognormal, fitted by MLE        64.4 pct
+         three-parameter lognormal, fitted W1-optimally  54.4 pct
+
+     So against the fit a practitioner would actually produce the kernel
+     estimate wins three times in four, and against a two-parameter lognormal
+     tuned to the scoreboard it still wins two times in three. The
+     three-parameter lognormal tuned the same way is the only one that reaches
+     a coin flip, which is the same near-tie the claim scorecard shows. **These
+     are IN-SAMPLE and therefore flatter the flexible model**, so read them as
+     an upper bound for the kernel estimate and the out-of-sample figures above
+     -- 71.5 percent against the two-parameter fit, scored against the known
+     parent -- as the ones to quote.
+
 168. **2026-09-23, Stage 2g review. THE CORPUS'S MULTIMODAL DATASETS ARE THE
      WRONG SHAPE, NOT MERELY TOO FEW, AND DECISION 82'S REASSURANCE DOES NOT
      ANSWER IT. The author was right to reopen this.** `[AUTHOR ASKED,
