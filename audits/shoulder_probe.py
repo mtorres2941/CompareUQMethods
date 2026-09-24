@@ -69,6 +69,51 @@ VARIANTS = {
     'floor 0.001': dict(min_q1_over_iqr=0.001, trunc_iqr_mult=12.0),
     'floor 0.001 + modes': dict(min_q1_over_iqr=0.001, trunc_iqr_mult=12.0,
                                 mode_share_alpha=1.0, overlap_log10_hi=-0.10),
+    # THE ARCHITECTURAL CHANGE. Dispersion solved from the SPACING rather than
+    # from the shift, so a dispersed parent is dispersed because its components
+    # are far apart -- which is what a real dispersed category usually is.
+    'separation 0.3': dict(separation_dispersion_frac=0.3),
+    'separation 0.6': dict(separation_dispersion_frac=0.6),
+    'separation 1.0': dict(separation_dispersion_frac=1.0),
+    'separation 0.6 + modes': dict(separation_dispersion_frac=0.6,
+                                   mode_share_alpha=1.0),
+    'separation 0.6 + floor': dict(separation_dispersion_frac=0.6,
+                                   mode_share_alpha=1.0,
+                                   trunc_iqr_mult=5.0, min_q1_over_iqr=0.02),
+    # ROUND TWO OF THE ARCHITECTURAL PATH. `separation 1.0` gave the best
+    # conditional and the least negative correlation, so push it. The residual
+    # suspicion is the PROMINENCE THRESHOLD: `n_modes_fitted` needs a local
+    # maximum at 5 percent of the peak, so a far component carrying 5 percent
+    # of the mass raises the dispersion without ever counting as a mode. Fewer
+    # components, or less uneven weights, give each one enough mass to register.
+    'sep 1.0 + floor': dict(separation_dispersion_frac=1.0,
+                            mode_share_alpha=1.0, trunc_iqr_mult=5.0,
+                            min_q1_over_iqr=0.02),
+    'sep 1.0 + floor + k<=3': dict(separation_dispersion_frac=1.0,
+                                   mode_share_alpha=1.0, k_max=3,
+                                   trunc_iqr_mult=5.0, min_q1_over_iqr=0.02),
+    'sep 1.0 + floor + k<=2': dict(separation_dispersion_frac=1.0,
+                                   mode_share_alpha=1.0, k_max=2,
+                                   trunc_iqr_mult=5.0, min_q1_over_iqr=0.02),
+    'sep 1.0 + even modes': dict(separation_dispersion_frac=1.0,
+                                 mode_share_alpha=3.0, k_max=3,
+                                 trunc_iqr_mult=5.0, min_q1_over_iqr=0.02),
+    # ROUND THREE. `sep 1.0 + floor` reached 10.5 pct multimodal-and-dispersed
+    # against a 2.2 baseline, and the remaining drag is SINGLE-COMPONENT
+    # parents: k = 1 is unimodal by construction and still gets its dispersion
+    # from the shift, so every dispersed one of them lands in the denominator of
+    # the conditional and never in the numerator. `k_min = 2` removes that path
+    # without removing unimodal DATASETS, because two heavily overlapping
+    # components still read as one visible mode.
+    'kmin2 sep 1.0': dict(separation_dispersion_frac=1.0, k_min=2,
+                          mode_share_alpha=1.0, trunc_iqr_mult=5.0,
+                          min_q1_over_iqr=0.02),
+    'kmin2 sep 1.0 wide': dict(separation_dispersion_frac=1.0, k_min=2,
+                               mode_share_alpha=1.0, trunc_iqr_mult=8.0,
+                               min_q1_over_iqr=0.005),
+    'kmin2 sep 0.8': dict(separation_dispersion_frac=0.8, k_min=2,
+                          mode_share_alpha=1.0, trunc_iqr_mult=5.0,
+                          min_q1_over_iqr=0.02),
 }
 
 
@@ -114,7 +159,10 @@ def summarize(name, d):
 def main(argv):
     n_parents = int(argv[1]) if len(argv) > 1 else 500
     rows = []
-    for name, ov in VARIANTS.items():
+    only = os.environ.get('PROBE_ONLY')
+    items = ([(k, v) for k, v in VARIANTS.items() if only in k] if only
+             else list(VARIANTS.items()))
+    for name, ov in items:
         t0 = time.time()
         d = probe(ov, n_parents)
         row = summarize(name, d)

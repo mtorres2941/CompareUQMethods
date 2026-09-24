@@ -82,6 +82,14 @@ CANDIDATES = {
                                trunc_iqr_mult=5.0, min_q1_over_iqr=0.02),
     'shoulder_all_widest': dict(shoulder_frac=1.0, mode_share_alpha=1.0,
                                 trunc_iqr_mult=8.0, min_q1_over_iqr=0.01),
+    # THE ARCHITECTURAL PATH, confirmed on the real stratified design. The fast
+    # probe samples n log-uniformly and the corpus samples it by stratum, so
+    # probe numbers rank candidates and these numbers judge them.
+    'separation': dict(separation_dispersion_frac=1.0, mode_share_alpha=1.0,
+                       trunc_iqr_mult=5.0, min_q1_over_iqr=0.02),
+    'separation_kmin2': dict(separation_dispersion_frac=1.0, k_min=2,
+                             mode_share_alpha=1.0, trunc_iqr_mult=5.0,
+                             min_q1_over_iqr=0.02),
 }
 
 
@@ -144,8 +152,12 @@ def main(argv):
                    median_cv=m.coeffvar.median(), max_cv=m.coeffvar.max(),
                    share_cv_over_089=float((m.coeffvar > 0.889).mean()),
                    multimodal=float((m.modes_fitted >= 2).mean()),
+                   dispersed=float((m.coeffvar > 0.889).mean()),
                    multimodal_and_dispersed=float(
-                       ((m.modes_fitted >= 2) & (m.coeffvar > 0.889)).mean()))
+                       ((m.modes_fitted >= 2) & (m.coeffvar > 0.889)).mean()),
+                   multimodal_given_dispersed=float(
+                       (m.modes_fitted >= 2)[m.coeffvar > 0.889].mean())
+                   if (m.coeffvar > 0.889).any() else float('nan'))
         signs_right = 0
         for c in CHARS:
             if c not in m.columns:

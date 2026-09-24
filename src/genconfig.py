@@ -278,6 +278,40 @@ class GeneratorConfig:
     positive, so the same number of modes now comes with more skew, not less.
     """
 
+    separation_dispersion_frac: float = 0.0
+    """Share of multi-component parents whose DISPERSION comes from component
+    separation instead of from the shift. Stage 2g review, 2026-09-23.
+
+    THE DEFECT THIS ADDRESSES. In the generator as shipped, a parent's
+    coefficient of variation is produced entirely by the SHIFT -- Spearman of
+    the shift with the achieved CV is -0.654, while the achieved overlap
+    contributes -0.017. The smallest admissible shift is
+    `min_q1_over_iqr * (q3 - q1) - q1`, so a WIDER mixture is forced to shift
+    MORE, which caps its coefficient of variation LOWER. Separating components
+    therefore costs dispersion, which is why the corpus's multimodal datasets
+    are tidier than its unimodal ones while real multimodal categories are
+    wilder. Conditional on being dispersed, a real category is multimodal 44.7
+    percent of the time and a synthetic one 16.9.
+
+    WHAT THIS DOES INSTEAD. For the chosen fraction of parents, the spread
+    multiplier is solved so the mixture ITSELF has the target coefficient of
+    variation at the positivity floor, and the overlap is whatever that
+    spacing implies rather than a drawn target. Dispersion then arrives WITH
+    separation rather than in spite of it.
+
+    THE SOLVE IS A SCAN, NOT A BISECTION, and that is measured rather than
+    assumed: the coefficient of variation is NOT monotone in the spread
+    multiplier. On one drawn parent it runs 0.90, 0.88, 0.84, 0.79, 0.76,
+    0.89, 1.18, 1.46 as the multiplier goes 0 to 60, and on another 0.87 down
+    to 0.28 over the same range -- separating components widens the mixture and
+    raises the floor it must clear, and which effect wins depends on the
+    component shapes. A bisection would converge to whichever side it started
+    on.
+
+    At 0.0 nothing changes, no randomness is consumed, and a corpus generated
+    with this off is bit-identical to one generated before it existed.
+    """
+
     shoulder_body: str = 'narrow'
     """Which component becomes the BODY when `shoulder_frac` fires.
 

@@ -95,6 +95,77 @@ def _draw_component_targets(cfg, k, rng):
     return specs, solved, retries, statuses
 
 
+#: Spread multipliers the separation-driven solve scans. Geometric from very
+#: blended to very separated, plus 0 for "no separation at all". A SCAN and not
+#: a bisection because the coefficient of variation is not monotone in this
+#: multiplier; see `genconfig.separation_dispersion_frac`.
+SEPARATION_GRID = (0.0, 0.25, 0.5, 1.0, 1.75, 3.0, 5.0, 8.0, 13.0, 21.0, 34.0,
+                   55.0, 89.0)
+
+
+def _floor_state(cs, pi, market, cfg):
+    """(parent, shift) for a mixture placed at its POSITIVITY FLOOR.
+
+    The floor is the smallest shift that keeps the support strictly positive,
+    which is where a separation-driven parent sits: its dispersion is supposed
+    to come from the spacing, so the shift does no work beyond admissibility.
+    Returns None if the truncation bounds cannot be formed.
+    """
+    q1 = M.mixture_quantile(cs, pi, 0.25)
+    q3 = M.mixture_quantile(cs, pi, 0.75)
+    lo_raw, hi_raw = M.population_truncation_bounds(
+        cs, pi, cfg.trunc_iqr_mult, clip_at_zero=False)
+    span = hi_raw - lo_raw
+    if not np.isfinite(span) or span <= 0:
+        return None
+    if cfg.trunc_rule == 'log':
+        shift = max(0.0, cfg.min_q1_over_iqr * (q3 - q1) - q1)
+        bounds = M.log_truncation_bounds(q1 + shift, q3 + shift,
+                                         cfg.trunc_iqr_mult)
+    else:
+        q_low = M.mixture_quantile(cs, pi, cfg.max_low_tail_truncated)
+        shift = max(0.0, 1e-4 * span - q_low)
+        bounds = None
+    if bounds is None:
+        bounds = (max(lo_raw + shift, 1e-9 * span), hi_raw + shift)
+    shifted = [_Shifted(d, shift) for d in cs] if shift > 0 else cs
+    return M.MixtureParent(shifted, pi, market, bounds[0], bounds[1],
+                           cfg.mode_coupling), shift
+
+
+def _solve_spread_for_cv(build, pi, market, cfg, cv_target):
+    """Spread multiplier whose mixture has `cv_target` at its positivity floor.
+
+    Returns (comps, multiplier, achieved_cv, status). `status` is 'ok' when the
+    scan lands within tolerance, 'clipped_max_cv' or 'clipped_min_cv' when the
+    target is outside what any spacing can deliver for these components -- which
+    is reported rather than silently approximated, the same contract the shift
+    solve keeps.
+    """
+    best = None
+    for c in SEPARATION_GRID:
+        cs, _ = build(c)
+        state = _floor_state(cs, pi, market, cfg)
+        if state is None:
+            continue
+        parent, _shift = state
+        mean, sd = parent.truncated_moments()
+        if not (mean > 0 and np.isfinite(sd)):
+            continue
+        cv = sd / mean
+        gap = abs(cv - cv_target)
+        if best is None or gap < best[0]:
+            best = (gap, c, cv, cs)
+    if best is None:
+        return None, None, None, 'separation_scan_failed'
+    gap, c, cv, cs = best
+    if gap <= 2e-3 * max(cv_target, 1e-9):
+        status = 'ok'
+    else:
+        status = 'clipped_max_cv' if cv < cv_target else 'clipped_min_cv'
+    return cs, c, cv, status
+
+
 def draw_parent(cfg, n, rng):
     """Draw one parent: components, overlap-solved locations, truncation
     bounds, sampling weights and mode-level market shares."""
@@ -142,7 +213,35 @@ def draw_parent(cfg, n, rng):
             comps.append(C.frozen(fam, shape, loc + c * float(zi), scale))
         return comps, pi
 
-    if k > 1:
+    # DISPERSION FROM SEPARATION, OR FROM THE SHIFT. The default path solves
+    # the spacing for a drawn OVERLAP target and then solves the shift for a
+    # drawn COEFFICIENT OF VARIATION, which means separating components can
+    # only ever cost dispersion: a wider mixture has a wider interquartile
+    # range, so its positivity floor is higher, so its achievable coefficient
+    # of variation is lower. The alternative path solves the SPACING for the
+    # coefficient of variation and leaves the shift at that floor, so a
+    # dispersed parent is dispersed BECAUSE its components are far apart.
+    # `genconfig.separation_dispersion_frac`; at 0.0 no randomness is consumed
+    # here and the default path is bit-identical.
+    separation = False
+    if k > 1 and cfg.separation_dispersion_frac > 0.0:
+        separation = bool(rng.random() < cfg.separation_dispersion_frac)
+
+    sep_cv_target = sep_cv_status = None
+    if separation:
+        sep_cv_target = float(10 ** _truncated_normal(
+            rng, cfg.cv_log10_mean, cfg.cv_log10_sd,
+            cfg.cv_log10_lo, cfg.cv_log10_hi))
+        comps, spread, sep_cv, sep_cv_status = _solve_spread_for_cv(
+            build, pi, market, cfg, sep_cv_target)
+        if comps is None:
+            return None, dict(status='separation_scan_failed', k=k)
+        target = float('nan')
+        overlap = (float(M.min_adjacent_overlap(comps, pi))
+                   if cfg.overlap_statistic == 'min_adjacent'
+                   else float(M.average_overlap(comps, pi)))
+        ov_status = f'separation_driven(c={spread:g})'
+    elif k > 1:
         target = float(10 ** rng.uniform(cfg.overlap_log10_lo, cfg.overlap_log10_hi))
         comps, overlap, ov_status = M.solve_spread_for_overlap(
             build, target, statistic=cfg.overlap_statistic)
@@ -190,7 +289,9 @@ def draw_parent(cfg, n, rng):
         q_low = M.mixture_quantile(comps, pi, cfg.max_low_tail_truncated)
         shift_min = max(0.0, 1e-4 * span - q_low)
 
-    cv_target = float(10 ** _truncated_normal(
+    # On the separation path the target was drawn before the spacing solve,
+    # because the spacing is what has to hit it.
+    cv_target = sep_cv_target if separation else float(10 ** _truncated_normal(
         rng, cfg.cv_log10_mean, cfg.cv_log10_sd, cfg.cv_log10_lo, cfg.cv_log10_hi))
 
     def bounds_at(sh):
@@ -213,7 +314,12 @@ def draw_parent(cfg, n, rng):
         m, sd = parent_at(sh).truncated_moments()
         return (sd / m) if m > 0 else np.inf
 
-    shift, cv_status = _solve_shift_for_cv(cv_at, cv_target, shift_min, span)
+    if separation:
+        # The spacing already carries the dispersion, so the shift does only
+        # what admissibility requires and the scan's verdict is the status.
+        shift, cv_status = shift_min, sep_cv_status
+    else:
+        shift, cv_status = _solve_shift_for_cv(cv_at, cv_target, shift_min, span)
     if shift > 0:
         comps = [_Shifted(d, shift) for d in comps]
 
@@ -245,6 +351,7 @@ def draw_parent(cfg, n, rng):
                   overlap_min_adjacent=float(M.min_adjacent_overlap(comps, pi))
                   if k > 1 else 0.0,
                   trunc_rule=cfg.trunc_rule, shoulder=shoulder,
+                  separation_driven=separation,
                   overlap_status=ov_status, component_retries=retries,
                   components=specs, pi=pi.tolist(), market=market.tolist(),
                   shift=shift, lo=lo, hi=hi,

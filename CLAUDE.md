@@ -5458,3 +5458,76 @@ rather than in conversation.
      Written because the author asked to sanity-check the datasets being
      produced, and because the numbers above do not show what a shoulder looks
      like.
+
+170. **2026-09-23 overnight, Stage 2g review. THE ARCHITECTURAL FIX WAS BUILT
+     AND IT WORKS, AND IT SHOULD NOT BE ADOPTED: it improves the joint
+     modality-dispersion structure tenfold and degrades the paper's CENTRAL
+     QUANTITY twelvefold.** `[AUTHOR ASKED FOR IT BUILT AND TESTED, NOT
+     ADOPTED]` "Build and test it ... I will NOT regenerate the production
+     corpus or touch any paper number."
+
+     **WHAT WAS BUILT.** `genconfig.separation_dispersion_frac`. For that share
+     of multi-component parents, the component SPACING is solved so the mixture
+     itself has the drawn coefficient of variation at its positivity floor, and
+     the shift then does only what admissibility requires. Dispersion arrives
+     WITH separation instead of in spite of it. The default is 0.0, no
+     randomness is consumed there, and `tests/test_determinism.py` confirms the
+     shipped generator is bit-identical.
+
+     **THE SOLVE IS A SCAN AND THAT IS MEASURED, NOT ASSUMED.** The coefficient
+     of variation is NOT monotone in the spread multiplier: on one drawn parent
+     it runs 0.90, 0.88, 0.84, 0.79, 0.76, 0.89, 1.18, 1.46 as the multiplier
+     goes 0 to 60, and on another 0.87 down to 0.28. Separating components
+     widens the mixture and raises the floor it must clear, and which effect
+     wins depends on the component shapes. A bisection would converge to
+     whichever side it started from.
+
+     **IT WORKS, ON THE REAL STRATIFIED DESIGN AT 1,000 DATASETS:**
+
+         candidate           multi   disp   multi+disp   multi|disp   weighting
+         current             0.215  0.135     0.0127       0.094        0.2295
+         widest              0.208  0.479     0.0709       0.148        0.7191
+         separation          0.281  0.410     0.0949       0.232        1.9649
+         separation_kmin2    0.330  0.471     0.1266       0.269        2.7323
+         the real arm        0.315  0.362     0.1620       0.447            --
+
+     Multimodal-and-dispersed goes from **1.27 percent to 12.66**, a tenfold
+     improvement that lands just short of the author's 16 percent target, and
+     the multimodal share lands at 0.330 against the real 0.315.
+
+     **AND THE PRICE IS THE QUANTITY THE PAPER IS ABOUT.** The standardized
+     distance between the arms on `w_v_uw_wasserstein` -- the uniform-to-variable
+     Wasserstein distance, the paper's central quantity -- goes from **0.2295 to
+     2.7323, twelve times worse**, and the overall calibration objective from
+     0.2506 to 0.5619. A corpus that matched modality and dispersion while
+     misrepresenting the weighting effect by an order of magnitude would be a
+     worse instrument for THIS paper than the one that exists.
+
+     **THIS IS THE THIRD TIME THE SAME TRADE HAS APPEARED** -- decision 39 in
+     Stage 2a-2, decision 138 in Stage 2f, and now here on a different lever
+     each time. It is structural: in this generator, whatever widens the
+     dispersion also widens the gap between the two weightings.
+
+     **AND THE SIGN NEVER FLIPS. 36 CONFIGURATIONS**, 13 draft corpora and 23
+     fast probes, and the modality-shape correlation is negative in every one:
+     the best is -0.083 on the coefficient of variation against a real +0.163.
+     Two constructions were tried and failed outright -- a shoulder that pairs
+     the heaviest weight with the widest component (made multimodality worse,
+     19.4 percent against 21.5, because a small component on a wide body's tail
+     is buried in it) and its narrow-body mirror.
+
+     **RECOMMENDATION: DO NOT REGENERATE. STATE THE LIMITATION.** The corpus
+     spans the modality of real categories and the dispersion of real
+     categories and does not span their JOINT distribution. Conditional on
+     being dispersed, a real category is multimodal 44.7 percent of the time
+     and a synthetic one 9.4. What the paper cannot speak to is the sixth of
+     real categories that are both, and that bound should be stated in the
+     limitations rather than engineered away at the cost of the weighting
+     result. **The code is committed, defaulted off, and tested, so a later
+     stage can revisit it if the weighting quantity ever stops being central.**
+
+     **WHAT WOULD ACTUALLY BE NEEDED**, if a future stage wants both: the
+     weighting effect and the dispersion are coupled through the mode-level
+     market shares, so breaking the trade means changing the WEIGHT model at
+     the same time as the shape model -- which is Stage 2h's first item
+     (decision 141) and should not be attempted separately from it.
