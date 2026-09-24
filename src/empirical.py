@@ -51,6 +51,7 @@ import numpy as np
 import pandas as pd
 
 import categorysplit
+import weighting
 from datageneration import clean_empirical_symmetric
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -69,6 +70,39 @@ SPLIT = True
 DIRICHLET_ALPHA = 1.0
 CLEAN_IQR_MULT = 3.0
 MIN_N = 3
+
+#: HOW MARKET SHARE IS DRAWN, and this is the one rule both arms now share.
+#:
+#: Until Stage 2h this arm drew a flat Dirichlet over every individual
+#: declaration, so a product's share was INDEPENDENT of its carbon
+#: coefficient, while the synthetic arm attached a share to each mixture
+#: component and split it inside. That is a different weight model on the exact
+#: dimension the paper is built on, and it is not a neutral difference:
+#: independent weights are exchangeable, so the weighted CDF converges to the
+#: unweighted one and the measured weighting effect MUST decay like n^-1/2
+#: whatever real markets do. Measured, the decay was -0.449 here against -0.181
+#: on the synthetic arm, and reweighting the synthetic arm's OWN values by this
+#: rule reproduced the -0.449, which is what proved the gap was the rule.
+#:
+#: `weighting.coherent_weights` is the synthetic arm's rule ported: cut the
+#: sorted declarations into k contiguous groups, draw each group's share from a
+#: flat Dirichlet, split it inside the group. `k` is drawn the way the
+#: generator draws its component count, uniform on 1 to 5 and independent of n.
+#:
+#: WEIGHT_RHO IS THE ONE FREE PARAMETER AND IT IS MEASURED, NOT CHOSEN. It sets
+#: how tightly the groups track the coefficients. Scored against the synthetic
+#: arm's KNOWN mode labels, which is the only place the truth exists, a
+#: contiguous cut at 0.5 reproduces the true-label weighting effect to within 4
+#: percent on the typical dataset (ratio of medians 1.15, median ratio 1.04)
+#: and orders the categories most like the truth (Spearman 0.935). A hard cut
+#: at 1.0 OVERSHOOTS by 1.6 times, because real mixture components overlap and
+#: a perfectly contiguous cut is more clustered than the truth it imitates.
+#:
+#: rho = 0 IS NOT THE NEUTRAL CHOICE. It is the claim that market share is
+#: uncorrelated with carbon intensity, which published production volumes
+#: contradict: 63.75 percent of world steel sits on the HIGHER-carbon route
+#: and 0.03 percent on the Austrian EAF route.
+WEIGHT_RHO = 0.5
 
 #: Declared-unit type for which an external upper bound on the ECC exists.
 MASS_UNIT_TYPE = 'weight'
@@ -333,7 +367,7 @@ def _dataset_rng(base, name):
 
 
 def prepare(rng, path=SOURCE, alpha=DIRICHLET_ALPHA, mult=CLEAN_IQR_MULT,
-            min_n=MIN_N, split=SPLIT, ceiling=True):
+            min_n=MIN_N, split=SPLIT, ceiling=True, rho=WEIGHT_RHO):
     """Clean, weight and normalize. Returns (datasets, report).
 
     Pass a DEDICATED generator, `rng.spawn(1)[0]`, not the notebook's shared
@@ -386,7 +420,8 @@ def prepare(rng, path=SOURCE, alpha=DIRICHLET_ALPHA, mult=CLEAN_IQR_MULT,
             continue
         row['status'] = 'ok'
         report.append(row)
-        w = _dataset_rng(base, mat).dirichlet(np.ones(len(kept)) * alpha)
+        w = weighting.coherent_weights(kept, _dataset_rng(base, mat),
+                                       rho=rho, block_alpha=alpha)
         out[mat] = (kept / np.mean(kept), w)
     return out, report
 

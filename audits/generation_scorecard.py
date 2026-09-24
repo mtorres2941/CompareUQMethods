@@ -77,9 +77,10 @@ FULL_PER_STRATUM = TC.PER_STRATUM
 OBJECTIVE_SEED_SD = 0.0066
 
 
-def score(cfg, per_stratum, emp_met, emp_modes, emp_vis):
+def score(cfg, per_stratum, emp_met, emp_modes, emp_vis, seed=TC.SEED):
     t0 = time.time()
-    syn_met, syn_modes, syn_vis = TC.sample_config(cfg, per_stratum=per_stratum)
+    syn_met, syn_modes, syn_vis = TC.sample_config(cfg, seed=seed,
+                                                   per_stratum=per_stratum)
     d = coverage.distribution_comparison(emp_met, syn_met)
     rows = []
     for m in d.metric:
@@ -127,6 +128,12 @@ def main():
     ap.add_argument('--label', default='', help='a name for this run')
     ap.add_argument('--set', action='append', default=[], metavar='K=V',
                     help='override a generator parameter, repeatable')
+    ap.add_argument('--seed', type=int, default=TC.SEED,
+                    help='the generator seed. CHANGING A PARAMETER ALREADY '
+                         'diverges the random stream, so two configs differ by '
+                         'the parameter AND by a different realized sample. '
+                         'Repeat one config at several seeds to measure how '
+                         'much of a difference is the sample.')
     args = ap.parse_args()
 
     os.makedirs(TABLES, exist_ok=True)
@@ -147,7 +154,7 @@ def main():
     print(f'scoring "{label}" at {per_stratum} datasets per stratum ...',
           flush=True)
     out, summary, secs, n_syn = score(cfg, per_stratum, emp_met, emp_modes,
-                                      emp_vis)
+                                      emp_vis, seed=args.seed)
 
     print()
     print('=' * 78)
@@ -177,7 +184,8 @@ def main():
 
     # -- history, so successive runs read as a trend --------------------
     stamp = _dt.datetime.now().isoformat(timespec='seconds')
-    rec = out.assign(run=stamp, label=label, per_stratum=per_stratum,
+    rec = out.assign(run=stamp, label=label, seed=args.seed,
+                     per_stratum=per_stratum,
                      n_synthetic=n_syn,
                      objective=summary['weighted_objective'])
     prior = (pd.read_csv(HISTORY) if os.path.exists(HISTORY)

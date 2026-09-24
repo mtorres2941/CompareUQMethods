@@ -1,52 +1,52 @@
 arm,dataset,n,modes_scipy_default,modes_fitted
 empirical,AccessFlooring,53,1,1
 empirical,AccessFlooringPedestals,13,1,1
-empirical,AcousticalCeilings,412,1,2
+empirical,AcousticalCeilings,412,1,1
 empirical,Aggregates,378,1,1
-empirical,AluminiumBillets,120,1,2
+empirical,AluminiumBillets,120,1,1
 empirical,AluminiumExtrusions,36,1,1
 empirical,AluminiumSheetGoods,26,1,1
 empirical,AluminiumSuspensionAssembly,22,1,1
 empirical,Asphalt,7232,1,1
 empirical,BackingAndUnderlay,45,1,1
 empirical,BituminousRoofing,66,1,1
-empirical,BlanketFacing,28,1,1
+empirical,BlanketFacing,28,1,2
 empirical,BlanketInsulation [mineral wool],184,1,1
-empirical,BlanketInsulation [type not stated],129,1,2
+empirical,BlanketInsulation [type not stated],129,1,1
 empirical,BlownInsulation [type not stated],16,1,1
 empirical,BoardInsulation [EPS],47,1,2
-empirical,BoardInsulation [PIR or PUR],50,1,2
+empirical,BoardInsulation [PIR or PUR],50,1,1
 empirical,BoardInsulation [XPS],19,1,1
-empirical,BoardInsulation [mineral wool],77,1,1
+empirical,BoardInsulation [mineral wool],77,1,2
 empirical,BoardInsulation [type not stated],131,1,1
-empirical,Brick,215,1,2
-empirical,CMU [3000-3999 psi],137,1,1
-empirical,CMU [4000-4999 psi],18,1,2
+empirical,Brick,215,1,1
+empirical,CMU [3000-3999 psi],137,1,3
+empirical,CMU [4000-4999 psi],18,1,1
 empirical,CMU [5000-5999 psi],8,1,1
-empirical,CMU [<3000 psi],274,1,2
+empirical,CMU [<3000 psi],274,1,1
 empirical,CMU [>=6000 psi],8,1,1
 empirical,CMU [strength not stated],39,1,1
-empirical,CableTrays,59,1,2
+empirical,CableTrays,59,1,1
 empirical,Carpet,1989,1,1
 empirical,CastDecksAndUnderlayment,255,1,1
 empirical,Cement,1084,1,1
 empirical,CementBoard,21,1,1
-empirical,CementGrout,3764,1,1
+empirical,CementGrout,3764,1,2
 empirical,CementitiousSheathingBoard,51,1,1
 empirical,Coil,140,1,2
 empirical,CompositeLumber,16,1,1
-empirical,ConcreteAdmixtures,118,1,2
+empirical,ConcreteAdmixtures,118,1,1
 empirical,ConcretePaving [3000-3999 psi],108,2,2
-empirical,ConcretePaving [4000-4999 psi],160,1,1
-empirical,ConcretePaving [5000-5999 psi],42,2,1
+empirical,ConcretePaving [4000-4999 psi],160,1,2
+empirical,ConcretePaving [5000-5999 psi],42,2,2
 empirical,ConcretePaving [<3000 psi],32,1,1
 empirical,ConcretePaving [strength not stated],38,1,1
 empirical,Countertops,76,1,1
 empirical,CurtainWalls,54,1,1
-empirical,DampproofingAndWaterproofing,162,1,2
+empirical,DampproofingAndWaterproofing,162,1,1
 empirical,DataCabling,951,1,1
 empirical,DeckingSteel,62,2,1
-empirical,DemountablePartitions,45,1,2
+empirical,DemountablePartitions,45,1,1
 empirical,DoorsAndFrames,61,1,1
 empirical,Elevators,20,1,1
 empirical,FenestrationAccessories,17,1,1
@@ -55,18 +55,18 @@ empirical,FiberCementSiding,29,1,1
 empirical,FireAndSmokeProtection,22,1,1
 empirical,FlashingAndSheetMetal,12,1,1
 empirical,FlatGlassPanes,47,1,1
-empirical,FlowableFill,2008,1,2
+empirical,FlowableFill,2008,1,1
 empirical,FoamedInPlace [PIR or PUR],8,1,1
-empirical,GlazedDoors,141,1,1
+empirical,GlazedDoors,141,1,2
 empirical,Gypsum,771,1,1
-empirical,GypsumSheathingBoard,19,1,2
-empirical,Hollow,145,1,2
-empirical,HotRolled,81,1,3
-empirical,InsulatedRoofPanels,271,1,2
-empirical,InsulatedWallPanels,420,1,2
-empirical,InsulatingGlazingUnits,32,1,3
+empirical,GypsumSheathingBoard,19,1,1
+empirical,Hollow,145,1,1
+empirical,HotRolled,81,1,2
+empirical,InsulatedRoofPanels,271,1,1
+empirical,InsulatedWallPanels,420,1,1
+empirical,InsulatingGlazingUnits,32,1,1
 empirical,Laminate,26,1,1
-empirical,MBQ,40,1,2
+empirical,MBQ,40,1,1
 empirical,MasonryCement,26,1,1
 empirical,MassTimber,66,2,2
 empirical,MechanicalInsulation,22,1,1
@@ -74,60 +74,60 @@ empirical,MetalDoorAndFrames,42,1,1
 empirical,MetalRailings,13,1,1
 empirical,Mirrors,19,1,1
 empirical,MiscMetalFabrication,69,1,2
-empirical,Mortar,248,1,2
+empirical,Mortar,248,1,1
 empirical,NetworkingCableTrays,22,1,1
 empirical,NetworkingRaceways,32,1,1
 empirical,NonStructuralWood,57,1,1
-empirical,OilPatch,282,1,3
+empirical,OilPatch,282,1,2
 empirical,OpenWebMembranes,17,1,1
 empirical,Openings,12,1,1
 empirical,OtherFlooring,217,1,1
 empirical,PaintingAndCoating,19,1,1
-empirical,PlateSteel,72,1,2
+empirical,PlateSteel,72,1,1
 empirical,PostTensioningSteel,35,1,1
-empirical,PowerCabling,398,1,2
-empirical,PrecastConcrete,499,1,1
+empirical,PowerCabling,398,1,1
+empirical,PrecastConcrete,499,1,2
 empirical,ProcessedNonInsulatingGlassPanes,130,1,1
 empirical,ReadyMix [3000-3999 psi],20814,1,1
 empirical,ReadyMix [4000-4999 psi],31025,1,1
 empirical,ReadyMix [5000-5999 psi],14366,2,2
-empirical,ReadyMix [<3000 psi],3974,1,1
-empirical,ReadyMix [>=6000 psi],7887,3,3
+empirical,ReadyMix [<3000 psi],3974,1,2
+empirical,ReadyMix [>=6000 psi],7887,3,2
 empirical,ReadyMix [strength not stated],8777,1,1
 empirical,RebarSteel,204,1,2
-empirical,ResilientFlooring,468,1,2
-empirical,RoofCoverBoards,20,1,2
-empirical,RoofPanels,61,1,1
-empirical,SheathingPanels,71,1,1
+empirical,ResilientFlooring,468,1,4
+empirical,RoofCoverBoards,20,1,1
+empirical,RoofPanels,61,1,2
+empirical,SheathingPanels,71,1,3
 empirical,Shotcrete [3000-3999 psi],183,1,1
-empirical,Shotcrete [4000-4999 psi],651,1,1
-empirical,Shotcrete [5000-5999 psi],471,2,1
-empirical,Shotcrete [>=6000 psi],264,1,2
-empirical,Shotcrete [strength not stated],96,1,1
+empirical,Shotcrete [4000-4999 psi],651,1,2
+empirical,Shotcrete [5000-5999 psi],471,2,2
+empirical,Shotcrete [>=6000 psi],264,1,1
+empirical,Shotcrete [strength not stated],96,1,2
 empirical,SinglePlyEPDM,29,1,1
 empirical,SinglePlyKEE,11,1,1
-empirical,SinglePlyPVC,74,1,2
-empirical,SinglePlyPolyurethane,27,1,2
-empirical,SinglePlyTPO,62,1,2
+empirical,SinglePlyPVC,74,1,1
+empirical,SinglePlyPolyurethane,27,1,1
+empirical,SinglePlyTPO,62,1,1
 empirical,SprayedInsulation,11,1,1
 empirical,SteelSuspensionAssembly,98,1,1
 empirical,StoneCladding,19,1,1
 empirical,StorageFurniture,15,1,1
 empirical,SupplementaryCementitiousMaterials,28,1,1
 empirical,Tables,161,1,1
-empirical,TileGrout,43,1,3
+empirical,TileGrout,43,1,2
 empirical,Timber,17,1,1
-empirical,TranslucentWallAndRoofAssemblies,46,1,1
+empirical,TranslucentWallAndRoofAssemblies,46,1,2
 empirical,UnitSkylights,17,1,1
 empirical,VinylSiding,11,1,1
 empirical,WallBase,14,1,1
-empirical,WallFinishes,173,1,3
-empirical,WallPanels,163,1,1
-empirical,WeatherBarriers,59,1,1
-empirical,Windows,358,1,1
-empirical,WireMeshSteel,53,1,3
-empirical,WoodDoors,32,1,2
-empirical,WoodFlooring,86,1,1
+empirical,WallFinishes,173,1,2
+empirical,WallPanels,163,1,2
+empirical,WeatherBarriers,59,1,2
+empirical,Windows,358,1,2
+empirical,WireMeshSteel,53,1,1
+empirical,WoodDoors,32,1,1
+empirical,WoodFlooring,86,1,2
 empirical,WorkSurfaces,12,1,1
 synthetic,dataset100,8,1,1
 synthetic,dataset1006,9,1,1
