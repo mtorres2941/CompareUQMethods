@@ -4915,6 +4915,24 @@ rather than in conversation.
      one experiment run at a tenth of the sample. It tightens both intervals by
      a factor of 1.8 and costs a few minutes of the notebook run.
 
+     **AND 2,500 IS ENOUGH; MORE BUYS NOTHING. Measured 2026-09-24 after the
+     author asked about 5,000 and 10,000.** Subsampling the pairs on disk, the
+     standard error of the spread across the six methods is 0.0046 at 312
+     pairs, 0.0032 at 625, 0.0023 at 1,250 and **0.0012 at 2,500**, against a
+     spread of **0.0152**. The effect is already thirteen standard errors clear
+     of its own noise. Doubling to 5,000 would give 0.0009 and 10,000 would
+     give 0.0006, on a quantity the paper reports as "at most about 1.5
+     percentage points". **The run time would roughly double for a third
+     decimal place nobody reads.**
+
+     **AND THIS IS WHY 800 LOOKED WORSE THAN IT WAS.** The reported spread is a
+     MAXIMUM over six methods, and a maximum over noisy estimates is biased
+     upward when the estimates are noisy. The same subsampling shows it: the
+     mean spread reads 0.0192 at 312 pairs, 0.0172 at 625, 0.0158 at 1,250 and
+     0.0152 at 2,500. So part of what the larger sample bought was removing a
+     bias in the statistic, not just narrowing an interval -- which is the same
+     mechanism decision 108 records for the flip thresholds under a maximum.
+
 163. **2026-09-23, Stage 2g review. THE "81 DECLARATIONS" THRESHOLD IS A
      GOODNESS-OF-FIT THRESHOLD AND THE CLAIM-LEVEL ONE IS NEAR 500. Quoting the
      first as though it settled the second is a conflation this project has

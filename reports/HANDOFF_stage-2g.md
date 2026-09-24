@@ -271,7 +271,7 @@ on one definition, is the figure below. Three things come out of it.
 **No single method is best everywhere.** The six differ measurably on 15 of the
 16 claims, and on those 15 four different methods are best on something: the
 three-parameter lognormal with equal weights takes 5, the same lognormal with
-Dirichlet-drawn shares 5, the kernel estimate with Dirichlet shares 3, and the
+sampled market shares 5, the kernel estimate with sampled shares 3, and the
 kernel estimate with equal weights 2. **Neither normal fit is ever first.** The
 one claim on which the six do not differ is what a quantity reduction saves,
 where all six and the truth agree to four decimal places.
@@ -281,17 +281,17 @@ an average over every dataset size, and the ordering INVERTS with size. Mean
 error across the seven per-material claims, each as a percentage of its own
 true level:
 
-    n           KDE eq  KDE Dir  Logn eq  Logn Dir  Norm eq  Norm Dir
+    n           KDE eq  KDE smp  Logn eq  Logn smp  Norm eq  Norm smp
     3-9           40.4    43.6     40.1     45.5      41.8     45.6
     10-99         25.7    26.8     23.7     25.9      27.5     28.3
     100-999       18.1    15.8     18.1     15.3      22.1     20.5
     1000+         16.3    11.0     17.2     12.6      20.8     17.9
 
 The lognormal under equal weights is closest in the two bands below 100
-declarations, the lognormal under Dirichlet shares at 100 to 999, and the
-KERNEL ESTIMATE under Dirichlet shares above 1,000, at **11.0 against the
+declarations, the lognormal under sampled market shares at 100 to 999, and the
+KERNEL ESTIMATE under sampled market shares above 1,000, at **11.0 against the
 equal-weighted lognormal's 17.2**. Both axes turn over: equal weights win every
-band below 100 and Dirichlet shares win every band above.
+band below 100 and sampled market shares win every band above.
 
 **The pooled count leans to the lognormal because the corpus puts 2,500
 datasets in each of four size bands**, so half of every probabilistic LCA sits
@@ -389,7 +389,10 @@ a null and a null is the strongest thing this stage has.
    **0.630** and the six methods span 0.638 to 0.647. **This was 800 pairs
    until the author asked why the stage's headline null used a tenth of the
    sample every other truth-run result uses; at 800 the interval on that
-   0.015 was as wide as the number itself.**
+   0.015 was as wide as the number itself. 2,500 is also ENOUGH -- the
+   spread across the six methods is 0.0152 with a standard error of
+   0.0012, so it is thirteen standard errors clear of its own noise, and
+   10,000 pairs would buy a third decimal place nobody reads.**
 2. **The safe-lead rule.** The chance that the choice of method changes which
    material leads crosses 1 percent at a top-two contribution ratio of **2.13**
    (95 percent interval 2.09 to 2.17). The one real building element available,
@@ -587,10 +590,10 @@ because the ordering inverts with dataset size.**
 **EVERY CELL OF BOTH PANELS IS THE SAME QUANTITY**, which is what makes two
 rows, and the two panels, comparable: that method's mean absolute error against
 the truth, as a percentage of the mean true level of the thing being claimed. A
-black box marks the method closest to the truth in each row. **"Dirichlet
-shares" is what the study has been calling "Variable"**: the market shares were
-drawn from a flat Dirichlet because nobody publishes them. "Equal" means every
-declaration counts the same.
+black box marks the method closest to the truth in each row. **"Sampled market
+shares" is what the study has been calling "Variable"**: the shares were drawn
+at random, from a flat Dirichlet, because nobody publishes them. "Equal" means
+every declaration counts the same.
 
 **UPPER PANEL, what the cells say by question.**
 
@@ -628,10 +631,10 @@ and none of them is close.
 
 **LOWER PANEL: the same seven per-material claims, pooled, split by the
 material's own dataset size.** The lognormal under equal weights is closest
-below 100 declarations, the lognormal under Dirichlet shares from 100 to 999,
-and the kernel estimate under Dirichlet shares above 1,000, at **11.0 against
+below 100 declarations, the lognormal under sampled market shares from 100 to 999,
+and the kernel estimate under sampled market shares above 1,000, at **11.0 against
 the equal-weighted lognormal's 17.2**. **Both axes turn over**: equal weights
-win every band below 100 declarations and Dirichlet shares win every band
+win every band below 100 declarations and sampled market shares win every band
 above.
 
 **Why the panel is there rather than a caption warning.** Counting boxes in the
@@ -832,11 +835,11 @@ claimed 10 percent saving and 0.0119 to 0.0088 at five.
 
 **One best-method box changed with it, and that is the sample size doing its
 job.** On the design comparison all six methods sit within 0.9 points of each
-other, and at 800 pairs the closest was the kernel estimate with Dirichlet
-shares at 0.53; at 2,500 it is the kernel estimate with equal weights at 0.81,
-with Dirichlet shares second at 0.88. The best-method counts over the 15 claims
+other, and at 800 pairs the closest was the kernel estimate with sampled
+market shares at 0.53; at 2,500 it is the kernel estimate with equal weights at 0.81,
+with sampled market shares second at 0.88. The best-method counts over the 15 claims
 where the six differ therefore go from 5 / 5 / 4 / 1 to **5 / 5 / 3 / 2** across
-the equal-weighted lognormal, the Dirichlet lognormal, the Dirichlet kernel
+the equal-weighted lognormal, the sampled-share lognormal, the sampled-share kernel
 estimate and the equal-weighted kernel estimate. **A "best method" on a row
 whose six values span less than a point was noise, and the larger sample is
 what shows it.**
