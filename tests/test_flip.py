@@ -316,3 +316,20 @@ def test_the_isotonic_fit_is_not_inside_the_logistic_interval_in_general():
     # it, which is exactly the situation the digit rule protects against.
     assert not (r.ci_lo <= r.crossing_isotonic <= r.ci_hi)
     assert FL.prose_digits(r.crossing, r.crossing_isotonic) <= 2
+
+
+def test_prose_crossing_passes_through_a_crossing_that_does_not_exist():
+    """A SWEEP REPORTS ROWS IT COULD NOT FIT. A crossing unreachable in the
+    observed range comes back as nan or inf, and formatting one as a number is
+    not possible -- a smoke run of notebook 3 found this at 20 pLCA groups,
+    where several ratio crossings do not exist."""
+    for a, b in ((np.inf, 2.0), (2.0, np.nan), (np.nan, np.nan)):
+        got = FL.prose_crossing(a, b)
+        assert isinstance(got['text'], str) and 'against' in got['text']
+        assert not got['agree']
+    # And the whole-table entry point must survive a frame containing one.
+    frame = pd.DataFrame({'crossing': [2.132671, np.inf],
+                          'crossing_isotonic': [2.222710, 1.5]})
+    out = FL.crossing_precision(frame)
+    assert out.prose_text.iloc[0] == '2.1 against 2.2'
+    assert isinstance(out.prose_text.iloc[1], str)

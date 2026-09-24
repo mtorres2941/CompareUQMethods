@@ -565,6 +565,14 @@ def prose_crossing(parametric, monotone, max_sigfigs=PROSE_MAX_SIGFIGS):
     """
     k = prose_digits(parametric, monotone, max_sigfigs=max_sigfigs)
     a, b = _round_sig(parametric, k), _round_sig(monotone, k)
+    # A SWEEP REPORTS ROWS IT COULD NOT FIT, and a crossing that does not exist
+    # in the observed range comes back as nan or inf. Formatting one as a
+    # number is not possible and pretending it is a number would be worse, so
+    # it is passed through as text. A smoke run of notebook 3 found this: at 20
+    # pLCA groups several ratio crossings are unreachable.
+    if not (np.isfinite(a) and np.isfinite(b)):
+        return dict(sigfigs=k, parametric=a, monotone=b, agree=False,
+                    text=f'{a} against {b}')
     agree = (a == b)
     dec = max(0, k - 1 - int(np.floor(np.log10(abs(a))))) if a else 0
     fmt = f'{{:.{dec}f}}'
