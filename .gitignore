@@ -88,3 +88,7 @@ outputs/tables/stage2a3/CACHE_modality_*.npz
 # is a better record of a measurement than the CSV it produces. 98 of these were
 # tracked and deleted on 2026-09-15; they are not tracked again.
 outputs/tables/audits/
+
+# Stage 2h: the generation scorecard's cache of the frozen empirical arm.
+# Derived, deterministic, and rebuilt in 27 seconds by deleting it.
+outputs/tables/audits/_empirical_arm_cache*
