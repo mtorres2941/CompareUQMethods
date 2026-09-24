@@ -109,6 +109,33 @@ def draw_parent(cfg, n, rng):
     z = (np.sort(rng.uniform(0.0, 1.0, k)) ** cfg.position_skew
          if k > 1 else np.zeros(1))
 
+    # SHOULDER OR SEPARATED HUMPS. `z` is ascending, and `pi` and `solved` are
+    # drawn independently of it, so by default the biggest component is as
+    # likely to sit at the top of the range as at the bottom. Pairing the
+    # largest weight and the widest component with the LOWEST position instead
+    # makes the parent a dominant body with small narrow components on its
+    # upper tail, which is the shape a real multimodal ECC category has. See
+    # `genconfig.shoulder_frac` for the arithmetic; at 0.0 nothing changes and
+    # the draw below still consumes no randomness, so a corpus generated with
+    # shoulder_frac = 0 is bit-identical to one generated before this existed.
+    shoulder = False
+    if k > 1 and cfg.shoulder_frac > 0.0:
+        shoulder = bool(rng.random() < cfg.shoulder_frac)
+        if shoulder:
+            order = np.argsort(-pi)               # heaviest mode first
+            pi = pi[order]
+            market = market[order]
+            # widest component first, so the body is wide and the shoulders
+            # are narrow. `solved` is (family, shape, loc, scale).
+            solved = [solved[i] for i in order]
+            # scale is element 3 of (family, shape, loc, scale). 'narrow' puts
+            # the tightest component at the lowest position, which is the
+            # sharp-peak-with-a-tail shape real categories have; 'wide' is the
+            # direction that was tried first and measured worse.
+            reverse = (cfg.shoulder_body == 'wide')
+            solved = sorted(solved, key=lambda c: float(c[3]), reverse=reverse)
+            specs = [specs[i] for i in order]
+
     def build(c):
         comps = []
         for (fam, shape, loc, scale), zi in zip(solved, z):
@@ -217,7 +244,7 @@ def draw_parent(cfg, n, rng):
                   overlap_avg=float(M.average_overlap(comps, pi)) if k > 1 else 0.0,
                   overlap_min_adjacent=float(M.min_adjacent_overlap(comps, pi))
                   if k > 1 else 0.0,
-                  trunc_rule=cfg.trunc_rule,
+                  trunc_rule=cfg.trunc_rule, shoulder=shoulder,
                   overlap_status=ov_status, component_retries=retries,
                   components=specs, pi=pi.tolist(), market=market.tolist(),
                   shift=shift, lo=lo, hi=hi,

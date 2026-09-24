@@ -47,10 +47,17 @@ def panel(ax, x, title, parent=None, color='tab:blue'):
     """
     x = np.asarray(x, float)
     if parent is not None:
+        # THE GRID IS BUILT OVER THE VISIBLE RANGE, NOT THE TRUNCATION RANGE.
+        # The parent's bounds can reach 30 times the mean while the panel shows
+        # 0 to 4, so a grid spanning the bounds put as few as 34 of its 600
+        # points inside the frame and the fill collapsed to nothing. The x
+        # limit has to be decided FIRST and the density evaluated on it.
         scale = parent.normalizer
-        g = np.linspace(parent.lo / scale, parent.hi / scale, 600)
+        hi = max(np.percentile(x, 99.5) * 1.15, x.max() * 0.35)
+        hi = min(hi, parent.hi / scale)
+        g = np.linspace(parent.lo / scale, hi, 600)
         ax.fill_between(g, parent.pdf(g), color=color, alpha=0.35, linewidth=0)
-        ax.set_xlim(0, max(np.percentile(x, 99.5) * 1.15, x.max() * 0.35))
+        ax.set_xlim(0, hi)
     elif len(x) >= 2 and np.std(x) > 0:
         kde = gaussian_kde(x)
         g = np.linspace(max(0.0, x.min() - 0.1 * np.ptp(x)),

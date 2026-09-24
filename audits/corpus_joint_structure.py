@@ -71,6 +71,17 @@ CANDIDATES = {
     'unequal_wider_separated': dict(mode_share_alpha=1.0, trunc_iqr_mult=5.0,
                                     min_q1_over_iqr=0.02,
                                     overlap_log10_hi=-0.10),
+    # THE THIRD ROUND, and the first that changes the CONSTRUCTION rather than
+    # a range. `shoulder_frac` pairs the largest weight and the widest
+    # component with the lowest position, so a multi-component parent becomes
+    # one dominant body with small narrow components on its upper tail instead
+    # of a symmetric blend of separated humps. See genconfig.shoulder_frac.
+    'shoulder_half': dict(shoulder_frac=0.5, mode_share_alpha=1.0),
+    'shoulder_all': dict(shoulder_frac=1.0, mode_share_alpha=1.0),
+    'shoulder_all_wider': dict(shoulder_frac=1.0, mode_share_alpha=1.0,
+                               trunc_iqr_mult=5.0, min_q1_over_iqr=0.02),
+    'shoulder_all_widest': dict(shoulder_frac=1.0, mode_share_alpha=1.0,
+                                trunc_iqr_mult=8.0, min_q1_over_iqr=0.01),
 }
 
 

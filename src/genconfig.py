@@ -252,6 +252,48 @@ class GeneratorConfig:
     end, so the overall scale is unidentified."""
 
     # ---- how many points fall in each mode ---------------------------------
+    shoulder_frac: float = 0.0
+    """Share of multi-component parents built as a SHOULDER rather than as
+    separated humps. Stage 2g review, 2026-09-23.
+
+    At 0 this is the generator as shipped: component weights and scales are
+    drawn independently of position, so a multi-component parent is a blend of
+    comparable bodies spread apart. That is symmetric-ish, and it is why the
+    corpus's multimodal datasets come out LESS skewed and LESS dispersed than
+    its unimodal ones while real multimodal categories are MORE of both --
+    Spearman of the visible mode count with the coefficient of variation is
+    -0.153 on the corpus against +0.163 on the real arm, and the sign is
+    opposite on all six characteristics measured.
+
+    Above 0, that fraction of parents instead pairs the LARGEST weight and the
+    WIDEST component with the LOWEST position, so the mixture is one dominant
+    body with small narrow components sitting on its upper tail. That is what a
+    real multimodal ECC category looks like: a shoulder, not a second hump.
+
+    THE ARITHMETIC THIS IS BUILT ON. A mixture's skewness carries a term
+    proportional to sum(pi_i * (mu_i - mu) ** 3). Spread the component means
+    symmetrically and that term vanishes while the mixture's variance grows, so
+    separating components DILUTES skewness -- which is the defect. Put the mass
+    at the bottom and the stragglers in the tail and the term is large and
+    positive, so the same number of modes now comes with more skew, not less.
+    """
+
+    shoulder_body: str = 'narrow'
+    """Which component becomes the BODY when `shoulder_frac` fires.
+
+    'narrow' pairs the heaviest weight with the NARROWEST component at the
+    lowest position, so the parent is a sharp dominant peak with wider, lighter
+    components spread up its right tail. That is what a real multimodal ECC
+    category looks like -- see `RebarSteel`, a spike near 0.5 with a broad low
+    shoulder out to 2.
+
+    'wide' does the reverse and was tried first. It made things WORSE: 19.4
+    percent of a draft corpus came out multimodal against 21.5 as shipped,
+    because a small component placed on the tail of a WIDE body is buried
+    inside that body's own spread and never becomes a visible local maximum.
+    Kept as an option only so the failed direction is reproducible.
+    """
+
     mode_share_alpha: float = 10.0
     """Dirichlet concentration for the SAMPLING weights pi, which set how many
     points fall in each mode. 10 is the old generator's cpv = ones(k) * 10.
