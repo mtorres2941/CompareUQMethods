@@ -636,3 +636,210 @@ def tail_exposure(stress, outputs_=None, w1='w1_rel'):
                          n=int(ok.sum())))
     return (pd.DataFrame(rows).sort_values('exposure', ascending=False)
             .reset_index(drop=True))
+
+
+# ---------------------------------------------------------------------------
+# the claim scorecard, and the two errors it must not confuse
+# ---------------------------------------------------------------------------
+#: The sixteen claims a probabilistic LCA makes, grouped by the five questions
+#: a reader asks. Each entry is
+#:
+#:     (question, label, source, output)
+#:
+#: where `source` names which of the four tidy frames the claim is read from.
+#: `'recovery'` rows come from `recovery_table`, which is already per material;
+#: the other three are ROW-LEVEL frames and the per-unit error is taken here.
+SCORECARD_CLAIMS = (
+    ('magnitude', 'the total: its mean', 'building', 'total_mean'),
+    ('magnitude', 'the total: its standard deviation', 'building', 'total_sd'),
+    ('magnitude', 'the total: its 90th percentile', 'building', 'total_q0.9'),
+    ('magnitude', 'the chance of meeting a budget', 'building',
+     'p_below_q0.9'),
+    ('attribution', 'a material: its mean contribution', 'recovery',
+     'eci_mean'),
+    ('attribution', 'a material: its standard deviation', 'recovery',
+     'eci_std'),
+    ('attribution', 'a material: its 95th percentile', 'recovery', 'eci_p95'),
+    ('attribution', 'a material: its share of the total', 'recovery',
+     'eci_perc_mean'),
+    ('attribution', 'a material: its share at the building 95th', 'recovery',
+     'eci_perc_p95tot'),
+    ('attribution', 'a material: its chance of being largest', 'recovery',
+     'eci_rank_1'),
+    ('information', 'the uncertainty index', 'recovery', 'ui'),
+    ('action', 'a cap: how often it binds', 'intervention',
+     'cap_share_touched'),
+    ('action', 'a cap: its mean saving', 'intervention', 'cap_reduction_mean'),
+    ('action', 'a cap: its chance of saving 5 pct', 'intervention',
+     'cap_p_reduction_over_5'),
+    ('action', 'using 25 pct less: its mean saving', 'intervention',
+     'qty_reduction_mean'),
+    ('comparison', 'the probability B beats A', 'swap', 'discernibility'),
+)
+
+#: Below this fraction of the true level the six methods are treated as
+#: agreeing. Ranking a row whose whole spread is arithmetic noise invites the
+#: misreading the win-share leaders did in Stage 2g.
+DIFFERENCE_FLOOR = 1e-3
+
+
+def per_unit_error(frame, output, method='method', block=None):
+    """Both errors a set of signed per-unit errors can be summarized into.
+
+    THE TWO ARE DIFFERENT QUANTITIES AND FIVE OF THE SIXTEEN SCORECARD ROWS
+    USED THE WRONG ONE. Stage 2g read four reduction-strategy rows and the
+    design comparison off summary tables that averaged the SIGNED error over
+    pLCA groups before taking the absolute value, so a method that is too high
+    on one group and too low on the next reported almost no error at all. The
+    other eleven rows were already per unit, so the figure put two statistics
+    on one colour scale and the five flattered themselves: the best method on
+    "how often a cap binds" read 0.48 percent of the true level where the
+    per-unit figure is 33.01, and on "what using 25 percent less saves" it read
+    0.00 against 10.02.
+
+    `error`
+        mean |signed error| over the units. **This is the error in a single
+        decision** -- one building, one design comparison, one specification
+        cap -- which is what a practitioner making one choice experiences, and
+        it is what every scorecard row now reports.
+
+    `error_portfolio`
+        |mean signed error| over the units, taken within `block` first where a
+        block is given. **This is the error in the AVERAGE claim over many
+        decisions**, which is the right quantity for a portfolio of buildings
+        or a stock model and the wrong one for a single design. It is kept and
+        labelled rather than dropped, because it is a real quantity that a
+        different reader wants; it is not a worse version of the first.
+
+    The gap between them is the extent to which a method's error cancels
+    across units, so `error_portfolio` at or near zero beside a large `error`
+    says the method is unbiased on average and wrong case by case.
+
+    Parameters
+    ----------
+    frame : DataFrame
+        Row-level, one row per unit per method, carrying `<output>__error` and
+        `<output>__truth`.
+    output : str
+        The output's column stem.
+    method : str
+        The column naming the UQ method.
+    block : str or None
+        A column to average within before taking the absolute value, for the
+        portfolio form. The design comparison is reported per claimed saving,
+        so its portfolio error averages pairs within a saving and then across
+        savings; passing None averages every unit at once.
+
+    Returns
+    -------
+    DataFrame indexed by method with `error`, `error_portfolio` and `n_units`,
+    plus the claim's `truth_level` as an attribute-free column repeated per row.
+    """
+    ecol, tcol = f'{output}__error', f'{output}__truth'
+    if ecol not in frame.columns or tcol not in frame.columns:
+        raise KeyError(f'{output}: need both {ecol} and {tcol}')
+    work = frame.assign(
+        _e=pd.to_numeric(frame[ecol], errors='coerce'),
+        _t=pd.to_numeric(frame[tcol], errors='coerce'))
+    level = abs(float(np.nanmean(work['_t'].to_numpy(float))))
+    rows = []
+    for name, sub in work.groupby(method, sort=True):
+        if block is None or block not in sub.columns:
+            portfolio = abs(float(np.nanmean(sub['_e'].to_numpy(float))))
+        else:
+            per_block = sub.groupby(block)['_e'].mean().abs()
+            portfolio = float(np.nanmean(per_block.to_numpy(float)))
+        rows.append(dict(
+            method=name,
+            error=float(np.nanmean(sub['_e'].abs().to_numpy(float))),
+            error_portfolio=portfolio,
+            n_units=int(sub['_e'].notna().sum()),
+            truth_level=level))
+    return pd.DataFrame(rows).set_index('method')
+
+
+def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
+                    claims=SCORECARD_CLAIMS, method='method',
+                    swap_block='saving', difference_floor=DIFFERENCE_FLOOR):
+    """The sixteen claims by the six methods, every row on ONE definition.
+
+    ONE DEFINITION FOR EVERY ROW IS THE WHOLE POINT OF THE TABLE, and it has
+    now been established twice. Stage 2g's decision 157 put every row on the
+    same DIVISOR -- the mean true LEVEL of the quantity, never the spread
+    between materials, because a signal-to-noise ratio and a relative error are
+    not one unit however both are printed as percentages. This function adds
+    the other half: every row on the same NUMERATOR, the mean absolute error
+    per unit, because five rows were averaging the signed error over groups
+    first and so reported a cancellation rather than an error.
+
+    Both statistics are returned for all sixteen rows and both are labelled:
+
+        `total_error`       the per-unit relative error. **What the figure
+                            draws**, and what a single design decision carries.
+        `portfolio_error`   the relative error in the AVERAGE claim over many
+                            decisions. The right quantity for a stock model.
+
+    and, derived from `total_error` alone,
+
+        `best_error`        what the closest of the six still gets wrong
+        `stakes`            worst minus best, which is what the CHOICE costs
+        `excess`            this method's excess over the best
+        `methods_differ`    whether `stakes` clears `difference_floor`
+
+    `best_error` and `stakes` answer different questions and reporting only one
+    misleads: a small spread can mean every method is right or every method is
+    equally wrong.
+
+    Parameters
+    ----------
+    recovery : DataFrame
+        `recovery_table` output, already filtered to one truth parent. Its
+        `abs_error` is per material and its `bias_raw` is the signed mean, so
+        both statistics are read straight off it.
+    building_rows, intervention_rows, swap_rows : DataFrame
+        The row-level truth-run frames, one row per pLCA, per material and per
+        design pair respectively.
+    """
+    sources = {'building': (building_rows, None),
+               'intervention': (intervention_rows, None),
+               'swap': (swap_rows, swap_block)}
+    rows = []
+    for group, label, source, output in claims:
+        if source == 'recovery':
+            sub = recovery[recovery['output'] == output]
+            if sub.empty:
+                continue
+            level = abs(float(sub['truth_mean'].iloc[0]))
+            for _, r in sub.iterrows():
+                rows.append(dict(
+                    group=group, claim=label, method=r[method],
+                    error=float(abs(r['abs_error'])),
+                    error_portfolio=float(abs(r['bias_raw'])),
+                    scale=level, n_units=int(r.get('n', 0))))
+        else:
+            frame, block = sources[source]
+            got = per_unit_error(frame, output, method=method, block=block)
+            for name, r in got.iterrows():
+                rows.append(dict(
+                    group=group, claim=label, method=name,
+                    error=float(r['error']),
+                    error_portfolio=float(r['error_portfolio']),
+                    scale=float(r['truth_level']), n_units=int(r['n_units'])))
+    frame = pd.DataFrame(rows)
+    if frame.empty:
+        return frame
+    frame['total_error'] = frame['error'] / frame['scale']
+    frame['portfolio_error'] = frame['error_portfolio'] / frame['scale']
+    piv = frame.pivot(index='claim', columns='method', values='total_error')
+    lo, hi = piv.min(axis=1), piv.max(axis=1)
+    frame['rank'] = frame.groupby('claim')['total_error'].rank(
+        method='min').astype(int)
+    frame['stakes'] = frame['claim'].map(hi - lo)
+    frame['best_error'] = frame['claim'].map(lo)
+    frame['excess'] = frame['total_error'] - frame['claim'].map(lo)
+    frame['best_method'] = frame['claim'].map(piv.idxmin(axis=1))
+    frame['methods_differ'] = frame['stakes'] > difference_floor
+    order = {lab: i for i, (_, lab, _, _) in enumerate(claims)}
+    return (frame.assign(_o=frame['claim'].map(order))
+            .sort_values(['_o', 'method']).drop(columns='_o')
+            .reset_index(drop=True))

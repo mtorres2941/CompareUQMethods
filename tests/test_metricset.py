@@ -528,3 +528,141 @@ def test_size_band_recovery_skips_an_output_with_no_usable_level():
     frame['w1__error'] = 0.1
     got = MS.size_band_recovery(frame, outputs=('eci_mean', 'w1'))
     assert set(got.output) == {'eci_mean'}
+
+
+# ---------------------------------------------------------------------------
+# Stage 2h: the two errors a scorecard row can report, and the one it must
+# ---------------------------------------------------------------------------
+def a_cancelling_frame(n_units=200):
+    """One method that is wrong by the same amount every time, in alternating
+    directions, and one that is right.
+
+    This is the exact shape of the defect Stage 2h corrects: averaging the
+    SIGNED error over units before taking the absolute value reports the
+    cancelling method as perfect, and it is wrong on every single unit.
+    """
+    unit = np.arange(n_units)
+    sign = np.where(unit % 2 == 0, 1.0, -1.0)
+    rows = []
+    for name, err in (('cancels', 0.2 * sign), ('exact', np.zeros(n_units))):
+        rows.append(pd.DataFrame({
+            'unit': unit, 'saving': unit % 4, 'method': name,
+            'q__truth': 1.0, 'q__error': err, 'q': 1.0 + err}))
+    return pd.concat(rows, ignore_index=True)
+
+
+def test_per_unit_error_separates_a_cancelling_method_from_an_exact_one():
+    """The defect, planted. A method wrong by 0.2 on every unit must not be
+    reported as having no error because its signs alternate."""
+    got = MS.per_unit_error(a_cancelling_frame(), 'q')
+    # The per-unit error is the truth about a SINGLE decision.
+    assert got.loc['cancels', 'error'] == pytest.approx(0.2)
+    assert got.loc['exact', 'error'] == pytest.approx(0.0)
+    # The portfolio error is the truth about the AVERAGE over many, and it is
+    # near zero for the cancelling method. That is not wrong, it is a different
+    # question -- which is why both are reported and both are labelled.
+    assert got.loc['cancels', 'error_portfolio'] == pytest.approx(0.0,
+                                                                  abs=1e-12)
+    # The two must not be interchangeable, or the correction would be empty.
+    assert got.loc['cancels', 'error'] > 100 * got.loc['cancels',
+                                                       'error_portfolio']
+    assert (got['truth_level'] == 1.0).all()
+    assert (got['n_units'] == 200).all()
+
+
+def test_per_unit_error_blocks_the_portfolio_form_but_never_the_per_unit_one():
+    """Averaging within a block before taking the absolute value is what the
+    design comparison does, reporting per claimed saving. It changes the
+    portfolio form and must leave the per-unit form alone."""
+    frame = a_cancelling_frame()
+    plain = MS.per_unit_error(frame, 'q')
+    blocked = MS.per_unit_error(frame, 'q', block='saving')
+    assert blocked['error'].equals(plain['error'])
+    # Blocks 0 and 2 hold only positive errors and 1 and 3 only negative, so
+    # blocking recovers the per-unit magnitude where the pooled form cancels.
+    assert blocked.loc['cancels', 'error_portfolio'] == pytest.approx(0.2)
+
+
+def test_per_unit_error_refuses_an_output_it_cannot_score():
+    with pytest.raises(KeyError):
+        MS.per_unit_error(a_cancelling_frame(), 'not_an_output')
+
+
+def a_scorecard_fixture():
+    """The four frames the scorecard reads, each carrying one usable claim."""
+    rng = np.random.default_rng(11)
+    n = 120
+    building = pd.DataFrame({
+        'plca': np.arange(n).repeat(2),
+        'method': np.tile(['a', 'b'], n),
+        'total_mean__truth': 4.0,
+        'total_mean__error': np.tile([0.4, -0.4], n) * np.where(
+            np.arange(2 * n) % 4 < 2, 1.0, -1.0)})
+    building['total_mean'] = 4.0 + building['total_mean__error']
+    intervention = building.rename(columns={
+        'total_mean__truth': 'cap_share_touched__truth',
+        'total_mean__error': 'cap_share_touched__error',
+        'total_mean': 'cap_share_touched'}).assign(cap_share_touched__truth=0.5)
+    swap = pd.DataFrame({
+        'pair': np.arange(n).repeat(2), 'saving': (np.arange(n) % 3).repeat(2),
+        'method': np.tile(['a', 'b'], n), 'discernibility__truth': 0.6,
+        'discernibility__error': rng.normal(0, 0.05, 2 * n)})
+    recovery = pd.DataFrame({
+        'output': ['eci_mean', 'eci_mean'], 'method': ['a', 'b'],
+        'abs_error': [0.10, 0.30], 'bias_raw': [0.01, -0.02],
+        'truth_mean': [1.0, 1.0], 'n': [n, n]})
+    return recovery, building, intervention, swap
+
+
+def test_claim_scorecard_puts_every_row_on_the_per_unit_error():
+    recovery, building, intervention, swap = a_scorecard_fixture()
+    claims = (('magnitude', 'the total: its mean', 'building', 'total_mean'),
+              ('attribution', 'a material: its mean contribution', 'recovery',
+               'eci_mean'),
+              ('action', 'a cap: how often it binds', 'intervention',
+               'cap_share_touched'),
+              ('comparison', 'the probability B beats A', 'swap',
+               'discernibility'))
+    got = MS.claim_scorecard(recovery, building, intervention, swap,
+                             claims=claims)
+    assert len(got) == 8
+    assert set(got.claim) == {c[1] for c in claims}
+    # The action row's errors cancel exactly across groups, so the per-unit and
+    # portfolio forms must disagree by the whole error rather than agreeing.
+    cap = got[got.claim == 'a cap: how often it binds']
+    assert (cap.total_error > 0.7).all()          # 0.4 / 0.5
+    assert (cap.portfolio_error < 1e-9).all()
+    # And the magnitude row, which was already per unit, is unchanged by this.
+    tot = got[got.claim == 'the total: its mean']
+    assert tot.total_error.to_numpy() == pytest.approx(0.1)   # 0.4 / 4.0
+
+
+def test_claim_scorecard_derives_stakes_and_best_from_the_per_unit_error():
+    recovery, building, intervention, swap = a_scorecard_fixture()
+    got = MS.claim_scorecard(
+        recovery, building, intervention, swap,
+        claims=(('attribution', 'a material: its mean contribution',
+                 'recovery', 'eci_mean'),))
+    row = got.set_index('method')
+    assert row.loc['a', 'total_error'] == pytest.approx(0.10)
+    assert row.loc['b', 'total_error'] == pytest.approx(0.30)
+    # best_error is what is left however you choose; stakes is what the choice
+    # costs; the two add to the worst method's total.
+    assert row['best_error'].to_numpy() == pytest.approx(0.10)
+    assert row['stakes'].to_numpy() == pytest.approx(0.20)
+    assert row['best_error'].iloc[0] + row['stakes'].iloc[0] == pytest.approx(
+        row['total_error'].max())
+    assert (row['best_method'] == 'a').all()
+    assert row.loc['a', 'rank'] == 1 and row.loc['b', 'rank'] == 2
+    assert row['methods_differ'].all()
+
+
+def test_claim_scorecard_marks_a_row_the_six_agree_on():
+    """A row whose whole spread is arithmetic noise must be flagged, so that
+    naming a best method on it is visibly not a ranking."""
+    recovery, building, intervention, swap = a_scorecard_fixture()
+    recovery = recovery.assign(abs_error=[0.10, 0.1000001])
+    got = MS.claim_scorecard(
+        recovery, building, intervention, swap,
+        claims=(('attribution', 'a', 'recovery', 'eci_mean'),))
+    assert not got.methods_differ.any()
