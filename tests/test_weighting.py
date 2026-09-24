@@ -281,3 +281,88 @@ def test_adjacent_clustering_moves_the_density_more_than_scattered():
     assert np.median(neff_a) == pytest.approx(np.median(neff_s), rel=0.35)
     # ... and differ substantially on what that concentration does
     assert np.median(adj) > 1.5 * np.median(sca)
+
+
+# ---------------------------------------------------------------------------
+# Stage 2h: ONE market-share rule for both arms
+# ---------------------------------------------------------------------------
+def test_coherent_weights_are_a_probability_vector_at_every_size():
+    rng = np.random.default_rng(0)
+    for n in (1, 2, 3, 9, 37, 400):
+        for rho in (0.0, 0.5, 1.0):
+            w = WG.coherent_weights(np.arange(1.0, n + 1), rng, rho=rho)
+            assert len(w) == n
+            assert np.all(w >= 0)
+            assert w.sum() == pytest.approx(1.0)
+
+
+def test_coherent_weights_reduce_to_a_flat_dirichlet_when_every_point_is_a_block():
+    """The old empirical rule is the k = n corner of the new one, which is what
+    makes this a generalization rather than a replacement."""
+    rng = np.random.default_rng(1)
+    x = np.sort(rng.lognormal(0.0, 0.8, 160))
+    x = x / x.mean()
+    new = [WG.weight_effect(x, WG.coherent_weights(x, rng, k=len(x), rho=1.0))
+           for _ in range(300)]
+    old = [WG.weight_effect(x, rng.dirichlet(np.ones(len(x))))
+           for _ in range(300)]
+    assert np.median(new) == pytest.approx(np.median(old), rel=0.12)
+
+
+def test_coherence_raises_the_weighting_effect_and_concentration_is_separate():
+    """THE TWO AXES MUST NOT BE CONFUSED, which is decision 97's finding and
+    the reason the sweep varies both.
+
+    At a FIXED block count -- so a fixed concentration and a fixed effective
+    sample size -- raising rho from random membership to clustering by
+    coefficient must raise the separation substantially. That is coherence
+    doing work that concentration alone does not do.
+    """
+    rng = np.random.default_rng(2)
+    x = np.sort(rng.lognormal(0.0, 0.8, 200))
+    x = x / x.mean()
+
+    def median_effect(rho, k):
+        return float(np.median([
+            WG.weight_effect(x, WG.coherent_weights(x, rng, k=k, rho=rho))
+            for _ in range(250)]))
+
+    incoherent, coherent = median_effect(0.0, 4), median_effect(1.0, 4)
+    assert coherent > 2.0 * incoherent
+    # And the effective sample size is essentially unchanged by rho, which is
+    # what says the gain is not concentration under another name.
+    def median_neff(rho):
+        return float(np.median([
+            WG.effective_n(WG.coherent_weights(x, rng, k=4, rho=rho))
+            for _ in range(250)]))
+    assert median_neff(0.0) == pytest.approx(median_neff(1.0), rel=0.20)
+
+
+def test_coherent_weights_read_only_the_ORDER_of_the_values():
+    """The rule must be invariant under any increasing rescaling, because a
+    weight model that moved with the units would make the paper's central
+    quantity depend on whether a category is declared per kg or per tonne."""
+    rng_a = np.random.default_rng(7)
+    rng_b = np.random.default_rng(7)
+    x = np.sort(np.random.default_rng(5).lognormal(0.0, 1.0, 80))
+    wa = WG.coherent_weights(x, rng_a, k=5, rho=1.0)
+    wb = WG.coherent_weights(1e4 * x ** 3, rng_b, k=5, rho=1.0)
+    assert wa == pytest.approx(wb)
+
+
+def test_blocks_for_n_stays_inside_the_dataset():
+    """A three-value category cannot have more market groups than values."""
+    for n in (1, 2, 3, 5, 40, 500, 9999):
+        k = WG.blocks_for_n(n)
+        assert 1 <= k <= max(1, n)
+
+
+def test_weight_effect_is_zero_for_equal_weights_and_scale_free():
+    x = np.sort(np.random.default_rng(6).lognormal(0.0, 0.6, 120))
+    n = len(x)
+    assert WG.weight_effect(x, np.full(n, 1.0 / n)) == pytest.approx(0.0,
+                                                                    abs=1e-12)
+    w = np.random.default_rng(8).dirichlet(np.ones(n))
+    # Dividing by the dataset's own unweighted mean is what makes it relative,
+    # so rescaling the values must not move it. Decision 93.
+    assert WG.weight_effect(x, w) == pytest.approx(WG.weight_effect(37.5 * x, w))

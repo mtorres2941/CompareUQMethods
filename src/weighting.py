@@ -398,3 +398,162 @@ def oracle_weights(parent, modes):
     per_point[nz] = share[nz] / counts[nz]
     w = per_point[modes]
     return w / w.sum()
+
+
+# ---------------------------------------------------------------------------
+# ONE market-share rule for BOTH arms, Stage 2h
+# ---------------------------------------------------------------------------
+#: The default number of market-share blocks, as a function of dataset size.
+#: `None` means "use `blocks_for_n`".
+DEFAULT_BLOCK_RULE = None
+
+
+def blocks_for_n(n, per_block=8, lo=2, hi=12):
+    """How many market-share groups a dataset of `n` declarations is cut into.
+
+    A DEFAULT AND NOT A FINDING. The synthetic arm attaches share to the
+    mixture's components, of which there are 1 to 4, so a real category's
+    market is modeled as a comparable handful of product groups rather than as
+    one group per declaration. `per_block` sets the growth and the bounds keep
+    a three-value category from having more groups than values.
+
+    Stage 2h sweeps `k` directly rather than relying on this, because the block
+    count changes CONCENTRATION while the coherence parameter changes COHERENCE
+    and the two must be separated (decision 97).
+    """
+    return int(np.clip(round(n / float(per_block)), lo, min(hi, max(1, n))))
+
+
+def coherent_weights(values, rng, k=None, rho=1.0, block_alpha=1.0,
+                     point_alpha=1.0, per_block=8, return_blocks=False):
+    """Market-share weights that may be CORRELATED with the coefficients.
+
+    THE DEFECT THIS EXISTS TO REMOVE. Until Stage 2h the two halves of this
+    study drew market shares by different rules, on the exact dimension the
+    paper is built on. The synthetic arm attached a share to each mixture
+    component and split it inside the component, so shares were correlated with
+    the carbon coefficients. The real categories drew a flat Dirichlet over
+    every individual declaration, so shares were INDEPENDENT of them.
+
+    That is not a neutral default, and it is not a small one. Weights drawn
+    independently of the values are exchangeable, so the weighted CDF converges
+    to the unweighted one and the measured weighting effect MUST decay like
+    n^-1/2 whatever the market does. Measured decay of the median
+    uniform-to-variable separation on log(n): **-0.397 on the real categories
+    against -0.167 on the synthetic**, and above a thousand declarations the
+    synthetic arm shows ten times the effect. Real market share does not become
+    more uniform as more manufacturers publish declarations, so the decay is a
+    property of the WEIGHT MODEL rather than of markets.
+
+    THE RULE, which is the synthetic arm's ported to both. Cut the declarations
+    into `k` groups, draw each group's share from a Dirichlet, and split that
+    share inside the group by a second Dirichlet. Groups stand in for the
+    mixture components the real data does not label.
+
+    HOW A GROUP IS FORMED, and this is the swept axis. Rank the values to
+    `r` in (0, 1], draw `u` uniform, and sort by
+
+        s = rho * r + (1 - rho) * u
+
+    then cut `s` into `k` contiguous runs.
+
+        rho = 1   groups are runs of ADJACENT coefficients: share tracks
+                  technology, which is what clustering means in practice
+        rho = 0   group membership is random: concentration without coherence,
+                  which Stage 2d measured to be indistinguishable from a flat
+                  draw at matched effective sample size
+
+    **rho = 0 IS NOT THE AGNOSTIC CHOICE and must not be treated as one.** It
+    is the specific claim that market share is uncorrelated with carbon
+    intensity, and the published production volumes say otherwise: Marsh,
+    Hattam and Allen (2025) put 63.75 percent of world steel on the
+    higher-carbon Rest-of-World BOF route while the lower-carbon Austrian EAF
+    route is 0.03 percent, and KL2's steel example puts 54 percent of global
+    production in China alone. Share tracking technology is exactly the
+    correlation `rho` measures.
+
+    **A BIGGER SEPARATION IS NOT EVIDENCE OF A BETTER MODEL.** The separation
+    measures what unknown shares do; it is not a target. What is a defect,
+    and worth fixing at whatever rho is defensible, is that the two arms
+    differed at all.
+
+    NO FITTING, AND NO FAILURE MODE AT SMALL n. A mixture model was rejected
+    for this: it cannot be estimated at three to nine declarations, mode counts
+    on real data swing from 95 to 68 percent unimodal on one smoothing choice,
+    and it would put a fitted model inside the paper's central quantity. A
+    contiguous cut of the sorted values needs none of that.
+
+    Parameters
+    ----------
+    values : array
+        The declarations. Only their ORDER is used, so the rule is invariant
+        under any increasing rescaling, which `tests/test_weighting.py` pins.
+    rng : Generator
+    k : int or None
+        Number of market-share groups. None uses `blocks_for_n`.
+    rho : float in [0, 1]
+        Coherence. 1 is maximal clustering by coefficient, 0 is random
+        membership.
+    block_alpha, point_alpha : float
+        Dirichlet concentration between groups and within a group. Smaller is
+        more concentrated. `point_alpha` at 1.0 with `k = n` reproduces the old
+        flat draw exactly.
+    per_block : int
+        Passed to `blocks_for_n` when `k` is None.
+    return_blocks : bool
+        Also return the group index of every declaration, so a caller can sum
+        the realized weight per GROUP. That is the quantity a published
+        production volume reports -- Marsh, Hattam and Allen (2025)'s 63.75
+        percent is a ROUTE's share of world steel, not one declaration's -- so
+        the anchor needs it.
+
+    Returns
+    -------
+    ndarray of weights summing to 1, aligned with `values`; or, with
+    `return_blocks`, the pair (weights, block_index).
+    """
+    v = np.asarray(values, dtype=float)
+    n = len(v)
+    if n == 0:
+        return (np.zeros(0), np.zeros(0, dtype=int)) if return_blocks else np.zeros(0)
+    if n == 1:
+        return (np.ones(1), np.zeros(1, dtype=int)) if return_blocks else np.ones(1)
+    k = int(blocks_for_n(n, per_block=per_block) if k is None else k)
+    k = int(max(1, min(k, n)))
+    rho = float(np.clip(rho, 0.0, 1.0))
+    # Ranks scaled to (0, 1]. `mergesort` so that ties keep a stable order and
+    # the rule is deterministic given the stream.
+    r = (np.argsort(np.argsort(v, kind='mergesort'),
+                    kind='mergesort') + 1.0) / n
+    u = rng.random(n)
+    order = np.argsort(rho * r + (1.0 - rho) * u, kind='mergesort')
+    share = rng.dirichlet(np.full(k, float(block_alpha)))
+    w = np.zeros(n, dtype=float)
+    block = np.zeros(n, dtype=int)
+    for j, (s, group) in enumerate(zip(share, np.array_split(order, k))):
+        if not len(group):
+            continue
+        within = (rng.dirichlet(np.full(len(group), float(point_alpha)))
+                  if len(group) > 1 else np.ones(1))
+        w[group] = s * within
+        block[group] = j
+    total = w.sum()
+    w = w / total if total > 0 else np.full(n, 1.0 / n)
+    return (w, block) if return_blocks else w
+
+
+def weight_effect(values, weights):
+    """The uniform-to-variable separation: the paper's central quantity.
+
+    W1 between the equal-weighted and the supplied-weight empirical CDFs of the
+    SAME values, divided by the dataset's own unweighted mean, which is the
+    relative measure decision 93 named and which every W1 in this study has
+    always silently been, since every dataset is divided by that mean first.
+    """
+    v = np.asarray(values, dtype=float)
+    w = np.asarray(weights, dtype=float)
+    mean = float(np.mean(v))
+    if not mean > 0:
+        return np.nan
+    uni = np.full(len(v), 1.0 / len(v))
+    return float(wasserstein1_weighted(v, v, uni, w) / mean)
