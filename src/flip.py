@@ -464,3 +464,130 @@ def _outcome_from(models, names, uniforms):
 #: numbers are therefore an upper bound on how often a weighting choice changes
 #: an answer, which is the conservative direction for a practitioner rule.
 FLIP_THRESHOLDS = {0.01: 0.0018, 0.05: 0.011, 0.10: 0.025}
+
+
+# ---------------------------------------------------------------------------
+# how many digits of a fitted crossing are the DATA's, Stage 2h
+# ---------------------------------------------------------------------------
+#: The most digits `prose_digits` will ever return. A crossing here is inverted
+#: from a fitted curve through binned rates, so beyond four significant figures
+#: the digits are the optimizer's rather than the data's whatever the two fits
+#: agree on.
+PROSE_MAX_SIGFIGS = 4
+
+
+def prose_digits(parametric, monotone, max_sigfigs=PROSE_MAX_SIGFIGS):
+    """How many significant figures of a crossing are determined by the DATA.
+
+    THE RULE, AND WHY IT IS NOT A FIXED COUNT. Every crossing this project
+    publishes is read off a FITTED curve, and two defensible fits are available:
+    a logistic, which imposes a two-parameter shape, and an isotonic fit, which
+    imposes only that the probability does not fall as the two models separate.
+    The bootstrap interval around either one says how well the data pin down
+    THAT curve and says nothing about whether the curve is the right shape.
+
+    So a digit on which the two fits disagree is a digit chosen by the fitting
+    family rather than measured. Printing it claims a precision the study does
+    not have, implies a cliff where the underlying curve is smooth, and does not
+    reproduce: a reader refitting with a third family gets a different digit and
+    reasonably concludes something is wrong.
+
+    This returns the number of significant figures the two fits agree on, plus
+    one -- the first digit on which they part company is kept, because that
+    digit is where the honest spread between them becomes visible, and beyond
+    it nothing is. Where they still differ at that digit the caller prints BOTH
+    values rather than one, which is the point: it is a spread, not a rounding.
+
+    THIS GOVERNS PROSE AND FIGURE ANNOTATIONS ONLY. Result tables and the
+    supplement carry both fits and the interval at FULL precision, because a
+    reader checking the work or carrying a constant downstream needs the
+    unrounded value. Nothing is thrown away.
+
+    Parameters
+    ----------
+    parametric, monotone : float
+        The same crossing from the logistic and the isotonic fit.
+    max_sigfigs : int
+        The ceiling, whatever the two agree on.
+
+    Returns
+    -------
+    int, the number of significant figures to print, at least 1.
+
+    Examples
+    --------
+    The two safe-lead crossings this project publishes. At the 1 percent level
+    the fits give 2.1327 and 2.2227, which part company at the second figure,
+    so two figures are printed -- and they still differ there, 2.1 against 2.2,
+    which is the spread rather than a rounding. At 10 percent, 1.4602 and
+    1.3522 part company at the second figure as well: 1.5 against 1.4.
+
+    >>> prose_digits(2.132671, 2.222710)
+    2
+    >>> prose_digits(1.460185, 1.352174)
+    2
+    >>> prose_digits(0.5, 0.5)
+    4
+    """
+    a, b = float(parametric), float(monotone)
+    if not (np.isfinite(a) and np.isfinite(b)):
+        return 1
+    if a == b:
+        return int(max_sigfigs)
+    for k in range(1, int(max_sigfigs) + 1):
+        if _round_sig(a, k) != _round_sig(b, k):
+            return k
+    return int(max_sigfigs)
+
+
+def _round_sig(value, sigfigs):
+    """Round to `sigfigs` significant figures. Zero rounds to zero."""
+    v = float(value)
+    if v == 0 or not np.isfinite(v):
+        return v
+    return float(np.round(v, int(sigfigs) - 1 - int(np.floor(np.log10(abs(v))))))
+
+
+def prose_crossing(parametric, monotone, max_sigfigs=PROSE_MAX_SIGFIGS):
+    """A crossing as prose should print it, with both fits where they differ.
+
+    Returns a dict with
+
+        `sigfigs`    what `prose_digits` decided
+        `parametric` and `monotone`, each rounded to that many figures
+        `agree`      whether the two are the SAME after rounding
+        `text`       the string to print: one number where they agree after
+                     rounding, and "x against y" where they do not
+
+    A caller that wants only the number takes `parametric`; a caller writing a
+    sentence takes `text`, which never presents a family-dependent digit as a
+    measurement.
+    """
+    k = prose_digits(parametric, monotone, max_sigfigs=max_sigfigs)
+    a, b = _round_sig(parametric, k), _round_sig(monotone, k)
+    agree = (a == b)
+    dec = max(0, k - 1 - int(np.floor(np.log10(abs(a))))) if a else 0
+    fmt = f'{{:.{dec}f}}'
+    return dict(sigfigs=k, parametric=a, monotone=b, agree=bool(agree),
+                text=(fmt.format(a) if agree
+                      else f'{fmt.format(a)} against {fmt.format(b)}'))
+
+
+def crossing_precision(frame, parametric='crossing',
+                       monotone='crossing_isotonic', by=None):
+    """Apply the prose rule to a whole crossings table.
+
+    Adds `prose_sigfigs`, `prose_parametric`, `prose_monotone`, `prose_agree`
+    and `prose_text` to a copy of the frame, leaving every full-precision
+    column exactly as it was. `by` is accepted and ignored except as
+    documentation of the row key, since the rule is applied row by row.
+    """
+    out = frame.copy()
+    got = [prose_crossing(a, b) for a, b in zip(out[parametric],
+                                                out[monotone])]
+    out['prose_sigfigs'] = [g['sigfigs'] for g in got]
+    out['prose_parametric'] = [g['parametric'] for g in got]
+    out['prose_monotone'] = [g['monotone'] for g in got]
+    out['prose_agree'] = [g['agree'] for g in got]
+    out['prose_text'] = [g['text'] for g in got]
+    return out

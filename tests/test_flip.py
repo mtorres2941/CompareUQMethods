@@ -234,3 +234,85 @@ def test_pair_distance_is_scale_invariant_in_relative_units():
                           WG.relative_scales(x * c))
     for k in a:
         assert b[k]['rel_mean'] == pytest.approx(a[k]['rel_mean'], rel=1e-6)
+
+
+# ---------------------------------------------------------------------------
+# Stage 2h: how many digits of a fitted crossing belong to the data
+# ---------------------------------------------------------------------------
+def test_prose_digits_keeps_only_what_the_two_fits_agree_on():
+    """The rule, on the two crossings this project publishes.
+
+    A crossing is inverted from a FITTED curve, and the bootstrap interval
+    around one fit says how well the data pin down that curve, not whether the
+    curve is the right shape. So a digit the logistic and the isotonic fit
+    disagree about was chosen by the fitting family, not measured.
+    """
+    # The safe lead at 1 percent: 2.1327 and 2.2227 part at the second figure.
+    assert FL.prose_digits(2.132671, 2.222710) == 2
+    # At 10 percent: 1.4602 and 1.3522, also the second figure -- and they
+    # still differ there, which is a spread rather than a rounding.
+    assert FL.prose_digits(1.460185, 1.352174) == 2
+    # At 5 percent the two are closer, so a third figure survives.
+    assert FL.prose_digits(1.643135, 1.611591) == 3
+
+
+def test_prose_digits_is_capped_and_never_returns_zero():
+    """Two fits that agree exactly still do not license unlimited digits: the
+    curve was fitted through binned rates and the optimizer's digits are not
+    the data's."""
+    assert FL.prose_digits(0.5, 0.5) == FL.PROSE_MAX_SIGFIGS
+    assert FL.prose_digits(0.5, 0.5, max_sigfigs=2) == 2
+    # A crossing that could not be found gives the most conservative answer
+    # rather than raising, because a sweep reports rows it could not fit.
+    assert FL.prose_digits(np.nan, 1.0) == 1
+    assert FL.prose_digits(1.0, np.inf) == 1
+
+
+def test_prose_crossing_prints_both_fits_only_where_they_differ():
+    got = FL.prose_crossing(1.460185, 1.352174)
+    assert got['text'] == '1.5 against 1.4'
+    assert not got['agree']
+    # Agreement after rounding prints ONE number, which is the case the rule
+    # exists to permit: where the family does not decide the digit, print it.
+    close = FL.prose_crossing(1.4601, 1.4603)
+    assert close['agree'] and 'against' not in close['text']
+
+
+def test_crossing_precision_adds_prose_columns_and_moves_nothing_else():
+    """The full-precision columns are what a reader checking the work or
+    carrying a constant downstream needs, so the rule may only ADD."""
+    frame = pd.DataFrame({'level': [0.01, 0.05, 0.10],
+                          'crossing': [2.132671, 1.643135, 1.460185],
+                          'crossing_isotonic': [2.222710, 1.611591, 1.352174],
+                          'ci_lo': [2.091334, 1.622985, 1.446780],
+                          'ci_hi': [2.170951, 1.661025, 1.471962]})
+    got = FL.crossing_precision(frame)
+    for c in frame.columns:
+        assert got[c].equals(frame[c]), c
+    assert list(got.prose_sigfigs) == [2, 3, 2]
+    assert list(got.prose_text) == ['2.1 against 2.2', '1.64 against 1.61',
+                                    '1.5 against 1.4']
+
+
+def test_the_isotonic_fit_is_not_inside_the_logistic_interval_in_general():
+    """The measurement that motivates the rule, reproduced on a planted curve
+    that is genuinely NOT logistic.
+
+    If the two fits agreed wherever the data were plentiful there would be no
+    rule to make. They do not, because the interval is around the wrong shape.
+    """
+    rng = np.random.default_rng(3)
+    n = 4000
+    x = np.exp(rng.uniform(np.log(1e-4), np.log(1.0), n))
+    # A probability that rises in a STEP rather than along a logit-linear ramp.
+    p = np.where(x < 0.02, 0.01, 0.35)
+    frame = pd.DataFrame({'d': x, 'flip': rng.random(n) < p,
+                          'plca': rng.integers(0, 200, n)})
+    got = FL.bootstrap_crossings(frame, 'd', 'flip', levels=(0.05,),
+                                 resamples=60, rng=np.random.default_rng(4))
+    r = got.iloc[0]
+    assert np.isfinite(r.crossing) and np.isfinite(r.crossing_isotonic)
+    # The logistic interval is narrow and the isotonic answer is nowhere near
+    # it, which is exactly the situation the digit rule protects against.
+    assert not (r.ci_lo <= r.crossing_isotonic <= r.ci_hi)
+    assert FL.prose_digits(r.crossing, r.crossing_isotonic) <= 2
