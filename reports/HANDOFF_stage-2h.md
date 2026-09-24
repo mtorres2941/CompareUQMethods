@@ -360,6 +360,69 @@ value itself is clearly harmful.
 > the study, for a failure two existing safeguards already keep out of the
 > results, so it is the author's call.
 
+## 9. Every shape parameter of the generator is already at its best value
+
+Six parameters swept, sixteen configurations, using the project's existing
+tuning machinery rather than a second copy of it. The objective measures how
+closely the synthetic datasets resemble the real categories across every
+characteristic at once, and it has a known run-to-run noise of 0.0066.
+
+    configuration            objective   away from the default,
+                                         in units of that noise
+    as it ships                0.2251           --
+    min_q1_over_iqr 0.05       0.2301          +0.8
+    min_q1_over_iqr 1.0        0.2446          +3.0
+    min_mode_sd_frac 0.05      0.2251           0.0  (identical)
+    min_mode_sd_frac 0.25      0.2404          +2.3
+    trunc_iqr_mult 2           0.2516          +4.0
+    trunc_iqr_mult 8           0.2809          +8.5
+    mode_coupling 0.0          0.2123          -1.9
+    mode_coupling 0.5          0.2057          -2.9
+    mode_share_alpha 1         0.2582          +5.0
+    mode_share_alpha 3         0.2275          +0.4
+    point_weight_alpha 0.3     0.2890          +9.7
+    point_weight_alpha 3.0     0.2468          +3.3
+
+**Every one of the four shape parameters is best where it already sits.**
+
+**One inherited expectation is reproduced and does not survive.** An earlier
+stage measured the truncation floor at 0.05 and found the spread of the
+synthetic data matching the real data much better. It does -- that distance
+improves from 0.380 to 0.207, which is the same finding -- and the overall
+objective gets worse, because the characteristic that then becomes the worst
+is the paper's own central quantity, how much weighting matters. **It buys
+spread and pays for it with the thing the paper is built on.** That is the same
+trade this project has now recorded on four separate knobs.
+
+**One parameter turns out not to be a parameter.** The minimum hump width
+returns an objective identical to the last digit at 0.05 and 0.10, because the
+rejection it controls never fires below about 0.15: zero times in 300 draws at
+0.05, once at the shipped 0.15, ten times at 0.25 and 103 at 0.5. The shipped
+value sits exactly where it begins to bite.
+
+**THE TWO CONFIGURATIONS THAT BEAT THE DEFAULT ARE THE OBJECTIVE ASKING FOR THE
+WRONG FIX, and this is the most important row in the table.** Turning the
+synthetic arm's weight coupling DOWN improves the objective. Every
+characteristic that does not involve the weights is untouched to the last
+digit, so this is purely the weights -- and what it does is make the synthetic
+arm draw its weights the same way the real arm currently does, which is the
+assumption published production volumes contradict. It would also destroy the
+true distribution every run against the truth is scored against.
+
+> **So what.** The objective measures how well the two halves of the study
+> AGREE, and the cheapest way to agree is for both of them to make the same
+> false assumption. A later stage looking at that table will see two
+> improvements and must not take them. This is why the weight rule in section 3
+> is ported in the other direction.
+
+**And the author's own proposal is still blocked rather than answered.** Moving
+the hump-share concentration from 10 to 1 measures 5.0 noise units worse, which
+reproduces an earlier stage's number exactly. That earlier stage said the
+comparison had to be redone once the two halves weighted their data the same
+way. It is redone here under the same mismatched rules, because they still do
+not -- so the question is waiting on the author's decision about the weight
+rule, not on a measurement.
+
 ---
 
 ## The figure
@@ -505,7 +568,7 @@ not regenerated.
 
 | Item | |
 |---|---|
-| **THE GENERATOR-PARAMETER SWEEPS WERE STILL RUNNING WHEN THIS FILE WAS WRITTEN.** The four parameters the stage was told to sweep -- the truncation floor, the minimum hump width, the truncation multiplier and the hump-to-point coupling -- plus the two the weight model reaches, are set up and running through the project's existing tuning harness, which was reused rather than reimplemented so that a second copy of the objective cannot drift from the first. **The next session should read `audits/GENERATOR_SWEEP.md`, which carries the commands, what each parameter is, what is already known about it, and how to read the result against the objective's noise.** The first three configurations completed and moved the objective by 0.005 and 0.003 against a seed noise of 0.0066, which is no movement |
+| **THE GENERATOR-PARAMETER SWEEP IS DONE and is section 9 above.** All sixteen configurations completed. The next session that wants to repeat or extend it should read `audits/GENERATOR_SWEEP.md`, which carries the commands, what each parameter is and how to read a result against the objective's noise -- **including the warning that the two configurations which beat the default are the objective asking for the wrong fix** |
 | **THE BANDWIDTH SWEEP WAS NOT RUN IN THIS STAGE.** It is a sensitivity rather than an open choice -- the rule was settled two stages ago on held-out likelihood -- and the existing audit scripts for it are in place and unchanged. **The next session should run `audits/bandwidth_rules.py` and `audits/guard_threshold_sweep.py` and report what the headline does under the older rule specifically**, because that is the configuration the manuscript was written against |
 | **A per-unit and a per-portfolio error are different questions and the paper now has both for sixteen claims.** Which one each published sentence means is not yet decided anywhere but in this file |
 | **The weight-draw noise in the calibration objective had never been measured and is as large as the generator's seed noise.** Any later stage judging a calibration change must quote it |

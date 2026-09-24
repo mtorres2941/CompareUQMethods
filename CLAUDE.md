@@ -6246,3 +6246,92 @@ rather than in conversation.
      on this axis until the table is sourced.** Decision 49's amendment is why
      this matters: this project has already had to withdraw one figure quoted
      from memory.
+
+185. **2026-09-24, Stage 2h. EVERY GENERATOR-SHAPE PARAMETER IS ALREADY AT ITS
+     BEST SWEPT VALUE. The two exceptions are both the calibration objective
+     asking for the WRONG FIX, and one inherited expectation is reproduced on
+     its own characteristic and does not survive the whole objective.**
+     `[DELEGATED, 2h measured]` Sixteen configurations through the project's
+     existing tuning harness rather than a second implementation of the
+     objective, so a second copy cannot drift from the first. 440 datasets
+     each; the objective's seed-to-seed standard deviation is 0.0066.
+
+         configuration            objective   vs default   coeffvar   worst
+                                              in seed sd   distance   characteristic
+         current default            0.2251        --         0.380    fit_lognorm_SF
+         min_q1_over_iqr 0.05       0.2301       +0.8        0.207    w_v_uw
+         min_q1_over_iqr 0.2        0.2317       +1.0        0.283    fit_lognorm_SF
+         min_q1_over_iqr 1.0        0.2446       +3.0        0.525    coeffvar
+         min_mode_sd_frac 0.05      0.2251        0.0        0.380    fit_lognorm_SF
+         min_mode_sd_frac 0.10      0.2251        0.0        0.380    fit_lognorm_SF
+         min_mode_sd_frac 0.25      0.2404       +2.3        0.384    fit_lognorm_SF
+         trunc_iqr_mult 2           0.2516       +4.0        0.404    entropy
+         trunc_iqr_mult 5           0.2576       +4.9        0.377    fit_lognorm_SF
+         trunc_iqr_mult 8           0.2809       +8.5        0.382    fit_lognorm_SF
+         mode_coupling 0.0          0.2123       -1.9        0.360    entropy
+         mode_coupling 0.5          0.2057       -2.9        0.351    entropy
+         mode_share_alpha 1         0.2582       +5.0        0.431    w_v_uw
+         mode_share_alpha 3         0.2275       +0.4        0.386    fit_lognorm_SF
+         point_weight_alpha 0.3     0.2890       +9.7        0.446    w_v_uw
+         point_weight_alpha 3.0     0.2468       +3.3        0.398    entropy
+
+     **`min_q1_over_iqr`: STAGE 2a-3's EXPECTATION IS REPRODUCED AND DOES NOT
+     SURVIVE.** That stage measured 0.05 and reported the
+     coefficient-of-variation distance improving from 0.273 to 0.199 with the
+     objective flat. Here it improves from **0.380 to 0.207**, which is the
+     same finding on the same characteristic -- and the OVERALL objective is
+     0.8 seed standard deviations worse, because the worst characteristic
+     becomes `w_v_uw_wasserstein` at 0.562. **It buys dispersion and pays for
+     it with the quantity the paper is built on**, which is the structural
+     trade decisions 39, 138 and 170 record on three other levers. Nothing was
+     adopted then and nothing is now.
+
+     **`min_mode_sd_frac` BELOW 0.15 IS NOT A PARAMETER**, which is why 0.05
+     and 0.10 return the objective to the last digit and every other column
+     with it. The rejection it controls fires 0 times in 300 parent draws at
+     0.05, ONCE at the shipped 0.15, 10 times at 0.25 and 103 at 0.5. The
+     shipped value sits exactly where the floor begins to bite.
+
+     **`trunc_iqr_mult` SATURATES, AND DECISION 42'S LATENT BUG STAYS FIXED.**
+     That decision warned the uniform-grid defect in
+     `MixtureParent.truncated_moments` "would have bitten any Stage 2h sweep of
+     `trunc_iqr_mult`", because raising it widens the bounds that triggered it.
+     Checked over 250 parents at each of 2, 3, 5, 8 and 12: **zero degenerate
+     parents at every setting**, smallest standard deviation 0.145 to 0.197.
+     And the median achieved coefficient of variation stops moving above a
+     multiple of about 5 -- 0.668, 0.697, 0.769, 0.769, 0.769 -- so this is not
+     the lever for the dispersion shortfall either.
+     `audits/truncated_moments_check.py`.
+
+     **`mode_share_alpha`: THE AUTHOR'S PROPOSED 10 TO 1 IS 5.0 SEED STANDARD
+     DEVIATIONS WORSE, WHICH REPRODUCES STAGE 2f EXACTLY AND STILL DOES NOT
+     SETTLE IT.** Decision 141 recorded that same 5.0 and said the comparison
+     "used the mismatched weight rules and must be redone once the arms agree".
+     It is redone here under the SAME mismatched rules, because the arms still
+     do not agree -- applying the ported rule is the author's decision -- so
+     **the item remains genuinely blocked on that decision and not on a
+     measurement.** Worth knowing meanwhile: 10 to 3 is free, at +0.4.
+
+     **`point_weight_alpha`: THE SHIPPED 1.0 IS BEST AND CONCENTRATING IS THE
+     WORST THING TRIED.** Dropping it to 0.3, which concentrates weight within
+     a mode, is 9.7 seed standard deviations worse and the worst configuration
+     in the sweep, with `w_v_uw_wasserstein` its worst characteristic.
+
+     **AND THE TWO CONFIGURATIONS THAT BEAT THE DEFAULT ARE BOTH THE OBJECTIVE
+     ASKING FOR THE WRONG FIX.** `mode_coupling` at 0.0 and 0.5 improve it by
+     1.9 and 2.9 seed standard deviations. Every unweighted characteristic is
+     untouched -- the mode-count total variation and the visible-mode shares
+     are identical to the last digit -- so this is purely the weights.
+
+     The calibration objective measures how well the two arms AGREE, and the
+     cheapest way to agree is for both to make the same false assumption.
+     `mode_coupling = 0` makes the synthetic arm draw weights independently of
+     the values, which is exactly the empirical arm's current rule and exactly
+     the claim published production volumes contradict; it would also destroy
+     the market-weighted parent that every run against the truth is scored
+     against. **Decision 178 ports the rule in the other direction for that
+     reason, and this is the measurement showing what the objective would have
+     chosen if left to itself.**
+
+     **A LATER STAGE MUST NOT READ THOSE TWO ROWS AS A TUNING OPPORTUNITY.**
+     `audits/GENERATOR_SWEEP.md` carries the commands and this warning.
