@@ -37,10 +37,13 @@ PEWT = [f"{pe}, {wt}" for pe in PE_METHODS for wt in WT_METHODS]
 # every metric and every family while guessing them gains nothing on the
 # ranking. The word was carrying a claim the method does not make.
 #
-# "Dirichlet shares" rather than "guessed" or "assumed" shares, deliberately:
-# the Dirichlet is the mechanism Torres et al. (2026) puts in its own title, so
-# this names the companion paper's instrument rather than inventing a third
-# vocabulary, and it cannot be read as "the market shares are known".
+# "Sampled market shares", chosen by the author 2026-09-23 over "Dirichlet
+# shares", which was accurate and not accessible: most readers of this paper
+# will not know what a Dirichlet is. "Sampled" says the two things a reader
+# needs -- they ARE market shares, and they were DRAWN rather than known -- and
+# the Dirichlet appears once, in the methods, as the distribution they are
+# drawn from, which keeps Torres et al. (2026) vocabulary without putting it on
+# every axis.
 #
 # THESE ARE DISPLAY LABELS ONLY. The stored `method` values keep "Uniform" and
 # "Variable", because they are the join key between every table this study
@@ -48,13 +51,13 @@ PEWT = [f"{pe}, {wt}" for pe in PE_METHODS for wt in WT_METHODS]
 # move numbers; renaming the display moves nothing.
 WT_DISPLAY = {
     "Uniform": "equal weights",
-    "Variable": "Dirichlet shares",
-    "Oracle": "true shares",
+    "Variable": "sampled market shares",
+    "Oracle": "true market shares",
 }
 #: One word each, for an axis tick where the full phrase will not fit.
 WT_DISPLAY_SHORT = {
     "Uniform": "equal",
-    "Variable": "Dirichlet",
+    "Variable": "sampled",
     "Oracle": "true",
 }
 

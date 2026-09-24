@@ -462,10 +462,10 @@ def test_display_method_renames_only_the_weighting_and_only_for_display():
     key, because every table this study writes and every regression fixture
     joins on it.
     """
-    assert FT.display_method('KDE, Variable') == 'KDE, Dirichlet shares'
+    assert FT.display_method('KDE, Variable') == 'KDE, sampled market shares'
     assert FT.display_method('KDE, Uniform') == 'KDE, equal weights'
-    assert FT.display_method('KDE, Oracle') == 'KDE, true shares'
-    assert FT.display_method('KDE, Variable', short=True) == 'KDE, Dirichlet'
+    assert FT.display_method('KDE, Oracle') == 'KDE, true market shares'
+    assert FT.display_method('KDE, Variable', short=True) == 'KDE, sampled'
     # The family is never touched, and an unknown scheme passes through rather
     # than raising, so a sweep that invents one still plots.
     assert FT.display_method('Lognormal, Somethingelse') == 'Lognormal, Somethingelse'

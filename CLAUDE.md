@@ -5112,10 +5112,62 @@ rather than in conversation.
      first one that writes a table", which is cheap here because that block
      reads from disk. Decision 56's narrowing is unchanged until that exists.
 
-166. **2026-09-23, Stage 2g review. "GOODNESS-OF-FIT DOESN'T REALLY MATTER FOR
-     ACTUAL pLCAs" IS FALSE and must not go in the paper. Fit translates
-     strongly; the kernel estimate simply does not dominate the fit above 80
-     declarations either.** `[AUTHOR PROPOSED, MEASUREMENT DISAGREES]` The
+166. **2026-09-23, Stage 2g review. A GOODNESS-OF-FIT ADVANTAGE IS HEAVILY
+     ATTENUATED BY THE TIME IT REACHES A pLCA ANSWER: the fit threshold is
+     about 81 declarations and the claim threshold is about 1,000. The author
+     was right and this entry's first version was wrong.** `[AUTHOR]`
+
+     **WHAT THIS ENTRY FIRST SAID, AND WHY IT WAS WRONG.** It was headed
+     "'goodness-of-fit doesn't really matter for actual pLCAs' is FALSE", on
+     the strength of a within-material rank correlation of +0.600 between fit
+     and claim error. That correlation is real and it says the DIRECTION
+     transfers. It does not say the MAGNITUDE does, and the entry used it as
+     though it did. Put side by side, equal weights:
+
+         n           KDE wins fit   median fit gap   KDE wins claim   claim gap
+         3-9             58.1          -2.3 pct          53.5          +0.3
+         10-81           47.7          +0.8              48.4          +2.1
+         82-200          61.2          -4.5              49.8          +0.5
+         201-500         68.1          -9.1              54.7          +0.0
+         501-1000        79.9         -15.3              58.0          -0.8
+         1000+           85.5         -20.6              62.4          -0.9
+
+     **At 201-500 the kernel estimate fits better on 68 percent of datasets by
+     a median of 9 percent and buys ZERO claim accuracy.** The fit column
+     crosses half at 82-200; the claim column does not cross until 1,000. That
+     is an order of magnitude in the threshold a practitioner would act on, and
+     it is a finding rather than an artifact.
+
+     **WHAT SURVIVES FROM THE ORIGINAL ENTRY**, and it is the mechanism rather
+     than a rebuttal: fit is not irrelevant -- the best-fitting method is the
+     most claim-accurate on 39.0 percent of materials against a 16.7 percent
+     chance level, and the ordering does follow at the top of the size range.
+     The attenuation has a cause: **a probabilistic LCA chooses ONE method for
+     all four materials in a group**, so a material's own fit advantage is
+     averaged against three neighbours drawn at random from the whole corpus,
+     most of them below the threshold where that advantage exists (decision
+     163).
+
+     **THE SENTENCE THE PAPER SHOULD CARRY:** a goodness-of-fit comparison
+     ranks methods correctly but overstates how much choosing the better one
+     buys, and a threshold calibrated on fit must not be quoted as the
+     threshold for a probabilistic LCA -- here they differ by a factor of more
+     than ten.
+
+     **AND THE EXPERIMENT THIS OPENS, which no stage has run.** If the
+     attenuation is the group averaging, then letting the method vary BY
+     MATERIAL -- a kernel estimate on the well-populated categories, a
+     three-parameter lognormal on the sparse ones, which is a policy a
+     practitioner can actually follow -- should recover much of the fit
+     advantage at the claim level. Every pLCA in this study uses one method for
+     all four materials, so the mixed policy has never been measured
+     downstream. It needs its own truth run and it is the most valuable
+     experiment left. **Owner: whoever runs the next pLCA stage.**
+
+     The original entry's text follows, superseded.
+
+     **["GOODNESS-OF-FIT DOESN'T REALLY MATTER" IS FALSE -- SUPERSEDED ABOVE]**
+     `[AUTHOR PROPOSED, MEASUREMENT DISAGREED, MEASUREMENT WAS TOO NARROW]` The
      author's proposed takeaway: "goodness-of-fit doesn't really matter for
      actual pLCAs, because otherwise KDE would dominate for n > ~80."
 
@@ -5329,3 +5381,80 @@ rather than in conversation.
      step is a 1,000-dataset DRAFT corpus under decision 41, never a paper
      number, to check that the coupled generator fixes the joint structure
      without wrecking the margins the current one matches well.
+
+169. **2026-09-23, Stage 2g review. SEVEN CANDIDATE CONFIGURATIONS AT 1,000
+     DATASETS EACH, AND NOT ONE FIXES THE MODALITY-SHAPE SIGN. The defect is
+     structural in how the generator builds a mode, so a regeneration with any
+     of these settings would NOT fix what the author is asking about.**
+     `[AUTHOR ASKED FOR THE TEST RUN, MEASUREMENT IS A CLEAN NEGATIVE]` "Let's
+     do a little mini test run with 1000 datasets or something like that to see
+     if multimodality is better."
+
+     **THE TARGET.** Real ECC data: Spearman of the visible mode count with
+     coeffvar +0.163, skewness +0.211, kurtosis +0.230, `fit_norm_SF` -0.202,
+     `crit_bw_1` +0.283. The corpus has the opposite sign on all five.
+
+     **THE CANDIDATES AND WHAT THEY DID.** `audits/corpus_joint_structure.py`,
+     1,000 datasets each, drafts only:
+
+         candidate                  multimodal  multi+dispersed  signs  objective
+         current                      21.5 pct      1.27 pct     0 / 5    0.2506
+         wider_dispersion             22.5          3.92         0 / 5    0.2909
+         wider_and_blended            21.4          3.29         0 / 5    0.2808
+         widest                       20.8          7.09         0 / 5    0.3711
+         unequal_modes                24.4          1.77         0 / 5    0.3024
+         unequal_and_wider            27.7          4.05         0 / 5    0.3363
+         unequal_wider_separated      29.7          4.43         0 / 5    0.3702
+
+         the real arm                 31.5 pct     16.2 pct         --        --
+
+     **THE MODE COUNT IS REACHABLE AND THE SHAPE IS NOT.** Dropping
+     `mode_share_alpha` from 10 to 1 -- the author's own proposal, carried to
+     Stage 2h by decision 141 -- plus a wider dispersion ceiling and more
+     separation gets the multimodal share to **29.7 percent against the real
+     31.5**, which is a match. The multimodal-AND-dispersed share reaches 7.09
+     percent at best against the real 16.2. **And the sign stays wrong on all
+     five characteristics in every candidate**, between -0.096 and -0.251 on
+     the coefficient of variation where the real arm is +0.163.
+
+     **WHY NO PARAMETER REACHES IT.** The generator makes a visible mode by
+     placing components apart and solving a spread multiplier for a target
+     overlap. Whatever the mode SIZES and whatever the dispersion ceiling, a
+     dataset built that way is a blend of separated bodies, and a blend of
+     separated bodies is more symmetric than any one of them. Real
+     multimodality is a small shoulder sitting ON the tail of a big skewed
+     body. Those are different constructions and no setting of the current one
+     produces the other.
+
+     **AND THE MARGINS PAY FOR EVERY ATTEMPT.** The calibration objective goes
+     from 0.2506 to between 0.2808 and 0.3711, and the paper's central quantity
+     -- the uniform-to-variable Wasserstein distance -- degrades worst in the
+     candidates that help modality most: 0.2295 at current, **0.9176** under
+     `unequal_and_wider`, 0.8929 under `unequal_wider_separated`. That is
+     decision 138's finding reproduced on a different lever.
+
+     **SO THE RECOMMENDATION IS: DO NOT REGENERATE ON A PARAMETER CHANGE.** It
+     would move every number in the paper, worsen the margins that currently
+     match, and leave the joint structure exactly as wrong. If the corpus is to
+     be fixed it needs a GENERATOR CHANGE -- secondary components drawn ON the
+     primary's tail with smaller scale, rather than positioned independently
+     and separated by an overlap solve -- plus a joint term in the calibration
+     objective so a future configuration cannot match every margin while
+     getting the correlation backwards. That is a redesign with its own
+     verification, and it is the author's call whether this paper carries it or
+     states the limitation.
+
+     **WHAT TO STATE IF IT IS NOT FIXED.** The corpus spans the modality of
+     real categories and the dispersion of real categories, and does not span
+     their JOINT distribution: a synthetic multimodal dataset is tidier than a
+     synthetic unimodal one, where a real multimodal category is wilder than a
+     real unimodal one. Multimodal-and-dispersed is 1.9 percent of the corpus
+     against 16.2 percent of the real arm.
+
+     **AND AN INSTRUMENT FOR ANY FUTURE ATTEMPT.**
+     `audits/corpus_examples.py` draws notebook 1's example-dataset panels for
+     any candidate configuration, real categories in the bottom row, so a
+     configuration can be judged by eye before it is judged by an objective.
+     Written because the author asked to sanity-check the datasets being
+     produced, and because the numbers above do not show what a shoulder looks
+     like.
