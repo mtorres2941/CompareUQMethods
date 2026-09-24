@@ -1267,6 +1267,37 @@ Both write only under `outputs/tables/audits/`, which is what an audit script is
 permitted to touch.
 
 
+## Judging a candidate generator configuration
+
+Three instruments, fastest first, added by the Stage 2g review when the author
+asked whether the corpus under-represents multimodal datasets.
+
+`audits/shoulder_probe.py` draws parents directly and samples them: about 30
+seconds a variant. Use it to SEARCH. It reports the share of datasets that are
+multimodal, the share dispersed, the share that are both, the conditional
+share, and the sign of the modality-shape correlations, against the real arm's
+targets.
+
+`audits/corpus_joint_structure.py` builds a real DRAFT CORPUS per candidate on
+the stratified design, about 100 seconds each, and adds the marginal
+calibration objective and the two margins that matter most -- dispersion and
+`w_v_uw_wasserstein`. Use it to JUDGE. It reuses an existing draft rather than
+relabelling, because a corpus is never overwritten.
+
+`audits/corpus_examples.py` draws notebook 1's example-dataset panels for any
+candidate, real categories in the bottom row. Use it to LOOK. The probe numbers
+say what changed; only this says whether the datasets look like ECC data.
+
+**The probe and the corpus disagree on levels and agree on ranking**, because
+the probe samples dataset size log-uniformly and the corpus samples it by
+stratum. Rank candidates on the probe; quote numbers from the corpus.
+
+**Both generator options they exercise default to OFF and are covered by
+`tests/test_determinism.py`**: `genconfig.shoulder_frac` with `shoulder_body`,
+and `genconfig.separation_dispersion_frac`. The second is the one that works
+and is not adopted; decision 170 says why.
+
+
 ## Redrawing a figure without re-running its notebook
 
 `audits/render_figures.py`, 2026-09-22. Notebook 4 takes about twenty minutes
