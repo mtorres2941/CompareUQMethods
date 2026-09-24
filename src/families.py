@@ -48,38 +48,58 @@ TINY = np.finfo(float).tiny
 
 
 class Truncated:
-    """A frozen scipy distribution restricted to (lo, inf) and renormalized.
+    """A frozen scipy distribution restricted to (lo, hi) and renormalized.
 
-    `dist` must expose pdf, cdf and ppf. The renormalizing constant is
-    `1 - dist.cdf(lo)`, the mass the parent puts on the admissible region.
+    `dist` must expose pdf, cdf and ppf. The renormalizing constant is the mass
+    the parent puts on the admissible region.
+
+    THE LOWER BOUND IS EXTERNAL AND THE UPPER ONE IS NOT, which is why `hi`
+    defaults to infinity and `lo` does not default to anything arguable. A
+    negative emission coefficient is inadmissible, so zero needs no
+    justification (decision 13). An upper bound has no equally external anchor:
+    the physical ceiling this study applies to the RAW declarations is in their
+    own units, and every dataset here is rescaled to a mean of 1.0, so choosing
+    a multiple is a modeling decision with numbers attached. Stage 2g stated
+    that rather than implementing it (decision 152) and Stage 2h sweeps it;
+    `hi=inf` is bit-identical to the one-sided class it replaces, which
+    `tests/test_families.py` pins.
     """
 
-    def __init__(self, dist, lo=SUPPORT_LO, label=None, params=None):
+    def __init__(self, dist, lo=SUPPORT_LO, hi=np.inf, label=None,
+                 params=None):
         self.dist = dist
         self.lo = float(lo)
+        self.hi = float(hi)
         self.label = label
         self.params = dict(params or {})
         self.mass_below = float(np.ravel(dist.cdf(self.lo))[0])
-        self.mass_kept = 1.0 - self.mass_below
+        self.mass_above = (0.0 if not np.isfinite(self.hi)
+                           else 1.0 - float(np.ravel(dist.cdf(self.hi))[0]))
+        self.mass_kept = 1.0 - self.mass_below - self.mass_above
         if not self.mass_kept > 0:
             raise ValueError(
-                f'{label or dist}: the parent puts no mass on ({lo}, inf), so '
-                f'it cannot be renormalized onto the support')
+                f'{label or dist}: the parent puts no mass on '
+                f'({lo}, {hi}), so it cannot be renormalized onto the support')
 
     # -- the three functions every model must answer -----------------------
     def pdf(self, x):
         x = np.asarray(x, dtype=float)
-        return np.where(x > self.lo, self.dist.pdf(x) / self.mass_kept, 0.0)
+        return np.where((x > self.lo) & (x <= self.hi),
+                        self.dist.pdf(x) / self.mass_kept, 0.0)
 
     def cdf(self, x):
         x = np.asarray(x, dtype=float)
         out = (self.dist.cdf(x) - self.mass_below) / self.mass_kept
-        return np.clip(np.where(x > self.lo, out, 0.0), 0.0, 1.0)
+        out = np.where(x > self.lo, out, 0.0)
+        if np.isfinite(self.hi):
+            out = np.where(x >= self.hi, 1.0, out)
+        return np.clip(out, 0.0, 1.0)
 
     def ppf(self, q):
         q = np.asarray(q, dtype=float)
         x = self.dist.ppf(self.mass_below + q * self.mass_kept)
-        return np.maximum(x, TINY)
+        x = np.maximum(x, TINY)
+        return np.minimum(x, self.hi) if np.isfinite(self.hi) else x
 
     # -- sampling ----------------------------------------------------------
     def rvs(self, size, random_state):
@@ -97,7 +117,7 @@ class Truncated:
     def __repr__(self):
         p = ', '.join(f'{k}={v:.6g}' for k, v in self.params.items())
         return (f'Truncated({self.label}, {p}, lo={self.lo:g}, '
-                f'mass_below={self.mass_below:.3g})')
+                f'hi={self.hi:g}, mass_below={self.mass_below:.3g})')
 
 
 class WeightedKDE:
@@ -493,3 +513,86 @@ def make_lognorm(p):
 def make_gamma(p):
     return Truncated(gamma_dist(a=p['a'], loc=p['loc'], scale=p['scale']),
                      label='gamma', params={k: p[k] for k in ('a', 'loc', 'scale')})
+
+
+# ---------------------------------------------------------------------------
+# an optional UPPER truncation of any fitted model, Stage 2h
+# ---------------------------------------------------------------------------
+class TruncatedAbove:
+    """Any fitted model, capped at `hi` and renormalized.
+
+    WHAT IT IS FOR. A distance between two cumulative curves charges for how
+    much mass a model misplaces and not for how FAR out it puts it, so a model
+    can score well and still wreck a Monte Carlo that samples from it. Two
+    guards already keep that out of this study's results -- the profile
+    guard on the lognormal threshold, and the analytic tail term in the
+    criterion -- and capping each fitted model would remove the failure mode
+    outright. Decision 152.
+
+    WHY IT IS A SWEEP AND NOT A DEFAULT. The lower bound at zero is external:
+    a negative emission coefficient is inadmissible and that needs no argument.
+    An upper bound has no such anchor. Every dataset here is rescaled to a mean
+    of 1.0, so the physical ceiling this study applies to the raw declarations
+    is not a fixed multiple, and choosing one is a modeling decision with
+    numbers attached to it.
+
+    It wraps ANY model exposing cdf and ppf, which is what lets the kernel
+    estimate be capped on the same terms as the parametric families. `pdf` is
+    forwarded and rescaled where the base offers one.
+    """
+
+    def __init__(self, base, hi):
+        self.base = base
+        self.hi = float(hi)
+        self.label = f'{getattr(base, "label", type(base).__name__)}|cap'
+        self.params = dict(getattr(base, 'params', {}))
+        self.params['cap'] = self.hi
+        self.mass_kept = float(np.ravel(base.cdf(self.hi))[0])
+        if not self.mass_kept > 0:
+            raise ValueError(
+                f'{self.label}: the model puts no mass below {hi}, so capping '
+                f'it there leaves nothing to renormalize')
+
+    def pdf(self, x):
+        x = np.asarray(x, dtype=float)
+        return np.where(x <= self.hi,
+                        np.asarray(self.base.pdf(x), float) / self.mass_kept,
+                        0.0)
+
+    def cdf(self, x):
+        x = np.asarray(x, dtype=float)
+        out = np.asarray(self.base.cdf(x), float) / self.mass_kept
+        return np.clip(np.where(x >= self.hi, 1.0, out), 0.0, 1.0)
+
+    def ppf(self, q):
+        q = np.asarray(q, dtype=float)
+        return np.minimum(self.base.ppf(q * self.mass_kept), self.hi)
+
+    def rvs(self, size, random_state):
+        return self.ppf(random_state.random(size))
+
+    def rvs_from_uniform(self, u):
+        return self.ppf(np.asarray(u, dtype=float))
+
+    def __repr__(self):
+        return f'TruncatedAbove({self.label}, hi={self.hi:g})'
+
+
+def cap_models(models, x, multiple):
+    """Cap every fitted model at `multiple` times the largest observation.
+
+    The cap is read off the DATA a practitioner holds, which is the only
+    anchor available once every dataset is normalized to a mean of 1.0.
+    `multiple = inf` returns the models untouched, so a sweep's control cell
+    costs nothing and is exactly the uncapped study.
+    """
+    if not np.isfinite(multiple):
+        return dict(models)
+    hi = float(multiple) * float(np.max(np.asarray(x, dtype=float)))
+    out = {}
+    for name, m in models.items():
+        try:
+            out[name] = TruncatedAbove(m, hi)
+        except ValueError:
+            out[name] = m       # the cap is above everything the model has
+    return out

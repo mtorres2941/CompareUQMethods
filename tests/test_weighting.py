@@ -350,11 +350,27 @@ def test_coherent_weights_read_only_the_ORDER_of_the_values():
     assert wa == pytest.approx(wb)
 
 
-def test_blocks_for_n_stays_inside_the_dataset():
-    """A three-value category cannot have more market groups than values."""
-    for n in (1, 2, 3, 5, 40, 500, 9999):
-        k = WG.blocks_for_n(n)
-        assert 1 <= k <= max(1, n)
+def test_the_block_count_is_the_generators_own_and_does_not_grow_with_n():
+    """THE PORT IS OF THE GENERATOR'S RULE, so the block count must be drawn
+    the way the generator draws its component count: uniform on 1 to 5 and
+    INDEPENDENT of dataset size.
+
+    A first version grew it with n, which is a different weight model. It also
+    reintroduced the artifact the port exists to remove, because more groups at
+    large n is more dilution at large n.
+    """
+    rng = np.random.default_rng(0)
+    for n in (20, 500, 9999):
+        drawn = [WG.draw_blocks(n, rng) for _ in range(400)]
+        assert set(drawn) <= set(range(WG.BLOCKS_MIN, WG.BLOCKS_MAX + 1))
+        assert min(drawn) == WG.BLOCKS_MIN and max(drawn) == WG.BLOCKS_MAX
+    # Independent of n: the mean block count must not move with size.
+    means = [np.mean([WG.draw_blocks(n, rng) for _ in range(2000)])
+             for n in (20, 500, 9999)]
+    assert max(means) - min(means) < 0.15
+    # And a category cannot have more groups than declarations.
+    for n in (1, 2, 3):
+        assert all(WG.draw_blocks(n, rng) <= n for _ in range(50))
 
 
 def test_weight_effect_is_zero_for_equal_weights_and_scale_free():

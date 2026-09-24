@@ -71,9 +71,12 @@ TABLES = os.path.join(ROOT, 'outputs', 'tables', 'audits')
 #: to carbon intensity) and 1 is maximal clustering by coefficient.
 RHOS = (0.0, 0.25, 0.5, 0.75, 1.0)
 
-#: Block counts. `None` is the size-dependent default. Fixing k separates
-#: CONCENTRATION from COHERENCE, which decision 97 requires.
-KS = (2, 4, 8, None)
+#: Block counts. `None` is the generator's own rule -- uniform on 1 to 5,
+#: independent of n -- and is the faithful port. `'size'` is a size-growing
+#: alternative, kept in the sweep because a first version of this used it and
+#: measuring what it costs is more useful than deleting it. Fixing k at a
+#: constant separates CONCENTRATION from COHERENCE, which decision 97 requires.
+KS = (None, 2, 3, 5, 'size')
 
 #: Dirichlet concentration BETWEEN market groups. Smaller is more
 #: concentrated. This is the axis the published production volumes anchor:
@@ -211,7 +214,10 @@ def sweep_arm(datasets, arm, rng, draws=N_DRAWS, rhos=RHOS, ks=KS,
                 for _ in range(draws)]
         for rho in rhos:
             for k in ks:
-                kk = WG.blocks_for_n(len(x)) if k is None else min(k, len(x))
+                kk = (int(np.mean([WG.draw_blocks(len(x), rng)
+                                   for _ in range(20)])) if k is None
+                      else WG.blocks_for_n(len(x)) if k == 'size'
+                      else min(k, len(x)))
                 for ba in block_alphas:
                     sep, neff, top, topb = [], [], [], []
                     for _ in range(draws):
@@ -227,7 +233,8 @@ def sweep_arm(datasets, arm, rng, draws=N_DRAWS, rhos=RHOS, ks=KS,
                         # world output, not one declaration's.
                         topb.append(float(np.bincount(blk, weights=w).max()))
                     rows.append(dict(
-                        base, rho=rho, k=('auto' if k is None else k),
+                        base, rho=rho,
+                        k=('generator' if k is None else str(k)),
                         block_alpha=ba, k_used=kk,
                         separation=float(np.median(sep)),
                         separation_p90=float(np.percentile(sep, 90)),
@@ -239,10 +246,76 @@ def sweep_arm(datasets, arm, rng, draws=N_DRAWS, rhos=RHOS, ks=KS,
 
 
 # ---------------------------------------------------------------------------
+# 2b. the status quo, so the sweep has the right baseline
+# ---------------------------------------------------------------------------
+def status_quo(emp_datasets, syn_values, rng, draws=N_DRAWS):
+    """Each arm under the rule it uses TODAY, which is not the same rule.
+
+    THE SYNTHETIC ARM'S BASELINE IS ITS STORED WEIGHTS, not a flat draw over
+    its values. Those stored weights are the mode-coupled ones the generator
+    produced, and they are the thing the empirical rule is being brought to.
+    A flat draw over the same values is a THIRD quantity -- the counterfactual
+    that proves the gap is the rule and not the data -- and all three are
+    reported here so none is mistaken for another.
+    """
+    rows = []
+    for mat, (x, w) in emp_datasets.items():
+        x = np.asarray(x, float)
+        if len(x) < 3:
+            continue
+        rows.append(dict(arm='empirical', rule='stored (flat Dirichlet)',
+                         dataset=str(mat), n=len(x), band=band_of(len(x)),
+                         separation=WG.weight_effect(x, np.asarray(w, float))))
+        flat = [WG.weight_effect(x, rng.dirichlet(np.ones(len(x))))
+                for _ in range(draws)]
+        rows.append(dict(arm='empirical', rule='flat draw, redrawn',
+                         dataset=str(mat), n=len(x), band=band_of(len(x)),
+                         separation=float(np.median(flat))))
+    for ds, (x, w) in syn_values.items():
+        x = np.asarray(x, float)
+        if len(x) < 3:
+            continue
+        rows.append(dict(arm='synthetic', rule='stored (mode coupled)',
+                         dataset=str(ds), n=len(x), band=band_of(len(x)),
+                         separation=WG.weight_effect(x, np.asarray(w, float))))
+        flat = [WG.weight_effect(x, rng.dirichlet(np.ones(len(x))))
+                for _ in range(draws)]
+        rows.append(dict(arm='synthetic', rule='flat draw, redrawn',
+                         dataset=str(ds), n=len(x), band=band_of(len(x)),
+                         separation=float(np.median(flat))))
+    return pd.DataFrame(rows)
+
+
+def report_status_quo(sq):
+    print()
+    print('THE STATUS QUO. Median separation by size band, each arm under the')
+    print('rule it uses today, with the flat-draw counterfactual beside it.')
+    print('The counterfactual is what proves the arm-to-arm gap is the RULE')
+    print('and not the data: reweighting the synthetic values flat reproduces')
+    print("the empirical arm's behaviour.")
+    print()
+    piv = sq.pivot_table(index=['arm', 'rule'], columns='band',
+                         values='separation', aggfunc='median')
+    piv = piv.reindex(columns=[b[0] for b in SIZE_BANDS])
+    slope = (sq.groupby(['arm', 'rule']).apply(decay_slope, include_groups=False)
+             .rename('decay_slope'))
+    print(piv.join(slope).to_string(float_format=lambda v: f'{v:.4f}'))
+
+
+# ---------------------------------------------------------------------------
 # 3. what it does to the generator's calibration
 # ---------------------------------------------------------------------------
-def calibration_shift(emp_datasets, syn_metrics, rng, rhos=RHOS, ks=KS,
-                      block_alphas=BLOCK_ALPHAS):
+#: The calibration check is the expensive part: each cell recomputes every
+#: empirical dataset's characteristics, and the critical-bandwidth bootstrap
+#: on a 31,000-value category is not cheap. It is a SECONDARY check -- the
+#: question is whether the objective moves more than its own seed noise -- so
+#: it runs on a representative slice rather than the whole grid.
+CAL_CELLS = ((0.0, None, 1.0), (0.25, None, 1.0), (0.4, None, 1.0),
+             (0.5, None, 1.0), (0.75, None, 1.0), (1.0, None, 1.0),
+             (0.5, 3, 1.0), (0.5, None, 0.3), (0.5, 'size', 1.0))
+
+
+def calibration_shift(emp_datasets, syn_metrics, rng, cells=CAL_CELLS):
     """How far the arm-to-arm calibration moves when the EMPIRICAL rule changes.
 
     ONLY THE EMPIRICAL ARM IS REWEIGHTED HERE, and that is the direction the
@@ -257,24 +330,23 @@ def calibration_shift(emp_datasets, syn_metrics, rng, rhos=RHOS, ks=KS,
     seed-to-seed noise, which is what decides whether it is a move at all.
     """
     rows = []
-    for rho in rhos:
-        for k in ks:
-            for ba in block_alphas:
-                met = {}
-                for mat, (x, _) in emp_datasets.items():
-                    w = WG.coherent_weights(x, rng, k=k, rho=rho,
-                                            block_alpha=ba)
-                    met[mat] = empirical_metadata(np.asarray(x), w)
-                emp = pd.DataFrame(met).T.astype(float)
-                d = coverage.distribution_comparison(emp, syn_metrics)
-                rows.append(dict(
-                    rho=rho, k=('auto' if k is None else k), block_alpha=ba,
-                    objective=float(d.w1_standardized.mean()),
-                    coeffvar=float(_metric(d, 'coeffvar')),
-                    crit_bw_1=float(_metric(d, 'crit_bw_1')),
-                    w_v_uw=float(_metric(d, 'w_v_uw_wasserstein')),
-                    worst=d.iloc[0].metric,
-                    worst_w1=float(d.iloc[0].w1_standardized)))
+    for rho, k, ba in cells:
+        met = {}
+        for mat, (x, _) in emp_datasets.items():
+            w = WG.coherent_weights(x, rng, k=k, rho=rho, block_alpha=ba)
+            met[mat] = empirical_metadata(np.asarray(x), w)
+        emp = pd.DataFrame(met).T.astype(float)
+        d = coverage.distribution_comparison(emp, syn_metrics)
+        rows.append(dict(
+            rho=rho, k=('generator' if k is None else str(k)), block_alpha=ba,
+            objective=float(d.w1_standardized.mean()),
+            coeffvar=float(_metric(d, 'coeffvar')),
+            crit_bw_1=float(_metric(d, 'crit_bw_1')),
+            w_v_uw=float(_metric(d, 'w_v_uw_wasserstein')),
+            worst=d.iloc[0].metric,
+            worst_w1=float(d.iloc[0].w1_standardized)))
+        print(f'  calibration rho={rho} k={k} alpha={ba}: '
+              f'objective {rows[-1]["objective"]:.4f}', flush=True)
     return pd.DataFrame(rows)
 
 
@@ -308,6 +380,11 @@ def main(n_synth=400):
                .dataset.astype(str))
     vals = corpus.as_dict(values)
     syn_x = {d: v[0] for d, v in vals.items() if d in keep}
+
+    syn_pairs = {d: v for d, v in vals.items() if d in keep}
+    sq = status_quo(emp, syn_pairs, rng)
+    sq.to_csv(os.path.join(TABLES, 'TABLE_WeightStatusQuo.csv'), index=False)
+    report_status_quo(sq)
 
     sweep = pd.concat([sweep_arm(emp_x, 'empirical', rng),
                        sweep_arm(syn_x, 'synthetic', rng)],
@@ -381,7 +458,7 @@ def report_sweep(sweep):
         print()
     print('TODAY, for reference: the flat draw each arm uses now.')
     for arm in ('empirical', 'synthetic'):
-        a = sweep[(sweep.arm == arm) & (sweep.k == 'auto')
+        a = sweep[(sweep.arm == arm) & (sweep.k == 'generator')
                   & (sweep.rho == 0.0) & (sweep.block_alpha == 1.0)]
         f = a.drop_duplicates('dataset')
         print(f'  {arm:<10s} median flat separation '
@@ -400,7 +477,8 @@ def report_calibration(cal):
     print(f'The objective\'s own seed-to-seed standard deviation is '
           f'{OBJECTIVE_SEED_SD:.4f}, so a move smaller than that is not a move.')
     print()
-    base = cal[(cal.rho == 0.0) & (cal.k == 'auto') & (cal.block_alpha == 1.0)]
+    base = cal[(cal.rho == 0.0) & (cal.k == 'generator')
+               & (cal.block_alpha == 1.0)]
     ref = float(base.objective.iloc[0]) if len(base) else np.nan
     out = cal.copy()
     out['vs_rho0_in_seed_sd'] = (out.objective - ref) / OBJECTIVE_SEED_SD

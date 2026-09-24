@@ -403,23 +403,41 @@ def oracle_weights(parent, modes):
 # ---------------------------------------------------------------------------
 # ONE market-share rule for BOTH arms, Stage 2h
 # ---------------------------------------------------------------------------
-#: The default number of market-share blocks, as a function of dataset size.
-#: `None` means "use `blocks_for_n`".
-DEFAULT_BLOCK_RULE = None
+#: How many market-share groups a category is cut into, when `k` is not given.
+#: THESE ARE THE GENERATOR'S OWN, `genconfig.k_min` and `k_max`: the synthetic
+#: arm draws its mixture component count uniformly from 1 to 5, INDEPENDENT of
+#: dataset size, and porting that rule means porting that distribution.
+BLOCKS_MIN, BLOCKS_MAX = 1, 5
+
+
+def draw_blocks(n, rng, lo=BLOCKS_MIN, hi=BLOCKS_MAX):
+    """How many market-share groups a category is cut into.
+
+    Uniform on 1 to 5 and INDEPENDENT OF n, which is exactly what the
+    generator does when it draws a mixture's component count. A real market
+    holds a handful of product routes whether the category has nine
+    declarations or thirty thousand, and nothing about publishing more
+    declarations creates more routes.
+
+    A FIRST VERSION OF THIS GREW THE BLOCK COUNT WITH n, up to 12, and that was
+    wrong: it is a different weight model, not the synthetic arm's ported. It
+    also broke the thing the port exists to fix, because more groups at large n
+    means more dilution at large n, which is the artifact the flat draw already
+    had. Measured, it left the two arms further apart on the paper's central
+    quantity than they started.
+
+    Stage 2h sweeps `k` directly as well, because the block count changes
+    CONCENTRATION while `rho` changes COHERENCE and decision 97 requires the
+    two to be separated.
+    """
+    return int(min(rng.integers(int(lo), int(hi) + 1), max(1, int(n))))
 
 
 def blocks_for_n(n, per_block=8, lo=2, hi=12):
-    """How many market-share groups a dataset of `n` declarations is cut into.
+    """SUPERSEDED by `draw_blocks`, kept so the sweep can ask for it by name.
 
-    A DEFAULT AND NOT A FINDING. The synthetic arm attaches share to the
-    mixture's components, of which there are 1 to 4, so a real category's
-    market is modeled as a comparable handful of product groups rather than as
-    one group per declaration. `per_block` sets the growth and the bounds keep
-    a three-value category from having more groups than values.
-
-    Stage 2h sweeps `k` directly rather than relying on this, because the block
-    count changes CONCENTRATION while the coherence parameter changes COHERENCE
-    and the two must be separated (decision 97).
+    A size-growing block count. Not the synthetic arm's rule; see `draw_blocks`
+    for why that matters and what it cost.
     """
     return int(np.clip(round(n / float(per_block)), lo, min(hi, max(1, n))))
 
@@ -490,7 +508,8 @@ def coherent_weights(values, rng, k=None, rho=1.0, block_alpha=1.0,
         under any increasing rescaling, which `tests/test_weighting.py` pins.
     rng : Generator
     k : int or None
-        Number of market-share groups. None uses `blocks_for_n`.
+        Number of market-share groups. None draws from `draw_blocks`, which is
+        the generator's own rule: uniform on 1 to 5, independent of n.
     rho : float in [0, 1]
         Coherence. 1 is maximal clustering by coefficient, 0 is random
         membership.
@@ -499,7 +518,8 @@ def coherent_weights(values, rng, k=None, rho=1.0, block_alpha=1.0,
         more concentrated. `point_alpha` at 1.0 with `k = n` reproduces the old
         flat draw exactly.
     per_block : int
-        Passed to `blocks_for_n` when `k` is None.
+        Unused unless `k='size'`, which asks for the superseded size-growing
+        rule so a sweep can measure it.
     return_blocks : bool
         Also return the group index of every declaration, so a caller can sum
         the realized weight per GROUP. That is the quantity a published
@@ -518,8 +538,11 @@ def coherent_weights(values, rng, k=None, rho=1.0, block_alpha=1.0,
         return (np.zeros(0), np.zeros(0, dtype=int)) if return_blocks else np.zeros(0)
     if n == 1:
         return (np.ones(1), np.zeros(1, dtype=int)) if return_blocks else np.ones(1)
-    k = int(blocks_for_n(n, per_block=per_block) if k is None else k)
-    k = int(max(1, min(k, n)))
+    if k is None:
+        k = draw_blocks(n, rng)
+    elif k == 'size':
+        k = blocks_for_n(n, per_block=per_block)
+    k = int(max(1, min(int(k), n)))
     rho = float(np.clip(rho, 0.0, 1.0))
     # Ranks scaled to (0, 1]. `mergesort` so that ties keep a stable order and
     # the rule is deterministic given the stream.

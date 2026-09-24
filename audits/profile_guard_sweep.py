@@ -42,6 +42,12 @@ SEED = 42
 FRACS = (0.01, 0.05, 0.10, 0.25, 0.50, 1.00)
 N_SYNTH = 600
 
+#: The OTHER two bounds on the profile-likelihood fit, which Stage 2h was told
+#: to check rather than assume non-binding. `delta_hi_frac` is how far below
+#: min(x) the threshold grid reaches and `npoints` is how finely it is ruled.
+HI_FRACS = (10.0, 100.0, 1000.0, 10000.0)
+GRID_POINTS = (100, 200, 400, 800, 1600)
+
 #: A fitted model whose standard deviation exceeds this multiple of the data's
 #: own is not a distribution the data support. Loose on purpose: this is the
 #: difference between heavy-tailed and unusable, not a calibration.
@@ -98,6 +104,65 @@ def main(n_synth):
     print('  the choice costs nothing on the study\'s own criterion. It is made')
     print('  on the bounded-variance criterion and NOT on W1, so that it is not')
     print('  a number tuned to the score it is then judged by.')
+
+    # THE OTHER TWO BOUNDS, checked rather than assumed. Stage 2h.
+    other = check_other_bounds(ds, syn)
+    other.to_csv(os.path.join(TABLES, 'TABLE_ProfileOtherBounds.csv'),
+                 index=False)
+    print()
+    print('THE OTHER TWO BOUNDS. `delta_hi_frac` is how far below min(x) the')
+    print('threshold grid reaches, currently '
+          f'{F.PROFILE_DELTA_HI_FRAC:g}; `npoints` is how finely it is ruled,')
+    print(f'currently {F.PROFILE_GRID_POINTS}. Both are assumed non-binding')
+    print('and neither had been measured.')
+    print()
+    print(other.pivot_table(index=['bound', 'value'], columns='arm',
+                            values=['mean_w1', 'max_model_sd'])
+          .to_string(float_format=lambda v: f'{v:.4g}'))
+
+
+def check_other_bounds(ds, syn):
+    """Are `delta_hi_frac` and `npoints` as non-binding as they look?
+
+    THE GUARD BELOW min(x) IS THE ONE THAT BINDS, and it is swept above. These
+    two were never measured, and a bound nobody has tested is a bound nobody
+    knows the value of. `delta_hi_frac` matters only if the profile likelihood
+    wants a threshold FURTHER below the data than the grid reaches -- the
+    normal limit -- and `npoints` only if the maximum sits between two grid
+    points.
+    """
+    rows = []
+    for arm, items in (('empirical', list(ds.items())),
+                       ('synthetic', list(syn.items()))):
+        for hi in HI_FRACS:
+            sds, w1s, st = [], [], []
+            for _, (x, w) in items:
+                p = F.fit_lognorm3_profile(x, w, delta_hi_frac=hi)
+                m = F.make_lognorm(p)
+                sds.append(model_sd(m))
+                w1s.append(FT.score_w1_model(m, x, w))
+                st.append(p['status'])
+            rows.append(dict(bound='delta_hi_frac', value=hi, arm=arm,
+                             mean_w1=float(np.mean(w1s)),
+                             max_model_sd=float(np.max(sds)),
+                             pct_normal_limit=float(
+                                 (np.array(st) == 'boundary_normal_limit')
+                                 .mean() * 100)))
+        for npts in GRID_POINTS:
+            sds, w1s, st = [], [], []
+            for _, (x, w) in items:
+                p = F.fit_lognorm3_profile(x, w, npoints=npts)
+                m = F.make_lognorm(p)
+                sds.append(model_sd(m))
+                w1s.append(FT.score_w1_model(m, x, w))
+                st.append(p['status'])
+            rows.append(dict(bound='npoints', value=npts, arm=arm,
+                             mean_w1=float(np.mean(w1s)),
+                             max_model_sd=float(np.max(sds)),
+                             pct_normal_limit=float(
+                                 (np.array(st) == 'boundary_normal_limit')
+                                 .mean() * 100)))
+    return pd.DataFrame(rows)
 
 
 if __name__ == '__main__':
