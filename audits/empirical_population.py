@@ -45,7 +45,8 @@ sys.path.insert(0, os.path.join(ROOT, 'src'))
 
 import categorysplit                       # noqa: E402
 import empirical                           # noqa: E402
-import fitting as FT                       # noqa: E402
+import fitting as FT
+import flip as FL                       # noqa: E402
 import recovery as R                       # noqa: E402
 import weighting as WG                     # noqa: E402
 from customstats import empirical_metadata  # noqa: E402
