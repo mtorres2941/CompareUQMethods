@@ -305,7 +305,7 @@ and generation is closed; neither input moves again.
 | **2e DONE** | pLCA construction: common random numbers installed in the study's own pLCA, the crossed sweep over group size and material use intensity, resampled groupings, bootstrap intervals on every headline percentage and NRMSE, the flip thresholds recomputed at every group size, and the pLCA against the TRUE parents. Decisions 105 to 113. `reports/HANDOFF_stage-2e.md` | Changing what the headline metric is (2g). It did NOT redesign the metric set, and it did not touch the fitting, the corpus or the empirical arm |
 | **2f DONE** | Shapiro-Wilk versus Shapiro-Francia resolved in favor of Francia under both weightings, `_royston_pvalue` corrected, then the multivariate reduction of the characteristic set against TWO targets -- the fit score and the downstream error -- with the survivors, the size confound, the three modality measures, the definitional tautology, partial dependence, and the curves that replace the rolling averages. **The author's review then moved the whole reduction out of sample and onto the synthetic arm, removed every p-value, and measured the practitioner threshold rather than choosing a tolerance for it.** Decisions 125 to 142. `reports/HANDOFF_stage-2f.md` | Regenerating, redesigning figures (3), and re-running the sweeps of 2h. It did NOT touch the fitting, the scoring criterion, the corpus's values or the empirical extract |
 | **2g DONE** | The metric set, judged against the run to the TRUE parents rather than on stability: the rank-1 frequency recovers worst of seven candidates and exceeds its own between-material spread under a normal; three different methods lead across the seven; the normal's 40 percent penalty is 44 percent on attribution and 1 to 4 percent on the tail and information metrics; the `(1-capecc)` divisor settled by dividing by the APPLICABLE iterations and reporting the applicability; two magnitude companions, one of them new; the tail failure mode measured rather than assumed; and the last use of the retired in-sample target removed. Decisions 143 to 150. `reports/HANDOFF_stage-2g.md` | Re-running the sweeps of 2h. It did NOT touch the corpus, the fitting, the scoring criterion or the weight model |
-| **2h** | **FIRST ITEM, added 2026-09-22: THE WEIGHT MODEL.** The two arms draw market-share weights by different rules -- flat Dirichlet over points on the empirical arm, mode-coupled on the synthetic -- so the paper's central quantity decays with n on one arm and not the other, differing tenfold above n = 1,000. Give both arms one rule with a swept coherence parameter, controlling for concentration separately. Decisions 97 and 141. Then: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling, and `mode_share_alpha`, which the author proposes moving from 10 to 1. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124**. **Stage 2g adds to that judgment arm: a UNIFORM and a TRIANGULAR over a plausible range, which is where those two belong because they are specified from bounds rather than fitted to data, decision 151.** **And an optional UPPER TRUNCATION of each fitted model, which would remove the thin-far-tail failure mode outright at the cost of one assumption, decision 152; whatever else it sweeps, the tail term stays in force and `model_sd_ratio` is reported at every value of `PROFILE_DELTA_LO_FRAC`, decision 149** | Anything not framed as a sweep with a tabulated result |
+| **2h** | **FIRST ITEM, added 2026-09-22 and ENLARGED 2026-09-24: THE WEIGHT MODEL, AND THE CORPUS'S JOINT MODALITY-DISPERSION STRUCTURE WITH IT, because they are coupled and must not be attempted separately.** The corpus reproduces the distribution of modality and the distribution of dispersion and NOT their joint distribution: conditional on being dispersed a real category is multimodal 44.7 percent of the time and a synthetic one 9.4, and both-at-once is 16.2 percent of real categories against 1.9 of synthetic ones. `genconfig.separation_dispersion_frac` fixes it to 12.7 percent and is committed, defaulted OFF and tested -- and it is not adopted because it makes the corpus overstate the median uniform-to-variable Wasserstein distance by 2.7 times, which is the paper's headline claim. 36 configurations were searched and every one trades one against the other, on three different levers across three stages, so the trade is structural. **2h must therefore judge any weight-model change against BOTH the weighting margin and the joint modality-dispersion structure, and a candidate that fixes one while breaking the other is not a candidate.** Decisions 168, 169, 170; `audits/shoulder_probe.py`, `audits/corpus_joint_structure.py`, `audits/corpus_examples.py`. THEN: **THE WEIGHT MODEL.** The two arms draw market-share weights by different rules -- flat Dirichlet over points on the empirical arm, mode-coupled on the synthetic -- so the paper's central quantity decays with n on one arm and not the other, differing tenfold above n = 1,000. Give both arms one rule with a swept coherence parameter, controlling for concentration separately. Decisions 97 and 141. Then: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling, and `mode_share_alpha`, which the author proposes moving from 10 to 1. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124**. **Stage 2g adds to that judgment arm: a UNIFORM and a TRIANGULAR over a plausible range, which is where those two belong because they are specified from bounds rather than fitted to data, decision 151.** **And an optional UPPER TRUNCATION of each fitted model, which would remove the thin-far-tail failure mode outright at the cost of one assumption, decision 152; whatever else it sweeps, the tail term stays in force and `model_sd_ratio` is reported at every value of `PROFILE_DELTA_LO_FRAC`, decision 149** | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
@@ -5495,13 +5495,32 @@ rather than in conversation.
      improvement that lands just short of the author's 16 percent target, and
      the multimodal share lands at 0.330 against the real 0.315.
 
-     **AND THE PRICE IS THE QUANTITY THE PAPER IS ABOUT.** The standardized
-     distance between the arms on `w_v_uw_wasserstein` -- the uniform-to-variable
-     Wasserstein distance, the paper's central quantity -- goes from **0.2295 to
-     2.7323, twelve times worse**, and the overall calibration objective from
-     0.2506 to 0.5619. A corpus that matched modality and dispersion while
-     misrepresenting the weighting effect by an order of magnitude would be a
-     worse instrument for THIS paper than the one that exists.
+     **AND THE PRICE IS THAT THE CORPUS WOULD OVERSTATE THE PAPER'S HEADLINE
+     EFFECT BY A FACTOR OF 2.7. The first version of this entry said "the
+     weighting quantity gets twelve times worse", which was a badly chosen
+     phrase and the author caught it:** no VALUE of `w_v_uw_wasserstein` is
+     better or worse than another -- it simply measures how far variable
+     weighting moves a dataset. What matters is whether the corpus's
+     DISTRIBUTION of it matches the real arm's, and under the separation path
+     it does not:
+
+         arm                        median    mean      max
+         REAL, 147 categories       0.0929  0.1120   0.7302
+         corpus, as shipped         0.1035  0.1394   1.0109
+         corpus, separation         0.1966  0.3130   4.0641
+         corpus, separation_kmin2   0.2513  0.3788  13.0823
+
+     The corpus as shipped puts the median weighting effect at 0.1035 against
+     a real 0.0929, which is close. The separation path puts it at **0.2513,
+     2.7 times the real median**, with a maximum of 13.08 against a real
+     maximum of 0.73. The standardized arm-to-arm distance on that
+     characteristic, which is what the calibration objective sees, goes from
+     **0.2915 to 2.5732**, and the overall objective from 0.2506 to 0.5619.
+
+     **Since the paper's headline claim is HOW MUCH WEIGHTING MATTERS, a corpus
+     that overstates it 2.7-fold would inflate the central result.** That is
+     the reason not to adopt it, and it is a statement about calibration rather
+     than about any value being good or bad.
 
      **THIS IS THE THIRD TIME THE SAME TRADE HAS APPEARED** -- decision 39 in
      Stage 2a-2, decision 138 in Stage 2f, and now here on a different lever
