@@ -5626,3 +5626,138 @@ rather than in conversation.
      alternative is to keep the averaged form and SAY on the figure that these
      five rows are errors in an average. Either is defensible; mixing them
      without saying so is not.
+
+172. **2026-09-24, Stage 2g review. THE SECOND RULE OF THE SAFE-LEAD KIND: a
+     design comparison is safe once the claimed saving exceeds about 10
+     percent, and the number a practitioner needs is how often a method names
+     the WRONG DESIGN, not how often two methods disagree.** `[MANUSCRIPT
+     SESSION ASKED]`
+
+     **THE PRACTITIONER'S NUMBER, 2,500 pairs from the production run, scored
+     against the truth run on the same draws.** Share of individual comparisons
+     on which a method lands on the opposite side of a half from the truth:
+
+         B claims   truth      KDE     KDE      Logn     Logn    Norm    Norm
+         to save   P(B better) equal  sampled   equal   sampled  equal  sampled
+           0 pct      0.50      32.8    28.2     31.4     27.7    65.8    46.9
+           1 pct      0.53      31.2    27.1     30.0     26.8    57.3    44.0
+           2 pct      0.55      28.6    25.3     27.6     25.4    45.0    39.0
+           5 pct      0.63      16.0    16.8     16.3     17.3    19.0    22.6
+          10 pct      0.75       3.8     5.0      4.0      5.6     4.0     5.6
+          20 pct      0.95       0.0     0.0      0.0      0.0     0.0     0.0
+
+     **AT A CLAIMED 5 PERCENT SAVING EVERY METHOD NAMES THE WRONG DESIGN ABOUT
+     ONE TIME IN SIX**, and the six sit within 6 points of each other, so the
+     error rate is a property of the question rather than of the method. By 10
+     percent it is 4 to 6 percent and by 20 percent it is zero.
+
+     **AND THE NORMAL IS WORSE THAN A COIN TOSS WHERE THE TRUTH IS A COIN
+     TOSS.** At a claimed 0 percent saving `Normal, Uniform` is wrong **65.8
+     percent** of the time. That is not noise: the normal is systematically
+     optimistic (decision 119), so when the truth sits at a half a systematic
+     lean lands on the wrong side MORE often than chance. It converges to the
+     others by 10 percent, which is the same pattern as everywhere else --
+     the normal fails where the decision is close.
+
+     **THE CROSSINGS, from a dense sweep because the production run could not
+     locate them.** The study runs six savings -- 0, 1, 2, 5, 10, 20 percent --
+     which leaves three of the four crossings inside a TEN-point gap with no
+     observation between. `audits/swap_saving_threshold.py` fills 6, 7, 8, 9,
+     12, 14, 16 and 18 percent on 900 pairs, so every crossing is bracketed
+     within two points. Cluster bootstrap over design pairs:
+
+         risk level                              claimed saving at which it crosses
+         a method names the wrong design,  5 pct   10.15 pct  [9.57, 10.73]
+         a method names the wrong design,  1 pct   14.57 pct  [13.46, 15.21]
+         two methods disagree,             5 pct   11.10 pct  [10.42, 11.68]
+         two methods disagree,             1 pct   15.20 pct  [14.12, 15.81]
+
+     **THE RULE TO PRINT: a substitution claimed to save more than about 10
+     percent of the building will be called correctly by any of these six
+     methods 95 times in 100, and one claimed to save more than about 15
+     percent 99 times in 100. Below 5 percent no method is reliable and the
+     choice between them does not help.** That sits beside the safe-lead ratio
+     of 2.13 (decision 107) as the second rule of its kind, and it is measured
+     the same way.
+
+     **A LOGISTIC FIT IN LOG SAVING DOES NOT WORK HERE and was discarded.** It
+     is what decisions 95 and 107 used, and on this curve it puts the 5 percent
+     crossing at 19.7 percent saving when the observed rate is already 4.68
+     percent at 10. The decline is far steeper than a logistic, so the
+     crossings are interpolated between bracketing observations instead, which
+     the dense sweep makes safe.
+
+     **THE SWEEP AGREES WITH THE PRODUCTION RUN where they overlap** -- at a
+     claimed 5 percent saving the wrong-design rate is 18.01 percent on 2,500
+     production pairs and 19.76 on the sweep's 900, and at 10 percent 4.68
+     against 5.20 -- which is the check that the sweep is the same experiment
+     at finer resolution rather than a different one.
+
+173. **2026-09-24, Stage 2g review. ALL FOUR PUBLISHED CONSTANTS ARE BRACKETED
+     BY OBSERVATIONS AND NONE IS AN EXTRAPOLATION -- but their published
+     intervals are narrower than the disagreement between two link functions,
+     so they understate uncertainty.** `[MANUSCRIPT SESSION ASKED]` The
+     question, prompted by the logistic misfitting the design comparison: were
+     the flip thresholds of 0.0018, 0.011 and 0.025 and the safe-lead ratio of
+     2.13 produced by the same fit, and do observations sit either side of
+     them?
+
+     **YES TO THE SAME FIT. `flip.logistic_fit` in log space, with
+     `flip.bootstrap_crossings` resampling clusters and refitting**, is what
+     produced all four. `logistic_crossing` then solves
+     `exp((logit(level) - a) / b)`, which is the same form that failed on the
+     design comparison.
+
+     **AND YES TO BRACKETING, WHICH IS WHY THEY DO NOT CARRY THE SAME ERROR.**
+     Observed flip rates by binned separation, 22,500 calibration rows:
+
+         separation (median)   0.0000  0.0024  0.0042  0.0064  0.0094  0.0136  0.0194  0.0274
+         flip rate, pct          0.19    1.37    1.80    2.86    4.17    5.48    7.03   11.01
+
+     The 1 percent level is bracketed between 0.0000 and 0.0024, the 5 percent
+     level between 0.0094 and 0.0136, the 10 percent level between 0.0194 and
+     0.0274 -- and the published 0.0018, 0.011 and 0.025 each sit INSIDE their
+     bracket. The safe-lead ratio likewise, over 72,000 four-material
+     comparisons:
+
+         top-two ratio (median)  1.348  1.591  2.000  2.105  2.880
+         flip rate, pct          13.16   5.27   2.96   1.20   0.22
+
+     10 percent is bracketed between 1.348 and 1.591 and the published 1.46 is
+     inside; 5 percent between 1.591 and 2.000 and 1.64 is inside; 1 percent
+     between 2.105 and 2.880 and 2.13 is inside.
+
+     **WHY THE LOGISTIC FAILED ON THE DESIGN COMPARISON AND NOT HERE.** The
+     design comparison's predictor is a DESIGNED variable with six levels and a
+     ten-point gap across the crossing; these two have 22,500 and 72,000
+     observations spread continuously over the predictor. A two-parameter shape
+     interpolating between dense observations is doing little work; the same
+     shape spanning a 2x gap is doing all of it.
+
+     **WHAT IS NONETHELESS WRONG WITH QUOTING THEM TO THREE FIGURES.** The
+     published intervals are bootstrap intervals on the FITTED PARAMETER, and
+     they are narrower than the disagreement between the logistic and the
+     isotonic fit, which assumes only monotonicity:
+
+         constant            logistic   isotonic   published interval
+         safe lead, 1 pct      2.13       2.22       2.09 to 2.17
+         safe lead, 5 pct      1.64       1.61       1.62 to 1.66
+         safe lead, 10 pct     1.46       1.35       1.45 to 1.47
+         flip, 1 pct          0.0018     0.0026     0.0013 to 0.0023
+         flip, 5 pct          0.011      0.0129     0.0091 to 0.0126
+         flip, 10 pct         0.025      0.0271     0.0217 to 0.0277
+
+     **On four of the six the isotonic value sits OUTSIDE the published
+     interval.** The interval says how well the data pin down a logistic's
+     parameters; it says nothing about whether a logistic is the right shape.
+     **Decision 95's instruction to quote TWO significant figures and no more
+     already covers this, and it should be extended to the safe-lead ratio,
+     which is currently quoted as 2.13.** At two figures the two fits agree on
+     every one of the six except the 10 percent safe lead, where 1.5 against
+     1.4 is the honest spread.
+
+     **NOTHING NEEDS RE-DERIVING.** The constants stand; what needs changing is
+     the precision they are printed to and, where the two fits differ by more
+     than the last quoted figure, saying so. `audits/` holds the binned tables
+     behind this entry; the check is one groupby and is worth repeating if the
+     calibration is ever rerun.
