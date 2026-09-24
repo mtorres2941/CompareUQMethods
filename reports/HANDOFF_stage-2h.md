@@ -389,10 +389,14 @@ characteristic at once, and it has a known run-to-run noise of 0.0066.
 stage measured the truncation floor at 0.05 and found the spread of the
 synthetic data matching the real data much better. It does -- that distance
 improves from 0.380 to 0.207, which is the same finding -- and the overall
-objective gets worse, because the characteristic that then becomes the worst
-is the paper's own central quantity, how much weighting matters. **It buys
-spread and pays for it with the thing the paper is built on.** That is the same
-trade this project has now recorded on four separate knobs.
+objective gets worse, because the gap between the two halves of the study on
+the paper's own central quantity, how much weighting matters, **more than
+doubles**. Measured undivided, so that this is not an artifact of how the
+comparison is scaled: the spread gap closes from 0.2685 to 0.1463 while the
+weighting gap opens from 0.0285 to 0.0583, and the scaled and unscaled
+versions agree in direction on all ten characteristics. **It buys spread and
+pays for it with the thing the paper is built on.** That is the same trade this
+project has now recorded on four separate knobs.
 
 **One parameter turns out not to be a parameter.** The minimum hump width
 returns an objective identical to the last digit at 0.05 and 0.10, because the

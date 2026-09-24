@@ -6280,11 +6280,36 @@ rather than in conversation.
      coefficient-of-variation distance improving from 0.273 to 0.199 with the
      objective flat. Here it improves from **0.380 to 0.207**, which is the
      same finding on the same characteristic -- and the OVERALL objective is
-     0.8 seed standard deviations worse, because the worst characteristic
-     becomes `w_v_uw_wasserstein` at 0.562. **It buys dispersion and pays for
-     it with the quantity the paper is built on**, which is the structural
-     trade decisions 39, 138 and 170 record on three other levers. Nothing was
-     adopted then and nothing is now.
+     0.8 seed standard deviations worse, because the arm-to-arm distance on
+     `w_v_uw_wasserstein` more than DOUBLES.
+
+     **THAT IS CHECKED IN ABSOLUTE TERMS AND IS NOT A DENOMINATOR ARTIFACT**,
+     which had to be established because decision 63 records a case where a
+     standardized worsening was exactly that. The empirical arm is identical
+     between the two configurations, so its standard deviation is fixed, and
+     the two columns agree in SIGN on all ten characteristics. Undivided
+     Wasserstein distance between the arms, default against the candidate:
+
+         coeffvar             0.2685 -> 0.1463    improves by 46 pct
+         w_v_uw_wasserstein   0.0285 -> 0.0583    worsens by 105 pct
+         crit_bw_1            0.0787 -> 0.1053    worsens
+         skewness             0.3778 -> 0.4947    worsens
+         fit_norm_SF          0.0410 -> 0.0230    improves
+
+     **It buys dispersion and pays for it with the quantity the paper is built
+     on**, which is the structural trade decisions 39, 138 and 170 record on
+     three other levers. Nothing was adopted then and nothing is now.
+
+     **A NOTE ON THE WORD "WORST", because the author asked what value
+     judgment it carries.** None. `tune_configuration.score` reports
+     `worst_metric` as the first row of `coverage.distribution_comparison`
+     sorted by standardized distance descending, so it means "the
+     characteristic on which the two arms' DISTRIBUTIONS sit furthest apart",
+     not "the least important characteristic". The standardization is
+     necessary rather than a judgment: the characteristics are in
+     incomparable units -- a distance in dataset SIZE runs to 848 while one in
+     a Shapiro statistic runs to 0.04 -- so an unstandardized mean over them is
+     meaningless and is dominated by `n` alone.
 
      **`min_mode_sd_frac` BELOW 0.15 IS NOT A PARAMETER**, which is why 0.05
      and 0.10 return the objective to the last digit and every other column
