@@ -1244,6 +1244,29 @@ a newline, truncating a cell mid-statement. The only symptom was a SyntaxError
 twelve minutes into a headless run.
 
 
+## Two audits added by the Stage 2g review
+
+`audits/lognormal_variants.py` scores the two-parameter lognormal, this study's
+three-parameter one, gamma, the normal and the kernel estimate against the KNOWN
+PARENT under equal weights, and reports each one's gain over the two-parameter
+fit. It exists because the field's lognormal is the two-parameter one and the
+study's is not, and a reader who assumes they are the same will read the
+scorecard as "the paper rediscovered current practice". Writes
+`outputs/tables/audits/TABLE_LognormalVariants.csv`. About 20 seconds at 1,500
+datasets.
+
+`audits/corpus_modality_shape.py` correlates the visible mode count with every
+other characteristic, separately on each arm, and reports the generator-side
+mechanism and the size of the gap. It exists because decision 82 closed the
+modality question by REWEIGHTING the corpus to the empirical mode mix, and
+reweighting cannot create a population the corpus does not contain. Writes
+`TABLE_CorpusModalityShape.csv` and `TABLE_CorpusModalityHole.csv` in the same
+directory. Seconds.
+
+Both write only under `outputs/tables/audits/`, which is what an audit script is
+permitted to touch.
+
+
 ## Redrawing a figure without re-running its notebook
 
 `audits/render_figures.py`, 2026-09-22. Notebook 4 takes about twenty minutes

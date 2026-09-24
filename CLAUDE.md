@@ -5058,3 +5058,247 @@ rather than in conversation.
      needed runs and the size-band panel did not, because its table is derived
      from one already on disk -- and bundling the two cost the author an hour of
      waiting that better sequencing would have saved.
+
+165. **2026-09-23, Stage 2g review. DECISION 56 IS RESTATED IN THE AUTHOR'S OWN
+     TERMS: what matters is that the CODE for anything in `outputs/` lives in a
+     notebook and can be reviewed there, not which process wrote the bytes.**
+     `[AUTHOR]` "Maybe we need to restate the project rule that outputs are
+     written by the notebooks and nothing else. The way that rule should read is
+     actually something more like 'all figures in outputs/ should be
+     reproducible in notebooks'. I just don't want you creating figures where
+     the code is lost or not in a notebook. Notebooks are the best way to review
+     code for figures."
+
+     **THE OLD RULE NAMED THE WRONG THING.** "`outputs/` is written by the
+     notebooks and by nothing else" constrains the WRITER. What the author cares
+     about is that the code is reviewable in a notebook, and the writer was only
+     ever a proxy for that. The proxy cost an hour of the author's time twice in
+     one afternoon: re-slicing a table that was already on disk required
+     re-running 2,500 probabilistic LCAs, not because the arithmetic needed it
+     but because the rule said the notebook had to be the writer.
+
+     **THE RULE AS IT NOW READS.** Every figure and every table in `outputs/`
+     must be REPRODUCIBLE FROM A NOTEBOOK CELL, and the code that produces it
+     must live in a notebook. Nothing may reach `outputs/` whose source is a
+     scratch script, a chat session, or anything else a reviewer cannot open
+     and read. A DIFFERENT EXECUTOR of the notebook's own bytes is permitted;
+     a different AUTHOR of the bytes is not.
+
+     **I HAVE GENERALIZED "figures" TO "figures and tables" and the author
+     should overrule this if it is wider than intended.** The reasoning is that
+     the author's stated concern -- code that is lost or not reviewable -- is
+     identical for a table, and the cost being paid is mostly on tables: the
+     scorecard and the size-band split are pure re-slices of tables already on
+     disk, and the expensive part of that whole block takes **9 seconds** when
+     driven from disk against 48 minutes for the run that regenerates what it
+     reads.
+
+     **WHAT DOES NOT CHANGE, AND IS THE REASON THE OLD RULE EXISTED.** Two
+     figures dated 2026-03 once had no producer anywhere in the repository and
+     had to be deleted; one figure had been written by a scratch script. That
+     must not recur, and the restatement forbids it as squarely as the original
+     did. The enforcement also stands: `audits/render_figures.py` contains no
+     figure code and no analysis code, it executes the notebook's own cells
+     verbatim, and `tests/test_render_figures.py` asserts the sources executed
+     are byte-identical to the notebook's and that the module holds no plotting
+     call. **A partial re-run must still refuse rather than skip**, because
+     redrawing some outputs and reporting success leaves stale ones committed
+     beside fresh ones with nothing to say so.
+
+     **STILL OPEN, AND STAGE 3 OWNS IT:** extending the renderer from figure
+     cells to table cells needs a rule for what a safe partial re-run of table
+     cells IS, since a table computed from a stale input is a worse failure than
+     a stale figure. The honest version is probably "execute every cell from the
+     first one that writes a table", which is cheap here because that block
+     reads from disk. Decision 56's narrowing is unchanged until that exists.
+
+166. **2026-09-23, Stage 2g review. "GOODNESS-OF-FIT DOESN'T REALLY MATTER FOR
+     ACTUAL pLCAs" IS FALSE and must not go in the paper. Fit translates
+     strongly; the kernel estimate simply does not dominate the fit above 80
+     declarations either.** `[AUTHOR PROPOSED, MEASUREMENT DISAGREES]` The
+     author's proposed takeaway: "goodness-of-fit doesn't really matter for
+     actual pLCAs, because otherwise KDE would dominate for n > ~80."
+
+     **FIT TRANSLATES.** Holding the material fixed and ranking the six methods
+     by their fit and by their claim error, the median within-material Spearman
+     is **+0.600**, positive on **82.2 percent** of materials, and the
+     best-fitting method is also the most claim-accurate on **39.0 percent**
+     against a **16.7 percent** chance level -- at every dataset size.
+
+     **THE PREMISE IS WHAT FAILS: the kernel estimate does not dominate the FIT
+     above 80 either.** Share of datasets where it beats the three-parameter
+     lognormal on W1 against the parent, and the median relative gap:
+
+         n            wins, equal   wins, sampled   median gap (sampled)
+         3-9             58.1           70.7              -5.2 pct
+         10-30           46.2           56.7              -2.7
+         31-81           49.6           46.3              +1.5
+         82-200          61.2           53.0              -2.1
+         201-500         68.1           66.9             -13.2
+         501-1000        79.9           79.8             -28.6
+         1001-3000       84.4           88.2             -48.5
+         3000+           86.5           95.7             -67.5
+
+     **81 is where the kernel estimate crosses 50 percent, not where it
+     dominates.** At 82-200 it wins barely half the time by 2 percent; only
+     above 500 does it win four times in five by 13 to 68 percent. **The
+     claim-level picture tracks that faithfully** -- barely ahead where the fit
+     is barely ahead, clearly ahead where the fit is clearly ahead -- which is
+     what a Spearman of +0.600 predicts. Nothing here says fit is irrelevant.
+
+167. **2026-09-23, Stage 2g review. THE LOGNORMAL THIS STUDY FITS IS NOT THE
+     LOGNORMAL THE FIELD USES, and against the one the field uses the kernel
+     estimate wins by 31 to 41 percent. The manuscript must draw this
+     comparison explicitly.** `[AUTHOR]` "What machinery did this paper have to
+     invent for lognormal distribution fitting? I think the comparison between
+     our lognormal method and a regular two-parameter lognormal should be made
+     very clear in this manuscript."
+
+     **THE MACHINERY, and it is not cosmetic.** A three-parameter lognormal has
+     no global maximum likelihood estimate: the likelihood is unbounded as the
+     threshold approaches the smallest observation. So this study had to build
+     (a) `families.fit_lognorm3_profile`, which chooses the threshold by PROFILE
+     LIKELIHOOD over a grid; (b) the guard `PROFILE_DELTA_LO_FRAC = 0.25`,
+     calibrated on a BOUNDED-VARIANCE criterion -- the smallest guard at which
+     no fitted model on either arm exceeds five times the data's own standard
+     deviation -- deliberately NOT on W1, so it is not tuned to the score it is
+     judged by, and which **determines the threshold for 48 percent of
+     empirical fits**; (c) an explicit truncation to (0, inf) with
+     renormalization, so the object scored is the object sampled (decision 50);
+     and (d) the analytic tail term, without which the lognormal alone is
+     under-charged for mass beyond the scoring grid (decision 85). At a guard of
+     0.01 instead of 0.25 the same estimator produced a model with a standard
+     deviation of 3,281 on data whose own is 0.6 (decision 51).
+
+     **AGAINST THE KNOWN PARENT, 1,500 corpus datasets, equal weights**,
+     `audits/lognormal_variants.py`, median W1:
+
+         n           2-param   3-param   gamma   normal     KDE
+         3-9          0.2449    0.2189  0.2241   0.2567  0.2464
+         10-99        0.1385    0.1123  0.1236   0.1694  0.1238
+         100-999      0.1232    0.0777  0.0940   0.1842  0.0686
+         1000+        0.1229    0.0750  0.0908   0.1809  0.0559
+
+     **Closest on: the KERNEL ESTIMATE 47.8 percent of datasets, the
+     three-parameter lognormal 17.8, the two-parameter lognormal 14.7, the
+     normal 10.5, gamma 9.3.** The kernel estimate is the plurality winner by
+     nearly three to one over its nearest rival.
+
+     **MEDIAN RELATIVE GAIN OVER THE TWO-PARAMETER LOGNORMAL**, which is
+     ecoinvent's default and what the pedigree matrix produces, since a
+     geometric standard deviation IS a lognormal parameterization:
+
+         n           3-param    KDE
+         3-9           +0.1    -2.9
+         10-99         -2.9    -5.8
+         100-999      -11.5   -30.8
+         1000+        -14.8   -41.2
+
+     The kernel estimate beats it on **71.5 percent** of datasets and the
+     three-parameter lognormal on 63.3.
+
+     **SO "THE LOGNORMAL WAS RIGHT ALL ALONG" IS NOT WHAT THIS SHOWS.** The
+     lognormal that competes with the kernel estimate is a three-parameter fit
+     with a profile-likelihood threshold and a calibrated guard, which is not
+     what practitioners fit and which this project had to construct. Against
+     what practitioners DO fit, the kernel estimate is 31 to 41 percent closer
+     to the truth above 100 declarations. **The paper owes a direct
+     two-parameter comparison in the results, not a footnote**, because without
+     it a reader will assume the study's lognormal is theirs.
+
+     **The honest tension that survives**: on the pLCA CLAIMS the kernel
+     estimate and the three-parameter lognormal are a near tie below about 500
+     declarations, while on FIT the kernel estimate is a clear plurality
+     winner. Decision 163 explains the gap -- a claim is decided once for a
+     group of four -- and decision 166 shows it is not because fit fails to
+     translate.
+
+168. **2026-09-23, Stage 2g review. THE CORPUS'S MULTIMODAL DATASETS ARE THE
+     WRONG SHAPE, NOT MERELY TOO FEW, AND DECISION 82'S REASSURANCE DOES NOT
+     ANSWER IT. The author was right to reopen this.** `[AUTHOR ASKED,
+     MEASUREMENT AGREES, REGENERATION IS THE AUTHOR'S CALL]` "Why does the
+     corpus under-represent strongly multimodal datasets??? That's one of the
+     main purposes of the corpus ... I feel fairly strongly that we should go
+     back to data generation."
+
+     **WHY DECISION 82'S TEST DOES NOT SETTLE IT.** That decision reweighted the
+     corpus to the empirical mode mix, found the kernel-estimate-minus-lognormal
+     difference moved by 0.0004, and closed the question. **Reweighting can only
+     reweight datasets that exist.** If the corpus's multimodal datasets are a
+     different object from real ones, no weighting of them reproduces the real
+     population, and the 0.0004 measures the wrong thing. That is the case here.
+
+     **THE SIGN IS OPPOSITE ON ALL SIX CHARACTERISTICS.** Spearman of the
+     visible mode count with each characteristic, `audits/corpus_modality_shape.py`:
+
+         characteristic    empirical   synthetic
+         coeffvar            +0.163      -0.153
+         skewness            +0.211      -0.152
+         kurtosis            +0.230      -0.144
+         fit_lognorm_SF      +0.086      -0.009
+         fit_norm_SF         -0.202      +0.128
+         crit_bw_1           +0.283      -0.115
+
+     **In the real world more modes come WITH more spread, more skew and more
+     kurtosis. In the corpus they come with LESS of all three.** It survives
+     conditioning: inside the window 0.4 < CV < 1.2 the corpus still gives
+     -0.102 against the real arm's +0.157. Medians by mode count make it vivid --
+     a three-mode real category has a coefficient of variation of 0.974 and a
+     three-mode synthetic one has **0.230**, which is TIGHTER than the corpus's
+     own unimodal median of 0.593.
+
+     **THE MECHANISM, which is the generator's and is fixable.** The corpus
+     makes a second visible mode by SEPARATING components: median achieved
+     overlap falls 0.513, 0.422, 0.411 as the visible mode count goes 1, 2, 3,
+     and Spearman(overlap, modes) is -0.234. Separated components are each
+     individually tidy, so a multi-mode synthetic dataset is LESS skewed and
+     LESS dispersed than a unimodal one. Real multimodality is a shoulder on a
+     long-tailed body. **Decision 37 predicted exactly this in Stage 2a-2** --
+     "their modes are gentle shoulders on a lognormal body; the generator
+     reaches the same mode COUNT by separating components, which is a different
+     shape" -- and it was never measured against the mode count, so it never
+     reached a decision.
+
+     **WHY THE TUNING NEVER CAUGHT IT.** The calibration objective matches
+     MARGINAL distributions one characteristic at a time (decision 35). Nothing
+     in it looks at the CORRELATION between characteristics, so the generator
+     can match every margin and still get the joint structure backwards.
+
+     **THE SIZE OF THE HOLE.** Of the corpus's 1,718 multimodal datasets, only
+     **8.0 percent** reach the real multimodal median coefficient of variation
+     of 0.889, **21.5 percent** the real median skewness of 2.274 and **25.0
+     percent** the real median kurtosis of 7.808 -- against 50 percent if the
+     arms matched. Taken jointly, multimodal AND dispersed is **1.9 percent of
+     the corpus against 16.2 percent of the real arm, an 8.4-fold
+     under-representation** of a sixth of the real categories.
+
+     **AND THE DIRECTION OF THE BIAS IS NOT ESTABLISHED. THIS MATTERS, because
+     regeneration might not rescue the kernel estimate.** On the corpus's own
+     (mis-shaped) multimodal-and-dispersed cell the kernel estimate does WORSE,
+     not better, by 4.7 percent under equal weights on 153 datasets. On the real
+     arm's 21 multimodal-and-dispersed categories it is a coin flip to worse:
+     47.6 percent win share under equal weights, 38.1 under sampled shares. **So
+     the case for regenerating is that the corpus is nearly silent about a sixth
+     of real categories, not that it is hiding a kernel-estimate win.**
+
+     **AND A FINDING THAT IS THE OPPOSITE OF THE USUAL INTUITION:** on the real
+     arm the kernel estimate loses worst on UNIMODAL AND DISPERSED categories --
+     26 of them, win share **15.4 percent** under equal weights and **3.8
+     percent** under sampled shares, median 18 to 24 percent worse. Irregularity
+     in the sense of a long tail is where a kernel estimate struggles; the
+     multi-humped case is not its problem.
+
+     **WHAT REGENERATION WOULD HAVE TO CHANGE**, and it is not "more modes": the
+     generator must produce a second mode as a SHOULDER on a skewed body rather
+     than as a separated tidy hump, which means coupling the modality target to
+     the skewness and dispersion targets instead of drawing them independently,
+     and adding a joint term -- the modality-dispersion correlation -- to the
+     calibration objective so the failure cannot recur silently.
+
+     **NOTHING IS REGENERATED HERE.** Generation is closed by decisions 47, 48
+     and 55, every number in the paper moves when it reopens, and the cost is
+     the full verification chain. The diagnosis, the audits and the proposed fix
+     are recorded; **the decision is the author's.** If it goes ahead, the first
+     step is a 1,000-dataset DRAFT corpus under decision 41, never a paper
+     number, to check that the coupled generator fixes the joint structure
+     without wrecking the margins the current one matches well.

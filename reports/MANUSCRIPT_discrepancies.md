@@ -1986,3 +1986,35 @@ relative figure beside it.**
 | **And the advantage is in the spread, not the level** | At n > 1000 the kernel estimate's margin is +6.1 points on a material's standard deviation, +2.2 on its chance of being largest, +1.8 on the uncertainty index, +1.4 on its 95th percentile -- and it ties or slightly loses on the mean contribution and the mean share. |
 | **Fix** | **Text.** Every threshold this study quotes must name the criterion AND the unit it was measured on -- one dataset's fit, or one group's answer. Decision 163, narrowed the day it was written. |
 | **Status** | Open. It narrows how decisions 139 and 142 may be quoted; it does not change what they measured. |
+
+## 153. The manuscript must compare its lognormal with the TWO-parameter one, in the results
+
+| | |
+|---|---|
+| **Why** | The study's lognormal is a THREE-parameter fit with the threshold chosen by profile likelihood. The field's lognormal is the TWO-parameter one: ecoinvent's default, and what the pedigree matrix produces, since a geometric standard deviation is a lognormal parameterization. A reader will assume they are the same and conclude the paper rediscovered current practice. |
+| **The machinery the paper had to build** | A three-parameter lognormal has no global MLE -- the likelihood is unbounded as the threshold approaches the smallest observation. So: `fit_lognorm3_profile`, which chooses the threshold by profile likelihood; the guard `PROFILE_DELTA_LO_FRAC = 0.25`, calibrated on a bounded-variance criterion and NOT on W1, which sets the threshold for **48 percent of empirical fits**; explicit truncation to (0, inf) with renormalization; and the analytic tail term. At a guard of 0.01 the same estimator produced a model with a standard deviation of **3,281** on data whose own is 0.6. |
+| **The numbers** | Against the known parent, 1,500 corpus datasets, equal weights. Closest on: **kernel estimate 47.8 pct**, three-parameter lognormal 17.8, two-parameter lognormal 14.7, normal 10.5, gamma 9.3. Median relative gain over the two-parameter lognormal: the three-parameter lognormal **-11.5 pct** at n = 100-999 and **-14.8** at n >= 1000; the **kernel estimate -30.8 and -41.2**. The kernel estimate is closer than the two-parameter lognormal on **71.5 percent** of datasets. |
+| **Fix** | **Text and a table.** Put the two-parameter comparison in the results. Without it the paper's headline reads as "use a lognormal", which is what readers already do and is not what the evidence says. `audits/lognormal_variants.py`, decision 167. |
+| **Status** | Open, and it is the single most important framing change the manuscript needs. |
+
+## 154. Goodness-of-fit DOES predict pLCA accuracy; do not write that it does not
+
+| | |
+|---|---|
+| **The tempting wrong claim** | That fit is irrelevant to probabilistic LCA outcomes, because the kernel estimate overtakes the lognormal on fit at about 81 declarations and does not sweep the downstream claims there. |
+| **What is measured** | Holding the material fixed and ranking the six methods by fit and by claim error: median within-material Spearman **+0.600**, positive on **82.2 percent** of materials, and the best-fitting method is also the most claim-accurate on **39.0 percent** against a 16.7 percent chance level. |
+| **Why the kernel estimate does not sweep above 81** | Because it does not sweep the FIT above 81 either. It wins 61.2 / 53.0 percent of datasets at n = 82-200 by a median of 2 to 5 percent, and 86.5 / 95.7 percent at n > 3000 by 22 to 68 percent. 81 is where it crosses half, not where it dominates. The claim-level picture tracks that faithfully. |
+| **Fix** | **Text.** State the size gradient, not a threshold, and never state that fit does not matter. Decision 166. |
+| **Status** | Open. |
+
+## 155. The corpus's multimodal datasets are the wrong shape, and the reassurance on record does not cover it
+
+| | |
+|---|---|
+| **The defect** | Spearman of the visible mode count with each characteristic has the **opposite sign on all six** between the arms: real multimodality comes with more spread, skew and kurtosis (+0.163, +0.211, +0.230), the corpus's with less (-0.153, -0.152, -0.144). A three-mode real category has a coefficient of variation of 0.974; a three-mode synthetic one has **0.230**, tighter than the corpus's own unimodal median. |
+| **The mechanism** | The generator makes a visible mode by SEPARATING components -- median achieved overlap 0.513, 0.422, 0.411 as modes go 1, 2, 3 -- and separated components are individually tidy. Real multimodality is a shoulder on a long-tailed body. Decision 37 predicted this in Stage 2a-2 and it was never measured against the mode count. The calibration objective matches marginals one at a time and never looks at a correlation between characteristics, so every margin can match while the joint is backwards. |
+| **Why the existing reassurance does not apply** | Decision 82 reweighted the corpus to the empirical mode mix and found the kernel-minus-lognormal difference moved 0.0004. **Reweighting can only reweight datasets that exist**; it cannot create the population the corpus lacks. |
+| **The size of it** | Multimodal AND dispersed is **1.9 percent of the corpus against 16.2 percent of the real arm**, an 8.4-fold under-representation covering a sixth of real categories. |
+| **What it does NOT show** | That the corpus is biased against the kernel estimate. On the corpus's own multimodal-and-dispersed datasets the kernel estimate does worse, and on the real arm's 21 such categories it wins 47.6 / 38.1 percent. The defensible statement is that **the corpus cannot speak to a sixth of real categories**, not that the answer would change. |
+| **Fix** | **A limitation now; possibly a regeneration.** Stated as it stands, the corpus spans the dispersion and the modality of real categories separately and not jointly. Decision 168 records the diagnosis, the proposed generator change and that the decision is the author's. |
+| **Status** | Open, author decision. Generation remains closed until then. |
