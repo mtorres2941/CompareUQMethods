@@ -2055,7 +2055,7 @@ relative figure beside it.**
 | **SENTENCE TWO THAT MUST CHANGE** | "On how often a specification cap binds the choice costs 31.0 and the best method is 0.5 out: picking well is nearly the whole problem." **Reversed.** Per decision the best method is 30.6 percent out and the choice costs 23.1, so most of the error is there whatever is chosen. |
 | **And two counts** | The six differ measurably on **16 of 16** claims rather than 15, because the quantity-reduction row now differs. The figure's headline moves from "right to 0.8 percent on the design comparison" to **"right to 12.0 percent"**. |
 | **What does NOT change** | No normal fit is best on any of the sixteen claims and it is the worst on thirteen. The most expensive QUESTION is still `action`; the claim inside it moves from "how often a cap binds" to "a cap's chance of saving 5 percent", at 25.1 percent. |
-| **Fix** | **Text.** Every quoted scorecard number for those five rows, plus the two sentences above. Decision 171. |
+| **Fix** | **Text.** Every quoted scorecard number for those five rows, plus the two sentences above. Decision 174. |
 | **Status** | RESOLVED in the analysis. The text edits are open. |
 
 ## 159. Every published crossing needs both fits and fewer printed digits
@@ -2067,7 +2067,7 @@ relative figure beside it.**
 | **Not an extrapolation, though** | All six crossings are bracketed by binned observations on either side, over 22,500 calibration rows and 72,000 four-material comparisons. Nothing needs re-deriving. |
 | **What prose may print** | The significant figures the two fits agree on, plus the first they part at, and BOTH values where they still differ there: safe lead 1 pct **2.1 against 2.2**, 5 pct **1.64 against 1.61**, 10 pct **1.5 against 1.4**; flip 1 pct 0.002 against 0.003, 5 pct 0.011 against 0.013, 10 pct 0.02 against 0.03. |
 | **What the tables must carry** | Both fits and the interval at FULL precision, in the results tables and the supplement, because a reader checking the work or carrying a constant downstream needs the unrounded value. Five columns were added and none edited. |
-| **Fix** | **Text.** Round every crossing stated as a rule in prose or a figure annotation; leave the tables alone. Decision 172. |
+| **Fix** | **Text.** Round every crossing stated as a rule in prose or a figure annotation; leave the tables alone. Decision 175. |
 | **Status** | RESOLVED in the analysis. The text edits are open. |
 
 ## 160. The two arms weighted their data by different rules, and the fix is measured but not applied
@@ -2080,7 +2080,7 @@ relative figure beside it.**
 | **And the concentration anchors independently** | Drawing the group count the way the generator draws its component count -- uniform on 1 to 5, independent of n -- gives a median top-ROUTE share of **0.6267**, against the published **0.6375** for Rest-of-World BOF steel and 0.54 for China's share of global production. |
 | **THE RESIDUAL ARM GAP IS DISPERSION, NOT THE RULE** | Under one rule, dividing each dataset's separation by its own coefficient of variation, the arms agree in every size band at every coherence: at rho = 0.5, empirical 0.3964 / 0.2422 / 0.1547 / 0.1579 against synthetic 0.4021 / 0.2577 / 0.1668 / 0.1420. So what is left is the size-and-dispersion law holding on both arms with different dispersion fed in, which is entry 156's shortfall. |
 | **rho = 0 is not the neutral choice** | It is the claim that market share is uncorrelated with carbon intensity, and published production volumes contradict it: 63.75 percent of world steel is on the higher-carbon route and 0.03 percent on Austrian EAF. |
-| **Fix** | **Text now, analysis later.** The manuscript must state that the two arms weighted differently, that the real arm's decay is partly an artifact of that, and what the ported rule gives. Applying it would move every weighted characteristic of the empirical arm, which the generator is calibrated against, so it is an author decision. Decisions 175, 176. |
+| **Fix** | **Text now, analysis later.** The manuscript must state that the two arms weighted differently, that the real arm's decay is partly an artifact of that, and what the ported rule gives. Applying it would move every weighted characteristic of the empirical arm, which the generator is calibrated against, so it is an author decision. Decisions 178, 179. |
 | **Status** | Open. Nothing in the production path is reweighted and no reported number has moved. |
 
 ## 161. A single weight realization is not the distribution, and one published R2 depends on which
@@ -2091,15 +2091,15 @@ relative figure beside it.**
 | **Measured over 25 independent realizations of the whole arm** | Per dataset, `w_v_uw_wasserstein` has a typical standard deviation of **0.0459 on a median of 0.1076**, which is 47 percent relative, and a worst range of 1.37; kurtosis reaches a worst range of 904. Arm level, the median of the same statistic is **0.0981 +/- 0.0052**, five percent relative. A factor of nine. |
 | **The control** | Every unweighted twin moves EXACTLY zero, which is what says the measurement is the weight draw and nothing else. |
 | **THE PUBLISHED FIGURE THAT DEPENDS ON THIS** | The size-and-dispersion law is reported with an R2 of **0.991**, and that is on the MEDIAN separation over 1,000 draws. On a single realization the same law explains **0.824 +/- 0.029**, and the Spearman with dispersion is **0.573** against the published 0.731. The stored characteristic IS a single realization, so a reader recomputing the law from the published characteristic table will not reproduce 0.991. |
-| **Fix** | **Text.** State which of the two any quoted R2 or correlation came from, and state per-dataset weighted claims as distributions rather than numbers. The law's exponents are safe either way: -0.448 +/- 0.023 and 0.897 +/- 0.044. Decision 177. |
+| **Fix** | **Text.** State which of the two any quoted R2 or correlation came from, and state per-dataset weighted claims as distributions rather than numbers. The law's exponents are safe either way: -0.448 +/- 0.023 and 0.897 +/- 0.044. Decision 180. |
 | **Status** | Open. |
 
 ## 162. Three items the stage was told to check and could close
 
 | | |
 |---|---|
-| **The industry-average declaration** | EC3 does carry a `declaration_type` field and the frozen extract does record it. **All 120,280 records read `Product EPD`.** There is no industry-average declaration to compare a category's uniform mean against, so the check is dropped rather than inferred from product names. The idea remains the right instrument for the question and is not testable on this data. Decision 173. |
-| **Six-or-more-mode datasets** | There are none. At the bandwidth the study fits, the corpus runs 0.760 / 0.212 / 0.024 / 0.004 / 0.001 over one to five modes with a MAXIMUM of five, and the real categories 0.685 / 0.262 / 0.054 with a maximum of three. The "5.6 percent against 0.7 percent" on record is a Silverman critical-bandwidth count on a corpus regenerated twice since. What survives is a mild over-representation at four and five modes, 0.5 percent of the corpus against nothing real. Decision 174. |
+| **The industry-average declaration** | EC3 does carry a `declaration_type` field and the frozen extract does record it. **All 120,280 records read `Product EPD`.** There is no industry-average declaration to compare a category's uniform mean against, so the check is dropped rather than inferred from product names. The idea remains the right instrument for the question and is not testable on this data. Decision 176. |
+| **Six-or-more-mode datasets** | There are none. At the bandwidth the study fits, the corpus runs 0.760 / 0.212 / 0.024 / 0.004 / 0.001 over one to five modes with a MAXIMUM of five, and the real categories 0.685 / 0.262 / 0.054 with a maximum of three. The "5.6 percent against 0.7 percent" on record is a Silverman critical-bandwidth count on a corpus regenerated twice since. What survives is a mild over-representation at four and five modes, 0.5 percent of the corpus against nothing real. Decision 177. |
 | **The joint modality-dispersion cell, re-measured** | On one definition for both arms -- two or more visible modes at the fitted bandwidth, coefficient of variation at or above 1.0 -- the corpus reaches 0.240 multimodal against a real 0.315, which is close, and 0.058 dispersed against a real 0.269, which is a factor of 4.6. **So the joint gap is mostly the dispersion marginal of entry 156 rather than a separate defect.** Excising the 97 both-at-once datasets moves the share on which the kernel estimate beats the lognormal from 0.6545 to 0.6571. The cell itself reads the other way, 0.392, so the gap does not hide a kernel-estimate win. |
 | **Fix** | **Text.** Drop the industry-average plan, drop the six-mode caveat, and state the joint gap as the dispersion shortfall it mostly is. |
 | **Status** | RESOLVED. |
@@ -2113,7 +2113,7 @@ relative figure beside it.**
 | **The win share, cross-validated, is essentially unchanged** | equal-weighted lognormal 0.362 primary against 0.358 unsplit and 0.386 deduplicated; equal-weighted kernel estimate 0.260 / 0.236 / 0.244; equal-weighted normal 0.118 / 0.098 / 0.134. **The method ordering is identical on all three.** |
 | **The levels are higher on the unsplit arm and that is expected** | Median cross-validated W1 for the equal-weighted lognormal 0.2613 primary against 0.3006 unsplit, because an unsplit category mixes products and is harder to fit. The characteristics move the same way: median coefficient of variation 0.675 primary against 0.815 unsplit. |
 | **The size crossover cannot be measured on this arm at all** | 274 primary, 221 unsplit, 463 deduplicated under equal weights, and 661 / 334 / 3377 under Dirichlet shares. That is the instability decision 136 already records for 127 categories, not a sensitivity to the population definition, and it is a different quantity from the corpus's 81 in any case. |
-| **Fix** | **Text.** Report the unsplit arm against the win share and the characteristic medians, and do NOT report a crossover from the empirical arm. Decision 180. |
+| **Fix** | **Text.** Report the unsplit arm against the win share and the characteristic medians, and do NOT report a crossover from the empirical arm. Decision 183. |
 | **Status** | RESOLVED. |
 
 ## 164. The judgment-driven methods, placed on the same axis
@@ -2127,5 +2127,5 @@ relative figure beside it.**
 | **And the shape matters** | At a matched spread and a correct centre the pedigree lognormal reads 0.097 where a uniform reads 0.206 and a triangular 0.198. |
 | **The deliverable sentence** | A judgment-driven model with a plausible spread gives the same design answer as a data-driven one PROVIDED its point estimate is not displaced; what a practitioner actually has -- one declaration per material -- displaces it independently for each material, and that roughly doubles the error. |
 | **A sourcing gap the manuscript must close** | The pedigree matrix's uncertainty-factor table is not in this repository's reference folder, so the spread was swept RELATIVE to the data's own rather than in absolute pedigree units. **A specific pedigree score cannot be laid on this axis until that table is sourced.** This project has already had to withdraw one figure quoted from memory. |
-| **Fix** | **Text.** Report the two-dimensional result, lead with the centre, and source the factor table before quoting a score. Decision 181. |
+| **Fix** | **Text.** Report the two-dimensional result, lead with the centre, and source the factor table before quoting a score. Decision 184. |
 | **Status** | Open for the manuscript. |

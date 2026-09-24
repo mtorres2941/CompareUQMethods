@@ -5761,3 +5761,488 @@ rather than in conversation.
      than the last quoted figure, saying so. `audits/` holds the binned tables
      behind this entry; the check is one groupby and is worth repeating if the
      calibration is ever rerun.
+
+174. **2026-09-24, Stage 2h. FIVE OF THE SIXTEEN SCORECARD ROWS WERE AVERAGING
+     THE SIGNED ERROR BEFORE TAKING THE ABSOLUTE VALUE, so they reported a
+     cancellation rather than an error. Every row is now the PER-UNIT error and
+     both statistics are kept. THIS IMPLEMENTS DECISION 171**, which diagnosed
+     it and left the choice to the author. `[AUTHOR]` "The author has decided
+     to take the correction."
+
+     Stage 2g's decision 157 put every scorecard row on one DIVISOR, the mean
+     true LEVEL. This puts every row on one NUMERATOR. The four
+     reduction-strategy rows and the design comparison read summary tables that
+     averaged the signed error over pLCA groups first, so a method too high on
+     one building and too low on the next reported almost nothing; the other
+     eleven rows were already per unit. The figure was again drawing two
+     statistics on one colour scale.
+
+     **WHAT MOVED, best method, as a percentage of each claim's own true
+     level:**
+
+         a cap: how often it binds            0.48 -> 30.62
+         a cap: its mean saving               0.56 -> 38.29
+         a cap: its chance of saving 5 pct    1.09 -> 32.97
+         using 25 pct less: its mean saving   0.00 -> 10.02
+         the probability B beats A            0.81 -> 11.95
+
+     **The eleven other rows are bit-identical**, and the new `portfolio_error`
+     column reproduces the old values to 2e-15, which is the check that this is
+     a change of DEFINITION and not of computation.
+
+     **BOTH ARE KEPT AND BOTH ARE LABELLED**, because the averaged form is a
+     real quantity a different reader wants rather than a worse version of the
+     first: `total_error` is the error in a SINGLE decision, which is what a
+     designer choosing between two options carries, and `portfolio_error` is
+     the error in the AVERAGE claim over many decisions, which is the right
+     quantity for a portfolio of buildings or a stock model.
+
+     **FOUR PUBLISHED STATEMENTS CHANGE AND ONE IS REVERSED.**
+
+     1. The figure's headline goes from "right to 0.8 percent on the design
+        comparison" to **"right to 12.0 percent"**.
+     2. **"On what using 25 percent less of a material saves, every method is
+        exactly right" IS NOW FALSE for a single building.** Every method is
+        10.0 to 13.4 percent out per pLCA; what is exactly right is the AVERAGE
+        over many. The contrast Stage 2g drew from it -- that a quantity
+        reduction is method-independent because it is a deterministic fraction
+        of the material's own contribution -- survives only in the portfolio
+        reading, and the paper must say which.
+     3. **"On how often a specification cap binds the best method is 0.5
+        percent out, so picking well is nearly the whole problem" IS
+        REVERSED.** Per decision the best method is 30.6 percent out and the
+        choice costs 23.1, so most of the error is there whatever you choose.
+     4. The six now differ measurably on **16 of 16** claims rather than 15,
+        because the quantity-reduction row now differs.
+
+     **WHAT DOES NOT CHANGE.** No normal fit is the best method on any of the
+     sixteen claims, and the normal is the worst on thirteen of them. The most
+     expensive QUESTION is still `action`; the specific claim inside it moves
+     from "how often a cap binds" to "a cap's chance of saving 5 percent", at
+     25.1 percent. `metricset.claim_scorecard` and `per_unit_error`, with nine
+     tests, one of which plants a method wrong by 0.2 on every unit with
+     alternating signs.
+
+175. **2026-09-24, Stage 2h. EVERY CROSSING IS FITTED BOTH WAYS AND PROSE PRINTS
+     ONLY THE DIGITS THE DATA DETERMINE. THIS IMPLEMENTS DECISIONS 172 AND
+     173**, which established that the constants are bracketed and that their
+     intervals are narrower than the disagreement between two link functions.
+     `[AUTHOR]` A standing rule for every fitted constant, settled at the close
+     of Stage 2g.
+
+     **ONE CORRECTION TO DECISION 173 IN PASSING.** Its text says the isotonic
+     value sits outside the published interval on FOUR of the six constants.
+     Its own table shows FIVE -- every one except the flip threshold at 10
+     percent, where 0.0271 sits inside [0.0217, 0.0277]. Recomputed here from
+     the tables: five. Nothing else in that entry changes.
+
+     **THE PUBLISHED CROSSINGS ARE NOT EXTRAPOLATIONS** -- the flip thresholds
+     are bracketed by binned observations either side over 22,500 calibration
+     rows and the safe-lead ratios over 72,000 four-material comparisons -- so
+     nothing needed re-deriving. What is wrong is the INTERVAL: it is a
+     bootstrap on a fitted logistic's parameters, which says how well the data
+     pin down that curve and nothing about whether a logistic is the right
+     shape.
+
+     **MEASURED, THE ISOTONIC FIT FALLS OUTSIDE THE LOGISTIC INTERVAL ON FIVE
+     OF THE SIX PUBLISHED CONSTANTS**, not four as the stage prompt had it:
+
+         constant           level   logistic     interval          isotonic
+         flip threshold      0.01    0.00175  [0.00131, 0.00227]   0.00259  out
+         flip threshold      0.05    0.01082  [0.00911, 0.01262]   0.01292  out
+         flip threshold      0.10    0.02467  [0.02175, 0.02766]   0.02711  in
+         safe-lead ratio     0.01    2.13267  [2.09133, 2.17095]   2.22271  out
+         safe-lead ratio     0.05    1.64313  [1.62298, 1.66102]   1.61159  out
+         safe-lead ratio     0.10    1.46019  [1.44678, 1.47196]   1.35217  out
+
+     **THE RULE.** Keep the significant figures the two fits agree on, plus the
+     first one they part company at; print both values where they still differ
+     there. It is not a fixed count. On the current constants:
+
+         safe lead, 1 pct     2.1 against 2.2
+         safe lead, 5 pct     1.64 against 1.61
+         safe lead, 10 pct    1.5 against 1.4
+         flip, 1 pct          0.002 against 0.003
+         flip, 5 pct          0.011 against 0.013
+         flip, 10 pct         0.02 against 0.03
+
+     The stage prompt's example for the 10 percent safe lead, 1.5 against 1.4,
+     is reproduced exactly. **Its example for the 1 percent safe lead quoted
+     2.1 alone; the rule gives 2.1 against 2.2**, because those two fits
+     disagree at the printed digit just as the 10 percent pair does.
+
+     **NOTHING IS THROWN AWAY AND NO CONSTANT MOVES.** The results tables and
+     the supplement keep both fits and the interval at FULL precision, which is
+     what a reader checking the work or carrying a constant downstream needs;
+     the rule adds five columns and edits none. `flip.FLIP_THRESHOLDS`, which
+     notebook 1 reads to turn a per-dataset weighting risk into a probability,
+     is a computational constant rather than prose and is untouched.
+     `flip.prose_digits`, `prose_crossing`, `crossing_precision`.
+
+176. **2026-09-24, Stage 2h. THE INDUSTRY-AVERAGE CHECK IS DROPPED, because the
+     extract contains none.** `[AUTHOR ASKED, GATED ON THE DATA]` The stage
+     prompt gated it: "if the flag is absent or the coverage is too thin, say
+     so and drop it rather than inferring which declarations are industry
+     averages from their names."
+
+     EC3 does carry a `declaration_type` field and the frozen extract does
+     record it. **Every one of the 120,280 records reads `Product EPD`.** There
+     is no industry-wide or industry-average declaration in the extract at all,
+     so there is nothing to compare a category's uniform mean against.
+
+     The idea stands as the right instrument for the question -- an
+     industry-average declaration is in principle a production-weighted mean,
+     which is exactly the quantity unknown market shares deprive a practitioner
+     of (decision 100) -- and it is not testable on this data. Inferring which
+     declarations are industry averages from their product names was refused.
+
+177. **2026-09-24, Stage 2h. THERE ARE NO SIX-MODE DATASETS. The concern is
+     retired rather than answered.** `[DELEGATED, 2h measured]` The stage
+     inherited "5.6 percent of the corpus against an empirical 0.7 percent" and
+     was told to report whether it matters before proposing a generation
+     change.
+
+     Measured at the bandwidth the study FITS, which is the density a reader is
+     shown and the pLCA samples from (decision 82), the visible-mode
+     distribution is:
+
+         synthetic   1: 0.760  2: 0.212  3: 0.024  4: 0.004  5: 0.001   max 5
+         empirical   1: 0.685  2: 0.262  3: 0.054                       max 3
+
+     **Nothing on either arm has six visible modes.** The inherited figure is a
+     SILVERMAN critical-bandwidth count on the Stage 2a-2 corpus, which has
+     since been regenerated twice; decision 37 is where it comes from. What
+     survives is a mild over-representation at four and five modes, 0.5 percent
+     of the corpus against nothing in the real arm.
+
+178. **2026-09-24, Stage 2h. ONE MARKET-SHARE RULE FOR BOTH ARMS, VALIDATED
+     AGAINST THE TRUE MODE LABELS, AND THE RESIDUAL ARM GAP IS DISPERSION
+     RATHER THAN THE RULE.** `[AUTHOR]` The stage's first item, carried from
+     decision 141.
+
+     **THE DEFECT, CONFIRMED.** The two arms drew market shares by different
+     rules on the exact dimension the paper is built on. Median
+     uniform-to-variable separation by size band, and the decay slope on
+     log(n):
+
+         empirical, stored flat Dirichlet   0.2138 0.1189 0.0678 0.0050  -0.449
+         synthetic, stored mode coupled     0.1574 0.1260 0.0595 0.0528  -0.181
+         synthetic values, reweighted flat  0.1330 0.0938 0.0375 0.0124  -0.367
+
+     The third row is the counterfactual and it is the proof: reweighting the
+     synthetic arm's OWN values by the empirical rule reproduces the empirical
+     arm's decay, so the gap is the RULE and not the data.
+
+     **THE RULE.** `weighting.coherent_weights`: cut the declarations into k
+     groups, draw each group's share from a Dirichlet, split it inside the
+     group. Groups stand in for the mixture components real data does not
+     label, and the cut is a contiguous run of the SORTED values -- no fitting,
+     and no failure mode at three declarations, which is why a fitted mixture
+     was refused. The coherence parameter is
+
+         s = rho * rank + (1 - rho) * uniform,   cut s into k contiguous runs
+
+     with rho = 1 clustering share by coefficient and rho = 0 making membership
+     random. `k = n` reproduces the old flat draw exactly, which a test pins.
+
+     **THE BLOCK COUNT IS THE GENERATOR'S OWN AND A FIRST VERSION GOT IT
+     WRONG.** The generator draws its component count uniformly from 1 to 5,
+     INDEPENDENT of n. A first version of this grew the block count with n up
+     to 12, which is a different weight model and which reintroduces the
+     artifact the port exists to remove, because more groups at large n is more
+     dilution at large n. `draw_blocks` is the faithful rule.
+
+     **THE PROXY IS VALIDATED WHERE THE TRUTH IS KNOWN, which is available
+     nowhere else.** The synthetic arm has both the true mode labels and the
+     values, so a contiguous cut can be scored against the weights the true
+     labels give, at the same block count. Over 600 datasets:
+
+         rho    ratio of medians   median ratio   Spearman
+         0.00        0.554             0.807        0.850
+         0.25        0.652             0.866        0.921
+         0.50        1.150             1.044        0.935
+         0.75        1.494             1.178        0.877
+         1.00        1.599             1.209        0.860
+
+     **rho = 0.5 is where a contiguous cut of the sorted values reproduces what
+     the true mode labels give** -- to within 4 percent on the typical dataset
+     and 15 percent on the median -- and it is also where the proxy orders the
+     categories most like the truth. That is a MEASURED anchor rather than a
+     choice, and it is the value the port should use.
+
+     **AND THE RESIDUAL ARM-TO-ARM GAP UNDER ONE RULE IS DISPERSION.** Dividing
+     each dataset's separation by its own coefficient of variation, the two
+     arms agree in every size band at every coherence level. At rho = 0.5:
+
+         empirical   0.3964  0.2422  0.1547  0.1579
+         synthetic   0.4021  0.2577  0.1668  0.1420
+
+     So once the rule is shared, what is left is decision 96's law holding on
+     both arms with different dispersion fed into it, and decision 138's
+     dispersion shortfall is what feeds it. **The weight model and the corpus's
+     dispersion are the same problem seen twice**, which is what the stage
+     prompt anticipated in requiring they not be attempted separately.
+
+     **rho = 0 IS EXPLICITLY REJECTED AS A NULL.** It is not the absence of an
+     assumption; it is the claim that market share is uncorrelated with carbon
+     intensity, and published production volumes contradict it: Marsh, Hattam
+     and Allen (2025) put 63.75 percent of world steel on the higher-carbon
+     Rest-of-World BOF route against 0.03 percent on Austrian EAF, and KL2's
+     steel example puts 54 percent of global production in China alone.
+
+     **WHAT IS NOT DONE HERE.** The empirical arm is NOT reweighted in the
+     production path and no reported number moves. Doing so would move every
+     weighted characteristic of the empirical arm, which the generator is
+     calibrated against, and reopening generation is an author decision.
+     `audits/weight_model.py`, `TABLE_WeightProxyValidation.csv`,
+     `TABLE_WeightStatusQuo.csv`, `TABLE_WeightArmGap.csv`.
+
+179. **2026-09-24, Stage 2h. THE CALIBRATION DOES NOT MOVE BEYOND ITS OWN
+     WEIGHT-DRAW NOISE, AND THAT NOISE HAD NEVER BEEN MEASURED.**
+     `[DELEGATED, 2h measured]` The stage prompt required the calibration
+     consequence measured against the seed-to-seed noise. It has to be measured
+     against a DIFFERENT noise, and finding that out is most of the result.
+
+     The generator's 0.0066 seed-to-seed standard deviation is about the
+     GENERATOR's seed. Every calibration cell here redraws the empirical arm's
+     market shares, which is a second source of movement nobody had quantified.
+     Six independent weight streams per rule, whole arm each time:
+
+         rule                              objective        w_v_uw distance
+         today: flat Dirichlet over n      0.2355 +/- 0.0148   0.1338 +/- 0.0727
+         ported, rho = 0.0                 0.2372 +/- 0.0064   0.1578 +/- 0.0331
+         ported, rho = 0.25                0.2453 +/- 0.0115   0.2076 +/- 0.0469
+         ported, rho = 0.5                 0.2490 +/- 0.0060   0.3415 +/- 0.0930
+
+     **THE WEIGHT-DRAW NOISE IS 0.006 TO 0.015, which is as large as or larger
+     than the generator's seed noise.** So the objective's movement from
+     today's rule to the ported rule at rho = 0 is 0.0017 against a noise of
+     0.015 and is not a move at all; at rho = 0.5 it is 0.0135, about one
+     noise standard deviation.
+
+     **On the paper's central quantity the move IS real and is in the awkward
+     direction**: the arm-to-arm distance on `w_v_uw_wasserstein` goes 0.134 to
+     0.342, which is about two and a half of its own noise. That is decision
+     175's finding arriving from the calibration side -- the empirical arm is
+     more dispersed than the corpus, so the same rule produces a larger effect
+     on it -- and it is not an argument against the rule.
+
+     **A LATER STAGE MEASURING A CALIBRATION MOVE MUST QUOTE THIS NOISE AND NOT
+     THE 0.0066.** `TABLE_WeightCalibrationNoise.csv`,
+     `TABLE_WeightModelCalibration.csv`.
+
+180. **2026-09-24, Stage 2h. A PER-DATASET WEIGHTED STATISTIC CARRIES ABOUT
+     FORTY-SEVEN PERCENT RELATIVE SPREAD ACROSS WEIGHT REALIZATIONS; THE
+     ARM-LEVEL VERSION OF THE SAME STATISTIC CARRIES FIVE.** `[AUTHOR]` The
+     stage prompt flagged this as the item that could move a headline, and
+     required both quantified and each claim assigned to one.
+
+     Twenty-five independent weight realizations of the whole empirical arm.
+     Per dataset, across realizations:
+
+         characteristic        median   typical sd   worst range   rel sd
+         w_v_uw_wasserstein    0.1076     0.0459        1.3725      0.474
+         coeffvar              0.6588     0.0798        2.8136      0.120
+         kurtosis              3.7683     3.0545      904.0441      0.709
+         skewness              1.7230     0.4898       30.8308      0.290
+         weight_outliers       0.0514     0.0371        0.4484      0.713
+
+     **THE UNWEIGHTED TWINS MOVE EXACTLY ZERO**, which is the control that says
+     the measurement is picking up the weight draw and nothing else.
+
+     Arm level, the statistics the paper actually quotes:
+
+         statistic                              mean       sd    rel sd
+         w_v_uw_wasserstein, median            0.0981   0.0052    0.053
+         w_v_uw_wasserstein, mean              0.1303   0.0056    0.043
+         coeffvar, median                      0.6567   0.0215    0.033
+         the law's log(n) exponent            -0.4481   0.0228    0.051
+         the law's log(CV) exponent            0.8970   0.0444    0.050
+         Spearman with the coefficient of variation  0.5730  0.0433  0.076
+         Spearman with log(n)                 -0.5122   0.0375    0.073
+
+     **SO THE ANSWER IS A FACTOR OF NINE.** A claim about ONE category carries
+     a 47 percent relative spread and must be stated as a distribution rather
+     than a number; a claim about the arm -- a median, a correlation, the
+     size-and-dispersion law's exponents -- carries 3 to 8 percent and is safe
+     to quote. Every weighting claim the paper makes is one or the other and
+     the manuscript does not currently distinguish them.
+
+     **AND ONE PUBLISHED FIGURE IS A CASUALTY OF THE DISTINCTION.** Decision
+     96's law reaches an R2 of 0.991, and that is on the MEDIAN separation over
+     1,000 draws. On a single realization the same law explains **0.824 +/-
+     0.029**, and the Spearman correlation with dispersion is **0.573** against
+     decision 94's 0.731 on the median. The stored characteristic
+     `w_v_uw_wasserstein` IS a single realization, so a reader recomputing
+     decision 96's law from the published characteristic table will not
+     reproduce 0.991 and should not expect to. **The manuscript must say which
+     of the two any quoted R2 or correlation came from.**
+     `TABLE_WeightRealizations.csv.gz`, `TABLE_WeightRealizationStats.csv`.
+
+181. **2026-09-24, Stage 2h. `PROFILE_DELTA_LO_FRAC` STAYS AT 0.25, AND THE
+     OTHER TWO BOUNDS ARE MEASURABLY NON-BINDING RATHER THAN ASSUMED SO.**
+     `[DELEGATED, 2h measured]` Swept with the tail term in force throughout,
+     as Stage 2g required, reporting the largest fitted-model standard
+     deviation beside W1 at every point.
+
+         empirical      at guard  interior  max model sd  pct blowup  mean W1
+             0.01        21.1      69.4         3281        20.4      0.3020
+             0.05        32.0      57.8           77         14.3      0.1839
+             0.10        38.1      51.0           17.9        5.4      0.1687
+             0.25        47.6      41.5            3.363      0.0      0.1689
+             0.50        58.5      30.6            1.869      0.0      0.1813
+             1.00        69.4      19.7            1.964      0.0      0.2030
+
+         synthetic
+             0.01        11.4      72.2         5345         10.6      0.1910
+             0.25        28.6      54.0            2.864       0.0      0.1004
+             1.00        53.2      29.4            1.331       0.0      0.1099
+
+     **0.25 IS THE SMALLEST GUARD AT WHICH NO FIT EXCEEDS FIVE TIMES THE
+     DATA'S OWN SPREAD ON EITHER ARM**, which is the criterion decision 51
+     chose it on, and with the tail term in force it is also at or beside the
+     W1 minimum on both arms -- 0.1004 on the synthetic arm against 0.1027 at
+     0.5 and 0.1056 at 0.1. So the choice still costs nothing on the study's
+     own criterion and is still not tuned to it.
+
+     **THE OTHER TWO BOUNDS WERE NEVER MEASURED AND BOTH ARE FINE.**
+     `PROFILE_DELTA_HI_FRAC` at 10, 100, 1,000 and 10,000 gives an IDENTICAL
+     largest model standard deviation and a mean W1 that stops moving above
+     100, so the shipped 1,000 is an order of magnitude clear of binding.
+     `PROFILE_GRID_POINTS` at 100, 200, 400, 800 and 1,600 gives identical
+     numbers to four decimal places, so the shipped 400 is four times more
+     than the fit needs. Neither is a knob anything turns on.
+
+182. **2026-09-24, Stage 2h. AN UPPER TRUNCATION AT TWO TO THREE TIMES THE
+     LARGEST OBSERVATION REMOVES THE RUNAWAY-TAIL FAILURE MODE AND COSTS
+     ALMOST NOTHING, AND IT IS NOT ADOPTED HERE.** `[DELEGATED, 2h measured;
+     ADOPTING IT IS AN AUTHOR DECISION]` Decision 152 stated the option rather
+     than implementing it and handed the sweep here.
+
+     `families.TruncatedAbove` caps any fitted model including the kernel
+     estimate, and `cap_models` reads the cap off the data as a multiple of
+     the largest observation, which is the only anchor available once every
+     dataset is normalized to a mean of 1.0. The tail term stays in force
+     throughout.
+
+     **IT DOES WHAT IT PROMISES, AND AGAINST THE TRUTH IT IS SLIGHTLY BETTER
+     THAN NOT CAPPING.** On 400 synthetic datasets, scored against the
+     market-weighted true parent:
+
+         cap      mean W1 against truth   largest model spread   in-sample W1
+         1.0x           0.1957                   1.446              0.1482
+         1.5x           0.1921                   1.725              0.1492
+         2.0x           0.1917                   1.753              0.1502
+         3.0x           0.1916                   1.900              0.1508
+         5.0x           0.1917                   2.205              0.1513
+        10.0x           0.1918                   2.542              0.1514
+        none            0.1918                   5.404              0.1515
+
+     **A cap at two to three times the largest observation cuts the worst
+     fitted spread from 5.40 to about 1.8 and is not worse against the truth
+     -- it is better in the fourth decimal.** Capping at the largest observed
+     value itself is clearly harmful, 0.1957 against 0.1918, so the cap must
+     be a multiple and not the maximum. On the real categories the same cap
+     takes the worst spread from 3.50 to 1.99.
+
+     **THE FAILURE IS CONCENTRATED WHERE STAGE 2g SAID IT WAS.** Uncapped, the
+     largest spreads belong to the equal-weighted lognormal and the
+     equal-weighted kernel estimate; the normal never exceeds 1.0 because it
+     has no tail to run away with.
+
+     **THE DECISION IS THE AUTHOR'S** because adopting it would move every
+     number in the study for the sake of a failure mode two existing guards
+     already keep out of the results. What this stage establishes is that the
+     cost is not a cost: the choice is now between two measured options rather
+     than between a measured one and an unknown.
+
+183. **2026-09-24, Stage 2h. RESOLVING THE CATEGORIES INTO PRODUCTS DID NOT
+     MANUFACTURE THE HEADLINE, and the empirical arm still cannot measure a
+     size crossover.** `[DELEGATED, 2h measured]` The stage prompt asked for
+     the unsplit arm against every headline figure rather than against the
+     aggregate, because it is the evidence that Stage 2a-3's splits did not
+     produce the result.
+
+     Three arms: the primary 147 datasets and 116,766 values; the UNSPLIT
+     original EC3 categories, 136 and 119,448; and one record per
+     (manufacturer, product name), 147 and 65,839. The deduplication key is
+     metadata and never a value, which is the constraint decisions 43, 46 and
+     60 impose on the category rules.
+
+     **THE WIN SHARE IS ESSENTIALLY UNCHANGED AND THE ORDERING IS IDENTICAL**,
+     cross-validated:
+
+         method                      primary   unsplit   deduplicated
+         Lognormal, Uniform           0.362     0.358       0.386
+         KDE, Uniform                 0.260     0.236       0.244
+         Lognormal, Variable          0.150     0.203       0.142
+         Normal, Uniform              0.118     0.098       0.134
+         Normal, Variable             0.063     0.057       0.071
+         KDE, Variable                0.047     0.049       0.024
+
+     **The LEVELS are higher on the unsplit arm and that is the expected
+     direction**: median cross-validated W1 for the equal-weighted lognormal is
+     0.2613 primary against 0.3006 unsplit, because an unsplit category mixes
+     products. Its characteristics move the same way, median coefficient of
+     variation 0.675 against 0.815.
+
+     **AND THE SIZE CROSSOVER CANNOT BE MEASURED ON THIS ARM AT ALL**, which is
+     worth stating because a reader will look for it. It reads 274 primary, 221
+     unsplit and 463 deduplicated under equal weights, and 661 / 334 / 3377
+     under Dirichlet-drawn shares. That is decision 136's instability -- 127
+     categories cannot support this model -- and not a sensitivity to the
+     population. It is also a different quantity from the corpus's 81, which is
+     the conflation decision 163 warns about.
+
+184. **2026-09-24, Stage 2h. THE JUDGMENT ARM: a pedigree model's SPREAD barely
+     matters and its CENTRE decides everything, and sweeping the geometric
+     standard deviation alone would have missed that.** `[AUTHOR]` Decision
+     124 asked for the sweep and the stage prompt required two dimensions.
+
+     `src/judgment.py` holds the pedigree matrix as a lognormal specified by a
+     centre and a geometric standard deviation, plus a uniform and a triangular
+     over a range derived from the SAME two inputs, so the three differ in
+     SHAPE and not in information. They are not in the main comparison, for the
+     reason decision 151 gives.
+
+     **AT THE FIT LEVEL A JUDGMENT MODEL IS 2 TO 100 TIMES FURTHER FROM THE
+     TRUTH** than the best data-driven fit. The realistic model, the centre
+     drawn as one random declaration, is 4.1 to 12 times worse.
+
+     **AT THE DECISION LEVEL A WELL-CENTRED ONE IS COMPETITIVE.** Error in
+     P(B beats A) per design pair, 300 pairs: the six data-driven methods span
+     0.080 to 0.114, and a pedigree model centred on the category mean reads
+     0.097 at a matched spread and **0.097 to 0.121 across a SIX-FOLD range of
+     spread**. The spread axis is nearly flat. That attenuation between the two
+     levels is the same one decision 166 records for data-driven methods.
+
+     **WHAT BREAKS IT IS THE CENTRE, AND THE MODE OF THE OFFSET MATTERS MORE
+     THAN ITS SIZE.** A displacement applied to every material alike cancels
+     EXACTLY -- every common-offset cell returns the same number to four
+     decimals, because both design options' totals scale by the same factor.
+     One drawn PER MATERIAL does not: 0.111 at 10 percent of the mean, 0.159 at
+     25, 0.223 at 50. **Sweeping only a common offset would have reported a
+     null that was an artifact of the sweep.**
+
+     **AND THE REALISTIC MODEL IS THE BAD CASE**: one random declaration per
+     material reads 0.170 to 0.271, one and a half to two and a half times the
+     worst data-driven method.
+
+     **THE SHAPE MATTERS TOO.** At a matched spread and a correct centre the
+     pedigree lognormal reads 0.097 where a uniform reads 0.206 and a
+     triangular 0.198.
+
+     **THE DELIVERABLE SENTENCE.** A judgment-driven model with a plausible
+     spread gives the same design answer as a data-driven one provided its
+     point estimate is not displaced; what a practitioner actually has -- one
+     declaration per material -- displaces it independently for each material,
+     and that roughly doubles the error.
+
+     **A SOURCING GAP THE MANUSCRIPT MUST CLOSE.** The pedigree matrix's
+     uncertainty-factor table is NOT in `refs/`, so the spread is swept
+     RELATIVE to the data's own geometric standard deviation rather than in
+     absolute pedigree units. That answers decision 124's deliverable without
+     asserting a table, and it means **a specific pedigree score cannot be laid
+     on this axis until the table is sourced.** Decision 49's amendment is why
+     this matters: this project has already had to withdraw one figure quoted
+     from memory.
