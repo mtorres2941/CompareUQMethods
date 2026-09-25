@@ -22,7 +22,11 @@ closed questions that had been open for several stages, and the rest confirmed
 a setting that was already in place -- which is the outcome a robustness sweep
 should usually have, and is worth reporting as such.
 
-**THE FOUR THAT MATTER MOST, if the rest is skimmed.** The summary figure was
+**THE SYNTHETIC DATA WAS REGENERATED AT THE END OF THIS STAGE and every
+synthetic number in the paper moves. Not one recommendation moved with them.**
+Section 15 is that, and it is the first thing to read.
+
+**THE FOUR THAT MATTER MOST of the rest, if it is skimmed.** The summary figure was
 comparing two different statistics on one colour scale and five of its sixteen
 rows were reporting a cancellation rather than an error (section 1). The two
 halves of the study weighted their data by different rules on the exact
@@ -711,11 +715,11 @@ real categories on it moves the comparison between the two leading methods by
 gets worse is worth about a quarter of the thing that gets better, in the same
 direction.
 
-**Nothing has been regenerated, and that decision is the author's.** The
-synthetic data has been frozen since an early stage and every number in the
-paper moves when it is remade. What this establishes is that the REASON for
-keeping it frozen on this question -- that widening costs the headline quantity
--- no longer holds.
+**IT HAS NOW BEEN REGENERATED, by the author's decision, and section 15 is
+what came of it.** The synthetic data had been frozen since an early stage
+because every number in the paper moves when it is remade. What this section
+established is that the REASON for keeping it frozen on this question -- that
+widening costs the headline quantity -- no longer held.
 
 > **So what.** The paper currently carries a stated limitation: the synthetic
 > data cannot reach the spread of the most variable real categories, so the
@@ -771,6 +775,83 @@ single-indicator factors for the total range.
 > real category -- which means the judgment route understates uncertainty on
 > precisely the quantity it exists to express. That is a stronger statement than
 > the paper currently makes and it is worth making carefully.
+
+## 15. The synthetic data was remade, and not one recommendation changed
+
+**This is the stage's largest action and its most reassuring result.**
+
+Acting on section 13, the synthetic datasets were regenerated with a wider
+spread: 10,000 fresh datasets under settings that widen the truncation bound
+from 27 to 216 times and raise the dispersion target. **Every synthetic number
+in the paper moves.** The real categories are untouched.
+
+**THREE GATES, ALL ON THE REAL CORPUS rather than on a 1,000-dataset trial.**
+The code that draws from a known distribution in order to check answers against
+it is wrong by at most 0.05 percent on any quantile of any distribution. The
+whole pipeline -- fit six methods, score each against its recovered truth --
+comes back in range, with the mean of draws from the true distribution at
+**1.0000**, against 6,624 the time this broke. And the small trial predicted
+the full corpus's match score to within 0.002, which is what says a trial is
+worth running.
+
+**WHAT THE SYNTHETIC DATA NOW LOOKS LIKE.** Distance to the real categories,
+in units of the real spread, worst first, before and after:
+
+    how lognormal it looks       0.233  ->  0.341   <- now the worst
+    entropy                      0.373  ->  0.313
+    hump measure                 0.158  ->  0.266
+    SPREAD                       0.409  ->  0.247   <- the point of the change
+    dataset size                 0.236  ->  0.237
+    how normal it looks          0.358  ->  0.227
+    EFFECT OF WEIGHTING          0.340  ->  0.151   <- improved at the same time
+    skew                         0.219  ->  0.137
+
+    overall                     0.2216  -> 0.1862
+
+The two the change was for both improve, and the two that worsen were measured
+BEFORE the decision as low-stakes: matching the synthetic data to the real on
+"how lognormal it looks" moves the comparison between the two leading methods
+by 0.001, and on the hump measure by 0.006 to 0.015, against 0.026 to 0.043 for
+spread.
+
+**NOT ONE HIGH-LEVEL RECOMMENDATION MOVED, and every one was recomputed rather
+than assumed.** Which method is closest to the truth, share of datasets, with
+the old corpus in brackets:
+
+    declarations   kernel,     kernel,      lognormal,  lognormal,   normal
+                   equal wts   mkt shares   equal wts   mkt shares
+    3 to 9        34.7 [33.8] 22.4 [22.5] 22.6 [20.9] 10.6 [ 9.9]    9.8
+    10 to 99      21.0 [22.5] 21.1 [20.0] 27.2 [25.2] 20.5 [17.9]   10.1
+    100 to 999    24.9 [28.8] 38.0 [42.8] 12.2 [ 8.8] 22.2 [16.8]    2.6
+    1000 and up   21.8 [23.5] 67.0 [69.6]  1.5 [ 0.6]  9.6 [ 6.1]    0.1
+
+**Every ordering is identical and nothing moves more than five points.** The
+practitioner threshold is **81 declarations, unchanged**, with the band of
+equally good choices 68 to 106 against 68 to 97. The normal is never the best
+method in any size band under either weighting.
+
+**AND THE CENTRAL RESULT SHARPENS.** Scored against the truth, the four
+non-normal methods differ from each other by **3.7 percent** where they
+differed by 6.8 on the old data -- they are MORE alike than the paper says --
+and the normal is **50.6 percent** worse than the best rather than 44.2.
+
+**ONE READING TRAP, AND A REVIEWER WILL HIT IT.** Every ABSOLUTE distance
+rises: the six goodness-of-fit scores by 16 to 45 percent and the error in a
+material's estimated contribution by 25 to 35. That is scale and not
+degradation -- more spread-out data has a wider true distribution and a larger
+absolute distance to it -- and divided by each dataset's own spread the
+distance to the truth is **0.965** times the old corpus's, which is slightly
+better. Any sentence quoting one of those figures in absolute units must be
+restated from the new tables, with a note saying why it rose.
+
+> **So what.** The synthetic data used to be much tidier than real material
+> categories, which is the one criticism of this study a reviewer could make
+> without reading it closely. It is now close on the dimension that was worst,
+> and the advice the paper gives -- use a kernel estimate above about eighty
+> declarations, a three-parameter lognormal below, and never a normal -- came
+> back identical on data built a different way. That is the strongest evidence
+> the paper has that its recommendation is about materials rather than about
+> how the test data happened to be made.
 
 ---
 
@@ -987,13 +1068,26 @@ that provoked it was reverted and the shipped setting never triggered the bug
 -- which was verified rather than assumed, at thirteen probabilities on 240
 distributions.
 
+**THE THIRD CHANGE, AND IT MOVES EVERY SYNTHETIC NUMBER IN THE PAPER: the
+corpus was regenerated.** Section 15 gives the figures. In summary: 10,000
+fresh datasets under a wider dispersion setting, all three gates passed on the
+real corpus, the overall distance to the real categories improved from 0.2216
+to 0.1862, and the two characteristics the change was for both improved while
+two low-stakes ones worsened. The regression fixture for the synthetic arm is
+re-frozen with a written record of every column that moved; **the two empirical
+fixtures did NOT move, which is the control.**
+
+**AND EVERY ABSOLUTE DISTANCE ROSE FOR A REASON THAT IS NOT A DEGRADATION.**
+The six goodness-of-fit scores rise 16 to 45 percent and the error in a
+material's estimated contribution 25 to 35, because a more dispersed dataset
+has a wider true distribution and a larger absolute distance to it. Per unit of
+spread the distance to the truth is 0.965 times the old corpus's.
+
 **NOTHING ELSE MOVED.** The crossing constants are unchanged -- the new rule
 adds columns and edits none, and the constant the first notebook reads to turn
 a weighting risk into a probability is a computational constant rather than
-prose. The judgment arm, the upper truncation, the extra families, the
-generator parameter sweep and the widening candidates are all measurements:
-none is applied in the production path and the synthetic data as shipped is
-untouched.
+prose. The judgment arm, the upper truncation and the extra families are all
+measurements and none is applied in the production path.
 
 ---
 
@@ -1026,7 +1120,8 @@ untouched.
 | **THE BANDWIDTH SWEEP IS DONE and is section 11 above.** The shipped rule stands, and what the headline does under the older rule is reported: the kernel estimate looks 9 to 64 percent worse, which is the conservative direction |
 | **A per-unit and a per-portfolio error are different questions and the paper now has both for sixteen claims.** Which one each published sentence means is not yet decided anywhere but in this file |
 | **The weight-draw noise in the calibration objective had never been measured and is as large as the generator's seed noise.** Any later stage judging a calibration change must quote it |
-| **THE CASE FOR LEAVING THE SYNTHETIC DATA ALONE NO LONGER HOLDS, and remaking it is now an author decision rather than an impossibility.** Section 13. Bounded widening settings now improve the overall match by 4.6 to 7.7 times the run-to-run noise AND improve the paper's headline quantity, where for three stages they always damaged it. **Anything acted on here must re-run the parent-level gate of section 12 first** |
+| **RESOLVED: the synthetic data was remade.** Section 15. The dispersion shortfall that three stages recorded as unfixable is largely closed -- distance 0.409 to 0.247 -- and the paper's headline quantity improved at the same time rather than paying for it. Every synthetic number in the paper moves and no recommendation does |
+| **NEW, and it replaces the old limitation: "how lognormal the two arms look" is now the characteristic on which they sit furthest apart**, 0.341, having been 0.233. It is the one measured as moving the method comparison by 0.001, so it was the right thing to spend -- but the manuscript's limitation paragraph currently names DISPERSION and must be rewritten around this instead |
 | **A candidate generator setting must now pass a parent-level gate before its matching score means anything.** The gate exists and every current candidate passes it. The next session extending the generator sweep should run it on whatever it tries; the rejected wide setting is the worked example of a configuration that scores well and is unusable |
 | **Which of the two error definitions each published sentence means** is decided nowhere but in this file, and the same is now true of which spread settings in the judgment arm are pedigree models and which are sensitivity |
 
@@ -1061,17 +1156,24 @@ log, numbered 174 through 196; eight manuscript discrepancy entries, numbered
 158 through 165; a new section of the mechanics documentation; three re-frozen
 comparison tables with a written record of what moved in them; and this file.
 
-**CHANGED IN THE PRODUCTION PATH.** How the real categories draw their
-market-share weights, which is the one intended number-moving change of the
-stage. And a repair to the code that draws from a known distribution in order
-to check answers against it, which moves no committed number because the
-setting that exposed it was reverted and the shipped setting never triggered
-it.
+**CHANGED IN THE PRODUCTION PATH, and there are three.** How the real
+categories draw their market-share weights. The generator's configuration, and
+with it the synthetic datasets themselves, regenerated as a new dated corpus
+with the pointer moved to it. And a repair to the code that draws from a known
+distribution in order to check answers against it.
 
-**Not touched.** The generator's shipped configuration, the synthetic data's
-values, the extract of real declarations, the fitting methods used in the
-production path, the scoring criterion, the published crossing constants, and
-the manuscript.
+**Two regression fixtures re-frozen in two separate steps**, once for the
+weight rule and once for the regeneration, each with a written record of what
+moved. The empirical fixtures moved only in the first; the synthetic one only
+in the second, which is the control in both directions.
+
+**Not touched.** The extract of real declarations, the fitting methods used in
+the production path, the scoring criterion, the published crossing constants,
+and the manuscript.
+
+**Nothing is overwritten.** The previous corpus stays on disk beside the new
+one, as every corpus in this project does, so the change is diffable and
+reversible by moving one pointer.
 
 **Changed and changed back.** Three generator settings and a regenerated
 synthetic corpus, reverted in full. The commits are kept rather than squashed
@@ -1082,37 +1184,38 @@ moves a number.
 
 ## 7. Next stage
 
-**ONE DECISION COMES FIRST AND EVERYTHING ELSE WAITS ON IT: whether to remake
-the synthetic data.**
+**STAGE 3, THE FIGURES. Nothing blocks it.** The decision that stood in the way
+-- whether to remake the synthetic data -- was taken during the stage and acted
+on, and section 15 is the result.
 
-The weight rule is applied, so the coupling the stage was told to respect has
-been resolved in the direction that unblocks the corpus. The case for leaving
-the synthetic data alone rested on a trade -- widening its spread always
-inflated the paper's headline quantity -- and section 13 shows that trade was
-an artifact of the weighting mismatch which is now repaired. Bounded widening
-settings now improve the overall match by 4.6 to 7.7 times the run-to-run noise
-AND improve the headline quantity.
+**ONE DECISION IS STILL OPEN AND IT IS SMALL.** Whether to adopt the upper
+truncation of each fitted model, which is free against the truth, removes a
+failure mode, does not pull the two halves of the study apart, and does not
+quietly flatter one method. It would move every number again, for a failure two
+existing safeguards already keep out of the results, which is why it is worth
+deciding deliberately rather than by default.
 
-**What a session acting on that must do, in order.** Re-measure the
-hump-spacing fix for the corpus's joint modality-and-dispersion structure
-against the SETTLED weight rule, because it was rejected on the same artifact
-and has never been tested under the repaired comparison; this is the single
-most valuable measurement left. Run the parent-level gate on any candidate
-before trusting its matching score. Judge the one characteristic that moves the
-wrong way -- a measure of how many humps a distribution has, worth about a
-quarter of what spread is worth. And expect every number in the paper to move,
-which is the cost that has kept the data frozen since an early stage and which
-has not become smaller.
+**WHAT THE MANUSCRIPT OWES, in priority order, and all of it is in the
+discrepancy file.** Every synthetic number recomputed from the new tables.
+The limitation paragraph rewritten: it currently names DISPERSION as the
+dimension on which the two halves differ most, and that is no longer true --
+it is now "how lognormal they look", at 0.341. A sentence saying the
+practitioner rule was reproduced on two independently generated corpora, which
+is a stronger claim than the paper currently makes. And a note wherever an
+absolute error figure is quoted, saying those rose 16 to 45 percent because
+the data is more spread out and not because the fits got worse.
 
-**THE SECOND DECISION, independent of the first.** Whether to adopt the upper
-truncation, which is free against the truth, removes a failure mode, does not
-pull the two halves apart and does not quietly flatter one method.
-
-**THEN Stage 3, the figures.**
+**ONE MEASUREMENT IS STILL WORTH RUNNING and no stage owns it.** Letting the
+METHOD vary by material -- a kernel estimate on well-populated categories, a
+lognormal on sparse ones, which is a policy a practitioner can actually follow
+-- has never been measured downstream, because every simulated building in this
+study uses one method for all four of its materials. It is the most valuable
+experiment left and it needs its own run against the truth.
 
 **NO SWEEPING IS LEFT UNFINISHED.** The generator-parameter sweep, the
 bandwidth sensitivity at the fit level and through the simulation, the widening
-candidates, and both promised follow-up checks are all complete and tabulated.
+candidates, both promised follow-up checks, and the regeneration with its three
+gates are all complete and tabulated.
 
 **THE CAUTION THIS STAGE ADDS.** Two of the numbers it corrected were not wrong
 arithmetic but the right arithmetic answering a question nobody had stated --
@@ -1166,3 +1269,18 @@ headline claims those differ by a factor of twenty.
     a sweep that scales the EXCESS over 1, which moved the reachable band from
     0.028-0.674 to 0.55-0.85 and would have named the wrong swept points as
     attainable.
+37. **An absolute distance is not a quality score.** Every goodness-of-fit
+    number in this study rose 16 to 45 percent when the synthetic data was
+    made more spread out, and the fits did not get worse -- divided by each
+    dataset's own spread they got very slightly better. A range check written
+    against absolute numbers failed the new data for exactly this reason, and
+    the band, not the data, was what was wrong.
+38. **Calibrate a threshold by measuring it, not by remembering it.** That
+    failing range check had its bounds set from published figures that turned
+    out to be a different quantity on a different sample. Run on the corpus
+    already in the paper, the "acceptable" ceiling sat almost exactly on it.
+39. **Run the cheap end-to-end test before the expensive one, and run it in
+    dependency order.** A 90-second smoke run caught a missing input file that
+    would have surfaced eleven minutes into a fifty-minute run -- and caught it
+    only because the notebook that writes that file had been scheduled first
+    on the second attempt.
