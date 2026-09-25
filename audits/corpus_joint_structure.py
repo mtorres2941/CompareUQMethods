@@ -138,6 +138,24 @@ CANDIDATES = {
     'bounded_mid_sep_lower': dict(min_q1_over_iqr=0.2, trunc_iqr_mult=3.0,
                                   cv_log10_mean=0.329, mode_share_alpha=1.0,
                                   overlap_log10_hi=-0.10),
+    # THE FIFTH ROUND, 2026-09-25, and the question is narrow: does the hump
+    # SHARE concentration fix the CONDITIONAL modality on the SHIPPED
+    # configuration? The corpus now matches the real arm's dispersion far
+    # better than it did, and among DISPERSED datasets it is multimodal 14.1
+    # percent of the time against the real arm's 21.2 -- so the intersection
+    # is where it is worst. `mode_share_alpha` at 1 makes the larger of two
+    # modes span 0.52 to 0.97 of the points instead of 0.50 to 0.76, which is
+    # a small shoulder on a big body rather than a symmetric pair, and that is
+    # what real multimodality looks like (decision 37).
+    #
+    # It was rejected twice, both times on evidence that no longer stands: at
+    # 5.0 GENERATOR-seed standard deviations worse under the mismatched weight
+    # rules. Re-run under the settled rule it is +0.0149 against a WEIGHT-DRAW
+    # noise of 0.006 to 0.015, which is the boundary, so it is now free on the
+    # objective. What was never measured is whether it BUYS anything here.
+    'shipped_plus_alpha1': dict(mode_share_alpha=1.0),
+    'shipped_plus_alpha1_sep': dict(mode_share_alpha=1.0,
+                                    overlap_log10_hi=-0.10),
 }
 
 

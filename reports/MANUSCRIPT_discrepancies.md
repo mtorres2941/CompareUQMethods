@@ -2259,3 +2259,15 @@ relative figure beside it.**
 | **AND THE OVERCLAIM DECISION 160 GUARDED AGAINST IS REAL, so it moves into the text** | "Market weights" alone could be read as real production volumes, which this study does not have. Two things prevent that and neither is a label: the methods section says AT FIRST USE that market weights are drawn from a Dirichlet because production volumes are not published, and the oracle scheme is labelled "known market shares" so the contrast between a drawn weight and a known one is visible wherever both appear. |
 | **Fix** | Use "market weights" and "uniform weights" throughout, and "known market shares" for the oracle. Add the first-use sentence in the methods. The stored `method` values do NOT change -- they are the join key for every table and fixture, and renaming them would move numbers for a presentation fix. |
 | **Status** | Implemented in `fitting.WT_DISPLAY`, pinned by a test. Stage 3 carries the labels into the remaining figures. |
+
+## 176. The corpus under-represents multimodal-AND-dispersed categories, and that is stated rather than fixed
+
+| | |
+|---|---|
+| **The limitation, in the form the paper should state it** | The synthetic corpus spans the modality of real material categories and the dispersion of real material categories, and under-represents their INTERSECTION. Multimodal-and-dispersed is **1.3 percent of the corpus against 5.4 percent of the 130 real categories**; conditional on being dispersed, a real category is multimodal **21.2 percent** of the time against the corpus's **14.7**. What the study cannot speak to is roughly one real category in twenty. |
+| **Measured on the weight-invariant columns** | The unweighted coefficient of variation and the visible mode count at the fitted bandwidth, with "dispersed" meaning above the real arm's own upper quartile. Weighted versions of these move with the weight rule and are not comparable across the Stage 2h change. |
+| **The lever was found and rejected on a measured trade** | `genconfig.mode_share_alpha` at 1 rather than 10 takes the corpus's multimodal share from 0.200 to **0.242 against a real 0.246** -- essentially exact -- and the conditional from 0.147 to 0.161. It costs the arm-to-arm distance on `w_v_uw_wasserstein` **0.172 to 0.275**, a 60 percent degradation on the characteristic the paper is built on. Author decision: keep 10. |
+| **The mechanism, which makes this a limitation rather than an unknown** | The conditional is HIGHEST on the narrow superseded configuration and falls in every widening candidate, because widening the components blends the humps together. Three candidates combining `alpha = 1` with more separation made it worse still (0.139, 0.111, 0.136). Separation destroys the conditional; hump-share concentration does not. The conditional and the dispersion marginal are in direct tension in this generator. |
+| **What the paper should NOT say** | That the shortfall is unfixable. It is fixable and the price is known and was declined. Say what it costs. |
+| **Fix** | One paragraph in the limitations, with the four numbers above. Decision 203. |
+| **Status** | Decided. Not fixed, deliberately. |

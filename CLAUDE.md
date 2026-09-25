@@ -7169,3 +7169,56 @@ rather than in conversation.
      **AND EVERY TABLE A STAGE WRITES NOW STAMPS ITS PROVENANCE**, the corpus
      label and the weight rule, so staleness is visible in the artifact rather
      than reconstructible from file timestamps.
+
+203. **2026-09-25. THE CORPUS KEEPS `mode_share_alpha = 10` AND THE MODALITY
+     SHORTFALL IS A STATED LIMITATION. The lever works and the price is the
+     paper's headline quantity, for the fourth time.** `[AUTHOR]` "Let's keep
+     bounded_mid and state the limitation."
+
+     **WHAT THE LEVER BUYS, measured cleanly on the shipped configuration at
+     1,000 datasets, against 130 real categories on the weight-invariant
+     unweighted columns:**
+
+         configuration    multimodal  dispersed  both   multi|disp  weighting
+         REAL ARM            0.246      0.254   0.054     0.212        --
+         SHIPPED             0.2000     0.0861  0.0127    0.1471     0.1722
+         + alpha = 1         0.2418     0.0785  0.0127    0.1613     0.2751
+
+     `mode_share_alpha = 1` takes the multimodal share from 0.200 to **0.242
+     against a real 0.246**, which is essentially exact, and lifts the
+     conditional from 0.147 to 0.161. **It costs the arm-to-arm distance on
+     `w_v_uw_wasserstein` 0.172 to 0.275, a 60 percent degradation on the
+     characteristic the paper is built on**, plus dispersion 0.260 to 0.291 and
+     the objective 0.228 to 0.250.
+
+     **THE DECISION: keep 10.** "How much does market weighting change a
+     material's distribution" is what the paper is for, and a corpus that
+     overstates it by 60 percent undermines the central claim in a way a
+     modality shortfall in about one real category in twenty does not.
+
+     **THE LIMITATION TO STATE, and it is now precisely founded rather than
+     "we tried things".** The corpus spans the modality of real categories and
+     the dispersion of real categories and under-represents their
+     INTERSECTION: multimodal-and-dispersed is 1.3 percent of the corpus
+     against 5.4 percent of the real arm, and conditional on being dispersed a
+     real category is multimodal 21.2 percent of the time against the corpus's
+     14.7. **What the paper cannot speak to is the roughly one-in-twenty real
+     categories that are both.**
+
+     **AND THE MECHANISM IS KNOWN, which is what makes it a limitation rather
+     than an unknown.** The conditional is HIGHEST on the narrow superseded
+     configuration (0.240) and falls in every widening candidate, because
+     widening the components blends the humps together. Three earlier
+     candidates combined `alpha = 1` with MORE separation and all three made
+     the conditional worse still (0.139, 0.111, 0.136) -- separation is what
+     destroys it, not the hump-share concentration. So the conditional and the
+     dispersion marginal are in direct tension in this generator, and the
+     shipped configuration trades one for the other deliberately: it bought a
+     dispersion marginal that was short by a factor of nine and paid part of it
+     in a conditional that was closer.
+
+     **FOURTH APPEARANCE OF ONE TRADE.** Decision 39 in Stage 2a-2, decision
+     138 in Stage 2f, decision 170 in the Stage 2g review, and here. Decision
+     193 showed the dispersion-versus-weighting form of it was an artifact of
+     the two arms weighting differently and removed it. **The modality-versus-
+     weighting form is NOT that artifact and survives the repair.**

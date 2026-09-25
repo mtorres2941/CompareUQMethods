@@ -437,10 +437,22 @@ def _outcome_from(models, names, uniforms):
 #: MEASURED, not chosen. 2,500 pLCA groups by nine reweighting levels, under
 #: common random numbers so the Monte Carlo floor is zero, with a logistic fit
 #: on log distance and a percentile interval from a bootstrap that resamples
-#: pLCA GROUPS. Notebook 3 is the source: it reports 0.00175 [0.00131, 0.00227],
-#: 0.01082 [0.00911, 0.01262] and 0.02467 [0.02175, 0.02766], with an isotonic
-#: fit -- which assumes only that the probability does not fall as two models
-#: separate -- giving 0.0026, 0.0129 and 0.0271.
+#: pLCA GROUPS. Notebook 3 is the source.
+#:
+#: **RECALIBRATED 2026-09-25 ON THE REGENERATED CORPUS, by author decision.**
+#: The previous values were 0.0018, 0.011 and 0.025, calibrated on
+#: `corpus_2026-09-21`. On `corpus_2026-09-25` the same calculation gives
+#: 0.00291 [0.00235, 0.00361], 0.01502 [0.01325, 0.01716] and 0.03157
+#: [0.02868, 0.03505], **so all three old values fell OUTSIDE their own
+#: recomputed 95 percent intervals**, by factors of 1.62, 1.37 and 1.26. An
+#: isotonic fit -- which assumes only that the probability does not fall as two
+#: models separate -- gives 0.0040, 0.0139 and 0.0314.
+#:
+#: **WHY THEY ROSE, and it is not that the pLCA became more robust.** The
+#: regenerated corpus is more dispersed, so every model distance is larger in
+#: absolute terms; a given flip probability therefore corresponds to a larger
+#: W1. This is the same scale effect that raised every goodness-of-fit score by
+#: 16 to 45 percent without any fit getting worse. Decision 197.
 #:
 #: ROUNDED TO TWO SIGNIFICANT FIGURES, DELIBERATELY. The bootstrap interval is
 #: about 30 percent of the estimate wide, and an independent run of the same
@@ -463,7 +475,7 @@ def _outcome_from(models, names, uniforms):
 #: differ by orders of magnitude in contribution, is harder to flip. These
 #: numbers are therefore an upper bound on how often a weighting choice changes
 #: an answer, which is the conservative direction for a practitioner rule.
-FLIP_THRESHOLDS = {0.01: 0.0018, 0.05: 0.011, 0.10: 0.025}
+FLIP_THRESHOLDS = {0.01: 0.0029, 0.05: 0.015, 0.10: 0.032}
 
 
 # ---------------------------------------------------------------------------
