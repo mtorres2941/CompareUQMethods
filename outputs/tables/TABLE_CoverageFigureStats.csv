@@ -1,7 +1,7 @@
 metric_x,metric_y,empirical_covered,n_uncovered,uncovered
-coeffvar,skewness,0.9863945578231292,2,Aggregates|ConcreteAdmixtures
-coeffvar,crit_bw_1,0.9863945578231292,2,Aggregates|ConcreteAdmixtures
-skewness,kurtosis,0.9929078014184397,1,Aggregates
+coeffvar,skewness,0.9795918367346939,3,Aggregates|ConcreteAdmixtures|DampproofingAndWaterproofing
+coeffvar,crit_bw_1,0.9659863945578231,5,Aggregates|ConcreteAdmixtures|DampproofingAndWaterproofing|PaintingAndCoating|WallFinishes
+skewness,kurtosis,0.9858156028368794,2,Aggregates|Shotcrete [<3000 psi]
 n,w_v_uw_wasserstein,0.9795918367346939,3,ReadyMix [3000-3999 psi]|ReadyMix [4000-4999 psi]|ReadyMix [5000-5999 psi]
-entropy,weight_outliers,0.9931972789115646,1,BoardInsulation [PIR or PUR]
-fit_norm_SF,fit_lognorm_SF,0.9931972789115646,1,ConcreteAdmixtures
+entropy,weight_outliers,1.0,0,
+fit_norm_SF,fit_lognorm_SF,0.9659863945578231,5,Aggregates|BoardInsulation [PIR or PUR]|ConcreteAdmixtures|DampproofingAndWaterproofing|ProcessedNonInsulatingGlassPanes

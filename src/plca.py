@@ -530,7 +530,7 @@ class ParentSampler:
     def __init__(self, parent, scheme=TRUTH_SCHEME, npoints=GRID):
         c = float(parent.normalizer)
         lo, hi = float(parent.lo) / c, float(parent.hi) / c
-        grid = np.linspace(lo, hi, int(npoints))
+        grid = self._grid(parent, scheme, lo, hi, int(npoints))
         cdf = np.asarray(parent.cdf(grid, scheme), dtype=float)
         # Strictly increasing, so np.interp inverts it without ties. Same
         # construction as WeightedKDE._tabulate.
@@ -538,7 +538,89 @@ class ParentSampler:
         cdf = cdf + np.arange(len(cdf)) * 1e-15
         cdf = (cdf - cdf[0]) / (cdf[-1] - cdf[0])
         self.grid, self._cdf = grid, cdf
+        self.lo, self.hi = float(grid[0]), float(grid[-1])
         self.parent, self.scheme = parent, scheme
+
+    #: Probability mass to keep OUTSIDE the concentrated part of the grid. The
+    #: body gets most of the points and the two tails keep enough to stay
+    #: accurate where a Monte Carlo will actually land. At 1e-4 a 10,000-draw
+    #: run expects one value beyond each end.
+    TAIL_MASS = 1e-4
+
+    #: Grid points reserved for each tail, placed at the parent's own
+    #: quantiles between TAIL_MASS and TAIL_MIN_MASS.
+    TAIL_POINTS = 128
+
+    #: How far into each tail the quantile-spaced points reach. Beyond this the
+    #: parent carries less probability than any Monte Carlo in this study would
+    #: ever draw, so the two true bounds close the grid and nothing is lost.
+    TAIL_MIN_MASS = 1e-12
+
+    @staticmethod
+    def _grid(parent, scheme, lo, hi, npoints, tail_mass=None):
+        """A grid that resolves the BODY, whatever the truncation bounds are.
+
+        **A PLAIN `linspace(lo, hi)` IS WHAT THIS REPLACES, AND IT FAILED
+        SILENTLY.** The parent's truncation bounds are set by a multiplicative
+        rule whose width grows exponentially in the data's log spread, so `hi`
+        is usually a small multiple of the body and occasionally enormous.
+        Stage 2h generated a corpus whose parents had `hi` near 1e8; a linear
+        grid of 20,001 points across that has a spacing of about 18,000, so the
+        entire body -- every value between roughly 0.1 and 10 -- fell between
+        the first two grid points. The tabulated CDF became a step function,
+        inverting it returned draws spread over the whole support, and the
+        resulting "true" mean was 6,624 against data normalized to 1.0.
+
+        **NOTHING UPSTREAM WAS WRONG.** The parents were mathematically sound
+        under both weighting schemes, with means near 1.02 and maxima near 2.3.
+        Only this approximation of them broke, which is why every check on the
+        generator and on the parents themselves came back clean.
+
+        The fix is to spend the points where the mass is. One coarse pass finds
+        where the CDF leaves 0 and reaches 1; the fine grid then concentrates
+        there and keeps a few points beyond, so the far tail is still
+        representable but no longer consumes the whole budget.
+        """
+        tail_mass = ParentSampler.TAIL_MASS if tail_mass is None else tail_mass
+        span = hi - lo
+        if not np.isfinite(span) or span <= 0:
+            return np.linspace(lo, hi, npoints)
+        # THE ENDPOINTS COME FROM THE PARENT'S OWN QUANTILES, not from its
+        # truncation bounds. `lo` and `hi` bound the SUPPORT; the parent can
+        # carry essentially no mass near `hi` while `hi` itself is enormous,
+        # because the truncation rule's width grows exponentially in the data's
+        # log spread. Spending the grid on [lo, hi] then spends it on emptiness.
+        # `ppf` is a bisection and costs a CDF evaluation per step, which is why
+        # this class exists at all -- but TWO calls to set the endpoints is
+        # nothing against the 20,001 the tabulation saves.
+        try:
+            q_lo = float(np.ravel(parent.ppf(tail_mass, scheme))[0])
+            q_hi = float(np.ravel(parent.ppf(1.0 - tail_mass, scheme))[0])
+        except Exception:
+            return np.linspace(lo, hi, npoints)
+        if not (np.isfinite(q_lo) and np.isfinite(q_hi) and q_hi > q_lo):
+            return np.linspace(lo, hi, npoints)
+        # THE TAILS ARE QUANTILE-SPACED TOO, and that is not a refinement. A
+        # LINEAR run of points from `q_hi` out to `hi` spreads the remaining
+        # `tail_mass` of real probability evenly across a range that can be
+        # eight orders of magnitude wide, so inverting it hands back draws of
+        # order 1e8 that the parent never places there. Putting the points at
+        # the parent's own quantiles instead puts them where the mass is: the
+        # parent's 1 - 1e-6 quantile is about 33, not 1e8.
+        n_body = int(npoints) - 2 * ParentSampler.TAIL_POINTS
+        p_tail = np.geomspace(tail_mass, ParentSampler.TAIL_MIN_MASS,
+                              ParentSampler.TAIL_POINTS)
+        try:
+            low_tail = np.ravel(parent.ppf(p_tail[::-1], scheme)).astype(float)
+            high_tail = np.ravel(parent.ppf(1.0 - p_tail, scheme)).astype(float)
+        except Exception:
+            low_tail = np.linspace(lo, q_lo, ParentSampler.TAIL_POINTS)
+            high_tail = np.linspace(q_hi, hi, ParentSampler.TAIL_POINTS)
+        grid = np.concatenate([[lo], low_tail,
+                               np.linspace(q_lo, q_hi, n_body),
+                               high_tail, [hi]])
+        grid = grid[np.isfinite(grid)]
+        return np.unique(np.clip(grid, lo, hi))
         self.lo, self.hi = lo, hi
 
     def cdf(self, x):

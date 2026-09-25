@@ -461,6 +461,33 @@ class GeneratorConfig:
     percent of datasets unable to reach their target; 0.15 leaves the median
     dataset discarding 0.0002 of its mass and the 95th percentile 0.157."""
 
+    max_parent_mean_over_median: float = 25.0
+    """Reject a parent whose own MEAN is more than this times its own MEDIAN.
+
+    **THE GUARD THAT WOULD HAVE PREVENTED STAGE 2h'S FAILED REGENERATION.**
+    Every characteristic the tuning objective scores is computed on the
+    SAMPLE, and the sample is divided by its own mean. A parent with a long
+    thin upper tail produces perfectly reasonable-looking samples -- they
+    almost never draw from that tail -- while the parent's own mean is set by
+    it. Stage 2h widened the truncation, regenerated the corpus, and got
+    parents with a mean of 6,624 against data normalized to 1.0, while every
+    sample statistic IMPROVED by 8.4 standard errors. Nothing in the loop
+    looked at the parent, so nothing caught it until the run against the true
+    parents produced 99.98 percent errors.
+
+    **SCALE FREE BY CONSTRUCTION**, which is why it is a ratio to the median
+    rather than a bound on the mean: a raw bound would be fooled by a change
+    of units and would need retuning whenever the location distribution moved.
+    For a lognormal the ratio is `exp(sigma**2 / 2)` -- about 1.6 at sigma = 1,
+    12 at sigma = 2.2, 90 at sigma = 3 -- and it grows without bound as the
+    tail lengthens.
+
+    **25 IS LOOSE ON PURPOSE.** It is not a calibration; it is the difference
+    between a heavy-tailed parent, which this study wants, and one whose mean
+    is an artifact of unobservable mass, which it cannot use. The shipped
+    configuration does not come close to it.
+    """
+
     min_mode_sd_frac: float = 0.15
     """Narrowest component standard deviation, as a fraction of the parent's
     own standard deviation. A parent below this is redrawn.

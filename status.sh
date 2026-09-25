@@ -4,13 +4,13 @@
 SCR=/tmp/claude-464589609/-Users-martin-torres-Library-CloudStorage-Dropbox-Work-CUBoulder-Dissertation-Coding-CompareUQMethods/c603a482-0912-4f65-800d-c5bd9df24d56/scratchpad
 cd "$(dirname "$0")"
 echo "=== $(date '+%H:%M:%S') ==="
-if pgrep -f "chain.sh" >/dev/null; then
-  echo "CHAIN: running (pid $(pgrep -f chain.sh | head -1))"
-  echo "  current step: $(grep '^=== ' $SCR/chain.log 2>/dev/null | tail -1)"
+if pgrep -f "chain2.sh" >/dev/null; then
+  echo "CHAIN: running (pid $(pgrep -f chain2.sh | head -1))"
+  echo "  current step: $(grep '^=== ' $SCR/chain2.log 2>/dev/null | tail -1)"
   echo "  python:       $(ps -o etime=,command= -p $(pgrep -f '[p]ython' | head -1) 2>/dev/null | cut -c1-90)"
 else
   echo "CHAIN: NOT RUNNING"
-  echo "  last step logged: $(grep '^=== ' $SCR/chain.log 2>/dev/null | tail -1)"
+  echo "  last step logged: $(grep '^=== ' $SCR/chain2.log 2>/dev/null | tail -1)"
 fi
 echo
 echo "active corpus: $(python3 -c "import json;print(json.load(open('data/processed/CORPUS.json'))['active_corpus'])" 2>/dev/null)"

@@ -898,3 +898,66 @@ def test_comparison_margin_above_one_loosens_and_below_one_tightens():
     # the ordering is not an artifact of a degenerate case.
     for key in ('discernibility', 'mci_1.2', 'mci_0.9', 'mci_0.8'):
         assert 0.01 < got[key] < 0.999, (key, got[key])
+
+
+# ---------------------------------------------------------------------------
+# Stage 2h: the sampler must resolve the BODY, not the truncation bounds
+# ---------------------------------------------------------------------------
+class _WideParent:
+    """A parent whose mass is near 1 and whose support runs to 1e8.
+
+    This is the shape that broke Stage 2h: the truncation rule's width grows
+    exponentially in the data's log spread, so `hi` can be enormous while the
+    distribution itself is ordinary. A linear grid across [lo, hi] then puts
+    the whole body inside its first cell.
+    """
+    normalizer = 1.0
+    lo, hi = 0.0, 1e8
+
+    def __init__(self, mu=0.0, sigma=0.6):
+        from scipy.stats import lognorm
+        self._d = lognorm(s=sigma, scale=np.exp(mu))
+
+    def cdf(self, x, scheme='market'):
+        return self._d.cdf(np.asarray(x, dtype=float))
+
+    def ppf(self, q, scheme='market'):
+        return self._d.ppf(np.asarray(q, dtype=float))
+
+
+def test_parent_sampler_resolves_a_body_inside_an_enormous_support():
+    """THE DEFECT THAT COST A WHOLE REGENERATION.
+
+    With `hi` at 1e8, a linear 20,001-point grid has a spacing of ~5,000, so
+    every value the distribution actually produces falls between the first two
+    points. The tabulated CDF becomes a step, inverting it returns draws spread
+    over the whole support, and the "true" mean came back as 6,624 against data
+    normalized to 1.0. Nothing upstream was wrong: the parent was sound and
+    every check on the generator passed.
+    """
+    p = _WideParent()
+    s = PL.ParentSampler(p)
+    u = np.linspace(1e-6, 1 - 1e-6, 20001)
+    got = s.ppf(u)
+    exact = p.ppf(u)
+    # The mean of a lognormal(0, 0.6) is exp(0.18) = 1.197.
+    assert float(np.mean(got)) == pytest.approx(float(np.mean(exact)), rel=1e-3)
+    assert float(np.median(got)) == pytest.approx(1.0, rel=1e-3)
+    # And the quantiles agree across the body, not just on average.
+    for q in (0.05, 0.25, 0.5, 0.75, 0.95, 0.999):
+        a = float(np.ravel(s.ppf(q))[0]); b = float(np.ravel(p.ppf(q))[0])
+        assert a == pytest.approx(b, rel=1e-3), q
+
+
+def test_parent_sampler_tail_points_are_quantile_spaced_not_linear():
+    """A LINEAR run of points from the body out to `hi` spreads real
+    probability across a range the parent never puts mass in. The grid's top
+    must track the parent's quantiles instead."""
+    p = _WideParent()
+    s = PL.ParentSampler(p)
+    # The parent's 1 - 1e-9 quantile is about 7.6; nothing in the grid should
+    # sit orders of magnitude above that except the closing bound itself.
+    inner = s.grid[s.grid < p.hi]
+    assert inner.max() < 1e3, inner.max()
+    # The support is still closed at the true bound, so ppf(1) cannot fall off.
+    assert s.grid[-1] == pytest.approx(p.hi)

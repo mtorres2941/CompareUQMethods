@@ -345,6 +345,35 @@ def draw_parent(cfg, n, rng):
         return None, dict(status='mode_too_narrow', k=k,
                           mode_sd_frac=float(mode_sd_frac),
                           overlap_achieved=overlap)
+
+    # A PARENT WHOSE MEAN IS DOMINATED BY MASS ITS OWN SAMPLE NEVER SEES.
+    #
+    # THIS IS THE CHECK STAGE 2h WAS MISSING AND IT COST A WHOLE REGENERATION.
+    # Every characteristic the tuning objective scores is computed on the
+    # SAMPLE, and the sample is divided by its own mean. A parent with a very
+    # long thin upper tail produces samples that look entirely reasonable --
+    # they almost never draw from that tail -- while the parent's OWN mean is
+    # set by it. Stage 2h widened the truncation and generated a corpus whose
+    # parents had a mean of 6,624 against data normalized to 1.0, improving
+    # every sample statistic by 8.4 standard errors on the way. Nothing in the
+    # loop could see it, because nothing in the loop looked at the parent.
+    #
+    # THE PARENT IS THE TRUTH EVERY RECOVERY SCORE IS MEASURED AGAINST, so it
+    # is checked here, in the generation path, rather than downstream.
+    #
+    # The test is scale free by construction: the ratio of the parent's own
+    # mean to its own median. For a lognormal that ratio is exp(sigma^2 / 2),
+    # so it is about 1.6 at sigma = 1 and 90 at sigma = 3, and it grows without
+    # bound as the tail lengthens. It cannot be fooled by a change of units,
+    # which the raw mean can.
+    med = float(np.ravel(parent.ppf(0.5))[0])
+    mean_over_median = (m_fin / med) if med > 0 else np.inf
+    if not np.isfinite(mean_over_median) \
+            or mean_over_median > cfg.max_parent_mean_over_median:
+        return None, dict(status='parent_tail_dominated', k=k,
+                          mean_over_median=float(mean_over_median),
+                          parent_mean=float(m_fin), parent_median=med,
+                          overlap_achieved=overlap)
     record = dict(status='ok', k=k, overlap_target=target, overlap_achieved=overlap,
                   overlap_statistic=cfg.overlap_statistic,
                   overlap_avg=float(M.average_overlap(comps, pi)) if k > 1 else 0.0,
@@ -471,6 +500,14 @@ def draw_weights(parent, modes, cfg, rng):
 #: Parent-draw outcomes that are a REJECTED DRAW rather than a failure, so a
 #: fresh draw of the random targets is the right response.
 #:
+#:   parent_tail_dominated       the parent's own mean is more than
+#:                               max_parent_mean_over_median times its own
+#:                               median, so the mean is set by mass its own
+#:                               sample will essentially never draw. Added in
+#:                               Stage 2h after a corpus was regenerated on
+#:                               parents with a mean of 6,624 against data
+#:                               normalized to 1.0, which every sample-level
+#:                               check passed
 #:   mode_too_narrow             a mode came out narrower than min_mode_sd_frac
 #:   component_targets_exhausted the skewness and excess kurtosis drawn for a
 #:                               component could only be met by a J-shaped
@@ -483,7 +520,8 @@ def draw_weights(parent, modes, cfg, rng):
 #: the slot instead leaves the corpus one dataset short of what was asked for,
 #: and the stratum counts then disagree with the design. Refusing to APPROXIMATE
 #: a target that cannot be met is a different thing and still holds.
-REDRAWABLE = frozenset({'mode_too_narrow', 'component_targets_exhausted'})
+REDRAWABLE = frozenset({'mode_too_narrow', 'component_targets_exhausted',
+                        'parent_tail_dominated'})
 
 
 def generate_dataset(cfg, n, rng):
