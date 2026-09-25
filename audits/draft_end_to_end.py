@@ -60,7 +60,17 @@ TABLES = os.path.join(ROOT, 'outputs', 'tables', 'audits')
 #: and it is near 1.0 for a candidate that differs only in scale.
 REFERENCE = dict(w1_market_lo=0.03, w1_market_hi=0.65, model_sd_max=6.0,
                  drawn_mean_lo=0.5, drawn_mean_hi=2.0,
-                 shipped_mean_w1=0.3136)
+                 #: The shipped corpus's own value, BOTH corpora, because
+                 #: the first of these was measured on one that has since
+                 #: been replaced and a band left pointing at a superseded
+                 #: corpus is the silent-failure case this file exists to
+                 #: catch. corpus_2026-09-21 gave 0.3136; the current
+                 #: corpus_2026-09-25 gives 0.2314, LOWER despite being
+                 #: more dispersed, because the stratified sample added in
+                 #: the same edit no longer lands almost entirely in the
+                 #: smallest size band. Re-measure on any new corpus.
+                 shipped_mean_w1_2026_09_21=0.3136,
+                 shipped_mean_w1_2026_09_25=0.2314)
 
 
 def main(label, n_datasets=200):

@@ -53,11 +53,19 @@ figure was drawing two different statistics on one color scale.
 All sixteen rows are now the error in a **single** decision. Best method, as a
 percentage of how big the true answer is:
 
-    how often a specification cap binds          0.48  ->  30.62
-    what a specification cap saves               0.56  ->  38.29
-    a cap's chance of saving 5 pct of a building 1.09  ->  32.97
-    what using 25 percent less of a material saves 0.00 -> 10.02
-    the probability one design beats another     0.81  ->  11.95
+    how often a specification cap binds          0.12  ->  31.10
+    what a specification cap saves               1.73  ->  37.00
+    a cap's chance of saving 5 pct               2.53  ->  32.50
+    using 25 pct less: what it saves             0.00  ->  12.22
+    the probability design B beats design A      1.31  ->  12.59
+
+**THESE FIVE FIGURES WERE RESTATED 2026-09-25 ON THE REGENERATED DATA and the
+earlier ones are superseded.** They previously read 0.48 -> 30.62, 0.56 ->
+38.29, 1.09 -> 32.97, 0.00 -> 10.02 and 0.81 -> 11.95, all measured on the
+corpus the regeneration replaced. The CORRECTION this section is about -- that
+five of sixteen rows averaged the signed error before taking its size -- is
+unaffected: it is a change of definition and it holds on any data. What moved
+is the data underneath it.
 
 **The eleven other rows are unchanged to the last digit**, and the old values
 are reproduced exactly by the new column that reports the average-over-many
@@ -342,12 +350,16 @@ triangular by 0.198.
 > roughly doubles the error. **The spread is where the pedigree matrix puts all
 > its effort and the center is what decides the answer.**
 
-**ONE SOURCING GAP THE MANUSCRIPT MUST CLOSE.** The pedigree matrix's own table
-of uncertainty factors is not among this project's reference materials, so the
-spread was swept RELATIVE to the data's own rather than in absolute pedigree
-units. That answers the question without asserting a table from memory -- which
-this project has had to withdraw once before -- and it means **a specific
-pedigree score cannot be placed on this axis until that table is obtained.**
+**THE SOURCING GAP THIS SECTION OPENED IS CLOSED, LATER IN THE SAME STAGE, AND
+SECTION 14 IS THE ANSWER.** This paragraph used to end by saying the pedigree
+matrix's own table of uncertainty factors is not among the project's reference
+materials and that a specific pedigree score could not be placed on the axis
+until it was obtained. The author supplied the source while the stage was
+running. The spread here is still swept RELATIVE to each category's own, which
+is the right axis for the question; what section 14 adds is what the matrix can
+actually reach on that axis, and the answer -- it is systematically NARROWER
+than real data -- makes most of the range swept here unreachable. **Read
+section 14 before quoting any spread figure from this section.**
 
 ## 7. Three questions closed, and one setting confirmed
 
@@ -914,9 +926,13 @@ publishes them; "equal" means every declaration counts the same.
 
 **WHAT THE CORRECTION DID TO THIS FIGURE.** The four reduction-strategy rows
 and the design comparison moved, and nothing else did. Before and after, best
-method: how often a cap binds **0.5 to 30.6**, a cap's mean saving **0.6 to
-38.5**, a cap's chance of saving 5 percent **1.1 to 33.0**, what using 25
-percent less saves **0.0 to 10.0**, the probability B beats A **0.8 to 12.0**.
+method, ON THE CURRENT DATA: how often a cap binds **0.1 to 31.1**, a cap's
+mean saving **1.7 to 37.0**, a cap's chance of saving 5 percent **2.5 to
+32.5**, what using 25 percent less saves **0.0 to 12.2**, the probability B
+beats A **1.3 to 12.6**. (Restated 2026-09-25 with the regenerated data; this
+caption previously read 0.5 to 30.6, 0.6 to 38.5, 1.1 to 33.0, 0.0 to 10.0 and
+0.8 to 12.0, and section 1 quoted the same five to two decimal places. Both are
+now on the current corpus and agree.)
 The eleven other rows are bit-identical and the old values are reproduced
 exactly by the new portfolio column.
 
@@ -1333,3 +1349,425 @@ headline claims those differ by a factor of twenty.
     would have surfaced eleven minutes into a fifty-minute run -- and caught it
     only because the notebook that writes that file had been scheduled first
     on the second attempt.
+
+
+---
+
+# Answers to the manuscript session's questions, 2026-09-25
+
+Appended in the Stage 2h window. **Where an answer showed a claim in this file
+to be wrong, the claim is corrected IN PLACE and the old wording is quoted
+here.** Three were: section 1's five figures, the figure caption's version of
+the same five, and section 6's pedigree sourcing gap.
+
+## 1. Which corpus each result ran on
+
+**THE SHORT ANSWER, AND IT IS WORSE THAN THE FILE IMPLIED: the notebooks were
+re-run on the new corpus and the AUDIT SCRIPTS WERE NOT.** Everything produced
+by a notebook is current. Everything produced by a script under `audits/` is
+from the superseded corpus unless it was written today.
+
+The timeline, from file timestamps and commit times:
+
+    2026-09-24 13:45   the weight rule ported to the empirical arm
+    2026-09-25 11:27   corpus_2026-09-25 generated
+    2026-09-25 12:45   to 13:57, notebooks 1 to 4 re-run
+
+Anything dated 09-24 therefore ran on `corpus_2026-09-21` AND, if before 13:45,
+under the old empirical weight rule.
+
+    result                                    table written    corpus
+    the sixteen-row claim scorecard           09-25 13:43      CURRENT
+    CompareUQMethods_FIG_ClaimScorecard.png   09-25 15:11      CURRENT
+    the flip calibration and crossings        09-25 12:54      CURRENT
+    the pLCA results and the truth run        09-25 12:45      CURRENT
+    the judgment arm, fit level               09-24 11:24      SUPERSEDED
+    the judgment arm, 300 design pairs        09-24 11:26      SUPERSEDED
+    the upper-truncation sweep, 400 datasets  09-24 11:30      SUPERSEDED
+    the generator-parameter sweep, 16 configs 09-24 11:52      SUPERSEDED
+    the bandwidth sweep                       09-24 12:02      SUPERSEDED
+    the certification credit, 3,000 cases     09-24 12:38      SUPERSEDED
+    the bandwidth through the pLCA, 2,000     09-24 13:24      SUPERSEDED
+    the pedigree range enumeration            09-25 09:51      unaffected
+
+**The scorecard figure does NOT need redrawing for this reason** -- it was
+redrawn at 15:11 from the current tables, after the vocabulary change. Its
+NUMBERS are current; section 1's transcription of them was not, and is fixed.
+
+**The pedigree range is unaffected** because it enumerates a published factor
+table against the real categories and never touches the corpus.
+
+**COST TO RE-RUN THE SIX SUPERSEDED ONES**, from each script's own documented
+runtime: the judgment arm about 25 minutes at 500 datasets and 250 pairs, the
+upper-truncation sweep about 8 minutes at 400, the generator sweep about 35
+minutes at two seeds, the bandwidth sweep about 10 minutes, the certification
+credit about 20 minutes, the bandwidth through the pLCA about 30 minutes. **Call
+it two hours for all six.** None of them writes to `outputs/figures/` or to the
+top level of `outputs/tables/`, so none of them can invalidate a committed
+figure; they inform prose only.
+
+**WHICH OF THE SIX ACTUALLY MATTER.** The generator sweep is the one whose
+CONCLUSION could change, and question 2 is about it. The bandwidth sweep, the
+upper truncation and the certification credit are all comparisons BETWEEN
+methods on a common corpus, and this stage established that method orderings
+are stable across the regeneration; their levels will move with the dispersion
+scale and their orderings should not. The judgment arm is the one to re-run
+second, because its headline is an absolute error in a design probability and
+absolute errors moved 25 to 35 percent.
+
+## 2. The generator-parameter sweep
+
+**a. CONFIRMED.** The sweep ran 2026-09-24 11:52, which is before the weight
+rule was ported at 13:45 and before the corpus was replaced. Section 9's
+"currently" values are the pre-regeneration ones: it says `min_q1_over_iqr`
+currently 0.5 and it is now 0.2, and `cv_log10_mean` is now 0.329.
+
+**b. THE CONCLUSION IS WITHDRAWN AS STATED.** "Every shape parameter of the
+generator is already at its best value" was true of a configuration that has
+since been changed on two of its parameters, judged against an empirical arm
+that has since been reweighted. It cannot survive unchanged, because the
+default it was measured against is no longer the default. What survives
+independently of both changes is the STRUCTURAL finding in the same section:
+that two configurations beat the default by making the two halves share a false
+assumption about market share, which is a property of the objective and not of
+the data.
+
+**c. RE-RUN, and the result is appended below as it lands.** Two seeds by
+fourteen configurations at the pre-flight scale, under the settled weight rule
+and the new shipped configuration.
+
+**d. `mode_share_alpha` 10 to 1 is in that re-run**, and section 9 is right
+that the earlier measurement was blocked: it was made under the mismatched
+rules. The re-run quotes it against the WEIGHT-DRAW noise of 0.006 to 0.015
+rather than the generator seed noise of 0.0066, which is the correct
+comparison and is decision 179.
+
+## 3. The hump-spacing levers after the regeneration
+
+**a. CONFIRMED, both are still off.** `genconfig.separation_dispersion_frac` is
+0.0 and `genconfig.shoulder_frac` is 0.0 in the live configuration AND in the
+configuration recorded inside `corpus_2026-09-25`, so neither was touched.
+`shoulder_body` is "narrow" and inert while `shoulder_frac` is 0.
+
+**b. THE HANDOFF'S FIGURES FOR THIS PREDATE THE REGENERATION. Confirmed.** The
+0.240 multimodal against a real 0.315, and 0.058 dispersed against a real
+0.269, are from the superseded corpus and from a different dispersion
+definition. Recomputed on the current corpus, on the WEIGHT-INVARIANT unweighted
+dispersion with "dispersed" meaning above the real arm's own upper quartile:
+
+                     multimodal   dispersed   both   multimodal GIVEN dispersed
+    real                 0.246       0.254   0.054              0.212
+    corpus, superseded   0.241       0.028   0.006              0.221
+    corpus, CURRENT      0.216       0.081   0.011              0.141
+
+**c. NO, THE JOINT GAP IS NARROWER, AND ONE PART OF IT IS WORSE.** The
+both-at-once shortfall roughly halves: the real arm has 9.0 times the corpus's
+share before and 4.7 times after. Dispersion alone improves from 9.1 times
+short to 3.1. **But the CONDITIONAL got worse**: among dispersed datasets the
+corpus used to be multimodal 22.1 percent of the time against the real arm's
+21.2 -- they matched -- and it is now 14.1 percent, which is two thirds of the
+real rate. And the multimodal share slipped from 0.241 to 0.216 against a real
+0.246.
+
+So the regeneration bought a large improvement in the marginal that was worst
+and paid for part of it in the conditional that was already right. **That is
+the same trade section 15 reports on the hump measure (0.158 to 0.266) seen
+jointly rather than marginally, and it is the strongest remaining argument for
+Stage 2j's sibling question: whether the hump-spacing lever, re-measured under
+the settled weight rule, now buys back the conditional without costing the
+weighting quantity.** It has still not been measured.
+
+## 4. The current production configuration, in full
+
+**THE APPARENT CONTRADICTION IN SECTION 4 IS REAL AND IS FIXED BY READING
+ORDER, not by either sentence being wrong.** "The generator's shipped
+configuration is exactly what it was" belongs to the paragraph about the FIRST
+regeneration attempt, which was reverted in full on 09-24. The corpus was then
+regenerated a second time, successfully, on 09-25. Both statements are true of
+different moments and the file should have said so; it now does, in section 15.
+
+GENERATOR -- genconfig.DEFAULT
+        genconfig.comp_exkurt_hi                     60.0
+        genconfig.comp_exkurt_lo                     -1.2
+        genconfig.comp_sd_log10_hi                   0.3
+        genconfig.comp_sd_log10_lo                   -0.7
+        genconfig.comp_skew_hi                       8.0
+        genconfig.comp_skew_lo                       -3.0
+        genconfig.cv_log10_hi                        1.2041199826559248
+        genconfig.cv_log10_lo                        -2.3979400086720375
+        genconfig.cv_log10_mean                      0.329
+        genconfig.cv_log10_sd                        0.7838
+        genconfig.k_max                              5
+        genconfig.k_min                              1
+        genconfig.market_share_alpha                 1.0
+        genconfig.max_component_retries              12
+        genconfig.max_low_tail_truncated             0.15
+        genconfig.max_parent_mean_over_median        25.0
+        genconfig.max_parent_retries                 20
+        genconfig.min_mode_sd_frac                   0.15
+        genconfig.min_q1_over_iqr                    0.2
+        genconfig.mode_coupling                      1.0
+        genconfig.mode_share_alpha                   10.0
+        genconfig.overlap_log10_hi                   0.146128035678238
+        genconfig.overlap_log10_lo                   -0.5228787452803376
+        genconfig.overlap_statistic                  min_adjacent
+        genconfig.point_weight_alpha                 1.0
+        genconfig.position_skew                      5.0
+        genconfig.seed                               42
+        genconfig.separation_dispersion_frac         0.0
+        genconfig.shoulder_body                      narrow
+        genconfig.shoulder_frac                      0.0
+        genconfig.trunc_iqr_mult                     3.0
+        genconfig.trunc_rule                         log
+    Traceback (most recent call last):
+      File "<stdin>", line 14, in <module>
+      File "<stdin>", line 14, in <listcomp>
+    KeyError: 'count'
+
+## 5. The two numbers that disagreed
+
+**a. NEITHER WAS RIGHT, because both were measured on the superseded corpus.**
+Section 1 said the cap-saving row moved 0.56 to 38.29 and the figure caption
+said 0.6 to 38.5; those are the same quantity at two precisions and they did
+not actually disagree. On the CURRENT corpus the row reads **1.73 to 37.00**.
+Both places are corrected and both now quote the same figures.
+
+**b. THE THRESHOLD IS 81 ON BOTH CORPORA. Confirmed.** The band 68 to 97 was
+measured on the superseded corpus (decision 142) and the band 68 to 106 on the
+current one. The optimum is 81 in both, and the penalty curve has the same
+shape: 6.01 points of extra error at a threshold of 24, 0.10 at 81, 1.27 at
+138, 5.96 at 304.
+
+## 6. The pedigree sourcing gap
+
+**CONFIRMED: section 14 supersedes section 6, and section 6 is corrected in
+place.** It used to read "the pedigree matrix's own table of uncertainty
+factors is not among this project's reference materials ... a specific pedigree
+score cannot be placed on this axis until that table is obtained." The author
+supplied it while the stage was running.
+
+**The citation, for the manuscript:** Muller, S., Lesage, P., Ciroth, A.,
+Mutel, C., Weidema, B. P., and Samson, R. (2016), "The application of the
+pedigree approach to the distributions foreseen in ecoinvent v3",
+International Journal of Life Cycle Assessment 21, 1327-1337; and Muller, S.,
+Lesage, P., Ciroth, A., Mutel, C., Weidema, B. P., and Samson, R. (2016),
+"Giving a scientific basis for uncertainty factors used in global life cycle
+inventory databases", International Journal of Life Cycle Assessment 21,
+1185-1196. **The factor table used is Table 3's "Prior" column of the second
+of those**, which is the value ecoinvent uses and which that paper sets out to
+update, with the basic uncertainty factor of 1.05 from its Table 4.
+
+    refs/Muller et al. - 2016 - Giving a scientific basis for uncertainty factors .pdf
+    refs/Muller et al. - 2016 - The application of the pedigree approach to the di.pdf
+
+**`refs/` IS NOT TRACKED** (decision 1, copyrighted publisher PDFs), so those
+paths exist only in the author's working copy.
+
+**And the arithmetic trap, repeated here because it is easy to get wrong:**
+every factor in that table is a contributor to the SQUARE of the geometric
+standard deviation, so `sigma_95 = sqrt(sum of [ln UF_i]^2, plus the basic)`
+and `GSD = exp(sigma_95 / 2)`. Quoting the combined factor AS a GSD doubles the
+spread.
+
+## 7. All sixteen claims, both forms, all six methods
+
+Percent of each claim's own true level, on the CURRENT corpus.
+`per-unit` is the error in ONE decision; `portfolio` is the error in the
+AVERAGE over many. Decision 174 is why both exist.
+
+    question    claim                                       method                 per-unit  portfolio
+    magnitude   the total: its mean                         KDE, Uniform               9.85       1.59
+    magnitude   the total: its mean                         KDE, Variable              9.98       0.91
+    magnitude   the total: its mean                         Lognormal, Uniform         9.85       5.23
+    magnitude   the total: its mean                         Lognormal, Variable        9.43       3.76
+    magnitude   the total: its mean                         Normal, Uniform           13.50       6.96
+    magnitude   the total: its mean                         Normal, Variable          14.20       7.66
+    magnitude   the total: its standard deviation           KDE, Uniform              24.19      17.71
+    magnitude   the total: its standard deviation           KDE, Variable             24.44      17.66
+    magnitude   the total: its standard deviation           Lognormal, Uniform        27.96      25.19
+    magnitude   the total: its standard deviation           Lognormal, Variable       29.35      25.48
+    magnitude   the total: its standard deviation           Normal, Uniform           34.29      33.68
+    magnitude   the total: its standard deviation           Normal, Variable          35.04      34.15
+    magnitude   the total: its 90th percentile              KDE, Uniform              12.98       5.02
+    magnitude   the total: its 90th percentile              KDE, Variable             12.56       3.00
+    magnitude   the total: its 90th percentile              Lognormal, Uniform        13.18       9.10
+    magnitude   the total: its 90th percentile              Lognormal, Variable       12.68       8.45
+    magnitude   the total: its 90th percentile              Normal, Uniform           13.28       2.36
+    magnitude   the total: its 90th percentile              Normal, Variable          13.36       2.01
+    magnitude   the chance of meeting a budget              KDE, Uniform               6.23       0.19
+    magnitude   the chance of meeting a budget              KDE, Variable              6.25       0.68
+    magnitude   the chance of meeting a budget              Lognormal, Uniform         5.52       2.03
+    magnitude   the chance of meeting a budget              Lognormal, Variable        5.30       2.23
+    magnitude   the chance of meeting a budget              Normal, Uniform           10.13       3.48
+    magnitude   the chance of meeting a budget              Normal, Variable           9.56       2.87
+    attribution a material: its mean contribution           KDE, Uniform              16.14       1.59
+    attribution a material: its mean contribution           KDE, Variable             14.84       0.91
+    attribution a material: its mean contribution           Lognormal, Uniform        15.53       5.23
+    attribution a material: its mean contribution           Lognormal, Variable       13.76       3.76
+    attribution a material: its mean contribution           Normal, Uniform           20.92       6.96
+    attribution a material: its mean contribution           Normal, Variable          21.23       7.66
+    attribution a material: its standard deviation          KDE, Uniform              30.81      15.67
+    attribution a material: its standard deviation          KDE, Variable             29.47      17.76
+    attribution a material: its standard deviation          Lognormal, Uniform        32.85      22.56
+    attribution a material: its standard deviation          Lognormal, Variable       33.62      25.67
+    attribution a material: its standard deviation          Normal, Uniform           36.05      30.96
+    attribution a material: its standard deviation          Normal, Variable          36.43      33.30
+    attribution a material: its 95th percentile             KDE, Uniform              23.98       6.43
+    attribution a material: its 95th percentile             KDE, Variable             21.91       6.50
+    attribution a material: its 95th percentile             Lognormal, Uniform        23.26      10.79
+    attribution a material: its 95th percentile             Lognormal, Variable       21.53      12.16
+    attribution a material: its 95th percentile             Normal, Uniform           24.12      11.96
+    attribution a material: its 95th percentile             Normal, Variable          22.38      13.10
+    attribution a material: its share of the total          KDE, Uniform              12.85       0.00
+    attribution a material: its share of the total          KDE, Variable             12.52       0.00
+    attribution a material: its share of the total          Lognormal, Uniform        12.38       0.00
+    attribution a material: its share of the total          Lognormal, Variable       12.22       0.00
+    attribution a material: its share of the total          Normal, Uniform           16.33       0.00
+    attribution a material: its share of the total          Normal, Variable          16.66       0.00
+    attribution a material: its share at the building 95th  KDE, Uniform              29.46       0.00
+    attribution a material: its share at the building 95th  KDE, Variable             27.53       0.00
+    attribution a material: its share at the building 95th  Lognormal, Uniform        27.54       0.00
+    attribution a material: its share at the building 95th  Lognormal, Variable       26.02       0.00
+    attribution a material: its share at the building 95th  Normal, Uniform           28.31       0.00
+    attribution a material: its share at the building 95th  Normal, Variable          26.74       0.00
+    attribution a material: its chance of being largest     KDE, Uniform              33.52       0.00
+    attribution a material: its chance of being largest     KDE, Variable             33.31       0.00
+    attribution a material: its chance of being largest     Lognormal, Uniform        32.42       0.00
+    attribution a material: its chance of being largest     Lognormal, Variable       33.66       0.00
+    attribution a material: its chance of being largest     Normal, Uniform           48.82       0.00
+    attribution a material: its chance of being largest     Normal, Variable          50.55       0.00
+    information the uncertainty index                       KDE, Uniform              49.08       0.02
+    information the uncertainty index                       KDE, Variable             47.60       0.01
+    information the uncertainty index                       Lognormal, Uniform        49.76       0.02
+    information the uncertainty index                       Lognormal, Variable       49.57       0.00
+    information the uncertainty index                       Normal, Uniform           48.62       0.02
+    information the uncertainty index                       Normal, Variable          47.71       0.00
+    action      a cap: how often it binds                   KDE, Uniform              32.54       4.82
+    action      a cap: how often it binds                   KDE, Variable             31.10       8.63
+    action      a cap: how often it binds                   Lognormal, Uniform        32.93       2.17
+    action      a cap: how often it binds                   Lognormal, Variable       33.34       0.12
+    action      a cap: how often it binds                   Normal, Uniform           57.45      37.47
+    action      a cap: how often it binds                   Normal, Variable          58.40      32.98
+    action      a cap: its mean saving                      KDE, Uniform              40.12       5.78
+    action      a cap: its mean saving                      KDE, Variable             37.17       1.73
+    action      a cap: its mean saving                      Lognormal, Uniform        39.87      12.76
+    action      a cap: its mean saving                      Lognormal, Variable       37.00      12.52
+    action      a cap: its mean saving                      Normal, Uniform           55.16      12.24
+    action      a cap: its mean saving                      Normal, Variable          56.46       9.66
+    action      a cap: its chance of saving 5 pct           KDE, Uniform              34.53       3.56
+    action      a cap: its chance of saving 5 pct           KDE, Variable             32.50       6.55
+    action      a cap: its chance of saving 5 pct           Lognormal, Uniform        34.68       2.96
+    action      a cap: its chance of saving 5 pct           Lognormal, Variable       34.35       2.53
+    action      a cap: its chance of saving 5 pct           Normal, Uniform           61.08      36.83
+    action      a cap: its chance of saving 5 pct           Normal, Variable          61.32      30.62
+    action      using 25 pct less: its mean saving          KDE, Uniform              12.85       0.00
+    action      using 25 pct less: its mean saving          KDE, Variable             12.52       0.00
+    action      using 25 pct less: its mean saving          Lognormal, Uniform        12.38       0.00
+    action      using 25 pct less: its mean saving          Lognormal, Variable       12.22       0.00
+    action      using 25 pct less: its mean saving          Normal, Uniform           16.33       0.00
+    action      using 25 pct less: its mean saving          Normal, Variable          16.66       0.00
+    comparison  the probability B beats A                   KDE, Uniform              13.62       1.61
+    comparison  the probability B beats A                   KDE, Variable             12.59       1.31
+    comparison  the probability B beats A                   Lognormal, Uniform        13.21       2.18
+    comparison  the probability B beats A                   Lognormal, Variable       13.43       1.81
+    comparison  the probability B beats A                   Normal, Uniform           19.41       3.05
+    comparison  the probability B beats A                   Normal, Variable          19.58       3.00
+
+## 8. The R-squared a reader cannot reproduce
+
+**a. The deposited table holds `w_v_uw_wasserstein`, a SINGLE weight
+realization, and it WAS regenerated under the new rule.** Its median across the
+147 real categories is now 0.1475, against 0.1048 under the old flat-Dirichlet
+draw. So a reader has the single-draw column and nothing else.
+
+**b. WHAT THE DEPOSIT NEEDS: both columns, and the published figure should be
+the single-draw one.** The reasoning:
+
+- The law's R-squared of 0.991 is computed on the MEDIAN separation over a
+  thousand weight draws. Nothing in the deposit lets a reader reproduce it.
+- On a single draw the same law explains **0.824 plus or minus 0.029**, and the
+  correlation with dispersion is 0.573 rather than 0.731.
+- A reader recomputing from the deposited column will get about 0.82 and will
+  reasonably conclude the paper is wrong.
+
+**So publish 0.824 as the headline, because it is what the deposited data
+supports, and report 0.991 beside it as what the same law reaches once the
+weight-draw noise is averaged out -- with the median-over-draws column added to
+the deposit so that figure is reproducible too.** Publishing only the 0.991 and
+only the single-draw column is the one combination that cannot be checked, and
+it is what the study currently has.
+
+## 9. What else the regeneration invalidated
+
+**THE ONE THAT MATTERS: `flip.FLIP_THRESHOLDS` IS STALE AND NOTEBOOK 1 READS
+IT.** These are the model distances at which the top contributor changes 1, 5
+and 10 percent of the time, calibrated on the superseded corpus and hard-coded.
+Notebook 3 recomputes them on every run and prints them beside the constant
+(decision 95), so the drift is visible -- but the constant was not updated, and
+notebook 1 uses it to turn a per-dataset weighting risk into a probability.
+
+    level   stored   recomputed on the CURRENT corpus   95 pct interval        stored inside?
+    0.01    0.0018   0.00291                            [0.00235, 0.00361]     NO
+    0.05    0.011    0.01502                            [0.01325, 0.01716]     NO
+    0.10    0.025    0.03157                            [0.02868, 0.03505]     NO
+
+**All three stored values now fall OUTSIDE their own recomputed intervals**, by
+factors of 1.62, 1.37 and 1.26. The cause is the same scale effect as
+everywhere else: the corpus is more dispersed, so a given flip probability
+corresponds to a larger absolute distance. **Updating them would move every
+weighting-risk probability notebook 1 reports, which is why this is flagged
+rather than silently fixed. It is an author decision and it is the largest
+single item this stage leaves open.**
+
+**THE SECOND: `audits/draft_end_to_end.py` carries a band measured on the
+SUPERSEDED corpus.** Its `REFERENCE['shipped_mean_w1']` is 0.3136, measured on
+`corpus_2026-09-21`; the same script on the current corpus gives 0.2314. The
+band itself is wide enough that both pass, so nothing fails -- which is exactly
+the silent case habit 37 is about. **Corrected in the file, with both values
+recorded.**
+
+**THE THIRD, and it is benign: `audits/generation_scorecard.py` carries
+`OBJECTIVE_SEED_SD = 0.0066`**, the generator's seed-to-seed noise measured
+across several older corpora. It has not been re-measured on the current one.
+Every "N seed standard deviations" in this stage uses it. Decision 179 already
+records that the WEIGHT-DRAW noise is 0.006 to 0.015 and is the larger of the
+two, so a calibration judgment should quote that instead; the 0.0066 is not
+wrong so much as no longer the binding noise.
+
+**WHAT IS NOT AFFECTED, checked rather than assumed.** The regression fixtures
+compare recomputation against stored tables rather than against absolute bands,
+so they fail loudly when the corpus changes -- which is what happened and how
+the synthetic fixture came to be re-frozen. The numeric assertions in the test
+suite are on planted or synthetic data, not on corpus statistics: the twelve
+that look like absolute bands are all of the form "a Shapiro statistic on
+normal data exceeds 0.9", and all 591 pass. `families.PROFILE_DELTA_LO_FRAC`
+and `customstats.SILVERMAN_MIN_NEFF` are calibrated settings rather than bands
+and were re-confirmed this stage, though on the superseded corpus.
+
+## 10. What Stage 3 can start from
+
+**Current and safe to build on:** every table under `outputs/tables/` written
+by a notebook on 2026-09-25 -- the pLCA results and the truth run, the claim
+scorecard, the metric recovery tables, the flip calibration, the reduction and
+threshold tables -- and `CompareUQMethods_FIG_ClaimScorecard.png`, which was
+redrawn at 15:11 from those tables with the settled vocabulary.
+
+**Stale and visibly so:** every table under `outputs/tables/audits/` dated
+2026-09-24. Their dates give them away and question 1 lists them.
+
+**STALE IN A WAY STAGE 3 WOULD NOT DETECT, which is the part that matters.**
+Three things. **`flip.FLIP_THRESHOLDS`**, because it is a hard-coded constant
+that no test compares against a recomputation, and notebook 1 consumes it; a
+figure drawn from notebook 1's weighting-risk output would be wrong by 26 to 62
+percent in the threshold and nothing would say so. **Every figure other than
+the scorecard still carries the old weighting labels**, because only that one
+cell uses `display_method` and only that one was redrawn -- a figure showing
+"Variable" or "sampled market shares" is stale against the settled vocabulary
+and looks fine. And **the prose figures quoted in sections 6, 8, 9, 10 and 11
+of this file**, which came from the superseded audits; the sections now say so,
+but a reader lifting a number into a caption would not otherwise know.
+
+**The one-line summary for Stage 3: trust the notebook tables and the
+scorecard figure, re-render every other figure for the vocabulary, and do not
+quote a number from an `audits/` table dated 09-24 or from `FLIP_THRESHOLDS`
+without recomputing it first.**
