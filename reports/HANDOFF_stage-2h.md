@@ -1771,3 +1771,71 @@ but a reader lifting a number into a caption would not otherwise know.
 scorecard figure, re-render every other figure for the vocabulary, and do not
 quote a number from an `audits/` table dated 09-24 or from `FLIP_THRESHOLDS`
 without recomputing it first.**
+
+## 2 (continued). The generator sweep, re-run under the settled weight rule
+
+Fourteen configurations, two seeds each, at the pre-flight scale, against the
+NEW shipped configuration and the reweighted empirical arm. Judged against the
+**weight-draw noise of 0.006 to 0.015** (decision 179), which is the binding
+noise here, not the generator's 0.0066.
+
+    configuration            objective   vs default   inside the noise?
+    min_q1_over_iqr=0.05        0.1793     -0.0105          yes
+    min_q1_over_iqr=0.1         0.1822     -0.0076          yes
+    DEFAULT (shipped)           0.1897      0.0000           --
+    min_mode_sd_frac=0.05       0.1897      0.0000          yes
+    trunc_iqr_mult=2.0          0.1907     +0.0009          yes
+    mode_share_alpha=3.0        0.1974     +0.0076          yes
+    trunc_iqr_mult=5.0          0.2031     +0.0133          yes
+    point_weight_alpha=3.0      0.2036     +0.0139          yes
+    point_weight_alpha=0.3      0.2039     +0.0141          yes
+    mode_share_alpha=1.0        0.2046     +0.0149          at the edge
+    min_mode_sd_frac=0.25       0.2066     +0.0169          NO, worse
+    min_q1_over_iqr=0.5         0.2086     +0.0188          NO, worse
+    mode_coupling=0.5           0.2175     +0.0277          NO, worse
+    mode_coupling=0.0           0.2277     +0.0379          NO, worse
+
+**NOTHING BEATS THE SHIPPED CONFIGURATION BY MORE THAN THE NOISE.** Two are
+nominally ahead -- `min_q1_over_iqr` at 0.05 and 0.1, by 0.0105 and 0.0076 --
+and both sit inside the weight-draw noise, so neither is a measurement. The
+0.1 case is the one already considered and declined during candidate selection,
+because it costs visible modality.
+
+**SO SECTION 9'S CONCLUSION IS RE-ESTABLISHED FOR THE NEW CONFIGURATION rather
+than merely withdrawn.** It had to be re-derived, because the default it was
+measured against changed on two parameters and the empirical arm was
+reweighted; re-derived, it holds.
+
+**AND THE TWO CONFIGURATIONS THAT USED TO BEAT THE DEFAULT NOW CLEARLY LOSE,
+which is the strongest independent confirmation of this stage's central
+finding.** Section 9 recorded `mode_coupling` at 0.0 and 0.5 beating the
+default by 1.9 and 2.9 generator-seed standard deviations, and warned that this
+was the objective asking for the WRONG FIX: the cheapest way for the two halves
+to agree was for the synthetic arm to adopt the empirical arm's false
+assumption that market share is unrelated to carbon intensity. **Under one
+weight rule that cheat no longer pays. The same two configurations are now the
+two WORST of the fourteen, at +0.0277 and +0.0379.** The warning in section 9
+was right and the artifact it warned about is gone.
+
+**THE OLD DEFAULT IS NOW MEASURABLY WORSE.** `min_q1_over_iqr = 0.5`, which
+shipped until this stage, comes in at +0.0188 -- outside the noise. That is an
+independent check on the regeneration: the configuration the corpus was rebuilt
+away from is now worse than the one it was rebuilt to, measured against a
+differently weighted empirical arm.
+
+**d. THE AUTHOR'S HUMP-SHARE PROPOSAL, `mode_share_alpha` 10 to 1: now
+NEUTRAL, where it used to look clearly bad.** It measures +0.0149 against a
+weight-draw noise of 0.006 to 0.015, so it sits exactly at the edge and is not
+distinguishable from the default. Section 9 and decision 141 both recorded it
+as 5.0 seed standard deviations worse, but that was measured under the
+mismatched weight rules and against the generator's noise rather than the
+weight draw's. **The honest statement is that it costs nothing measurable and
+buys nothing measurable**, so it is a free choice on other grounds -- and
+decision 169 found it is the single most effective lever on the multimodal
+SHARE, reaching 29.7 percent against a real 31.5. Given that the regeneration
+left the conditional modality worse (question 3), this is worth re-examining in
+Stage 2j rather than treating as settled.
+
+**Also confirmed: `min_mode_sd_frac` below 0.15 is not a parameter.** At 0.05
+the objective is identical to the default to four decimal places with the same
+seed spread, which reproduces section 9's finding exactly on new data.

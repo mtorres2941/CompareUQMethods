@@ -7053,3 +7053,66 @@ rather than in conversation.
      appear. **A label cannot carry a caveat; a sentence can.** The stored
      `method` values are untouched -- they join every table to every fixture.
      Discrepancy entry 175.
+
+200. **2026-09-25, Stage 2h. THE GENERATOR SWEEP RE-RUN UNDER THE SETTLED
+     WEIGHT RULE: nothing beats the shipped configuration, and the two
+     configurations that used to beat it are now the two worst. This
+     RE-ESTABLISHES decision 185 rather than confirming it, because the
+     configuration it was measured against has changed.** `[DELEGATED, 2h
+     measured, at the manuscript session's request]`
+
+     Decision 185 swept sixteen configurations on 2026-09-24, BEFORE the weight
+     rule was ported and on the corpus since replaced, so every "currently" in
+     it named a value that has moved. Fourteen configurations re-run at two
+     seeds against the new shipped configuration and the reweighted empirical
+     arm, judged against the **weight-draw noise of 0.006 to 0.015** (decision
+     179) rather than the generator's 0.0066:
+
+         min_q1_over_iqr=0.05    0.1793   -0.0105   inside the noise
+         min_q1_over_iqr=0.1     0.1822   -0.0076   inside the noise
+         DEFAULT (shipped)       0.1897    0.0000
+         min_mode_sd_frac=0.05   0.1897    0.0000   identical, as before
+         trunc_iqr_mult=2.0      0.1907   +0.0009
+         mode_share_alpha=3.0    0.1974   +0.0076
+         trunc_iqr_mult=5.0      0.2031   +0.0133
+         point_weight_alpha=3.0  0.2036   +0.0139
+         point_weight_alpha=0.3  0.2039   +0.0141
+         mode_share_alpha=1.0    0.2046   +0.0149   at the edge
+         min_mode_sd_frac=0.25   0.2066   +0.0169   worse
+         min_q1_over_iqr=0.5     0.2086   +0.0188   worse, and it is the
+                                                    configuration that shipped
+                                                    until this stage
+         mode_coupling=0.5       0.2175   +0.0277   worse
+         mode_coupling=0.0       0.2277   +0.0379   worse
+
+     **NOTHING BEATS THE DEFAULT BEYOND THE NOISE**, so decision 185's
+     conclusion holds for the new configuration.
+
+     **AND THE ARTIFACT DECISION 185 WARNED ABOUT IS GONE, WHICH IS THE PART
+     WORTH KEEPING.** That decision recorded `mode_coupling` at 0.0 and 0.5
+     beating the default by 1.9 and 2.9 seed standard deviations and warned, in
+     terms, that this was the objective asking for the WRONG FIX -- the
+     cheapest way for the two arms to agree was for the synthetic arm to adopt
+     the empirical arm's false assumption that market share is uncorrelated
+     with carbon intensity. **Under one weight rule those same two
+     configurations are the two WORST of the fourteen.** The warning was
+     correct and the mechanism behind it has been removed.
+
+     **AN INDEPENDENT CHECK ON THE REGENERATION.** `min_q1_over_iqr = 0.5`, the
+     value that shipped until this stage, is now measurably worse than the 0.2
+     that replaced it, at +0.0188 against a noise of at most 0.015.
+
+     **AND THE AUTHOR'S `mode_share_alpha` PROPOSAL IS NOW NEUTRAL, where
+     decisions 141 and 185 both recorded it as 5.0 seed standard deviations
+     worse.** Moving it from 10 to 1 measures +0.0149 against a weight-draw
+     noise of 0.006 to 0.015, so it sits exactly at the edge and is not
+     distinguishable from the default. Both earlier measurements were made
+     under the mismatched weight rules and against the wrong noise floor.
+     **It costs nothing measurable and buys nothing measurable on the
+     objective**, which makes it a free choice on other grounds -- and decision
+     169 found it the single most effective lever on the multimodal SHARE,
+     reaching 29.7 percent against a real 31.5. Since the regeneration left the
+     CONDITIONAL modality worse -- among dispersed datasets the corpus is now
+     multimodal 14.1 percent of the time against the real arm's 21.2, where the
+     superseded corpus matched at 22.1 -- this is worth re-opening in Stage 2j
+     rather than treating as settled.
