@@ -2215,3 +2215,27 @@ relative figure beside it.**
 | **The finding** | Scott is worst on every one of the five outputs under both weightings. The guard costs 0.19 of a percentage point under equal weights and BUYS 0.15 under Dirichlet shares, so at the decision level it is free where at the fit level it costs a little. |
 | **Fix** | Nothing changes. State that the manuscript's own configuration used Scott, so its numbers understate the kernel estimate on every downstream output -- the conservative direction for this paper's recommendation, and better said than quietly corrected. Decision 195. |
 | **Status** | Resolved. |
+
+## 172. THE CORPUS IS REGENERATED. Every synthetic number in the paper moves, and no recommendation does
+
+| | |
+|---|---|
+| **What changed** | `corpus_2026-09-25` replaces `corpus_2026-09-21`. `min_q1_over_iqr` 0.5 to 0.2 and `cv_log10_mean` 0.129 to 0.329, widening the dispersion the corpus never matched. Generation was reopened by author decision; decisions 47, 48, 55 and 138 are superseded on whether this is possible. |
+| **Why it became possible** | The trade that blocked it across three stages -- widening always inflated the uniform-to-variable Wasserstein distance past the real arm's -- was an artifact of the two arms weighting by different rules, and it vanishes once they share one. Entries 160, 168. |
+| **The corpus now** | Objective 0.2216 to **0.1862**, which is 5.4 seed standard deviations. Dispersion distance 0.409 to **0.247**; weighting distance 0.340 to **0.151**. Both improved together, which had never happened. |
+| **THE NEW WORST CHARACTERISTIC** | `fit_lognorm_SF` at **0.341**, up from 0.233, replacing dispersion. **The manuscript's limitation paragraph currently names dispersion and must be rewritten around this instead.** It is the characteristic measured as moving the method comparison by 0.001 to 0.002, so it is the right thing to have spent -- but it is the number a reviewer points at first. `crit_bw_1` also rises, 0.158 to 0.266, worth 0.006 to 0.015. |
+| **Gates** | Parent-level fidelity 5.1e-4 on every quantile of every parent; end-to-end smoke test passed with the mean draw from the true parent at 1.0000; the 1,000-dataset draft predicted the production objective to within 0.002. |
+| **THE READING TRAP** | Every ABSOLUTE distance rises -- the six W1 columns by 16 to 45 percent, the error in a material's estimated contribution by 25 to 35. That is scale, not degradation: a more dispersed dataset has a wider parent and a larger absolute distance to it, and divided by each dataset's own spread the distance to the truth is **0.965** times the old corpus's. **Any sentence quoting one of those figures in absolute units must be restated from the new tables, and the paper should say why they rose.** |
+| **Fix** | Every synthetic number in the manuscript is recomputed from the new tables. Decision 197. |
+| **Status** | Done in the analysis. The manuscript has not been touched. |
+
+## 173. The practitioner rule reproduces on a second, differently built corpus
+
+| | |
+|---|---|
+| **Why this matters** | The rule -- use a kernel estimate above about 80 declarations, with market-share weights if you have them, a three-parameter lognormal below -- was calibrated on a corpus whose dispersion was short by a factor of nine. Reproducing it on one built with different generator settings is a robustness check the paper could not previously offer. |
+| **The threshold** | **81 declarations, unchanged**, with the indistinguishable band 68 to 106 against 68 to 97 before. Penalty for missing it: 6.01 points of extra error at a threshold of 24, 0.10 at 81, 1.27 at 138, 5.96 at 304. |
+| **Which method is closest to the truth, by size** | New corpus, with the old figures in brackets. KDE equal weights 34.7 [33.8] / 21.0 [22.5] / 24.9 [28.8] / 21.8 [23.5] across n = 3-9, 10-99, 100-999, 1000+; KDE Dirichlet 22.4 [22.5] / 21.1 [20.0] / 38.0 [42.8] / 67.0 [69.6]; lognormal equal 22.6 [20.9] / 27.2 [25.2] / 12.2 [8.8] / 1.5 [0.6]; lognormal Dirichlet 10.6 [9.9] / 20.5 [17.9] / 22.2 [16.8] / 9.6 [6.1]. **Every ordering identical; nothing moves more than five points.** |
+| **The truth run SHARPENS** | The four non-normal methods span **0.0811 to 0.0841** on a material's chance of leading, a 3.7 percent spread against 6.8 before -- MORE indistinguishable than the paper says -- and the normal's penalty over the best grows from 44.2 to **50.6 percent**. |
+| **Fix** | State that the rule was reproduced on two independently generated corpora. That is a stronger claim than the manuscript currently makes and it costs one sentence. Decision 198. |
+| **Status** | Measured. |

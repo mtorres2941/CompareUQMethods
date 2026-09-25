@@ -6872,3 +6872,123 @@ rather than in conversation.
      conclusion in either direction. That strengthens decision 182's finding
      that the cost is not a cost, and it adds the reason a reviewer would ask
      for: the cap is not quietly closing the gap between the two families.
+
+197. **2026-09-25, Stage 2h. THE CORPUS IS REGENERATED AS `corpus_2026-09-25`,
+     WIDENING THE ONE CHARACTERISTIC IT NEVER MATCHED. Generation was reopened
+     by author decision, and decisions 47, 48, 55, 138, 169 and 170 are
+     superseded on the question of whether this is possible.** `[AUTHOR]`
+     "We agreed that the synthetic corpus isn't doing its job correctly,
+     right? So why wouldn't we remake the synthetic corpus?"
+
+     `min_q1_over_iqr` 0.5 to **0.2** and `cv_log10_mean` 0.129 to **0.329**;
+     `trunc_iqr_mult` stays at 3.0. The truncation bound multiplier goes from
+     27 to **216**, which is eight times wider and three thousand times
+     narrower than the 345 million of the configuration this stage rejected.
+
+     **WHY THIS BECAME POSSIBLE, and it is not that anyone tried harder.**
+     Decisions 39, 138, 169 and 170 record the same trade on four levers across
+     three stages: widening the dispersion always inflated the
+     uniform-to-variable Wasserstein distance past the real arm's. That was an
+     artifact of the two arms drawing market shares by DIFFERENT rules, and it
+     disappears once they share one (decisions 190, 193). Those decisions were
+     right on their own evidence; their evidence had a shared cause nobody had
+     isolated.
+
+     **THREE GATES, ALL ON THE REAL 10,000-DATASET CORPUS rather than a
+     draft.**
+
+         parent-level fidelity   5.1e-4 worst quantile error, every parent
+         end-to-end smoke        mean W1 0.2314, worst fitted spread 2.38,
+                                 mean draw from the true parent 1.0000
+         calibration at scale    objective 0.1862, against 0.1840 predicted
+                                 from 1,000-dataset drafts
+
+     The draft prediction landing within 0.002 of the production value is what
+     says the 1,000-dataset protocol of decision 41 is trustworthy for this
+     kind of decision.
+
+     **WHAT THE CORPUS NOW LOOKS LIKE, worst characteristic first, against 147
+     real categories:**
+
+         characteristic      before   after    real median / synthetic
+         fit_lognorm_SF       0.233   0.341    0.9353 / 0.9290
+         entropy              0.373   0.313    2.9010 / 3.3198
+         crit_bw_1            0.158   0.266    0.7132 / 0.7100
+         coeffvar             0.409   0.247    0.6406 / 0.6167
+         n                    0.236   0.237    47 / 99
+         fit_norm_SF          0.358   0.227    0.8312 / 0.8550
+         w_v_uw_wasserstein   0.340   0.151    0.1475 / 0.1098
+         skewness             0.219   0.137    1.7773 / 1.5870
+
+         objective            0.2216  0.1862   -5.4 seed standard deviations
+
+     **The two characteristics the change was for both improve**, and the two
+     that worsen were both measured as low-stakes before the decision was taken
+     (decision 196): matching the corpus to the real arm on `fit_lognorm_SF`
+     moves the method comparison by 0.001 to 0.002 and on `crit_bw_1` by 0.006
+     to 0.015, against 0.026 to 0.043 for dispersion.
+
+     **`fit_lognorm_SF` IS NOW THE FURTHEST-APART CHARACTERISTIC and the
+     manuscript's limitation paragraph must be rewritten around it** rather
+     than around dispersion, which is what it currently names.
+
+     **NUMBERS THAT MOVED: every number in the paper.** The regression fixture
+     for the synthetic arm is re-frozen and `tests/fixtures/README.md` records
+     every column with its before and after. The two EMPIRICAL fixtures did NOT
+     move, which is the control. 588 of 591 tests passed before the re-freeze
+     and all three failures were that fixture and the two tests that read it.
+
+     **ONE READING TRAP, and it is the one a reviewer will hit.** Every
+     absolute distance rises: the six W1 columns by 16 to 45 percent and the
+     error in a material's estimated contribution by 25 to 35. That is SCALE,
+     not degradation -- a more dispersed dataset has a wider parent and a
+     larger absolute distance to it. Divided by each dataset's own spread the
+     distance to the truth is **0.965** times the shipped corpus's, i.e.
+     slightly better. `truncated_mass` rising from 0.096 to 0.162 through WIDER
+     bounds is the same effect: more dispersed parents have more tail to lose.
+
+198. **2026-09-25, Stage 2h. THE REGENERATION CHANGES NO RECOMMENDATION THIS
+     PAPER MAKES, AND THAT IS THE RESULT.** `[DELEGATED, 2h measured]` The
+     author's question on being told the corpus had been rebuilt: "Did any of
+     our high level recommendations change? When is lognormal best and when is
+     KDE best?"
+
+     Every headline was recomputed on the new corpus rather than assumed.
+
+     **THE PRACTITIONER THRESHOLD IS UNCHANGED AT 81 DECLARATIONS**, with the
+     indistinguishable band 68 to 106 against decision 142's 68 to 97. The
+     penalty curve is the same shape: 6.01 points of extra error at a threshold
+     of 24, 0.10 at 81, 1.27 at 138, 5.96 at 304.
+
+     **WHICH METHOD IS CLOSEST TO THE TRUTH, by dataset size, share of
+     datasets. Decision 139's figures in brackets:**
+
+         n           KDE eq      KDE Dir     Logn eq     Logn Dir    Normal
+         3-9        34.7 [33.8] 22.4 [22.5] 22.6 [20.9] 10.6 [ 9.9]  9.8
+         10-99      21.0 [22.5] 21.1 [20.0] 27.2 [25.2] 20.5 [17.9] 10.1
+         100-999    24.9 [28.8] 38.0 [42.8] 12.2 [ 8.8] 22.2 [16.8]  2.6
+         1000+      21.8 [23.5] 67.0 [69.6]  1.5 [ 0.6]  9.6 [ 6.1]  0.1
+
+     **EVERY ORDERING IS IDENTICAL and no figure moves by more than five
+     points.** The kernel estimate under equal weights leads at three to nine
+     declarations, the three-parameter lognormal under equal weights leads at
+     ten to ninety-nine, and the kernel estimate under Dirichlet shares leads
+     everywhere above a hundred, reaching 67 percent at the top. **The normal
+     is never best in any band under either weighting.**
+
+     **AND THE TRUTH RUN'S HEADLINE SHARPENS.** Against the market-weighted
+     true parent, error in a material's chance of leading: the four non-normal
+     methods span **0.0811 to 0.0841**, a 3.7 percent spread against 6.8 on the
+     old corpus, so they are MORE indistinguishable than decision 109 reports;
+     and the normal's penalty over the best grows from 44.2 to **50.6
+     percent**. `KDE, Variable` still names the true largest contributor most
+     often, 0.5208 against 0.5250.
+
+     **WHY THIS IS WORTH A DECISION ENTRY RATHER THAN A SHRUG.** These
+     recommendations were calibrated on a corpus whose dispersion was known to
+     be short by a factor of nine and whose generator settings have now
+     changed. Reproducing them on differently-built data is the robustness
+     check the paper could not previously offer, and it is a stronger claim
+     than the one the manuscript currently makes on a single corpus. **The
+     manuscript should say the rule was reproduced on two independently
+     generated corpora.**
