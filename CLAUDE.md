@@ -6520,3 +6520,287 @@ rather than in conversation.
      W1-optimal fitting it improves by a median of 11.85 percent and still does
      not reach gamma. **So the family list is not short for want of trying, and
      nothing in the paper's conclusions moves.**
+
+190. **2026-09-25, Stage 2h. THE PORTED WEIGHT RULE IS NOW APPLIED TO THE
+     EMPIRICAL ARM IN THE PRODUCTION PATH. This SUPERSEDES decision 178's
+     closing paragraph**, which built the rule, measured it, and explicitly did
+     NOT apply it. `[AUTHOR]` "Why haven't you pulled the trigger on our new
+     method of splitting empirical into modes and applying flat Dirichlet by
+     mode? What are we waiting for? Sounds like you already figured out rho
+     should be 0.5, so what do we need to discuss?"
+
+     `empirical.WEIGHT_RHO = 0.5` and `empirical.prepare` now draws market
+     shares through `weighting.coherent_weights` instead of a flat Dirichlet
+     over every declaration. Both arms are on one rule for the first time in
+     the project.
+
+     **WHAT MOVED, and the control is the reason it can be trusted.** All
+     twelve UNWEIGHTED characteristic columns are BIT-IDENTICAL, because the
+     change touches only the weights. All twelve weighted ones move, by a
+     median absolute change of 0.066 on the coefficient of variation, 0.066 on
+     the uniform-to-variable Wasserstein distance, 0.135 on entropy and 0.648
+     on skewness. All six W1 scores move, which is correct and not a surprise:
+     every model is scored against the VARIABLE-weighted empirical CDF, so
+     changing the weights changes the target.
+
+     Arm-level, measured on the 147 real categories:
+
+         w_v_uw_wasserstein median   0.1048 -> 0.1475
+         w_v_uw_wasserstein mean     0.1348 -> 0.1898
+         coeffvar median             0.6706 -> 0.6406
+         coeffvar_uw median          0.678553 -> 0.678553   (the control)
+
+     **AND IT CLOSES THE GAP IT WAS BUILT TO CLOSE.** Decay of the median
+     separation on log10(n), and the medians above a thousand declarations:
+
+         rule                         empirical   synthetic   1000+ medians
+         old: flat over declarations    -0.449      -0.181     0.0050 / 0.0528
+         ported, rho = 0                -0.412      -0.349     0.0064 / 0.0166
+         ported, rho = 0.5              -0.161      -0.101     0.0441 / 0.0848
+
+     The tenfold gap above a thousand declarations that decision 141 opened
+     this whole item with is now a factor of 1.9, and what remains is
+     dispersion rather than the rule, which decision 178 established by
+     dividing each dataset's separation by its own coefficient of variation.
+
+     **THE REGRESSION FIXTURES ARE RE-FROZEN**, three of them:
+     `TABLE_EmpiricalECCMetrics.xlsx` and `TABLE_EmpiricalECCMetricsAndW1.xlsx`
+     for the reason above, and `TABLE_SyntheticECCMetricsAndW1.xlsx` for an
+     unrelated and benign reason -- it gained `modality_index_fitted` and
+     `modality_index_fitted_uw`, the columns decision 134 settled, and no
+     shared value moved by more than 1e-12. `tests/fixtures/README.md` records
+     what moved and the unweighted-column control.
+
+     **A SIDE EFFECT WORTH KEEPING.** The arm-to-arm distance on
+     `fit_lognorm_SF`, which decision 37 recorded as the worst characteristic
+     in the project and structural, HALVES from 0.65 to 0.33. Nothing was tuned
+     to achieve that.
+
+191. **2026-09-25, Stage 2h. A REGENERATION ON A WIDENED CONFIGURATION FAILED,
+     THE FIRST TWO DIAGNOSES OF THE FAILURE WERE BOTH WRONG, AND THE CAUSE WAS
+     THE TRUTH RUN'S SAMPLER RATHER THAN THE GENERATOR.** `[AUTHOR ASKED FOR
+     THE REGENERATION; THE MEASUREMENT REVERSED IT]`
+
+     The configuration was `min_q1_over_iqr = 0.02`, `trunc_iqr_mult = 5.0`,
+     `cv_log10_mean = 0.429`. Its truncation bound multiplier,
+     `(1 + 1/floor) ** mult`, is **345,025,251**, and the median truncation
+     bound came out at 101 million on data normalized to a mean of 1.0. Every
+     sample-level check PASSED and the calibration objective IMPROVED. The run
+     against the true parents then reported 99.98 percent errors.
+
+     **THE FIRST DIAGNOSIS, that the parents were tail-dominated, IS WRONG.**
+     `genconfig.max_parent_mean_over_median` was added on it and does not fire
+     on that configuration: its parents have a mean of 1.012, a median of
+     0.773, a ratio of **1.31** against a threshold of 25, and a 1 - 1e-6
+     quantile at 33. The parents were sound.
+
+     **THE SECOND DIAGNOSIS, that quantile endpoints alone would fix the grid,
+     was also wrong**, and the fix took two passes for a reason worth keeping:
+     linearly-spaced points between quantile endpoints still smear 1e-4 of
+     probability across eight orders of magnitude.
+
+     **THE CAUSE.** `plca.ParentSampler` tabulated the parent's CDF on a
+     LINEARLY spaced grid between the truncation bounds. With `hi` near 1e8 a
+     20,001-point linear grid has a spacing of about 18,000, so the entire body
+     fell between the first two grid points, the tabulated CDF became a step
+     function, and inverting it returned draws spread over the whole support.
+     The truth run was drawing from a lattice rather than from the parent. The
+     grid now places log-spaced points into each tail between 1e-4 and 1e-12
+     and spends the rest on the body, with the exact quantiles as endpoints.
+
+     **THE CONFIGURATION AND THE CORPUS WERE BOTH REVERTED** and the shipped
+     values restored. Nothing in the paper moved.
+
+     **THE LESSON THAT BELONGS IN THE NEXT STAGE'S HANDS, because it cost a
+     day.** Every check that stage ran looked at the GENERATOR or at the
+     SAMPLE. Nothing looked at the object the truth run actually draws from,
+     which is neither. Decision 192 is the gate that closes it.
+
+192. **2026-09-25, Stage 2h. A CANDIDATE GENERATOR CONFIGURATION NOW HAS TO
+     PASS A PARENT-LEVEL GATE BEFORE ITS CALIBRATION SCORE MEANS ANYTHING, AND
+     THE REJECTED CONFIGURATION FAILS IT.** `[AUTHOR]` "Sounds good, let's make
+     these edits at the parent level."
+
+     `audits/parent_sampler_fidelity.py` compares `plca.ParentSampler`'s
+     interpolated inverse CDF against the parent's own bisection at thirteen
+     probabilities from 1e-6 to 1 - 1e-6, over four dataset sizes and both
+     weighting schemes, then draws 10,000 values and checks the realized mean
+     against an exact mean computed on a DIFFERENT node set -- the components'
+     own quantiles, which is the construction decision 42 settled -- so the
+     check is independent of the thing it checks.
+
+         configuration        bound multiplier   median width   worst q error
+         shipped f0.5 m3.0                  27             18          4.7e-4
+         f0.2 m3.0                          64             86          5.1e-4
+         f0.1 m2.0                         121             50          5.0e-4
+         REJECTED f0.02 m5         345,025,251     92,000,000           0.997
+
+     **The rejected configuration fails on 55 percent of its parents**, a
+     median quantile error of 37 percent and a worst of 99.7, ALL of it at the
+     1e-6 quantile where the lower bound `q1 / r**5` sits eight orders of
+     magnitude below the body. So that configuration is genuinely unusable --
+     not for the reason first given, and not for the reason the guard of
+     decision 191 implements, but because no practical lattice can represent a
+     support spanning nine orders of magnitude.
+
+     **The bounded candidates are indistinguishable from the shipped
+     configuration at the parent level**, which is what licenses reading their
+     calibration scores at all.
+
+     **THE GUARD'S DOCSTRING IS CORRECTED IN PLACE.** It claimed to be "the
+     guard that would have prevented Stage 2h's failed regeneration" and cited
+     parents with a mean of 6,624. Neither is true. It is kept, because the
+     failure mode it names -- a parent whose mean is set by mass its own sample
+     will never draw -- is real and invisible at the sample level, and it costs
+     one `ppf` call per draw. It must not be cited against the widened
+     configuration.
+
+193. **2026-09-25, Stage 2h. THE STRUCTURAL TRADE BETWEEN DISPERSION AND THE
+     PAPER'S HEADLINE QUANTITY IS ABOLISHED BY THE WEIGHT RULE. It was an
+     artifact of scoring a mode-coupled corpus against a flat-Dirichlet real
+     arm. This NARROWS decisions 39, 138, 169 and 170, none of which was wrong
+     on its own evidence.** `[DELEGATED, 2h measured]`
+
+     Those four decisions record the same finding on four different levers
+     across three stages: anything widening the corpus's dispersion also widens
+     its uniform-to-variable Wasserstein distance past the real arm's. 36
+     configurations were searched and the sign never flipped. Decision 170's
+     closing paragraph named the escape -- "breaking the trade means changing
+     the WEIGHT model at the same time as the shape model" -- and that is what
+     decision 190 did.
+
+     **THE BOUNDED WIDENING CANDIDATES NOW IMPROVE BOTH AT ONCE**, three seeds
+     each, against the objective's 0.0066 seed noise:
+
+         configuration        objective   vs base   coeffvar   w_v_uw
+         base (shipped)          0.2216       --      0.4085   0.3400
+         f0.2 m3.0 c0.229        0.1912    -4.6 sd    0.2813   0.1951
+         f0.2 m3.0 c0.329        0.1840    -5.7 sd    0.2540   0.1595
+         f0.1 m2.0 c0.329        0.1738    -7.2 sd    0.2051   0.1528
+         f0.1 m2.0 c0.429        0.1706    -7.7 sd    0.2040   0.1564
+
+     The absolute and standardized columns agree in sign on every
+     characteristic, so this is not the denominator artifact decision 63
+     warns about.
+
+     **THE COUNTERFACTUAL IS WHAT MAKES IT A MECHANISM RATHER THAN A
+     COINCIDENCE.** `audits/widening_and_weights.py` scores ONE synthetic draw
+     against the empirical arm built under four weightings, so the columns
+     differ only in how the real categories were weighted. Change in the
+     weighting distance from the shipped configuration, in units of its own
+     0.0351 seed standard deviation:
+
+         empirical weighting      f0.2 m3.0      f0.1 m2.0
+         old: flat Dirichlet      +4.4 sd        +6.8 sd     <- the trade
+         ported, rho = 0.00       -1.4 sd        -0.4 sd     <- gone
+         ported, rho = 0.25       -0.5 sd        +1.8 sd     <- gone
+         ported, rho = 0.50       -5.1 sd        -5.3 sd     <- reversed
+
+     **THE SIGN FLIP IS THE CHANGE OF RULE AND NOT THE VALUE OF rho.** At
+     rho = 0, which is the ported rule's own null, the trade is already
+     indistinguishable from zero. What rho buys on top is the objective: the
+     candidates improve it by 1.8, 4.3 and 6.5 seed standard deviations at
+     rho = 0, 0.25 and 0.5. The dispersion column is essentially unchanged
+     across all four arms, as it must be, because the corpus's own spread does
+     not depend on how the real categories are weighted.
+
+     **WHY IT HAPPENS, in one sentence.** Porting the rule raised the real
+     arm's median weighting effect from 0.105 to 0.148 while the shipped corpus
+     sits at 0.092, so the corpus now UNDERSTATES that quantity by a third and
+     widening moves it toward the arm instead of past it.
+
+     **WHAT IS NOT DECIDED HERE: whether to regenerate.** Generation has been
+     closed since decision 48 and every number in the paper moves when it
+     reopens. What this establishes is that the reason for keeping it closed on
+     the dispersion question -- that widening costs the headline quantity -- no
+     longer holds, and that `crit_bw_1` is the one characteristic that worsens,
+     from 0.158 to 0.259 standardized, on a characteristic carrying weight 3 in
+     the objective. **A stage acting on this must judge that cost and must
+     re-run the parent-level gate of decision 192 on whatever it adopts.**
+
+194. **2026-09-25, Stage 2h. THE PEDIGREE MATRIX IS SOURCED, AND IT CANNOT
+     REACH THE SPREAD OF REAL ECC DATA. This NARROWS decision 184's sweep**,
+     most of which turns out to be unreachable. `[AUTHOR]` "you should've just
+     told me to go fetch it! I just dropped two papers in there."
+
+     From Muller, Lesage, Ciroth, Mutel, Weidema and Samson (2016), Int J Life
+     Cycle Assess 21:1185-1196, Table 3's prior column, which is what ecoinvent
+     uses, with the basic uncertainty factor of 1.05 its Table 4 gives for
+     semi-finished products and materials under every sector it reports.
+     `audits/pedigree_range.py` enumerates all 3,125 score combinations.
+
+     **THE ARITHMETIC, because every factor in that table is a contributor to
+     the SQUARE of the geometric standard deviation:**
+
+         sigma_95 = sqrt(sum over indicators of [ln(UF_i)] ** 2, plus basic)
+         GSD      = exp(sigma_95 / 2)
+
+     Quoting the combined factor AS a geometric standard deviation would double
+     the spread.
+
+         best  (1,1,1,1,1)            GSD 1.0247
+         median combination           GSD 1.2416
+         worst (5,5,5,5,5)            GSD 1.5873
+         a median real ECC category   GSD 1.8712
+
+     **SO A PEDIGREE MODEL IS SYSTEMATICALLY NARROWER THAN THE DATA IT STANDS
+     FOR, and 61.9 percent of real categories are wider than its worst score
+     can reach.** End to end the matrix spans a factor of 1.55; the real arm
+     spans 1.01 to 50.9. That is a property of what the matrix is FOR --
+     uncertainty about one datum for one process, not the spread of products
+     within a material category -- rather than a defect in it, and **the
+     manuscript should say so rather than present the two as rival estimates of
+     one quantity.**
+
+     **OF THE SIX SPREAD RATIOS DECISION 184 SWEPT, ONLY 0.5 IS REACHABLE ON
+     THE MEDIAN CATEGORY.** Taken the way that sweep takes it, on the EXCESS
+     over 1, since `gsd = 1 + (gsd_data - 1) * ratio` and a GSD of 1 is no
+     spread at all, the reachable band is 0.028 to 0.674. Ratio 0.5 is
+     reachable on 62.6 percent of real categories, 1.0 on 38.1 and 3.0 on 5.4.
+     The wide end of that sweep is a sensitivity and must not be labelled a
+     pedigree model.
+
+     **THIS STRENGTHENS DECISION 184 RATHER THAN UNDERMINING IT.** That entry
+     found the spread axis nearly flat -- design-comparison error 0.097 to
+     0.121 across a six-fold range -- and the reachable band is narrower still,
+     so its conclusion that the CENTRE decides everything holds with more room
+     to spare.
+
+     **TWO READING ERRORS ARE RECORDED SO THEY ARE NOT REPEATED.** A note taken
+     from that paper read "GSD 1.279 basic rising to 1.690 at scores 5,5,5,5,5";
+     those are the posterior factors for ONE indicator, the further
+     technological correlation, at scores 2 and 3 for the manufacturing sector,
+     and are neither GSDs nor a range. And the first version of the audit
+     reported a STRAIGHT ratio of model GSD to data GSD, giving 0.55 to 0.85
+     and wrongly naming 0.75 as reachable, against a sweep that scales the
+     excess. `judgment.PEDIGREE_GSD` carries the three computed values so
+     nothing downstream quotes them from memory.
+
+195. **2026-09-25, Stage 2h. THE BANDWIDTH THROUGH THE pLCA: Scott is worst on
+     every output, the guard costs almost nothing, and the parametric controls
+     do not move at all.** `[AUTHOR]` "Ultimately, pLCA results are most
+     important, so should we measure those? Silverman vs scott vs guarded
+     silverman?" Decision 188 answered on the FIT; this answers on the answer.
+
+     2,000 pLCA groups against the true parents, mean relative error over five
+     outputs, in percent:
+
+         bandwidth rule       KDE, Uniform   KDE, Dirichlet shares
+         scott                    25.879            25.418
+         silverman                25.283            24.965
+         silverman_guarded        25.473            24.819
+
+     **THE CONTROL IS THAT THE FOUR PARAMETRIC METHODS ARE BIT-IDENTICAL ACROSS
+     ALL THREE RULES**, which they must be and which says the measurement is
+     picking up the bandwidth and nothing else.
+
+     **Scott is worst on every one of the five outputs under both weightings**,
+     which is decision 71's finding reaching the decision level. The guard
+     costs 0.19 of a percentage point under equal weights and BUYS 0.15 under
+     Dirichlet shares, so at the decision level it is free in a way it is not
+     at the fit level. **The shipped rule stands and nothing changes.**
+
+     Worth stating in the manuscript: the configuration it was written against
+     used Scott, so the paper's own numbers understate the kernel estimate on
+     every downstream output, which is the conservative direction for its
+     recommendation.
