@@ -90,6 +90,53 @@ CANDIDATES = {
     'separation_kmin2': dict(separation_dispersion_frac=1.0, k_min=2,
                              mode_share_alpha=1.0, trunc_iqr_mult=5.0,
                              min_q1_over_iqr=0.02),
+    # THE FOURTH ROUND, 2026-09-25, and the first judged against an empirical
+    # arm weighted by the SAME rule as the corpus (decision 190).
+    #
+    # TWO THINGS CHANGED UNDER THE FOOT OF EVERY CANDIDATE ABOVE. First, the
+    # modality-shape correlations the rounds above were chasing were measured
+    # on WEIGHTED characteristics against an empirical arm drawing flat
+    # Dirichlet weights; on the weight-invariant UNWEIGHTED columns the real
+    # arm shows essentially no modality-shape relationship at all (-0.04 to
+    # +0.05 across five characteristics on 130 categories), so "the corpus has
+    # the sign backwards" was largely a statement about the old weight draw.
+    # What survives is that the corpus has a spurious NEGATIVE relationship
+    # (-0.11 to -0.17) where the real data has none. Second, and this is what
+    # these candidates are for: conditional on being dispersed, the real arm is
+    # multimodal 21.2 percent of the time and the corpus 22.1 -- they AGREE --
+    # so the joint cell is short only because the DISPERSION MARGINAL is short
+    # by a factor of nine.
+    #
+    # EVERY CANDIDATE ABOVE THAT WIDENS DISPERSION DOES IT WITH
+    # `min_q1_over_iqr = 0.02, trunc_iqr_mult = 5.0`, whose truncation bound
+    # multiplier is 345 million and which FAILS the parent-level gate of
+    # decision 192: the truth run's sampler is more than 1 percent wrong on 55
+    # percent of the parents it makes. Those candidates cannot supply a corpus
+    # whatever they score here. These use bounded truncation, 121 and 64, and
+    # pass that gate at 5e-4.
+    'bounded_wide': dict(min_q1_over_iqr=0.1, trunc_iqr_mult=2.0,
+                         cv_log10_mean=0.329),
+    'bounded_mid': dict(min_q1_over_iqr=0.2, trunc_iqr_mult=3.0,
+                        cv_log10_mean=0.329),
+    'bounded_wide_unequal': dict(min_q1_over_iqr=0.1, trunc_iqr_mult=2.0,
+                                 cv_log10_mean=0.329, mode_share_alpha=1.0),
+    'bounded_wide_separation': dict(min_q1_over_iqr=0.1, trunc_iqr_mult=2.0,
+                                    cv_log10_mean=0.329, mode_share_alpha=1.0,
+                                    separation_dispersion_frac=1.0),
+    # THE MODALITY THE BOUNDED CANDIDATES GIVE UP. Widening the components
+    # blends the humps, so dispersion is bought partly out of visible modality:
+    # 21.5 percent multimodal at the shipped configuration against 16.5 to 20.0
+    # for the bounded candidates, and a real arm at 24.6. `overlap_log10_hi` is
+    # the modality lever -- lower means more separated components -- so these
+    # ask whether the loss is recoverable without reaching for the separation
+    # path, whose cost to the weighting margin survives the repaired
+    # comparison (0.686 against 0.340 at the shipped configuration).
+    'bounded_mid_sep_lo': dict(min_q1_over_iqr=0.2, trunc_iqr_mult=3.0,
+                               cv_log10_mean=0.329, mode_share_alpha=1.0,
+                               overlap_log10_hi=0.10),
+    'bounded_mid_sep_lower': dict(min_q1_over_iqr=0.2, trunc_iqr_mult=3.0,
+                                  cv_log10_mean=0.329, mode_share_alpha=1.0,
+                                  overlap_log10_hi=-0.10),
 }
 
 
@@ -119,8 +166,16 @@ def visible_modes(values, metrics):
     return pd.Series(out, name='modes_fitted')
 
 
+#: "Dispersed" on the weight-invariant column: the real arm's own upper
+#: quartile of `coeffvar_uw`, so the word means the same thing on both arms.
+DISP_UW = 1.129
+
+
 def main(argv):
     n_total = int(argv[1]) if len(argv) > 1 else 1000
+    only = None
+    if '--only' in argv:
+        only = set(argv[argv.index('--only') + 1].split(','))
     emp, targets = empirical_targets()
     print('EMPIRICAL TARGET SIGNS, Spearman(visible modes, characteristic):')
     print(' ', {k: round(v, 3) for k, v in targets.items()})
@@ -129,6 +184,8 @@ def main(argv):
 
     rows, corr_rows = [], []
     for name, overrides in CANDIDATES.items():
+        if only is not None and name not in only:
+            continue
         cfg = corpus.scaled_config(G.DEFAULT, n_total,
                                    n_probe=max(5, n_total // 200))
         if overrides:
@@ -158,6 +215,19 @@ def main(argv):
                    multimodal_given_dispersed=float(
                        (m.modes_fitted >= 2)[m.coeffvar > 0.889].mean())
                    if (m.coeffvar > 0.889).any() else float('nan'))
+        # THE WEIGHT-INVARIANT CELLS. `coeffvar` is measured under the corpus's
+        # own market weights and `coeffvar_uw` is not, so only the second can be
+        # compared with a real arm whose weight rule has changed. Both are
+        # reported; the unweighted one is the one to judge on.
+        if 'coeffvar_uw' in m.columns:
+            du = m.coeffvar_uw > DISP_UW
+            row.update(median_cv_uw=float(m.coeffvar_uw.median()),
+                       dispersed_uw=float(du.mean()),
+                       multimodal_and_dispersed_uw=float(
+                           ((m.modes_fitted >= 2) & du).mean()),
+                       multimodal_given_dispersed_uw=float(
+                           (m.modes_fitted >= 2)[du].mean())
+                       if du.any() else float('nan'))
         signs_right = 0
         for c in CHARS:
             if c not in m.columns:
