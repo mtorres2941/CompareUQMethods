@@ -7116,3 +7116,38 @@ rather than in conversation.
      multimodal 14.1 percent of the time against the real arm's 21.2, where the
      superseded corpus matched at 22.1 -- this is worth re-opening in Stage 2j
      rather than treating as settled.
+
+201. **2026-09-25, Stage 2h. TWO DEFECTS FOUND BY THE MANUSCRIPT SESSION AFTER
+     THE STAGE CLOSED, both of them this stage's own recorded habits applied to
+     its own output.** `[MANUSCRIPT SESSION FOUND, 2h FIXED]`
+
+     **A CONFIGURATION DUMP CRASHED AND WAS PASTED WITHOUT BEING READ.** It
+     raised `KeyError: 'count'` on the strata line -- the field is
+     `n_datasets` -- printed the generator block and died before reaching the
+     weight rule, fitting, families, customstats or `flip.FLIP_THRESHOLDS`,
+     which was most of what had been asked for and included the one item the
+     reader said they most needed. **This is habit 34 inverted.** That habit
+     says a verification script that cannot fail is not a verification; this
+     was a script that DID fail whose failure nobody read. The replacement
+     ends with an explicit completion sentinel so a truncated paste is visible
+     as one, and the dump is checked for a traceback before it is used.
+
+     **A FIGURE CAPTION WAS PATCHED WHERE IT SHOULD HAVE BEEN REBUILT.** The
+     scorecard figure was correctly redrawn from current tables, and its
+     caption was corrected only on the five rows whose DEFINITION had changed
+     -- leaving at least nine other figures from the superseded corpus in a
+     paragraph that read as internally consistent. It said 12.0 where the
+     table gives 12.59, 32.0 against 32.42, 10.0 against 12.22, 43.6 to 45.5
+     against 47.60 to 49.76, and 8.0 and 22.1 against 9.43 and 24.19, and it
+     still used the retired word "sampled".
+
+     **THE LESSON, AND IT IS THE ONE THIS STAGE SPENT ITSELF ON.** A caption
+     mixing two corpora while reading as one paragraph is the same failure as a
+     scorecard mixing two statistics on one colour scale (decision 157) and a
+     figure mixing two error definitions (decision 174). **When the data under
+     a piece of prose is replaced, REBUILD the prose from the table rather than
+     repairing the numbers that are known to have moved**, because the ones not
+     known to have moved are exactly the ones that will be missed. Every
+     caption in the repository should be assumed to have the same defect until
+     checked; Stage 3 owns that sweep and the manuscript session has written it
+     up as its worked example.

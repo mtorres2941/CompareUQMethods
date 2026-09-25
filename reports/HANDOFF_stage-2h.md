@@ -914,55 +914,70 @@ before.
 ![Every claim a probabilistic LCA makes, scored for all six methods against the truth, with the five corrected rows](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
 
 **Figure: under the best of the six methods a probabilistic LCA is right to
-12.0 percent on the design comparison and wrong by 32.0 percent on which
+12.6 percent on the design comparison and wrong by 32.4 percent on which
 material leads -- and the count of black boxes in the upper panel is not a
 ranking of methods, because the ordering inverts with dataset size.**
+
+**THIS CAPTION WAS REBUILT FROM THE CURRENT TABLE ON 2026-09-25 AND EVERY
+NUMBER IN IT NOW COMES FROM ONE CORPUS.** The version before it was patched
+only on the five rows whose DEFINITION changed and left at least nine other
+figures from the superseded corpus, so it read as one consistent paragraph
+while mixing two -- the exact failure this stage spent itself avoiding. It
+said 12.0 where the table gives 12.59, 32.0 against 32.42, 10.0 against 12.22,
+43.6 to 45.5 against 47.60 to 49.76, and 8.0 and 22.1 against 9.43 and 24.19,
+and it still used the retired word "sampled". **Anyone checking another caption
+in this repository should assume the same and rebuild rather than repair.**
 
 **EVERY CELL OF BOTH PANELS IS THE SAME QUANTITY**: that method's mean absolute
 error against the truth PER DECISION, as a percentage of the mean true level of
 the thing being claimed. A black box marks the method closest to the truth in
-each row. "Sampled" means the market shares were drawn at random because nobody
-publishes them; "equal" means every declaration counts the same.
+each row. "Market weights" means the market shares were drawn at random because
+nobody publishes them; "uniform weights" means every declaration counts the
+same.
 
-**WHAT THE CORRECTION DID TO THIS FIGURE.** The four reduction-strategy rows
-and the design comparison moved, and nothing else did. Before and after, best
-method, ON THE CURRENT DATA: how often a cap binds **0.1 to 31.1**, a cap's
-mean saving **1.7 to 37.0**, a cap's chance of saving 5 percent **2.5 to
-32.5**, what using 25 percent less saves **0.0 to 12.2**, the probability B
-beats A **1.3 to 12.6**. (Restated 2026-09-25 with the regenerated data; this
-caption previously read 0.5 to 30.6, 0.6 to 38.5, 1.1 to 33.0, 0.0 to 10.0 and
-0.8 to 12.0, and section 1 quoted the same five to two decimal places. Both are
-now on the current corpus and agree.)
-The eleven other rows are bit-identical and the old values are reproduced
-exactly by the new portfolio column.
+**READING THE UPPER PANEL.** The building total is recovered to **9.43** percent
+on its mean and **24.19** on its standard deviation. Attribution runs from
+**12.22** percent on a material's share of the total to **32.42 on its chance
+of being the largest contributor**, which remains the worst-recovered claim in
+that block. The uncertainty index is **47.60 to 49.76 percent** with only 2.2
+points between best and worst -- the one claim where the choice of method does
+not matter and no method is close. The reduction strategies are the widest
+block on the figure: a cap's chance of saving 5 percent runs **32.50 to
+61.32**, and the two normal fits are the whole of that spread. The design
+comparison is the best recovered claim at **12.59 to 19.58**.
 
-**READING THE UPPER PANEL.** The building total is recovered to 8.0 percent on
-its mean and 22.1 on its standard deviation. Attribution runs from 10.0 percent
-on a material's share of the total to **32.0 on its chance of being the largest
-contributor**, which remains the worst-recovered claim in that block. The
-uncertainty index is **43.6 to 45.5 percent** with only 1.9 points between best
-and worst -- the one claim where the choice of method does not matter and no
-method is close. The reduction strategies are now the widest block on the
-figure: a cap's chance of saving 5 percent runs **33.0 to 58.1**, and the two
-normal fits are the whole of that spread. The design comparison is the best
-recovered claim at **12.0 to 17.1**.
+**WHAT THE PER-UNIT CORRECTION DID TO THIS FIGURE.** The four reduction-strategy
+rows and the design comparison moved and nothing else did. Portfolio form to
+per-unit form, best method: how often a cap binds **0.1 to 31.1**, a cap's mean
+saving **1.7 to 37.0**, a cap's chance of saving 5 percent **2.5 to 32.5**,
+what using 25 percent less saves **0.0 to 12.2**, the probability B beats A
+**1.3 to 12.6**. The eleven other rows are unchanged by the correction and the
+old values are reproduced exactly by the portfolio column.
 
 **THE RIGHT-HAND BAR IS A DIFFERENT QUESTION FROM THE CELLS.** It is worst
 minus best, so it is what the CHOICE of method costs, where the cells say how
 good the answer is at all. On a cap's chance of saving 5 percent the choice
-costs 25.1 and the best method is still 33.0 out. On the uncertainty index the
-choice costs 1.9 and every method is about 44 out.
+costs 28.8 and the best method is still 32.5 out. On the uncertainty index the
+choice costs 2.2 and every method is about 48 out.
 
 **THE LOWER PANEL IS THE UPPER ONE'S OWN CAVEAT.** The seven per-material
-claims pooled, split by the material's own dataset size. The equal-weighted
-lognormal is closest below 100 declarations, the sampled-share lognormal from
-100 to 999, and the sampled-share kernel estimate above 1,000 at **11.0 against
-the equal-weighted lognormal's 17.2**. Both axes turn over: equal weights win
-every band below 100 and sampled shares win every band above.
+claims pooled, split by the material's own dataset size, percent:
+
+    band        KDE unif  KDE mkt  Logn unif  Logn mkt  Norm unif  Norm mkt
+    3-9           43.90    47.08     43.13     48.95      45.89     49.32
+    10-99         29.32    30.18     27.08     28.68      31.85     32.26
+    100-999       20.20    17.15     20.47     16.67      25.50     23.56
+    1000+         18.50    12.53     20.04     14.48      24.29     21.54
+
+The uniform-weighted lognormal is closest below 100 declarations, the
+market-weighted lognormal from 100 to 999, and the market-weighted kernel
+estimate above 1,000 at **12.53 against the uniform-weighted lognormal's
+20.04**. Both axes turn over: uniform weights win every band below 100 and
+market weights win every band above.
 
 **AND ONE OF THE SIXTEEN ROWS IS REDUNDANT, which the correction exposed.**
-"What using 25 percent less saves" and "a material's share of the total" now
-carry identical numbers in all six cells, and that is an identity rather than a
+"What using 25 percent less saves" and "a material's share of the total" carry
+identical numbers in all six cells, and that is an identity rather than a
 coincidence: using 25 percent less of a material removes exactly a quarter of
 that material's share of the building, so the error in the first is exactly
 0.25 times the error in the second and their relative errors are equal to
@@ -1486,43 +1501,134 @@ regeneration attempt, which was reverted in full on 09-24. The corpus was then
 regenerated a second time, successfully, on 09-25. Both statements are true of
 different moments and the file should have said so; it now does, in section 15.
 
-GENERATOR -- genconfig.DEFAULT
-        genconfig.comp_exkurt_hi                     60.0
-        genconfig.comp_exkurt_lo                     -1.2
-        genconfig.comp_sd_log10_hi                   0.3
-        genconfig.comp_sd_log10_lo                   -0.7
-        genconfig.comp_skew_hi                       8.0
-        genconfig.comp_skew_lo                       -3.0
-        genconfig.cv_log10_hi                        1.2041199826559248
-        genconfig.cv_log10_lo                        -2.3979400086720375
-        genconfig.cv_log10_mean                      0.329
-        genconfig.cv_log10_sd                        0.7838
-        genconfig.k_max                              5
-        genconfig.k_min                              1
-        genconfig.market_share_alpha                 1.0
-        genconfig.max_component_retries              12
-        genconfig.max_low_tail_truncated             0.15
-        genconfig.max_parent_mean_over_median        25.0
-        genconfig.max_parent_retries                 20
-        genconfig.min_mode_sd_frac                   0.15
-        genconfig.min_q1_over_iqr                    0.2
-        genconfig.mode_coupling                      1.0
-        genconfig.mode_share_alpha                   10.0
-        genconfig.overlap_log10_hi                   0.146128035678238
-        genconfig.overlap_log10_lo                   -0.5228787452803376
-        genconfig.overlap_statistic                  min_adjacent
-        genconfig.point_weight_alpha                 1.0
-        genconfig.position_skew                      5.0
-        genconfig.seed                               42
-        genconfig.separation_dispersion_frac         0.0
-        genconfig.shoulder_body                      narrow
-        genconfig.shoulder_frac                      0.0
-        genconfig.trunc_iqr_mult                     3.0
-        genconfig.trunc_rule                         log
-    Traceback (most recent call last):
-      File "<stdin>", line 14, in <module>
-      File "<stdin>", line 14, in <listcomp>
-    KeyError: 'count'
+**THE FIRST VERSION OF THIS DUMP CRASHED AND WAS PASTED ANYWAY.** It raised
+`KeyError: 'count'` on the strata line -- the field is `n_datasets`, not
+`count` -- printed the generator block, and died before reaching the weight
+rule, fitting, families, empirical, customstats or `flip.FLIP_THRESHOLDS`,
+which is most of what was asked for. The output was not read before it was
+pasted. **That is this stage's own habit 34 inverted**: habit 34 says a
+verification script that cannot fail is not a verification, and this was a
+script that DID fail whose failure nobody read. The dump below runs to
+completion and ends with an explicit sentinel so a truncated paste is visible
+as one.
+
+GENERATOR -- genconfig.DEFAULT (src/genconfig.py)
+        genconfig.comp_exkurt_hi                   60.0
+        genconfig.comp_exkurt_lo                   -1.2
+        genconfig.comp_sd_log10_hi                 0.3
+        genconfig.comp_sd_log10_lo                 -0.7
+        genconfig.comp_skew_hi                     8.0
+        genconfig.comp_skew_lo                     -3.0
+        genconfig.cv_log10_hi                      1.2041199826559248
+        genconfig.cv_log10_lo                      -2.3979400086720375
+        genconfig.cv_log10_mean                    0.329
+        genconfig.cv_log10_sd                      0.7838
+        genconfig.k_max                            5
+        genconfig.k_min                            1
+        genconfig.market_share_alpha               1.0
+        genconfig.max_component_retries            12
+        genconfig.max_low_tail_truncated           0.15
+        genconfig.max_parent_mean_over_median      25.0
+        genconfig.max_parent_retries               20
+        genconfig.min_mode_sd_frac                 0.15
+        genconfig.min_q1_over_iqr                  0.2
+        genconfig.mode_coupling                    1.0
+        genconfig.mode_share_alpha                 10.0
+        genconfig.overlap_log10_hi                 0.146128035678238
+        genconfig.overlap_log10_lo                 -0.5228787452803376
+        genconfig.overlap_statistic                min_adjacent
+        genconfig.point_weight_alpha               1.0
+        genconfig.position_skew                    5.0
+        genconfig.seed                             42
+        genconfig.separation_dispersion_frac       0.0
+        genconfig.shoulder_body                    narrow
+        genconfig.shoulder_frac                    0.0
+        genconfig.trunc_iqr_mult                   3.0
+        genconfig.trunc_rule                       log
+        genconfig.strata[s1_3_9        ]        n 3 to 9, 2500 datasets
+        genconfig.strata[s2_10_99      ]        n 10 to 99, 2500 datasets
+        genconfig.strata[s3_100_999    ]        n 100 to 999, 2500 datasets
+        genconfig.strata[s4_1000_9999  ]        n 1000 to 9999, 2500 datasets
+        genconfig.probe[probe_10k_100k]         n 10000 to 100000, 50 datasets
+    
+    THE EMPIRICAL WEIGHT RULE -- THE KNOB REPORTED AT 0.5 IS `WEIGHT_RHO`
+        empirical.WEIGHT_RHO                     0.5
+        (the "coherence" of the handoff. empirical.prepare takes it as the
+         keyword `rho` and passes it to weighting.coherent_weights)
+        weighting.BLOCKS_MIN                     1
+        weighting.BLOCKS_MAX                     5
+        THE BLOCK COUNT RULE: weighting.draw_blocks draws k uniformly on
+        [BLOCKS_MIN, BLOCKS_MAX] and INDEPENDENT of n, which is how the
+        generator draws its own component count. empirical.prepare passes
+        k=None so draw_blocks supplies it.
+        weighting.coherent_weights defaults:
+            k                          None
+            rho                        1.0
+            block_alpha                1.0
+            point_alpha                1.0
+            per_block                  8
+            return_blocks              False
+        empirical.prepare defaults:
+            path                       /Users/martin.torres/Library/CloudStorage/Dropbox/Work/CUBoulder/Dissertation/Coding/CompareUQMethods/data/raw/ec3_raw_ecc_2026-08-14.csv.gz
+            alpha                      1.0
+            mult                       3.0
+            min_n                      3
+            split                      True
+            ceiling                    True
+            rho                        0.5
+    
+    EMPIRICAL ARM -- src/empirical.py
+        empirical.DIRICHLET_ALPHA                  1.0
+        empirical.CLEAN_IQR_MULT                   3.0
+        empirical.MIN_N                            3
+        empirical.MASS_ECC_CEILING                 100.0
+        empirical.MAX_MASS_PER_UNIT                {'vol': 12000.0, 'area': 8000.0, 'length': 1000.0}
+        empirical.MAX_ECC_PER_UNIT                 {'vol': 5000.0, 'area': 5000.0, 'length': 1000.0}
+        empirical.MASS_UNIT_TYPE                   weight
+        empirical.SPLIT                            True
+        empirical.SOURCE                           /Users/martin.torres/Library/CloudStorage/Dropbox/Work/CUBoulder/Dissertation/Coding/CompareUQMethods/data/raw/ec3_raw_ecc_2026-08-14.csv.gz
+    
+    FITTING -- src/fitting.py
+        fitting.FIT_METHOD                       mle
+        fitting.BW_METHOD                        silverman_guarded
+        fitting.W1_ROUTE                         trapezoid
+        fitting.SCORE_GRID_POINTS                20000
+        fitting.W1_TAIL_TERM                     True
+        fitting.W1_TAIL_QUANTILE                 0.999999
+        fitting.FAMILIES                         {'normal': (<function fit_normal_mle at 0x131c45f80>, <function make_normal at 0x131c462a0>), 'lognormal_2p': (<function fit_lognorm2_mle at 0x131c46020>, <function make_lognorm at 0x131c46340>), 'lognormal_3p': (<function fit_lognorm3_profile at 0x131c46160>, <function make_lognorm at 0x131c46340>), 'lognormal_offset': (None, <function make_lognorm at 0x131c46340>), 'gamma': (<function fit_gamma_mle at 0x131c46200>, <function make_gamma at 0x131c463e0>), 'weibull': (<function fit_weibull_mle at 0x131c46980>, <function make_weibull at 0x131c46a20>)}
+        fitting.PEWT                             ['Normal, Uniform', 'Normal, Variable', 'Lognormal, Uniform', 'Lognormal, Variable', 'KDE, Uniform', 'KDE, Variable']
+        fitting.WT_DISPLAY                       {'Uniform': 'uniform weights', 'Variable': 'market weights', 'Oracle': 'known market shares'}
+        fitting.WT_DISPLAY_SHORT                 {'Uniform': 'uniform', 'Variable': 'market', 'Oracle': 'known'}
+    
+    FAMILIES -- src/families.py
+        families.PROFILE_DELTA_LO_FRAC            0.25
+        families.PROFILE_DELTA_HI_FRAC            1000.0
+        families.PROFILE_GRID_POINTS              400
+    
+    CUSTOMSTATS -- src/customstats.py
+        customstats.SILVERMAN_MIN_NEFF               20.0
+    
+    FLIP -- src/flip.py
+        flip.FLIP_THRESHOLDS                  {0.01: 0.0018, 0.05: 0.011, 0.1: 0.025}
+        flip.PROSE_MAX_SIGFIGS                4
+        *** FLIP_THRESHOLDS IS CALIBRATED ON THE SUPERSEDED CORPUS. All
+            three values now fall OUTSIDE their recomputed 95 pct
+            intervals. See answer 9. Notebook 1 READS this. ***
+    
+    RECOVERY -- src/recovery.py
+        recovery.RECOVERY_GRID_POINTS             10000
+        recovery.TAIL_QUANTILE                    0.999999999
+        recovery.TAIL_GRID_POINTS                 2000
+    
+    PLCA -- src/plca.py
+        plca.TRUTH_SCHEME                     market
+        plca.TRUTH_SCHEME_SAMPLING            uniform
+        plca.COMPARISON_MARGINS               (1.0, 1.05, 1.2)
+    
+    ACTIVE CORPUS
+        data/processed/CORPUS.json               corpus_2026-09-25
+    
+    === DUMP COMPLETE, no exception ===
 
 ## 5. The two numbers that disagreed
 
