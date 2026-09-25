@@ -504,10 +504,14 @@ def draw_weights(parent, modes, cfg, rng):
 #:                               max_parent_mean_over_median times its own
 #:                               median, so the mean is set by mass its own
 #:                               sample will essentially never draw. Added in
-#:                               Stage 2h after a corpus was regenerated on
-#:                               parents with a mean of 6,624 against data
-#:                               normalized to 1.0, which every sample-level
-#:                               check passed
+#:                               Stage 2h on a diagnosis later shown to be
+#:                               wrong -- it does not fire on the corpus that
+#:                               prompted it, whose parents had a mean over
+#:                               median of 1.31 -- and kept because the
+#:                               failure mode it names is real and invisible
+#:                               at the sample level. See the field's
+#:                               docstring in genconfig.py for what actually
+#:                               broke that run
 #:   mode_too_narrow             a mode came out narrower than min_mode_sd_frac
 #:   component_targets_exhausted the skewness and excess kurtosis drawn for a
 #:                               component could only be met by a J-shaped

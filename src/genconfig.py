@@ -464,16 +464,46 @@ class GeneratorConfig:
     max_parent_mean_over_median: float = 25.0
     """Reject a parent whose own MEAN is more than this times its own MEDIAN.
 
-    **THE GUARD THAT WOULD HAVE PREVENTED STAGE 2h'S FAILED REGENERATION.**
-    Every characteristic the tuning objective scores is computed on the
-    SAMPLE, and the sample is divided by its own mean. A parent with a long
-    thin upper tail produces perfectly reasonable-looking samples -- they
-    almost never draw from that tail -- while the parent's own mean is set by
-    it. Stage 2h widened the truncation, regenerated the corpus, and got
-    parents with a mean of 6,624 against data normalized to 1.0, while every
-    sample statistic IMPROVED by 8.4 standard errors. Nothing in the loop
-    looked at the parent, so nothing caught it until the run against the true
-    parents produced 99.98 percent errors.
+    **THIS GUARD WAS ADDED ON A DIAGNOSIS THAT WAS WRONG, AND THE ORIGINAL
+    VERSION OF THIS DOCSTRING SAID SO IN THE OPPOSITE DIRECTION.** It was
+    headed "the guard that would have prevented Stage 2h's failed
+    regeneration" and said that regeneration produced parents with a mean of
+    6,624 against data normalized to 1.0. **It did not, and this guard does
+    not fire on that configuration.** Measured on the parents the rejected
+    configuration actually drew: mean 1.012, median 0.773, so a ratio of
+    **1.31** against a threshold of 25, and the 1 - 1e-6 quantile at 33. The
+    parents were sound.
+
+    **WHAT ACTUALLY BROKE IT was `plca.ParentSampler`**, which built its
+    inverse-CDF lattice on a LINEARLY spaced grid between the truncation
+    bounds. Widening the truncation pushed those bounds eight orders of
+    magnitude apart, so the first interior grid point sat far above the body
+    of the distribution and 1e-4 of probability was smeared across the whole
+    span. The truth run then drew from a lattice, not from the parent, and
+    reported 99.98 percent errors. The sampler is fixed (log-spaced tail
+    points at each end, exact quantile endpoints); the guard had nothing to do
+    with either the failure or the repair.
+
+    **SO WHY IT IS KEPT.** A parent whose mean is set by mass its own sample
+    will essentially never draw IS unusable -- every characteristic the tuning
+    objective scores is computed on the sample, and the sample is divided by
+    its own mean, so nothing at the sample level can see it. That failure mode
+    is real even though it is not the one that occurred. The guard is a
+    parent-level invariant that costs one `ppf` call per draw and never fires
+    on any configuration this project has run, which is the right price for an
+    assertion.
+
+    **AND THE REJECTED CONFIGURATION IS STILL UNUSABLE, on the right evidence
+    this time.** Re-measured against the FIXED sampler by
+    `audits/parent_sampler_fidelity.py`, its parents put the truncation bounds
+    a median of 92 million apart, and the sampler's quantile is more than 1
+    percent wrong on **55 percent** of them -- a median error of 37 percent and
+    a worst of 99.7 percent, all of it at the 1e-6 quantile, where the lower
+    bound `q1 / r**5` sits eight orders of magnitude below the body. The
+    bounded candidates swept alongside it reach 5e-4 on every quantile of every
+    parent, the same as the shipped configuration. So that configuration fails
+    a gate this guard does not implement, and citing this guard for it would
+    still be citing the wrong evidence.
 
     **SCALE FREE BY CONSTRUCTION**, which is why it is a ratio to the median
     rather than a bound on the mean: a raw bound would be fooled by a change
@@ -484,8 +514,9 @@ class GeneratorConfig:
 
     **25 IS LOOSE ON PURPOSE.** It is not a calibration; it is the difference
     between a heavy-tailed parent, which this study wants, and one whose mean
-    is an artifact of unobservable mass, which it cannot use. The shipped
-    configuration does not come close to it.
+    is an artifact of unobservable mass, which it cannot use. Neither the
+    shipped configuration nor any candidate swept in Stage 2h comes close to
+    it.
     """
 
     min_mode_sd_frac: float = 0.15
