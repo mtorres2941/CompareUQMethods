@@ -147,116 +147,92 @@ several define methods this analysis implements directly.
 
 ---
 
-## Handoff file specification
+## Stage report specification
 
-Every stage writes a handoff file so the next stage (and the next session)
-starts from a written record rather than from memory.
+**REPLACES the handoff specification, 2026-09-25.** The separate chat window
+that reviewed each stage without repository access is retired, so the rule
+"write for a reader who has no checkout" no longer describes anyone. The
+replacement reader is different in one way that matters and the format changes
+with it.
 
-- **Location:** `reports/`
-- **Name:** `HANDOFF_stage-<id>.md`, e.g. `reports/HANDOFF_stage-0.md`
-- **Format:** plain ASCII Markdown, same constraints as all other output.
+- **Location and name:** `reports/STAGE_REPORT_<id>.md`, e.g.
+  `reports/STAGE_REPORT_2j.md`. Existing `HANDOFF_stage-*.md` files keep their
+  names; nothing is renamed retroactively.
+- **Format:** plain ASCII Markdown, US spelling, same as everything else.
 
-### WHO READS IT, and it is not someone with this repository
+### Who reads it
 
-**The handoff's only reader has NO access to this repository.** No `CLAUDE.md`,
-no `reports/`, no output tables, no figures, no `refs/`, no source. It is the
-manuscript session, which drafts the next stage's prompt and edits the paper
-from the handoff alone. Write for that reader, because a file that only makes
-sense next to a checkout is a file that cannot do its job.
+**The author, and a fresh Claude Code window whose only job is to attack it.**
+Both have the repository. **NEITHER HAS DONE THE WORK**, and that is the
+property the format protects. A session that has just spent six hours on
+something does not interrogate the assumptions it was built on; that is a
+property of context, not of capability, and it is why the review step survives
+the chat window's retirement.
 
-Three rules follow, and they are binding:
+### What changes now the reader has a checkout
 
-- **A decision or entry number is a TRAILING CITATION, never the substance.**
-  Write the claim in full, then cite it. "The guard threshold is 20 effective
-  observations, not 30 (decision 80)" is right; "per decision 80" alone is a
-  dead pointer.
-- **Numbers and figures must appear as TEXT in the handoff.** Do not send the
-  reader to a table or a figure for a value the sentence depends on. If a claim
-  needs three numbers, the three numbers are in the sentence.
-- **An instruction to consult a repository file is addressed to the NEXT CLAUDE
-  CODE SESSION, not to the reader**, and must say so where it appears. "Stage 2h
-  sweeps `PROFILE_DELTA_LO_FRAC`; that session should read `src/fitting.py`
-  first" is fine. "See `src/fitting.py`" on its own is not.
+- **Every headline claim carries the command that reproduces it.** This is the
+  new requirement and it is the most important one. A claim a reviewer can
+  re-run in one line is a claim that cannot quietly go stale. Stage 2h shipped
+  six audit results computed on a corpus that had been replaced later in the
+  same stage, and a reproduce-command beside each would have exposed every one.
+- **A decision number may be a citation, because the reader can open the log.**
+  The old rule that a citation must never carry the substance still holds: state
+  the claim in full, then cite it. A dead pointer is still a dead pointer.
+- **"See this file" is now legitimate** where it used to be forbidden, as long
+  as the sentence still means something without opening it.
 
-The test before a stage ends: **could the author hand this file over, alone, and
-say nothing?** If a sentence cannot be understood without looking something up,
-that is a defect in the handoff, and the fix is to spell it out there rather
-than to send the other files.
+### What does NOT change, and why
 
-Each handoff file contains, in order:
+- **Numbers appear as TEXT.** The author reads this without opening tables. If
+  a claim needs three numbers, the three numbers are in the sentence.
+- **Figures are EMBEDDED**, with captions carrying the numbers, because the
+  author reviews the report and the figures together.
+- **Every headline claim carries a plain-language "so what"** for someone who
+  designs buildings and does not read statistics. A claim that cannot be
+  restated in plain words has not been understood well enough to publish.
+- **PROVENANCE ON EVERY RESULT: which corpus, and which weight rule.** Added
+  2026-09-25 after a stage could not answer that question about its own output
+  without reconstructing it from file timestamps.
 
-1. **Stage and branch.** Stage id and title, the git branch the work was done
-   on, the commit branched from, and the commits made during the stage.
-2. **What was asked.** A short restatement of the stage's goal.
-3. **What was done.** Findings, decisions, and changes made, in enough detail
-   that the work does not have to be redone to understand it.
-4. **Numbers that moved.** Any result value that changed during the stage, with
-   the before value, the after value, and the reason. States "none" explicitly
-   if nothing moved.
-5. **Open questions and flags.** Anything deferred, uncertain, or awaiting a
-   decision from me, including any divergence from KL1, KL2, or the Marsh
-   papers.
-6. **Inputs and outputs.** Files read and files written by the stage.
-7. **Next stage.** What the next stage should pick up first.
+### The shape
 
-### Two requirements added by the author at the close of Stage 2e
+1. **The first page**, and it is capped at one page: what changed, what moved,
+   what needs an author decision. This is what the author reads.
+2. **The findings**, each with its numbers, its "so what", and its
+   reproduce-command.
+3. **Numbers that moved**, with before, after and reason. States "none"
+   explicitly if nothing moved.
+4. **What is still open**, carrying forward every unresolved item from every
+   previous report, each marked resolved, still open or superseded.
+5. **Inputs and outputs**, including which corpus every result ran on.
+6. **What the next stage picks up first.**
 
-**EMBED THE FIGURES IN THE HANDOFF.** Not a link and not a filename: the image,
-inline, with a caption that carries the numbers. The author reviews the handoff
-and the figures together and should not have to open a second window to do it.
-Use a relative path from `reports/`, and write the caption so that it still
-says everything a reader needs if the image does not render, because the
-handoff's other reader has no checkout.
+**The test before a stage ends is unchanged in substance:** could the author
+read this alone and know what happened, and could a reviewer who has not done
+the work find what is wrong with it. If either answer is no, the report is what
+needs fixing.
 
-**GIVE EVERY CLAIM A PLAIN-LANGUAGE "SO WHAT".** The analysis stays as
-statistical as it needs to be -- that is not negotiable and it is what makes the
-result defensible -- but every headline claim carries one or two sentences
-underneath it saying what it means for someone who designs buildings and does
-not read statistics. The author's advisor pushes back on statistics-heavy
-writing, and a claim that cannot be restated in plain words has not been
-understood well enough to publish. Write the number first and the translation
-second; do not replace one with the other.
+### The review step, which is not optional
 
-### Continuity across sessions and windows
+At the close of every stage, before the next one starts: open a FRESH window,
+give it the stage report and `reports/STAGE_PROMPTS.md` and nothing else at
+first, and ask it to find what is wrong, stale, internally contradictory or
+asserted without measurement. It may then open the repository to check, but it
+forms its questions from the report first. Its standing questions are in
+`reports/START_HERE.md`.
 
-This project is worked on from several Claude Code windows at once, and
-different stages run in different sessions. A session cannot see another
-session's conversation. The handoff files are therefore the only channel
-between them, and the following rules are binding:
+### Retention
 
-- **Nothing outstanding may live only in a conversation.** Any open question,
-  deferred decision, known defect, suspicion, or promise to revisit must be
-  written into a handoff file before the stage ends. If it is not in a handoff
-  file, it does not exist.
-- **Every handoff carries forward the unresolved items from every previous
-  handoff**, not only its own. Section 5 of each handoff opens with a
-  "Carried forward" list restating every still-open item from earlier stages,
-  each marked resolved, still open, or superseded, with the stage that last
-  touched it. An item may only leave the list by being marked resolved, with
-  the reason given.
-- **Start every stage by reading `reports/` in full**, in stage order, before
-  doing any work. Do not rely on this file alone; it holds the brief, not the
-  state.
-- **Record decisions with their reason and their date**, so a later session can
-  tell a settled decision from an open one.
-- **Never silently reverse an earlier stage's decision.** If a later stage
-  finds an earlier decision wrong, say so explicitly in the handoff, name the
-  stage and the decision, and state what changed.
+**Only the CURRENT stage's report is kept.** Earlier ones are deleted when the
+project closes: this repository is published alongside the paper and a reader
+has no use for the editing process that produced it. What survives is the
+decision log in this file and `reports/MANUSCRIPT_discrepancies.md`. Git history
+retains the deleted files, which is sufficient.
 
-**Only the CURRENT stage's handoff is kept.** The handoffs for stages 0 through
-2a-3 were deleted on 2026-09-15, by the author's decision: this repository is
-published alongside the paper and a reader has no use for the editing process
-that produced it. What survives a stage is the decision log in this file, which
-carries every decision with its reason and its date, and the discrepancy file.
-Git history retains the deleted handoffs, so nothing is unrecoverable; they are
-simply not part of the deposit.
-
-This does not relax the first rule above. An open item still may not live only
-in a conversation: when a stage closes, its unresolved items move into the
-DECISION LOG or into `reports/MANUSCRIPT_discrepancies.md`, not into a file
-that is about to be deleted. The old "carried forward" list is replaced by that
-requirement, because a chain of handoffs that no longer exists cannot carry
-anything.
+**This does not relax the rule that nothing outstanding may live only in a
+conversation.** When a stage closes, its unresolved items move into the decision
+log or the discrepancy file, not into a file that is going to be deleted.
 
 ---
 
@@ -7151,3 +7127,45 @@ rather than in conversation.
      caption in the repository should be assumed to have the same defect until
      checked; Stage 3 owns that sweep and the manuscript session has written it
      up as its worked example.
+
+
+202. **2026-09-25. THE TWO-SURFACE WORKFLOW IS RETIRED. Claude Code owns the
+     prompt file, and the adversarial review moves inside it.** `[AUTHOR]`
+     "This workflow isn't going well. The other Claude agent isn't bringing
+     much value. I think we can do everything we need to do within Claude Code
+     and this repository."
+
+     **WHAT THE CHAT WINDOW WAS ACTUALLY FOR, which is worth stating because
+     the replacement has to preserve it.** Not prompt editing. It had not run
+     the analysis. In its last three reviews it caught that six audit results
+     were computed on a corpus replaced later in the same stage; that a
+     generator sweep's conclusion was measured against a contaminated
+     objective; that a figure caption carried nine numbers from a superseded
+     corpus while the figure itself was current; and that a configuration dump
+     had crashed and been pasted with its traceback. **None of those needed
+     repository access and all of them needed a reader who did not already
+     believe the session's account of its own work.**
+
+     **SO THE SEPARATION SURVIVES AND MOVES INSIDE CLAUDE CODE.** At the close
+     of every stage, a FRESH window reads the stage report and attacks it before
+     the next stage starts. Its standing questions are in
+     `reports/START_HERE.md`. It is not optional, and it is most valuable on the
+     stages that feel cleanest.
+
+     **FILE REORGANIZATION.** `reports/START_HERE.md` is the single entry point
+     and names everything else; `reports/STAGE_PROMPTS.md` holds the stage
+     instructions with a line index. The invocation is one line: "Read
+     reports/START_HERE.md and follow it. I am starting Stage <id>."
+
+     **THE HANDOFF SPECIFICATION IS REPLACED BY A STAGE REPORT SPECIFICATION**,
+     above. The reader now HAS the repository, so "see this file" becomes
+     legitimate and a decision number can be a citation. Two requirements are
+     added in exchange: **every headline claim carries the command that
+     reproduces it**, and **every result states which corpus and which weight
+     rule it ran on**. Both come directly from Stage 2h failures. What does not
+     change is numbers as text, figures embedded, and a plain-language "so what"
+     on every claim, because the author reads it without opening tables.
+
+     **AND EVERY TABLE A STAGE WRITES NOW STAMPS ITS PROVENANCE**, the corpus
+     label and the weight rule, so staleness is visible in the artifact rather
+     than reconstructible from file timestamps.

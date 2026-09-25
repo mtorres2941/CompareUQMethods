@@ -1,7 +1,48 @@
-# Reorientation: the chat window is retired
+# START HERE
 
-Paste this into a fresh Claude Code window, at the start, alongside the Project
-Brief. Plain ASCII, US spelling, as everywhere in this project.
+**This is the only file a new Claude Code window needs to be pointed at.** It
+says what to read, in what order, and where the stage's own instructions are.
+
+## The one-line invocation
+
+Paste this into a fresh window:
+
+    Read reports/START_HERE.md and follow it. I am starting Stage 2j.
+
+Substitute the stage. Nothing else is needed: `CLAUDE.md` is read automatically
+at session start, and this file names everything else.
+
+## What to read, in order
+
+1. **`CLAUDE.md`** -- the project brief, the standing constraints, the pipeline
+   roadmap and the decision log. Loaded automatically; read the roadmap row for
+   your stage and the last ten decisions before doing anything.
+2. **This file, below** -- how the workflow runs and what the standing
+   conventions are.
+3. **Your stage's section of `reports/STAGE_PROMPTS.md`** -- the instructions
+   for the work itself. The sections are:
+
+        Stage 0    line  539   SENT AND RUN, a record, do not edit
+        Stage 1    line  608   SENT AND RUN
+        Stage 2    line  717   SENT AND RUN, covers 2a through 2h
+        Stage 2j   line 2746   LIVE
+        Stage 3    line 2858   LIVE
+        Stage 4    line 3805   LIVE
+
+   **Stage 2i is closed** and is not coming back; the real-building anchor comes
+   from citing Marsh et al. (in press). **The configuration block at the top of
+   that file supersedes any value quoted inside a sent stage.**
+4. **`CONTEXT.md`** -- mechanics: package layout, the fitting interface, how to
+   run the pinned environment, the table inventory, the test suite. Read it
+   before touching code.
+5. **`reports/STAGE_REPORT_<previous stage>.md`** -- what the last stage found,
+   what moved, and what it left open.
+
+## What this window produces
+
+**One file: `reports/STAGE_REPORT_<your stage>.md`.** Its specification is in
+`CLAUDE.md` under "Stage report specification". It is read by the author and by
+a fresh review window, neither of which has done the work.
 
 ---
 

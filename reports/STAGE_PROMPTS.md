@@ -2750,8 +2750,8 @@ Stage 3, because it may add a row to the scorecard figure. Rewritten
 2026-09-25 by the Stage 2h window, which owns this file.*
 
 Read `CLAUDE.md` at the repository root for project context before starting.
-Read `reports/CLAUDE_CODE_reorientation.md` as well: the chat window that used
-to review each stage is retired and this window owns the prompt file. Then
+Read `reports/START_HERE.md` as well: the chat window that used to review each
+stage is retired and this window owns the prompt file. Then
 commit any uncommitted work on the current branch with a clear message, create
 and check out `stage-2j-per-material`, and do all of this stage's work there.
 Commit in logical units so a number change can be bisected. Report the branch
@@ -2840,6 +2840,14 @@ WAY.**
   computed on the SUPERSEDED corpus.** Do not quote one. If this stage needs a
   number from the judgment arm, the upper-truncation sweep, the bandwidth sweep
   or the certification credit, re-run the script first.
+
+**STAMP THE PROVENANCE ON EVERY TABLE THIS STAGE WRITES.** Two columns or two
+lines of metadata: the corpus label and the empirical weight rule. Stage 2h
+could not answer "which corpus did this result run on" about its own output
+without reconstructing it from file timestamps, and six of its results turned
+out to be on a corpus replaced later in the same stage. This costs nothing and
+it is the standing fix. `data/processed/CORPUS.json` names the active corpus
+and `empirical.WEIGHT_RHO` names the rule.
 
 **ONE THING THIS STAGE MUST NOT TOUCH.** `flip.FLIP_THRESHOLDS` is stale --
 all three values fall outside their own recomputed intervals on the current
