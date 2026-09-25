@@ -56,3 +56,43 @@ draws are unseeded, so at this point its results are neither persisted nor
 reproducible. Phase 1 persists them as an archive; a genuine pLCA regression
 fixture becomes possible only after Phase 2 establishes seeding. See
 `tests/fixtures/plca/README.md` once that exists.
+
+
+---
+
+## Re-frozen in Stage 2h, 2026-09-25
+
+The three tables were re-frozen from `outputs/tables/` after the empirical arm
+changed its market-share weight rule. **Re-freezing removes the tripwire for
+that one transition, so what moved is recorded here rather than reset
+silently.**
+
+### Why they moved
+
+`src/empirical.py` now draws market shares with `weighting.coherent_weights`
+at `WEIGHT_RHO = 0.5` instead of a flat Dirichlet over every declaration, so
+both halves of the study attach share to a group of adjacent coefficients and
+split it inside. The corpus was NOT regenerated; the active corpus is
+unchanged.
+
+### What moved, and the control that says it is the weights
+
+| table | moved | did not move |
+|---|---|---|
+| `TABLE_EmpiricalECCMetrics.xlsx` | all 12 weighted characteristics | all 12 UNWEIGHTED twins, bit for bit |
+| `TABLE_EmpiricalECCMetricsAndW1.xlsx` | the same, plus all six W1 scores | 11 of 28, all unweighted |
+| `TABLE_SyntheticECCMetricsAndW1.xlsx` | **nothing** | every shared column, to 1e-12 |
+
+Median absolute change on the empirical arm: `coeffvar` 0.066,
+`w_v_uw_wasserstein` 0.066, `entropy` 0.135, `skewness` 0.648.
+
+**ALL SIX W1 SCORES MOVED, INCLUDING THE THREE UNIFORM-WEIGHTED ONES, and that
+is correct rather than surprising.** Every model in this study is scored
+against the VARIABLE-weighted empirical CDF, including the uniform-weighted
+fits, so changing the weights changes the TARGET for all six.
+
+The synthetic table failed only because it GAINED two columns,
+`modality_index_fitted` and `modality_index_fitted_uw`. No shared value moved
+by more than 1e-12. That column is the modality measure decision 134 settled
+on and the Stage 2g handoff recorded as owed to whichever stage next reran the
+second notebook.
