@@ -1,0 +1,139 @@
+# Reorientation: the chat window is retired
+
+Paste this into a fresh Claude Code window, at the start, alongside the Project
+Brief. Plain ASCII, US spelling, as everywhere in this project.
+
+---
+
+## What changed
+
+This project has been run across two surfaces since Stage 0. Claude Code did the
+analysis in the repository; a separate chat window with no repository access
+reviewed each stage's handoff, edited the staged prompt file, and held the
+context from the author's advisor.
+
+**That split is ending. Claude Code now owns the prompt file as well as the
+analysis.** The author is not going to carry findings between two windows by
+hand any more.
+
+Two things follow, and the second is the one that is easy to get wrong.
+
+## 1. You own `claude_code_prompt_UQ_methods.md`
+
+Edit it directly. The rules on it are unchanged and they are strict:
+
+- **Stages 0 through 2h have been sent and run. Their text is a RECORD and must
+  not be edited**, not even to correct a number that has since changed. The file
+  is the only account of what each session was actually given. Where a sent stage
+  disagrees with current reality, the configuration block at the top of the file
+  supersedes it.
+- **Only Stage 2j, Stage 3 and Stage 4 are live.** Stage 2i is closed and is not
+  coming back; the real-building anchor comes from citing Marsh et al. (in press).
+- When you change a prompt, say so in the handoff and move on. Do not hand the
+  author a list of things to do that are yours to do.
+
+**The configuration block at the top of the file is incomplete and fixing it is
+your first job.** The Stage 2h window was asked to dump the full production
+configuration and its script raised `KeyError: 'count'` partway through and was
+pasted into the handoff with the traceback still in it. It printed `genconfig`
+and nothing else. Missing: the new empirical weighting rule's parameters,
+including the name and value of the knob reported at 0.5 and the block-count
+rule; and all of `fitting`, `families`, `empirical`, `customstats` and
+`flip.FLIP_THRESHOLDS`. Read them from the code and write the block properly.
+
+## 2. You have to replace the outside reader, deliberately
+
+The chat window's real function was not prompt editing. It was that it had not
+run the analysis. Across the last three stage reviews it caught, among other
+things: that six audit results were computed on a corpus that had been replaced
+later in the same stage; that the generator-parameter sweep's conclusion was
+measured against a contaminated objective; that the scorecard figure's caption
+still carried nine numbers from the superseded corpus while the figure itself was
+current; and that two sections of one handoff contradicted each other about
+whether a sourcing gap was open.
+
+None of those needed repository access. All of them needed a reader who did not
+already believe the session's own account of what it had done. **A session that
+has just done the work does not interrogate the assumptions the work was built
+on, and that is a property of context rather than of capability.**
+
+**So keep the separation and move it inside Claude Code.** At the close of every
+stage, before the next stage runs:
+
+1. The stage window writes `reports/HANDOFF_stage-<id>.md` as it always has, to
+   the same standard: standalone, every number stated in full, no instruction to
+   open a file the reader cannot open.
+2. **Open a FRESH window whose only job is to read that handoff and attack it.**
+   Give it the handoff and the prompt file and nothing else at first. Its task is
+   to find what is wrong, stale, internally contradictory or asserted without
+   measurement, and to write the follow-up questions. It may then open the
+   repository to check, but it forms its questions from the handoff first.
+3. Only after that window's questions are answered does the next stage start.
+
+The review window's standing questions, which this project has learned the hard
+way:
+
+- **Which corpus, and which weight rule, did each result run on?** Ask per result,
+  with file timestamps, not per stage.
+- **Does any number in this handoff appear twice at two values?** Check the prose
+  against the tables and the figure captions against both.
+- **Does any section contradict a later section?** Handoffs are written across a
+  session and the early parts go stale inside the file.
+- **Is any conclusion measured against a baseline, a default or a noise level that
+  has since changed?** If the thing you compared against moved, the comparison did
+  not survive.
+- **Did any script in this stage fail, print a traceback, or print a verdict it
+  could not have computed?** Read the output, not the summary of it.
+
+## 3. What stays out of the repository
+
+**The manuscript docx with the advisor's 98 unresolved comments must never be
+committed and must not be placed inside the repository tree at all, gitignored or
+otherwise.** The repository is public and Zenodo-archived, and a gitignored file
+is one `git add -f` or one careless `.gitignore` edit away from publishing an
+advisor's private comments. If a session needs it, the author supplies an absolute
+path outside the tree.
+
+The manuscript revision itself is not Claude Code's work and is not happening
+here. It is prose work that needs the advisor's markup and the reference PDFs and
+none of the code.
+
+`refs/` is untracked by decision 1, because it holds copyrighted publisher PDFs.
+
+## 4. Standing conventions, carried forward
+
+- **Vocabulary, settled at the close of Stage 2h.** The two weighting schemes are
+  **"market weights"** and **"uniform weights"**; the oracle scheme is **"known
+  market shares"**. "Variable", "sampled market shares" and "Dirichlet shares" are
+  retired and must not appear in an axis label, legend, panel title, column name
+  or filename. One sentence travels with the label at first use: market weights
+  are DRAWN from a Dirichlet because production volumes are not published, so the
+  label does not mean real production volumes.
+- **Every summary statistic says whether it is the error in ONE decision or the
+  error in an AVERAGE of many.** For five of the study's sixteen headline claims
+  those differ by about a factor of twenty, and five rows of the scorecard were
+  computed one way while their captions claimed the other.
+- **Judge a calibration change against the weight-draw noise of 0.006 to 0.015**,
+  not the generator seed noise of 0.0066. The weight draw is the larger of the two
+  and six stages quoted the smaller one without knowing.
+- **Fitted crossings are fitted twice**, parametric and monotone-nonparametric.
+  Tables and supplement carry both at full precision with the bootstrap interval;
+  prose and figure annotations round at the first digit where the two fits
+  disagree.
+- **Plain ASCII, US spelling, in every file this project writes.** No Unicode
+  subscripts, no Unicode minus, no Unicode multiplication sign.
+- **An absolute distance is not a quality score.** Every goodness-of-fit number
+  rose 16 to 45 percent when the corpus was made more dispersed and the fits did
+  not get worse. Any check written against an absolute band is suspect.
+
+## 5. Where the work stands
+
+Stages 0 through 2h are run. Stage 2i is closed. **Stage 2j runs next**, then
+Stage 3, then Stage 4, which is required rather than optional because the code is
+cited in the paper as a public Zenodo deposit.
+
+One item is waiting on the author and is listed at the head of Stage 3:
+`flip.FLIP_THRESHOLDS` is a hard-coded constant calibrated on the superseded
+corpus, all three of its values now fall outside their own recomputed intervals,
+and notebook 1 reads it. The author's instruction on it should be obtained before
+Stage 3 draws any figure from notebook 1.
