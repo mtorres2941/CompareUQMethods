@@ -15,12 +15,24 @@ whose copy does not render the image loses nothing.
 
 # IF YOU READ ONE PAGE, READ THIS ONE
 
-**Stage 2h answers the objection "you only tested one variant" for fifteen
+**Stage 2h answers the objection "you only tested one variant" for eighteen
 separate choices the study makes.** Each one is a sweep with a tabulated
-result, not a spot check. Four of them changed something the paper says, three
+result, not a spot check. Several changed something the paper says, three
 closed questions that had been open for several stages, and the rest confirmed
 a setting that was already in place -- which is the outcome a robustness sweep
 should usually have, and is worth reporting as such.
+
+**THE FOUR THAT MATTER MOST, if the rest is skimmed.** The summary figure was
+comparing two different statistics on one colour scale and five of its sixteen
+rows were reporting a cancellation rather than an error (section 1). The two
+halves of the study weighted their data by different rules on the exact
+dimension the paper is built on, and the fix is now applied, which moves
+reported numbers (section 3). A trade-off that blocked any improvement to the
+synthetic data across three stages and 36 settings turns out to have been an
+artifact of that same weighting mismatch, so the case for leaving the synthetic
+data alone no longer holds (section 13). And the judgment-based approach most
+practitioners use produces a NARROWER spread than the data it stands for, not a
+wider one (section 14).
 
 Each claim below carries the number behind it and a plain-language **so what**
 for a reader who builds buildings rather than statistical models.
@@ -172,16 +184,54 @@ spread the data are -- with different spread fed into it. **The weight-rule
 problem and the synthetic data's known shortfall in spread are the same problem
 seen twice**, which is why the stage was told not to attempt them separately.
 
-**NOTHING IN THE PRODUCTION ANALYSIS WAS REWEIGHTED AND NO REPORTED NUMBER HAS
-MOVED.** Applying the rule would change every weighted characteristic of the
-real arm, which the generator is calibrated against, and that is the author's
-decision.
+**THE RULE IS NOW APPLIED, AT THE AUTHOR'S INSTRUCTION, AND REPORTED NUMBERS
+HAVE MOVED.** An earlier draft of this section ended by saying nothing had been
+reweighted and that applying it was the author's decision. The author gave that
+decision -- "why haven't you pulled the trigger ... sounds like you already
+figured out the setting should be 0.5, so what do we need to discuss?" -- and
+the real categories now draw their market shares by the same rule as the
+synthetic ones.
+
+**What moved, and the control is why it can be trusted.** All twelve
+characteristics measured WITHOUT weights are identical to the last digit,
+because the change touches only the weights. All twelve measured WITH weights
+move, by a typical amount of 0.066 on how spread a category is, 0.066 on the
+effect of weighting itself, 0.135 on its entropy and 0.648 on its skew. All six
+goodness-of-fit scores move, which is correct rather than alarming: every model
+is scored against the weighted version of its own data, so changing the weights
+changes the target.
+
+Across the 147 real categories, the median effect of weighting goes from
+**0.105 to 0.148** and the median spread from 0.671 to 0.641.
+
+**And it closes the gap it was built to close.** How fast the effect of
+weighting fades as a category grows, and the median effect above a thousand
+declarations:
+
+    rule                            real     synthetic   above 1,000
+    old: a share per declaration   -0.449     -0.181     0.005 / 0.053
+    new, knob at 0                 -0.412     -0.349     0.006 / 0.017
+    new, knob at 0.5               -0.161     -0.101     0.044 / 0.085
+
+The tenfold disagreement above a thousand declarations that opened this whole
+item is now a factor of 1.9.
+
+**A side effect nobody arranged.** The characteristic an early stage named the
+worst in the project, and called structural after four attempts to fix it --
+how lognormal the real categories look against how lognormal the synthetic ones
+look -- **halves**, from 0.65 to 0.33. Nothing was tuned to achieve that.
+
+**Three frozen comparison tables were re-recorded** so the project's automatic
+regression checks compare against the new rule rather than the old one, with a
+written record of exactly what moved and the unweighted-column control.
 
 > **So what.** The paper currently shows that market-share weighting stops
 > mattering once a category has more than about a thousand declarations. That
-> finding is partly an artifact of how the weights were invented for the real
-> categories, and under a rule that matches how markets actually work it
-> largely disappears. The paper must say so.
+> finding was largely an artifact of how the weights were invented for the real
+> categories: under a rule that matches how markets actually work, the effect
+> above a thousand declarations is nine times larger than the paper reports. A
+> practitioner with a well-populated category was being told the market shares
+> they cannot obtain do not matter, and that is not what the evidence says.
 
 ## 4. A knob nobody had measured is as noisy as the one everybody quotes
 
@@ -355,10 +405,31 @@ fit from 5.4 times the data's own spread to 1.8, and is not worse against the
 truth -- it is better in the fourth decimal.** Capping at the largest observed
 value itself is clearly harmful.
 
+**AND THE CHECK THIS SECTION PROMISED HAS BEEN DONE: the cap does not pull the
+two halves of the study apart.** At a cap of twice the largest observation the
+real categories improve by 0.99 percent and the synthetic ones by 0.87, a
+difference of 0.12 of a percentage point, and the difference never exceeds 0.35
+anywhere in the sweep.
+
+**It is NOT neutral between the distribution families, though, and that is the
+part worth knowing.** The whole effect falls on the lognormal -- 3.5 and 4.1
+percent on the real categories, 2.3 and 3.8 on the synthetic -- while the
+kernel estimate and the normal move by less than 0.03 percent, because neither
+puts any mass beyond the data for a cap to remove.
+
+**Against the TRUTH that asymmetry almost vanishes**, which is what settles it.
+Scored against the known distribution rather than against the data it was
+fitted to, a cap of twice the largest observation moves the two lognormals by
++0.57 and -0.85 percent -- opposite signs, both under one percent -- and the
+other four by nothing. The head-to-head difference between the two leading
+methods, which is what the paper reports, moves in the fourth decimal.
+
 > **So what.** This is now a choice between two measured options rather than
 > between a measured one and an unknown. Adopting it would move every number in
 > the study, for a failure two existing safeguards already keep out of the
-> results, so it is the author's call.
+> results, so it is the author's call -- and a reviewer asking whether the cap
+> quietly flatters one method can be answered with a number: in sample it helps
+> the lognormal and nothing else, and against the truth it helps nobody.
 
 ## 9. Every shape parameter of the generator is already at its best value
 
@@ -515,11 +586,191 @@ under equal weights and 64 under market-share weights. So the manuscript's
 configuration understates this paper's own method, which is the conservative
 direction and should be stated rather than quietly corrected.
 
+**AND THE SAME QUESTION ASKED OF THE ANSWER RATHER THAN OF THE FIT**, because
+the author asked for it that way: "ultimately, pLCA results are most important,
+so should we measure those?" Over 2,000 simulated buildings scored against the
+truth, average error across five outputs:
+
+    smoothing rule        kernel estimate,   kernel estimate,
+                          equal weights      market shares
+    the older rule             25.9 pct          25.4 pct
+    the plain current rule     25.3              25.0
+    the current rule as used   25.5              24.8
+
+The four methods that do not use smoothing are identical to the last digit
+across all three rules, which is the control saying the measurement is picking
+up the smoothing and nothing else. **The older rule is worst on every one of
+the five outputs under both weightings**, and the safety guard on the current
+rule costs 0.19 of a percentage point under equal weights and BUYS 0.15 under
+market shares -- so at the decision level it is free, where at the fit level it
+costs a little. **Nothing changes.**
+
 **TWO MORE DISTRIBUTION FAMILIES.** Gamma and Weibull were added to blunt the
 objection that only two shapes were tested. Weibull ranks below gamma, which an
 earlier stage already established is indistinguishable from the
 three-parameter lognormal, so the ordering of the paper's own methods is
 untouched. **The family list is not short for want of trying.**
+
+## 12. A regeneration that failed, and the instrument that was actually broken
+
+The author asked for the synthetic data to be regenerated with a wider spread,
+to close the one gap that has been open since the data was first made. It was
+done, every check passed, and the result was wrong by 99.98 percent.
+
+**The failure was not in the generator and the first two explanations were both
+wrong.** The first blamed the generated distributions for having a long thin
+upper tail that set their average while never showing up in a sample. Measured,
+those distributions had an average of 1.012 against data scaled to average 1.0,
+and a ratio of average to midpoint of **1.31** against a threshold of 25 -- they
+were sound. The second assumed a partial fix to the sampling code would be
+enough; it was not.
+
+**What was broken was the code that draws from a known distribution in order to
+check the answer against it.** It laid its lookup points out evenly between the
+distribution's lower and upper limits. The widened setting pushed those limits
+about a hundred million apart, so the spacing between adjacent points was about
+18,000 and the ENTIRE body of the distribution -- everything a sample would ever
+contain -- fell between the first two points. The check was drawing from a
+staircase rather than from the distribution it was supposed to represent.
+
+It is fixed: the lookup points are now concentrated where the probability is,
+with points placed into each tail on a logarithmic spacing.
+
+**And a gate now exists so this cannot recur silently.** Every candidate
+setting is checked by comparing the sampler's answer against the distribution's
+own, at thirteen probabilities from one in a million to all but one in a
+million, at four dataset sizes, under both weightings. The shipped setting and
+every bounded candidate are wrong by at most **0.05 percent** on any of them.
+The rejected setting is wrong by more than 1 percent on **55 percent** of the
+distributions it makes, by a typical 37 percent and a worst of 99.7, all of it
+at the one-in-a-million point.
+
+**So the rejected setting is genuinely unusable** -- for a third reason, which
+is neither of the two first given: no practical lookup table can represent a
+distribution whose limits are a hundred million apart.
+
+> **So what.** The study checks its own answers against a known truth, and for
+> one afternoon that check was the broken part while everything it was checking
+> was fine. Every number in the paper that comes from it was re-verified. The
+> lesson is written into the code: a setting is not allowed near the paper until
+> the instrument that measures it has been checked on that setting.
+
+## 13. A trade that has blocked the synthetic data for three stages turns out to have been an artifact
+
+**This is the most consequential thing in the stage and it reopens a question
+three separate stages closed.**
+
+The synthetic datasets are less spread out than the real categories, and this
+is the one way in which they have never matched. Three stages tried to fix it,
+on four different controls, across 36 settings. Every one hit the same wall:
+anything that widened the spread ALSO inflated the paper's headline quantity --
+how much market-share weighting moves a category -- past what the real
+categories show. Widening bought a better match on one thing by wrecking the
+number the paper is built on. That was recorded as structural.
+
+**It was not structural. It was a consequence of the two halves being weighted
+by different rules**, which is the defect section 3 describes and which is now
+fixed. With both halves on one rule, bounded widening settings improve BOTH at
+once:
+
+    setting                   overall match   spread   weighting effect
+    as shipped                    0.222       0.409       0.340
+    moderately wider              0.184       0.254       0.160
+    wider still                   0.174       0.205       0.153
+
+Every candidate improves the overall match by 4.6 to 7.7 times the run-to-run
+noise, and the mismatch on spread roughly halves.
+
+**The proof that it is the weight rule and not luck.** The same synthetic
+datasets were scored against the real categories weighted four different ways,
+so the only thing that differs between the columns is how the real categories
+were weighted. The change in the weighting mismatch, in units of its own
+run-to-run noise:
+
+    real categories weighted by     moderately wider   wider still
+    the OLD rule                       +4.4               +6.8     the trade
+    the new rule, knob at 0            -1.4               -0.4     gone
+    the new rule, knob at 0.25         -0.5               +1.8     gone
+    the new rule, knob at 0.5          -5.1               -5.3     reversed
+
+**The trade disappears as soon as the RULE changes, before the knob is turned
+at all.** The spread column barely moves across all four, as it must, because
+how spread the synthetic data is cannot depend on how the real categories were
+weighted.
+
+The reason is arithmetic once stated: the new rule raised the real categories'
+median weighting effect from 0.105 to 0.148 while the synthetic data sits at
+0.092. The synthetic data now UNDERSTATES that quantity by a third, so widening
+moves it toward the real categories instead of past them.
+
+**One characteristic does move the wrong way** -- a measure of how many humps a
+distribution has, which carries triple weight in the matching score. It was
+checked rather than waved away. Reweighting the synthetic data to match the
+real categories on it moves the comparison between the two leading methods by
+**0.006 and 0.015**, against **0.026 and 0.043** for spread. So the thing that
+gets worse is worth about a quarter of the thing that gets better, in the same
+direction.
+
+**Nothing has been regenerated, and that decision is the author's.** The
+synthetic data has been frozen since an early stage and every number in the
+paper moves when it is remade. What this establishes is that the REASON for
+keeping it frozen on this question -- that widening costs the headline quantity
+-- no longer holds.
+
+> **So what.** The paper currently carries a stated limitation: the synthetic
+> data cannot reach the spread of the most variable real categories, so the
+> conclusions are not supported out there. That limitation was believed to be
+> unfixable without damaging the main result. It is fixable, the damage was an
+> artifact of a bug that has since been fixed, and remaking the data is now a
+> cost-benefit decision rather than an impossibility.
+
+## 14. The pedigree matrix, sourced at last, cannot reach the spread of real data
+
+The stage compared the study's data-driven methods against the approach most
+practitioners actually use when they have no data: the pedigree matrix, which
+turns five judgment scores into a spread. The matrix's own table of factors was
+not in this project's reference materials, so the spread was swept RELATIVE to
+each category's own -- from half to three times it -- and the sourcing was
+recorded as owed.
+
+The author supplied the source. All 3,125 score combinations were enumerated
+from it.
+
+    best possible scores            spread factor 1.025
+    a middling combination                        1.242
+    worst possible scores                         1.587
+    a typical real material category              1.871
+
+**A pedigree model is systematically NARROWER than the data it claims to stand
+for, and 61.9 percent of real categories are wider than its worst possible
+score.** End to end the matrix spans a factor of 1.55; the real categories span
+1.01 to 50.9. Of the six spread settings the stage swept, only the narrowest is
+reachable on a typical category.
+
+**That is not a defect in the matrix.** It answers a different question: how
+uncertain is ONE number for ONE process, not how much do products within a
+material category differ from each other, which is what a set of declarations
+measures. The paper should say so rather than present the two as rival
+estimates of the same thing.
+
+**It strengthens the stage's earlier finding rather than undermining it.** The
+comparison already showed that a judgment model's SPREAD barely affects the
+design decision -- error of 0.097 to 0.121 across a six-fold range -- while its
+CENTRE decides everything. The reachable range is narrower still, so the
+conclusion holds with more room to spare.
+
+**One arithmetic trap is recorded because this project walked into it.** Every
+factor in the published table contributes to the SQUARE of the spread, so a
+model quoted as a spread must halve the exponent; quoting the combined factor
+directly would double it. A note taken earlier from that paper also mistook two
+single-indicator factors for the total range.
+
+> **So what.** A practitioner using the standard judgment approach on a material
+> category is not getting a wider, more cautious answer than one who uses the
+> data. They are getting a NARROWER one -- about half the spread of a typical
+> real category -- which means the judgment route understates uncertainty on
+> precisely the quantity it exists to express. That is a stronger statement than
+> the paper currently makes and it is worth making carefully.
 
 ---
 
@@ -602,13 +853,26 @@ Weibull, the population sensitivities and the arm-gap measurement; the
 six-mode and joint-cell tests; the judgment arm at scale with the published
 anchor; the weight realizations and the profile bounds; the fix for a crossing
 that does not exist, found by a smoke run; the manuscript discrepancy entries;
-the decision log; and this file.
+the first decision-log batch; the generator parameter sweep; the absolute-terms
+check on the standardized worsening; the 31-second generation scorecard; the
+full-scale notebook 3 run; the certification credit and the backwards margin;
+**the weight rule applied to the real categories and the bandwidth measured
+downstream**; **the reverted regeneration**; **the parent-sampler fix**; **the
+re-frozen comparison tables**; **the parent-level gate and the guard's
+corrected rationale**; **the sourced pedigree range**; **decisions 190 to
+195**; **the two promised checks**; and this file.
+
+**Three of those commits undo or correct work done earlier in the same stage**,
+and they are listed rather than squashed because the project requires a number
+change to be bisectable: the regeneration was reverted, the sampler it exposed
+was fixed, and the rationale written for a guard added on the wrong diagnosis
+was corrected in place.
 
 ---
 
 ## 2. What was asked
 
-Fifteen sweeps, each closing a "you only tested one variant" objection, run as
+Eighteen sweeps, each closing a "you only tested one variant" objection, run as
 sweeps with tabulated results rather than as spot checks. Before them, one
 correction: put all sixteen rows of the study's summary figure on the same
 quantity, because five of them averaged the error over many buildings before
@@ -622,6 +886,14 @@ the bandwidth, the lognormal's bounds, an upper truncation, two extra
 distribution families, the generator's own parameters, the weight
 concentration and coherence, multiple weight realizations, and two alternative
 definitions of the empirical population.
+
+**Three items were added during the stage by the author.** A certification
+credit framed as a decision -- "demonstrate a 10 percent reduction with 75
+percent confidence" -- at the 5, 10 and 20 percent tiers. The weight rule
+APPLIED rather than only measured. And a regeneration of the synthetic data
+with a wider spread, which was attempted, failed, was diagnosed wrongly twice,
+and was reverted; what it exposed was a defect in the code that checks answers
+against a known truth, and that defect is fixed.
 
 ---
 
@@ -684,13 +956,44 @@ the specific claim inside it moves from "how often a cap binds" at 31.0 percent
 to "a cap's chance of saving 5 percent" at 25.1. The figure's own headline
 moves from 0.8 percent to 12.0.
 
-**Nothing else moved.** The crossing constants are unchanged -- the new rule
+**THE SECOND CHANGE THAT MOVED COMMITTED NUMBERS: the weight rule, applied.**
+An earlier draft of this section said nothing else had moved and that no
+dataset had been reweighted. That is no longer true, by the author's decision,
+and section 3 above gives the numbers in full. In summary:
+
+- The twelve characteristics of the real categories measured WITHOUT weights
+  are identical to the last digit. This is the control.
+- The twelve measured WITH weights all move, by a typical 0.066 on spread,
+  0.066 on the weighting effect, 0.135 on entropy and 0.648 on skew.
+- All six goodness-of-fit scores for the real categories move, because every
+  model is scored against the weighted version of its own data.
+- The median weighting effect across the 147 real categories goes from 0.105
+  to 0.148, and the median spread from 0.671 to 0.641.
+- How lognormal the two halves look now differs by 0.33 rather than 0.65.
+- Three frozen comparison tables were re-recorded so the automatic regression
+  checks compare against the new rule. A fourth change inside one of them is
+  unrelated and benign: it gained two columns settled by an earlier stage, and
+  no value it already held moved by more than a millionth of a millionth.
+
+**WHAT WAS CHANGED AND THEN CHANGED BACK, recorded because a reader of the
+commit history will see it.** The synthetic data was regenerated with three
+widened generator settings and the result was reverted in full, along with all
+three settings. The generator's shipped configuration is exactly what it was.
+**No paper number survives from that attempt.** What does survive is a fix to
+the code that draws from a known distribution in order to check answers against
+it, which was broken for wide distributions and is now correct; section 12
+gives the detail. That fix changes no committed number, because the setting
+that provoked it was reverted and the shipped setting never triggered the bug
+-- which was verified rather than assumed, at thirteen probabilities on 240
+distributions.
+
+**NOTHING ELSE MOVED.** The crossing constants are unchanged -- the new rule
 adds columns and edits none, and the constant the first notebook reads to turn
 a weighting risk into a probability is a computational constant rather than
-prose. The weight rule, the judgment arm, the upper truncation and the extra
-families are all measurements: none is applied in the production path, no
-dataset was reweighted, the generator was not rerun and the synthetic data was
-not regenerated.
+prose. The judgment arm, the upper truncation, the extra families, the
+generator parameter sweep and the widening candidates are all measurements:
+none is applied in the production path and the synthetic data as shipped is
+untouched.
 
 ---
 
@@ -700,11 +1003,11 @@ not regenerated.
 
 | Item | State |
 |---|---|
-| **The weight model.** The two halves drew market shares by different rules | **MEASURED AND NOT APPLIED.** The defect is confirmed, the fix is built and validated against the true labels at a setting of 0.5, and the concentration anchors on published production volumes. Applying it would move every weighted characteristic of the real arm, which the generator is calibrated against. **Author decision.** |
-| **The corpus's joint modality-and-dispersion structure**, coupled to the weight model | **STILL OPEN, and narrowed.** On one definition for both halves the corpus reaches 0.240 multimodal against a real 0.315, which is close, and 0.058 dispersed against a real 0.269, which is a factor of 4.6. **So the joint gap is mostly the known shortfall in spread rather than a separate defect.** Excising the 97 both-at-once datasets moves the headline by a quarter of a percentage point; the cell itself reads the other way, so it does not hide a result. The hump-spacing fix was NOT re-measured against the settled weight model, because the weight rule was not settled into the production path -- that re-measurement is the first thing the next stage should do if the author adopts the rule |
+| **The weight model.** The two halves drew market shares by different rules | **RESOLVED AND APPLIED**, by the author's decision during the stage. The fix is validated against the true hump labels at a setting of 0.5 and its concentration anchors on published production volumes. Reported numbers moved; section 3 and section 4 give them. The tenfold disagreement above a thousand declarations is now a factor of 1.9 |
+| **The corpus's joint modality-and-dispersion structure**, coupled to the weight model | **STILL OPEN, and the ground under it has shifted.** The joint gap is mostly the known shortfall in spread rather than a separate defect: the corpus reaches 0.240 multimodal against a real 0.315, which is close, and 0.058 dispersed against a real 0.269, which is a factor of 4.6. **What has changed is that the shortfall in spread is now fixable** -- section 13 shows the trade that made it unfixable was an artifact of the weighting mismatch, which is now repaired. **The hump-spacing fix has still NOT been re-measured against the settled weight rule, and that is now the single most valuable measurement left**, because the reason it was rejected was the same artifact |
 | **The profile-likelihood guard on the lognormal** | **RESOLVED.** Confirmed at its current value on the criterion it was chosen by, with the tail correction in force throughout and the largest fitted spread reported at every point. The two other bounds, never previously measured, are an order of magnitude clear of binding |
-| **An upper truncation of each fitted model** | **MEASURED. Author decision.** A cap at two to three times the largest observation is not a cost against the truth and removes the failure mode |
-| **The pedigree matrix, a uniform and a triangular** | **RESOLVED as a measurement**, with a sourcing gap named: the matrix's factor table is not among this project's references and a specific pedigree score cannot be placed on the axis until it is obtained |
+| **An upper truncation of each fitted model** | **MEASURED. Author decision.** A cap at two to three times the largest observation is not a cost against the truth and removes the failure mode. The promised check is done: it does not pull the two halves apart (0.12 of a percentage point), and its in-sample help to the lognormal alone does not survive scoring against the truth |
+| **The pedigree matrix, a uniform and a triangular** | **RESOLVED, and the sourcing gap is CLOSED**: the author supplied the source during the stage and all 3,125 score combinations are enumerated from it. The matrix spans a spread factor of 1.025 to 1.587 against a typical real category at 1.871, so a pedigree model is systematically NARROWER than the data and 61.9 percent of real categories are wider than its worst score. Section 14 |
 | **Multiple weight realizations** | **RESOLVED.** A per-category number carries 47 percent relative spread and the arm-wide version carries 5 |
 | **The deduplicated and unsplit empirical variants** | **RESOLVED.** The method ordering is identical on all three |
 | **An industry-average declaration as a direct estimate of the market-weighted mean** | **CLOSED, on the data.** The extract contains none |
@@ -723,6 +1026,9 @@ not regenerated.
 | **THE BANDWIDTH SWEEP IS DONE and is section 11 above.** The shipped rule stands, and what the headline does under the older rule is reported: the kernel estimate looks 9 to 64 percent worse, which is the conservative direction |
 | **A per-unit and a per-portfolio error are different questions and the paper now has both for sixteen claims.** Which one each published sentence means is not yet decided anywhere but in this file |
 | **The weight-draw noise in the calibration objective had never been measured and is as large as the generator's seed noise.** Any later stage judging a calibration change must quote it |
+| **THE CASE FOR LEAVING THE SYNTHETIC DATA ALONE NO LONGER HOLDS, and remaking it is now an author decision rather than an impossibility.** Section 13. Bounded widening settings now improve the overall match by 4.6 to 7.7 times the run-to-run noise AND improve the paper's headline quantity, where for three stages they always damaged it. **Anything acted on here must re-run the parent-level gate of section 12 first** |
+| **A candidate generator setting must now pass a parent-level gate before its matching score means anything.** The gate exists and every current candidate passes it. The next session extending the generator sweep should run it on whatever it tries; the rejected wide setting is the worked example of a configuration that scores well and is unusable |
+| **Which of the two error definitions each published sentence means** is decided nowhere but in this file, and the same is now true of which spread settings in the judgment arm are pedigree models and which are sensitivity |
 
 ### Known and accepted
 
@@ -731,7 +1037,13 @@ exists only on the synthetic half; the real categories have no known truth. The
 design comparison in the judgment arm uses 300 pairs against the study's own
 2,500, which is enough to separate a factor of two but not to resolve a
 difference of a few thousandths. The proxy validation for the weight rule uses
-600 synthetic datasets of 10,000.
+600 synthetic datasets of 10,000. The widening candidates were scored at 440
+synthetic datasets per configuration at three random starts each, not at the
+full 10,000, so they establish a direction and a rough size rather than a final
+number. The pedigree range is computed from the published factor table for a
+building material; a different flow type carries a different starting value and
+would shift the range slightly, though not by enough to reach a typical real
+category.
 
 ---
 
@@ -742,35 +1054,65 @@ frozen extract of real declarations and its record metadata; the
 goodness-of-fit and cross-validated scores; the run against the true
 distributions; and the visible-hump counts.
 
-**Written.** Four source modules or module sections with their tests; seven
-audit scripts and one audit README; two notebook cells changed and three tables
-given extra columns; sixteen decisions in the project's decision log, numbered
-174 through 189; eight manuscript discrepancy entries, numbered 158 through
-165; a new section of the mechanics documentation; and this file.
+**Written.** Six source modules or module sections with their tests; eleven
+audit scripts and one audit README; several notebook cells changed and three
+tables given extra columns; twenty-three decisions in the project's decision
+log, numbered 174 through 196; eight manuscript discrepancy entries, numbered
+158 through 165; a new section of the mechanics documentation; three re-frozen
+comparison tables with a written record of what moved in them; and this file.
 
-**Not touched.** The generator, the corpus's values, the extract of real
-declarations, the fitting methods used in the production path, the scoring
-criterion, the published crossing constants, and the manuscript.
+**CHANGED IN THE PRODUCTION PATH.** How the real categories draw their
+market-share weights, which is the one intended number-moving change of the
+stage. And a repair to the code that draws from a known distribution in order
+to check answers against it, which moves no committed number because the
+setting that exposed it was reverted and the shipped setting never triggered
+it.
+
+**Not touched.** The generator's shipped configuration, the synthetic data's
+values, the extract of real declarations, the fitting methods used in the
+production path, the scoring criterion, the published crossing constants, and
+the manuscript.
+
+**Changed and changed back.** Three generator settings and a regenerated
+synthetic corpus, reverted in full. The commits are kept rather than squashed
+so the sequence can be bisected, which this project requires of anything that
+moves a number.
 
 ---
 
 ## 7. Next stage
 
-**Stage 3, the figures**, unless the author takes one of the two decisions this
-stage hands back first.
+**ONE DECISION COMES FIRST AND EVERYTHING ELSE WAITS ON IT: whether to remake
+the synthetic data.**
 
-**THE TWO DECISIONS.** Whether to apply the unified weight rule, which would
-move every weighted characteristic of the real arm and require the generator's
-calibration to be re-measured -- and, if so, whether the hump-spacing fix for
-the corpus's joint structure becomes viable under it, which is the coupling the
-stage was told to respect and which could not be tested without the rule being
-settled. And whether to adopt the upper truncation, which is free against the
-truth and removes a failure mode.
+The weight rule is applied, so the coupling the stage was told to respect has
+been resolved in the direction that unblocks the corpus. The case for leaving
+the synthetic data alone rested on a trade -- widening its spread always
+inflated the paper's headline quantity -- and section 13 shows that trade was
+an artifact of the weighting mismatch which is now repaired. Bounded widening
+settings now improve the overall match by 4.6 to 7.7 times the run-to-run noise
+AND improve the headline quantity.
 
-**THE TWO PIECES OF UNFINISHED SWEEPING.** The generator-parameter sweep was
-running when this stage closed and its commands and reading instructions are
-written down; the bandwidth sensitivity was not run and its scripts are in
-place.
+**What a session acting on that must do, in order.** Re-measure the
+hump-spacing fix for the corpus's joint modality-and-dispersion structure
+against the SETTLED weight rule, because it was rejected on the same artifact
+and has never been tested under the repaired comparison; this is the single
+most valuable measurement left. Run the parent-level gate on any candidate
+before trusting its matching score. Judge the one characteristic that moves the
+wrong way -- a measure of how many humps a distribution has, worth about a
+quarter of what spread is worth. And expect every number in the paper to move,
+which is the cost that has kept the data frozen since an early stage and which
+has not become smaller.
+
+**THE SECOND DECISION, independent of the first.** Whether to adopt the upper
+truncation, which is free against the truth, removes a failure mode, does not
+pull the two halves apart and does not quietly flatter one method.
+
+**THEN Stage 3, the figures.**
+
+**NO SWEEPING IS LEFT UNFINISHED.** The generator-parameter sweep, the
+bandwidth sensitivity at the fit level and through the simulation, the widening
+candidates, and both promised follow-up checks are all complete and tabulated.
 
 **THE CAUTION THIS STAGE ADDS.** Two of the numbers it corrected were not wrong
 arithmetic but the right arithmetic answering a question nobody had stated --
@@ -801,3 +1143,26 @@ headline claims those differ by a factor of twenty.
     no longer exists.** "5.6 percent of the corpus has six or more humps" was
     measured a different way on a corpus regenerated twice since; the current
     maximum is five.
+33. **Check the instrument before blaming what it measures.** A regeneration
+    was rejected because the run that scores answers against a known truth
+    reported 99.98 percent errors. The generated distributions were fine; the
+    code that draws from them could not resolve a body inside a support a
+    hundred million wide. Two diagnoses were published before the third was
+    correct, and the first of them had a guard written for it that does not
+    fire on the case it was written for.
+34. **A verification script that cannot fail is not a verification.** One check
+    in this stage printed CONFIRMED unconditionally regardless of what it
+    measured, and two checks of the same identity divided by the wrong sign.
+    The working version prints the residual and the correlation and lets the
+    reader see them.
+35. **When a finding has stood across several stages, ask what ELSE changed
+    before trusting that it still holds.** The dispersion-versus-weighting
+    trade was real in every one of the 36 settings that found it, and it
+    evaporated the moment an unrelated defect in how the two halves were
+    weighted was repaired. The finding was never wrong on its own evidence; its
+    evidence had a shared cause nobody had isolated.
+36. **Two ratios of the same two quantities are not the same ratio.** The
+    pedigree range was first reported as model spread over data spread against
+    a sweep that scales the EXCESS over 1, which moved the reachable band from
+    0.028-0.674 to 0.55-0.85 and would have named the wrong swept points as
+    attainable.
