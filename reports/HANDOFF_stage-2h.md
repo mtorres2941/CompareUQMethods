@@ -428,12 +428,22 @@ fitted to, a cap of twice the largest observation moves the two lognormals by
 other four by nothing. The head-to-head difference between the two leading
 methods, which is what the paper reports, moves in the fourth decimal.
 
-> **So what.** This is now a choice between two measured options rather than
-> between a measured one and an unknown. Adopting it would move every number in
-> the study, for a failure two existing safeguards already keep out of the
-> results, so it is the author's call -- and a reviewer asking whether the cap
-> quietly flatters one method can be answered with a number: in sample it helps
-> the lognormal and nothing else, and against the truth it helps nobody.
+**DECIDED, 2026-09-25: NOT ADOPTED, and stated in the paper as a remedy a
+reader can apply.** The author's call -- "we just need to note in the
+manuscript that truncation is an option that's very easy to apply if you're
+dealing with extreme values." Adopting it would move every number in the study
+a second time, for a failure two existing safeguards already keep out of the
+results. The code stays, tested and unused, so a later stage can adopt it
+without rebuilding it.
+
+> **So what.** A goodness-of-fit score charges a model for how much mass it
+> misplaces and not for how far out it puts it, so a model can score well and
+> still wreck the simulation that samples from it. This study charges for that
+> with a tail term and watches it with a spread ratio, and a practitioner
+> facing extreme values has a one-line fix available: cap each fitted model at
+> two or three times the largest value you actually observed. Measured here,
+> that cuts the worst runaway fit from 5.4 times the data's own spread to 1.8
+> and costs nothing in accuracy.
 
 ## 9. Every shape parameter of the generator is already at its best value
 
@@ -844,14 +854,46 @@ distance to the truth is **0.965** times the old corpus's, which is slightly
 better. Any sentence quoting one of those figures in absolute units must be
 restated from the new tables, with a note saying why it rose.
 
+**AND THE AUTHOR LOOKED AT THE DATASETS, not only at the scores.** Having
+opened the example panels for the new data: "the sample datasets looked
+great." That is not a formality here. Three times in this project's history a
+generator setting improved every statistic being watched while producing
+visibly wrong shapes, and each time it was caught by eye rather than by an
+objective. This is the first regeneration with both the numbers and the
+eyeball on record.
+
+**THE PAPER DESCRIBES ONE SET OF SYNTHETIC DATA, NOT TWO.** The reproduction
+above is INTERNAL VERIFICATION and is deliberately not a methodological claim:
+the superseded data is the less representative of the two, and describing both
+would invite a reader to ask why the worse one is shown at all. It is recorded
+here and in the decision log so that a later session knows the check was done
+and does not repeat it.
+
 > **So what.** The synthetic data used to be much tidier than real material
 > categories, which is the one criticism of this study a reviewer could make
 > without reading it closely. It is now close on the dimension that was worst,
 > and the advice the paper gives -- use a kernel estimate above about eighty
 > declarations, a three-parameter lognormal below, and never a normal -- came
-> back identical on data built a different way. That is the strongest evidence
-> the paper has that its recommendation is about materials rather than about
-> how the test data happened to be made.
+> back identical after the data was rebuilt a different way. The advice is
+> about materials rather than about how the test data happened to be made.
+
+---
+
+## A note on vocabulary, which changed at the close of the stage
+
+The two weighting schemes are **"market weights"** and **"uniform weights"**
+throughout, and the oracle scheme is **"known market shares"**. Earlier drafts
+of this file and the figures used "sampled market shares" and before that
+"Dirichlet shares"; those are the same thing and the paper should use none of
+them.
+
+**One sentence has to travel with the new label.** "Market weights" can be read
+as real production volumes, which this study does not have: they are DRAWN from
+a Dirichlet because production volumes are not published. The methods section
+says that at first use, and the contrast with "known market shares" carries it
+wherever both appear. Without that sentence the label makes a result where
+uniform weighting wins look like a modeling error, which is what happened
+before.
 
 ---
 
@@ -1188,12 +1230,9 @@ moves a number.
 -- whether to remake the synthetic data -- was taken during the stage and acted
 on, and section 15 is the result.
 
-**ONE DECISION IS STILL OPEN AND IT IS SMALL.** Whether to adopt the upper
-truncation of each fitted model, which is free against the truth, removes a
-failure mode, does not pull the two halves of the study apart, and does not
-quietly flatter one method. It would move every number again, for a failure two
-existing safeguards already keep out of the results, which is why it is worth
-deciding deliberately rather than by default.
+**NO DECISION IS OPEN.** The upper truncation was decided at the close of the
+stage and is NOT adopted; the paper states it as a remedy a reader can apply,
+with the measured figures behind it. Section 8.
 
 **WHAT THE MANUSCRIPT OWES, in priority order, and all of it is in the
 discrepancy file.** Every synthetic number recomputed from the new tables.
@@ -1205,12 +1244,22 @@ is a stronger claim than the paper currently makes. And a note wherever an
 absolute error figure is quoted, saying those rose 16 to 45 percent because
 the data is more spread out and not because the fits got worse.
 
-**ONE MEASUREMENT IS STILL WORTH RUNNING and no stage owns it.** Letting the
-METHOD vary by material -- a kernel estimate on well-populated categories, a
-lognormal on sparse ones, which is a policy a practitioner can actually follow
--- has never been measured downstream, because every simulated building in this
-study uses one method for all four of its materials. It is the most valuable
-experiment left and it needs its own run against the truth.
+**ONE MEASUREMENT IS STILL WORTH RUNNING AND IT NOW HAS A STAGE, 2j.** Every
+simulated building in this study fits ONE method to all four of its materials,
+so a material's own advantage is averaged against three neighbours drawn at
+random. Letting the method vary BY MATERIAL should recover much of it, and it
+is a policy a practitioner can follow.
+
+**The rule must be one number and nothing else**, at the author's instruction,
+and the study already has it: a kernel estimate at or above 81 declarations, a
+three-parameter lognormal below, with uniform weights below that line and
+market weights above. That threshold was calibrated on the old synthetic data
+and came back unchanged on the new, so it is not a number that needs
+rediscovering. What stage 2j owes is the run against the true distributions,
+scored on the same sixteen claims, with the six fixed-method policies as
+controls. **It must not invent a second selector**: every other characteristic
+was tested and none yields a usable threshold, and modality as a selector is
+worse than not selecting at all.
 
 **NO SWEEPING IS LEFT UNFINISHED.** The generator-parameter sweep, the
 bandwidth sensitivity at the fit level and through the simulation, the widening

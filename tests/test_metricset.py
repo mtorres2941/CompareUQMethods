@@ -457,15 +457,22 @@ def test_display_method_renames_only_the_weighting_and_only_for_display():
 
     "Variable" means the market shares were drawn from a flat Dirichlet because
     nobody publishes them. Read as "market shares accounted for" it makes a
-    result where equal weighting wins look like a modeling error, which is what
-    happened. The display label says what the method does; the data keeps the
-    key, because every table this study writes and every regression fixture
+    result where uniform weighting wins look like a modeling error, which is
+    what happened. The display label says what the method does; the data keeps
+    the key, because every table this study writes and every regression fixture
     joins on it.
+
+    THE LABEL IS "market weights" FROM 2026-09-25, by author decision, and the
+    overclaim decision 160 guarded against is handled in the TEXT rather than
+    the label: the methods section says at first use that they are drawn from a
+    Dirichlet because production volumes are not published, and the oracle
+    scheme is "known market shares" so the contrast is visible wherever both
+    appear. A label cannot carry a caveat; a sentence can.
     """
-    assert FT.display_method('KDE, Variable') == 'KDE, sampled market shares'
-    assert FT.display_method('KDE, Uniform') == 'KDE, equal weights'
-    assert FT.display_method('KDE, Oracle') == 'KDE, true market shares'
-    assert FT.display_method('KDE, Variable', short=True) == 'KDE, sampled'
+    assert FT.display_method('KDE, Variable') == 'KDE, market weights'
+    assert FT.display_method('KDE, Uniform') == 'KDE, uniform weights'
+    assert FT.display_method('KDE, Oracle') == 'KDE, known market shares'
+    assert FT.display_method('KDE, Variable', short=True) == 'KDE, market'
     # The family is never touched, and an unknown scheme passes through rather
     # than raising, so a sweep that invents one still plots.
     assert FT.display_method('Lognormal, Somethingelse') == 'Lognormal, Somethingelse'

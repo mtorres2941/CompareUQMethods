@@ -37,33 +37,48 @@ PEWT = [f"{pe}, {wt}" for pe in PE_METHODS for wt in WT_METHODS]
 # every metric and every family while guessing them gains nothing on the
 # ranking. The word was carrying a claim the method does not make.
 #
-# "Sampled market shares", chosen by the author 2026-09-23 over "Dirichlet
-# shares", which was accurate and not accessible: most readers of this paper
-# will not know what a Dirichlet is. "Sampled" says the two things a reader
-# needs -- they ARE market shares, and they were DRAWN rather than known -- and
-# the Dirichlet appears once, in the methods, as the distribution they are
-# drawn from, which keeps Torres et al. (2026) vocabulary without putting it on
-# every axis.
+# "MARKET WEIGHTS" AND "UNIFORM WEIGHTS", settled by the author 2026-09-25.
+# This is the third vocabulary tried and it is the one the paper uses
+# everywhere; the two before it are recorded so the churn is not repeated.
+#
+#   "Variable"              the stored value. Reads as "market shares were
+#                           accounted for", which overclaims: nobody publishes
+#                           them. Decision 160.
+#   "Dirichlet shares"      decision 160's replacement. Accurate, and most
+#                           readers of this paper do not know what a Dirichlet
+#                           is.
+#   "sampled market shares" accurate and accessible, and the author found
+#                           "sampled" awkward on an axis.
+#   "market weights"        what is used now, against "uniform weights".
+#
+# THE OVERCLAIM DECISION 160 GUARDED AGAINST IS REAL AND IS HANDLED IN THE
+# TEXT RATHER THAN THE LABEL. "Market weights" on its own could be read as
+# real production volumes, which this study does not have. Two things keep
+# that from misleading: the methods section says at first use that market
+# weights are DRAWN from a Dirichlet because production volumes are not
+# published, and the oracle scheme is labelled "known market shares", so the
+# contrast between a drawn weight and a known one is visible wherever both
+# appear. A label cannot carry a caveat; a sentence can.
 #
 # THESE ARE DISPLAY LABELS ONLY. The stored `method` values keep "Uniform" and
 # "Variable", because they are the join key between every table this study
 # writes and the regression fixtures that pin them. Renaming the data would
 # move numbers; renaming the display moves nothing.
 WT_DISPLAY = {
-    "Uniform": "equal weights",
-    "Variable": "sampled market shares",
-    "Oracle": "true market shares",
+    "Uniform": "uniform weights",
+    "Variable": "market weights",
+    "Oracle": "known market shares",
 }
 #: One word each, for an axis tick where the full phrase will not fit.
 WT_DISPLAY_SHORT = {
-    "Uniform": "equal",
-    "Variable": "sampled",
-    "Oracle": "true",
+    "Uniform": "uniform",
+    "Variable": "market",
+    "Oracle": "known",
 }
 
 
 def display_method(name, short=False, sep=", "):
-    """'KDE, Variable' -> 'KDE, Dirichlet shares'.
+    """'KDE, Variable' -> 'KDE, market weights'.
 
     Unknown weighting labels are returned unchanged rather than raising, so a
     sweep that invents a scheme still plots; `tests/test_fitting.py` pins the

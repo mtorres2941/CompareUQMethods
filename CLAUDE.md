@@ -307,6 +307,7 @@ and generation is closed; neither input moves again.
 | **2g DONE** | The metric set, judged against the run to the TRUE parents rather than on stability: the rank-1 frequency recovers worst of seven candidates and exceeds its own between-material spread under a normal; three different methods lead across the seven; the normal's 40 percent penalty is 44 percent on attribution and 1 to 4 percent on the tail and information metrics; the `(1-capecc)` divisor settled by dividing by the APPLICABLE iterations and reporting the applicability; two magnitude companions, one of them new; the tail failure mode measured rather than assumed; and the last use of the retired in-sample target removed. Decisions 143 to 150. `reports/HANDOFF_stage-2g.md` | Re-running the sweeps of 2h. It did NOT touch the corpus, the fitting, the scoring criterion or the weight model |
 | **2h** | **FIRST ITEM, added 2026-09-22 and ENLARGED 2026-09-24: THE WEIGHT MODEL, AND THE CORPUS'S JOINT MODALITY-DISPERSION STRUCTURE WITH IT, because they are coupled and must not be attempted separately.** The corpus reproduces the distribution of modality and the distribution of dispersion and NOT their joint distribution: conditional on being dispersed a real category is multimodal 44.7 percent of the time and a synthetic one 9.4, and both-at-once is 16.2 percent of real categories against 1.9 of synthetic ones. `genconfig.separation_dispersion_frac` fixes it to 12.7 percent and is committed, defaulted OFF and tested -- and it is not adopted because it makes the corpus overstate the median uniform-to-variable Wasserstein distance by 2.7 times, which is the paper's headline claim. 36 configurations were searched and every one trades one against the other, on three different levers across three stages, so the trade is structural. **2h must therefore judge any weight-model change against BOTH the weighting margin and the joint modality-dispersion structure, and a candidate that fixes one while breaking the other is not a candidate.** Decisions 168, 169, 170; `audits/shoulder_probe.py`, `audits/corpus_joint_structure.py`, `audits/corpus_examples.py`. THEN: **THE WEIGHT MODEL.** The two arms draw market-share weights by different rules -- flat Dirichlet over points on the empirical arm, mode-coupled on the synthetic -- so the paper's central quantity decays with n on one arm and not the other, differing tenfold above n = 1,000. Give both arms one rule with a swept coherence parameter, controlling for concentration separately. Decisions 97 and 141. Then: KDE bandwidth (Scott, Silverman with a degenerate-IQR guard, cross-validated), lognormal offset, gamma and Weibull as extra families, Dirichlet concentration, multiple weight realizations, mode-to-point coupling, and `mode_share_alpha`, which the author proposes moving from 10 to 1. **AND THE PEDIGREE MATRIX, added by the author 2026-09-18: see decision 124**. **Stage 2g adds to that judgment arm: a UNIFORM and a TRIANGULAR over a plausible range, which is where those two belong because they are specified from bounds rather than fitted to data, decision 151.** **And an optional UPPER TRUNCATION of each fitted model, which would remove the thin-far-tail failure mode outright at the cost of one assumption, decision 152; whatever else it sweeps, the tail term stays in force and `model_sd_ratio` is reported at every value of `PROFILE_DELTA_LO_FRAC`, decision 149** | Anything not framed as a sweep with a tabulated result |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
+| **2j** | **THE MIXED-METHOD POLICY, added by the author 2026-09-25.** Every probabilistic LCA in this study fits ONE method to all four of its materials, so a material's own goodness-of-fit advantage is averaged against three neighbours drawn at random, most of them below the size where that advantage exists. That is the mechanism decision 166 identifies for why a fit threshold of about 81 declarations becomes a claim threshold near 1,000. Letting the method vary BY MATERIAL should recover much of it, and it is a policy a practitioner can follow. **THE RULE MUST BE ONE NUMBER AND NOTHING ELSE**, at the author's instruction -- "we'll need a very simple rule for how we're picking the method" -- and the study already has it: a kernel estimate at or above 81 declarations, a three-parameter lognormal below, which is decision 142's threshold reproduced unchanged on the regenerated corpus (decision 198). Weighting follows the same threshold: uniform below, market above (decision 161). Needs its own run against the true parents, scored on the same sixteen claims, against the six fixed-method policies as controls. Decision 166 calls it the most valuable experiment left | Inventing a second selector. Decisions 88 and 139 tested every other characteristic and none yields a usable threshold; modality as a selector is WORSE than not selecting at all |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
@@ -6947,6 +6948,17 @@ rather than in conversation.
      slightly better. `truncated_mass` rising from 0.096 to 0.162 through WIDER
      bounds is the same effect: more dispersed parents have more tail to lose.
 
+     **AND THE AUTHOR CHECKED THE DATASETS BY EYE, which is not a formality in
+     this project.** Having run notebook 1 to look at the example panels:
+     "the sample datasets looked great." That matters because decision 38
+     records three separate occasions where the calibration statistics improved
+     while the generated shapes were visibly wrong, and the author caught it by
+     eye each time before any objective did; decision 169 built
+     `audits/corpus_examples.py` for exactly this check. A regenerated corpus
+     that satisfies the objective AND looks right is a stronger acceptance than
+     either alone, and this is the first regeneration in the project to have
+     both on record.
+
 198. **2026-09-25, Stage 2h. THE REGENERATION CHANGES NO RECOMMENDATION THIS
      PAPER MAKES, AND THAT IS THE RESULT.** `[DELEGATED, 2h measured]` The
      author's question on being told the corpus had been rebuilt: "Did any of
@@ -6992,3 +7004,52 @@ rather than in conversation.
      than the one the manuscript currently makes on a single corpus. **The
      manuscript should say the rule was reproduced on two independently
      generated corpora.**
+
+
+199. **2026-09-25, Stage 2h. THREE AUTHOR DECISIONS AT THE CLOSE OF THE STAGE.**
+     `[AUTHOR]`
+
+     **THE MANUSCRIPT DESCRIBES ONE CORPUS, NOT TWO.** "I thought we'd just
+     focus on this one because it's more right. I don't think generating two
+     corpora of data should be a major part of our methodology." Correct, and
+     decision 198's closing recommendation is WITHDRAWN: it suggested the paper
+     say the practitioner rule was reproduced on two independently generated
+     corpora. It should not. The superseded corpus is the less representative
+     one, and describing both invites a reviewer to ask why the worse one is
+     shown. **The reproduction stays as internal verification** -- it is why
+     the rule can be trusted, it is recorded in decision 198 and discrepancy
+     entry 173, and a later session should not re-run it. Everything else in
+     198 stands.
+
+     **THE UPPER TRUNCATION IS NOT ADOPTED and is stated as a remedy a reader
+     can apply.** "We just need to note in the manuscript that truncation is an
+     option that's very easy to apply if you're dealing with extreme values."
+     This closes the open item decisions 152 and 182 left. Adopting it would
+     move every number a second time for a failure two guards already keep out
+     of the results. `families.TruncatedAbove` and `cap_models` stay in the
+     code, tested and unused, so a later stage can adopt it without rebuilding
+     it. The paper gets one or two sentences in the DISCUSSION, with the
+     measured figures behind them: a cap at two to three times the largest
+     observation cuts the worst runaway fit from 5.4 times the data's spread to
+     1.8 and is not a cost against the truth. Discrepancy entry 174.
+
+     **THE WEIGHTING VOCABULARY IS "MARKET WEIGHTS" AGAINST "UNIFORM
+     WEIGHTS".** "Market weight vs uniform weight seems right to me. Let's just
+     make sure we're consistent everywhere in the language we use." This is the
+     fourth vocabulary and it is the last; the churn is recorded in
+     `fitting.WT_DISPLAY` so it is not repeated. It SUPERSEDES decision 160's
+     "Dirichlet shares" and the "sampled market shares" that replaced it, and
+     the author caught a genuine inconsistency: the code said "sampled market
+     shares" while its own docstring still said "Dirichlet shares".
+
+     **THE OBJECTION DECISION 160 RAISED IS STILL VALID AND MOVES INTO THE
+     TEXT.** "Market weights" alone can be read as real production volumes,
+     which this study does not have, and that reading is what made a result
+     where uniform weighting wins look like a modeling error. Two things
+     prevent it, neither of them a label: the methods section says at first use
+     that market weights are DRAWN from a Dirichlet because production volumes
+     are not published, and the oracle scheme is "known market shares", so the
+     contrast between a drawn weight and a known one is visible wherever both
+     appear. **A label cannot carry a caveat; a sentence can.** The stored
+     `method` values are untouched -- they join every table to every fixture.
+     Discrepancy entry 175.
