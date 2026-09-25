@@ -112,8 +112,9 @@ CANDIDATES = {
     # multiplier is 345 million and which FAILS the parent-level gate of
     # decision 192: the truth run's sampler is more than 1 percent wrong on 55
     # percent of the parents it makes. Those candidates cannot supply a corpus
-    # whatever they score here. These use bounded truncation, 121 and 64, and
-    # pass that gate at 5e-4.
+    # whatever they score here. These use bounded truncation -- (1 + 1/0.1)**2
+    # = 121 and (1 + 1/0.2)**3 = 216, against the shipped 27 -- and pass that
+    # gate at 5e-4.
     'bounded_wide': dict(min_q1_over_iqr=0.1, trunc_iqr_mult=2.0,
                          cv_log10_mean=0.329),
     'bounded_mid': dict(min_q1_over_iqr=0.2, trunc_iqr_mult=3.0,

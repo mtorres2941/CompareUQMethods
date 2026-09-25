@@ -359,7 +359,7 @@ class GeneratorConfig:
     market-weighted parent is the mixture sum_k v_k f_k. Swept."""
 
     # ---- spread, as a target rather than a side effect ---------------------
-    cv_log10_mean: float = 0.129
+    cv_log10_mean: float = 0.329
     cv_log10_sd: float = 0.3919 * 2.0
     cv_log10_lo: float = np.log10(0.004)
     cv_log10_hi: float = np.log10(16.0)
@@ -654,7 +654,15 @@ class GeneratorConfig:
     this generator: 41.7 percent of coefficient-of-variation targets met against
     37.5, and a median truncated mass of 0.097 against 0.154."""
 
-    min_q1_over_iqr: float = 0.5
+    min_q1_over_iqr: float = 0.2
+    #: CHANGED 2026-09-25 from 0.5, with `cv_log10_mean` from 0.129 to 0.329,
+    #: to widen the corpus's dispersion. The truncation bound multiplier
+    #: `(1 + 1/min_q1_over_iqr) ** trunc_iqr_mult` goes from 27 to
+    #: **(1 + 1/0.2) ** 3 = 216**, which is eight times wider and three
+    #: thousand times narrower than the 345 million of the configuration
+    #: Stage 2h rejected. It passes the parent-level gate at 5.1e-4 on every
+    #: quantile of every parent; that rejected configuration failed it on 55
+    #: percent of its parents. Decisions 190, 192, 193.
     """Positivity floor for the log truncation rule, as a multiple of the
     interquartile range: the shift must leave Q1 >= this times IQR.
 
