@@ -62,7 +62,7 @@ CONFIGS = {
 SEEDS = (42, 43, 44)
 
 
-def arm(flat):
+def arm(flat, rho=None):
     """The empirical arm's characteristics under one weight rule.
 
     `flat=True` forces the OLD rule. `coherent_weights` with `k` equal to the
@@ -71,6 +71,14 @@ def arm(flat):
     parameter cannot act. That equivalence is asserted by
     `tests/test_weighting.py`, which is why this is a faithful reconstruction
     of the old rule rather than an approximation of it.
+
+    Otherwise the ported rule is used at coherence `rho`. Sweeping rho here as
+    well as flipping the rule answers the question a reviewer asks next: how
+    much of the result depends on the ONE free parameter of the weight model,
+    as against the change of rule itself. rho = 0 is the ported rule's own
+    null -- contiguous groups whose membership is random -- so the gap between
+    it and the flat draw is what the GROUPING costs, and the gap between it and
+    0.5 is what the COHERENCE costs.
 
     The substitution is confined to this function and restored on the way out,
     so nothing else in the process sees a patched module.
@@ -81,7 +89,9 @@ def arm(flat):
             return real(values, rng, k=len(np.asarray(values)), **kw)
         weighting.coherent_weights = forced
     try:
-        ds, _ = empirical.prepare(np.random.default_rng(TC.SEED).spawn(1)[0])
+        kw = {} if flat else dict(rho=rho)
+        ds, _ = empirical.prepare(np.random.default_rng(TC.SEED).spawn(1)[0],
+                                  **kw)
     finally:
         weighting.coherent_weights = real
     met = pd.DataFrame({m: empirical_metadata(x, w)
@@ -100,7 +110,9 @@ def main():
 
     print('building the empirical arm under BOTH weight rules ...', flush=True)
     arms = {'old: flat Dirichlet': arm(flat=True),
-            f'new: groups, rho={empirical.WEIGHT_RHO}': arm(flat=False)}
+            'ported, rho=0.00': arm(flat=False, rho=0.0),
+            'ported, rho=0.25': arm(flat=False, rho=0.25),
+            'ported, rho=0.50': arm(flat=False, rho=0.5)}
     print()
     print('THE TWO ARMS, so the patch can be checked before anything rests '
           'on it')

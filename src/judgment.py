@@ -48,16 +48,54 @@ so the sensitivity is mapped rather than only sampled.
 Decision 124 asks for a sweep over the range the pedigree matrix produces
 rather than a choice of pedigree scores, because the scores describe a
 data-collection context a generated dataset does not have and selecting them
-would be inventing a provenance. The matrix's own factor table is NOT in this
-repository's reference folder, and this project has already had to withdraw one
-figure quoted from memory (decision 49's amendment). So the primary axis here
-is `gsd_ratio`, the model's geometric standard deviation over the DATA'S own,
-which needs no external table and which answers decision 124's deliverable
-sentence directly: how far from the data's own spread can a judgment-driven
-model sit before it changes the answer. Absolute geometric standard deviations
-are swept beside it for a reader who wants to place a particular pedigree score
-on the axis. **A later stage or the manuscript must source the matrix's factor
-table before laying a specific score on this axis.**
+would be inventing a provenance. So the primary axis here is `gsd_ratio`, the
+model's geometric standard deviation over the DATA'S own, which answers
+decision 124's deliverable sentence directly: how far from the data's own
+spread can a judgment-driven model sit before it changes the answer.
+
+    THE MATRIX IS NOW SOURCED, AND MOST OF THIS SWEEP IS UNREACHABLE.
+
+The factor table was not in this repository when the sweep was designed, so the
+range was chosen to bracket generously. The author has since supplied Muller,
+Lesage, Ciroth, Mutel, Weidema and Samson (2016), Int J Life Cycle Assess
+21:1185-1196, and `audits/pedigree_range.py` enumerates all 3,125 score
+combinations from its Table 3 and Table 4. The matrix spans a geometric
+standard deviation of **1.025 at the best scores to 1.587 at the worst** -- a
+factor of 1.55 end to end -- against a median real ECC category at **1.871**.
+
+**So a pedigree model is systematically NARROWER than the data it stands for,
+and 61.9 percent of real categories are wider than its worst score can
+reach.** Taken the way this sweep takes it -- on the EXCESS over 1, since
+`gsd = 1 + (gsd_data - 1) * ratio` and a GSD of 1 is no spread at all -- the
+reachable ratio on the median category is **0.028 to 0.674**, so of the six
+ratios swept here only 0.5 is attainable and 0.75, 1.0, 1.5, 2.0 and 3.0 are
+not. Across the whole arm, ratio 0.5 is reachable on 62.6 percent of
+categories, 1.0 on 38.1 and 3.0 on 5.4. The wide end of this sweep is a
+sensitivity and not a pedigree model.
+
+**The two ratio definitions are not interchangeable and mixing them misplaces
+the range badly**: the STRAIGHT ratio, model GSD over data GSD, puts the same
+reachable band at 0.55 to 0.85, which would wrongly report 0.75 as attainable
+and 0.5 as unreachably tight. The excess form is the one the sweep uses and the
+one these numbers are in.
+
+That is a property of what the matrix is FOR rather than a defect in it: it
+quantifies uncertainty about one datum for one process, not the spread of
+products within a material category, which is what an ECC dataset measures.
+The manuscript should say so rather than present the two as rival estimates of
+one quantity.
+
+**EVERY FACTOR IN THAT TABLE IS A CONTRIBUTOR TO THE SQUARE of the geometric
+standard deviation**, which is the detail that decides the arithmetic:
+
+    sigma_95 = sqrt(sum over indicators of [ln(UF_i)] ** 2, plus the basic)
+    GSD      = exp(sigma_95 / 2)
+
+Quoting the combined factor AS a geometric standard deviation would double the
+spread. A first reading of that paper here also mistook its Table 5 values of
+1.26 and 1.69 for a total range; they are the posterior factors for ONE
+indicator, the further technological correlation, at scores 2 and 3 for the
+manufacturing sector.
 """
 import numpy as np
 from scipy.stats import lognorm, triang, uniform as uniform_dist
@@ -66,11 +104,24 @@ import families as FAM
 
 #: The model's geometric standard deviation as a MULTIPLE of the data's own.
 #: 1.0 is a judgment model that happens to get the spread exactly right.
+#:
+#: ONLY 0.75 IS REACHABLE BY ANY PEDIGREE SCORE ON THE MEDIAN CATEGORY; see
+#: PEDIGREE_GSD below and the module docstring. The values at and above 1.0 are
+#: kept because a flat sensitivity is only informative if it is measured over a
+#: range wide enough to have shown a slope, and they must be labelled as a
+#: sensitivity rather than as pedigree models.
 GSD_RATIOS = (0.5, 0.75, 1.0, 1.5, 2.0, 3.0)
 
-#: Absolute geometric standard deviations, for a reader placing a pedigree
-#: score on the axis. 1.05 is near-certain data and 3.0 is very poor.
+#: Absolute geometric standard deviations. The first three bracket what the
+#: pedigree matrix can produce and the last three are above its worst score.
 GSD_ABSOLUTE = (1.05, 1.2, 1.5, 2.0, 2.5, 3.0)
+
+#: What the pedigree matrix spans, end to end, from all 3,125 score
+#: combinations of ecoinvent's published factors: best (1,1,1,1,1) to worst
+#: (5,5,5,5,5), with the median combination between them. Computed by
+#: `audits/pedigree_range.py` from Muller et al. (2016); not quoted from
+#: memory, which decision 49's amendment is a standing warning against.
+PEDIGREE_GSD = dict(best=1.0247, median=1.2416, worst=1.5873)
 
 #: Deliberate displacement of the model's center, as a fraction of the true
 #: mean. Swept beside the no-free-parameter location model so the sensitivity
