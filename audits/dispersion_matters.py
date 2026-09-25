@@ -14,8 +14,17 @@ datasets at a given dispersion and understates how many; it cannot speak to
 dispersion the corpus never reaches, which is reported separately as the share
 of empirical weight that falls outside the corpus range.
 
+IT IS NOW GENERAL OVER THE CHARACTERISTIC, because Stage 2h needed the same
+question asked of two more. The bounded widening candidates improve dispersion
+and the weighting distance together and WORSEN Silverman's critical bandwidth,
+from 0.158 to 0.259 standardized, on a characteristic carrying weight 3 in the
+calibration objective (decision 193). "A characteristic moved" is not a reason
+to act until it is shown to move a conclusion, which is what this measures.
+
     conda run -n compareuq python audits/dispersion_matters.py
+    conda run -n compareuq python audits/dispersion_matters.py --metric crit_bw_1
 """
+import argparse
 import os
 import sys
 import warnings
@@ -40,7 +49,7 @@ OUT = os.path.join(ROOT, 'outputs', 'tables')
 N_BINS = 8
 
 
-def main():
+def main(metric='coeffvar'):
     os.makedirs(TABLES, exist_ok=True)
     pd.set_option('display.width', 210)
     scores = pd.read_csv(os.path.join(OUT, 'TABLE_TargetComparison.csv'))
@@ -52,12 +61,12 @@ def main():
 
     emp, _ = empirical.prepare(np.random.default_rng(20260912))
     ecv = np.array([float(empirical_metadata(np.asarray(x), np.asarray(w))
-                          ['coeffvar']) for x, w in emp.values()])
+                          [metric]) for x, w in emp.values()])
     ecv = ecv[np.isfinite(ecv)]
 
     piv = (scores.pivot_table(index='dataset', columns='method',
                               values='w1_market')
-           .merge(met.set_index('dataset')[['coeffvar', 'n']],
+           .merge(met.set_index('dataset')[[metric, 'n']],
                   left_index=True, right_index=True))
     piv = piv.dropna()
     k, lg = 'KDE, Uniform', 'Lognormal, Uniform'
@@ -67,10 +76,10 @@ def main():
     edges = np.unique(np.quantile(ecv, np.linspace(0, 1, N_BINS + 1)))
     edges[0], edges[-1] = -np.inf, np.inf
     emp_share = np.histogram(ecv, bins=edges)[0] / len(ecv)
-    syn_bin = np.digitize(piv.coeffvar, edges) - 1
+    syn_bin = np.digitize(piv[metric], edges) - 1
     syn_share = np.bincount(syn_bin, minlength=len(emp_share)) / len(piv)
 
-    print('DISPERSION, by equal-count bins of the REAL categories:')
+    print(f'{metric.upper()}, by equal-count bins of the REAL categories:')
     rows = []
     for i in range(len(emp_share)):
         rows.append(dict(bin=f'{edges[i]:.2f}-{edges[i+1]:.2f}',
@@ -114,7 +123,11 @@ def main():
     d = pd.DataFrame(out)
     d['wins_shift'] = d.kde_wins_reweighted - d.kde_wins_asis
     d['gap_shift'] = d.mean_gap_reweighted - d.mean_gap_asis
-    d.to_csv(os.path.join(TABLES, 'TABLE_DispersionMatters.csv'), index=False)
+    d.insert(0, 'metric', metric)
+    suffix = '' if metric == 'coeffvar' else f'_{metric}'
+    d.to_csv(os.path.join(TABLES,
+                          f'TABLE_DispersionMatters{suffix}.csv'),
+             index=False)
     print(d.to_string(index=False, float_format=lambda v: f'{v:.4f}'))
     print()
     print('`kde_wins` is the share of datasets on which the kernel estimate is')
@@ -133,4 +146,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--metric', default='coeffvar',
+                    help='the characteristic to match the corpus '
+                         'to the real arm on')
+    main(ap.parse_args().metric)

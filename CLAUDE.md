@@ -6804,3 +6804,71 @@ rather than in conversation.
      used Scott, so the paper's own numbers understate the kernel estimate on
      every downstream output, which is the conservative direction for its
      recommendation.
+
+196. **2026-09-25, Stage 2h. TWO PROMISED CHECKS, BOTH CLEAN: the characteristic
+     that WORSENS under widening is worth a quarter of the one that improves,
+     and the upper truncation does not pull the two arms apart -- though it
+     does pull the two FAMILIES apart in sample.** `[DELEGATED, 2h measured]`
+
+     **THE FIRST.** Decision 193 leaves one characteristic moving the wrong way
+     under the bounded widening candidates: Silverman's critical bandwidth,
+     0.158 to 0.259 standardized, on a characteristic carrying weight 3 in the
+     calibration objective. "A characteristic moved" is not a reason to act
+     until it is shown to move a conclusion, which is decision 82's test and
+     which `audits/dispersion_matters.py` now applies to any characteristic
+     rather than only to dispersion.
+
+     Reweight the corpus so its distribution of one characteristic matches the
+     real arm's, and see whether the method comparison moves:
+
+         characteristic   weighting    KDE win share       shift
+         coeffvar         equal        0.6545 -> 0.6287   -0.0258
+         coeffvar         Dirichlet    0.7033 -> 0.6608   -0.0425
+         crit_bw_1        equal        0.6545 -> 0.6485   -0.0060
+         crit_bw_1        Dirichlet    0.7033 -> 0.6881   -0.0152
+         fit_lognorm_SF   equal        0.6545 -> 0.6531   -0.0014
+         fit_lognorm_SF   Dirichlet    0.7033 -> 0.7048   +0.0015
+
+     **The characteristic that worsens moves the comparison about a QUARTER as
+     much as the one that improves**, in the same direction, so the widening
+     trade is favourable on this evidence rather than merely favourable on the
+     objective. **And `fit_lognorm_SF` moves it by essentially nothing**, which
+     is worth recording because decision 37 called that characteristic the
+     worst in the project and structural, and four stages have worried about
+     it. No bin is empty on any of the three, so the reweighting is fully
+     supported rather than extrapolating.
+
+     **THE SECOND.** Decision 182 measured an upper truncation of each fitted
+     model and left a promise to check it does not affect the two arms
+     differently, which would make them less comparable on the dimension the
+     study compares them on. It does not. In-sample W1, mean over all six
+     methods, relative change from the uncapped fit:
+
+         cap        empirical   synthetic   differential
+         1.0x         -2.54 pct   -2.19 pct     -0.35 pp
+         2.0x         -0.99       -0.87         -0.12
+         3.0x         -0.50       -0.42         -0.08
+         5.0x         -0.18       -0.14         -0.03
+
+     **BUT IT IS NOT NEUTRAL BETWEEN FAMILIES, and that is the finding worth
+     keeping.** At a cap of 2x the largest observation the whole effect is on
+     the lognormal -- -3.5 and -4.1 percent on the empirical arm, -2.3 and -3.8
+     on the synthetic -- while the kernel estimate and the normal move by less
+     than 0.03 percent, because neither puts any mass beyond the data to cap.
+     That is the same asymmetry decision 85 records for the tail term, and for
+     the same reason.
+
+     **AGAINST THE TRUTH THE ASYMMETRY LARGELY VANISHES, which is what settles
+     it.** Scored against the market-weighted true parent rather than in
+     sample, a cap of 2x moves `Lognormal, Uniform` by +0.57 percent and
+     `Lognormal, Variable` by -0.85 -- opposite signs, both under one percent
+     -- and the kernel estimate and the normal by 0.00. The paired
+     kernel-minus-lognormal difference the paper reports goes from -0.00295 to
+     -0.00392 under equal weights and from -0.00886 to -0.00738 under Dirichlet
+     shares, which is the fourth decimal.
+
+     **So the in-sample gain the cap buys the lognormal is a gain on the
+     CRITERION and not on the ANSWER**, and adopting the cap would move no
+     conclusion in either direction. That strengthens decision 182's finding
+     that the cost is not a cost, and it adds the reason a reviewer would ask
+     for: the cap is not quietly closing the gap between the two families.
