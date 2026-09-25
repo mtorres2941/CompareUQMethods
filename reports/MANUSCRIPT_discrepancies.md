@@ -2070,7 +2070,7 @@ relative figure beside it.**
 | **Fix** | **Text.** Round every crossing stated as a rule in prose or a figure annotation; leave the tables alone. Decision 175. |
 | **Status** | RESOLVED in the analysis. The text edits are open. |
 
-## 160. The two arms weighted their data by different rules, and the fix is measured but not applied
+## 160. The two arms weighted their data by different rules. THE FIX IS NOW APPLIED and reported numbers have moved
 
 | | |
 |---|---|
@@ -2080,8 +2080,11 @@ relative figure beside it.**
 | **And the concentration anchors independently** | Drawing the group count the way the generator draws its component count -- uniform on 1 to 5, independent of n -- gives a median top-ROUTE share of **0.6267**, against the published **0.6375** for Rest-of-World BOF steel and 0.54 for China's share of global production. |
 | **THE RESIDUAL ARM GAP IS DISPERSION, NOT THE RULE** | Under one rule, dividing each dataset's separation by its own coefficient of variation, the arms agree in every size band at every coherence: at rho = 0.5, empirical 0.3964 / 0.2422 / 0.1547 / 0.1579 against synthetic 0.4021 / 0.2577 / 0.1668 / 0.1420. So what is left is the size-and-dispersion law holding on both arms with different dispersion fed in, which is entry 156's shortfall. |
 | **rho = 0 is not the neutral choice** | It is the claim that market share is uncorrelated with carbon intensity, and published production volumes contradict it: 63.75 percent of world steel is on the higher-carbon route and 0.03 percent on Austrian EAF. |
-| **Fix** | **Text now, analysis later.** The manuscript must state that the two arms weighted differently, that the real arm's decay is partly an artifact of that, and what the ported rule gives. Applying it would move every weighted characteristic of the empirical arm, which the generator is calibrated against, so it is an author decision. Decisions 178, 179. |
-| **Status** | Open. Nothing in the production path is reweighted and no reported number has moved. |
+| **APPLIED 2026-09-25, by author decision** | `empirical.WEIGHT_RHO = 0.5`. All twelve UNWEIGHTED characteristic columns are bit-identical, which is the control; all twelve weighted ones move, by a median absolute 0.066 on `coeffvar`, 0.066 on `w_v_uw_wasserstein`, 0.135 on `entropy` and 0.648 on `skewness`. All six W1 scores move, correctly, because every model is scored against the variable-weighted empirical CDF. Arm medians: `w_v_uw_wasserstein` **0.1048 to 0.1475**, `coeffvar` 0.6706 to 0.6406. Three regression fixtures re-frozen. |
+| **What it closes** | Decay on log10(n) goes from -0.449 to **-0.161** on the real arm against -0.101 on the synthetic under the same rule, and the median effect above a thousand declarations from 0.0050 against 0.0528 to **0.0441 against 0.0848**. The tenfold arm disagreement is now a factor of 1.9. |
+| **An unarranged side effect** | The arm-to-arm distance on `fit_lognorm_SF`, which decision 37 called the worst characteristic in the project and structural after four failed attempts, **halves from 0.65 to 0.33**. Nothing was tuned for it. |
+| **Fix** | The manuscript must state that the arms previously weighted differently, that the published claim "weighting stops mattering above about a thousand declarations" was largely an artifact of that, and that under one rule the effect up there is about nine times what the paper reports. Every weighting number in the paper is recomputed from the new run. Decisions 178, 179, 190. |
+| **Status** | **APPLIED.** Reported numbers moved; see decision 190 for the full list. |
 
 ## 161. A single weight realization is not the distribution, and one published R2 depends on which
 
@@ -2164,3 +2167,51 @@ relative figure beside it.**
 | **A SOURCING CONSTRAINT** | The tiers used are the study's own 5, 10 and 20 percent. **The exact wording, tier and confidence of any specific credit must be sourced before the paper cites one**, on the same grounds as the withdrawn ICE figure and the pedigree factor table. |
 | **Fix** | **Text, a new result.** Decision 187. |
 | **Status** | Open for the manuscript. |
+
+## 168. The dispersion-versus-weighting trade was an artifact of the weighting mismatch, and the corpus is no longer blocked
+
+| | |
+|---|---|
+| **What the manuscript currently owes** | Entries 127, 155 and 156 and decisions 138, 169 and 170 all record the same limitation: the corpus cannot reach the dispersion of the most variable real categories, and every attempt to widen it inflated the median uniform-to-variable Wasserstein distance past the real arm's, which is the paper's headline quantity. 36 configurations on four levers across three stages, and the sign never flipped. It was recorded as structural. |
+| **It is not structural** | With both arms on one weight rule (entry 160), bounded widening candidates improve BOTH at once. Objective 0.2216 at the shipped configuration against 0.1706 to 0.1912 for four candidates, which is **4.6 to 7.7 seed standard deviations better**; the standardized `coeffvar` distance halves from 0.4085 to 0.2040 and `w_v_uw_wasserstein` falls from 0.3400 to 0.1528. Absolute and standardized distances agree in sign on every characteristic, so this is not the denominator artifact entry 63 records. |
+| **The counterfactual, which is what makes it a mechanism** | One synthetic draw scored against the empirical arm built four ways, so only the empirical weighting differs. Change in the weighting distance from the shipped configuration, in units of its own 0.0351 seed sd: old flat rule **+4.4 and +6.8**; ported at rho = 0 **-1.4 and -0.4**; at rho = 0.25 **-0.5 and +1.8**; at rho = 0.5 **-5.1 and -5.3**. The sign flip is the change of RULE, not the value of rho. |
+| **Why** | Porting the rule raised the real arm's median weighting effect from 0.105 to 0.148 while the shipped corpus sits at 0.092, so the corpus now understates it by a third and widening moves toward the arm rather than past it. |
+| **The one cost, measured** | `crit_bw_1` worsens from 0.158 to 0.259 standardized, on a characteristic carrying weight 3 in the objective. Reweighting the corpus to match the real arm on it moves the KDE win share by -0.006 and -0.015, against -0.026 and -0.043 for `coeffvar`, so it is worth about a quarter of what is gained, in the same direction. |
+| **Fix** | The stated limitation about dispersion is still TRUE of the shipped corpus and must stay until the corpus changes. What must NOT be written is that it is unfixable, or that fixing it costs the weighting result; both were true only under the mismatched rules. Decisions 193, 196. |
+| **Status** | Open, and it is an author decision. Nothing is regenerated. Any candidate acted on must first pass the parent-level gate of entry 169. |
+
+## 169. A generator setting can score well and be unusable, and the check that catches it did not exist
+
+| | |
+|---|---|
+| **What happened** | A regeneration on a widened configuration passed every sample-level check, IMPROVED the calibration objective, and produced a truth run with 99.98 percent errors. Two diagnoses were published before the third was correct. |
+| **Not the parents** | The first blamed tail-dominated parents and a guard was added for it. Measured, those parents have a mean of 1.012, a median of 0.773, a ratio of **1.31** against that guard's threshold of 25, and a 1 - 1e-6 quantile at 33. The guard does not fire on the configuration it was written for; `genconfig.max_parent_mean_over_median`'s docstring is corrected in place and says so. |
+| **The cause** | `plca.ParentSampler` tabulated the parent CDF on a LINEARLY spaced grid between the truncation bounds. With the upper bound near 1e8 the spacing was about 18,000, so the entire body fell between the first two grid points and the truth run drew from a step function. Fixed with log-spaced tail points and exact quantile endpoints. |
+| **The gate that now exists** | `audits/parent_sampler_fidelity.py` compares the sampler's inverse CDF against the parent's own bisection at thirteen probabilities from 1e-6 to 1 - 1e-6, four sizes, both schemes. Shipped and all bounded candidates: worst error **5e-4**. The rejected configuration: wrong by more than 1 percent on **55 percent** of parents, median 37 percent, worst 99.7, all at the 1e-6 quantile where its lower bound sits eight orders of magnitude below the body. |
+| **Fix** | Nothing in the manuscript changes: the configuration was reverted and no paper number survives from it. What the METHODS section may now say is that the truth run's sampler is verified against the exact parent quantiles rather than assumed faithful, which is a strengthening a reviewer would value. Decisions 191, 192. |
+| **Status** | Resolved. The shipped configuration never triggered the bug, verified rather than assumed. |
+
+## 170. The pedigree matrix produces a NARROWER spread than real ECC data, not a wider one
+
+| | |
+|---|---|
+| **The sourcing gap, now closed** | Decision 124 asked for a sweep over the range the pedigree matrix produces. Its factor table was not in `refs/`, so Stage 2h swept the spread relative to each category's own and recorded the sourcing as owed. The author supplied Muller, Lesage, Ciroth, Mutel, Weidema and Samson (2016), Int J Life Cycle Assess 21:1185-1196. |
+| **The arithmetic** | Every factor in that table is a contributor to the SQUARE of the geometric standard deviation: `sigma_95 = sqrt(sum of [ln UF_i]^2, plus the basic)` and `GSD = exp(sigma_95 / 2)`. Quoting the combined factor AS a GSD would double the spread. |
+| **What it spans, all 3,125 score combinations** | best (1,1,1,1,1) **GSD 1.0247**; median combination 1.2416; worst (5,5,5,5,5) **1.5873**. A median real ECC category is **1.8712**. |
+| **The finding** | A pedigree model is systematically NARROWER than the data it stands for, and **61.9 percent of real categories are wider than its worst possible score**. End to end the matrix spans a factor of 1.55; the real arm spans 1.01 to 50.9. |
+| **Why that is not a defect in the matrix** | It quantifies uncertainty about ONE datum for ONE process, not the spread of products within a material category, which is what an ECC dataset measures. The paper should say so rather than present the two as rival estimates of one quantity. |
+| **What it does to the stage's own sweep** | Taken on the EXCESS over 1, which is how `audits/judgment_arm.py` scales it, the reachable ratio on a median category is 0.028 to 0.674, so of the six ratios swept only **0.5** is attainable. The wide end is a sensitivity and must not be labelled a pedigree model. It STRENGTHENS the stage's conclusion that a judgment model's centre decides everything and its spread barely matters, since the reachable band is narrower than the flat range already measured. |
+| **Two reading errors recorded so they are not repeated** | A note from that paper read "GSD 1.279 basic to 1.690 at scores 5,5,5,5,5"; those are the posterior factors for ONE indicator at scores 2 and 3 for the manufacturing sector, neither GSDs nor a range. And a first version of the audit used a straight GSD ratio against a sweep that scales the excess, giving 0.55 to 0.85 and naming the wrong swept points as reachable. |
+| **Fix** | State the range, state that the matrix is narrower than the data, and cite the source. `judgment.PEDIGREE_GSD` carries the three computed values. Decision 194. |
+| **Status** | Resolved as a measurement. |
+
+## 171. The bandwidth rule measured through the simulation, not only at the fit
+
+| | |
+|---|---|
+| **The question** | Entry and decision 188 answered the bandwidth sensitivity on the FIT. The author asked for it on the answer: "ultimately, pLCA results are most important, so should we measure those?" |
+| **Measured** | 2,000 pLCA groups against the true parents, mean relative error over five outputs, percent. Scott **25.879 / 25.418**; pure Silverman 25.283 / 24.965; the shipped guarded rule **25.473 / 24.819**, for equal weights and Dirichlet shares respectively. |
+| **The control** | All four parametric methods are bit-identical across the three bandwidth rules, which says the measurement picks up the bandwidth and nothing else. |
+| **The finding** | Scott is worst on every one of the five outputs under both weightings. The guard costs 0.19 of a percentage point under equal weights and BUYS 0.15 under Dirichlet shares, so at the decision level it is free where at the fit level it costs a little. |
+| **Fix** | Nothing changes. State that the manuscript's own configuration used Scott, so its numbers understate the kernel estimate on every downstream output -- the conservative direction for this paper's recommendation, and better said than quietly corrected. Decision 195. |
+| **Status** | Resolved. |
