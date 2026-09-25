@@ -96,3 +96,52 @@ The synthetic table failed only because it GAINED two columns,
 by more than 1e-12. That column is the modality measure decision 134 settled
 on and the Stage 2g handoff recorded as owed to whichever stage next reran the
 second notebook.
+
+## Re-frozen in Stage 2h, 2026-09-25, for the regenerated corpus
+
+`TABLE_SyntheticECCMetricsAndW1.xlsx` only. **The two EMPIRICAL fixtures did
+NOT move and were not touched**, which is the control: regenerating the
+synthetic corpus must not change the real categories, and it did not.
+
+The corpus was regenerated as `corpus_2026-09-25` with `min_q1_over_iqr` 0.5 to
+0.2 and `cv_log10_mean` 0.129 to 0.329, to widen its dispersion (decision 193).
+Every dataset is a fresh draw, so this fixture cannot be compared row by row --
+row 7 of the old file and row 7 of the new one are different datasets. What is
+checked instead is that the DISTRIBUTIONS moved the way the change predicts and
+that the invariants held exactly.
+
+**The invariants, which are what make this a re-freeze rather than a guess:**
+
+    mean_uw                  1.0000 -> 1.0000   exactly, by construction
+    n, median                  99.5 ->   99.5   the strata are unchanged
+    k, median                     3 ->      3
+    is_probe, n_components_dropped        unchanged
+
+**The intended moves, against the real categories they are matched to:**
+
+    coeffvar            0.5032 -> 0.6148   real 0.6406   now much closer
+    coeffvar_uw         0.5499 -> 0.6612   real 0.6785
+    w_v_uw_wasserstein  0.0941 -> 0.1164   real 0.1475   closer
+    skewness            1.3397 -> 1.5944   real 1.7773   closer
+    kurtosis            4.2177 -> 5.2588   real 4.6616
+
+**The consequential moves, all the same absolute-scale effect.** Every one of
+the six W1 columns rises by 16 to 45 percent, because a more dispersed dataset
+has a wider parent and a larger absolute distance to it. Divided by each
+dataset's own spread the distance to the truth is 0.965 times the shipped
+corpus's, i.e. slightly BETTER. Do not read the raw rise as a worse fit.
+
+    KDE, Variable       0.0364 -> 0.0527
+    KDE, Uniform        0.1129 -> 0.1408
+    Lognormal, Uniform  0.1214 -> 0.1526
+    Lognormal, Variable 0.0714 -> 0.0830
+    Normal, Uniform     0.1816 -> 0.2415
+    Normal, Variable    0.1340 -> 0.1789
+
+**One that looks backwards and is not.** `truncated_mass` rises 0.0961 to
+0.1622 although the truncation bounds are WIDER, 216 against 27 as a multiple.
+The parents are far more dispersed, so there is more tail mass to lose even
+through wider bounds.
+
+Verified before re-freezing: 588 of 591 tests passed, and all three failures
+were this fixture and the two tests that read it.

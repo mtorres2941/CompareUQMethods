@@ -1,20 +1,20 @@
 order,statement,quantity,truth,methods_lo,methods_hi,spread,note
-1,comparison: is option B an improvement,P(B beats A) at a claimed 0% saving,0.5016536400000001,0.50046916,0.5040673999999999,0.003598239999999975,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 1% saving,0.5273170399999999,0.52798648,0.53246412,0.0044776399999999494,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 2% saving,0.5532868400000001,0.55581468,0.5612295599999999,0.0054148799999999,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 5% saving,0.63044456,0.63805808,0.64690196,0.008843880000000026,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 10% saving,0.75490636,0.7664567999999999,0.78104728,0.014590480000000072,lo and hi are the six UQ methods
-1,comparison: is option B an improvement,P(B beats A) at a claimed 20% saving,0.95297652,0.95758352,0.96856992,0.010986399999999952,lo and hi are the six UQ methods
-2,attribution: how far a material must lead,top-two contribution ratio at a 1% chance of a flip,2.1326706242621674,2.0913342335566596,2.170950764802131,0.0796165312454713,lo and hi are the 95 percent bootstrap interval
-2,attribution: how far a material must lead,top-two contribution ratio at a 5% chance of a flip,1.643134603715142,1.62298450111661,1.6610247988108866,0.03804029769427664,lo and hi are the 95 percent bootstrap interval
-2,attribution: how far a material must lead,top-two contribution ratio at a 10% chance of a flip,1.460185141294423,1.4467802011036666,1.4719615318495725,0.025181330745905894,lo and hi are the 95 percent bootstrap interval
-3,magnitude: the building total at its bad end,error at the 90th percentile of the total,0.0,-0.3555084061740925,-0.0867031869322831,0.26880521924180945,"the building total averages about 4.0, so -0.36 is 9 percent of it"
-3,magnitude: the budget statement,believed chance of meeting a budget the truth meets 90 pct of the time,0.9,0.86820808,0.9125790399999999,0.04437095999999985,lo and hi are the six UQ methods
-4,action: what a specification cap delivers,"CAP: mean saving, as a share of the whole building",0.05392834063098931,0.0488259801122389,0.0619396837047303,0.0131137035924914,lo and hi are the six UQ methods
-4,action: what a specification cap delivers,chance of achieving at least a 5 percent building saving,0.23184837,0.22873475,0.3053054799999999,0.07657072999999992,"the normal is the highest, and that is the stage-2e finding"
+1,comparison: is option B an improvement,P(B beats A) at a claimed 0% saving,0.49758132000000005,0.4987531199999999,0.50232,0.0035668800000001055,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 1% saving,0.5175353199999999,0.52036704,0.52571044,0.005343399999999998,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 2% saving,0.5376980800000001,0.54217776,0.54950168,0.007323920000000039,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 5% saving,0.5991098400000001,0.6091046,0.62249908,0.013394479999999986,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 10% saving,0.70641432,0.72338292,0.74919316,0.025810239999999984,lo and hi are the six UQ methods
+1,comparison: is option B an improvement,P(B beats A) at a claimed 20% saving,0.9219820800000001,0.93602948,0.95072228,0.014692800000000061,lo and hi are the six UQ methods
+2,attribution: how far a material must lead,top-two contribution ratio at a 1% chance of a flip,2.4833005415678713,2.4334034013233725,2.533805434882418,0.10040203355904564,lo and hi are the 95 percent bootstrap interval
+2,attribution: how far a material must lead,top-two contribution ratio at a 5% chance of a flip,1.829131617065629,1.805801382437254,1.8538759173940709,0.048074534956816795,lo and hi are the 95 percent bootstrap interval
+2,attribution: how far a material must lead,top-two contribution ratio at a 10% chance of a flip,1.5927126152694335,1.5777092075469246,1.609193900694844,0.03148469314791935,lo and hi are the 95 percent bootstrap interval
+3,magnitude: the building total at its bad end,error at the 90th percentile of the total,0.0,-0.5671317388530193,-0.1253568811301327,0.44177485772288655,"the building total averages about 4.0, so -0.36 is 9 percent of it"
+3,magnitude: the budget statement,believed chance of meeting a budget the truth meets 90 pct of the time,0.9,0.8686376,0.9201050399999999,0.05146743999999992,lo and hi are the six UQ methods
+4,action: what a specification cap delivers,"CAP: mean saving, as a share of the whole building",0.06479374083099869,0.0565233766451716,0.0727233529562826,0.016199976311111003,lo and hi are the six UQ methods
+4,action: what a specification cap delivers,chance of achieving at least a 5 percent building saving,0.24653250000000002,0.23922803,0.33733275,0.09810472,"the normal is the highest, and that is the stage-2e finding"
 4,action: what a QUANTITY reduction delivers,"QUANTITY: mean saving, as a share of the whole building",0.0625,0.0625,0.0625,0.0,method-independent: a deterministic fraction of the material itself
-5,information: where to collect better data,"uncertainty index, NRMSE between the six methods",,0.49179743444253693,0.5157750973644942,0.0239776629219573,against 1.042 for a rank-1 frequency
-5,information: does the metric recover the right answer,ui: recovery error against the true parent,,0.5081370387056174,0.5305946599234819,0.022457621217864432,"lo is the best of the six methods, hi the worst"
-5,information: does the metric recover the right answer,eci_perc_mean: recovery error against the true parent,,0.6581155809118973,0.8793966701765654,0.22128108926466816,"lo is the best of the six methods, hi the worst"
-5,information: does the metric recover the right answer,eci_perc_p95tot: recovery error against the true parent,,0.6057488961044407,0.6856797086962612,0.07993081259182044,"lo is the best of the six methods, hi the worst"
-5,information: does the metric recover the right answer,eci_rank_1: recovery error against the true parent,,0.7189935242074056,1.0736566114383863,0.3546630872309807,"lo is the best of the six methods, hi the worst"
+5,information: where to collect better data,"uncertainty index, NRMSE between the six methods",,0.5377387813017114,0.5617702847545242,0.024031503452812797,against 1.089 for a rank-1 frequency
+5,information: does the metric recover the right answer,ui: recovery error against the true parent,,0.5536126552941572,0.5787086349035936,0.025095979609436436,"lo is the best of the six methods, hi the worst"
+5,information: does the metric recover the right answer,eci_perc_mean: recovery error against the true parent,,0.6688166446863574,0.9123320381309197,0.2435153934445623,"lo is the best of the six methods, hi the worst"
+5,information: does the metric recover the right answer,eci_perc_p95tot: recovery error against the true parent,,0.6065801505589035,0.6868600889766705,0.08027993841776704,"lo is the best of the six methods, hi the worst"
+5,information: does the metric recover the right answer,eci_rank_1: recovery error against the true parent,,0.7318158643230774,1.1409064390796158,0.4090905747565383,"lo is the best of the six methods, hi the worst"
