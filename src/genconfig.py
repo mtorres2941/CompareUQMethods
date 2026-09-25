@@ -600,6 +600,27 @@ class GeneratorConfig:
     """Positivity floor for the log truncation rule, as a multiple of the
     interquartile range: the shift must leave Q1 >= this times IQR.
 
+    **DO NOT LOWER THIS WITHOUT CHECKING THE PARENT'S OWN MOMENTS. Stage 2h
+    tried 0.02 with `trunc_iqr_mult` at 5.0, regenerated the whole corpus on
+    it, and produced parents that are unusable as truth.** The log rule caps
+    the quartile ratio at `1 + 1/min_q1_over_iqr` and then raises it to
+    `trunc_iqr_mult`, so the truncation bound is
+    `(1 + 1/min_q1_over_iqr) ** trunc_iqr_mult`:
+
+        floor 0.5,  mult 3   ratio cap  3.0   bound multiplier          27
+        floor 0.02, mult 5   ratio cap 51.0   bound multiplier 345,025,251
+
+    The median upper bound went from 16.7 to **101 million**, so each parent
+    integrates over a tail that far out and its own mean reached 6,624 against
+    data normalized to a mean of 1.0.
+
+    **THE SAMPLED DATASETS LOOKED FINE AND THAT IS WHY IT GOT THROUGH.** Every
+    characteristic in the tuning objective is computed on the normalized
+    SAMPLE, which almost never draws from that tail, so the arm-to-arm distance
+    IMPROVED by 8.4 standard errors while the parents were broken. Only the run
+    against the true parents exposed it. `audits/generation_scorecard.py` now
+    reports the parent's own moments for this reason.
+
     It replaces `max_low_tail_truncated` when `trunc_rule` is 'log'. Under the
     multiplicative rule the lower bound is positive whenever Q1 is, so a
     separate tail-mass budget is unnecessary and this single condition does the
@@ -626,7 +647,9 @@ class GeneratorConfig:
 
     trunc_iqr_mult: float = 3.0
     """Bounds are max(Q1 - mult * IQR, 0) and Q3 + mult * IQR of the POPULATION
-    mixture. Same rule as the old generator; what changed is that the quantiles
+    mixture. **Raising this multiplies the truncation bound EXPONENTIALLY and
+    must be checked against the parent's own moments; see `min_q1_over_iqr`
+    for the failure it caused in Stage 2h.** Same rule as the old generator; what changed is that the quantiles
     are the parent's rather than one realized sample's."""
 
     # ---- reproducibility ---------------------------------------------------

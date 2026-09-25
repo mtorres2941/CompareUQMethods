@@ -55,6 +55,7 @@ sys.path.insert(0, HERE)
 
 import coverage                      # noqa: E402
 import genconfig as G                # noqa: E402
+import generator as GEN              # noqa: E402
 import tune_configuration as TC      # noqa: E402
 
 TABLES = os.path.join(ROOT, 'outputs', 'tables', 'audits')
@@ -75,6 +76,13 @@ FULL_PER_STRATUM = TC.PER_STRATUM
 #: The objective's seed-to-seed standard deviation, from decisions 47, 49, 61,
 #: 63 and 138. A move smaller than this is not a move.
 OBJECTIVE_SEED_SD = 0.0066
+
+#: Warn above these. The truncation bound multiplier is
+#: `(1 + 1/min_q1_over_iqr) ** trunc_iqr_mult`; the shipped 0.5 and 3.0 give
+#: 27, and Stage 2h's rejected 0.02 and 5.0 gave 345 million. The parent mean
+#: should sit near 1 because the sample it produces is divided by its own mean.
+PARENT_BOUND_WARN = 1_000.0
+PARENT_MEAN_WARN = 5.0
 
 
 def score(cfg, per_stratum, emp_met, emp_modes, emp_vis, seed=TC.SEED):
@@ -181,6 +189,52 @@ def main():
     print(f'FURTHEST APART: {out.iloc[0].metric} at '
           f'{out.iloc[0].standardized:.4f} standardized, '
           f'{out.iloc[0].absolute:.4f} absolute.')
+
+    # ------------------------------------------------------------------
+    # THE PARENT'S OWN MOMENTS, which every characteristic above is blind to
+    # ------------------------------------------------------------------
+    # EVERY CHARACTERISTIC ABOVE IS COMPUTED ON THE NORMALIZED SAMPLE, and a
+    # sample almost never draws from a far tail. Stage 2h changed the
+    # truncation floor and multiplier together, improved the table above by
+    # 8.4 standard errors, and produced parents whose truncation bound reached
+    # 10^8 and whose own mean was 6,624 against data normalized to 1.0. The
+    # whole corpus was regenerated on it before the run against the true
+    # parents exposed it.
+    #
+    # THE PARENT IS THE TRUTH EVERY RECOVERY SCORE IS MEASURED AGAINST, so it
+    # gets checked here rather than downstream.
+    cap = (1.0 + 1.0 / cfg.min_q1_over_iqr) ** cfg.trunc_iqr_mult
+    print()
+    print('THE PARENT ITSELF, which nothing above can see:')
+    print(f'  truncation bound multiplier  (1 + 1/{cfg.min_q1_over_iqr:g}) ** '
+          f'{cfg.trunc_iqr_mult:g}  =  {cap:,.0f}')
+    if cap > PARENT_BOUND_WARN:
+        print(f'  *** ABOVE {PARENT_BOUND_WARN:,.0f}. The parents will carry a '
+              f'far tail the SAMPLE never sees,')
+        print('  *** so every characteristic above can improve while the truth '
+              'run breaks.')
+    means, sds = [], []
+    prng = np.random.default_rng(7)
+    for _ in range(60):
+        n = int(prng.integers(20, 400))
+        parent, _rec = GEN.draw_parent(cfg, n, prng)
+        if parent is None:
+            continue
+        m, sd = parent.truncated_moments()
+        if np.isfinite(m) and m > 0:
+            means.append(m)
+            sds.append(sd)
+    if means:
+        means = np.array(means)
+        print(f'  parent mean over {len(means)} draws: median '
+              f'{np.median(means):.4g}, max {means.max():.4g}')
+        print('  (the sample is divided by its own mean, so a parent mean far '
+              'from 1')
+        print('   means the parent and the data it produced are not on one '
+              'scale)')
+        if np.median(means) > PARENT_MEAN_WARN:
+            print(f'  *** MEDIAN PARENT MEAN ABOVE {PARENT_MEAN_WARN:g}. '
+                  'DO NOT REGENERATE ON THIS CONFIGURATION.')
 
     # -- history, so successive runs read as a trend --------------------
     stamp = _dt.datetime.now().isoformat(timespec='seconds')
