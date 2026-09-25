@@ -10,80 +10,80 @@ the end of Stage 1, when CLAUDE.md grew past a comfortable size.
 
 ```
 CompareUQMethods/
-├── CLAUDE.md                  Project brief, constraints, decision log
-├── CONTEXT.md                 This file
-├── FIGURE_STYLE.md            how every figure is built, after Tufte and
-│                              Doumont. Read before writing a figure
-├── environment.yml            Pinned environment (see section 4)
-├── environment.lock.yml       Full transitive solve, osx-arm64
-├── notebooks/
-│   ├── 01_CompareUQ_CreateData.ipynb    generate/read data, compute metrics
-│   ├── 02_CompareUQ_AnalyzeData.ipynb   fit 6 methods, score by W1/W2/KS
-│   ├── 03_CompareUQ_PerformPLCA.ipynb   2,500 pLCAs, downstream results
-│   └── 04_CompareUQ_ReduceMetrics.ipynb which characteristics matter, and
-│                                        which method to use (Stage 2f)
-├── src/
-│   ├── components.py          moment-targeted component families (Stage 2a)
-│   ├── mixture.py             the truncated-mixture parent (Stage 2a)
-│   ├── genconfig.py           every generation parameter (Stage 2a)
-│   ├── generator.py           parent -> dataset, plus the validity filter
-│   ├── corpus.py              generate, write and read a named corpus
-│   ├── categorysplit.py       resolve a category into specifiable products,
-│   │                          on metadata only (Stage 2a-3)
-│   ├── empirical.py           prepare the empirical EC3 datasets
-│   ├── modality.py            Silverman critical bandwidth, and the VISIBLE
-│   │                          mode count that the generator is tuned against
-│   ├── customstats.py         weighted statistics, distances, bandwidths
-│   ├── datageneration.py      legacy generation helpers, empirical cleaning
-│   ├── families.py            the support (0, inf), the parametric families,
-│   │                          the weighted KDE with a CDF, and the
-│   │                          estimators (Stage 2b)
-│   ├── fitting.py             the six PEWT fits and W1 scoring
-│   ├── comparison.py          the paper's method comparison: held-out W1, the
-│   │                          tail check, ranks and characteristic curves
-│   ├── materialclass.py       structural / envelope / other, from the category
-│   │                          NAME only, so the comparison can be read by what
-│   │                          a material IS (Stage 2c)
-│   ├── figstyle.py            FIGURE_STYLE.md in code: palette, rcParams,
-│   │                          direct labelling, the greyscale check
-│   ├── metricreduction.py     which characteristics carry signal (Stage 2f):
-│   │                          the candidate set and its transforms, explicit
-│   │                          missingness, the size confound, two model
-│   │                          families ranked by permutation importance, the
-│   │                          tautology guard, and the binned and LOWESS
-│   │                          curves with bootstrap bands that replace the
-│   │                          rolling averages
-│   ├── weighting.py           does the weighting scheme matter, per dataset
-│   │                          (Stage 2d): the location/shape split of the
-│   │                          uniform-to-variable W1, the named relative
-│   │                          measure, and A_IQR from the KL2 paper
-│   ├── flip.py                what a given W1 COSTS (Stage 2d): the
-│   │                          common-random-numbers pLCA, model-to-model
-│   │                          distances, and the calibration curve
-│   ├── metricset.py           which downstream metric the paper leads with
-│   │                          (Stage 2g): does a metric RECOVER the truth
-│   │                          rather than merely being stable, the argmax
-│   │                          agreement, the corrected cap normalization, and
-│   │                          the thin-far-tail stress test
-│   ├── plca.py                the pLCA CONSTRUCTION (Stage 2e): common random
-│   │                          numbers, the group-size and material-use-
-│   │                          intensity sweep, the cluster bootstrap, NRMSE
-│   │                          with an interval, and the run against the TRUE
-│   │                          parents
-│   ├── recovery.py            the evaluation target (Stage 2c): W1 against the
-│   │                          known parent, cross-validation, the
-│   │                          fit-versus-definitional split, regret,
-│   │                          post-stratification, the paired bootstrap
-│   ├── datavisualization.py   one color helper
-│   ├── funcs_unit_conversion.py  EC3 unit normalization
-│   └── dct_metriclabels.json  display labels for the 22 metrics
-├── audits/                    one-off measurement scripts, each named for what
-│                              it measures; see audits/README.md
-├── data/processed/            inputs, see section 5
-├── outputs/tables/            tidy results, see section 6
-├── outputs/figures/           publication and supplementary figures
-├── reports/                   handoffs, baselines, discrepancy log
-└── tests/                     regression, determinism, unit, notebook guards
+|-- CLAUDE.md                  Project brief, constraints, decision log
+|-- CONTEXT.md                 This file
+|-- FIGURE_STYLE.md            how every figure is built, after Tufte and
+|                              Doumont. Read before writing a figure
+|-- environment.yml            Pinned environment (see section 4)
+|-- environment.lock.yml       Full transitive solve, osx-arm64
+|-- notebooks/
+|   |-- 01_CompareUQ_CreateData.ipynb    generate/read data, compute metrics
+|   |-- 02_CompareUQ_AnalyzeData.ipynb   fit 6 methods, score by W1/W2/KS
+|   |-- 03_CompareUQ_PerformPLCA.ipynb   2,500 pLCAs, downstream results
+|   `-- 04_CompareUQ_ReduceMetrics.ipynb which characteristics matter, and
+|                                        which method to use (Stage 2f)
+|-- src/
+|   |-- components.py          moment-targeted component families (Stage 2a)
+|   |-- mixture.py             the truncated-mixture parent (Stage 2a)
+|   |-- genconfig.py           every generation parameter (Stage 2a)
+|   |-- generator.py           parent -> dataset, plus the validity filter
+|   |-- corpus.py              generate, write and read a named corpus
+|   |-- categorysplit.py       resolve a category into specifiable products,
+|   |                          on metadata only (Stage 2a-3)
+|   |-- empirical.py           prepare the empirical EC3 datasets
+|   |-- modality.py            Silverman critical bandwidth, and the VISIBLE
+|   |                          mode count that the generator is tuned against
+|   |-- customstats.py         weighted statistics, distances, bandwidths
+|   |-- datageneration.py      legacy generation helpers, empirical cleaning
+|   |-- families.py            the support (0, inf), the parametric families,
+|   |                          the weighted KDE with a CDF, and the
+|   |                          estimators (Stage 2b)
+|   |-- fitting.py             the six PEWT fits and W1 scoring
+|   |-- comparison.py          the paper's method comparison: held-out W1, the
+|   |                          tail check, ranks and characteristic curves
+|   |-- materialclass.py       structural / envelope / other, from the category
+|   |                          NAME only, so the comparison can be read by what
+|   |                          a material IS (Stage 2c)
+|   |-- figstyle.py            FIGURE_STYLE.md in code: palette, rcParams,
+|   |                          direct labelling, the greyscale check
+|   |-- metricreduction.py     which characteristics carry signal (Stage 2f):
+|   |                          the candidate set and its transforms, explicit
+|   |                          missingness, the size confound, two model
+|   |                          families ranked by permutation importance, the
+|   |                          tautology guard, and the binned and LOWESS
+|   |                          curves with bootstrap bands that replace the
+|   |                          rolling averages
+|   |-- weighting.py           does the weighting scheme matter, per dataset
+|   |                          (Stage 2d): the location/shape split of the
+|   |                          uniform-to-variable W1, the named relative
+|   |                          measure, and A_IQR from the KL2 paper
+|   |-- flip.py                what a given W1 COSTS (Stage 2d): the
+|   |                          common-random-numbers pLCA, model-to-model
+|   |                          distances, and the calibration curve
+|   |-- metricset.py           which downstream metric the paper leads with
+|   |                          (Stage 2g): does a metric RECOVER the truth
+|   |                          rather than merely being stable, the argmax
+|   |                          agreement, the corrected cap normalization, and
+|   |                          the thin-far-tail stress test
+|   |-- plca.py                the pLCA CONSTRUCTION (Stage 2e): common random
+|   |                          numbers, the group-size and material-use-
+|   |                          intensity sweep, the cluster bootstrap, NRMSE
+|   |                          with an interval, and the run against the TRUE
+|   |                          parents
+|   |-- recovery.py            the evaluation target (Stage 2c): W1 against the
+|   |                          known parent, cross-validation, the
+|   |                          fit-versus-definitional split, regret,
+|   |                          post-stratification, the paired bootstrap
+|   |-- datavisualization.py   one color helper
+|   |-- funcs_unit_conversion.py  EC3 unit normalization
+|   `-- dct_metriclabels.json  display labels for the 22 metrics
+|-- audits/                    one-off measurement scripts, each named for what
+|                              it measures; see audits/README.md
+|-- data/processed/            inputs, see section 5
+|-- outputs/tables/            tidy results, see section 6
+|-- outputs/figures/           publication and supplementary figures
+|-- reports/                   handoffs, baselines, discrepancy log
+`-- tests/                     regression, determinism, unit, notebook guards
 ```
 
 Notebooks are the entry point by design: the author values seeing inputs and
@@ -507,18 +507,24 @@ closest on the most scorecard rows reads as a verdict between the families and
 is not one: the corpus allocates 2,500 datasets to each of four size bands, so
 half of every pLCA sits below 100 declarations, which is where a
 three-parameter lognormal is already established to beat a kernel estimate.
-Split by band the ordering inverts, and so does the weighting -- equal weights
-win below 100 declarations and Dirichlet-drawn shares win above. It divides by
+Split by band the ordering inverts, and so does the weighting -- uniform
+weights win below 100 declarations and market weights win above. It divides by
 the output's true level over the WHOLE arm rather than within the band, so the
 four rows of a column are on one scale; using each band's own level would make
 a band with a smaller true value look better for free. Decision 161.
 
 **THE WEIGHTING SCHEMES ARE RENAMED FOR DISPLAY AND NOT IN THE DATA.**
-`fitting.WT_DISPLAY` maps Uniform to "equal weights", Variable to **"Dirichlet
-shares"** and the oracle scheme to "true shares", and `fitting.display_method`
-applies it. "Variable" reads as "market shares accounted for" and means "market
-shares drawn from a flat Dirichlet because nobody publishes them", which is
-what made a result where equal weighting wins look like a modeling error. The
+`fitting.WT_DISPLAY` maps Uniform to **"uniform weights"**, Variable to
+**"market weights"** and the oracle scheme to **"known market shares"**, and
+`fitting.display_method` applies it. Settled by the author 2026-09-25 after two
+earlier attempts -- "Dirichlet shares" was accurate and inaccessible, "sampled
+market shares" accurate and awkward -- and that churn is recorded in the
+`WT_DISPLAY` comment so it is not repeated. "Variable" reads as "market shares
+accounted for" and means "market shares drawn from a flat Dirichlet because
+nobody publishes them", which is what made a result where uniform weighting
+wins look like a modeling error; the label no longer carries that caveat, so
+the METHODS SECTION does, at first use, and "known market shares" keeps the
+drawn-versus-known contrast visible. Decisions 160 and 199. The
 stored `method` values are UNCHANGED, because they are the join key between
 every table this study writes and the eight regression fixtures. Stage 3 owns
 carrying the display labels into the rest of the figures. Decision 160.
@@ -923,7 +929,15 @@ discarded. It is not a regeneration: no corpus is written and nothing is
 redrawn. It refuses unless `genconfig.DEFAULT` still equals the configuration
 recorded in the corpus, checks twelve record fields per dataset, and compares the
 replayed values and weights against `values.parquet` element by element. On
-corpus_2026-09-15b all 10,050 datasets replay byte-identically, in 13 minutes.
+every corpus this has been run against, including the current
+`corpus_2026-09-25`, all 10,050 datasets replay byte-identically, in about 13
+minutes.
+
+**IT REFUSES A CORPUS GENERATED BEFORE `genconfig` GAINED A FIELD**, because it
+compares configuration dictionaries and is right not to reason about which
+differences are inert. When the specs are already cached, load them rather than
+replaying: `audits/draft_end_to_end.py` shows the pattern and explains why that
+is not a weakening of the check.
 The result is cached as `parents_spec.json.gz` inside the corpus directory;
 `corpus.load_parent_specs` and `load_parent_objects` read it and build it if it
 is absent.
@@ -984,7 +998,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 560 tests, about 165 seconds
+python -m pytest tests/          # 591 tests, about 170 seconds
 ```
 
 Headless execution, from `notebooks/`:
@@ -1375,11 +1389,54 @@ a newline, truncating a cell mid-statement. The only symptom was a SyntaxError
 twelve minutes into a headless run.
 
 
+## Four audits added by Stage 2h, and two of them are GATES
+
+**`audits/parent_sampler_fidelity.py` and `audits/draft_end_to_end.py` must
+both pass before any generator configuration supplies a corpus.** They exist
+because a regeneration once passed every sample-level check, IMPROVED the
+calibration objective, and produced a run against the true parents with 99.98
+percent errors. Nothing in that stage looked at the object the truth run
+actually draws from, which is neither the generator nor the sample.
+
+`parent_sampler_fidelity.py` compares `plca.ParentSampler`'s interpolated
+inverse CDF against the parent's own bisection at thirteen probabilities from
+1e-6 to 1 - 1e-6, over four dataset sizes and both weighting schemes, then
+draws 10,000 values and checks the realized mean against an exact mean computed
+on a DIFFERENT node set. The shipped configuration and every bounded candidate
+score 5e-4; the configuration Stage 2h rejected is wrong by more than 1 percent
+on 55 percent of its parents. `--set K=V` overrides a parameter, repeatable.
+About 100 seconds at 30 parents per cell.
+
+`draft_end_to_end.py` runs the whole pipeline on a candidate corpus -- replay
+the parents, fit all six methods, score each against its recovered truth --
+and range-checks three numbers. **Its band is MEASURED, not recalled**: run it
+on the corpus already in the paper to calibrate, which is what the first
+version of it got wrong. It loads cached parent specs rather than replaying
+when they exist, and it samples stratified across the size range rather than
+alphabetically, because an alphabetical slice lands almost entirely in the
+smallest size band.
+
+    python audits/parent_sampler_fidelity.py --parents 40 --label "candidate"
+    python audits/draft_end_to_end.py <corpus label> 300
+
+`audits/widening_and_weights.py` scores ONE synthetic draw against the
+empirical arm built under four different weight rules, so the columns differ
+only in how the real categories were weighted. It is what showed that the
+dispersion-versus-weighting trade three stages called structural was an
+artifact of the two arms weighting differently. Decision 193.
+
+`audits/pedigree_range.py` enumerates all 3,125 pedigree score combinations
+from Muller et al. (2016) and reports what geometric standard deviation the
+matrix can produce, against the real categories' own. **Every factor in that
+table contributes to the SQUARE of the geometric standard deviation**, so a
+model quoted as a GSD halves the exponent; getting that wrong doubles the
+spread. Decision 194.
+
 ## Two audits added by the Stage 2g review
 
 `audits/lognormal_variants.py` scores the two-parameter lognormal, this study's
 three-parameter one, gamma, the normal and the kernel estimate against the KNOWN
-PARENT under equal weights, and reports each one's gain over the two-parameter
+PARENT under uniform weights, and reports each one's gain over the two-parameter
 fit. It exists because the field's lognormal is the two-parameter one and the
 study's is not, and a reader who assumes they are the same will read the
 scorecard as "the paper rediscovered current practice". Writes

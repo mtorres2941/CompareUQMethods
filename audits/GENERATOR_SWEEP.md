@@ -11,8 +11,32 @@ one at a time and rename the output, or run the combined spec at the bottom.
 
 **None of these regenerates the corpus.** `tune_configuration` samples
 datasets under a candidate configuration and scores them; it never writes a
-corpus directory. Generation stays closed (decisions 47, 48 and 55) and any
-improvement found here is a REPORTED SENSITIVITY, not grounds to rebuild.
+corpus directory.
+
+**UPDATED 2026-09-25, AND THE OLD TEXT HERE IS NOW MISLEADING.** This file used
+to say generation stays closed and that any improvement found here is a
+reported sensitivity rather than grounds to rebuild. Generation was reopened by
+author decision at the close of Stage 2h and the corpus was rebuilt as
+`corpus_2026-09-25` (decision 197). The parameters below marked "currently"
+refer to the values BEFORE that change: `min_q1_over_iqr` is now **0.2** and
+`cv_log10_mean` is now **0.329**.
+
+**TWO GATES NOW STAND BETWEEN A SWEEP RESULT AND A REGENERATION, and a
+candidate that skips them is not a candidate.** A configuration must pass
+`audits/parent_sampler_fidelity.py`, which compares the truth run's sampler
+against the parent's own quantiles -- the widened configuration this stage
+first tried scored WELL here and was wrong by more than 1 percent on 55 percent
+of its parents -- and `audits/draft_end_to_end.py`, which runs the whole
+pipeline on a draft corpus. Both were written after a regeneration passed every
+sample-level check and produced a truth run with 99.98 percent errors.
+Decisions 191, 192.
+
+**AND THE OBJECTIVE ALONE IS NOT ENOUGH, for a reason this stage learned the
+hard way.** Two configurations in the sweep below beat the default by improving
+the objective, and both are the objective asking for the WRONG FIX: they make
+the two arms agree by having the synthetic arm adopt the empirical arm's false
+assumption about weights. Read the warning on `mode_coupling` before acting on
+any row.
 
 ## The four parameters this stage was told to sweep
 
