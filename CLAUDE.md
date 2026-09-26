@@ -283,7 +283,7 @@ and generation is closed; neither input moves again.
 | **2g DONE** | The metric set, judged against the run to the TRUE parents rather than on stability: the rank-1 frequency recovers worst of seven candidates and exceeds its own between-material spread under a normal; three different methods lead across the seven; the normal's 40 percent penalty is 44 percent on attribution and 1 to 4 percent on the tail and information metrics; the `(1-capecc)` divisor settled by dividing by the APPLICABLE iterations and reporting the applicability; two magnitude companions, one of them new; the tail failure mode measured rather than assumed; and the last use of the retired in-sample target removed. Decisions 143 to 150. `reports/HANDOFF_stage-2g.md` | Re-running the sweeps of 2h. It did NOT touch the corpus, the fitting, the scoring criterion or the weight model |
 | **2h DONE** | Eighteen sweeps, each closing a "you only tested one variant" objection. **ITS TWO LARGEST RESULTS REVERSE PREMISES THIS TABLE USED TO CARRY.** First, the two arms drew market shares by different rules on the dimension the paper is built on; that is fixed, both arms now use one rule at coherence 0.5, and the tenfold disagreement above 1,000 declarations is a factor of 1.9 (decisions 178, 190). Second, **the dispersion-versus-weighting trade this row called structural was an ARTIFACT of that weighting mismatch and disappears once it is repaired** -- so the corpus was regenerated as `corpus_2026-09-25` with the dispersion distance 0.409 to 0.247 and the weighting distance 0.340 to 0.151, improving together for the first time (decisions 193, 197). Not one recommendation moved: the practitioner threshold is still 81 declarations and every size band has the same winner (decision 198). Also: the scorecard put on one numerator, the both-fits rule for every published crossing, the judgment arm with the pedigree matrix SOURCED and found to be narrower than real data, the certification credit, Weibull, the bandwidth through the pLCA, the parent-level gate and the end-to-end smoke test. Decisions 174 to 199. `reports/HANDOFF_stage-2h.md` | Anything not framed as a sweep with a tabulated result. It did NOT adopt the upper truncation (decision 199) and did NOT measure the mixed-method policy, which is 2j |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
-| **2j** | **THE MIXED-METHOD POLICY, added by the author 2026-09-25.** Every probabilistic LCA in this study fits ONE method to all four of its materials, so a material's own goodness-of-fit advantage is averaged against three neighbours drawn at random, most of them below the size where that advantage exists. That is the mechanism decision 166 identifies for why a fit threshold of about 81 declarations becomes a claim threshold near 1,000. Letting the method vary BY MATERIAL should recover much of it, and it is a policy a practitioner can follow. **THE RULE MUST BE ONE NUMBER AND NOTHING ELSE**, at the author's instruction -- "we'll need a very simple rule for how we're picking the method" -- and the study already has it: a kernel estimate at or above 81 declarations, a three-parameter lognormal below, which is decision 142's threshold reproduced unchanged on the regenerated corpus (decision 198). Weighting follows the same threshold: uniform below, market above (decision 161). Needs its own run against the true parents, scored on the same sixteen claims, against the six fixed-method policies as controls. Decision 166 calls it the most valuable experiment left | Inventing a second selector. Decisions 88 and 139 tested every other characteristic and none yields a usable threshold; modality as a selector is WORSE than not selecting at all |
+| **2j DONE** | **THE MIXED-METHOD POLICY. IT IS NOT A NULL.** Letting the method vary BY MATERIAL, on the study's own one-number rule -- a kernel estimate with market weights at or above 81 declarations, a three-parameter lognormal with uniform weights below -- is the CLOSEST of the seven policies on ALL SIXTEEN claims a probabilistic LCA makes, by a median 11.3 percent of the best fixed policy's own error, every interval clearing zero (decision 204). **It answers decision 166**: the same rule is worth +14.2 percent on the FIT and a median +11.3 on the CLAIMS, so the tenfold attenuation that decision recorded is a consequence of fitting ONE method to four materials and very largely disappears when the method varies. Nothing was refitted: the policy is a new key on each dataset's existing model dict, and in the 119 groups entirely below the threshold and the 172 entirely above it the mixed rows equal the coincident fixed policy's rows to 0.00e+00. **Four qualifications, and the sharpest is that above the threshold the rule is wrong on the LEVEL claims**: where all four materials clear it the market-weighted lognormal is closer on nine of fifteen claims, by 39.5 percent on the building total's mean (decision 205). Nothing already on disk moved, by construction (decision 206). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; it did not, and decision 205 says what that would cost. It did NOT reopen `mode_share_alpha`, which decision 200 wrongly assigned here and decision 203 settled |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
@@ -7277,3 +7277,179 @@ rather than in conversation.
      193 showed the dispersion-versus-weighting form of it was an artifact of
      the two arms weighting differently and removed it. **The modality-versus-
      weighting form is NOT that artifact and survives the repair.**
+
+204. **2026-09-25, Stage 2j. LETTING THE METHOD VARY BY MATERIAL IS NOT A NULL:
+     the study's own one-number rule is the closest of the seven policies on
+     ALL SIXTEEN claims a probabilistic LCA makes, by a median 11.3 percent of
+     the best fixed policy's own error.** `[DELEGATED, 2j measured]` The stage
+     was written to expect a null and to report one as a result. It did not get
+     one.
+
+     **THE RULE, and nothing about it was re-derived.** A kernel estimate with
+     market weights at or above 81 declarations, a three-parameter lognormal
+     with uniform weights below. 81 is decision 142's practitioner threshold,
+     reproduced unchanged on the regenerated corpus by decision 198; both the
+     family and the weighting switch at the same line because decision 161
+     found both orderings invert at about 100 declarations. Of the 10,000
+     synthetic datasets it assigns the kernel estimate to 5,220 and the
+     lognormal to 4,780.
+
+     **NOTHING IS REFITTED.** `mixedpolicy.add_mixed` puts a NEW KEY on each
+     dataset's existing fitted-model dictionary pointing at whichever of the
+     six models the rule selects, so the object sampled under the mixed policy
+     IS the object that fixed policy samples. **That is checked rather than
+     asserted**: over the 119 pLCA groups whose four materials all sit below
+     the threshold the mixed rows differ from the lognormal-with-uniform-
+     weights rows by 0.00e+00 on every output, and over the 172 entirely above
+     it from the kernel with market weights by 0.00e+00.
+
+     **THE GAIN, against the best FIXED policy on each claim -- which is the
+     comparator a reader would otherwise use and therefore the hard test --
+     with a paired cluster bootstrap over pLCA groups:**
+
+         a cap: how often it binds                16.76   [14.49, 19.00]
+         a cap: its chance of saving 5 pct        15.41   [13.21, 17.65]
+         the chance of meeting a budget           15.20   [11.74, 18.63]
+         the probability B beats A                14.75   [10.85, 18.30]
+         a material: its chance of being largest  14.27   [13.09, 15.49]
+         a material: its share of the total       12.43   [ 9.73, 15.22]
+         using 25 pct less: its mean saving       12.43   [ 9.88, 15.18]
+         the total: its 90th percentile           11.39   [ 8.06, 14.87]
+         a cap: its mean saving                   11.29   [ 9.49, 13.22]
+         the total: its mean                       9.99   [ 6.60, 13.55]
+         the total: its standard deviation         7.86   [ 5.82,  9.87]
+         a material: its 95th percentile           7.72   [ 5.73,  9.72]
+         a material: its mean contribution         5.75   [ 3.38,  8.10]
+         a material: its standard deviation        5.61   [ 4.13,  7.07]
+         the uncertainty index                     5.04   [ 3.21,  6.87]
+         a material: its share at the building 95  3.41   [ 1.21,  5.57]
+
+     **Sixteen of sixteen clear zero.**
+
+     **AND IT ANSWERS DECISION 166, WHICH CALLED THIS THE MOST VALUABLE
+     EXPERIMENT LEFT.** That decision recorded a fit threshold of about 81
+     declarations becoming a claim threshold near 1,000, a factor of more than
+     ten, and named the mechanism: a probabilistic LCA picks ONE method for all
+     four of its materials, so one material's fit advantage is averaged against
+     three neighbours drawn at random. **Under a per-material policy there is
+     nothing to average against and the attenuation very largely disappears**:
+     the same rule is worth **+14.2 percent [12.4, 16.1] on the fit** and a
+     median **+11.3 percent on the claims**. The hypothesis decision 166 stated
+     is confirmed in the direction it predicted.
+
+     **THE FIT HALF IS A CONFIRMATION AND NOT A NEW RESULT.** Its 42.98 percent
+     cost over the per-dataset oracle reproduces the minimum of the policy
+     curve Stages 2f and 2h already published, to five significant figures.
+     What is new is everything at the claim level. **And the threshold was
+     calibrated on that fit curve, so the fit number is an in-sample optimum --
+     a weak one, since 68 to 106 are indistinguishable -- while the claim-level
+     numbers are not: the threshold was never tuned on them.**
+
+     **WHERE THE GAIN COMES FROM, which is the group-composition measurement
+     the stage was told to make.** Pooled relative error over every claim,
+     split by how many of a group's four materials the rule moves:
+
+         materials above     groups   Lognormal,   KDE,    size   gain over
+         the threshold                  uniform   market   rule   best fixed
+         0 of 4                 119       32.70    36.82  32.70       0.00
+         1 of 4                 573       28.87    31.60  27.31       5.39
+         2 of 4                 949       25.17    24.62  21.72      11.78
+         3 of 4                 687       21.01    16.57  15.00       9.49
+         4 of 4                 172       16.17     8.40   8.40       0.00
+
+     The two zeros are exact and are the control. **Everything the rule buys is
+     in the middle and peaks where two of four materials move, which is also
+     the commonest composition.** Split instead by the smallest dataset in the
+     group: 11.2 percent where it holds 3 to 9 declarations, 10.2 at 10 to 99,
+     and exactly 0.00 at 100 to 999, because a group whose smallest material
+     clears 100 has all four above the threshold.
+
+205. **2026-09-25, Stage 2j. FOUR QUALIFICATIONS ON DECISION 204, and the
+     sharpest is that the rule's ABOVE-threshold choice is wrong on the LEVEL
+     claims in the one configuration where the rule does nothing else.**
+     `[DELEGATED, 2j measured]`
+
+     **ONE. In the 172 groups of 2,500 where all four materials clear the
+     threshold, the rule is the kernel estimate with market weights, and the
+     market-weighted LOGNORMAL is closer on nine of the fifteen claims that
+     split can score** -- by 39.5 percent [-59.8, -21.2] on the building
+     total's mean, 23.0 on a material's share at the building's 95th
+     percentile and 20.1 on its mean contribution, three intervals that exclude
+     zero. The six claims the kernel estimate wins are SHAPE and FREQUENCY
+     claims -- a spread, a rank frequency, how often and how well a
+     specification cap works -- and on all six the gain is exactly 0.00 with an
+     interval of exactly [0.00, 0.00], the control firing again. **The mirror
+     does not hold**: in the 119 groups entirely below the threshold the rule
+     IS the best fixed policy on 11 of 15 claims and its largest deficit on the
+     other four is 4.7 percent, with no interval excluding zero.
+
+     Two things bound it. The cell is 6.9 percent of a corpus that allocates
+     datasets equally across four size bands; on the real EC3 arm, where 31
+     percent of categories hold 100 declarations or more, four materials all
+     clearing the threshold would happen in about one building in a hundred.
+     And POOLED over all sixteen claims the rule still ties the best fixed
+     policy there rather than losing. **Fixing it would need a second number in
+     the rule, which decisions 88 and 139 have refused twice.**
+
+     **TWO. On the ARGMAX the rule is third, while on the continuous version of
+     the same question it is first.** Asked which material is the largest
+     contributor it names the truth's answer 48.9 percent of the time against
+     52.5 for the kernel with market weights and 50.7 for the lognormal with
+     market weights; on the mean absolute error in a material's chance of being
+     largest it is 14.3 percent better than the best fixed policy. **This is the
+     fourth time this project has found an argmax reading disagreeing with its
+     own continuous quantity** -- decisions 102, 105 and 143 are the others --
+     and the paper must say which it means every time.
+
+     **THREE. The rule is the most accurate policy per decision and NOT the
+     least biased at building scale.** Its absolute error on one building's
+     mean total is 8.48 percent of the true total, the lowest of the seven, and
+     its signed bias is **-2.85 percent** against the kernel with market
+     weights at **+0.92** and the kernel with uniform weights at -1.58. A blend
+     of a family that runs low and one that runs near zero inherits a middling
+     bias, and decision 122b is why that matters: bias adds across the
+     materials of a building while the random part falls as one over the square
+     root of the count. **For one building, follow the rule; for a portfolio or
+     a stock model, a kernel estimate with market weights everywhere is safer.**
+
+     **FOUR. It captures about a fifth of what a per-material choice could
+     buy.** Against a per-material ORACLE -- whichever of the six fixed policies
+     is closest on each unit, which needs the answer in order to choose -- the
+     rule closes a median 22.8 percent of the distance, range 7.3 to 32.1
+     percent. **The oracle is a minimum over six correlated noisy errors and is
+     optimistic by construction**, so it is a floor on what is left rather than
+     a target; a less optimistic ceiling would need a cross-fitted version and
+     is not owned by any stage.
+
+206. **2026-09-25, Stage 2j. A STAGE THAT ADDS A POLICY RUNS ITS OWN TRUTH PASS
+     RATHER THAN EXTENDING THE STUDY'S, because a win share, a `best_method`
+     and a `stakes` are properties of the SET of policies compared.**
+     `[DELEGATED, 2j chose]` Recorded because it cost about sixteen minutes of
+     run time that the stage prompt expected not to be spent, and because a
+     later stage adding an eighth policy should make the same choice.
+
+     Adding the seventh policy to the existing truth run would have changed
+     every win-share denominator, every `best_method` and every `stakes` in the
+     six-method tables the paper reports, for a reason that has nothing to do
+     with any method changing. The Stage 2j cells therefore sit at the END of
+     notebook 3, consume no randomness before any existing cell, and write
+     their own tables. **The result is that re-running notebook 3 end to end
+     reproduced every pre-existing table CONTENT-IDENTICALLY** -- the only
+     differing bytes in the whole of `outputs/` are gzip header timestamps and
+     one `written_utc` field -- which is the strongest control this stage has
+     that it changed nothing it did not mean to.
+
+     **AND THE STAGE FOUND A DEFECT IN ITS OWN FIRST RUN, by a control that
+     should have read zero and read 1.96 percent.** The composition split joins
+     each error row to the pLCA group it came from, on the cluster id; the
+     design comparison's cluster is a design PAIR from its own resampling whose
+     ids run over the same integers, so every pair was handed the composition
+     of the same-numbered group. `claim_errors` now records `cluster_kind` and
+     `attach_composition` refuses any other kind. **The per-material claims were
+     never affected**, because their clusters really are pLCA groups; what was
+     wrong was the pooled table, which pools all sixteen claims.
+
+     **The lesson is the one about controls.** The defect was invisible in every
+     aggregate and visible only in a cell whose correct value was known in
+     advance to be zero. The endpoints of that split were added FOR the control,
+     before any number was looked at, and that is what caught it.

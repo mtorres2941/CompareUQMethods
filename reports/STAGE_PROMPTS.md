@@ -9,7 +9,11 @@ destroys the only account of why a session did what it did. Where a sent stage
 describes a parameter or a count that has since changed, the sent text stands and
 the block below supersedes it.
 
-Only Stage 2j, Stage 3 and Stage 4 are live and may be edited.
+**Stage 2j has now been sent and run as well, 2026-09-25, and its text below is
+a RECORD on the same terms.** Only Stage 3 and Stage 4 are live and may be
+edited. Where the Stage 2j text says "handoff" it means what is now called the
+stage report, `reports/STAGE_REPORT_2j.md`; the specification changed between
+that section being written and being run, and the section is not edited for it.
 
 **Stage 2h changed the production path in three places and every number below
 this line was re-read after it.** The real categories now draw their market-share
@@ -199,7 +203,7 @@ git, is handled inside the prompts.
 | 9 | New window | Stage 2g | Read the handoff, bring it to chat |
 | 10 | New window | Stage 2h | Read the handoff, bring it to chat |
 | 11 | - | Stage 2i - decided not to run | skipped |
-| 12 | New window | Stage 2j, if it runs | Read the handoff, bring it to chat |
+| 12 | New window | Stage 2j - SENT AND RUN 2026-09-25 | `reports/STAGE_REPORT_2j.md` |
 | 13 | New window | Stage 3 | Read the handoff, bring it to chat |
 | 14 | New window | Stage 4 | Done |
 

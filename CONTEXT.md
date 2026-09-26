@@ -893,6 +893,66 @@ there. Result tables and the supplement keep both fits and the interval at FULL
 precision.** `flip.FLIP_THRESHOLDS` is a computational constant rather than
 prose and is untouched.
 
+## 2e. Letting the method vary by material
+
+`src/mixedpolicy.py`, Stage 2j, called from eight cells at the end of notebook
+3. Every probabilistic LCA above those cells fits ONE method to all four of its
+materials; this asks what happens when it does not.
+
+**THE RULE IS ONE NUMBER AND IT IS THE STUDY'S OWN.** A kernel estimate with
+market weights at or above `MIXED_THRESHOLD = 81` declarations, a
+three-parameter lognormal with uniform weights below. 81 is decision 142's
+practitioner threshold, reproduced unchanged on the regenerated corpus by
+decision 198. `select_method` takes exactly one required argument and a test
+asserts that, because a rule with two numbers in it is not the deliverable and
+decisions 88 and 139 tested every other characteristic without finding one that
+yields a usable threshold.
+
+**NOTHING IS REFITTED.** `add_mixed` puts a NEW KEY on each dataset's existing
+`models[dataset]` dictionary pointing at whichever of the six already-fitted
+model objects the rule selects, so the object SCORED and SAMPLED under the
+mixed policy is the same object that fixed policy uses. A group whose four
+materials all sit on one side of the threshold therefore reproduces that fixed
+policy bit for bit, which is the control the notebook prints and two tests pin.
+
+**THE STAGE RUNS ITS OWN TRUTH PASS rather than extending the study's**, and a
+later stage adding an eighth policy should do the same. A win share, a
+`best_method` and a `stakes` are properties of the SET of policies compared, so
+adding a seventh to the existing run would change every one of them in the
+six-method tables the paper reports, for a reason that has nothing to do with
+any method changing. The cost is about sixteen minutes of the notebook's
+seventy-eight; the benefit is that re-running notebook 3 reproduces every
+pre-existing table content-identically.
+
+### The comparison is paired, and the pivot that makes it so
+
+`claim_errors` returns one row per (claim, unit, policy) and `_wide_units`
+pivots it on an explicit UNIT key. **Pivoting on the frame's own index instead
+leaves one value per row, so a row minimum returns that row's own value and the
+per-material oracle comes back as the grand mean over all policies -- worse
+than the best fixed one, which an oracle cannot be.** That was the first draft
+and `tests/test_mixedpolicy.py` is where it is written down.
+
+`_paired_boot` is the same estimator as `plca.cluster_bootstrap` -- whole pLCA
+groups resampled, the statistic the mean over the rows they carry -- written as
+a ratio of per-cluster sums so that sixteen claims over 2,500 clusters at 2,000
+resamples costs seconds rather than minutes. A test pins that the two agree.
+
+`claim_gain` compares against the **best FIXED policy on that claim** by
+default, which is the comparator a reader would otherwise use and therefore the
+hard test; `oracle_ceiling` adds the unreachable per-material minimum as a
+BOUND and never as a policy, and it is optimistic by construction because a
+minimum over six noisy errors is biased low.
+
+### A design pair is not a pLCA group, and their ids collide
+
+`claim_errors` records `cluster_kind` and `attach_composition` joins only rows
+whose cluster really is a pLCA group. The design comparison's cluster is a
+design PAIR from its own resampling and its ids run 0 to 2,499 exactly as the
+pLCA groups' do, so a join on the id alone hands every pair an unrelated
+group's composition. **It surfaced as a cell in which the rule cannot act
+reporting a two percent gain**, and it was invisible in every aggregate.
+
 ## 3. Seeding and caching
 
 **Seeding.** All randomness comes from an explicitly passed
@@ -1329,6 +1389,18 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_MetricWinLeaders.csv` | NB3 | whether each metric's win-share leader is separated from the runner-up or tied with it. On two of seven it is tied |
 | `TABLE_CapApplicabilityVsTruth.csv` | NB3 | how often each method finds the specification cap binding, against how often it really does. Only the two lognormals are indistinguishable from the truth |
 | `TABLE_MetricTailReality.csv` | NB3 | whether any model this study actually FITS has the runaway tail the stress test simulates. A quarter of a percent do, all of them equal-weighted fits to small datasets |
+| `TABLE_MixedPolicyComposition.csv` | NB3 | per pLCA group: how many of its four materials the size rule puts on each side of the threshold, the smallest and largest dataset in it, and whether it straddles |
+| `TABLE_MixedPolicyFit.csv` | NB3 | the seven policies on the FIT: mean and median W1 to the market parent, cost over the per-dataset oracle, the worst single dataset, and the head-to-head with the ties the rule creates by construction reported separately |
+| `TABLE_MixedPolicyFitByBand.csv` | NB3 | the same mean W1 by dataset size band |
+| `TABLE_MixedPolicyTruth.csv.gz` | NB3 | one row per (group, material, policy): every output, the true value, the error. 70,000 rows |
+| `TABLE_MixedPolicyBuilding.csv.gz` | NB3 | one row per (group, policy): the building total against the truth |
+| `TABLE_MixedPolicyIntervention.csv.gz` | NB3 | one row per (group, material, policy): what a cap and a quantity reduction deliver, against the truth |
+| `TABLE_MixedPolicySwap.csv.gz` | NB3 | one row per (design pair, claimed saving, policy): P(B beats A) against the truth |
+| `TABLE_MixedPolicyScorecard.csv` | NB3 | **the Stage 2j table to read beside the six-method one.** The sixteen claims by SEVEN policies, both numerators, on the same divisor as `TABLE_MetricClaimScorecard.csv`. The six-method table is NOT superseded: `best_method`, `stakes` and `excess` there are properties of the six-policy set and stay the paper's comparison of METHODS |
+| `TABLE_MixedPolicyGain.csv` | NB3 | per claim: the size rule against the best FIXED policy on that claim, with a paired cluster-bootstrap interval. Positive means the rule is closer to the truth |
+| `TABLE_MixedPolicyCeiling.csv` | NB3 | per claim: the best fixed policy, the unreachable per-material oracle, the rule, and the fraction of the distance it closes. **The oracle is a bound and never a policy**, and it is optimistic because a minimum over six noisy errors is biased low |
+| `TABLE_MixedPolicyPooled.csv` | NB3 | pooled relative error over every claim belonging to a pLCA group, by three splits of the group's composition. **The `n_above` split carries its own control**: at 0 and at 4 the rule IS a fixed policy and the gain must be exactly zero |
+| `TABLE_MixedPolicyByComposition.csv` | NB3 | the per-claim gain computed separately within each level of two of those splits |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
 (pLCA, UQ method, dataset). It did not exist before Stage 1: notebook 3 wrote
@@ -1387,6 +1459,7 @@ the worst observed value.
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 | `test_metricreduction.py` | 59 | a cross-validated gain cannot be bought by adding a useless term and its fold spread grows as the data thin; a negative R2 is reported rather than clipped, which is what exposed the empirical arm; forward selection refuses a near-duplicate column; the policy curve puts its flat region around the true crossover and beats both fixed policies; the effective sample size matches its closed forms; a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
 | `test_metricset.py` | 28 | the new companion is a SHARE read at the BUILDING's bad end and not at the material's, with a planted case where one material drives the total's upper tail and the two metrics have to disagree; the corrected cap rank-1 frequencies sum to exactly 1.0 across the materials and are the old count divided by the measured applicability; a method that IS the truth has exactly zero recovery error, recovery grows with the error, and a method that reports one number for every material cannot score better than one that tracks the truth with noise; the argmax agreement is 1.0 for the truth and chance for a shuffle; the contaminated model inverts its own mixture CDF and reduces to its base at zero weight; **W1 over the scoring grid alone gives the SAME score at ten, a hundred and a thousand times the mean while the tail term rises with the distance**; and a share saturates under contamination while a mean, a standard deviation and a variance share do not. **Two tests pin the two divisors apart**: `rel_error` is the error over the true LEVEL and `recovery` the error over the true SPREAD, their ratio is not one, and a single planted near-zero truth cannot move `rel_error`, which is why it is a ratio of means and not the ordinary mean absolute percentage error. **Three more pin this stage's review**: the display rename maps only the weighting and leaves `fitting.PEWT` untouched; the size-band split recovers an ordering that flips with dataset size where the pooled table cannot see it; and an output with a true value of zero is skipped rather than divided by |
+| `test_mixedpolicy.py` | 23 | the rule reads NOTHING but the dataset's size, and the interface cannot express a second selector; adding the policy refits nothing and the selected model object is the same object, so a group entirely on one side of the threshold reproduces that fixed policy bit for bit and the six fixed policies come back identical from a truth run whether or not the seventh is present; the fit score is a SELECTION out of the six-method table and cannot disagree with it; the paired bootstrap agrees with `plca.cluster_bootstrap`; a policy that IS a fixed policy on every unit scores a gain of exactly zero with an interval that closes on it, which is the null control; the oracle is a per-unit minimum and not a grand mean, which is the defect the first draft had; a design PAIR is not given a pLCA group's composition even though their ids collide; and no display label uses the retired weighting vocabulary |
 | `test_remetric.py` | 3 | `remetric_corpus` relabels the parent-spec replay cache it copies, a cache from a genuinely DIFFERENT corpus is still refused, and the values are copied byte for byte while the characteristics really are recomputed |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch

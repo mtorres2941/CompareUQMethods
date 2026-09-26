@@ -2271,3 +2271,23 @@ relative figure beside it.**
 | **What the paper should NOT say** | That the shortfall is unfixable. It is fixable and the price is known and was declined. Say what it costs. |
 | **Fix** | One paragraph in the limitations, with the four numbers above. Decision 203. |
 | **Status** | Decided. Not fixed, deliberately. |
+
+## 177. A NEW RESULT THE MANUSCRIPT DOES NOT CONTAIN: choosing the method per material
+
+| | |
+|---|---|
+| **Manuscript** | Compares six fixed UQ methods and, from Stage 2f onward, recommends a size rule for WHICH ONE to use. It nowhere considers using a different method for different materials inside one probabilistic LCA, because every pLCA the study ran fitted one method to all four. |
+| **Code** | Stage 2j measures it. `src/mixedpolicy.py` and eight cells at the end of notebook 3. The rule is the study's own and has one number in it: a kernel estimate with market weights at or above 81 declarations, a three-parameter lognormal with uniform weights below. |
+| **What it found** | The rule is the CLOSEST of the seven policies on ALL SIXTEEN claims a probabilistic LCA makes, by a median 11.3 percent of the best fixed policy's own error, range 3.4 to 16.8 percent, every paired interval clearing zero. On the fit it is worth +14.2 percent [12.4, 16.1]; on the claims a median +11.3. |
+| **Why it matters for the text** | **It resolves the paper's widest gap between a fit result and a decision result.** The manuscript will say that a kernel estimate overtakes a three-parameter lognormal on goodness of fit at about 81 declarations and does not pull clear on the downstream claims until roughly ten times that. The mechanism is that a pLCA picks one method for all four materials, so one material's advantage is averaged against three neighbours drawn at random. **Under a per-material rule there is nothing to average against, and the attenuation very largely disappears.** |
+| **Fix** | **Text, new.** A results subsection and a sentence in the recommendation. Four qualifications must travel with it and are in `reports/STAGE_REPORT_2j.md`: above the threshold the rule is wrong on the LEVEL claims where every material is large; on the argmax it is third of seven while on the continuous version of the same question it is first; it is the most accurate policy per decision and not the least biased at building scale; and it captures about a fifth of what an unreachable per-material oracle could buy. |
+| **Status** | OPEN. **Whether the paper recommends it is an author decision**, and so is whether the scorecard figure gains a seventh column -- which is not free, because `best_method` and `stakes` there are properties of the SET of policies compared and would change on all sixteen rows. |
+
+## 178. The six-method scorecard is not superseded by the seven-policy one
+
+| | |
+|---|---|
+| **Manuscript** | Will print the sixteen-claim scorecard for six methods, with a black box on the closest method in each row and a bar for what the choice costs. |
+| **Code** | Stage 2j writes a SECOND scorecard, `TABLE_MixedPolicyScorecard.csv`, over seven policies. The size rule is the best on all sixteen rows of it. |
+| **Fix** | **Text.** Do not merge them without saying so. The six-method table answers "which METHOD is best", and `best_method`, `stakes` and `excess` in it are properties of the six-policy set; the seven-policy table answers "is a per-material POLICY better than any fixed method", and its own `stakes` column is a different quantity. Quoting a number from one as though it came from the other is the kind of mixing decisions 157 and 174 already had to correct twice. |
+| **Status** | OPEN, and it is a presentation decision rather than an analysis one. |
