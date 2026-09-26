@@ -705,7 +705,8 @@ error.
       --output-dir=/tmp/nbrun --output=out.ipynb \
       03_CompareUQ_PerformPLCA.ipynb
 
-78 minutes, of which the Stage 2j block is about 16. **The figure alone
+75 to 78 minutes across the three runs, of which the Stage 2j block is about
+15. **The figure alone
 re-renders in about seven seconds from the tables on disk**, which is how it
 was iterated:
 
