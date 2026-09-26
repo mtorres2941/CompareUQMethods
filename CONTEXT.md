@@ -60,6 +60,12 @@ CompareUQMethods/
 |   |-- flip.py                what a given W1 COSTS (Stage 2d): the
 |   |                          common-random-numbers pLCA, model-to-model
 |   |                          distances, and the calibration curve
+|   |-- mixedpolicy.py         let the method vary BY MATERIAL (Stage 2j): the
+|   |                          one-number rule as a NEW KEY over the six
+|   |                          already-fitted models, the paired gain against
+|   |                          the best fixed policy, the unreachable
+|   |                          per-material ceiling, and the group-composition
+|   |                          split that says why the gain is the size it is
 |   |-- metricset.py           which downstream metric the paper leads with
 |   |                          (Stage 2g): does a metric RECOVER the truth
 |   |                          rather than merely being stable, the argmax

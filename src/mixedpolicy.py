@@ -266,6 +266,13 @@ def claim_errors(frames, claims=None, method='method', cluster='plca'):
             'method': frame[method].to_numpy(),
             'cluster': (frame[clus].to_numpy() if clus is not None
                         else np.arange(len(frame))),
+            # WHAT THE CLUSTER ID COUNTS, and it is not always a pLCA group.
+            # The design comparison's cluster is a design PAIR drawn from its
+            # own resampling, and its ids run 0 to 2,499 exactly as the pLCA
+            # groups' do. Without this column a join on the cluster id silently
+            # hands every design pair the composition of the same-numbered pLCA
+            # group, which is what the first version of this stage did.
+            'cluster_kind': (clus if clus is not None else 'row'),
             'unit': unit,
             'error': pd.to_numeric(frame[ecol], errors='coerce').to_numpy(),
             'truth': pd.to_numeric(frame[tcol], errors='coerce').to_numpy()})
@@ -417,17 +424,26 @@ def oracle_ceiling(errors, name=MIXED, fixed=None):
 def attach_composition(errors, composition, cluster='cluster', on='plca'):
     """Join each error row to the composition of the pLCA group it came from.
 
-    Only the frames whose cluster IS a pLCA group can be joined; the design
-    comparison's cluster is a design PAIR drawn from a different grouping, so
-    its rows come back with the composition columns missing and are dropped by
-    any split that uses them. That is correct rather than a gap: a design pair
-    has no pLCA group whose composition could be read.
+    ONLY ROWS WHOSE CLUSTER REALLY IS A pLCA GROUP ARE JOINED, and that has to
+    be checked rather than assumed. The design comparison's cluster is a design
+    PAIR drawn from its own resampling and its ids run over the same integers
+    the pLCA groups use, so a join on the id alone gives every design pair the
+    composition of an unrelated pLCA group -- which is what the first version
+    of this stage did, and it showed up as a group in which the rule cannot
+    act reporting a two percent gain. `claim_errors` records `cluster_kind`
+    for exactly this, and rows of any other kind come back with the
+    composition columns empty and are dropped by any split that uses them.
+    That is correct rather than a gap: a design pair has no pLCA group whose
+    composition could be read.
     """
     comp = composition.set_index(on)
     out = errors.copy()
+    ok = (out['cluster_kind'] == on if 'cluster_kind' in out.columns
+          else pd.Series(True, index=out.index))
     for col in ('n_min', 'n_above', 'n_median', 'split_group'):
-        if col in comp.columns:
-            out[col] = out[cluster].map(comp[col])
+        if col not in comp.columns:
+            continue
+        out[col] = out[cluster].map(comp[col]).where(ok)
     if 'n_min' in out.columns:
         out['n_min_band'] = np.where(out['n_min'].notna(),
                                      band(out['n_min'].fillna(-1)), '')

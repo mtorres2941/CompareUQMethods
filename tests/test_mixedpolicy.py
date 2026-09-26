@@ -309,3 +309,61 @@ def test_the_paired_bootstrap_agrees_with_the_studys_cluster_bootstrap():
         resamples=4000, rng=np.random.default_rng(11))
     assert lo == pytest.approx(got['ci_lo'], abs=5e-3)
     assert hi == pytest.approx(got['ci_hi'], abs=5e-3)
+
+
+# ---------------------------------------------------------------------------
+# the composition join, and the id collision that made it wrong
+# ---------------------------------------------------------------------------
+def test_a_design_pair_is_not_given_a_plca_groups_composition():
+    """THE DEFECT THIS PINS WAS IN THE STAGE'S FIRST FULL RUN. The design
+    comparison's cluster is a design PAIR from its own resampling and its ids
+    run over the same integers the pLCA groups use, so a join on the id alone
+    hands every pair an unrelated group's composition. It surfaced as a cell
+    in which the rule cannot act -- all four materials above the threshold, so
+    the mixed policy IS the fixed one -- reporting a two percent gain.
+    """
+    recovery = pd.DataFrame({
+        'plca': [0, 0, 1, 1], 'dataset': ['a', 'a', 'b', 'b'],
+        'method': [MP.MIXED, MP.LARGE_METHOD] * 2,
+        'eci_mean__error': [0.1, 0.2, 0.3, 0.4],
+        'eci_mean__truth': [1.0] * 4})
+    swap = pd.DataFrame({
+        'pair': [0, 0, 1, 1], 'saving': [0.0, 0.0, 0.05, 0.05],
+        'method': [MP.MIXED, MP.LARGE_METHOD] * 2,
+        'discernibility__error': [0.1, 0.2, 0.3, 0.4],
+        'discernibility__truth': [0.5] * 4})
+    errors = MP.claim_errors({'recovery': recovery, 'swap': swap})
+    assert set(errors.cluster_kind) == {'plca', 'pair'}
+    comp = MP.group_composition([['a', 'a', 'a', 'a'], ['b', 'b', 'b', 'b']],
+                                {'a': 5, 'b': 5000})
+    got = MP.attach_composition(errors, comp)
+    joined = got[got.n_above.notna()]
+    assert set(joined.cluster_kind) == {'plca'}
+    assert got[got.cluster_kind == 'pair'].n_above.isna().all()
+    assert (got[got.cluster_kind == 'pair'].n_min_band == '').all()
+
+
+def test_a_group_the_rule_cannot_act_on_shows_exactly_zero_gain():
+    """The built-in control on the composition split. Where every material is
+    on one side of the threshold the mixed policy IS that fixed policy, so its
+    gain against that policy must be exactly zero and the interval must close
+    on it. Anything else means the split joined the wrong rows."""
+    rng = np.random.default_rng(9)
+    rows = []
+    for g in range(60):
+        for j in range(4):
+            e_fixed = rng.normal(0.0, 0.2)
+            for m in MP.methods_with_mixed():
+                e = e_fixed if m in (MP.MIXED, MP.LARGE_METHOD) \
+                    else rng.normal(0.0, 0.2)
+                rows.append(dict(plca=g, dataset=f'd{j}', method=m,
+                                 eci_mean__error=e, eci_mean__truth=1.0))
+    errors = MP.claim_errors({'recovery': pd.DataFrame(rows)})
+    comp = MP.group_composition([[f'd{j}' for j in range(4)]] * 60,
+                                {f'd{j}': 5000 for j in range(4)})
+    got = MP.attach_composition(errors, comp)
+    assert (got.n_above == 4).all()
+    out = MP.gain_by_group(got, 'n_min_band', reference=MP.LARGE_METHOD,
+                           rng=np.random.default_rng(3), resamples=200)
+    assert len(out) == 1
+    assert float(out.gain.iloc[0]) == pytest.approx(0.0, abs=1e-12)
