@@ -39,7 +39,8 @@ on the claims.
 **FOUR THINGS QUALIFY IT AND THE PAPER MUST CARRY ALL FOUR.**
 
 1. **In the one configuration where the rule does nothing, its above-threshold
-   choice is wrong on the LEVEL claims.** In the 172 groups of 2,500 where all
+   choice is wrong on the LEVEL claims.** In the 172 groups of 2,500 -- 6.9
+   percent here and about 1.7 percent of real buildings -- where all
    four materials clear the threshold, the rule picks the kernel estimate with
    market weights for every material, and on nine of the fifteen claims that
    split can score the market-weighted LOGNORMAL is closer -- by **39.5
@@ -140,6 +141,10 @@ for a dataset is the score already recorded for whichever fixed method the rule
 picks, so this is a SELECTION out of the six-method table notebook 2 writes and
 cannot disagree with it.
 
+Sorted by what each policy costs over the oracle, which is the policy question;
+the mean W1 column is not monotone in it, because a policy can be typically
+good and occasionally terrible.
+
     policy                       mean W1   cost over the      worst single
                                            per-dataset        dataset
                                            oracle, pct
@@ -236,13 +241,16 @@ which is what a per-material rule does -- buys nearly the whole of it.
     Reproduce: outputs/tables/TABLE_MixedPolicyGain.csv
                outputs/tables/TABLE_MixedPolicyScorecard.csv
 
-### Both numerators, because five of the sixteen differ by a lot
+### Both numerators, and for the size rule all sixteen differ
 
 `total_error` is the error in ONE decision, which is what every number above
 reports and what a designer choosing between two options carries.
 `portfolio_error` is the error in the AVERAGE claim over many decisions, which
-is the right quantity for a stock model. For the size rule, as a percentage of
-the true level:
+is the right quantity for a stock model. Stage 2h found five of the sixteen
+scorecard rows reporting the second while claiming the first; here both are
+reported for all sixteen, and **they differ on every one**, by a factor of 1.37
+on the total's standard deviation to unbounded on the four where the signed
+errors cancel exactly. For the size rule, as a percentage of the true level:
 
     claim                                    per unit   per portfolio
     the total: its mean                          8.48            2.85
@@ -447,7 +455,11 @@ have a handful.
 
 At 4 of 4 the rule picks the kernel estimate with market weights for every
 material. Pooled over all sixteen claims that is exactly the best fixed policy.
-**Claim by claim it is not.** Of the fifteen claims the split can score, the
+**Claim by claim it is not.** The split scores fifteen of the sixteen claims
+rather than all of them: the design comparison's unit is a design PAIR from its
+own resampling, so it has no pLCA group whose composition could be read, and
+section 9 is why that exclusion is enforced rather than intended. Of those
+fifteen, the
 best fixed policy is the kernel estimate with market weights on six -- where
 the gain is exactly 0.00 with an interval of exactly [0.00, 0.00], the control
 firing again -- and the **market-weighted LOGNORMAL on the other nine**, where
@@ -474,20 +486,26 @@ hold: at 0 of 4, where the rule is the lognormal with uniform weights, it IS
 the best fixed policy on 11 of 15 claims and its largest deficit on the other
 four is 4.7 percent, with no interval excluding zero.
 
-**Two things bound how much this matters.** The cell is **172 of 2,500 groups**
-on a corpus that allocates datasets equally across four size bands; on the real
-EC3 arm, where 31 percent of categories hold 100 declarations or more, four
-materials all clearing the threshold would happen in about one building in a
-hundred. And pooled across all sixteen claims the rule still ties the best
-fixed policy there rather than losing.
+**Two things bound how much this matters.** The cell is **172 of 2,500 groups**,
+6.9 percent, on a corpus that allocates datasets equally across four size
+bands. **On the real EC3 arm 53 of the 147 categories -- 36.1 percent -- hold
+81 declarations or more**, measured just now from
+`outputs/tables/TABLE_EmpiricalECCMetrics.xlsx`, so four independently chosen
+materials all clearing the threshold would happen in about **1.7 percent** of
+buildings. (Decision 163 quotes 31.3 percent for the share above n = 100; the
+33.3 percent this arm now gives at that cutoff is the same quantity remeasured,
+and 36.1 is at the rule's own threshold of 81.) And pooled across all sixteen
+claims the rule still ties the best fixed policy in that cell rather than
+losing.
 
 **So what.** If every material in a design is well documented, a practitioner
 who wants the building's expected total should use a lognormal with market
-weights rather than a kernel estimate, and one who wants the spread or the
-ranking should use the kernel estimate. That is a second rule, on a second
-number, and this project has decided repeatedly not to have one. The honest
-statement is that the size rule is not optimal in that corner and that the
-corner is rare.
+weights, and one who wants the spread or the ranking should use a kernel
+estimate. **That is not the second SELECTOR decisions 88 and 139 refused**,
+which would have been a second characteristic of the data; it is a
+recommendation indexed by which question you are asking. It is still a second
+thing to remember, and the honest statement is that the size rule is not
+optimal in that corner and that the corner is rare.
 
 ## 7. The figure
 
@@ -539,16 +557,19 @@ That is a consequence of the design rather than luck: the Stage 2j cells sit at
 the END of the notebook, they consume no randomness before any existing cell,
 and they run their own truth pass instead of extending the existing one.
 
-**IN THIS STAGE'S OWN OUTPUT, between its two full runs:** the
-group-composition tables and the figure, because of the defect in section 9.
-The fit table, the scorecard, the gain table and the ceiling table are
-bit-identical between the two runs, because the fix touched only the join that
-attaches a group's composition to an error row.
+**IN THIS STAGE'S OWN OUTPUT, between its full runs:** the two
+group-composition tables and the figure, because of the defects in section 9.
+`TABLE_MixedPolicyFit.csv`, `...FitByBand.csv`, `...Composition.csv`,
+`...Scorecard.csv`, `...Gain.csv` and `...Ceiling.csv` did not change at all,
+and the four large row-level tables are content-identical, because the fix
+touched only the join that attaches a group's composition to an error row.
 
 **WHAT THE STAGE ADDS:** twelve new tables and one new figure, all named
 `TABLE_MixedPolicy*` and `CompareUQMethods_FIG_MixedPolicy.png`.
 
-## 9. A defect this stage found in its own first run
+## 9. Two defects this stage found in its own runs
+
+### The one that mattered: a control that should have read zero read 1.96 pct
 
 **A CONTROL THAT SHOULD HAVE READ ZERO READ 1.96 PERCENT.** In a pLCA group
 whose four materials all sit above the threshold, the size rule IS the
@@ -582,6 +603,30 @@ was invisible in every aggregate and visible only in a cell whose correct value
 was known in advance to be zero. A split that carries its own control is worth
 more than a split that does not, and the endpoints of the `n_above` split were
 added for exactly that reason before the number was looked at.
+
+### The one that only cost time: a level label that was '0.0' and not '0'
+
+The second full run raised `IndexError` in the figure cell, the last cell of
+the notebook, and wrote no figure. The pooled table carries three different
+splits in one `level` column -- a count, a boolean and a size band -- so the
+column is text; the count reaches it through a column that can be missing, so
+it is a float on the way in and lands as `'0.0'`. The figure matched the
+literals `'0'` to `'4'`, found nothing, and indexed an empty frame. It now
+sorts the level numerically and formats the tick labels as integers, which does
+not care about the spelling.
+
+**Nothing else in that run was affected** -- every table it wrote is the one
+reported here -- and the figure was then produced by
+`audits/render_figures.py`, which executes the notebook's own bytes against the
+tables on disk in about seven seconds. Three things follow that belong in the
+record rather than in a footnote: the tables and the figure in this report come
+from the same run; the figure cell was iterated six times through the renderer
+rather than through six eighty-minute runs, which is what decision 56's
+narrowing exists for; and **the committed notebook was then run end to end once
+more, with no error in any cell, and reproduced every table in this report
+content-identically -- the figure included, byte for byte, which is also the
+proof that the renderer is a faithful executor of the notebook's own bytes
+rather than a second author of figures.**
 
 ## 10. What is still open
 
@@ -650,15 +695,19 @@ replaying the generator; `outputs/tables/TABLE_MethodScores.csv` from notebook
 Eight cells at the end of `notebooks/03_CompareUQ_PerformPLCA.ipynb`. Nothing
 else in `src/` changed.
 
-**Commands.** The whole stage is one notebook run:
+**Commands.** The whole stage is one notebook run, and it was run three times:
+once to produce the results, once after the composition fix in section 9, and
+once more to verify that the committed notebook executes end to end with no
+error.
 
     cd notebooks && python -m nbconvert --to notebook --execute \
       --ExecutePreprocessor.kernel_name=compareuq \
       --output-dir=/tmp/nbrun --output=out.ipynb \
       03_CompareUQ_PerformPLCA.ipynb
 
-78 minutes, of which the Stage 2j block is about 16. The figure alone
-re-renders in seconds from the tables on disk:
+78 minutes, of which the Stage 2j block is about 16. **The figure alone
+re-renders in about seven seconds from the tables on disk**, which is how it
+was iterated:
 
     python audits/render_figures.py 03_CompareUQ_PerformPLCA \
       --only "what letting the method vary" --into-outputs
