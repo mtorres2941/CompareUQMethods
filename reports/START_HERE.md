@@ -59,7 +59,7 @@ hand any more.
 
 Two things follow, and the second is the one that is easy to get wrong.
 
-## 1. You own `claude_code_prompt_UQ_methods.md`
+## 1. You own `reports/STAGE_PROMPTS.md`
 
 Edit it directly. The rules on it are unchanged and they are strict:
 
@@ -70,17 +70,15 @@ Edit it directly. The rules on it are unchanged and they are strict:
   supersedes it.
 - **Only Stage 2j, Stage 3 and Stage 4 are live.** Stage 2i is closed and is not
   coming back; the real-building anchor comes from citing Marsh et al. (in press).
-- When you change a prompt, say so in the handoff and move on. Do not hand the
-  author a list of things to do that are yours to do.
+- When you change a prompt, say so in your stage report and move on. Do not
+  hand the author a list of things to do that are yours to do.
 
-**The configuration block at the top of the file is incomplete and fixing it is
-your first job.** The Stage 2h window was asked to dump the full production
-configuration and its script raised `KeyError: 'count'` partway through and was
-pasted into the handoff with the traceback still in it. It printed `genconfig`
-and nothing else. Missing: the new empirical weighting rule's parameters,
-including the name and value of the knob reported at 0.5 and the block-count
-rule; and all of `fitting`, `families`, `empirical`, `customstats` and
-`flip.FLIP_THRESHOLDS`. Read them from the code and write the block properly.
+**The configuration block at the top of that file supersedes every value quoted
+inside a sent stage, and keeping it true is part of closing a stage.** It was
+rebuilt at the close of Stage 2h after the dump that produced the previous
+version raised `KeyError: 'count'` partway through and was pasted with its
+traceback unread. If your stage changes a production constant, change it there
+in the same commit, and say in your stage report that you did.
 
 ## 2. You have to replace the outside reader, deliberately
 
@@ -101,14 +99,17 @@ on, and that is a property of context rather than of capability.**
 **So keep the separation and move it inside Claude Code.** At the close of every
 stage, before the next stage runs:
 
-1. The stage window writes `reports/HANDOFF_stage-<id>.md` as it always has, to
-   the same standard: standalone, every number stated in full, no instruction to
-   open a file the reader cannot open.
-2. **Open a FRESH window whose only job is to read that handoff and attack it.**
-   Give it the handoff and the prompt file and nothing else at first. Its task is
+1. The stage window writes `reports/STAGE_REPORT_<id>.md` to the specification
+   in `CLAUDE.md`: every number stated in full as text, every headline claim
+   carrying the command that reproduces it and a plain-language "so what",
+   every result stating which corpus and which weight rule it ran on, and the
+   figures embedded. The older `HANDOFF_stage-*.md` files keep their names and
+   nothing is renamed retroactively.
+2. **Open a FRESH window whose only job is to read that report and attack it.**
+   Give it the report and the prompt file and nothing else at first. Its task is
    to find what is wrong, stale, internally contradictory or asserted without
    measurement, and to write the follow-up questions. It may then open the
-   repository to check, but it forms its questions from the handoff first.
+   repository to check, but it forms its questions from the report first.
 3. Only after that window's questions are answered does the next stage start.
 
 The review window's standing questions, which this project has learned the hard
@@ -169,12 +170,18 @@ none of the code.
 
 ## 5. Where the work stands
 
-Stages 0 through 2h are run. Stage 2i is closed. **Stage 2j runs next**, then
-Stage 3, then Stage 4, which is required rather than optional because the code is
-cited in the paper as a public Zenodo deposit.
+Stages 0 through 2h are run and Stage 2j is run. Stage 2i is closed.
+**Stage 3 runs next**, then Stage 4, which is required rather than optional
+because the code is cited in the paper as a public Zenodo deposit.
 
-One item is waiting on the author and is listed at the head of Stage 3:
-`flip.FLIP_THRESHOLDS` is a hard-coded constant calibrated on the superseded
-corpus, all three of its values now fall outside their own recomputed intervals,
-and notebook 1 reads it. The author's instruction on it should be obtained before
-Stage 3 draws any figure from notebook 1.
+**THE FLIP-THRESHOLD ITEM IS CLOSED and this section said otherwise until
+2026-09-25.** `flip.FLIP_THRESHOLDS` was a hard-coded constant calibrated on the
+superseded corpus whose three values had all fallen outside their own recomputed
+intervals. The author took the recalibration at the close of Stage 2h: the
+constants moved from 0.0018, 0.011 and 0.025 to **0.0029, 0.015 and 0.032**, all
+three now sit inside their intervals, and notebook 1 was re-run on them, which
+moved the mean probability that unknown market shares change which material
+leads from 0.9870 to 0.9734 at the 1 percent level, 0.8642 to 0.8144 at 5
+percent and 0.7105 to 0.6524 at 10 percent. The control that says the change
+reached only what it should: the separation columns, which do not read the
+constant, are bit-identical. Nothing is waiting on the author here.

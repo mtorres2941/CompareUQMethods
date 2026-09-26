@@ -129,11 +129,13 @@ GENERATOR -- genconfig.DEFAULT (src/genconfig.py)
         customstats.SILVERMAN_MIN_NEFF               20.0
     
     FLIP -- src/flip.py
-        flip.FLIP_THRESHOLDS                  {0.01: 0.0018, 0.05: 0.011, 0.1: 0.025}
+        flip.FLIP_THRESHOLDS                  {0.01: 0.0029, 0.05: 0.015, 0.1: 0.032}
         flip.PROSE_MAX_SIGFIGS                4
-        *** FLIP_THRESHOLDS IS CALIBRATED ON THE SUPERSEDED CORPUS. All
-            three values now fall OUTSIDE their recomputed 95 pct
-            intervals. See answer 9. Notebook 1 READS this. ***
+        RECALIBRATED 2026-09-25 by author decision, at the close of Stage
+            2h. These REPLACE 0.0018, 0.011 and 0.025, which were
+            calibrated on the superseded corpus and had all three fallen
+            outside their own recomputed 95 pct intervals. Notebook 1
+            reads this constant and was re-run on it.
     
     RECOVERY -- src/recovery.py
         recovery.RECOVERY_GRID_POINTS             10000
@@ -154,15 +156,21 @@ GENERATOR -- genconfig.DEFAULT (src/genconfig.py)
 reads it**: it is used only by the superseded `fit_pewt_models`, by the named
 comparison family `lognormal_offset`, and by two audit scripts.
 
-**`flip.FLIP_THRESHOLDS` IS STALE AND IS THE ONE ITEM WAITING ON THE AUTHOR.**
-The three values above were calibrated on the superseded corpus. Recomputed on
-the current one they are 0.00291 [0.00235, 0.00361], 0.01502 [0.01325, 0.01716]
-and 0.03157 [0.02868, 0.03505], so **all three stored values now fall outside
-their own recomputed 95 percent intervals**, by factors of 1.62, 1.37 and 1.26.
-Notebook 1 reads this constant to turn a per-dataset weighting risk into a
-probability, so it is not display-only. Updating it moves every weighting-risk
-number the study reports. **Get the author's instruction before Stage 3 draws
-any figure from notebook 1.**
+**`flip.FLIP_THRESHOLDS` IS NO LONGER STALE AND IS NO LONGER WAITING ON THE
+AUTHOR.** This paragraph said it was until 2026-09-25; the instruction was given
+at the close of Stage 2h and taken. The constants are now the recomputed values
+at two significant figures -- 0.0029 [0.00235, 0.00361], 0.015 [0.01325,
+0.01716] and 0.032 [0.02868, 0.03505] -- and all three sit inside their own
+intervals, where the superseded 0.0018, 0.011 and 0.025 sat outside them by
+factors of 1.62, 1.37 and 1.26. They rose because the regenerated corpus is more
+dispersed, so a given flip probability corresponds to a larger absolute model
+distance: the same scale effect that raised every goodness-of-fit score without
+any fit getting worse. Notebook 1 reads them to turn a per-dataset weighting
+risk into a probability and has been re-run, which moved the mean probability
+that unknown market shares change which material leads from 0.9870 to 0.9734 at
+the 1 percent level, 0.8642 to 0.8144 at 5 percent and 0.7105 to 0.6524 at 10
+percent. The control that says the change reached only what it should: the
+separation columns, which do not read the constant, are bit-identical.
 
 The empirical arm is 147 datasets and 116,766 values, drawn from 138 queried
 categories; the frozen extract behind it holds 120,280 records, all of which the
@@ -2913,14 +2921,22 @@ already been re-run and its result is in the Stage 2h answers.
 
 **THREE THINGS ARE STALE IN A WAY THIS STAGE WOULD NOT OTHERWISE DETECT.**
 
-1. **`flip.FLIP_THRESHOLDS` is a hard-coded constant calibrated on the superseded
-   corpus, and notebook 1 reads it.** All three stored values now fall outside
-   their own recomputed 95 percent intervals: 0.0018 against a recomputed 0.00291,
-   0.011 against 0.01502, and 0.025 against 0.03157, off by factors of 1.62, 1.37
-   and 1.26. Notebook 3 recomputes and prints them beside the constant so the
-   drift is visible there, but notebook 1 uses the stored value to turn a
-   per-dataset weighting risk into a probability, and no test compares the two.
-   **This is an author decision and is treated as blocking below.**
+1. **RESOLVED 2026-09-25, BEFORE THIS STAGE RUNS, and this item is no longer
+   blocking. `flip.FLIP_THRESHOLDS` has been recalibrated by author decision.**
+   It was a hard-coded constant calibrated on the superseded corpus whose three
+   stored values all fell outside their own recomputed 95 percent intervals:
+   0.0018 against a recomputed 0.00291, 0.011 against 0.01502 and 0.025 against
+   0.03157, off by factors of 1.62, 1.37 and 1.26. The constants are now
+   **0.0029, 0.015 and 0.032**, which are those recomputed values at two
+   significant figures, and notebook 1 -- which reads them to turn a per-dataset
+   weighting risk into a probability -- has been re-run, moving the mean
+   probability that unknown market shares change which material leads from
+   0.9870 to 0.9734 at the 1 percent level, 0.8642 to 0.8144 at 5 percent and
+   0.7105 to 0.6524 at 10 percent. Notebook 3 still recomputes and prints the
+   crossings beside the constant on every run, so future drift stays visible.
+   **What is still open and belongs to this stage: no test compares the stored
+   constant with the recomputed one, so the next drift will again be visible
+   only to a reader of the notebook's output.**
 2. **Every figure except the scorecard still carries the retired weighting
    labels**, because only the scorecard cell uses `display_method` and only the
    scorecard was redrawn. A figure showing "Variable" or "sampled market shares"
