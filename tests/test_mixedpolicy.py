@@ -294,3 +294,18 @@ def test_the_reference_defaults_to_the_best_fixed_policy_on_that_claim():
     got = MP.claim_gain(errors, rng=np.random.default_rng(5),
                         resamples=200).iloc[0]
     assert got['reference'] == MP.SMALL_METHOD
+
+
+def test_the_paired_bootstrap_agrees_with_the_studys_cluster_bootstrap():
+    """Written as a ratio of per-cluster sums for speed; it must still be the
+    same estimator `plca.cluster_bootstrap` uses everywhere else."""
+    import plca as PL
+    rng = np.random.default_rng(7)
+    clusters = np.repeat(np.arange(40), 3)
+    values = rng.normal(size=(len(clusters), 1))
+    lo, hi = MP._paired_boot(values, clusters, np.random.default_rng(11), 4000)
+    got = PL.cluster_bootstrap(
+        pd.DataFrame({'v': values[:, 0], 'plca': clusters}), 'v',
+        resamples=4000, rng=np.random.default_rng(11))
+    assert lo == pytest.approx(got['ci_lo'], abs=5e-3)
+    assert hi == pytest.approx(got['ci_hi'], abs=5e-3)

@@ -290,18 +290,29 @@ def _wide_units(sub, method='method', unit='unit', value='abs_error'):
     return wide
 
 
-def _paired_boot(pivot, clusters, rng, resamples, alpha=BOOTSTRAP_ALPHA):
-    """Bootstrap the mean of each column, resampling whole clusters."""
-    uniq, inverse = np.unique(clusters, return_inverse=True)
-    order = np.argsort(inverse, kind='stable')
-    counts = np.bincount(inverse, minlength=len(uniq))
-    starts = np.concatenate([[0], np.cumsum(counts)[:-1]])
-    stats = np.empty((int(resamples), pivot.shape[1]), dtype=float)
+def _paired_boot(values, clusters, rng, resamples, alpha=BOOTSTRAP_ALPHA):
+    """Percentile interval for the mean of each column, resampling CLUSTERS.
+
+    Same estimator as `plca.cluster_bootstrap`: a resample draws whole clusters
+    with replacement and the statistic is the mean over the rows they carry.
+    It is written as a ratio of per-cluster sums to per-cluster counts rather
+    than by materializing the resampled rows, because this stage bootstraps
+    sixteen claims over 2,500 clusters and the row-materializing form spends
+    minutes doing it. `tests/test_mixedpolicy.py` pins that the two agree.
+    """
+    values = np.asarray(values, dtype=float)
+    uniq, inverse = np.unique(np.asarray(clusters), return_inverse=True)
+    n_groups, n_cols = len(uniq), values.shape[1]
+    finite = np.isfinite(values)
+    sums = np.zeros((n_groups, n_cols), dtype=float)
+    counts = np.zeros((n_groups, n_cols), dtype=float)
+    np.add.at(sums, inverse, np.where(finite, values, 0.0))
+    np.add.at(counts, inverse, finite.astype(float))
+    stats = np.empty((int(resamples), n_cols), dtype=float)
     for b in range(int(resamples)):
-        pick = rng.integers(0, len(uniq), size=len(uniq))
-        idx = np.concatenate([order[starts[p]:starts[p] + counts[p]]
-                              for p in pick])
-        stats[b] = np.nanmean(pivot[idx], axis=0)
+        pick = rng.integers(0, n_groups, size=n_groups)
+        s, c = sums[pick].sum(axis=0), counts[pick].sum(axis=0)
+        stats[b] = np.where(c > 0, s / np.where(c > 0, c, 1.0), np.nan)
     lo = np.nanpercentile(stats, 100 * alpha / 2, axis=0)
     hi = np.nanpercentile(stats, 100 * (1 - alpha / 2), axis=0)
     return lo, hi
@@ -401,3 +412,75 @@ def oracle_ceiling(errors, name=MIXED, fixed=None):
             available=span,
             recovered=(best_fixed - mixed) / span if span > 0 else np.nan))
     return pd.DataFrame(rows)
+
+
+def attach_composition(errors, composition, cluster='cluster', on='plca'):
+    """Join each error row to the composition of the pLCA group it came from.
+
+    Only the frames whose cluster IS a pLCA group can be joined; the design
+    comparison's cluster is a design PAIR drawn from a different grouping, so
+    its rows come back with the composition columns missing and are dropped by
+    any split that uses them. That is correct rather than a gap: a design pair
+    has no pLCA group whose composition could be read.
+    """
+    comp = composition.set_index(on)
+    out = errors.copy()
+    for col in ('n_min', 'n_above', 'n_median', 'split_group'):
+        if col in comp.columns:
+            out[col] = out[cluster].map(comp[col])
+    if 'n_min' in out.columns:
+        out['n_min_band'] = np.where(out['n_min'].notna(),
+                                     band(out['n_min'].fillna(-1)), '')
+    return out
+
+
+def gain_by_group(errors, split, name=MIXED, reference=None, rng=None,
+                  resamples=BOOTSTRAP_RESAMPLES, min_clusters=25):
+    """`claim_gain` computed separately within each level of a split.
+
+    THIS IS THE MEASUREMENT THAT MAKES A SMALL OVERALL GAIN ATTRIBUTABLE
+    RATHER THAN MERELY DISAPPOINTING. A probabilistic LCA claim belongs to the
+    GROUP of four materials and the group's worst-fitted member sets much of
+    its error, so improving one material of four cannot improve the group by
+    more than that member's share of it. Splitting by the SMALLEST dataset in
+    each group is the direct test: Stage 2h found that split moves the kernel
+    estimate's advantage by a factor of nearly two (decision 163).
+
+    The REFERENCE is held fixed across levels when one is given, because
+    letting each level pick its own best fixed policy would compare the mixed
+    policy against a different comparator in every row of the table.
+    """
+    rng = rng or np.random.default_rng(0)
+    out = []
+    for level, sub in errors.groupby(split, sort=True, observed=True):
+        if not str(level):
+            continue
+        if sub['cluster'].nunique() < int(min_clusters):
+            continue
+        got = claim_gain(sub, name=name, reference=reference, rng=rng,
+                         resamples=resamples)
+        if got.empty:
+            continue
+        got.insert(0, split, level)
+        out.append(got)
+    return pd.concat(out, ignore_index=True) if out else pd.DataFrame()
+
+
+def pooled_error(errors, questions=('attribution', 'information'),
+                 name=MIXED):
+    """Mean RELATIVE error across several claims, per policy.
+
+    Each claim is divided by its own true level first, because the claims are
+    in incomparable units and an unweighted mean over them would be dominated
+    by whichever has the largest level. This is the same divisor the scorecard
+    uses (decision 157) and the same one `metricset.size_band_recovery` uses,
+    so the three tables can be read against each other.
+    """
+    sub = errors[errors['question'].isin(questions)] if questions else errors
+    per = (sub.groupby(['claim', 'method'], observed=True)
+           .agg(err=('abs_error', 'mean'), lvl=('truth', 'mean'))
+           .reset_index())
+    per['rel'] = per['err'] / per['lvl'].abs()
+    return (per.groupby('method', observed=True)['rel'].mean()
+            .rename('mean_rel_error').reset_index()
+            .sort_values('mean_rel_error').reset_index(drop=True))
