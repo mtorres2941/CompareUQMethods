@@ -2837,9 +2837,18 @@ WAY.**
   filename. The stored `method` values keep "Uniform" and "Variable" because
   they are the join key for every table and fixture.
 - **Every audit table under `outputs/tables/audits/` dated 2026-09-24 was
-  computed on the SUPERSEDED corpus.** Do not quote one. If this stage needs a
-  number from the judgment arm, the upper-truncation sweep, the bandwidth sweep
-  or the certification credit, re-run the script first.
+  computed on the SUPERSEDED corpus and the pre-port weight rule.** Do not
+  quote one. If this stage needs a number from the judgment arm, the
+  upper-truncation sweep, the bandwidth sweep or the certification credit,
+  re-run the script first -- each takes 8 to 35 minutes.
+
+  **REFRESHING THEM IS NOT THIS STAGE'S JOB AND IS NOT ANY STAGE'S JOB.** The
+  decisions that quote them are stamped with what they were measured on and
+  with which half of each claim survives: the orderings do, the absolute levels
+  do not, because every absolute distance in the study rose 16 to 45 percent on
+  the new corpus. That stamp is the fix. Re-run one only if this stage needs
+  its number, and if you do, say so in the report and update the stamped
+  decision.
 
 **STAMP THE PROVENANCE ON EVERY TABLE THIS STAGE WRITES.** Two columns or two
 lines of metadata: the corpus label and the empirical weight rule. Stage 2h

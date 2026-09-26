@@ -6133,6 +6133,17 @@ rather than in conversation.
      cost is not a cost: the choice is now between two measured options rather
      than between a measured one and an unknown.
 
+     **MEASURED ON `corpus_2026-09-21` AND THE PRE-PORT EMPIRICAL WEIGHT RULE,
+     BOTH OF WHICH WERE REPLACED LATER IN THE SAME STAGE (decisions 190, 197).**
+     The ORDERINGS in this entry stand: Stage 2h established that method
+     orderings are stable across the regeneration, reproducing every size-band
+     winner and the practitioner threshold unchanged (decision 198). **The
+     ABSOLUTE LEVELS do not**: every absolute distance in the study rose 16 to
+     45 percent on the new corpus, purely because it is more dispersed. Quote
+     the direction and the comparison, not the level, until the audit behind
+     this entry is re-run. `audits/` holds the script; each takes 8 to 35
+     minutes.
+
 183. **2026-09-24, Stage 2h. RESOLVING THE CATEGORIES INTO PRODUCTS DID NOT
      MANUFACTURE THE HEADLINE, and the empirical arm still cannot measure a
      size crossover.** `[DELEGATED, 2h measured]` The stage prompt asked for
@@ -6223,6 +6234,17 @@ rather than in conversation.
      on this axis until the table is sourced.** Decision 49's amendment is why
      this matters: this project has already had to withdraw one figure quoted
      from memory.
+
+     **MEASURED ON `corpus_2026-09-21` AND THE PRE-PORT EMPIRICAL WEIGHT RULE,
+     BOTH OF WHICH WERE REPLACED LATER IN THE SAME STAGE (decisions 190, 197).**
+     The ORDERINGS in this entry stand: Stage 2h established that method
+     orderings are stable across the regeneration, reproducing every size-band
+     winner and the practitioner threshold unchanged (decision 198). **The
+     ABSOLUTE LEVELS do not**: every absolute distance in the study rose 16 to
+     45 percent on the new corpus, purely because it is more dispersed. Quote
+     the direction and the comparison, not the level, until the audit behind
+     this entry is re-run. `audits/` holds the script; each takes 8 to 35
+     minutes.
 
 185. **2026-09-24, Stage 2h. EVERY GENERATOR-SHAPE PARAMETER IS ALREADY AT ITS
      BEST SWEPT VALUE. The two exceptions are both the calibration objective
@@ -6450,6 +6472,17 @@ rather than in conversation.
      the same grounds as decision 49's withdrawn figure and decision 184's
      pedigree table. `audits/credit_design.py`.
 
+     **MEASURED ON `corpus_2026-09-21` AND THE PRE-PORT EMPIRICAL WEIGHT RULE,
+     BOTH OF WHICH WERE REPLACED LATER IN THE SAME STAGE (decisions 190, 197).**
+     The ORDERINGS in this entry stand: Stage 2h established that method
+     orderings are stable across the regeneration, reproducing every size-band
+     winner and the practitioner threshold unchanged (decision 198). **The
+     ABSOLUTE LEVELS do not**: every absolute distance in the study rose 16 to
+     45 percent on the new corpus, purely because it is more dispersed. Quote
+     the direction and the comparison, not the level, until the audit behind
+     this entry is re-run. `audits/` holds the script; each takes 8 to 35
+     minutes.
+
 188. **2026-09-24, Stage 2h. THE BANDWIDTH SENSITIVITY: the two arms disagree
      about the DENSITY criterion and agree about the study's own, so the
      shipped rule stands.** `[DELEGATED, 2h measured]` A sensitivity rather
@@ -6478,6 +6511,17 @@ rather than in conversation.
      conservative direction for this paper's recommendation and must be stated
      as such rather than quietly corrected.
 
+     **MEASURED ON `corpus_2026-09-21` AND THE PRE-PORT EMPIRICAL WEIGHT RULE,
+     BOTH OF WHICH WERE REPLACED LATER IN THE SAME STAGE (decisions 190, 197).**
+     The ORDERINGS in this entry stand: Stage 2h established that method
+     orderings are stable across the regeneration, reproducing every size-band
+     winner and the practitioner threshold unchanged (decision 198). **The
+     ABSOLUTE LEVELS do not**: every absolute distance in the study rose 16 to
+     45 percent on the new corpus, purely because it is more dispersed. Quote
+     the direction and the comparison, not the level, until the audit behind
+     this entry is re-run. `audits/` holds the script; each takes 8 to 35
+     minutes.
+
 189. **2026-09-24, Stage 2h. WEIBULL IS THE WEAKEST DATA-DRIVEN FAMILY AND
      CHANGES NOTHING, WHICH IS WHY IT IS WORTH REPORTING.** `[DELEGATED, 2h
      measured]` Added to blunt the objection that only two families were
@@ -6497,6 +6541,17 @@ rather than in conversation.
      W1-optimal fitting it improves by a median of 11.85 percent and still does
      not reach gamma. **So the family list is not short for want of trying, and
      nothing in the paper's conclusions moves.**
+
+     **MEASURED ON `corpus_2026-09-21` AND THE PRE-PORT EMPIRICAL WEIGHT RULE,
+     BOTH OF WHICH WERE REPLACED LATER IN THE SAME STAGE (decisions 190, 197).**
+     The ORDERINGS in this entry stand: Stage 2h established that method
+     orderings are stable across the regeneration, reproducing every size-band
+     winner and the practitioner threshold unchanged (decision 198). **The
+     ABSOLUTE LEVELS do not**: every absolute distance in the study rose 16 to
+     45 percent on the new corpus, purely because it is more dispersed. Quote
+     the direction and the comparison, not the level, until the audit behind
+     this entry is re-run. `audits/` holds the script; each takes 8 to 35
+     minutes.
 
 190. **2026-09-25, Stage 2h. THE PORTED WEIGHT RULE IS NOW APPLIED TO THE
      EMPIRICAL ARM IN THE PRODUCTION PATH. This SUPERSEDES decision 178's
