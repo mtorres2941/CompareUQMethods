@@ -203,10 +203,23 @@ the chat window's retirement.
    reproduce-command.
 3. **Numbers that moved**, with before, after and reason. States "none"
    explicitly if nothing moved.
-4. **What is still open**, carrying forward every unresolved item from every
-   previous report, each marked resolved, still open or superseded.
+4. **What is still open.** **OPEN ITEMS ONLY, amended 2026-09-27 by the
+   author**: "very strange to have things listed as 'closed' under a table
+   titled 'what is still open'". An item a previous stage closed belongs in
+   the decision log, which is where a reader who wants the history looks; it
+   does not get a row here saying it is closed. An item stays only while
+   somebody still has to do something about it, and a LIMITATION THE
+   MANUSCRIPT STATES is not an open item -- it is a paragraph somebody owes,
+   and it goes under what the next stage picks up.
 5. **Inputs and outputs**, including which corpus every result ran on.
 6. **What the next stage picks up first.**
+
+**AND KEEP IT SHORT, added 2026-09-27 by the author**: "this stage report is
+extremely long ... the idea that a single stage report is ~7000 words is wild.
+That's about how long the actual manuscript will be." A stage report is a
+briefing, not a transcript. Findings, numbers, what needs a decision; the
+narrative of how a defect was found belongs in the commit message and the
+decision log. Aim well under 2,500 words.
 
 **The test before a stage ends is unchanged in substance:** could the author
 read this alone and know what happened, and could a reviewer who has not done
@@ -7453,3 +7466,67 @@ rather than in conversation.
      aggregate and visible only in a cell whose correct value was known in
      advance to be zero. The endpoints of that split were added FOR the control,
      before any number was looked at, and that is what caught it.
+
+207. **2026-09-27, Stage 2j review. FOUR ITEMS THE AUTHOR ASKED TO SETTLE,
+     SETTLED.** `[AUTHOR ASKED, THREE SETTLED HERE, ONE CLOSED AS ALREADY
+     DONE]` Raised while reading the Stage 2j report's open-items table, whose
+     first defect was listing closed items under a heading that says open.
+
+     **ONE. THE TWO ERROR DEFINITIONS ARE SETTLED: the paper's default is the
+     PER-UNIT form everywhere, and the portfolio form appears only where the
+     sentence is explicitly about many buildings.** The two, both already in
+     `TABLE_MetricClaimScorecard.csv` and in this stage's twin of it:
+
+         total_error      mean |error| per unit, over the mean true level.
+                          The error in ONE decision -- one building, one design
+                          comparison, one specification cap.
+         portfolio_error  |mean signed error| over the same divisor. The error
+                          in the AVERAGE claim over many decisions, which is
+                          what a stock model or a portfolio wants.
+
+     The default is the first because the paper's reader is doing one
+     building's LCA. **The second may never be quoted as "the method is
+     right"**: on a share or a rank frequency the four materials sum to one, so
+     the signed errors cancel exactly and `portfolio_error` is zero by
+     construction however wrong each number is. Stage 2h's decision 174 is the
+     correction that created the pair; this decides which one the prose means,
+     which decision 174 explicitly left open and which was "decided nowhere but
+     in this file" for two stages.
+
+     **TWO. THE MODALITY ITEM IS CLOSED AND WAS ALREADY FIXED.**
+     `modality_index_fitted` -- the measure decision 134 established and
+     decision 82 says the paper should report -- **is present on both arms and
+     in every characteristic table**: the corpus's `metrics.parquet`,
+     `TABLE_EmpiricalECCMetrics.xlsx` and `TABLE_SyntheticECCMetricsAndW1.xlsx`
+     all carry it and its unweighted twin. What it is absent from is
+     `coverage.CORE_METRICS`, the nine-characteristic list the coverage table,
+     the effective dimension and the CALIBRATION OBJECTIVE are computed over.
+
+     **It stays absent from that list, deliberately.** Adding a tenth
+     characteristic would move the calibration objective that decisions 197 and
+     200 quote and that the closed generation was judged on, for no benefit now
+     that generation is closed. **And the arms agree on it anyway**: the
+     standardized arm-to-arm Wasserstein distance is **0.2373** for
+     `modality_index_fitted` against **0.2540** for `crit_bw_1`, which IS in
+     the list, with empirical and synthetic medians of 1.0258 and 1.0253. So
+     the paper can report it from the tables it is already in, and the
+     nine-characteristic list stays frozen at what the generator was tuned
+     against.
+
+     **THREE. THE CORPUS'S JOINT MODALITY-AND-DISPERSION STRUCTURE IS NOT AN
+     OPEN TASK AND GENERATION IS NOT REOPENING.** Decision 203 settled it: the
+     corpus keeps `mode_share_alpha = 10` and the shortfall becomes a stated
+     limitation, with the numbers on both sides recorded there. The Stage 2j
+     report carried it forward as "still open", which reads as work outstanding
+     when what is outstanding is a paragraph in the manuscript. It is a
+     LIMITATION TO STATE, not a task, and it leaves the open list.
+
+     **FOUR. THE REAL-BUILDING ANCHOR IS CLOSED AND SHOULD NOT HAVE BEEN
+     LISTED.** Stage 2i was closed by decision; the anchor is the citation to
+     Marsh, Lewis, Hattam and Allen (in press). The row is removed.
+
+     **AND THE FORMAT DEFECT BEHIND ALL FOUR.** A table headed "what is still
+     open" listed eight items of which five were closed. **A stage report's
+     open list contains open items only**; what a previous stage closed lives
+     in this decision log, which is where a reader who wants the history looks.
+     The stage report specification in this file is amended to say so.

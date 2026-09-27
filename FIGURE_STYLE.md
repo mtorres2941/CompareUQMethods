@@ -40,6 +40,39 @@ usually took work.
 Tufte's first demand: the representation must be proportional to the quantity,
 and the words must be proportional to the evidence.
 
+### The description belongs in the CAPTION, not on the figure
+
+**Added 2026-09-27, Stage 2j review, after the author read a figure whose
+subtitle ran wider than the figure itself.** Their words: "why do you have a
+paragraph of text in this figure that extends way beyond the width of the
+figure itself? First of all, that paragraph of text would go in the figure
+description, not on the figure itself. Second of all, text breaks should be
+used to align with the width of the actual figure."
+
+Three rules, and the first is the one that was being broken:
+
+- **Anything longer than two short lines goes in the CAPTION** -- the
+  paragraph beside the figure in the report and in the manuscript -- and not
+  on the figure. What stays on the figure is the title, a subtitle of at most
+  two lines saying what is plotted, and the axis labels.
+- **Every line of title and subtitle is broken by hand to the figure's own
+  width.** Matplotlib will not wrap for you and `bbox_inches='tight'` will
+  happily widen the saved image to fit a long line, so the text sets the
+  figure width instead of the other way round. Put the newline in yourself and
+  look at the result.
+- **A takeaway title still has to say what the reader is looking at.** The
+  same author, same review: "the title used is ambiguous and doesn't clearly
+  explain what I'm actually looking at. You're overcorrecting in favor of Jean
+  Luc Doumont's rule about having a takeaway as the title." A title that is
+  only a conclusion leaves a reader who has not read the text with nothing to
+  orient on. Name the comparison in the title, then state the finding.
+
+**And a title may not assert more than the panel shows**, which is section 1's
+rule and is easy to break by writing the number into the string by hand.
+Compute it: a title that says "beats every method on all sixteen claims"
+should be built from the count in the table, so that it reads "on 14 of 16" if
+that is what the data says.
+
 ### A takeaway title needs a subtitle saying what is plotted
 
 **Added 2026-09-22, Stage 2g, after the author reviewed three figures built to
