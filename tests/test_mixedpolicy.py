@@ -367,3 +367,166 @@ def test_a_group_the_rule_cannot_act_on_shows_exactly_zero_gain():
                            rng=np.random.default_rng(3), resamples=200)
     assert len(out) == 1
     assert float(out.gain.iloc[0]) == pytest.approx(0.0, abs=1e-12)
+
+
+# ---------------------------------------------------------------------------
+# the sweep: every candidate is still ONE number, and the range is measured
+# ---------------------------------------------------------------------------
+def test_every_swept_policy_reads_only_the_size():
+    """The variants change WHAT the cutoff switches, never how many numbers a
+    reader needs. Each one is still a single threshold on a single input."""
+    for p in MP.all_policies():
+        assert isinstance(p.threshold, int)
+        assert p.choose(p.threshold - 1) == p.below
+        assert p.choose(p.threshold) == p.above
+        assert p.above in FT.PEWT and p.below in FT.PEWT
+
+
+def test_the_study_rule_keeps_its_bare_name_inside_the_sweep():
+    """So that every table and figure written before the sweep still joins."""
+    names = [p.name for p in MP.sweep_policies()]
+    assert MP.MIXED in names
+    study = next(p for p in MP.sweep_policies() if p.name == MP.MIXED)
+    assert study.threshold == MP.MIXED_THRESHOLD
+    assert sum(n == MP.MIXED for n in names) == 1
+
+
+def test_add_policies_points_every_key_at_an_existing_model_object():
+    names, _, models, sizes = a_group()
+    policies = MP.all_policies()
+    models, choice = MP.add_policies(models, sizes, policies)
+    for p in policies:
+        for d in names:
+            assert models[d][p.name] is models[d][choice[p.name][d]]
+            assert choice[p.name][d] == p.choose(sizes[d])
+    for d in names:
+        for m in FT.PEWT:
+            assert m in models[d]
+
+
+def test_the_variant_that_uses_market_weights_below_the_cutoff_differs():
+    """The author's question: what if the lognormal below the cutoff uses
+    market weights too. It must be a genuinely different policy, not a
+    relabelling."""
+    names, _, models, sizes = a_group(sizes=(6, 30, 300, 3000))
+    MP.add_policies(models, sizes, MP.all_policies())
+    u = np.random.default_rng(6).random((NECCS, len(names)))
+    study = PL.draw_contributions(models, names, MP.MIXED, u)
+    market = PL.draw_contributions(models, names, 'MixedMarket@81', u)
+    assert not np.array_equal(study, market)
+    # they agree exactly on the materials ABOVE the cutoff and differ below
+    for j, d in enumerate(names):
+        same = np.array_equal(study[:, j], market[:, j])
+        assert same == (sizes[d] >= MP.MIXED_THRESHOLD)
+
+
+def _sweep_errors(n_groups=200, seed=0, best=81, steepness=0.02,
+                  with_fixed=True):
+    """A planted curve whose minimum is at a known cutoff.
+
+    The six FIXED methods are planted too, worse than every policy, because
+    `claim_gain` and `policy_table` compare against them and a frame without
+    them is not the frame the stage builds.
+    """
+    rng = np.random.default_rng(seed)
+    policies = MP.all_policies()
+    rows = []
+    for g in range(n_groups):
+        for j in range(4):
+            for p in policies:
+                hurt = steepness * abs(np.log(p.threshold / best))
+                rows.append(dict(plca=g, dataset=f'd{j}', method=p.name,
+                                 eci_mean__error=rng.normal(hurt, 0.05),
+                                 eci_mean__truth=1.0))
+            if not with_fixed:
+                continue
+            for k, m in enumerate(FT.PEWT):
+                rows.append(dict(plca=g, dataset=f'd{j}', method=m,
+                                 eci_mean__error=rng.normal(0.10 + 0.01 * k,
+                                                            0.05),
+                                 eci_mean__truth=1.0))
+    return MP.claim_errors({'recovery': pd.DataFrame(rows)}), policies
+
+
+def test_the_threshold_curve_finds_a_planted_minimum_and_a_range_around_it():
+    errors, policies = _sweep_errors()
+    frame, summary = MP.threshold_curve(errors, policies,
+                                        rng=np.random.default_rng(1),
+                                        resamples=300)
+    assert summary['best_threshold'] in (70, 81, 90)
+    assert summary['range_lo'] <= summary['best_threshold'] <= summary['range_hi']
+    # the range is a RANGE, not the argmin dressed up
+    assert summary['range_lo'] < summary['range_hi']
+    # and it is a contiguous run of the swept cutoffs
+    inside = frame[frame.in_range].threshold.tolist()
+    assert inside == sorted(inside)
+    assert inside[0] == summary['range_lo'] and inside[-1] == summary['range_hi']
+
+
+def test_a_flat_curve_gives_a_wider_range_than_a_steep_one():
+    """The range has to respond to how much the cutoff actually matters,
+    which is the whole reason for publishing one rather than a point."""
+    flat, pol = _sweep_errors(seed=3, steepness=0.002)
+    steep, _ = _sweep_errors(seed=3, steepness=0.30)
+    ff, fs = MP.threshold_curve(flat, pol, rng=np.random.default_rng(5),
+                                resamples=300)
+    sf, ss = MP.threshold_curve(steep, pol, rng=np.random.default_rng(5),
+                                resamples=300)
+    assert int(ff.in_range.sum()) > int(sf.in_range.sum())
+    assert ss['range_lo'] <= 81 <= ss['range_hi']
+
+
+def test_the_gain_comparator_is_a_fixed_method_and_never_another_policy():
+    """With a sweep in the frame, 'everything except me' would pick the
+    neighbouring cutoff as the thing to beat and collapse every gain."""
+    errors, policies = _sweep_errors(n_groups=60)
+    got = MP.claim_gain(errors, name=MP.MIXED, rng=np.random.default_rng(2),
+                        resamples=100)
+    assert got.empty or got.reference.isin(FT.PEWT).all()
+
+
+def test_the_policy_table_ranks_policies_and_marks_the_fixed_ones():
+    errors, policies = _sweep_errors(n_groups=80)
+    out = MP.policy_table(errors, policies)
+    assert set(out.kind) <= {'fixed', 'threshold', 'variant'}
+    assert out.pooled_error.is_monotonic_increasing
+    assert (out.loc[out.kind == 'threshold', 'threshold'] > 0).all()
+
+
+def test_pooling_covers_the_design_comparison_and_not_only_the_plca_claims():
+    """FIFTEEN of the sixteen claims belong to a pLCA group and the design
+    comparison belongs to a design PAIR from its own resampling. A single
+    array indexed by pLCA group leaves it as a column of NaN, so a number
+    described as 'pooled over sixteen claims' would quietly be over fifteen.
+    """
+    errors, policies = _sweep_errors(n_groups=40, with_fixed=False)
+    swap_rows = []
+    rng = np.random.default_rng(8)
+    for pair in range(40):
+        for sv in (0.0, 0.05):
+            for p in policies:
+                swap_rows.append(dict(
+                    pair=pair, saving=sv, method=p.name,
+                    discernibility__error=rng.normal(0.0, 0.05),
+                    discernibility__truth=0.5))
+    both = pd.concat([errors, MP.claim_errors(
+        {'swap': pd.DataFrame(swap_rows)})], ignore_index=True)
+    assert set(both.cluster_kind) == {'plca', 'pair'}
+    blocks, claims, _, levels = MP.claim_blocks(
+        both, [p.name for p in policies])
+    assert len(blocks) == 2
+    assert len(claims) == 2
+    assert np.isfinite(levels).all()
+    pooled = MP.pooled_from_blocks(blocks, levels, len(claims))
+    assert np.isfinite(pooled).all()
+    # and the swap claim really moves the pooled number
+    only_plca = MP.pooled_from_blocks(blocks[:1], levels, len(claims))
+    assert not np.allclose(pooled, only_plca, equal_nan=True)
+
+
+def test_the_threshold_curve_reports_the_claims_it_actually_used():
+    errors, policies = _sweep_errors(n_groups=60)
+    _, summary = MP.threshold_curve(errors, policies,
+                                    rng=np.random.default_rng(1),
+                                    resamples=150)
+    assert summary['n_claims'] == errors['claim'].nunique()

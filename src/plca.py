@@ -1311,6 +1311,22 @@ def swap_totals(models, shared, alt_a, alt_b, u, method, saving=0.0,
     the two alternatives are independent of each other as two different
     products must be.
     """
+    base, a, b, k = swap_components(models, shared, alt_a, alt_b, u, method,
+                                    n_materials)
+    return swap_from_components(base, a, b, k, saving)
+
+
+def swap_components(models, shared, alt_a, alt_b, u, method, n_materials=None):
+    """The three draw blocks a swap needs, which do NOT depend on the saving.
+
+    Split out of `swap_totals` in Stage 2j. The saving enters only through
+    option B's use intensity, so drawing the blocks once and applying every
+    saving to them is bit-identical at a sixth of the cost -- and the sweep
+    that stage runs scores twenty-three policies where the study scored six,
+    which made the redundancy worth removing. `swap_totals` still exists and
+    still returns what it always did; `tests/test_plca.py` pins that the two
+    routes agree exactly.
+    """
     shared = list(shared)
     k = int(n_materials or (len(shared) + 1))
     u = np.asarray(u, dtype=float)
@@ -1320,12 +1336,18 @@ def swap_totals(models, shared, alt_a, alt_b, u, method, saving=0.0,
                    float)
     b = np.asarray(models[alt_b][method].rvs_from_uniform(u[:, len(shared) + 1]),
                    float)
-    # Every material sits at an intensity of 1.0 except option B's
-    # alternative, which is lowered so that B's expected total is `saving`
-    # below A's as a share of the k-material building.
-    mui_b = 1.0 - float(saving) * k
     base = np.sum(cols, axis=0) if cols else np.zeros(len(a))
-    return base + a, base + mui_b * b
+    return base, a, b, k
+
+
+def swap_from_components(base, a, b, k, saving=0.0):
+    """Option A's and option B's totals at one claimed saving.
+
+    Every material sits at an intensity of 1.0 except option B's alternative,
+    which is lowered so that B's expected total is `saving` below A's as a
+    share of the k-material building.
+    """
+    return base + a, base + (1.0 - float(saving) * int(k)) * b
 
 
 def swap_run(models, groups, rng, savings=SWAP_SAVINGS, neccs=NECCS,
@@ -1353,14 +1375,18 @@ def swap_run(models, groups, rng, savings=SWAP_SAVINGS, neccs=NECCS,
         truth = {}
         if samplers is not None:
             tmod = {d: {'__truth__': samplers[d]} for d in names}
+            gbase, ga, gb, gk = swap_components(tmod, shared, alt_a, alt_b, u,
+                                                '__truth__', n_materials=k)
             for sv in savings:
-                ta, tb = swap_totals(tmod, shared, alt_a, alt_b, u,
-                                     '__truth__', sv, n_materials=k)
+                ta, tb = swap_from_components(gbase, ga, gb, gk, sv)
                 truth[sv] = comparison_statement(tb, ta, margins=margins)
         for m in methods:
+            # The draw blocks do not depend on the saving, so they are drawn
+            # ONCE per (pair, policy) and every saving is applied to them.
+            cbase, ca, cb, ck = swap_components(models, shared, alt_a, alt_b,
+                                                u, m, n_materials=k)
             for sv in savings:
-                ta, tb = swap_totals(models, shared, alt_a, alt_b, u, m, sv,
-                                     n_materials=k)
+                ta, tb = swap_from_components(cbase, ca, cb, ck, sv)
                 # B against A, so a HIGH discernibility means the substitution
                 # is judged an improvement, which is the direction a designer
                 # reads.

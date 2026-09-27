@@ -961,3 +961,22 @@ def test_parent_sampler_tail_points_are_quantile_spaced_not_linear():
     assert inner.max() < 1e3, inner.max()
     # The support is still closed at the true bound, so ppf(1) cannot fall off.
     assert s.grid[-1] == pytest.approx(p.hi)
+
+
+def test_the_hoisted_swap_draws_reproduce_swap_totals_exactly():
+    """Stage 2j split the saving-independent draw blocks out of `swap_totals`
+    so that six savings do not redraw the same five columns six times. The
+    saving enters only through option B's use intensity, so the two routes
+    must agree to the last bit, and the committed design-swap table must not
+    move because of it."""
+    names, _, models = a_group(seed=11, k=5)
+    u = np.random.default_rng(12).random((NECCS, 5))
+    for method in ('KDE, Uniform', 'Lognormal, Variable'):
+        base, a, b, k = PL.swap_components(models, names[:3], names[3],
+                                           names[4], u, method)
+        for saving in PL.SWAP_SAVINGS:
+            want_a, want_b = PL.swap_totals(models, names[:3], names[3],
+                                            names[4], u, method, saving)
+            got_a, got_b = PL.swap_from_components(base, a, b, k, saving)
+            assert np.array_equal(got_a, want_a)
+            assert np.array_equal(got_b, want_b)

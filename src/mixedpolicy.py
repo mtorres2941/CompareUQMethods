@@ -43,34 +43,44 @@ import fitting as FT
 # the rule
 # ---------------------------------------------------------------------------
 #: Declarations at or above which the kernel estimate is used. Decision 142,
-#: reproduced unchanged on the regenerated corpus by decision 198. NOT to be
-#: re-derived here: this stage measures what the rule buys downstream, and a
-#: stage that re-tunes its own threshold on the outcome it reports is tuning on
-#: the criterion it is judged by.
+#: reproduced unchanged on the regenerated corpus by decision 198. **It is not
+#: re-derived here.** What this stage does instead is SWEEP it, because the
+#: author's instruction is that the paper publish a range rather than a point:
+#: "we made assumptions, so we shouldn't claim 81 is a precisely correct
+#: cutoff value".
 MIXED_THRESHOLD = 81
 
-#: The two fixed policies the rule switches between, as stored `method` values.
-#: The stored spellings keep "Uniform" and "Variable" because they are the join
-#: key for every table and fixture in this project; the DISPLAY vocabulary is
-#: "uniform weights" and "market weights" and comes from `fitting.WT_DISPLAY`.
+#: The two fixed policies the study's rule switches between, as stored `method`
+#: values. The stored spellings keep "Uniform" and "Variable" because they are
+#: the join key for every table and fixture in this project; the DISPLAY
+#: vocabulary is "uniform weights" and "market weights", from
+#: `fitting.WT_DISPLAY`.
 LARGE_METHOD = 'KDE, Variable'
 SMALL_METHOD = 'Lognormal, Uniform'
 
-#: What the mixed policy is called in a stored `method` column, and to a reader.
+#: What the study's rule is called in a stored `method` column. Kept as a bare
+#: name rather than folded into the swept labels, because every table and
+#: figure written before the sweep existed joins on it.
 MIXED = 'Mixed'
 MIXED_DISPLAY = f'size rule (n >= {MIXED_THRESHOLD})'
 
 #: An unreachable per-material ORACLE, carried as a CEILING and never as a
 #: policy. It picks, for each material and each output, whichever of the six
-#: fixed methods happens to be closest to the truth, which needs the answer in
-#: order to choose. It exists so that "the size rule recovers X of what is
+#: FIXED methods happens to be closest to the truth, which needs the answer in
+#: order to choose. It exists so that "the rule recovers X of what is
 #: available" is a measured fraction rather than an assertion.
 ORACLE = 'Oracle, per material'
+
+#: The cutoffs the sweep runs. Spaced closely through the region the fit-level
+#: work already pointed at -- decision 142 puts the fit optimum at 81 with 68
+#: to 106 indistinguishable -- and carried far enough either side that the
+#: curve's shape is visible rather than asserted.
+SWEEP_THRESHOLDS = (20, 30, 40, 50, 60, 70, 81, 90, 100, 110, 130, 160, 220)
 
 
 def select_method(n, threshold=MIXED_THRESHOLD, large=LARGE_METHOD,
                   small=SMALL_METHOD):
-    """Which of the six fixed methods the rule picks for a dataset of size n.
+    """Which of the six fixed methods a rule picks for a dataset of size n.
 
     One number and nothing else, by the author's instruction. `n` is the count
     of declarations a practitioner holds, which is the only input the rule has
@@ -85,18 +95,103 @@ def method_column(sizes, threshold=MIXED_THRESHOLD, **kw):
             for d, n in dict(sizes).items()}
 
 
-def add_mixed(models, sizes, name=MIXED, threshold=MIXED_THRESHOLD, **kw):
-    """Add the mixed policy as a NEW KEY on each dataset's fitted-model dict.
+# ---------------------------------------------------------------------------
+# the policies the sweep compares, and they are all ONE number
+# ---------------------------------------------------------------------------
+#: A candidate policy: a stored name, the cutoff, the method used at or above
+#: it, the method used below it, and how it is shown to a reader. **Every one
+#: of these reads exactly one input, the dataset's size.** The variants differ
+#: in WHAT the cutoff switches, never in how many numbers the reader needs.
+class Policy:
+    __slots__ = ('name', 'threshold', 'above', 'below', 'display', 'kind')
+
+    def __init__(self, name, threshold, above, below, display, kind):
+        self.name, self.threshold = name, int(threshold)
+        self.above, self.below = above, below
+        self.display, self.kind = display, kind
+
+    def choose(self, n):
+        return self.above if int(n) >= self.threshold else self.below
+
+    def __repr__(self):
+        return f'Policy({self.name!r}, {self.threshold}, {self.kind!r})'
+
+
+def sweep_policies(thresholds=SWEEP_THRESHOLDS, study_threshold=MIXED_THRESHOLD,
+                   above=LARGE_METHOD, below=SMALL_METHOD):
+    """The study's rule at each cutoff in the sweep.
+
+    The cutoff the study settled on keeps the bare name `Mixed`, so the tables
+    and the figure written before the sweep existed still join on it.
+    """
+    out = []
+    for t in thresholds:
+        name = MIXED if int(t) == int(study_threshold) else f'Mixed@{int(t)}'
+        out.append(Policy(name, t, above, below,
+                          f'switch at {int(t)}', 'threshold'))
+    return out
+
+
+def variant_policies(threshold=MIXED_THRESHOLD):
+    """The four one-axis variants of the rule, at a fixed cutoff.
+
+    THE RULE SWITCHES TWO THINGS AT ONCE -- the family and the weighting -- and
+    these say which half is doing the work. Two of them hold the weighting and
+    switch only the family; two hold the family and switch only the weighting.
+
+    **`market_below` is the author's question**, asked at the close of the
+    first Stage 2j run: why would NOT using market weights improve a fit, and
+    what happens if the lognormal below the cutoff uses them too.
+    """
+    t = int(threshold)
+    return [
+        Policy(f'MixedMarket@{t}', t, 'KDE, Variable', 'Lognormal, Variable',
+               f'market weights throughout, family switches at {t}',
+               'variant'),
+        Policy(f'MixedUniform@{t}', t, 'KDE, Uniform', 'Lognormal, Uniform',
+               f'uniform weights throughout, family switches at {t}',
+               'variant'),
+        Policy(f'MixedKDE@{t}', t, 'KDE, Variable', 'KDE, Uniform',
+               f'kernel throughout, weighting switches at {t}', 'variant'),
+        Policy(f'MixedLognormal@{t}', t, 'Lognormal, Variable',
+               'Lognormal, Uniform',
+               f'lognormal throughout, weighting switches at {t}', 'variant'),
+    ]
+
+
+def all_policies(thresholds=SWEEP_THRESHOLDS, threshold=MIXED_THRESHOLD):
+    """Every candidate this stage scores, sweep first then variants."""
+    return sweep_policies(thresholds, threshold) + variant_policies(threshold)
+
+
+def add_policies(models, sizes, policies):
+    """Add each policy as a NEW KEY on every dataset's fitted-model dict.
 
     Mutates `models` in place and returns `(models, choice)`, where `choice`
-    maps each dataset to the fixed method the rule selected for it.
+    maps a policy name to `{dataset: the fixed method it selected}`.
 
-    **Nothing is refitted and no randomness is consumed.** The new key is a
+    **Nothing is refitted and no randomness is consumed.** Each new key is a
     reference to one of the six model objects already in the dict, so the
-    object that is SAMPLED under the mixed policy is bit-for-bit the object
-    that fixed policy samples, and a group in which every material lands on the
-    same side of the threshold reproduces that fixed policy exactly.
+    object SAMPLED under a policy is bit-for-bit the object that fixed policy
+    samples, and a group whose materials all land on one side of a cutoff
+    reproduces that fixed policy exactly.
     """
+    choice = {}
+    for p in policies:
+        picked = {}
+        for dataset, n in dict(sizes).items():
+            if dataset not in models:
+                continue
+            m = p.choose(n)
+            models[dataset][p.name] = models[dataset][m]
+            picked[dataset] = m
+        choice[p.name] = picked
+    return models, choice
+
+
+def add_mixed(models, sizes, name=MIXED, threshold=MIXED_THRESHOLD, **kw):
+    """The study's rule alone, as a single new key. Kept for the tests and for
+    any caller that wants one policy rather than the whole sweep."""
     choice = {}
     for dataset, n in dict(sizes).items():
         if dataset not in models:
@@ -108,19 +203,41 @@ def add_mixed(models, sizes, name=MIXED, threshold=MIXED_THRESHOLD, **kw):
 
 
 def methods_with_mixed(methods=None, name=MIXED):
-    """The six fixed policies, then the mixed one, in a stable order."""
+    """The six fixed policies, then the study's rule, in a stable order."""
     base = list(methods or FT.PEWT)
     return base + ([name] if name not in base else [])
 
 
+def methods_with_policies(policies, methods=None):
+    """The six fixed policies, then every candidate, in a stable order."""
+    base = list(methods or FT.PEWT)
+    return base + [p.name for p in policies if p.name not in base]
+
+
+#: Filled by `display_method` for any policy the caller has built.
+_DISPLAY = {}
+
+
+def register_display(policies):
+    """Teach `display_method` the labels of a set of policies."""
+    _DISPLAY.update({p.name: p.display for p in policies})
+    return _DISPLAY
+
+
 def display_method(name, short=False):
-    """Display label for any policy label, mixed one included."""
+    """Display label for any policy label, the swept ones included."""
     if name == MIXED:
         return MIXED_DISPLAY
     if name == ORACLE:
         return 'per-material oracle'
+    if name in _DISPLAY:
+        return _DISPLAY[name]
     return FT.display_method(name, short=short)
 
+
+def is_policy(name):
+    """Is this a per-material policy rather than one of the six fixed methods."""
+    return name == MIXED or name.startswith('Mixed')
 
 # ---------------------------------------------------------------------------
 # provenance, stamped on every table this stage writes
@@ -326,7 +443,8 @@ def _paired_boot(values, clusters, rng, resamples, alpha=BOOTSTRAP_ALPHA):
 
 
 def claim_gain(errors, name=MIXED, reference=None, rng=None,
-               resamples=BOOTSTRAP_RESAMPLES, alpha=BOOTSTRAP_ALPHA):
+               resamples=BOOTSTRAP_RESAMPLES, alpha=BOOTSTRAP_ALPHA,
+               fixed=None):
     """What the mixed policy buys on each claim, against the noise of the
     comparison rather than against zero.
 
@@ -351,9 +469,15 @@ def claim_gain(errors, name=MIXED, reference=None, rng=None,
         wide = _wide_units(sub).groupby('cluster', observed=True).mean()
         if name not in wide.columns:
             continue
-        fixed = [c for c in wide.columns if c != name]
+        # THE COMPARATOR IS ONE OF THE SIX FIXED METHODS AND NEVER ANOTHER
+        # POLICY. With a sweep in the frame, "everything except me" would pick
+        # a neighbouring cutoff as the thing to beat, which is not the
+        # comparison a reader would otherwise make and would collapse every
+        # gain to nearly zero.
+        pool = list(fixed) if fixed is not None else list(FT.PEWT)
+        pool = [c for c in pool if c in wide.columns and c != name]
         means = wide.mean()
-        ref = reference or means[fixed].idxmin()
+        ref = reference or means[pool].idxmin()
         level = abs(float(np.nanmean(sub['truth'].to_numpy(float))))
         cols = [name, ref]
         mat = wide[cols].to_numpy(float)
@@ -401,8 +525,8 @@ def oracle_ceiling(errors, name=MIXED, fixed=None):
     rows = []
     for claim, sub in errors.groupby('claim', sort=False):
         wide = _wide_units(sub)
-        cols = list(fixed) if fixed is not None else [
-            c for c in wide.columns if c not in ('cluster', name, ORACLE)]
+        cols = list(fixed) if fixed is not None else list(FT.PEWT)
+        cols = [c for c in cols if c in wide.columns and c != name]
         unit = wide[cols].dropna(how='all')
         best_fixed = float(unit.mean().min())
         oracle = float(unit.min(axis=1).mean())
@@ -451,7 +575,7 @@ def attach_composition(errors, composition, cluster='cluster', on='plca'):
 
 
 def gain_by_group(errors, split, name=MIXED, reference=None, rng=None,
-                  resamples=BOOTSTRAP_RESAMPLES, min_clusters=25):
+                  resamples=BOOTSTRAP_RESAMPLES, min_clusters=25, fixed=None):
     """`claim_gain` computed separately within each level of a split.
 
     THIS IS THE MEASUREMENT THAT MAKES A SMALL OVERALL GAIN ATTRIBUTABLE
@@ -474,7 +598,7 @@ def gain_by_group(errors, split, name=MIXED, reference=None, rng=None,
         if sub['cluster'].nunique() < int(min_clusters):
             continue
         got = claim_gain(sub, name=name, reference=reference, rng=rng,
-                         resamples=resamples)
+                         resamples=resamples, fixed=fixed)
         if got.empty:
             continue
         got.insert(0, split, level)
@@ -500,3 +624,162 @@ def pooled_error(errors, questions=('attribution', 'information'),
     return (per.groupby('method', observed=True)['rel'].mean()
             .rename('mean_rel_error').reset_index()
             .sort_values('mean_rel_error').reset_index(drop=True))
+
+
+# ---------------------------------------------------------------------------
+# how precisely does the cutoff have to be set: a RANGE, not a point
+# ---------------------------------------------------------------------------
+def claim_blocks(errors, policies, claims=None):
+    """Per-unit-universe arrays of mean absolute error, one block per cluster
+    kind, plus each claim's true level.
+
+    **THERE ARE TWO UNIT UNIVERSES AND POOLING NEEDS BOTH.** Fifteen of the
+    sixteen claims belong to a pLCA GROUP; the design comparison belongs to a
+    design PAIR drawn from its own resampling. A single array indexed by pLCA
+    group silently leaves the design comparison as a column of NaN, so a
+    "pooled over sixteen claims" number would quietly be over fifteen. Each
+    block carries its own units and is resampled in its own universe, which is
+    also correct: the two experiments are independent.
+
+    Returns `(blocks, claims, policies, levels)` where each block is
+    `(array of shape (units, claims_in_block, policies), positions)` and
+    `positions` indexes into `claims`.
+    """
+    policies = list(policies)
+    claims = list(claims if claims is not None
+                  else errors['claim'].drop_duplicates())
+    cpos = {c: i for i, c in enumerate(claims)}
+    levels = np.full(len(claims), np.nan)
+    blocks = []
+    for kind, part in errors.groupby('cluster_kind', sort=True, observed=True):
+        names = [c for c in claims if c in set(part['claim'])]
+        if not names:
+            continue
+        units = np.sort(part['cluster'].unique())
+        upos = {u: i for i, u in enumerate(units)}
+        arr = np.full((len(units), len(names), len(policies)), np.nan)
+        for ci, claim in enumerate(names):
+            sub = part[part['claim'] == claim]
+            levels[cpos[claim]] = abs(float(np.nanmean(
+                sub['truth'].to_numpy(float))))
+            piv = sub.pivot_table(index='cluster', columns='method',
+                                  values='abs_error', aggfunc='mean',
+                                  observed=True)
+            rows = np.array([upos[u] for u in piv.index])
+            for pi, pol in enumerate(policies):
+                if pol in piv.columns:
+                    arr[rows, ci, pi] = piv[pol].to_numpy(float)
+        blocks.append((arr, np.array([cpos[c] for c in names])))
+    return blocks, claims, policies, levels
+
+
+def pooled_from_blocks(blocks, levels, n_claims, draws=None):
+    """Mean relative error over every claim, for each policy.
+
+    `draws` is one row-index array per block, for a bootstrap resample; None
+    uses every unit. Each claim is divided by its own true level first, because
+    the claims are in incomparable units.
+    """
+    n_pol = blocks[0][0].shape[2]
+    per_claim = np.full((n_claims, n_pol), np.nan)
+    for bi, (arr, pos) in enumerate(blocks):
+        block = arr if draws is None else arr[draws[bi]]
+        with np.errstate(invalid='ignore'):
+            per_claim[pos] = np.nanmean(block, axis=0) / levels[pos][:, None]
+    return np.nanmean(per_claim, axis=0)
+
+
+def threshold_curve(errors, policies, rng=None,
+                    resamples=BOOTSTRAP_RESAMPLES, alpha=BOOTSTRAP_ALPHA):
+    """The cost of the rule at every cutoff, and the cutoffs that cannot be
+    told apart from the best one.
+
+    **THE DELIVERABLE IS A RANGE AND NOT A POINT**, at the author's
+    instruction: the paper should say "the cutoff above which a kernel
+    estimate performs best is 60 to 100 declarations" rather than name 81,
+    because the study made assumptions and 81 is not precisely correct.
+
+    Same instrument as `metricreduction.threshold_interval`, which answers the
+    same question one level up at the FIT, so the two ranges are comparable.
+    Two bootstraps over pLCA GROUPS: `best_threshold` resamples and takes the
+    argmin, so its spread says how well the data pin the cutoff down; the
+    PENALTY is the excess over whichever cutoff won on that same resample, so
+    the variation common to both cancels and the interval is about the
+    difference rather than the level. The cutoffs whose penalty interval
+    reaches zero cannot be told apart from the best, and the longest UNBROKEN
+    run of those is the range to print.
+    """
+    rng = rng or np.random.default_rng(0)
+    sweep = [p for p in policies if p.kind == 'threshold']
+    names = [p.name for p in sweep]
+    thresholds = np.array([p.threshold for p in sweep])
+    blocks, claims, _, levels = claim_blocks(errors, names)
+    point = pooled_from_blocks(blocks, levels, len(claims))
+    sizes = [arr.shape[0] for arr, _ in blocks]
+    best = np.empty(int(resamples))
+    penalty = np.empty((int(resamples), len(names)))
+    for b in range(int(resamples)):
+        draws = [rng.integers(0, n, n) for n in sizes]
+        cost = pooled_from_blocks(blocks, levels, len(claims), draws)
+        j = int(np.nanargmin(cost))
+        best[b] = thresholds[j]
+        penalty[b] = cost - cost[j]
+    lo = np.percentile(penalty, 100 * alpha / 2, axis=0)
+    hi = np.percentile(penalty, 100 * (1 - alpha / 2), axis=0)
+    ok = lo <= 0.0
+    runs, cur = [], []
+    for t, good in zip(thresholds, ok):
+        if good:
+            cur.append(t)
+        elif cur:
+            runs.append(cur)
+            cur = []
+    if cur:
+        runs.append(cur)
+    run = max(runs, key=len) if runs else []
+    frame = pd.DataFrame(dict(
+        threshold=thresholds, policy=names,
+        pooled_error=point,
+        penalty=point - float(np.nanmin(point)),
+        penalty_lo=lo, penalty_hi=hi,
+        indistinguishable=ok,
+        in_range=[t in run for t in thresholds]))
+    summary = dict(
+        best_threshold=int(thresholds[int(np.nanargmin(point))]),
+        best_error=float(np.nanmin(point)),
+        range_lo=int(run[0]) if run else None,
+        range_hi=int(run[-1]) if run else None,
+        argmin_lo=float(np.percentile(best, 100 * alpha / 2)),
+        argmin_hi=float(np.percentile(best, 100 * (1 - alpha / 2))),
+        n_claims=len(claims), n_groups=int(max(sizes)))
+    return frame, summary
+
+
+def policy_table(errors, policies, fixed=None):
+    """Pooled relative error over every claim, for the six fixed methods and
+    every candidate policy, in one table.
+
+    This is the small table the report prints: one number per policy, so a
+    reader can see what each variant of the rule is worth without reading
+    sixteen rows of a scorecard.
+    """
+    pool = list(fixed) if fixed is not None else list(FT.PEWT)
+    names = pool + [p.name for p in policies if p.name not in pool]
+    blocks, claims, _, levels = claim_blocks(errors, names)
+    value = pooled_from_blocks(blocks, levels, len(claims))
+    kind = {p.name: p.kind for p in policies}
+    disp = {p.name: p.display for p in policies}
+    rows = []
+    for name, v in zip(names, value):
+        rows.append(dict(
+            method=name,
+            display=disp.get(name, display_method(name)),
+            kind=kind.get(name, 'fixed'),
+            threshold=next((p.threshold for p in policies
+                            if p.name == name), np.nan),
+            pooled_error=float(v),
+            n_claims=len(claims)))
+    out = pd.DataFrame(rows)
+    out['excess_over_best_fixed'] = (
+        out.pooled_error - out.loc[out.kind == 'fixed', 'pooled_error'].min())
+    return out.sort_values('pooled_error').reset_index(drop=True)
