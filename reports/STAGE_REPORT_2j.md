@@ -42,16 +42,15 @@ buys. Switching only the FAMILY recovers nothing** -- it lands on the best
 fixed method, 0.2295 against 0.2293. The family switch is worth a further 3
 percent on top of the weighting switch, not the other way round.
 
-**4. Your question about the lognormal below the cutoff is answered, and the
-answer is no.** Using market weights for the lognormal below the cutoff
+**4. The question raised about the lognormal below the cutoff is answered,
+and the answer is no.** Using market weights for the lognormal below the cutoff
 (`market weights throughout`) is **13.3 percent worse** than the rule and no
 better than always using a kernel estimate. Section 2 says why, and the reason
 is not that market share does not matter.
 
-**Needs your decision:** nothing blocking. You have already said Stage 3 adds
-the rule as a seventh column to the scorecard figure; that is recorded and
-Stage 3 owns it. The only judgment left is how wide a range the paper prints
-(section 1).
+**Needs an author decision:** nothing blocking. Stage 3 adding the rule as a
+seventh column to the scorecard figure is already decided (decision 211). The
+only judgment left is how wide a range the paper prints for the cutoff.
 
 ---
 
@@ -205,8 +204,8 @@ six-method design-swap table reproduces content-identically -- and it made a
 
 | Item | |
 |---|---|
-| **How wide a range the paper prints for the cutoff.** Measured: best 70, formally indistinguishable 50 to 81, within 0.0011 of best from 40 to 130, fit-level optimum 81. A round "roughly 50 to 100" is supported; the wording is yours |
-| **Whether the recommendation is stated as a weighting switch with a family switch on top**, which is what section 1 item 3 measures, rather than as one two-part rule. Presentation, and it changes the emphasis of the practitioner sentence |
+| **How wide a range the paper prints for the cutoff.** Measured: best 70, formally indistinguishable 50 to 81, within 0.0011 of best from 40 to 130, fit-level optimum 81. A round "roughly 50 to 100" is supported; the wording is the author's |
+| **Whether the recommendation is stated as a weighting switch with a family switch on top**, which is what item 3 of the first page measures, rather than as one two-part rule. Presentation, and it changes the emphasis of the practitioner sentence |
 | **Every figure except the scorecard and this one still carries the retired weighting labels**, and the scorecard cell's own comment block still says "sampled market shares". Stage 3's caption sweep |
 | **No test compares `flip.FLIP_THRESHOLDS` with the value notebook 3 recomputes.** The drift is visible only to a reader of the output. Stage 3 |
 | **British spellings in files earlier stages wrote.** The deposit tidy-up |
