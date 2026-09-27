@@ -181,9 +181,13 @@ reference lines at 22.9 and 24.0.
 
 ## 6. Numbers that moved
 
-**In the study's existing tables: none.** Re-running notebook 3 end to end
-reproduced every pre-existing table content-identically; the only differing
-bytes are gzip header timestamps and one `written_utc` field. That is by
+**In the study's existing tables: none.** The committed notebook was run end
+to end with no error in any cell and reproduced every pre-existing table
+content-identically -- and the figure byte for byte, which is also the proof
+that `audits/render_figures.py` is a faithful executor of the notebook's own
+bytes rather than a second author of figures. The only differing bytes
+anywhere under `outputs/` are gzip header timestamps and one `written_utc`
+field. That is by
 construction -- the Stage 2j cells sit at the end, consume no randomness before
 any existing cell, and run their own truth pass rather than extending the
 study's, because a win share and a `best_method` are properties of the SET of
