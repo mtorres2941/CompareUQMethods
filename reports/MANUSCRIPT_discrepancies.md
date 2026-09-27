@@ -2291,3 +2291,13 @@ relative figure beside it.**
 | **Code** | Stage 2j writes a SECOND scorecard, `TABLE_MixedPolicyScorecard.csv`, over seven policies. The size rule is the best on all sixteen rows of it. |
 | **Fix** | **Text.** Do not merge them without saying so. The six-method table answers "which METHOD is best", and `best_method`, `stakes` and `excess` in it are properties of the six-policy set; the seven-policy table answers "is a per-material POLICY better than any fixed method", and its own `stakes` column is a different quantity. Quoting a number from one as though it came from the other is the kind of mixing decisions 157 and 174 already had to correct twice. |
 | **Status** | OPEN, and it is a presentation decision rather than an analysis one. |
+
+## 179. The cutoff is a RANGE, and the gain is the weighting switch
+
+| | |
+|---|---|
+| **Manuscript** | Will recommend a kernel estimate above about 81 declarations and a three-parameter lognormal below, as a single number read off the goodness-of-fit curve. |
+| **Code** | Stage 2j sweeps thirteen cutoffs from 20 to 220 at the CLAIM level and scores four one-axis variants of the rule. |
+| **What changes** | **Print a range, not 81.** Best cutoff 70; 50 to 81 statistically indistinguishable; everything from 40 to 130 within 0.0011 of the best on a level of 0.20; the fit-level optimum at 81 sits inside it. Across the whole sweep the cutoff is worth 0.47 points against 2.68 for the rule itself. **And describe the rule by what does the work**: switching only the WEIGHTING at the cutoff recovers three quarters of the gain, switching only the FAMILY recovers nothing. |
+| **The weighting sentence the paper needs** | Market weights are better than uniform only above about 81 declarations -- the market-weighted fit is closer to the truth on 32.8 percent of datasets at 3 to 9 declarations, 53.6 percent at 81 to 99 and 78.7 percent above 1,000 -- because the study's market weights are a flat-Dirichlet GUESS. Knowing the shares beats ignoring them everywhere (oracle 0.1267 against uniform 0.1670 for the lognormal). The rule's value is knowing when guessing is worth it. |
+| **Status** | OPEN. Text, new. The width of the printed range is the author's wording; the measurement supports roughly 50 to 100. |

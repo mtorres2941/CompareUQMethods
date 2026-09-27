@@ -296,7 +296,7 @@ and generation is closed; neither input moves again.
 | **2g DONE** | The metric set, judged against the run to the TRUE parents rather than on stability: the rank-1 frequency recovers worst of seven candidates and exceeds its own between-material spread under a normal; three different methods lead across the seven; the normal's 40 percent penalty is 44 percent on attribution and 1 to 4 percent on the tail and information metrics; the `(1-capecc)` divisor settled by dividing by the APPLICABLE iterations and reporting the applicability; two magnitude companions, one of them new; the tail failure mode measured rather than assumed; and the last use of the retired in-sample target removed. Decisions 143 to 150. `reports/HANDOFF_stage-2g.md` | Re-running the sweeps of 2h. It did NOT touch the corpus, the fitting, the scoring criterion or the weight model |
 | **2h DONE** | Eighteen sweeps, each closing a "you only tested one variant" objection. **ITS TWO LARGEST RESULTS REVERSE PREMISES THIS TABLE USED TO CARRY.** First, the two arms drew market shares by different rules on the dimension the paper is built on; that is fixed, both arms now use one rule at coherence 0.5, and the tenfold disagreement above 1,000 declarations is a factor of 1.9 (decisions 178, 190). Second, **the dispersion-versus-weighting trade this row called structural was an ARTIFACT of that weighting mismatch and disappears once it is repaired** -- so the corpus was regenerated as `corpus_2026-09-25` with the dispersion distance 0.409 to 0.247 and the weighting distance 0.340 to 0.151, improving together for the first time (decisions 193, 197). Not one recommendation moved: the practitioner threshold is still 81 declarations and every size band has the same winner (decision 198). Also: the scorecard put on one numerator, the both-fits rule for every published crossing, the judgment arm with the pedigree matrix SOURCED and found to be narrower than real data, the certification credit, Weibull, the bandwidth through the pLCA, the parent-level gate and the end-to-end smoke test. Decisions 174 to 199. `reports/HANDOFF_stage-2h.md` | Anything not framed as a sweep with a tabulated result. It did NOT adopt the upper truncation (decision 199) and did NOT measure the mixed-method policy, which is 2j |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
-| **2j DONE** | **THE MIXED-METHOD POLICY. IT IS NOT A NULL.** Letting the method vary BY MATERIAL, on the study's own one-number rule -- a kernel estimate with market weights at or above 81 declarations, a three-parameter lognormal with uniform weights below -- is the CLOSEST of the seven policies on ALL SIXTEEN claims a probabilistic LCA makes, by a median 11.3 percent of the best fixed policy's own error, every interval clearing zero (decision 204). **It answers decision 166**: the same rule is worth +14.2 percent on the FIT and a median +11.3 on the CLAIMS, so the tenfold attenuation that decision recorded is a consequence of fitting ONE method to four materials and very largely disappears when the method varies. Nothing was refitted: the policy is a new key on each dataset's existing model dict, and in the 119 groups entirely below the threshold and the 172 entirely above it the mixed rows equal the coincident fixed policy's rows to 0.00e+00. **Four qualifications, and the sharpest is that above the threshold the rule is wrong on the LEVEL claims**: where all four materials clear it the market-weighted lognormal is closer on nine of fifteen claims, by 39.5 percent on the building total's mean (decision 205). Nothing already on disk moved, by construction (decision 206). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; it did not, and decision 205 says what that would cost. It did NOT reopen `mode_share_alpha`, which decision 200 wrongly assigned here and decision 203 settled |
+| **2j DONE** | **THE MIXED-METHOD POLICY, AND IT IS NOT A NULL.** Choosing the method material by material beats every fixed method on ALL SIXTEEN claims, by a median 11.4 percent of the best fixed method's own error, every paired interval clearing zero (decision 204). **THE CUTOFF IS PUBLISHED AS A RANGE**: best 70, indistinguishable 50 to 81, and the whole sweep from 20 to 220 is worth 0.47 points against 2.68 for the rule itself, so roughly 50 to 100 is what the paper prints (decision 208). **THE GAIN IS THE WEIGHTING SWITCH, NOT THE FAMILY SWITCH** -- switching only the weighting recovers three quarters of it, switching only the family recovers nothing, and using market weights BELOW the cutoff is 13.3 percent worse because guessing shares from a flat Dirichlet beats ignoring them only above about 81 declarations (decision 209). Nothing already on disk moved, by construction (decision 206). The argmax qualification is dropped (decision 210) and Stage 3 adds the rule as a seventh scorecard column (decision 211). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
@@ -7530,3 +7530,107 @@ rather than in conversation.
      open list contains open items only**; what a previous stage closed lives
      in this decision log, which is where a reader who wants the history looks.
      The stage report specification in this file is amended to say so.
+
+208. **2026-09-27, Stage 2j review. THE CUTOFF IS SWEPT AND THE PAPER PUBLISHES
+     A RANGE. Best 70, indistinguishable 50 to 81, and the whole sweep from 20
+     to 220 is worth a fifth of what the rule itself is worth.** `[AUTHOR]`
+     "We should publish a range rather than a specific value ... we made
+     assumptions, so we shouldn't claim 81 is a precisely correct cutoff
+     value."
+
+     Thirteen cutoffs, each scored on all sixteen claims against the true
+     parents, on the same instrument `metricreduction.threshold_interval` uses
+     at the fit level so the two are comparable: two bootstraps over pLCA
+     groups, the second PAIRED against whichever cutoff won on that resample.
+
+         cutoff    20    30    40    50    60    70    81    90   100   110   130   160   220
+         pooled  .2073 .2051 .2037 .2028 .2029 .2025 .2026 .2029 .2028 .2031 .2037 .2047 .2058
+
+     **Across the whole sweep the pooled error moves 0.47 points on a level of
+     about 20, against 2.68 points for the rule over the best fixed method.**
+     The formal indistinguishable run is 50 to 81; 90 falls out on a jitter of
+     0.0001 while 100 and 110 come back in, which is the failure mode decision
+     142 records, and everything from 40 to 130 sits within 0.0011 of the best.
+     **The fit-level sweep agrees independently**: its minimum is at 81 and its
+     cost over the per-dataset oracle moves only from 44.0 to 43.0 percent
+     across 50 to 100.
+
+     **So the range to print is roughly 50 to 100 declarations.** Getting the
+     number exactly right is worth about a fifth of what having the rule at all
+     is worth, and decision 142's fit-level threshold of 81 sits inside it.
+
+209. **2026-09-27, Stage 2j review. THE RULE'S GAIN IS THE WEIGHTING SWITCH AND
+     NOT THE FAMILY SWITCH, and that reframes how the recommendation should be
+     written.** `[AUTHOR ASKED FOR OTHER RULES, MEASUREMENT ANSWERED]` "Are
+     there any other rules we should apply to see how they perform?"
+
+     The rule switches two things at one cutoff. Four one-axis variants hold
+     one and switch the other, pooled over the sixteen claims:
+
+         the rule: kernel + market above, lognormal + uniform below   0.2026
+         kernel throughout, weighting switches at the cutoff          0.2092
+         lognormal throughout, weighting switches at the cutoff       0.2096
+         best fixed method (kernel, market weights)                   0.2293
+         market weights throughout, family switches at the cutoff     0.2295
+         uniform weights throughout, family switches at the cutoff    0.2325
+
+     **Switching only the WEIGHTING recovers three quarters of the rule's gain.
+     Switching only the FAMILY recovers NOTHING** -- 0.2295 against the best
+     fixed method's 0.2293. The family switch is worth a further 3 percent on
+     top of the weighting switch, not the other way round.
+
+     **THE AUTHOR'S QUESTION IS ANSWERED IN THE SAME TABLE.** "Are we sure
+     lognormal uniform does better? ... What if we try lognormal variable below
+     81?" Market weights below the cutoff is `market weights throughout`, and
+     it is **13.3 percent worse** than the rule and no better than always using
+     a kernel estimate.
+
+     **AND THE REASON IS NOT THAT MARKET SHARE DOES NOT MATTER.** Share of
+     datasets on which the market-weighted fit is closer to the truth than its
+     own uniform-weighted twin: lognormal 32.8, 42.5, **53.6**, 64.6, 78.7
+     percent across 3-9, 10-80, 81-99, 100-999 and 1000+ declarations; kernel
+     38.5, 44.1, **52.7**, 59.0, 76.2. **It crosses half at the cutoff, for
+     both families, with nothing tuned to make it do so.** And from the oracle
+     run, mean absolute error in a material's estimated contribution with
+     shares ignored, guessed and KNOWN: kernel 0.1731 / 0.1581 / 0.1378,
+     lognormal 0.1670 / 0.1469 / 0.1267. **Knowing beats ignoring everywhere.**
+     What loses below the cutoff is the flat-Dirichlet stand-in for shares
+     nobody publishes, which is decision 160's finding arriving at the policy
+     level. The rule's value is knowing WHEN it is worth guessing.
+
+     **The paper may state the recommendation either as one two-part rule or as
+     a weighting switch with a family switch on top.** The second is closer to
+     what the measurement says; the wording is the author's.
+
+210. **2026-09-27, Stage 2j review. THE ARGMAX QUALIFICATION IS DROPPED FROM
+     THE REPORT AND FROM THE PAPER.** `[AUTHOR]` "Why do we care about the
+     argmax? Didn't we agree that probabilistic LCA is complicated and
+     distilling it down to that one single metric isn't appropriate?"
+
+     Correct, and the Stage 2j report should not have carried it as a
+     qualification. Decisions 102, 143 and 155 demoted the argmax reading three
+     times over: it is fragile with four exchangeable materials, it carries a
+     3.67 percent noise floor, and it recovers worst of seven candidate
+     metrics. Reintroducing it as a mark against the rule gave a retired metric
+     a vote.
+
+     The measurement stands in `TABLE_MixedPolicyTruth.csv.gz` for anyone who
+     asks -- the rule names the true largest contributor 48.9 percent of the
+     time against 52.5 for a kernel estimate with market weights, while on the
+     CONTINUOUS version of the same question it is 14.3 percent better than the
+     best fixed method -- and it is not a qualification the paper carries.
+
+211. **2026-09-27, Stage 2j review. STAGE 3 ADDS THE RULE AS A SEVENTH COLUMN
+     TO THE SCORECARD FIGURE.** `[AUTHOR]` "Yes, Stage 3 should add it as a
+     seventh column to the scorecard figure."
+
+     **It is not free and Stage 3 must budget for it.** `best_method`,
+     `stakes` and `excess` are properties of the SET of policies compared, so
+     the rule wins all sixteen rows and every one of those three columns moves.
+     **Every sentence the paper currently writes about which of six methods is
+     best has to be re-read against the seven-policy table**, and the
+     six-method table is not superseded: it remains the study's comparison of
+     METHODS, where the seven-policy one answers whether a per-material POLICY
+     beats any fixed method. Quoting a number from one as though it came from
+     the other is the mixing decisions 157 and 174 already had to correct
+     twice.
