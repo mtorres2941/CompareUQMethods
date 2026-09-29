@@ -296,7 +296,7 @@ and generation is closed; neither input moves again.
 | **2g DONE** | The metric set, judged against the run to the TRUE parents rather than on stability: the rank-1 frequency recovers worst of seven candidates and exceeds its own between-material spread under a normal; three different methods lead across the seven; the normal's 40 percent penalty is 44 percent on attribution and 1 to 4 percent on the tail and information metrics; the `(1-capecc)` divisor settled by dividing by the APPLICABLE iterations and reporting the applicability; two magnitude companions, one of them new; the tail failure mode measured rather than assumed; and the last use of the retired in-sample target removed. Decisions 143 to 150. `reports/HANDOFF_stage-2g.md` | Re-running the sweeps of 2h. It did NOT touch the corpus, the fitting, the scoring criterion or the weight model |
 | **2h DONE** | Eighteen sweeps, each closing a "you only tested one variant" objection. **ITS TWO LARGEST RESULTS REVERSE PREMISES THIS TABLE USED TO CARRY.** First, the two arms drew market shares by different rules on the dimension the paper is built on; that is fixed, both arms now use one rule at coherence 0.5, and the tenfold disagreement above 1,000 declarations is a factor of 1.9 (decisions 178, 190). Second, **the dispersion-versus-weighting trade this row called structural was an ARTIFACT of that weighting mismatch and disappears once it is repaired** -- so the corpus was regenerated as `corpus_2026-09-25` with the dispersion distance 0.409 to 0.247 and the weighting distance 0.340 to 0.151, improving together for the first time (decisions 193, 197). Not one recommendation moved: the practitioner threshold is still 81 declarations and every size band has the same winner (decision 198). Also: the scorecard put on one numerator, the both-fits rule for every published crossing, the judgment arm with the pedigree matrix SOURCED and found to be narrower than real data, the certification credit, Weibull, the bandwidth through the pLCA, the parent-level gate and the end-to-end smoke test. Decisions 174 to 199. `reports/HANDOFF_stage-2h.md` | Anything not framed as a sweep with a tabulated result. It did NOT adopt the upper truncation (decision 199) and did NOT measure the mixed-method policy, which is 2j |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
-| **2j DONE** | **THE MIXED-METHOD POLICY, AND IT IS NOT A NULL.** Choosing the method material by material beats every fixed method on ALL SIXTEEN claims, by a median 11.4 percent of the best fixed method's own error, every paired interval clearing zero (decision 204). **THE CUTOFF IS PUBLISHED AS A RANGE**: best 70, indistinguishable 50 to 81, and the whole sweep from 20 to 220 is worth 0.47 points against 2.68 for the rule itself, so roughly 50 to 100 is what the paper prints (decision 208). **THE GAIN IS THE WEIGHTING SWITCH, NOT THE FAMILY SWITCH** -- switching only the weighting recovers three quarters of it, switching only the family recovers nothing, and using market weights BELOW the cutoff is 13.3 percent worse because guessing shares from a flat Dirichlet beats ignoring them only above about 81 declarations (decision 209). Nothing already on disk moved, by construction (decision 206). The argmax qualification is dropped (decision 210) and Stage 3 adds the rule as a seventh scorecard column (decision 211). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
+| **2j DONE** | **THE MIXED-METHOD POLICY, AND IT IS NOT A NULL.** Choosing the method material by material beats every fixed method on ALL SIXTEEN claims, by a median 11.4 percent (decision 204). **THE CUTOFF HARDLY MATTERS**: swept 3 to 10,000, every cutoff from 5 to 3,000 beats both fixed methods and 50 to 81 are indistinguishable from the best, with the sweep's two ends reproducing the two fixed methods to 0.00e+00 as a self-check (decisions 208, 213). **THE GAIN IS THE WEIGHTING SWITCH, NOT THE FAMILY SWITCH** -- weighting alone recovers three quarters, family alone recovers nothing (decision 209). **AND A CORRECTION THE PAPER MUST CARRY**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so the comparison is ignoring a KNOWN market share against using it; using it hurts below about 81 declarations because a concentrated share leaves a median Kish effective sample of 2.8 at 3 to 9 declarations (decision 212). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the rule as a seventh scorecard column and folds this stage's per-claim gains into it (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
@@ -7694,3 +7694,65 @@ rather than in conversation.
      **NO NUMBER MOVES.** Every measurement stands; what was wrong is the words
      around it. The manuscript must carry the corrected framing, because the
      old one invites exactly the objection the author raised.
+
+213. **2026-09-29, Stage 2j review. THE CUTOFF SWEEP IS WIDENED TO BOTH
+     DEGENERATE ENDS, WHICH MAKES IT SELF-CHECKING, AND ALMOST ANY CUTOFF
+     BEATS BOTH FIXED METHODS. This SUPERSEDES decision 208's range.**
+     `[AUTHOR]` "Do you mean to say that even if I put the cutoff at 20 or 200
+     for KDE vs Lognormal, it performs better than always KDE or always
+     lognormal? That's a pretty wild finding. Should we do a wider sweep?"
+
+     Yes, and yes. Twenty-two cutoffs from 3 to 10,000 at 6,000 bootstrap
+     resamples, against decision 208's thirteen from 20 to 220 at 2,000.
+
+     **THE SWEEP IS NOW SELF-CHECKING, which is the reason to run it to the
+     ends.** The corpus holds 3 to 9,999 declarations, so a cutoff of 3 assigns
+     every dataset the kernel estimate with market weights and a cutoff of
+     10,000 assigns every dataset the three-parameter lognormal with uniform
+     weights. **Both reproduce those fixed methods to 0.00e+00** -- 22.9334 and
+     23.9635 -- and the notebook prints that check on every run. A sweep whose
+     ends do not land on the methods they are defined to equal is wrong, and
+     the narrow version could not show it.
+
+         cutoff     3     5    10    20    40    50    60    70    81    90   100
+         pooled  .2293 .2221 .2131 .2073 .2037 .2028 .2029 .2025 .2026 .2029 .2028
+         cutoff   130   220   300   500  1000  3000 10000
+         pooled  .2037 .2058 .2075 .2109 .2161 .2263 .2396
+
+     **EVERY CUTOFF FROM 5 TO 3,000 BEATS BOTH FIXED METHODS**, 20 of the 22,
+     and the only two that do not are the ends, which ARE those methods rather
+     than losing to them. **The indistinguishable run is 50 to 81**, with the
+     minimum at 70, where decision 208 reported 50 to 81 from a narrower sweep
+     and this report recommended rounding to "roughly 50 to 100". **At 6,000
+     resamples 90 is excluded and 100 is individually included, so the unbroken
+     run stops at 81 and the measured range to print is 50 to 81.** Rounding it
+     is an author decision; the measurement is not.
+
+     Across the whole sweep the cutoff moves the pooled error by 3.71 points,
+     of which **2.68 is the rule beating the best fixed method** and the rest
+     is where the cutoff sits. **So the recommendation is robust in a way a
+     single number cannot convey**: the paper should say that switching method
+     by size beats any fixed method over two and a half orders of magnitude of
+     cutoff, and that the best place to put it is around fifty to eighty
+     declarations.
+
+214. **2026-09-29, Stage 2j review. THE STAGE FIGURE IS ONE PANEL. The
+     per-claim gains move into the scorecard figure, which Stage 3 owns.**
+     `[AUTHOR]` "The figure on the left is fine, but I think that information
+     is still better folded into that other scorecard figure that just shows
+     how accurate each one is. This figure only makes sense relative to that
+     figure ... the other one is more comprehensive and communicates better
+     information."
+
+     The two-panel version put the sixteen per-claim gains beside the cutoff
+     curve. The gains are a comparison against the best fixed method, so they
+     cannot be read without knowing how good that method is, which is what the
+     scorecard shows and this figure did not. **They belong in the scorecard,
+     as the seventh column decision 211 already asked for**, and the cutoff
+     curve stands alone because it says something the scorecard cannot: how
+     much the choice of cutoff is worth at all.
+
+     **This also settles a figure-count question the author raised in the same
+     message** -- "we're going to have a hard time picking which figures to put
+     in the manuscript". Stage 2j contributes ONE figure, the cutoff curve, and
+     one column to an existing one.
