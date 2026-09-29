@@ -7756,3 +7756,95 @@ rather than in conversation.
      message** -- "we're going to have a hard time picking which figures to put
      in the manuscript". Stage 2j contributes ONE figure, the cutoff curve, and
      one column to an existing one.
+
+215. **2026-09-29, Stage 2j review. WEIGHTS DO NOT ADD INFORMATION, THEY RE-AIM
+     IT, AND THE EFFECTIVE SAMPLE SIZE IN THE BANDWIDTH IS NOT WHY MARKET
+     WEIGHTING LOSES AT SMALL n.** `[AUTHOR ASKED, MEASURED]` "It's confusing
+     to me that effective sample size reduces with variable weights. Doesn't
+     having values with weights mean you should act like you have more
+     information, not less? ... Seems like using a different effective sample
+     size might be hurting us there."
+
+     **WHY WEIGHTS DO NOT ADD INFORMATION HERE.** These are not FREQUENCY
+     weights, where a row stands for many units you observed. They are
+     IMPORTANCE weights on a fixed set of n observed products: you hold n
+     EPDs, full stop, and the weights say which of them matter for the target,
+     not how many you saw. Market weighting is an importance-weighted
+     estimator -- you sampled from the population of products that PUBLISH
+     declarations and you want the population that gets BUILT -- so reweighting
+     removes the bias and pays variance for it. **The Kish effective sample
+     size is exactly that variance cost**, and it is the standard measure of
+     it.
+
+     **The concrete case.** Nine EPDs; one product group holds 90 percent of
+     the market and contributed two of the nine. The market-weighted estimate
+     of that category's distribution then rests on two observations. Knowing
+     the share perfectly does not give you more observations of the thing that
+     carries the weight.
+
+     **SO IT IS A BIAS-VARIANCE TRADE, the same shape as the kernel estimate
+     against the lognormal (decision 74).** Market weighting is unbiased for
+     the market-weighted population and high variance; uniform weighting is
+     biased -- it estimates a different population -- and low variance. Below
+     about 81 declarations the variance dominates and the biased estimator
+     wins; above it the bias dominates and the unbiased one wins.
+
+     **AND THE BANDWIDTH IS NOT THE CAUSE, by two independent arguments.**
+     First and decisively: **the same crossover appears in the three-parameter
+     LOGNORMAL, which has no bandwidth at all** -- market weights are closer on
+     32.8 percent of datasets at 3 to 9 declarations and 78.7 percent above a
+     thousand. A bandwidth rule cannot cause a crossover in a method that does
+     not use one. Second, measured directly in `audits/bandwidth_neff.py` over
+     2,000 synthetic datasets, refitting the kernel estimate with the plain
+     count in place of the effective sample size:
+
+         declarations      3-9   10-80   81-99  100-999   1000+
+         market closer, n_eff   40.1    46.2    61.4     61.6    77.2
+         market closer, n       38.9    46.4    56.8     62.4    77.4
+
+     **The crossover does not move.** The uniform-weighted column is
+     bit-identical between the two, which is the internal control: with equal
+     weights the effective sample size IS the count.
+
+     **The bandwidth rule is unchanged.** Nothing here reopens decision 54 or
+     80.
+
+216. **2026-09-29, Stage 2j review. WEIGHTING IS NOT A CHOICE A PRACTITIONER
+     MAKES, SO THE RULE THE PAPER RECOMMENDS SWITCHES THE FAMILY ONLY. This
+     NARROWS decision 209 and supersedes the recommendation shape of decisions
+     139 and 204.** `[AUTHOR]` "A weighting switch isn't feasible. Nobody will
+     ever know weights like that. We're just trying to see how much it costs
+     the probabilistic fit to assume a uniform fit (which is the only realistic
+     option available)." And separately: "considering or not considering weight
+     isn't really an option for users, but it's good to know when accounting
+     for weight makes a difference."
+
+     **The rule decisions 139, 142 and 204 carry -- kernel estimate with MARKET
+     weights above the cutoff, three-parameter lognormal with uniform weights
+     below -- is not implementable.** Its upper half needs market shares, and
+     on the synthetic arm those are the TRUE shares (decision 212). So it is a
+     value of information, not a method.
+
+     **THE STAGE NOW SWEEPS TWO RULE FAMILIES over the same cutoffs.**
+
+         feasible   uniform weights throughout, the FAMILY switches at the
+                    cutoff. A reader can follow it with a set of EPDs and
+                    nothing else. `mixedpolicy.feasible_policies`.
+         known      the same family switch plus the true market shares above
+                    the cutoff. The gap between the two curves is what knowing
+                    market share would be worth.
+
+     **Decision 209's decomposition is not withdrawn and is re-read.** It found
+     that switching only the weighting recovers three quarters of the
+     known-share rule's gain and switching only the family recovers nothing.
+     That is true AGAINST THE BEST OF ALL SIX fixed methods, which includes
+     market-weighted ones a practitioner cannot use. **Against the three
+     uniform-weighted methods -- the only ones on offer -- the family switch is
+     what there is**, and the stage measures what it is worth on its own.
+
+     **The manuscript's framing follows.** Uniform weighting is not a
+     recommendation the paper makes; it is the situation every reader is in.
+     What the weighting arm contributes is the SIZE of what that costs, and
+     the answer to when it matters: below about 81 declarations, essentially
+     nothing, because a concentrated market share would spend the sample
+     anyway.

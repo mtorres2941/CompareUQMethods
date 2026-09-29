@@ -2312,3 +2312,14 @@ relative figure beside it.**
 | **And keep the two arms apart** | Real EC3 categories have no published shares, so the empirical arm simulates them (`coherent_weights`, rho = 0.5). That arm can say what weighting WOULD do under a plausible share model; it cannot say what ignoring a known share costs. Every Stage 2j number is synthetic. |
 | **The oracle column** | Should not be presented as "known shares" against a "guessed" variable column. It is the same known group share divided evenly rather than at random, and decision 79 records that division as uninformative by construction in this generator. |
 | **Status** | OPEN. Text only -- decision 212 changes no number. The old framing invites the objection that nobody would guess market shares from a flat Dirichlet, which is correct and is not what the study does. |
+
+## 181. Weighting is not a choice the reader has, and the recommended rule must not require it
+
+| | |
+|---|---|
+| **Manuscript** | Presents six UQ methods as the cross of three families with two weighting schemes, and the practitioner rule as "kernel estimate with market weights above about 81 declarations, three-parameter lognormal with uniform weights below". |
+| **The problem** | **The upper half of that rule cannot be followed.** Nobody publishes market shares, and on the synthetic arm the market weights are the TRUE shares (entry 180). So the rule as written is a value-of-information statement dressed as a recommendation. |
+| **What the paper should recommend** | The FEASIBLE rule: **uniform weights throughout, with the family switching at the cutoff** -- a kernel estimate above, a three-parameter lognormal below. That needs a count of EPDs and nothing else. Its own cutoff sweep and its own indistinguishable range are in `TABLE_MixedPolicyThreshold.csv`, family `feasible`. |
+| **What the weighting arm contributes instead** | Not a recommendation: a measurement of what assuming uniform weights COSTS, and of when it matters. The vertical gap between the two curves in `CompareUQMethods_FIG_MixedPolicy.png` is that cost. Below about 81 declarations it is nearly nothing, because a concentrated market share would spend the sample anyway. |
+| **And the reason weighting can hurt, which a reviewer will ask** | These are importance weights on a fixed set of n observed products, not frequency weights. They re-aim the information you have at the population that gets built; they do not add information. Market weighting is unbiased for that population and high variance, uniform weighting is biased and low variance, and the crossover is the ordinary bias-variance trade. The effective sample size in the KDE bandwidth is NOT the cause: the same crossover appears in the lognormal, which has no bandwidth, and replacing the effective sample size with the plain count does not move it (decision 215). |
+| **Status** | OPEN. Text, and it changes which sentence the paper calls its recommendation. |
