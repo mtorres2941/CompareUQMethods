@@ -7634,3 +7634,63 @@ rather than in conversation.
      beats any fixed method. Quoting a number from one as though it came from
      the other is the mixing decisions 157 and 174 already had to correct
      twice.
+
+212. **2026-09-29, Stage 2j review. "THE STUDY GUESSES MARKET SHARES FROM A
+     FLAT DIRICHLET" IS FALSE ON THE SYNTHETIC ARM AND HAS BEEN REPEATED SINCE
+     STAGE 2e. The variable arm carries the TRUE market share of every product
+     group, exactly.** `[AUTHOR]` "Nobody would ever use the flat Dirichlet
+     distribution to guess at market weights ... The two options are applying
+     the UQ methods with the market weights known, or applying them with
+     uniform weights applied to each value, and seeing how much that costs
+     you."
+
+     **The author is right and the code says so.** At the shipped
+     `mode_coupling = 1.0`, `generator.draw_weights` gives point i the weight
+     `market[group(i)] * within_i`, where `market` is the true market share the
+     parent was built with and `within` is a flat Dirichlet INSIDE a group.
+     Checked directly on the shipped corpus: the weight mass sitting on each
+     product group equals that group's true market share to **1.1e-16**.
+     `tests/test_mixedpolicy.py::test_the_synthetic_market_weights_carry_the_true_group_shares`
+     pins it against the generator rather than against a stored file.
+
+     **SO THE SYNTHETIC COMPARISON IS IGNORING A KNOWN MARKET SHARE AGAINST
+     USING IT**, which is the question the author has been asking for three
+     stages. It is not a guess, nobody is proposing one, and describing it as
+     one made the result look absurd -- which is exactly how the author read
+     it.
+
+     **WHAT THE ORACLE ARM ACTUALLY IS**, and it is much narrower than
+     decisions 121 and 160 say. `weighting.oracle_weights` keeps the same true
+     group-level share and divides it EVENLY inside a group instead of at
+     random. So oracle against variable is not knowing against guessing; it is
+     one arbitrary within-group division against another. **Decision 79 already
+     said this** -- "the within-mode split of a mode's market share is
+     uninformative BY CONSTRUCTION ... finding that it carries none is not
+     evidence" -- and nothing carried it forward. **Decisions 121 and 160 are
+     NARROWED**: their numbers stand, their "guessed" and "Dirichlet-drawn"
+     labels do not, and the oracle column should not be quoted as "known market
+     shares" against a "guessed" variable column.
+
+     **THE EMPIRICAL ARM IS DIFFERENT AND THE PAPER MUST NOT BLUR THEM.** Real
+     EC3 categories have no published market shares, so
+     `empirical.prepare` simulates them with `weighting.coherent_weights` at
+     `rho = 0.5`. That arm can say what weighting WOULD do under a plausible
+     share model; it cannot say what ignoring a known share costs. **Every
+     Stage 2j number is synthetic, so Stage 2j does answer the author's
+     question.**
+
+     **AND THE MECHANISM IS THE EFFECTIVE SAMPLE SIZE, not a bad guess.** Using
+     a known market share HURTS below about 81 declarations: the market-weighted
+     fit is closer to the truth on 32.8 percent of datasets at 3 to 9
+     declarations for the lognormal and 38.5 for the kernel, crossing half at
+     53.6 and 52.7 in the 81-to-99 band and reaching 78.7 and 76.2 above a
+     thousand. Under those true weights the Kish effective sample size has a
+     median of **2.8 at 3 to 9 declarations, with 92.4 percent of those
+     datasets left below five effective observations**, against a median of
+     33.5 at 81 to 99. **A concentrated market share spends your sample**, and
+     below the cutoff that costs more than the information is worth. That is
+     decision 140's finding stated the right way round.
+
+     **NO NUMBER MOVES.** Every measurement stands; what was wrong is the words
+     around it. The manuscript must carry the corrected framing, because the
+     old one invites exactly the objection the author raised.

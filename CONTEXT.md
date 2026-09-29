@@ -1365,7 +1365,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCADesignSwap.csv.gz` | NB3 | statement 5, per (pair, saving, method): the discernibility index and the modified comparison index against the truth |
 | `TABLE_PLCADesignSwapSummary.csv` | NB3 | **the stage's headline table.** The same per (method, saving), with the truth beside it |
 | `TABLE_PLCAOracleWeights.csv.gz` | NB3 | the nine-method truth run: the six, plus three fitted under weights that know the true mode-level share |
-| `TABLE_PLCAOracleSummary.csv` | NB3 | that, per family and weighting. **Read the framing note in the notebook before quoting it**: the contrast is knowing shares against guessing them, not uniform against variable |
+| `TABLE_PLCAOracleSummary.csv` | NB3 | that, per family and weighting. **Read the framing note in the notebook before quoting it**, and note the 2026-09-29 correction: the contrast is NOT knowing shares against guessing them. The variable arm already carries the true group-level market share exactly; the oracle differs only in dividing a group's share evenly rather than at random, which decision 79 records as uninformative by construction. What ignoring a KNOWN market share costs is uniform against variable, and needs nothing from this table |
 | `TABLE_PLCAFlipDrivers.csv` | NB3 | whether the top-two ratio decides a flip on its own. It nearly does |
 | `TABLE_PLCASafeLead.csv` | NB3 | the lead a material needs, as a function of how spread the two materials are |
 | `TABLE_PLCAFlipByLeadAndSpread.csv` | NB3 | **the table to print for that question.** The risk at a given lead, split by how many standard deviations the lead is worth, with counts beside every cell |

@@ -369,12 +369,23 @@ def oracle_weights(parent, modes):
     does not have, because a real market share is a property of a product and
     not a random draw. This removes the second step and keeps the first.
 
-    **The comparison it licenses is between KNOWING market shares and GUESSING
-    them, and it is not a verdict on weighting.** Where the realized weights do
-    worse than uniform and the oracle weights do not, what has been measured is
-    the cost of the flat-Dirichlet stand-in, which is a limitation of this
-    generator rather than a property of variable weighting. Stage 2d measured
-    the same thing on the fitting side.
+    **CORRECTED 2026-09-29, and the old wording is the one to unlearn.** This
+    docstring used to say the comparison is between KNOWING market shares and
+    GUESSING them. It is not, and that phrasing has misled three stages.
+    A synthetic dataset's market weights already carry the TRUE market share of
+    every product group exactly -- the weight mass on group k equals
+    `parent.market[k]` to machine precision, which
+    `tests/test_mixedpolicy.py` pins -- so the study's variable arm is USING a
+    known market share, not guessing one. What this function removes is only
+    the arbitrary division of a group's share among the products inside it.
+
+    **So the comparison it licenses is narrow**: the same known group-level
+    share, divided evenly within a group against divided at random. Decision 79
+    already recorded that this division is uninformative BY CONSTRUCTION in
+    this generator, so a difference here measures a generator artifact and not
+    a property of weighting. **The comparison that matters -- what ignoring a
+    known market share costs -- is uniform against variable, and needs nothing
+    from this function.**
 
     The same total weight per mode that `generator.draw_weights` targets, with
     the within-mode flat Dirichlet replaced by equal shares. A mode that drew no
