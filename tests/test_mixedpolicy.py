@@ -377,6 +377,27 @@ def test_a_group_the_rule_cannot_act_on_shows_exactly_zero_gain():
 # ---------------------------------------------------------------------------
 # the sweep: every candidate is still ONE number, and the range is measured
 # ---------------------------------------------------------------------------
+def test_a_curve_over_two_rule_families_at_once_is_refused():
+    """Both families are swept over the SAME cutoffs, so a curve over both
+    would have two points at every cutoff and an argmin that means nothing.
+    The caller has to say which family."""
+    errors, _ = _sweep_errors(n_groups=40)
+    both = MP.all_policies()
+    with pytest.raises(ValueError, match='two rule families'):
+        MP.threshold_curve(errors, both, rng=np.random.default_rng(0),
+                           resamples=20)
+
+
+def test_the_feasible_family_uses_uniform_weights_on_both_sides():
+    """It is the rule a practitioner can follow: nobody publishes market
+    shares, so uniform weighting is not a choice they make."""
+    for p in MP.feasible_policies():
+        assert p.feasible
+        assert p.above.endswith('Uniform') and p.below.endswith('Uniform')
+        assert p.above.startswith('KDE') and p.below.startswith('Lognormal')
+    assert not any(p.feasible for p in MP.sweep_policies())
+
+
 def test_every_swept_policy_reads_only_the_size():
     """The variants change WHAT the cutoff switches, never how many numbers a
     reader needs. Each one is still a single threshold on a single input."""
@@ -425,13 +446,20 @@ def test_the_variant_that_uses_market_weights_below_the_cutoff_differs():
         assert same == (sizes[d] >= MP.MIXED_THRESHOLD)
 
 
-def _sweep_errors(n_groups=200, seed=0, best=81, steepness=0.02,
+def _sweep_errors(n_groups=200, seed=0, best=81, steepness=0.08,
                   with_fixed=True):
     """A planted curve whose minimum is at a known cutoff.
 
     The six FIXED methods are planted too, worse than every policy, because
     `claim_gain` and `policy_table` compare against them and a frame without
     them is not the frame the stage builds.
+
+    **THE PLANTED SIGNAL HAS TO CLEAR A FOLDED NORMAL.** The curve is read off
+    the mean ABSOLUTE error, and the mean of |N(mu, sigma)| is not mu: at
+    mu = 0 it is already 0.798 * sigma, so a small planted offset is compressed
+    almost to nothing. An earlier version planted 0.02 against a noise of 0.05
+    and recovered the minimum only on a lucky random stream; it broke the first
+    time an unrelated change shifted that stream.
     """
     rng = np.random.default_rng(seed)
     # A grid of its own, NOT the shipped one: these tests check the machinery
@@ -439,6 +467,8 @@ def _sweep_errors(n_groups=200, seed=0, best=81, steepness=0.02,
     # production sweep is widened.
     policies = (MP.sweep_policies(TEST_THRESHOLDS)
                 + MP.variant_policies(MP.MIXED_THRESHOLD))
+    # ONE family only: `threshold_curve` refuses a grid with two points per
+    # cutoff, and these tests are about recovering a planted minimum.
     rows = []
     for g in range(n_groups):
         for j in range(4):

@@ -81,8 +81,8 @@ ORACLE = 'Oracle, per material'
 #: reproduce those two fixed methods exactly**, and if they do not, the sweep
 #: is wrong. Widened 2026-09-29 at the author's request, from a range that
 #: stopped at 20 and 220 and so could not show either end.
-SWEEP_THRESHOLDS = (3, 5, 10, 15, 20, 30, 40, 50, 60, 70, 81, 90, 100, 110,
-                    130, 160, 220, 300, 500, 1000, 3000, 10000)
+SWEEP_THRESHOLDS = (3, 10, 20, 30, 50, 70, 81, 100, 130, 200, 300, 1000,
+                    3000, 10000)
 
 
 def select_method(n, threshold=MIXED_THRESHOLD, large=LARGE_METHOD,
@@ -107,26 +107,47 @@ def method_column(sizes, threshold=MIXED_THRESHOLD, **kw):
 # ---------------------------------------------------------------------------
 #: A candidate policy: a stored name, the cutoff, the method used at or above
 #: it, the method used below it, and how it is shown to a reader. **Every one
-#: of these reads exactly one input, the dataset's size.** The variants differ
-#: in WHAT the cutoff switches, never in how many numbers the reader needs.
+#: of these reads exactly one input, the dataset's size.** They differ in WHAT
+#: the cutoff switches and in whether a practitioner could follow them, never
+#: in how many numbers the reader needs.
 class Policy:
-    __slots__ = ('name', 'threshold', 'above', 'below', 'display', 'kind')
+    __slots__ = ('name', 'threshold', 'above', 'below', 'display', 'kind',
+                 'family', 'feasible')
 
-    def __init__(self, name, threshold, above, below, display, kind):
+    def __init__(self, name, threshold, above, below, display, kind,
+                 family='mixed', feasible=False):
         self.name, self.threshold = name, int(threshold)
         self.above, self.below = above, below
         self.display, self.kind = display, kind
+        self.family, self.feasible = family, bool(feasible)
 
     def choose(self, n):
         return self.above if int(n) >= self.threshold else self.below
 
     def __repr__(self):
-        return f'Policy({self.name!r}, {self.threshold}, {self.kind!r})'
+        return (f'Policy({self.name!r}, {self.threshold}, {self.family!r}, '
+                f'feasible={self.feasible})')
+
+
+#: The two rule families the sweep compares, and the distinction between them
+#: is the author's, 2026-09-29: "a weighting switch isn't feasible. Nobody will
+#: ever know weights like that."
+#:
+#:   'feasible'  uniform weights throughout, the FAMILY switches at the cutoff.
+#:               A practitioner can do this with a set of EPDs and nothing else,
+#:               so it is the rule the paper recommends.
+#:   'mixed'     the same family switch, plus market weights above the cutoff.
+#:               On the synthetic arm those are the TRUE market shares, so this
+#:               is not a method a reader can follow -- it is the value of
+#:               knowing market share, and the gap between the two curves is
+#:               what that knowledge is worth.
+FEASIBLE_ABOVE = 'KDE, Uniform'
+FEASIBLE_BELOW = 'Lognormal, Uniform'
 
 
 def sweep_policies(thresholds=SWEEP_THRESHOLDS, study_threshold=MIXED_THRESHOLD,
                    above=LARGE_METHOD, below=SMALL_METHOD):
-    """The study's rule at each cutoff in the sweep.
+    """The KNOWN-SHARE rule at each cutoff: market weights above it.
 
     The cutoff the study settled on keeps the bare name `Mixed`, so the tables
     and the figure written before the sweep existed still join on it.
@@ -135,40 +156,55 @@ def sweep_policies(thresholds=SWEEP_THRESHOLDS, study_threshold=MIXED_THRESHOLD,
     for t in thresholds:
         name = MIXED if int(t) == int(study_threshold) else f'Mixed@{int(t)}'
         out.append(Policy(name, t, above, below,
-                          f'switch at {int(t)}', 'threshold'))
+                          f'known shares above {int(t)}', 'threshold',
+                          family='mixed', feasible=False))
     return out
 
 
+def feasible_policies(thresholds=SWEEP_THRESHOLDS, above=FEASIBLE_ABOVE,
+                      below=FEASIBLE_BELOW):
+    """The FEASIBLE rule at each cutoff: uniform weights throughout, the family
+    switches.
+
+    **This is the one a reader can act on.** Nobody publishes market shares, so
+    uniform weighting is not a choice a practitioner makes -- it is the only
+    option -- and what a practitioner CAN choose is which family to fit. The
+    two degenerate ends are in the six fixed methods, so this family is
+    self-checking in the same way the other is.
+    """
+    return [Policy(f'Feasible@{int(t)}', t, above, below,
+                   f'uniform weights, switch at {int(t)}', 'threshold',
+                   family='feasible', feasible=True)
+            for t in thresholds]
+
+
 def variant_policies(threshold=MIXED_THRESHOLD):
-    """The four one-axis variants of the rule, at a fixed cutoff.
+    """The one-axis variants at a fixed cutoff, which say which half of the
+    known-share rule's switch does the work.
 
-    THE RULE SWITCHES TWO THINGS AT ONCE -- the family and the weighting -- and
-    these say which half is doing the work. Two of them hold the weighting and
-    switch only the family; two hold the family and switch only the weighting.
-
-    **`market_below` is the author's question**, asked at the close of the
-    first Stage 2j run: why would NOT using market weights improve a fit, and
-    what happens if the lognormal below the cutoff uses them too.
+    `MixedUniform` is not here any more: it IS the feasible rule, and it has
+    its own swept family.
     """
     t = int(threshold)
     return [
         Policy(f'MixedMarket@{t}', t, 'KDE, Variable', 'Lognormal, Variable',
-               f'market weights throughout, family switches at {t}',
-               'variant'),
-        Policy(f'MixedUniform@{t}', t, 'KDE, Uniform', 'Lognormal, Uniform',
-               f'uniform weights throughout, family switches at {t}',
-               'variant'),
+               f'known shares throughout, family switches at {t}', 'variant',
+               family='variant'),
         Policy(f'MixedKDE@{t}', t, 'KDE, Variable', 'KDE, Uniform',
-               f'kernel throughout, weighting switches at {t}', 'variant'),
+               f'kernel throughout, weighting switches at {t}', 'variant',
+               family='variant'),
         Policy(f'MixedLognormal@{t}', t, 'Lognormal, Variable',
                'Lognormal, Uniform',
-               f'lognormal throughout, weighting switches at {t}', 'variant'),
+               f'lognormal throughout, weighting switches at {t}', 'variant',
+               family='variant'),
     ]
 
 
 def all_policies(thresholds=SWEEP_THRESHOLDS, threshold=MIXED_THRESHOLD):
-    """Every candidate this stage scores, sweep first then variants."""
-    return sweep_policies(thresholds, threshold) + variant_policies(threshold)
+    """Every candidate this stage scores: the feasible rule swept, the
+    known-share rule swept, then the variants."""
+    return (feasible_policies(thresholds) + sweep_policies(thresholds, threshold)
+            + variant_policies(threshold))
 
 
 def add_policies(models, sizes, policies):
@@ -697,7 +733,8 @@ def pooled_from_blocks(blocks, levels, n_claims, draws=None):
 
 
 def threshold_curve(errors, policies, rng=None,
-                    resamples=BOOTSTRAP_RESAMPLES, alpha=BOOTSTRAP_ALPHA):
+                    resamples=BOOTSTRAP_RESAMPLES, alpha=BOOTSTRAP_ALPHA,
+                    family=None):
     """The cost of the rule at every cutoff, and the cutoffs that cannot be
     told apart from the best one.
 
@@ -717,7 +754,14 @@ def threshold_curve(errors, policies, rng=None,
     run of those is the range to print.
     """
     rng = rng or np.random.default_rng(0)
-    sweep = [p for p in policies if p.kind == 'threshold']
+    sweep = [p for p in policies
+             if p.kind == 'threshold' and (family is None or p.family == family)]
+    seen = [p.threshold for p in sweep]
+    if len(set(seen)) != len(seen):
+        raise ValueError(
+            'two rule families share a cutoff grid, so a curve over both would '
+            'have two points at each cutoff. Pass `family=` to choose one; '
+            f'got families {sorted({p.family for p in sweep})}')
     names = [p.name for p in sweep]
     thresholds = np.array([p.threshold for p in sweep])
     blocks, claims, _, levels = claim_blocks(errors, names)
@@ -751,11 +795,20 @@ def threshold_curve(errors, policies, rng=None,
         penalty_lo=lo, penalty_hi=hi,
         indistinguishable=ok,
         in_range=[t in run for t in thresholds]))
+    flagged = thresholds[ok]
     summary = dict(
+        family=family,
         best_threshold=int(thresholds[int(np.nanargmin(point))]),
         best_error=float(np.nanmin(point)),
         range_lo=int(run[0]) if run else None,
         range_hi=int(run[-1]) if run else None,
+        # THE SPAN OF CUTOFFS THAT ARE INDIVIDUALLY INDISTINGUISHABLE, which
+        # is wider than the unbroken run whenever an INTERIOR cutoff falls out
+        # on bootstrap jitter. The run rule exists to stop one lucky far-away
+        # point widening the band (decision 142); it was not written for a hole
+        # in the middle, and reporting only the run understates the answer.
+        indistinguishable_lo=int(flagged.min()) if len(flagged) else None,
+        indistinguishable_hi=int(flagged.max()) if len(flagged) else None,
         argmin_lo=float(np.percentile(best, 100 * alpha / 2)),
         argmin_hi=float(np.percentile(best, 100 * (1 - alpha / 2))),
         n_claims=len(claims), n_groups=int(max(sizes)))
