@@ -296,7 +296,7 @@ and generation is closed; neither input moves again.
 | **2g DONE** | The metric set, judged against the run to the TRUE parents rather than on stability: the rank-1 frequency recovers worst of seven candidates and exceeds its own between-material spread under a normal; three different methods lead across the seven; the normal's 40 percent penalty is 44 percent on attribution and 1 to 4 percent on the tail and information metrics; the `(1-capecc)` divisor settled by dividing by the APPLICABLE iterations and reporting the applicability; two magnitude companions, one of them new; the tail failure mode measured rather than assumed; and the last use of the retired in-sample target removed. Decisions 143 to 150. `reports/HANDOFF_stage-2g.md` | Re-running the sweeps of 2h. It did NOT touch the corpus, the fitting, the scoring criterion or the weight model |
 | **2h DONE** | Eighteen sweeps, each closing a "you only tested one variant" objection. **ITS TWO LARGEST RESULTS REVERSE PREMISES THIS TABLE USED TO CARRY.** First, the two arms drew market shares by different rules on the dimension the paper is built on; that is fixed, both arms now use one rule at coherence 0.5, and the tenfold disagreement above 1,000 declarations is a factor of 1.9 (decisions 178, 190). Second, **the dispersion-versus-weighting trade this row called structural was an ARTIFACT of that weighting mismatch and disappears once it is repaired** -- so the corpus was regenerated as `corpus_2026-09-25` with the dispersion distance 0.409 to 0.247 and the weighting distance 0.340 to 0.151, improving together for the first time (decisions 193, 197). Not one recommendation moved: the practitioner threshold is still 81 declarations and every size band has the same winner (decision 198). Also: the scorecard put on one numerator, the both-fits rule for every published crossing, the judgment arm with the pedigree matrix SOURCED and found to be narrower than real data, the certification credit, Weibull, the bandwidth through the pLCA, the parent-level gate and the end-to-end smoke test. Decisions 174 to 199. `reports/HANDOFF_stage-2h.md` | Anything not framed as a sweep with a tabulated result. It did NOT adopt the upper truncation (decision 199) and did NOT measure the mixed-method policy, which is 2j |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
-| **2j DONE** | **THE MIXED-METHOD POLICY, AND IT IS NOT A NULL.** Choosing the method material by material beats every fixed method on ALL SIXTEEN claims, by a median 11.4 percent (decision 204). **THE CUTOFF HARDLY MATTERS**: swept 3 to 10,000, every cutoff from 5 to 3,000 beats both fixed methods and 50 to 81 are indistinguishable from the best, with the sweep's two ends reproducing the two fixed methods to 0.00e+00 as a self-check (decisions 208, 213). **THE GAIN IS THE WEIGHTING SWITCH, NOT THE FAMILY SWITCH** -- weighting alone recovers three quarters, family alone recovers nothing (decision 209). **AND A CORRECTION THE PAPER MUST CARRY**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so the comparison is ignoring a KNOWN market share against using it; using it hurts below about 81 declarations because a concentrated share leaves a median Kish effective sample of 2.8 at 3 to 9 declarations (decision 212). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the rule as a seventh scorecard column and folds this stage's per-claim gains into it (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
+| **2j DONE** | **THE MIXED-METHOD POLICY, AND THE HONEST VERSION IS MODEST.** The rule a practitioner can follow -- uniform weights throughout, kernel estimate above the cutoff and three-parameter lognormal below -- beats the best uniform-weighted method on 9 of 16 claims, median 0.9 percent, pooled 2.9 percent (decision 217). **The 16-of-16 at 11.4 percent belongs to the same switch PLUS known market shares, which nobody has** (decisions 204, 216), so the gap between the two is the VALUE OF MARKET-SHARE DATA at 12.8 percent -- four times what the rule itself is worth, and the paper's strongest practical statement. **The cutoff is published rounded at about 50 to 100** on a sweep from 3 to 10,000 whose four degenerate ends reproduce their fixed methods to 0.00e+00 (decisions 213, 218). **And a correction the paper must carry**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so using a KNOWN share is what hurts below about 81 declarations -- because importance weights re-aim a fixed sample rather than adding to it, leaving a median Kish effective sample of 2.8 at 3 to 9 declarations, and the bandwidth's effective sample size is NOT the cause (decisions 212, 215). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the FEASIBLE rule as a seventh scorecard column (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
@@ -7848,3 +7848,68 @@ rather than in conversation.
      the answer to when it matters: below about 81 declarations, essentially
      nothing, because a concentrated market share would spend the sample
      anyway.
+
+217. **2026-09-29, Stage 2j review. THE RULE A PRACTITIONER CAN FOLLOW IS WORTH
+     ABOUT ONE PERCENT, NOT ELEVEN. Decision 204's headline belongs to a rule
+     that needs market shares nobody has, and this is the correction.**
+     `[DELEGATED, 2j measured after decision 216]`
+
+     Both rules scored claim by claim against the best fixed method a reader of
+     THAT rule could otherwise use, 2,500 pLCA groups, paired cluster bootstrap:
+
+         rule        comparator            beats   median gain   range
+         feasible    the three uniform-     9/16      +0.9 pct   -0.6 to +6.4
+                     weighted methods
+         known       all six                16/16    +11.4 pct   +3.3 to +16.8
+
+     **Four of the feasible rule's seven losses have intervals excluding zero**,
+     all between -0.25 and -0.63 percent: a material's mean contribution, its
+     chance of being largest, its share of the total, and what using 25 percent
+     less delivers. **The gains are concentrated in the tail and intervention
+     claims** -- the chance of meeting a budget at +6.4, a cap's chance of
+     saving 5 percent at +2.8, a material's 95th percentile at +2.7 -- and the
+     losses in the mean-and-share claims, where a lognormal fitted to
+     everything is already about as good as anything.
+
+     **Pooled it is +2.9 percent** over the best uniform-weighted method, which
+     is larger than the per-claim median because the pooled comparison uses one
+     comparator throughout while the per-claim one uses the best for each
+     claim.
+
+     **AND THE GAP BETWEEN THE TWO RULES IS THE VALUE OF MARKET-SHARE DATA:
+     12.8 percent of the pooled error, four times what the feasible rule
+     itself is worth.** That is the paper's strongest practical statement and
+     it is an argument for obtaining production volumes -- the Marsh, Hattam
+     and Allen (2025) route, or an industry-average declaration (decision 100)
+     -- rather than an argument about which curve to fit.
+
+     **DECISION 204 IS NARROWED, NOT WITHDRAWN.** Its measurement stands and its
+     16-of-16 is real; what was wrong is calling it the recommendation. Decision
+     209's decomposition is re-read the same way: switching only the weighting
+     recovers three quarters of the known-share rule's gain, and a reader cannot
+     switch the weighting.
+
+218. **2026-09-29, Stage 2j review. THE CUTOFF RANGE IS PUBLISHED ROUNDED, AND
+     BOTH RULES AGREE ON ABOUT 50 TO 100. This SUPERSEDES the 50-to-81 of
+     decision 213.** `[AUTHOR]` "Seems like an oddly specific number ... I
+     think that might be more significant digits than we can promise. I think
+     we should publish a rounded range."
+
+     The author is right and 81 was never a claim-level number: it is decision
+     142's argmin of a FIT-level curve on a dense grid, carried forward because
+     the study had it. On the claim-level sweep at 6,000 bootstrap resamples:
+
+         rule        best cutoff   indistinguishable   whole sweep spans
+         feasible        130           50 to 130          0.73 points
+         known            70           50 to 100          3.71 points
+
+     Decision 213's 50-to-81 came from a grid that included 81 as a legacy
+     point and 90 as a neighbour that fell out on jitter. On the rounded grid
+     the unbroken run and the individually-indistinguishable span agree for
+     both families, and both contain **50 to 100**. **That is the range to
+     print**, and the feasible rule tolerates up to 130.
+
+     `threshold_curve` now reports the indistinguishable span beside the
+     unbroken run, because the run rule was written to stop a lone far-away
+     point widening a band (decision 142) and is the wrong instrument for a
+     hole in the middle.
