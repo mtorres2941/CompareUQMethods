@@ -25,6 +25,11 @@ import plca as PL               # noqa: E402
 
 NECCS = 2_000
 
+#: The cutoffs the planted-curve tests sweep. Deliberately not
+#: `MP.SWEEP_THRESHOLDS`: widening the production sweep must not break a test
+#: about whether a minimum can be recovered.
+TEST_THRESHOLDS = (20, 30, 40, 50, 60, 70, 81, 90, 100, 110, 130, 160, 220)
+
 
 def a_group(seed=0, sizes=(6, 30, 300, 3000)):
     """Four datasets straddling the threshold, fitted through the real path."""
@@ -429,7 +434,11 @@ def _sweep_errors(n_groups=200, seed=0, best=81, steepness=0.02,
     them is not the frame the stage builds.
     """
     rng = np.random.default_rng(seed)
-    policies = MP.all_policies()
+    # A grid of its own, NOT the shipped one: these tests check the machinery
+    # recovers a planted minimum, and they should not break when the
+    # production sweep is widened.
+    policies = (MP.sweep_policies(TEST_THRESHOLDS)
+                + MP.variant_policies(MP.MIXED_THRESHOLD))
     rows = []
     for g in range(n_groups):
         for j in range(4):
@@ -530,3 +539,45 @@ def test_the_threshold_curve_reports_the_claims_it_actually_used():
                                     rng=np.random.default_rng(1),
                                     resamples=150)
     assert summary['n_claims'] == errors['claim'].nunique()
+
+
+# ---------------------------------------------------------------------------
+# what "market weights" ARE on the synthetic arm, which the report got wrong
+# ---------------------------------------------------------------------------
+def test_the_synthetic_market_weights_carry_the_true_group_shares():
+    """**THIS IS THE CLAIM THE STAGE REPORT DESCRIBED WRONGLY**, and it is
+    pinned here so the wrong description cannot come back.
+
+    A synthetic dataset's market weights are NOT a guess. At the shipped
+    `mode_coupling = 1.0` the generator gives point i the weight
+    `market[mode(i)] * within_i`, where `market` is the TRUE market share the
+    parent was built with and `within` divides a group's share among the
+    points inside it. So the weight mass sitting on each product group EQUALS
+    that group's true market share exactly, and only the division inside a
+    group is arbitrary.
+
+    The consequence for the paper: comparing uniform against market weights on
+    this arm is comparing IGNORING a known market share against USING it, not
+    comparing ignoring it against guessing it.
+    """
+    import genconfig as G
+    import generator as GEN
+    rng = np.random.default_rng(17)
+    cfg = G.DEFAULT
+    assert cfg.mode_coupling == 1.0, 'this test describes the shipped coupling'
+    found = 0
+    for seed in range(60):
+        draw = np.random.default_rng(seed)
+        parent, info = GEN.draw_parent(cfg, 200, draw)
+        if parent is None or len(parent.comps) < 2:
+            continue
+        _x, modes = parent.sample(200, draw)
+        w = GEN.draw_weights(parent, modes, cfg, draw)
+        share = np.asarray(parent.market, float)
+        share = share / share.sum()
+        got = np.array([w[modes == j].sum() for j in range(len(share))])
+        assert np.allclose(got, share, atol=1e-12), (got, share)
+        found += 1
+        if found >= 3:
+            break
+    assert found >= 3, 'no multi-group parent drawn to test'

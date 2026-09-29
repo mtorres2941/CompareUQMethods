@@ -73,9 +73,16 @@ ORACLE = 'Oracle, per material'
 
 #: The cutoffs the sweep runs. Spaced closely through the region the fit-level
 #: work already pointed at -- decision 142 puts the fit optimum at 81 with 68
-#: to 106 indistinguishable -- and carried far enough either side that the
-#: curve's shape is visible rather than asserted.
-SWEEP_THRESHOLDS = (20, 30, 40, 50, 60, 70, 81, 90, 100, 110, 130, 160, 220)
+#: to 106 indistinguishable -- and carried out to BOTH DEGENERATE ENDS, which
+#: is what makes the sweep self-checking: the corpus holds 3 to 9,999
+#: declarations, so a cutoff of 3 assigns every dataset the kernel estimate
+#: with market weights and a cutoff of 10,000 assigns every dataset the
+#: three-parameter lognormal with uniform weights. **Those two points must
+#: reproduce those two fixed methods exactly**, and if they do not, the sweep
+#: is wrong. Widened 2026-09-29 at the author's request, from a range that
+#: stopped at 20 and 220 and so could not show either end.
+SWEEP_THRESHOLDS = (3, 5, 10, 15, 20, 30, 40, 50, 60, 70, 81, 90, 100, 110,
+                    130, 160, 220, 300, 500, 1000, 3000, 10000)
 
 
 def select_method(n, threshold=MIXED_THRESHOLD, large=LARGE_METHOD,
