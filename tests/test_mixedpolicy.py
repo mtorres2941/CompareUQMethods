@@ -28,7 +28,7 @@ NECCS = 2_000
 #: The cutoffs the planted-curve tests sweep. Deliberately not
 #: `MP.SWEEP_THRESHOLDS`: widening the production sweep must not break a test
 #: about whether a minimum can be recovered.
-TEST_THRESHOLDS = (20, 30, 40, 50, 60, 70, 81, 90, 100, 110, 130, 160, 220)
+TEST_THRESHOLDS = (20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 130, 160, 220)
 
 
 def a_group(seed=0, sizes=(6, 30, 300, 3000)):
@@ -69,11 +69,18 @@ def test_the_rule_reads_nothing_but_the_size():
 
 
 def test_the_threshold_is_the_studys_own_and_is_not_re_derived_here():
-    """81 declarations, decision 142, reproduced unchanged by decision 198.
+    """80 declarations at the CLAIM level, from 2026-09-30.
+
+    It was 81 -- decision 142's FIT-level argmin, reproduced by decision 198 --
+    and the author cut it to 80: "that's more significant figures than we
+    should worry about ... 80 is more defensible in the context." Decision 142's
+    81 is untouched where it belongs, at the fit. This test exists so the
+    claim-level constant cannot drift silently, not to pin either value
+    forever.
 
     Pinned so that a later edit moving it has to move this line too and say so.
     """
-    assert MP.MIXED_THRESHOLD == 81
+    assert MP.MIXED_THRESHOLD == 80
     assert MP.LARGE_METHOD == 'KDE, Variable'
     assert MP.SMALL_METHOD == 'Lognormal, Uniform'
 
@@ -207,7 +214,7 @@ def test_provenance_is_stamped_on_a_table():
     out = MP.stamp(frame, corpus_label='corpus_2026-09-25', weight_rho=0.5)
     assert list(out.corpus.unique()) == ['corpus_2026-09-25']
     assert list(out.weight_rho.unique()) == [0.5]
-    assert list(out.mixed_threshold.unique()) == [81]
+    assert list(out.mixed_threshold.unique()) == [80]
 
 
 def test_display_labels_never_use_the_retired_vocabulary():
@@ -438,7 +445,7 @@ def test_the_variant_that_uses_market_weights_below_the_cutoff_differs():
     MP.add_policies(models, sizes, MP.all_policies())
     u = np.random.default_rng(6).random((NECCS, len(names)))
     study = PL.draw_contributions(models, names, MP.MIXED, u)
-    market = PL.draw_contributions(models, names, 'MixedMarket@81', u)
+    market = PL.draw_contributions(models, names, 'MixedMarket@80', u)
     assert not np.array_equal(study, market)
     # they agree exactly on the materials ABOVE the cutoff and differ below
     for j, d in enumerate(names):
@@ -446,7 +453,7 @@ def test_the_variant_that_uses_market_weights_below_the_cutoff_differs():
         assert same == (sizes[d] >= MP.MIXED_THRESHOLD)
 
 
-def _sweep_errors(n_groups=200, seed=0, best=81, steepness=0.08,
+def _sweep_errors(n_groups=200, seed=0, best=80, steepness=0.08,
                   with_fixed=True):
     """A planted curve whose minimum is at a known cutoff.
 
@@ -492,7 +499,7 @@ def test_the_threshold_curve_finds_a_planted_minimum_and_a_range_around_it():
     frame, summary = MP.threshold_curve(errors, policies,
                                         rng=np.random.default_rng(1),
                                         resamples=300)
-    assert summary['best_threshold'] in (70, 81, 90)
+    assert summary['best_threshold'] in (70, 80, 90)
     assert summary['range_lo'] <= summary['best_threshold'] <= summary['range_hi']
     # the range is a RANGE, not the argmin dressed up
     assert summary['range_lo'] < summary['range_hi']
@@ -512,7 +519,7 @@ def test_a_flat_curve_gives_a_wider_range_than_a_steep_one():
     sf, ss = MP.threshold_curve(steep, pol, rng=np.random.default_rng(5),
                                 resamples=300)
     assert int(ff.in_range.sum()) > int(sf.in_range.sum())
-    assert ss['range_lo'] <= 81 <= ss['range_hi']
+    assert ss['range_lo'] <= 80 <= ss['range_hi']
 
 
 def test_the_gain_comparator_is_a_fixed_method_and_never_another_policy():

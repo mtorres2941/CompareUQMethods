@@ -48,7 +48,13 @@ import fitting as FT
 #: author's instruction is that the paper publish a range rather than a point:
 #: "we made assumptions, so we shouldn't claim 81 is a precisely correct
 #: cutoff value".
-MIXED_THRESHOLD = 81
+#: THE CLAIM-LEVEL REFERENCE CUTOFF, 80 and not 81, changed 2026-09-30 at the
+#: author's instruction: "that's more significant figures than we should worry
+#: about ... 80 is more defensible in the context." 81 is decision 142's
+#: FIT-level argmin on a dense grid and stays what it is there; carrying it
+#: into the claim-level sweep put an off-grid point next to 80 and invited
+#: exactly the false precision decision 218 forbids.
+MIXED_THRESHOLD = 80
 
 #: The two fixed policies the study's rule switches between, as stored `method`
 #: values. The stored spellings keep "Uniform" and "Variable" because they are
@@ -91,7 +97,7 @@ ORACLE = 'Oracle, per material'
 #: gives the study's own threshold the bare name `Mixed` and every table and
 #: figure written before the sweep existed joins on it.
 SWEEP_THRESHOLDS = (3,
-                    10, 20, 30, 40, 50, 60, 70, 80, 81, 90, 100,
+                    10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
                     110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
                     300, 500, 1000, 3000, 10000)
 
@@ -754,15 +760,31 @@ def threshold_curve(errors, policies, rng=None,
     estimate performs best is 60 to 100 declarations" rather than name 81,
     because the study made assumptions and 81 is not precisely correct.
 
-    Same instrument as `metricreduction.threshold_interval`, which answers the
-    same question one level up at the FIT, so the two ranges are comparable.
-    Two bootstraps over pLCA GROUPS: `best_threshold` resamples and takes the
-    argmin, so its spread says how well the data pin the cutoff down; the
-    PENALTY is the excess over whichever cutoff won on that same resample, so
-    the variation common to both cancels and the interval is about the
-    difference rather than the level. The cutoffs whose penalty interval
-    reaches zero cannot be told apart from the best, and the longest UNBROKEN
-    run of those is the range to print.
+    TWO BOOTSTRAPS OVER pLCA GROUPS, both paired so the variation common to
+    every cutoff cancels. `best_threshold` resamples and takes the argmin, so
+    its spread says how well the data pin the cutoff down. The PENALTY is each
+    cutoff's excess over the cutoff that wins on the FULL SAMPLE, held fixed
+    across resamples, and a cutoff is indistinguishable when that interval
+    straddles zero.
+
+    **THE REFERENCE USED TO BE WHICHEVER CUTOFF WON EACH RESAMPLE, AND THAT WAS
+    WRONG, 2026-09-30.** Subtracting the per-resample minimum makes every
+    penalty non-negative by construction, so its lower bound can reach zero
+    only for a cutoff that actually WINS some resamples. That is a contest, not
+    a difference test, and what it measures depends on how many near-tied
+    cutoffs share the grid: filling the grid in from 14 points to 27 split the
+    wins among more neighbours and moved the reported band, even though the
+    curve had not changed at all. It also produced a hole -- 50, 60, 70 in, 80
+    and 90 out, 100 to 140 in -- across a span whose pooled error varies by
+    0.00013 on a level of 0.232. A fixed reference cannot do any of that: it
+    can go negative, it does not care how many other points are on the grid,
+    and the reference itself scores exactly zero.
+
+    The selection caveat is real and is why BOTH numbers are reported: the
+    reference is the argmin of the same data, so the differences are biased
+    slightly positive. `argmin_lo` and `argmin_hi` are the honest companion --
+    they are where the best cutoff itself could sit -- and they need no
+    indistinguishability rule at all.
     """
     rng = rng or np.random.default_rng(0)
     sweep = [p for p in policies
@@ -780,15 +802,20 @@ def threshold_curve(errors, policies, rng=None,
     sizes = [arr.shape[0] for arr, _ in blocks]
     best = np.empty(int(resamples))
     penalty = np.empty((int(resamples), len(names)))
+    ref = int(np.nanargmin(point))
     for b in range(int(resamples)):
         draws = [rng.integers(0, n, n) for n in sizes]
         cost = pooled_from_blocks(blocks, levels, len(claims), draws)
-        j = int(np.nanargmin(cost))
-        best[b] = thresholds[j]
-        penalty[b] = cost - cost[j]
+        best[b] = thresholds[int(np.nanargmin(cost))]
+        # AGAINST A FIXED REFERENCE, not against whichever cutoff won this
+        # resample. See the docstring: the old form could not go negative, so
+        # its lower bound reached zero only for cutoffs that actually WIN some
+        # resamples, which makes it a contest among however many points are on
+        # the grid rather than a test of a difference.
+        penalty[b] = cost - cost[ref]
     lo = np.percentile(penalty, 100 * alpha / 2, axis=0)
     hi = np.percentile(penalty, 100 * (1 - alpha / 2), axis=0)
-    ok = lo <= 0.0
+    ok = (lo <= 0.0) & (hi >= 0.0)
     runs, cur = [], []
     for t, good in zip(thresholds, ok):
         if good:
