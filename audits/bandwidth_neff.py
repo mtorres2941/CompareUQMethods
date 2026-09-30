@@ -1,23 +1,32 @@
-"""Is the effective sample size in the bandwidth what makes market weights lose
-at small n?
+"""Is the effective sample size in the bandwidth why market weighting loses at
+small n? Three tests, and the last one cannot be argued with.
 
-THE QUESTION, raised by the author 2026-09-29: "It's confusing to me that
-effective sample size reduces with variable weights. Doesn't having values with
-weights mean you should act like you have more information, not less? ... Seems
-like using a different effective sample size might be hurting us there."
+THE AUTHOR'S HYPOTHESIS, 2026-09-29: "Accounting for data weights means you
+significantly reduce your n_effective and it way overpunishes methods like KDE,
+since its bandwidth is highly dependent on n_effective. I bet if you used a
+regular n (nine weighted observations means n=9), KDE variable would dominate."
 
 `customstats.weighted_bw` uses the Kish effective sample size in Silverman's
 rule, `0.9 * scale * n_eff ** -0.2`. Market weights are concentrated, so n_eff
-is smaller than n, so the bandwidth is WIDER. If that over-smoothing were the
-reason the market-weighted fit loses below about 81 declarations, the fix would
-be to use n instead.
+is smaller than n, so the bandwidth is WIDER. Three ways to ask whether that is
+what makes the market-weighted fit lose below about 81 declarations:
 
-**THERE IS ALREADY A DECISIVE ARGUMENT AGAINST THAT AND THIS SCRIPT IS THE
-CONFIRMATION.** The same crossover appears in the three-parameter LOGNORMAL,
-which has no bandwidth at all: the market-weighted lognormal is closer to the
-truth on 32.8 percent of datasets at 3 to 9 declarations and 78.7 percent above
-a thousand. A bandwidth rule cannot cause a crossover in a method that does not
-use one. This script measures the kernel side directly anyway.
+  1. THE PRODUCTION RULE, n_eff, which is what the study uses.
+  2. THE PLAIN COUNT, n, which is what the hypothesis proposes.
+  3. EACH FIT'S OWN BEST BANDWIDTH, swept. **This is the decisive one**: if
+     the market-weighted fit still loses when both fits are given the
+     bandwidth that minimizes their own distance to the truth, then no
+     bandwidth rule can be the reason, because no rule can beat the best one.
+
+AND A FOURTH ARGUMENT THAT NEEDS NO BANDWIDTH AT ALL. The same crossover
+appears in the three-parameter lognormal, which has no bandwidth: market
+weights are closer on 32.8 percent of datasets at 3 to 9 declarations and 78.7
+percent above a thousand.
+
+The script also reports how far apart the two TRUE populations are -- the
+sampling parent a uniform-weighted fit estimates and the market parent it is
+scored against -- because that distance is the bias uniform weighting carries,
+and it is the other half of the trade.
 
 Writes `outputs/tables/audits/TABLE_BandwidthNeff.csv`.
 
@@ -43,6 +52,10 @@ import recovery as RC              # noqa: E402
 BANDS = ((3, 9, '3-9'), (10, 80, '10-80'), (81, 99, '81-99'),
          (100, 999, '100-999'), (1000, 10 ** 9, '1000+'))
 
+#: Multipliers of the production bandwidth the sweep tries. Wide enough that
+#: the best value is interior for essentially every dataset.
+BW_MULTIPLES = tuple(np.round(np.geomspace(0.2, 5.0, 17), 4))
+
 
 def band_of(n):
     for lo, hi, lab in BANDS:
@@ -51,29 +64,22 @@ def band_of(n):
     return ''
 
 
-def kde_on(x, w, use_neff):
-    """A kernel estimate whose bandwidth uses n_eff or the plain count."""
-    x = np.asarray(x, float)
-    w = np.asarray(w, float)
-    w = w / w.sum()
-    if use_neff:
-        bw = CS.weighted_bw(x, w, FT.BW_METHOD)
-    else:
-        # The same rule with the effective sample size replaced by the count.
-        # Written out rather than parameterized, so the production path cannot
-        # be changed by accident from here.
-        std = CS.weighted_std(x, w)
-        iqr = (CS.weighted_quantile(x, w, 0.75)
-               - CS.weighted_quantile(x, w, 0.25))
-        n = float(len(x))
-        scale = min(std, iqr / 1.34) if n >= CS.SILVERMAN_MIN_NEFF else std
-        bw = 0.9 * scale * n ** -0.2
-    return families.Truncated(families.WeightedKDE(x, w, bw), label='kde',
-                              lo=0.0)
+def bandwidths(x, w):
+    """The production bandwidth and the same rule on the plain count."""
+    prod = CS.weighted_bw(x, w, FT.BW_METHOD)
+    std = CS.weighted_std(x, w)
+    iqr = CS.weighted_quantile(x, w, 0.75) - CS.weighted_quantile(x, w, 0.25)
+    n = float(len(x))
+    scale = min(std, iqr / 1.34) if n >= CS.SILVERMAN_MIN_NEFF else std
+    return float(prod), float(0.9 * scale * n ** -0.2)
+
+
+def score(x, w, bw, parent, grid):
+    model = families.Truncated(families.WeightedKDE(x, w, bw), label='kde')
+    return float(RC.w1_against_parent(model, parent, 'market', grid))
 
 
 def main(n_datasets, seed):
-    rng = np.random.default_rng(seed)
     metrics, values, _ = corpus.load_corpus()
     metrics = metrics[~metrics.is_probe]
     pick = metrics.sample(min(n_datasets, len(metrics)), random_state=seed)
@@ -89,16 +95,26 @@ def main(n_datasets, seed):
         parent = parents[name]
         row = dict(dataset=name, n=n, band=band_of(n),
                    n_eff=float((w.sum() ** 2) / np.sum(w ** 2)))
+        # How far apart the two TRUE populations are: the bias a
+        # uniform-weighted fit carries, before any estimation error.
+        g_bias = RC.recovery_grid(x, eq, parent)
+        row['parent_separation'] = float(np.trapezoid(
+            np.abs(parent.cdf(g_bias, 'market')
+                   - parent.cdf(g_bias, 'uniform')), g_bias))
         for label, weights in (('uniform', eq), ('market', w)):
             grid = RC.recovery_grid(x, weights, parent)
-            for tag, use in (('neff', True), ('count', False)):
-                model = kde_on(x, weights, use)
-                row[f'{label}_{tag}'] = float(
-                    RC.w1_against_parent(model, parent, 'market', grid))
+            prod, plain = bandwidths(x, weights)
+            row[f'{label}_neff'] = score(x, weights, prod, parent, grid)
+            row[f'{label}_count'] = score(x, weights, plain, parent, grid)
+            swept = [score(x, weights, prod * m, parent, grid)
+                     for m in BW_MULTIPLES]
+            row[f'{label}_best'] = float(np.min(swept))
+            row[f'{label}_best_mult'] = float(
+                BW_MULTIPLES[int(np.argmin(swept))])
         rows.append(row)
     out = pd.DataFrame(rows)
-    out['market_helps_neff'] = out.market_neff < out.uniform_neff
-    out['market_helps_count'] = out.market_count < out.uniform_count
+    for tag in ('neff', 'count', 'best'):
+        out[f'market_helps_{tag}'] = out[f'market_{tag}'] < out[f'uniform_{tag}']
     os.makedirs('outputs/tables/audits', exist_ok=True)
     out.to_csv('outputs/tables/audits/TABLE_BandwidthNeff.csv', index=False)
 
@@ -107,23 +123,26 @@ def main(n_datasets, seed):
         'datasets': g.size(),
         'median_n': g.n.median(),
         'median_n_eff': g.n_eff.median(),
-        'market_closer_pct_neff': 100 * g.market_helps_neff.mean(),
-        'market_closer_pct_count': 100 * g.market_helps_count.mean(),
-        'uniform_w1_neff': g.uniform_neff.mean(),
-        'uniform_w1_count': g.uniform_count.mean(),
-        'market_w1_neff': g.market_neff.mean(),
-        'market_w1_count': g.market_count.mean(),
+        'market_closer_neff': 100 * g.market_helps_neff.mean(),
+        'market_closer_count': 100 * g.market_helps_count.mean(),
+        'market_closer_best_bw': 100 * g.market_helps_best.mean(),
+        'median_parent_separation': g.parent_separation.median(),
+        'uniform_best_mult': g.uniform_best_mult.median(),
+        'market_best_mult': g.market_best_mult.median(),
     }).reindex([b[2] for b in BANDS]).dropna(how='all')
-    print('DOES THE EFFECTIVE SAMPLE SIZE IN THE BANDWIDTH CAUSE THE')
-    print('CROSSOVER? Share of datasets on which the market-weighted kernel')
-    print('estimate is closer to the true market-weighted parent than its own')
-    print('uniform-weighted twin, with the bandwidth taken on n_eff and on n.')
+    print('DOES THE BANDWIDTH EXPLAIN THE CROSSOVER? Share of datasets on')
+    print('which the market-weighted kernel estimate is closer to the TRUE')
+    print('market-weighted parent than its own uniform-weighted twin.')
     print()
     print(summary.to_string(float_format=lambda v: f'{v:.3f}'))
     print()
-    print('If the crossover were an artifact of n_eff, the `count` column')
-    print('would not cross half at the same place. Read it beside the')
-    print('LOGNORMAL, which has no bandwidth and crosses at the same place.')
+    print('`best_bw` gives EACH fit the bandwidth that minimizes its own')
+    print('distance to the truth, which no rule can beat. If the crossover')
+    print('survives there, no bandwidth rule causes it.')
+    print()
+    print('`parent_separation` is how far the market-weighted population sits')
+    print('from the sampling population: the BIAS a uniform-weighted fit')
+    print('carries whatever its bandwidth. It is the other half of the trade.')
     return summary
 
 

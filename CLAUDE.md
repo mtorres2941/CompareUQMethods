@@ -296,7 +296,7 @@ and generation is closed; neither input moves again.
 | **2g DONE** | The metric set, judged against the run to the TRUE parents rather than on stability: the rank-1 frequency recovers worst of seven candidates and exceeds its own between-material spread under a normal; three different methods lead across the seven; the normal's 40 percent penalty is 44 percent on attribution and 1 to 4 percent on the tail and information metrics; the `(1-capecc)` divisor settled by dividing by the APPLICABLE iterations and reporting the applicability; two magnitude companions, one of them new; the tail failure mode measured rather than assumed; and the last use of the retired in-sample target removed. Decisions 143 to 150. `reports/HANDOFF_stage-2g.md` | Re-running the sweeps of 2h. It did NOT touch the corpus, the fitting, the scoring criterion or the weight model |
 | **2h DONE** | Eighteen sweeps, each closing a "you only tested one variant" objection. **ITS TWO LARGEST RESULTS REVERSE PREMISES THIS TABLE USED TO CARRY.** First, the two arms drew market shares by different rules on the dimension the paper is built on; that is fixed, both arms now use one rule at coherence 0.5, and the tenfold disagreement above 1,000 declarations is a factor of 1.9 (decisions 178, 190). Second, **the dispersion-versus-weighting trade this row called structural was an ARTIFACT of that weighting mismatch and disappears once it is repaired** -- so the corpus was regenerated as `corpus_2026-09-25` with the dispersion distance 0.409 to 0.247 and the weighting distance 0.340 to 0.151, improving together for the first time (decisions 193, 197). Not one recommendation moved: the practitioner threshold is still 81 declarations and every size band has the same winner (decision 198). Also: the scorecard put on one numerator, the both-fits rule for every published crossing, the judgment arm with the pedigree matrix SOURCED and found to be narrower than real data, the certification credit, Weibull, the bandwidth through the pLCA, the parent-level gate and the end-to-end smoke test. Decisions 174 to 199. `reports/HANDOFF_stage-2h.md` | Anything not framed as a sweep with a tabulated result. It did NOT adopt the upper truncation (decision 199) and did NOT measure the mixed-method policy, which is 2j |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
-| **2j DONE** | **THE MIXED-METHOD POLICY, AND THE HONEST VERSION IS MODEST.** The rule a practitioner can follow -- uniform weights throughout, kernel estimate above the cutoff and three-parameter lognormal below -- beats the best uniform-weighted method on 9 of 16 claims, median 0.9 percent, pooled 2.9 percent (decision 217). **The 16-of-16 at 11.4 percent belongs to the same switch PLUS known market shares, which nobody has** (decisions 204, 216), so the gap between the two is the VALUE OF MARKET-SHARE DATA at 12.8 percent -- four times what the rule itself is worth, and the paper's strongest practical statement. **The cutoff is published rounded at about 50 to 100** on a sweep from 3 to 10,000 whose four degenerate ends reproduce their fixed methods to 0.00e+00 (decisions 213, 218). **And a correction the paper must carry**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so using a KNOWN share is what hurts below about 81 declarations -- because importance weights re-aim a fixed sample rather than adding to it, leaving a median Kish effective sample of 2.8 at 3 to 9 declarations, and the bandwidth's effective sample size is NOT the cause (decisions 212, 215). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the FEASIBLE rule as a seventh scorecard column (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
+| **2j DONE** | **THE MIXED-METHOD POLICY, AND THE HONEST VERSION IS MODEST.** The rule a practitioner can follow -- uniform weights throughout, kernel estimate above the cutoff and three-parameter lognormal below -- beats the best uniform-weighted method on 9 of 16 claims, median 0.9 percent, pooled 2.9 percent (decision 217). **The 16-of-16 at 11.4 percent belongs to the same switch PLUS known market shares, which nobody has** (decisions 204, 216), so the gap between the two is the VALUE OF MARKET-SHARE DATA at 12.8 percent -- four times what the rule itself is worth, and the paper's strongest practical statement. **The cutoff is published as 50 to 130**, the feasible rule's own indistinguishable span (decision 220), on a sweep from 3 to 10,000 whose four degenerate ends reproduce their fixed methods to 0.00e+00 (decisions 213, 218). **And a correction the paper must carry**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so using a KNOWN share is what hurts below about 81 declarations -- because importance weights re-aim a fixed sample rather than adding to it, leaving a median Kish effective sample of 2.8 at 3 to 9 declarations, and the bandwidth's effective sample size is NOT the cause (decisions 212, 215). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the FEASIBLE rule as a seventh scorecard column (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
 | **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
@@ -7913,3 +7913,89 @@ rather than in conversation.
      unbroken run, because the run rule was written to stop a lone far-away
      point widening a band (decision 142) and is the wrong instrument for a
      hole in the middle.
+
+219. **2026-09-29, Stage 2j review. THE BANDWIDTH IS SETTLED, AND THE
+     EXPLANATION THAT WAS GIVEN FOR THE CROSSOVER WAS SLOPPY. What ignoring a
+     known market share costs is a BIAS-VARIANCE TRADE WITH A FLOOR, and the
+     uniform-weighted fit has an error it can never get below.** `[AUTHOR
+     PRESSED, MEASURED]` "You have nine observations. Then you have additional
+     information about each of those observations. So it doesn't make sense
+     that n_effective would be less than nine ... I bet if you used a regular
+     n, KDE variable would dominate."
+
+     **THE HYPOTHESIS IS TESTED AND IT IS WRONG, three ways.** Share of
+     datasets on which the market-weighted kernel estimate is closer to the
+     true market-weighted parent than its own uniform-weighted twin, 2,500
+     synthetic datasets, `audits/bandwidth_neff.py`:
+
+         declarations                        3-9   10-80   81-99  100-999   1000+
+         production rule, n_eff             40.3    44.0    53.8     61.4    77.9
+         the plain count n                  38.8    43.7    50.0     61.9    78.4
+         each fit's OWN BEST bandwidth      46.0    42.7    51.9     55.3    74.6
+
+     **The plain count does not flip it. And giving each fit the bandwidth that
+     minimizes its own distance to the truth -- which no rule can beat --
+     does not flip it either.** The bandwidth costs the market-weighted fit
+     about 6 points at 3 to 9 declarations and the crossover is still below 81
+     without it. A fourth argument needs no bandwidth at all: the
+     three-parameter lognormal has none and shows the same crossover.
+
+     **THE AUTHOR IS RIGHT THAT KNOWING WEIGHTS TAKES NO INFORMATION AWAY, and
+     the earlier wording in the stage report -- "leaves the estimate resting on
+     two observations" -- was wrong and is withdrawn.** Nine EPDs are nine
+     EPDs. What changes is the QUESTION: nine declarations give nine
+     observations of the population that PUBLISHES, and learning the shares
+     reveals that seven of them describe a group that is ten percent of what
+     gets BUILT. The effective sample size is not a penalty the method imposes;
+     it is how many of your nine are aimed at the question you now know you are
+     asking, and the sample was always aimed that way.
+
+     **AND THE MECHANISM IS A FLOOR, which is the better result.** Each fit at
+     its own best bandwidth, mean W1 against the true market-weighted parent:
+
+         declarations            3-9   10-80   81-99  100-999   1000+
+         uniform weights      0.2621  0.1614  0.1142   0.0968  0.0844
+         known market shares  0.3005  0.1808  0.1361   0.0762  0.0287
+         distance between the two true populations  0.10 to 0.12 at every size
+
+     **The market-weighted fit converges toward zero -- 0.30 to 0.029 and still
+     falling. The uniform-weighted fit flattens at 0.084 against a floor of
+     0.099**, which is the distance between the population that publishes and
+     the population that gets built. **No quantity of EPDs takes a
+     uniform-weighted fit below that floor.** Below 81 declarations its
+     variance advantage exceeds the floor; above it, it does not. That is the
+     ordinary bias-variance trade, the same shape decision 74 records for the
+     kernel estimate against the lognormal.
+
+220. **2026-09-29, Stage 2j review. THE PUBLISHED CUTOFF RANGE IS 50 TO 130,
+     the feasible rule's own indistinguishable span. This SUPERSEDES the "about
+     50 to 100" of decision 218.** `[AUTHOR]` "If 50-130 is indistinguishable,
+     we should publish 50-130 as the range."
+
+     Decision 218 rounded to 50-100 because that is where the two rule families
+     overlap. The rule the paper recommends is the FEASIBLE one (decision 216),
+     and its own measured span is 50 to 130, with the minimum at 130 and the
+     whole sweep from 3 to 10,000 worth only 0.73 points. The known-share
+     rule's 50-to-100 stays in the tables; it is not the recommendation and
+     does not constrain the printed range.
+
+221. **2026-09-29, Stage 2j review. THE WEIGHTING RESULT IS FRAMED AS WHAT NOT
+     KNOWING MARKET SHARES COSTS, AND IN ABSOLUTE POINTS.** `[AUTHOR]` "'What
+     ignoring a known market share costs' -- this isn't a real scenario. Frame
+     it as 'what not knowing a market share costs'." And: "It seems like it
+     doesn't end up being that important, which is good."
+
+     Nobody chooses to ignore a share they know, so the heading described a
+     situation that does not arise. **And the size of it should be stated in
+     absolute points, not only as a ratio.** Giving the rule the true market
+     shares above the cutoff takes the pooled error from **23.24 to 20.25
+     percent** of the true level: **2.98 points, or 12.8 percent of what was
+     there**.
+
+     **The relative number oversells it and the absolute one is the honest
+     frame.** A probabilistic LCA is wrong by about 23 percent either way, and
+     knowing every market share exactly would take it to 20. The author's read
+     -- that weighting does not end up being the big factor -- is what the
+     absolute number says, and the paper should lead with that form. It is the
+     same distinction decision 156 settled for the scorecard: a spread between
+     methods means nothing without the level the best method still gets wrong.
