@@ -32,8 +32,11 @@ indistinguishable** from the best and the whole sweep spans 0.73 points.
 **Publish 50 to 130.** The sweep's four degenerate ends reproduce their fixed
 methods to 0.00e+00, which is the check that the machinery is right.
 
-**4. The bandwidth is not why market weighting loses at small n, and this is
-now settled three ways.** Section 2.
+**4. The crossover is in the MEAN, and the bandwidth is not why market
+weighting loses at small n.** Knowing the true market shares makes your
+estimate of the market-weighted MEAN worse below about eighty declarations and
+four times better above a thousand -- no distribution, no kernel, no bandwidth
+in it. Section 2.
 
 **Needs an author decision:** nothing blocking. The judgment left is how the
 paper frames a 0.9 percent method improvement beside a 3-point value of
@@ -75,17 +78,49 @@ than the same fit with every declaration weighted equally:
 **Below about 81 declarations, knowing the shares does not help.** It crosses
 half at the cutoff, for both families, with nothing tuned to put it there.
 
-### Why, and it is not the effective sample size in the bandwidth
+### Why: the crossover is in the MEAN
 
-**The earlier explanation in this report was sloppy and the objection to it was
-right.** Nine EPDs are nine EPDs; learning the market shares does not take
-observations away. What changes is the QUESTION. Nine declarations give you
-nine observations of the population that PUBLISHES. Learning the shares tells
-you that seven of those nine describe a product group that is ten percent of
-what actually gets BUILT -- so for the market-weighted question your sample is
-badly aimed, and it always was. The effective sample size is not a penalty the
-method imposes; it is how many of your nine are pointed at the question you now
-know you are asking.
+**The earlier explanation in this report was a restatement rather than a
+mechanism, and the objection to it was right.** Nine EPDs are nine EPDs, and if
+two of them carry ninety percent of the market then the parent really is mostly
+those two products' distribution -- so a fit that accounts for that should be
+closer, not further. The term that was missing is that you hold **two
+observations** of the thing that carries the weight.
+
+W1 is the area between two CDFs and is bounded below by the distance between
+their means. Splitting each fit's distance to the true market-weighted parent
+that way -- LOCATION, whether the fit is aimed at the right population, and
+SHAPE, whether it knows that population -- with the kernel estimate at each
+fit's own best bandwidth, so no bandwidth rule can be the answer:
+
+    LOCATION, mean over datasets, two independent 2,000-dataset draws
+    declarations        3-9    10-80   81-99  100-999   1000+
+    uniform weights   0.1918  0.1105  0.0742   0.0715  0.0663
+                      0.1912  0.1067  0.0695   0.0682  0.0666
+    known shares      0.2183  0.1117  0.0874   0.0442  0.0153
+                      0.2332  0.1418  0.0611   0.0430  0.0145
+
+**Knowing the shares makes the MEAN worse below about eighty declarations and
+four times better above a thousand.** The three-parameter lognormal, which has
+no bandwidth at all, gives the same shape on both seeds. So this is not about
+distributional shape, not about a kernel, and not about a bandwidth -- it is in
+the simplest statistic there is, and a reader can check it by hand.
+
+**The mechanism, in the two-cities case.** The market-weighted mean of nine EPDs
+where two carry ninety percent of the weight is arithmetically close to the
+average of two numbers, and it has the standard error of one: the effective
+sample size is 2.8 in the median at three to nine declarations. It is aimed at
+exactly the right quantity and it is wild. The unweighted mean of all nine is
+aimed at the wrong quantity -- the population that publishes rather than the one
+that gets built -- and every observation contributes to it. **At nine EPDs the
+noise in the first exceeds the bias in the second. At a thousand, the group
+carrying the weight has hundreds of declarations of its own, the noise is gone,
+and only the bias is left.**
+
+Shape moves the same way and is the smaller term: 0.074 to 0.079 and 0.080 to
+0.078 at three to nine declarations, against location's 0.19 to 0.23.
+
+    Reproduce: python audits/weighting_location_shape.py --n 2000
 
 **And the consequence is a bias-variance trade with a floor.** Each fit given
 the bandwidth that minimizes its own distance to the truth, mean W1 against the
@@ -210,10 +245,11 @@ pinned by a test, and it is what made a 37-column sweep affordable.
 
 **Written:** thirteen tables named `TABLE_MixedPolicy*` plus
 `CompareUQMethods_FIG_MixedPolicy.png`, and
-`outputs/tables/audits/TABLE_BandwidthNeff.csv`. **Code:**
+`outputs/tables/audits/TABLE_BandwidthNeff.csv` and
+`TABLE_WeightingLocationShape.csv`. **Code:**
 `src/mixedpolicy.py`, `tests/test_mixedpolicy.py` (36 tests),
-`audits/bandwidth_neff.py`, the hoist in `src/plca.py`, and nine cells at the
-end of notebook 3. **628 tests pass.**
+`audits/bandwidth_neff.py`, `audits/weighting_location_shape.py`, the hoist in
+`src/plca.py`, and nine cells at the end of notebook 3. **628 tests pass.**
 
     cd notebooks && python -m nbconvert --to notebook --execute \
       --ExecutePreprocessor.kernel_name=compareuq \

@@ -7999,3 +7999,84 @@ rather than in conversation.
      absolute number says, and the paper should lead with that form. It is the
      same distinction decision 156 settled for the scorecard: a spread between
      methods means nothing without the level the best method still gets wrong.
+
+222. **2026-09-29, Stage 2j review. THE CROSSOVER IS IN THE MEAN, NOT IN THE
+     SHAPE, AND THE AUTHOR'S OBJECTION IS WHAT FOUND IT. Below about eighty
+     declarations, knowing the true market shares makes your estimate of the
+     market-weighted MEAN WORSE.** `[AUTHOR PRESSED, MEASURED]` "If we get 2
+     EPDs from a large city and 7 from a small town, wouldn't distributions
+     that treat all those values equally be a lot worse than the distributions
+     that take those differences into account? The parent distribution is
+     probably more clustered around the 2 EPDs, so a distribution that accounts
+     for that would be better and closer to the parent."
+
+     **THE PREMISE IS RIGHT ABOUT THE TARGET AND THE CONCLUSION NEEDS THE
+     SAMPLING ERROR.** The market-weighted parent IS mostly the city's
+     distribution. What the objection leaves out is that you hold **two**
+     observations of the city.
+
+     **THE INSTRUMENT.** `audits/weighting_location_shape.py` applies decision
+     92's split to a fit against a parent rather than to one dataset under two
+     weightings. W1 is the area between two CDFs and is bounded below by the
+     distance between their means, so
+
+         W1 = integral |F_model - F_parent|
+         LOCATION = |integral (F_model - F_parent)| = |mean difference|
+         SHAPE    = W1 - LOCATION, non-negative on the grid by construction
+
+     Location is whether the fit is AIMED at the right population; shape is
+     whether it KNOWS that population. Two estimators, so no bandwidth rule can
+     be the answer either way: the kernel estimate at each fit's OWN BEST
+     bandwidth, swept, which nothing can beat; and the three-parameter
+     lognormal, which has no bandwidth at all.
+
+     **THE LOCATION TERM, mean over datasets, two independent 2,000-dataset
+     draws, kernel estimate at its own best bandwidth:**
+
+         declarations        3-9    10-80   81-99  100-999   1000+
+         uniform weights   0.1918  0.1105  0.0742   0.0715  0.0663
+                           0.1912  0.1067  0.0695   0.0682  0.0666
+         known shares      0.2183  0.1117  0.0874   0.0442  0.0153
+                           0.2332  0.1418  0.0611   0.0430  0.0145
+
+     **Knowing the shares makes the MEAN worse below about eighty declarations
+     and four times better above a thousand**, and the three-parameter
+     lognormal gives the same shape on both seeds. **So the crossover is not
+     about distributional shape, not about a kernel, and not about a bandwidth.
+     It is in the simplest statistic there is.**
+
+     **THE MECHANISM, in the author's own example.** The market-weighted mean of
+     nine EPDs where two carry ninety percent of the weight is arithmetically
+     close to the average of two numbers, and it has the standard error of one:
+     the Kish effective sample size is 2.8 in the median at three to nine
+     declarations. It is aimed at exactly the right quantity and it is wild. The
+     unweighted mean of all nine is aimed at the wrong quantity -- the
+     population that PUBLISHES rather than the one that gets BUILT -- and every
+     observation contributes to it. At nine EPDs the noise in the first exceeds
+     the bias in the second. At a thousand, the group carrying the weight has
+     hundreds of declarations of its own, the noise is gone, and only the bias
+     is left.
+
+     **SHAPE MOVES THE SAME WAY AND IS THE SMALLER TERM**, 0.074 to 0.079 and
+     0.080 to 0.078 at three to nine declarations against location's 0.19 to
+     0.23. So the trade is decided by the mean, which is the term a reader can
+     check by hand.
+
+     **A 300-DATASET RUN OF THIS AUDIT SHOWED THE OPPOSITE SIGN ON LOCATION AND
+     IS NOT A RESULT.** It put the market-weighted location below the uniform
+     one in every band. Two independent 2,000-dataset draws agree with each
+     other and disagree with it. **Nothing from the 300-dataset run is quoted
+     anywhere**, and it is recorded because a smaller sample of the same script
+     would reproduce it.
+
+     **WHAT THIS CHANGES.** No number moves and decisions 215 and 219 are
+     confirmed rather than narrowed: the trade is bias against variance, the
+     bandwidth is not the cause, and the effective sample size is the variance
+     cost. **What is replaced is the EXPLANATION.** The stage report said
+     learning the shares "reveals that your sample is badly aimed", which is a
+     restatement rather than a mechanism and did not answer the objection. The
+     measured statement is that the estimate of the market-weighted mean rests
+     on however many declarations actually carry the weight, and below about
+     eighty that is too few to beat an unweighted average of all of them.
+
+         python audits/weighting_location_shape.py --n 2000
