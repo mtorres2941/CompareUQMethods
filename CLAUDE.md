@@ -8069,6 +8069,23 @@ rather than in conversation.
      anywhere**, and it is recorded because a smaller sample of the same script
      would reproduce it.
 
+     **THE AUTHOR'S OWN STATEMENT OF IT, 2026-09-29, AND IT IS THE SENTENCE
+     THE PAPER SHOULD CARRY:** "It's not that market share isn't helpful; it's
+     that market share with very few values might lead you to over-index on
+     something because it's misleading. Once you have a representative sample,
+     market share is a big helper." **Over-index is the right word**: with two
+     declarations carrying ninety percent of the weight, the whole estimate is
+     indexed on two values that may not represent their own product group.
+
+     **ONE PRECISION TO KEEP WITH IT.** The sample is unrepresentative of the
+     market at EVERY size -- that is the whole reason weighting exists, and
+     weighting is what corrects it. What changes with dataset size is not
+     representativeness but **how many declarations sit inside the group that
+     carries the weight**: two at nine EPDs, hundreds at a thousand. The paper
+     should write "enough declarations in the products that dominate the
+     market" rather than "a representative sample", because the second inverts
+     which of the two things weighting is for.
+
      **WHAT THIS CHANGES.** No number moves and decisions 215 and 219 are
      confirmed rather than narrowed: the trade is bias against variance, the
      bandwidth is not the cause, and the effective sample size is the variance

@@ -32,11 +32,12 @@ indistinguishable** from the best and the whole sweep spans 0.73 points.
 **Publish 50 to 130.** The sweep's four degenerate ends reproduce their fixed
 methods to 0.00e+00, which is the check that the machinery is right.
 
-**4. The crossover is in the MEAN, and the bandwidth is not why market
-weighting loses at small n.** Knowing the true market shares makes your
-estimate of the market-weighted MEAN worse below about eighty declarations and
-four times better above a thousand -- no distribution, no kernel, no bandwidth
-in it. Section 2.
+**4. MARKET SHARE IS NOT THE PROBLEM; TOO FEW DECLARATIONS TO USE IT IS.**
+Knowing the true market shares makes your estimate of the market-weighted MEAN
+worse below about eighty declarations and four times better above a thousand --
+no distribution, no kernel, no bandwidth in it. With two declarations carrying
+ninety percent of the weight you over-index on two values that may not
+represent their own product group. Section 2.
 
 **Needs an author decision:** nothing blocking. The judgment left is how the
 paper frames a 0.9 percent method improvement beside a 3-point value of
@@ -119,6 +120,15 @@ and only the bias is left.**
 
 Shape moves the same way and is the smaller term: 0.074 to 0.079 and 0.080 to
 0.078 at three to nine declarations, against location's 0.19 to 0.23.
+
+**So what.** Market share is not the problem. **Market share with very few
+declarations is, because it makes you over-index on a couple of values that may
+not represent the product group carrying the weight.** Once enough declarations
+sit inside that group, knowing the shares is a large help -- four times better
+on the mean above a thousand EPDs. One precision to keep: the sample is
+unrepresentative of the market at every size, which is the whole reason
+weighting exists; what changes with size is how many declarations the dominant
+products have, not whether the sample is representative.
 
     Reproduce: python audits/weighting_location_shape.py --n 2000
 
