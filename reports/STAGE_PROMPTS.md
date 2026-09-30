@@ -2904,10 +2904,75 @@ asked where it goes.
 
 ## Stage 3 - figures
 
+### What Stage 2j hands this stage, added 2026-09-29
+
+**Stage 2j has run and it changes this stage's first task.** It measured the
+mixed-method policy -- letting the UQ method vary BY MATERIAL rather than fixing
+one method for all four materials of a pLCA -- against the true parents on the
+same sixteen claims. `reports/STAGE_REPORT_2j.md` is the full account and is
+short; read it before this section.
+
+**FOUR THINGS IT SETTLED THAT THIS STAGE MUST CARRY.**
+
+**One: there are TWO rules and only one of them is a method a reader can
+follow.** The FEASIBLE rule keeps uniform weights throughout and switches only
+the FAMILY -- a kernel estimate at or above the cutoff, a three-parameter
+lognormal below. The KNOWN-SHARE rule switches the weighting too, and it needs
+the true market shares, which nobody has. The feasible rule is worth **+2.9
+percent pooled** over the sixteen claims against the best fixed uniform-weighted
+method, beats the best fixed method claim by claim on **9 of 16**, median **+0.9
+percent**. The known-share rule is worth 11.4 percent and is not a
+recommendation. **Put the FEASIBLE rule on the scorecard as a seventh column and
+not the known-share one**, because a column a reader cannot reproduce is worse
+than no column.
+
+**Two: the published cutoff range is 50 to 130 declarations, not 81.** The sweep
+runs 3 to 10,000 and everything from 50 to 130 is statistically
+indistinguishable from the best; the whole sweep spans 0.73 points. **81 is a
+FIT-level argmin and must never be printed as a claim-level threshold** -- that
+is the conflation decision 163 already warns about, and Stage 2j is where the
+claim-level answer was finally measured. Quote the range.
+
+**Three: the weighting framing this file and four stages carried was WRONG, and
+it is corrected by decision 212.** The study does NOT guess market shares from a
+flat Dirichlet and compare that against ignoring them. At the shipped generator
+setting each synthetic point carries `market[group] * within`, so the weight
+mass on every product group equals that group's TRUE market share to 1.1e-16.
+The contrast the paper draws is **what NOT KNOWING a market share costs**:
+pooled error 23.24 percent with uniform weights against 20.25 with the shares
+known, which is 2.98 points, or 12.8 percent of what was there. **Frame it as a
+cost of missing information, never as a guess beating an omission**, and check
+every caption and every sentence in this section against that.
+
+**Four: the n_eff explanation is settled and the sloppy version is withdrawn
+(decision 219).** Weights do not take observations away. Nine EPDs stay nine
+EPDs; what the shares tell you is which population your nine are describing, so
+a badly aimed sample is revealed rather than created. The bandwidth was tested
+three ways -- the production `n_eff` rule, the plain count, and each fit's own
+best bandwidth -- and the crossover survives all three, so it is not a bandwidth
+artifact. The three-parameter lognormal, which has no bandwidth at all, shows
+the same crossover. **A reviewer will find this counterintuitive, so the paper
+owes the intuition in plain words, not just the three tests.**
+
+**THIS STAGE'S FIRST TWO TASKS, in order.**
+
+1. **Mark the twelve unmarked `savefig` cells in notebooks 1 and 2.** The fast
+   renderer refuses a notebook that has any unmarked figure cell, by design
+   (decision 56), so those two notebooks currently cost a full run per figure
+   edit. Marking them unlocks seven-second figure rounds and is the prerequisite
+   for everything below. Notebook 3 is already fully marked.
+2. **Add the feasible rule as a seventh scorecard column** (decision 211) and
+   fold Stage 2j's per-claim gains into it, then do the caption sweep described
+   below.
+
+**AND THE STAGE 2j FIGURE EXISTS AND IS CURRENT:**
+`outputs/figures/CompareUQMethods_FIG_MixedPolicy.png`, drawn from
+`TABLE_MixedPolicySweep.csv`, needs a slot in the figure numbering.
+
 ### Read this before anything else in this stage
 
 **EVERY NUMBER IN THIS STAGE SECTION IS PROVISIONAL AND MOST OF THEM ARE STALE.**
-This section was written across Stages 2b to 2g. Stage 2h then changed the real
+This section was written across Stages 2b to 2h. Stage 2h then changed the real
 arm's weighting rule and regenerated the synthetic corpus, and its own handoff
 says every synthetic number in the paper moves. So a figure in this stage is not
 allowed to take a number from this text. Recompute each one from the tables as
@@ -3841,8 +3906,9 @@ the new numbering and let me confirm before renaming. New figures from
 Stage 2 also need slots: the coverage figure from 2a, the flip-probability
 curve from 2d, the regret distribution from 2c, the claim scorecard from 2g as
 corrected in 2h, the judgment-arm comparison and the certification-credit
-disagreement curve from 2h, and the per-material policy comparison from 2j if it
-runs. **There is no anchor building and no Stage 2i figure**: 2i was decided
+disagreement curve from 2h, and the per-material policy comparison from 2j,
+which has run and whose figure is
+`CompareUQMethods_FIG_MixedPolicy.png`. **There is no anchor building and no Stage 2i figure**: 2i was decided
 against and the real-building anchor comes from citing Marsh et al. (in press),
 whose Concrete-Precast staircase supplies the one real top-two contribution ratio
 the study uses. A later note in this file listing 2i as optional is stale; treat

@@ -7,7 +7,7 @@ says what to read, in what order, and where the stage's own instructions are.
 
 Paste this into a fresh window:
 
-    Read reports/START_HERE.md and follow it. I am starting Stage 2j.
+    Read reports/START_HERE.md and follow it. I am starting Stage 3.
 
 Substitute the stage. Nothing else is needed: `CLAUDE.md` is read automatically
 at session start, and this file names everything else.
@@ -22,12 +22,12 @@ at session start, and this file names everything else.
 3. **Your stage's section of `reports/STAGE_PROMPTS.md`** -- the instructions
    for the work itself. The sections are:
 
-        Stage 0    line   551   SENT AND RUN, a record, do not edit
-        Stage 1    line   620   SENT AND RUN
-        Stage 2    line   729   SENT AND RUN, covers 2a through 2h
-        Stage 2j   line  2758   SENT AND RUN 2026-09-25
-        Stage 3    line  2887   LIVE
-        Stage 4    line  3842   LIVE
+        Stage 0    line   569   SENT AND RUN, a record, do not edit
+        Stage 1    line   638   SENT AND RUN
+        Stage 2    line   747   SENT AND RUN, covers 2a through 2h
+        Stage 2j   line  2776   SENT AND RUN 2026-09-25
+        Stage 3    line  2905   LIVE
+        Stage 4    line  3926   LIVE
 
    **Stage 2j has been sent and run and its text is now a record too**, so
    only Stage 3 and Stage 4 may be edited. **Stage 2i is closed** and is not
