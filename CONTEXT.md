@@ -915,14 +915,39 @@ mixed policy is the same object that fixed policy uses. A group whose four
 materials all sit on one side of the threshold therefore reproduces that fixed
 policy bit for bit, which is the control the notebook prints and two tests pin.
 
+**TWO RULE FAMILIES, AND ONLY ONE IS A METHOD.** A practitioner can never
+know market shares, so uniform weighting is not a choice they make -- it is
+the situation they are in. `feasible_policies` is therefore the rule the paper
+recommends: uniform weights throughout, the FAMILY switching at the cutoff.
+`sweep_policies` adds the TRUE market shares above the cutoff and is not
+something a reader can follow; the gap between the two curves is what knowing
+market share would be worth, which is about 3 points of the roughly 23 a
+probabilistic LCA gets wrong. `threshold_curve` takes a `family=` argument and
+REFUSES a curve over both at once, because the two are swept on the same grid
+and a combined curve would have two points at every cutoff.
+
+**WHAT THE MARKET WEIGHTS ARE, because three stages described them wrongly.**
+On the synthetic arm they are the TRUE market share of every product group, to
+1.1e-16; only the division of a group's share among the products inside it is
+arbitrary. So uniform against market on this arm is IGNORING a known share
+against USING it, never guessing against knowing. Decision 212;
+`tests/test_mixedpolicy.py` pins it against the generator.
+
 **THE CUTOFF IS SWEPT, NOT ASSERTED.** `all_policies` builds thirteen cutoffs
-from 20 to 220 plus four one-axis VARIANTS that hold the family and switch the
-weighting, or the reverse, so the stage can say which half of the switch does
-the work -- and it is the weighting (decision 209). `threshold_curve` is the
-claim-level twin of `metricreduction.threshold_interval`: two bootstraps over
+from 3 to 10,000 for EACH family, plus three one-axis variants that say which
+half of the known-share switch does the work -- and it is the weighting, which
+is the half a reader cannot use (decisions 209, 216). **The two degenerate ends
+make the sweep self-checking**: the corpus holds 3 to 9,999 declarations, so at
+a cutoff of 3 each rule IS its own above-method and at 10,000 its own
+below-method, and all four ends must reproduce a fixed method exactly. The
+notebook prints that check. `threshold_curve` is the claim-level twin of
+`metricreduction.threshold_interval`: two bootstraps over
 pLCA groups, the second paired against whichever cutoff won on that resample,
-and the longest UNBROKEN run of indistinguishable cutoffs is the range to
-print. Every candidate is still ONE number on ONE input and a test asserts it.
+and the longest UNBROKEN run of indistinguishable cutoffs is reported beside
+the span from the lowest to the highest such cutoff. **The two differ when an
+INTERIOR cutoff falls out on bootstrap jitter**; the run rule was written to
+stop a lone far-away point widening a band and is the wrong instrument for a
+hole in the middle. Every candidate is still ONE number on ONE input and a test asserts it.
 
 **POOLING RUNS OVER TWO UNIT UNIVERSES.** Fifteen of the sixteen claims belong
 to a pLCA GROUP and the design comparison belongs to a design PAIR from its own
@@ -1414,9 +1439,9 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_MixedPolicyScorecard.csv` | NB3 | **the Stage 2j table to read beside the six-method one.** The sixteen claims by SEVEN policies, both numerators, on the same divisor as `TABLE_MetricClaimScorecard.csv`. The six-method table is NOT superseded: `best_method`, `stakes` and `excess` there are properties of the six-policy set and stay the paper's comparison of METHODS |
 | `TABLE_MixedPolicyGain.csv` | NB3 | per claim: the size rule against the best FIXED policy on that claim, with a paired cluster-bootstrap interval. Positive means the rule is closer to the truth |
 | `TABLE_MixedPolicyCeiling.csv` | NB3 | per claim: the best fixed policy, the unreachable per-material oracle, the rule, and the fraction of the distance it closes. **The oracle is a bound and never a policy**, and it is optimistic because a minimum over six noisy errors is biased low |
-| `TABLE_MixedPolicyThreshold.csv` | NB3 | **the range to print.** Pooled error over all sixteen claims at each of thirteen cutoffs, with a PAIRED penalty interval against whichever cutoff won on the same resample, and the flag for the longest unbroken run of cutoffs that cannot be told apart from the best |
+| `TABLE_MixedPolicyThreshold.csv` | NB3 | **the range to print.** One row per (rule family, cutoff): pooled error over all sixteen claims at each of fourteen cutoffs from 3 to 10,000, with a PAIRED penalty interval against whichever cutoff won on the same resample, and the flag for the longest unbroken run of cutoffs that cannot be told apart from the best |
 | `TABLE_MixedPolicyRanking.csv` | NB3 | every policy and every fixed method on ONE number, pooled over the sixteen claims. This is where the four one-axis variants say that the WEIGHTING switch does the work and the family switch does not |
-| `TABLE_MixedPolicyWeighting.csv` | NB3 | the share of datasets on which a market-weighted fit beats its own uniform-weighted twin, by size band. It crosses half at the cutoff, for both families, with nothing tuned to make it |
+| `TABLE_MixedPolicyWeighting.csv` | NB3 | the share of datasets on which a fit using the TRUE market shares beats its own uniform-weighted twin, by size band, with the Kish effective sample size beside it. It crosses half at the cutoff, for both families, with nothing tuned to make it |
 | `TABLE_MixedPolicyPooled.csv` | NB3 | pooled relative error over every claim belonging to a pLCA group, by three splits of the group's composition. **The `n_above` split carries its own control**: at 0 and at 4 the rule IS a fixed policy and the gain must be exactly zero |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
@@ -1476,7 +1501,7 @@ the worst observed value.
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 | `test_metricreduction.py` | 59 | a cross-validated gain cannot be bought by adding a useless term and its fold spread grows as the data thin; a negative R2 is reported rather than clipped, which is what exposed the empirical arm; forward selection refuses a near-duplicate column; the policy curve puts its flat region around the true crossover and beats both fixed policies; the effective sample size matches its closed forms; a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
 | `test_metricset.py` | 28 | the new companion is a SHARE read at the BUILDING's bad end and not at the material's, with a planted case where one material drives the total's upper tail and the two metrics have to disagree; the corrected cap rank-1 frequencies sum to exactly 1.0 across the materials and are the old count divided by the measured applicability; a method that IS the truth has exactly zero recovery error, recovery grows with the error, and a method that reports one number for every material cannot score better than one that tracks the truth with noise; the argmax agreement is 1.0 for the truth and chance for a shuffle; the contaminated model inverts its own mixture CDF and reduces to its base at zero weight; **W1 over the scoring grid alone gives the SAME score at ten, a hundred and a thousand times the mean while the tail term rises with the distance**; and a share saturates under contamination while a mean, a standard deviation and a variance share do not. **Two tests pin the two divisors apart**: `rel_error` is the error over the true LEVEL and `recovery` the error over the true SPREAD, their ratio is not one, and a single planted near-zero truth cannot move `rel_error`, which is why it is a ratio of means and not the ordinary mean absolute percentage error. **Three more pin this stage's review**: the display rename maps only the weighting and leaves `fitting.PEWT` untouched; the size-band split recovers an ordering that flips with dataset size where the pooled table cannot see it; and an output with a true value of zero is skipped rather than divided by |
-| `test_mixedpolicy.py` | 33 | the rule reads NOTHING but the dataset's size, and the interface cannot express a second selector; adding the policy refits nothing and the selected model object is the same object, so a group entirely on one side of the threshold reproduces that fixed policy bit for bit and the six fixed policies come back identical from a truth run whether or not the seventh is present; the fit score is a SELECTION out of the six-method table and cannot disagree with it; the paired bootstrap agrees with `plca.cluster_bootstrap`; a policy that IS a fixed policy on every unit scores a gain of exactly zero with an interval that closes on it, which is the null control; the oracle is a per-unit minimum and not a grand mean, which is the defect the first draft had; a design PAIR is not given a pLCA group's composition even though their ids collide; and no display label uses the retired weighting vocabulary. **The sweep adds**: every swept cutoff and every variant reads only the size; the study's cutoff keeps its bare name inside the sweep so older tables still join; the gain's comparator is one of the SIX FIXED methods and never a neighbouring cutoff, which would collapse it; a planted curve's minimum and a range around it are recovered, and a flat curve gives a wider range than a steep one; and pooling covers the design comparison's own unit universe rather than leaving it a column of NaN |
+| `test_mixedpolicy.py` | 36 | the rule reads NOTHING but the dataset's size, and the interface cannot express a second selector; adding the policy refits nothing and the selected model object is the same object, so a group entirely on one side of the threshold reproduces that fixed policy bit for bit and the six fixed policies come back identical from a truth run whether or not the seventh is present; the fit score is a SELECTION out of the six-method table and cannot disagree with it; the paired bootstrap agrees with `plca.cluster_bootstrap`; a policy that IS a fixed policy on every unit scores a gain of exactly zero with an interval that closes on it, which is the null control; the oracle is a per-unit minimum and not a grand mean, which is the defect the first draft had; a design PAIR is not given a pLCA group's composition even though their ids collide; and no display label uses the retired weighting vocabulary. **The sweep adds**: every swept cutoff and every variant reads only the size; the study's cutoff keeps its bare name inside the sweep so older tables still join; the gain's comparator is one of the SIX FIXED methods and never a neighbouring cutoff, which would collapse it; a planted curve's minimum and a range around it are recovered, and a flat curve gives a wider range than a steep one; and pooling covers the design comparison's own unit universe rather than leaving it a column of NaN. **And the two rule families**: the feasible one uses uniform weights on both sides, a curve over both families at once is refused, and the synthetic market weights carry the TRUE group-level shares, which is the claim three stages described backwards |
 | `test_remetric.py` | 3 | `remetric_corpus` relabels the parent-spec replay cache it copies, a cache from a genuinely DIFFERENT corpus is still refused, and the values are copied byte for byte while the characteristics really are recomputed |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch

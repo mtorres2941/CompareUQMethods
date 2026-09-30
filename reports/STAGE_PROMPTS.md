@@ -151,6 +151,24 @@ GENERATOR -- genconfig.DEFAULT (src/genconfig.py)
         plca.TRUTH_SCHEME_SAMPLING            uniform
         plca.COMPARISON_MARGINS               (1.0, 1.05, 1.2)
     
+    MIXED POLICY -- src/mixedpolicy.py, added by Stage 2j
+        mixedpolicy.MIXED_THRESHOLD           81
+        mixedpolicy.FEASIBLE_ABOVE            KDE, Uniform
+        mixedpolicy.FEASIBLE_BELOW            Lognormal, Uniform
+        mixedpolicy.LARGE_METHOD              KDE, Variable
+        mixedpolicy.SMALL_METHOD              Lognormal, Uniform
+        mixedpolicy.SWEEP_THRESHOLDS          (3, 10, 20, 30, 50, 70, 81,
+                                               100, 130, 200, 300, 1000,
+                                               3000, 10000)
+        THE RULE THE PAPER RECOMMENDS is the FEASIBLE one: uniform
+        weights throughout, the FAMILY switching at the cutoff. The
+        pair above it -- KDE with market weights over a lognormal with
+        uniform weights -- needs market shares nobody publishes and is
+        a value of information, not a method. Decision 216.
+        THE PUBLISHED CUTOFF RANGE is 50 to 130, the feasible rule's
+        own indistinguishable span. 81 is a FIT-level argmin and is not
+        to be printed as a claim-level number. Decisions 218, 220.
+    
     ACTIVE CORPUS
         data/processed/CORPUS.json               corpus_2026-09-25
     
