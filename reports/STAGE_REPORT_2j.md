@@ -76,8 +76,18 @@ than the same fit with every declaration weighted equally:
     lognormal         32.8    42.5    53.6     64.6    78.7
     kernel            38.5    44.1    52.7     59.0    76.2
 
-**Below about 81 declarations, knowing the shares does not help.** It crosses
-half at the cutoff, for both families, with nothing tuned to put it there.
+**Below about 81 declarations, knowing the shares does not help, and above a
+thousand it helps a great deal.** Those two ends are solid: 611 and 615 datasets
+with binomial standard errors of 2.0 points.
+
+**WHERE THE CROSSING SITS IS NOT PINNED DOWN, and an earlier draft of this report
+claimed it landed exactly at the cutoff.** The 81-to-99 band holds **52 of 2,500
+datasets** -- the corpus stratifies at 3-9 / 10-99 / 100-999 / 1000-9999, so that
+band is a sliver of one stratum -- and its binomial standard error is **6.9
+points**, so 51.9 percent is a coin flip. Two independent 2,000-dataset draws
+disagree on the SIGN there. **So the claim is that the crossing lies somewhere
+between about 80 and 1,000 declarations, and this design cannot place it more
+precisely than that.**
 
 ### Why: the crossover is in the MEAN
 
@@ -142,11 +152,18 @@ true market-weighted parent:
     how far the two populations differ  ~0.10 to 0.12, at every size
 
 **The market-weighted fit converges: 0.30 to 0.029, still falling. The
-uniform-weighted fit does not: it flattens at 0.084 against a floor of 0.099,
-which is the distance between the population that publishes and the population
-that gets built.** No quantity of EPDs gets a uniform-weighted fit below that
-floor. Below 81 declarations its variance advantage is bigger than the floor;
-above it, it is not.
+uniform-weighted fit does not: it flattens at about 0.084 while the
+market-weighted one keeps going.** The third row is how far apart the two
+POPULATIONS are -- the one that publishes EPDs and the one that gets built --
+and it is why the uniform-weighted fit has somewhere to flatten.
+
+**It is not a hard floor, and an earlier draft of this report said it was.** The
+uniform-weighted fit sits BELOW that separation in the top two bands, 0.0968
+against 0.0994 and 0.0844 against 0.0995, because a fit to a finite sample does
+not sit at the uniform-weighted population exactly and its sampling error can
+land it nearer the market-weighted one. The separation bounds the fit's distance
+only up to that error. What survives, and is what the table shows, is that one
+curve keeps falling and the other stops.
 
 ### The bandwidth, settled three ways
 
@@ -173,9 +190,11 @@ above a thousand.
 
 ## 3. What the feasible rule buys, claim by claim
 
-Against the best of the three uniform-weighted methods on each claim -- a
-harder test than the pooled comparison, because the comparator changes per
-claim -- with a paired cluster bootstrap over pLCA groups:
+**At a cutoff of 81**, against the best of the three uniform-weighted methods on
+each claim -- a harder test than the pooled comparison, because the comparator
+changes per claim -- with a paired cluster bootstrap over pLCA groups. (81 is
+the FIT-level argmin, not the claim-level one; what this table looks like at 130,
+the claim-level argmin and the top of the published range, is not yet measured.)
 
     the chance of meeting a budget                 +6.42   [ 5.61,  7.23]
     a cap's chance of saving 5 pct                 +2.81   [ 1.61,  3.93]
@@ -194,6 +213,14 @@ claim -- with a paired cluster bootstrap over pLCA groups:
     a material's chance of being largest           -0.53   [-0.97, -0.07]
     a material's share of the total                -0.63   [-0.83, -0.44]
     using 25 pct less: its mean saving             -0.63   [-0.82, -0.43]
+
+**Two of those sixteen rows are one claim counted twice.** Using 25 percent less
+of a material removes exactly a quarter of its share of the building total, so
+its error IS that share's error (decision 186), and both read -0.63. Counting it
+once gives **9 of 15 and a median of +1.0 percent**, which is the pair to
+publish. And the uncertainty index's comparator is `Normal, Uniform`, the method
+the paper tells readers not to use, so that row is not a loss to a method anyone
+would field.
 
 **So what.** Switching family by size buys accuracy on the tail and
 intervention claims -- budget compliance, what a cap delivers -- and costs a

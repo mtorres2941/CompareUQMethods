@@ -1105,7 +1105,9 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 591 tests, about 170 seconds
+python -m pytest tests/          # 628 tests, 2 skipped, about 180 s
+                                 # the 2 skips are notebooks 1 and 2
+                                 # having no OUT cell; Stage 3 owns it
 ```
 
 Headless execution, from `notebooks/`:

@@ -113,6 +113,14 @@ def main(n_datasets, seed):
                 BW_MULTIPLES[int(np.argmin(swept))])
         rows.append(row)
     out = pd.DataFrame(rows)
+    # PROVENANCE, required of every table this project writes: which
+    # corpus, and which empirical weight rule. The rule is stamped even
+    # though every row here is SYNTHETIC-arm, so a reader can see that it
+    # did not apply -- decision 212 is about exactly that confusion.
+    import empirical                                          # noqa: E402
+    out['corpus'] = os.path.basename(corpus.active_dir())
+    out['weight_rho'] = empirical.WEIGHT_RHO
+    out['arm'] = 'synthetic'
     for tag in ('neff', 'count', 'best'):
         out[f'market_helps_{tag}'] = out[f'market_{tag}'] < out[f'uniform_{tag}']
     os.makedirs('outputs/tables/audits', exist_ok=True)
@@ -141,8 +149,11 @@ def main(n_datasets, seed):
     print('survives there, no bandwidth rule causes it.')
     print()
     print('`parent_separation` is how far the market-weighted population sits')
-    print('from the sampling population: the BIAS a uniform-weighted fit')
-    print('carries whatever its bandwidth. It is the other half of the trade.')
+    print('from the sampling population, which is why a uniform-weighted fit')
+    print('has somewhere to flatten. IT IS NOT A FLOOR the fit stays above:')
+    print('a fit to a finite sample does not sit at the uniform-weighted')
+    print('population, and its sampling error can land it nearer the')
+    print('market-weighted one, which is what happens above 100 declarations.')
     return summary
 
 

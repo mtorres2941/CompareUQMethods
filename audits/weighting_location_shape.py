@@ -110,6 +110,14 @@ def main(n_datasets, seed):
             row[f'logn_{label}_shape'] = sh
         rows.append(row)
     out = pd.DataFrame(rows)
+    # PROVENANCE, required of every table this project writes: which
+    # corpus, and which empirical weight rule. The rule is stamped even
+    # though every row here is SYNTHETIC-arm, so a reader can see that it
+    # did not apply -- decision 212 is about exactly that confusion.
+    import empirical                                          # noqa: E402
+    out['corpus'] = os.path.basename(corpus.active_dir())
+    out['weight_rho'] = empirical.WEIGHT_RHO
+    out['arm'] = 'synthetic'
     os.makedirs('outputs/tables/audits', exist_ok=True)
     out.to_csv('outputs/tables/audits/TABLE_WeightingLocationShape.csv',
                index=False)

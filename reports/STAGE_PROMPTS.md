@@ -2956,11 +2956,14 @@ owes the intuition in plain words, not just the three tests.**
 
 **THIS STAGE'S FIRST TWO TASKS, in order.**
 
-1. **Mark the twelve unmarked `savefig` cells in notebooks 1 and 2.** The fast
-   renderer refuses a notebook that has any unmarked figure cell, by design
-   (decision 56), so those two notebooks currently cost a full run per figure
-   edit. Marking them unlocks seven-second figure rounds and is the prerequisite
-   for everything below. Notebook 3 is already fully marked.
+1. **Give notebooks 1 and 2 an `OUT` cell AND mark their twelve unmarked
+   `savefig` cells.** There are TWO blockers and the first is the one this file
+   used to get wrong: `audits/render_figures.py` raises on a missing setup cell
+   BEFORE it checks markers, and neither notebook defines `OUT`, so marking alone
+   unlocks nothing. `tests/test_render_figures.py` skips both notebooks today
+   with the reason "has no setup cell". Clearing both gives seven-second figure
+   rounds and is the prerequisite for everything below; notebook 3 is already
+   done and is the worked example.
 2. **Add the feasible rule as a seventh scorecard column** (decision 211) and
    fold Stage 2j's per-claim gains into it, then do the caption sweep described
    below.
