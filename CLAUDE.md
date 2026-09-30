@@ -2641,12 +2641,15 @@ rather than in conversation.
      summary drifting rather than the pLCA changing.
 
      At four materials the recomputed crossings are 0.0012, 0.0087 and 0.0216
-     against the stored 0.0018, 0.011 and 0.025, which is the same two
+     against the stored 0.0018, 0.011 and 0.025, which is the same two **[SUPERSEDED CONSTANTS -- the published values are 0.0029, 0.015 and 0.032; see decision 223.]**
+    
      significant figures given that these use 300 resampled groupings against
      the stored values' 2,500 and that decision 95 already records a 30 percent
      interval width. **`flip.FLIP_THRESHOLDS` is unchanged and notebook 1's
      weighting-risk probabilities are not recomputed.** The paper states the
      conditionality with the measured dependence beside it.
+
+     **THE CONSTANTS IN THIS ENTRY ARE SUPERSEDED. `flip.FLIP_THRESHOLDS` carries 0.0029, 0.015 and 0.032 from the close of Stage 2h; the values printed here are the pre-recalibration ones. See decision 223 -- do not publish the numbers in this entry.**
 
 109. **2026-09-18, Stage 2e. THE pLCA AGAINST THE TRUTH: the KDE and the
      lognormal are INDISTINGUISHABLE at the decision level, the normal is 40
@@ -5688,7 +5691,8 @@ rather than in conversation.
      intervals are narrower than the disagreement between two link functions,
      so they understate uncertainty.** `[MANUSCRIPT SESSION ASKED]` The
      question, prompted by the logistic misfitting the design comparison: were
-     the flip thresholds of 0.0018, 0.011 and 0.025 and the safe-lead ratio of
+     the flip thresholds of 0.0018, 0.011 and 0.025 and the safe-lead ratio of **[SUPERSEDED CONSTANTS -- the published values are 0.0029, 0.015 and 0.032; see decision 223.]**
+    
      2.13 produced by the same fit, and do observations sit either side of
      them?
 
@@ -8097,3 +8101,35 @@ rather than in conversation.
      eighty that is too few to beat an unweighted average of all of them.
 
          python audits/weighting_location_shape.py --n 2000
+
+223. **2026-09-30, Stage 2j review. `flip.FLIP_THRESHOLDS` IS 0.0029, 0.015 AND
+     0.032, AND FOUR DECISION ENTRIES STILL PRINT THE VALUES IT REPLACED. The
+     code is right and the log is stale.** `[DELEGATED, found by the Stage 2j
+     review]`
+
+     `src/flip.py` carries `{0.01: 0.0029, 0.05: 0.015, 0.10: 0.032}`. Decisions
+     **95, 108, 173 and 175** print **0.0018, 0.011 and 0.025** as the published
+     crossings, in seven places, none of which says they were superseded.
+
+     **The code is the current value and it is an AUTHOR decision, not a drift.**
+     The recalibration was taken at the close of Stage 2h and is recorded in
+     `reports/START_HERE.md` section 5: the three stored values had all fallen
+     outside their own recomputed 95 percent intervals -- 0.0018 against a
+     recomputed 0.00291, 0.011 against 0.01502, 0.025 against 0.03157, off by
+     factors of 1.62, 1.37 and 1.26 -- and notebook 1 was re-run on the new
+     constants, moving the mean probability that unknown market shares change
+     which material leads from 0.9870 to 0.9734 at the 1 percent level, 0.8642
+     to 0.8144 at 5 percent and 0.7105 to 0.6524 at 10 percent.
+
+     **WHY IT MATTERS ENOUGH TO GET ITS OWN ENTRY.** These are PUBLISHED
+     CONSTANTS. A manuscript session reading the decision log rather than the
+     code would print numbers 30 to 45 percent low, and the log is the thing
+     this project tells such a session to read. The four entries now carry a
+     superseding note in place; this entry is where the current values live.
+
+     **AND THE PROSE RULE OF DECISION 175 APPLIES TO THE NEW VALUES TOO**, so
+     whatever the paper prints must be fitted both ways and rounded at the first
+     digit the two fits disagree on. That has not been redone since the
+     recalibration and Stage 3 owns it.
+
+         python -c "import sys; sys.path.insert(0,'src'); import flip; print(flip.FLIP_THRESHOLDS)"

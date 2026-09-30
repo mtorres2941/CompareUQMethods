@@ -81,8 +81,19 @@ ORACLE = 'Oracle, per material'
 #: reproduce those two fixed methods exactly**, and if they do not, the sweep
 #: is wrong. Widened 2026-09-29 at the author's request, from a range that
 #: stopped at 20 and 220 and so could not show either end.
-SWEEP_THRESHOLDS = (3, 10, 20, 30, 50, 70, 81, 100, 130, 200, 300, 1000,
-                    3000, 10000)
+#: WIDENED AGAIN 2026-09-30, to every 10 from 10 to 200, at the author's
+#: instruction: "why not every 10? Seems cheap to fill in." Both published
+#: bounds of the old range were GRID EDGES -- 50 was in with 30 out and nothing
+#: between, 130 was in and was also the argmin, with nothing between it and 200
+#: -- so the range could not be distinguished from an artifact of where the
+#: points happened to sit. A uniform grid cannot be accused of that.
+#: 81 is kept although it is off the uniform grid, because `sweep_policies`
+#: gives the study's own threshold the bare name `Mixed` and every table and
+#: figure written before the sweep existed joins on it.
+SWEEP_THRESHOLDS = (3,
+                    10, 20, 30, 40, 50, 60, 70, 80, 81, 90, 100,
+                    110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
+                    300, 500, 1000, 3000, 10000)
 
 
 def select_method(n, threshold=MIXED_THRESHOLD, large=LARGE_METHOD,
