@@ -135,6 +135,15 @@ GENERATOR -- genconfig.DEFAULT (src/genconfig.py)
     FLIP -- src/flip.py
         flip.FLIP_THRESHOLDS                  {0.01: 0.0029, 0.05: 0.015, 0.1: 0.032}
         flip.PROSE_MAX_SIGFIGS                4
+        STAGE 3 ADDED ONE GUARD TO `prose_digits` AND NO CONSTANT MOVED.
+            The rule prints a crossing at the first significant figure the
+            logistic and the isotonic fit disagree on; the chosen digit must
+            now ALSO satisfy that the gap between the PRINTED numbers is at
+            most twice the gap between the real ones. It rendered 0.015021
+            and 0.013899 -- 7.5 pct apart -- as "0.02 against 0.01".
+            Two prose values move: the 5 pct crossing to "0.015 against
+            0.014" and the 10 pct to "0.0316 against 0.0314". Both of
+            decision 175's published examples are unchanged. Decision 231.
         RECALIBRATED 2026-09-25 by author decision, at the close of Stage
             2h. These REPLACE 0.0018, 0.011 and 0.025, which were
             calibrated on the superseded corpus and had all three fallen
@@ -3987,6 +3996,14 @@ and the deposit must make clear which one the paper describes and that the other
 kept for diffability rather than as a second dataset. And the retired vocabulary --
 "variable", "sampled market shares", "Dirichlet shares" -- has to be swept out of
 column names, filenames and the README, not only out of the figures.
+
+**AND THE REPORT RETENTION RULE IS THIS STAGE'S TO APPLY, added 2026-10-01.**
+CLAUDE.md keeps only the CURRENT stage's report and deletes the earlier ones
+when the project closes, which is here. That is six `HANDOFF_stage-*.md` files
+and `STAGE_REPORT_2j.md`. **Before deleting any of them, check that nothing
+outstanding lives only there**: an unresolved item belongs in the decision log
+or in `MANUSCRIPT_discrepancies.md`, not in a file about to be removed. Git
+history retains them, which is what makes the deletion safe.
 
 **TWO ITEMS STAGE 3 LEFT ARE THIS STAGE'S, added 2026-10-01.** Both are
 repository work and one notebook-3 run verifies both together. First, the

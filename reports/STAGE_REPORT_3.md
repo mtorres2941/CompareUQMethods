@@ -36,12 +36,10 @@ market weights side by side in a row, log y axis, rows ordered by importance
 read from the reduction table. **The three-curve alternative you asked to
 compare it against is beside it**, `FIG_WeightingGap_*`.
 
-**The scorecard has its seventh column**, its columns grouped by whether a
-reader can choose them at all, and a new headline: **more error remains than any
-choice of method can remove, on all 16 claims.** Under the best method a median
-22.6 percent of the true level is still wrong; the spread between methods is a
-median 6.0. The size rule is closest of the four a reader can choose on 10 of
-16.
+**The scorecard has its seventh column**, and its columns are now grouped by
+whether a reader can choose them at all: three uniform-weighted fits and the
+size rule on the left, the three that need market shares on the right. Its
+headline is **the size rule is the best available choice on 10 of 16 claims.**
 
 **Five figures had no generator anywhere** and are in `archive/` with reasons.
 Four tests now fail on a duplicate filename, an orphan, a retired weighting word
@@ -113,7 +111,10 @@ single method they could have fixed on instead.
 fits and the size rule on the left, the three that need product-level market
 shares -- which nobody publishes -- on the right. A solid box marks the closest
 of the four a reader can choose, a dashed box the closest of all seven where
-market weights win. The lower panel keeps the same positions so a column can be
+market weights win; the title counts the solid boxes. Pooled over the sixteen
+claims the rule reads 23.25 against 23.92 for a kernel estimate with uniform
+weights and 23.96 for a lognormal, so the margin behind that count is 0.7
+points. The lower panel keeps the same positions so a column can be
 read straight down, and leaves the size rule blank because inside a size band it
 IS whichever fixed method it collapses to. Every cell is the mean absolute error
 against the true parent per unit, as a percentage of the true level of the same

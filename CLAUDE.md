@@ -8344,10 +8344,19 @@ rather than in conversation.
 
      **The rule is closest of ALL SEVEN on 2 of 16 claims and closest of the
      FOUR A READER CAN CHOOSE on 10 of 16.** Both are true and they answer
-     different questions, so the figure draws two boxes, black for the best of
-     seven and dashed for the best of the four, and asterisks the three
-     market-weighted columns with one footnote saying they need product-level
-     shares nobody publishes.
+     different questions.
+
+     **THE FIGURE IS GROUPED BY WHETHER A READER CAN CHOOSE A COLUMN AT ALL**,
+     which is the distinction the paper turns on and which the old ordering
+     buried: three uniform-weighted fits and the size rule on the left under
+     "what a reader can choose", the three needing market shares on the right
+     under "what market shares would buy", a gap between, and the lower panel
+     on the same positions with the size rule blank. A solid box marks the best
+     of the four, a dashed box the best of all seven. **The title is the solid
+     box count** -- "switching family by dataset size is the best available
+     choice on 10 of 16 claims", chosen by the author from four options on
+     2026-10-01. The margin behind it is 0.7 points pooled, 23.25 against
+     23.92, which the cells show and the title does not.
 
      **NEITHER IS DECISION 217'S 9 OF 16.** That one is the rule's gain over the
      best uniform-weighted method for each claim with a PAIRED interval
