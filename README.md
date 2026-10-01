@@ -52,7 +52,8 @@ CompareUQMethods/
 |   |-- raw/                           # Frozen, checksummed EC3 extracts
 |   `-- processed/                     # Corpus pointer and prepared empirical arm
 |-- outputs/
-|   |-- figures/                       # Publication figures (PNG, 300 dpi)
+|   |-- figures/                       # Publication figures, PNG at 300 dpi
+|   |                                  # with a PDF sibling for each
 |   `-- tables/                        # Result tables (CSV, XLSX, Parquet)
 |-- reports/                           # Stage handoff and manuscript discrepancies
 |-- CLAUDE.md                          # Project brief and the full decision log
@@ -61,8 +62,17 @@ CompareUQMethods/
 `-- LICENSE
 ```
 
-Every figure and table under `outputs/` is written by one of the four notebooks
-and by nothing else. Audit scripts write only to `outputs/tables/audits/`.
+**Every figure and table under `outputs/` is reproducible from a notebook cell,
+and the code that produces it lives in a notebook.** Nothing reaches `outputs/`
+whose source a reader cannot open and read there. A different EXECUTOR of a
+notebook's own cells is allowed -- `audits/render_figures.py` re-runs the
+notebook's figure cells verbatim so a figure can be iterated on in seconds
+instead of in a notebook run -- and a different AUTHOR is not. Audit scripts
+write only to `outputs/tables/audits/`.
+
+`python audits/figure_manifest.py` lists every image with the code that writes
+it, and fails the test suite on an image with no generator or a filename two
+places write.
 
 ---
 
@@ -177,10 +187,21 @@ Run the notebooks in order from the `notebooks/` directory:
 04_CompareUQ_ReduceMetrics.ipynb ->  outputs/figures/, outputs/tables/
 ```
 
-Notebook 3 is the expensive one, at roughly an hour of cell time. It and
-notebook 2 both accept a smoke configuration that redirects every write to a
-temporary directory, so a structural check can be run without touching
-`outputs/`.
+Approximate cell time on a 2026 laptop: notebook 1 about 30 minutes, notebook 2
+about 35, notebook 3 about three and a quarter hours, notebook 4 about 20.
+
+**Notebook 3 is the expensive one and the only one with a smoke configuration**:
+`COMPAREUQ_SMOKE_COMBOS=20` runs 20 probabilistic LCAs instead of 2,500 and
+redirects every write to a temporary directory, so the pipeline can be exercised
+end to end in under a minute without touching `outputs/`. Use it before any full
+run.
+
+**To change a figure without re-running anything**, use the renderer:
+
+```
+python audits/render_figures.py 02_CompareUQ_AnalyzeData --only "regret"
+python audits/render_figures.py 02_CompareUQ_AnalyzeData --into-outputs
+```
 
 The tests run with `pytest` from the repository root and cover the source
 library and the notebooks themselves, including that every code cell parses,
