@@ -181,6 +181,30 @@ which is decision 184's own control, and one drawn per material does not.
 
     bash -c 'for a in upper_truncation bandwidth_rules judgment_arm credit_design bandwidth_downstream; do python audits/$a.py; done'
 
+## 3b. The backwards control ran for the first time, and it loses
+
+Stage 2j built `MixedBackwards` -- market weights BELOW the cutoff and uniform
+above, the rule the wrong way round -- as a control that should lose to both
+recommended rules, and left it unrun. Notebook 3's re-run is the first time it
+has been scored.
+
+**It loses, and by more than any fixed non-normal method.** Pooled over the
+sixteen claims: the known-share rule **0.2025**, a kernel estimate with market
+weights 0.2293, the feasible rule **0.2325**, a lognormal with market weights
+0.2365, a kernel estimate with uniform weights 0.2392, a lognormal with uniform
+weights 0.2396, **the backwards rule 0.2591**, and the two normals 0.3144 and
+0.3165.
+
+**So what.** The direction of the rule is not arbitrary. Putting market weights
+on the small datasets, where decision 222 shows they make the estimate of the
+mean worse, and withholding them from the large ones, where they help, is worse
+than any fixed choice a reader could have made other than fitting a normal.
+
+**And adding it changed nothing else**: all 61 policies that already existed
+move by at most 1.1e-16 in pooled error.
+
+    python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_MixedPolicyRanking.csv'); print(d.nsmallest(9,'pooled_error')[['display','pooled_error']].to_string(index=False))"
+
 ## 4b. The caption sweep, and the one stale number it found
 
 Every figure title in the four notebooks was checked for a hard-coded number.
@@ -263,6 +287,7 @@ too.
 | item | |
 |---|---|
 | **31 of 37 marked figure cells do not call `figstyle.apply()`**, so they follow the palette, the type sizes and the spine rules of whatever they were written with. The ASCII-minus requirement is now met at notebook level, which was the correctness half; the rest is a redesign of 31 figures and is a Stage 4 or manuscript-session job. `outputs/tables/audits/TABLE_FigureStyleCompliance.csv` names them |
+| **The composition split still covers the known-share rule only.** Stage 2j left it for the next full run; that run has happened and the split is unchanged, because widening it to the feasible rule needs a code change nobody has made. `TABLE_MixedPolicyPooled.csv` has columns for `Lognormal, Uniform`, `KDE, Variable` and `Mixed` and none for `Feasible@80` |
 | **Nine of notebook 3's thirteen figure cells cannot be rendered on their own**, so a figure change there still costs a three-hour run. `outputs/tables/audits/TABLE_FigureRendererSafety.csv` names them and what each needs; four of the nine need only `dct_resultlabels` and a frame that is already on disk |
 | **"Report every aggregate in a figure with its confidence interval" is NOT done.** The scorecard's table carries them and the cutoff curve draws them; the merged distance-and-rank figure prints a mean W1 per method with no interval, and so do the bandwidth figure and the two strip supplements. A static sweep lists thirteen candidate cells, several of which are scatters of every dataset and need none. The command below prints the list; deciding which of them is really an aggregate is a figure-by-figure judgment and is Stage 4's |
 | **`FIG_MetricCoverage` still needs its claim restated in the text** from the rebuilt table: the figure is current, the sentence in the manuscript is not |

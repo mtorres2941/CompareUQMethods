@@ -40,6 +40,12 @@ RE_FNAME_VAR = re.compile(r"['\"]([A-Za-z0-9_\-]*CompareUQMethods[A-Za-z0-9_\-]*
 #: family; the brace is where the varying part starts.
 RE_TEMPLATED = re.compile(r"f['\"]([A-Za-z0-9_\-]+)\{[^'\"]*\.(?:png|pdf|svg)['\"]")
 RE_STEM_VAR = re.compile(r"['\"]((?:FIG|SUPP|DEF)[A-Za-z0-9_\-]*)['\"]")
+#: A stem BUILT with an f-string, e.g. f'FIG_W1VsSurvivors_{arm.capitalize()}'.
+#: Stage 3's rebuilt Figure 4 and its alternative are written per arm this way,
+#: and without this they were reported as orphans: the plain-stem pattern above
+#: stops at the brace, and the templated-FILENAME pattern wants the extension
+#: inside the literal, which a stem does not carry.
+RE_STEM_FSTRING = re.compile(r"f['\"]((?:FIG|SUPP|DEF)[A-Za-z0-9_\-]*)\{")
 
 
 #: Scratch notebooks kept for history. They are not part of the analysis, they
@@ -97,6 +103,8 @@ def generators():
         for m in RE_TEMPLATED.finditer(text):
             names.add(f'{m.group(1)}{{...}}.png  [templated]')
         if 'figstyle.savefig' in text:
+            for m in RE_STEM_FSTRING.finditer(text):
+                names.add(f'CompareUQMethods_{m.group(1)}{{...}}.png  [templated]')
             for m in RE_STEM_VAR.finditer(text):
                 names.add(f'CompareUQMethods_{m.group(1)}.png')
                 names.add(f'CompareUQMethods_{m.group(1)}.pdf')
