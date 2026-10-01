@@ -1,308 +1,292 @@
-# Stage 2j: let the method vary by material
+# Stage 2j: let the UQ method vary by material
 
-**Branch** `stage-2j-per-material`. **Corpus** `corpus_2026-09-25`, **weight
-rule** `rho = 0.5`, for every number here; both are stamped on every table this
-stage writes. **Run:** 2,500 pLCA groups against the true parents, 6 fixed
-methods plus 31 candidate rules on one set of variates.
+**Corpus** `corpus_2026-09-25`. **Every number here is the SYNTHETIC arm**, where
+each point's weight is the TRUE market share of its product group, exact to
+1.1e-16 -- not a guess (decision 212). 2,500 pLCA groups run twice on the same
+uniform variates, once with fitted models and once with the true parents, so the
+difference carries no Monte Carlo noise. 57 policy columns. Both facts are
+stamped on every table this stage writes.
+
+**Rebuilt 2026-09-30 from the current tables**, not patched. An earlier version
+carried three claims its own tables contradicted; those are corrected below and
+recorded in decisions 222 to 224.
 
 ---
 
 ## What this found
 
-**1. The rule a practitioner can follow buys a little.** Uniform weights
-throughout, kernel estimate at or above the cutoff and three-parameter
-lognormal below, against the best of the three uniform-weighted methods:
-**+2.9 percent** pooled over the sixteen claims, and claim by claim it beats
-the best fixed method for that claim on **9 of 16**, median **+0.9 percent**.
-The gains sit where it matters most -- the chance of meeting a budget at +6.4
-percent, what a specification cap delivers at +2.8 -- and the losses, four of
-them statistically real, are all under two thirds of a percent.
+**1. Switching family by size beats any fixed method a reader can actually
+use, by about one percent.** Uniform weights throughout, kernel estimate at or
+above the cutoff and three-parameter lognormal below: pooled error **0.2324**
+against the best uniform-weighted fixed method's 0.2392, or **+2.9 percent**.
+Claim by claim against the best fixed method *for that claim*, it wins **9 of
+15** with a median of **+1.4 percent**.
 
-**2. NOT KNOWING MARKET SHARES COSTS ABOUT THREE POINTS OUT OF TWENTY-THREE.**
-Give the same rule the true market shares above the cutoff and the pooled error
-falls from **23.24 to 20.25 percent** of the true level: **2.98 points, or 12.8
-percent of what was there.** The relative number sounds large and the absolute
-one is the honest frame -- a probabilistic LCA is wrong by about 23 percent
-either way, and knowing every market share exactly would take it to 20. Most of
-the error is not about weighting at all.
+**2. Not knowing market shares costs about three points out of twenty-three.**
+Give the same rule the true shares above the cutoff and the pooled error falls
+from **23.24 to 20.25 percent** of the true level: **2.98 points**, or 12.8
+percent of what was there. The absolute form is the honest one -- a
+probabilistic LCA is wrong by about 23 percent either way. Weighting is not the
+big factor, which is a reassuring result rather than a disappointing one.
 
-**3. Where the cutoff sits barely matters.** Swept 3 to 10,000 declarations.
-For the feasible rule **everything from 50 to 130 is statistically
-indistinguishable** from the best and the whole sweep spans 0.73 points.
-**Publish 50 to 130.** The sweep's four degenerate ends reproduce their fixed
-methods to 0.00e+00, which is the check that the machinery is right.
+**3. The cutoff barely matters: publish 40 to 170 declarations.** Swept every 10
+from 10 to 200, plus both degenerate ends. Everything from 40 to 170 is
+statistically indistinguishable from the best, in one unbroken run, and the
+whole sweep from 3 to 10,000 is worth 0.73 points against the 2.98 that market
+shares are worth.
 
-**4. MARKET SHARE IS NOT THE PROBLEM; TOO FEW DECLARATIONS TO USE IT IS.**
-Knowing the true market shares makes your estimate of the market-weighted MEAN
-worse below about eighty declarations and four times better above a thousand --
-no distribution, no kernel, no bandwidth in it. With two declarations carrying
-ninety percent of the weight you over-index on two values that may not
-represent their own product group. Section 2.
+**4. Market share is not the problem; too few declarations to use it is.**
+Knowing the true shares makes a fit WORSE below about 80 declarations and much
+better above 100. With two declarations carrying ninety percent of the weight
+you over-index on two values that may not represent their own product group.
 
-**Needs an author decision:** nothing blocking. The judgment left is how the
-paper frames a 0.9 percent method improvement beside a 3-point value of
-market-share data.
+**Needs an author decision: nothing.**
 
 ---
 
 ## 1. Two rules, and only one of them is a method
 
-    policy                                            pooled error over 16 claims
-    FEASIBLE: uniform weights, kernel above the cutoff, lognormal below   0.2324
-      KDE, uniform weights                                                0.2392
-      Lognormal, uniform weights                                          0.2396
-      Normal, uniform weights                                             0.3144
-    KNOWN SHARES: the same switch, market weights above the cutoff        0.2025
-      KDE, market weights                                                 0.2293
-      Lognormal, market weights                                           0.2365
+                                             pooled error over 16 claims
+    FEASIBLE: uniform weights, family switches at the cutoff      0.2324
+      KDE, uniform weights                                        0.2392
+      Lognormal, uniform weights                                  0.2396
+      Normal, uniform weights                                     0.3144
 
-**Which half of the known-share switch does the work.** Holding one axis and
-switching the other: weighting only, 0.2092 and 0.2096; family only, 0.2295,
-which is the best fixed method to three decimals. The family switch is what a
-reader can do and it is the smaller half.
+    KNOWN SHARES: the same switch, true market shares above it    0.2025
+      KDE, market weights                                         0.2293
+      Lognormal, market weights                                   0.2365
+
+**Only the first is implementable.** Nobody publishes market shares, so uniform
+weighting is not a choice a practitioner makes -- it is the only option -- and
+what they CAN choose is which family to fit (decision 216). The second rule is a
+value of information, and the gap between the two is what that information is
+worth.
+
+**So what.** A reader with a set of EPDs and nothing else can count them and
+pick a curve, and that is worth about one percent of the error in a
+probabilistic LCA. Obtaining real production volumes would be worth four times
+as much.
 
     Reproduce: outputs/tables/TABLE_MixedPolicyRanking.csv
 
-## 2. What NOT knowing a market share costs
+## 2. Where the cutoff goes, and why there are two numbers
 
-**These are the true shares, not a guess.** At the shipped generator setting
-each synthetic point carries `market[group] * within`, so the weight mass on
-every product group equals that group's true market share to 1.1e-16.
+Swept every 10 from 10 to 200, plus 3, 300, 500, 1,000, 3,000 and 10,000, at
+6,000 bootstrap resamples over pLCA groups.
 
-Share of datasets on which a fit that knows those shares is closer to the truth
-than the same fit with every declaration weighted equally:
+    cutoff     3    10    20    30    40    50    70   100   130   170   200   1000  10000
+    pooled  .2392 .2364 .2337 .2331 .2326 .2324 .2325 .2324 .2324 .2326 .2328 .2348  .2396
+
+**THE RANGE TO PUBLISH IS 40 TO 170.** Those are the cutoffs whose cost cannot
+be told apart from the best, as one unbroken run: 30 falls out below, 180 falls
+out above, and nothing in between does. It is the direct answer to the question
+a practitioner asks -- which cutoffs can I use without paying a measurable
+penalty.
+
+**A second number is printed beside it and is NOT the one to publish.** The
+bootstrap interval of the curve's own argmin is [50, 140]. That answers a
+different question -- where does the single lowest point land on resampling --
+and a practitioner is not choosing the optimum, they are choosing something
+good enough. It is narrower because the curve genuinely tilts at the edges of
+the band (40 sits 0.00025 above the minimum and 170 sits 0.00017 above), not
+because of any artifact; that was checked against a constructed flat region,
+where the argmin interval recovers the region exactly (decision 224).
+
+**And the band is conservative.** Its reference is the argmin of the same data,
+so differences measured against it are biased slightly positive, which makes the
+band if anything too narrow.
+
+**The sweep is self-checking.** The corpus holds 3 to 9,999 declarations, so a
+cutoff of 3 assigns every dataset the kernel estimate and a cutoff of 10,000
+assigns every dataset the lognormal. Both reproduce those fixed methods to
+**0.00e+00**, printed on every run.
+
+**So what.** Anywhere from forty to a hundred and seventy declarations works.
+Getting the number exactly right is worth about a quarter of what having the
+rule at all is worth.
+
+    Reproduce: outputs/tables/TABLE_MixedPolicyThreshold.csv, family=feasible
+
+## 3. What the rule buys, claim by claim
+
+At the best cutoff, against the best of the three uniform-weighted methods **on
+each claim** -- a harder test than the pooled comparison, because the comparator
+changes per claim. Paired cluster bootstrap over pLCA groups; a star marks an
+interval clear of zero. **These are PER-UNIT errors -- the error in one
+building's answer, not in an average over many** (decision 207).
+
+    the chance of meeting a budget                +6.06  [+5.30, +6.79] *
+    a cap: its chance of saving 5 pct             +2.85  [+1.58, +4.00] *
+    a material: its 95th percentile               +2.74  [+2.24, +3.23] *
+    a cap: how often it binds                     +2.26  [+1.05, +3.40] *
+    the total: its mean                           +1.86  [+1.44, +2.31] *
+    the total: its 90th percentile                +1.84  [+0.25, +3.41] *
+    the total: its standard deviation             +1.42  [+0.11, +2.84] *
+    a material: its share at the building's 95th  +1.36  [+0.63, +2.06] *
+    a cap: its mean saving                        +0.87  [+0.56, +1.20] *
+    a material: its standard deviation            +0.59  [-0.38, +1.59]
+    the probability B beats A                     +0.17  [-0.47, +0.78]
+    the uncertainty index                         -0.16  [-1.39, +1.01]
+    a material: its mean contribution             -0.20  [-0.42, +0.03]
+    a material: its chance of being largest       -0.41  [-0.83, +0.00]
+    a material: its share of the total            -0.50  [-0.67, -0.33] *
+
+**Fifteen claims, not sixteen.** Using 25 percent less of a material removes
+exactly a quarter of its share of the building total, so its error IS that
+share's error and the two rows are one claim (decision 186). It is dropped here
+and the published counts are 9 of 15 and a median of +1.4 percent.
+
+**The verdict is stable across the band**: median gain +0.87 at a cutoff of 50,
++0.99 at 80, +1.19 at 100, +1.36 at 130, +0.84 at 150.
+
+**So what.** The rule buys accuracy on the tail and intervention claims -- will
+this building meet its budget, what will a specification cap deliver -- and
+costs a little on the averages, where a lognormal fitted to everything is
+already about as good as anything. Worth doing, not transformative.
+
+    Reproduce: outputs/tables/TABLE_MixedPolicyGain.csv, rule=feasible
+
+## 4. Market share: not the problem, too few declarations to use it is
+
+Share of datasets on which a fit that knows the true shares is closer to the
+truth than the same fit with every declaration weighted equally:
 
     declarations       3-9   10-80   81-99  100-999   1000+
     lognormal         32.8    42.5    53.6     64.6    78.7
     kernel            38.5    44.1    52.7     59.0    76.2
 
-**Below about 81 declarations, knowing the shares does not help, and above a
-thousand it helps a great deal.** Those two ends are solid: 611 and 615 datasets
-with binomial standard errors of 2.0 points.
+**The crossover is in the MEAN, and it is established on the whole corpus.** W1
+is bounded below by the distance between two means, so each fit's distance to
+the true parent splits into LOCATION -- is the fit aimed at the right
+population -- and SHAPE. On all 10,000 datasets, the paired per-dataset
+difference in the location term, kernel at each fit's own best bandwidth:
 
-**WHERE THE CROSSING SITS IS NOT PINNED DOWN, and an earlier draft of this report
-claimed it landed exactly at the cutoff.** The 81-to-99 band holds **52 of 2,500
-datasets** -- the corpus stratifies at 3-9 / 10-99 / 100-999 / 1000-9999, so that
-band is a sliver of one stratum -- and its binomial standard error is **6.9
-points**, so 51.9 percent is a coin flip. Two independent 2,000-dataset draws
-disagree on the SIGN there. **So the claim is that the crossing lies somewhere
-between about 80 and 1,000 declarations, and this design cannot place it more
-precisely than that.**
+    band      datasets   known minus uniform       t
+    3-9          2500        +0.0359            +8.6   knowing shares is WORSE
+    10-80        2280        +0.0152            +3.2   worse
+    81-99         220        -0.0016            -0.2   indistinguishable
+    100-999      2500        -0.0235           -11.1   better
+    1000+        2500        -0.0516           -26.7   better
 
-### Why: the crossover is in the MEAN
+Significantly negative below 80, statistically zero in between, significantly
+positive above 100. The three-parameter lognormal, which has no bandwidth at
+all, gives the same shape.
 
-**The earlier explanation in this report was a restatement rather than a
-mechanism, and the objection to it was right.** Nine EPDs are nine EPDs, and if
-two of them carry ninety percent of the market then the parent really is mostly
-those two products' distribution -- so a fit that accounts for that should be
-closer, not further. The term that was missing is that you hold **two
-observations** of the thing that carries the weight.
+**An earlier version of this report claimed the crossing landed exactly at the
+cutoff.** It rested on a win-share over 52 datasets with a binomial standard
+error of 6.9 points -- a coin flip -- and two seeds disagreed on the sign there.
+The statement above replaces it and is stronger.
 
-W1 is the area between two CDFs and is bounded below by the distance between
-their means. Splitting each fit's distance to the true market-weighted parent
-that way -- LOCATION, whether the fit is aimed at the right population, and
-SHAPE, whether it knows that population -- with the kernel estimate at each
-fit's own best bandwidth, so no bandwidth rule can be the answer:
+**So what, and this is the sentence the paper should carry.** It is not that
+market share is unhelpful. It is that market share with very few declarations
+makes you over-index on a couple of values that may not represent the product
+group carrying the weight. The market-weighted mean of nine EPDs where two carry
+ninety percent of the weight is arithmetically close to the average of two
+numbers and has the standard error of one. Once enough declarations sit inside
+the dominant group, knowing the shares is a large help -- four times better on
+the mean above a thousand EPDs.
 
-    LOCATION, mean over datasets, two independent 2,000-dataset draws
-    declarations        3-9    10-80   81-99  100-999   1000+
-    uniform weights   0.1918  0.1105  0.0742   0.0715  0.0663
-                      0.1912  0.1067  0.0695   0.0682  0.0666
-    known shares      0.2183  0.1117  0.0874   0.0442  0.0153
-                      0.2332  0.1418  0.0611   0.0430  0.0145
+**One precision to keep.** The sample is unrepresentative of the market at every
+size; that is the whole reason weighting exists. What changes with size is how
+many declarations the dominant products have, so the paper writes "enough
+declarations in the products that dominate the market", not "a representative
+sample".
 
-**Knowing the shares makes the MEAN worse below about eighty declarations and
-four times better above a thousand.** The three-parameter lognormal, which has
-no bandwidth at all, gives the same shape on both seeds. So this is not about
-distributional shape, not about a kernel, and not about a bandwidth -- it is in
-the simplest statistic there is, and a reader can check it by hand.
+    Reproduce: python audits/weighting_location_shape.py --n 10000
+               python audits/bandwidth_neff.py --n 2500
 
-**The mechanism, in the two-cities case.** The market-weighted mean of nine EPDs
-where two carry ninety percent of the weight is arithmetically close to the
-average of two numbers, and it has the standard error of one: the effective
-sample size is 2.8 in the median at three to nine declarations. It is aimed at
-exactly the right quantity and it is wild. The unweighted mean of all nine is
-aimed at the wrong quantity -- the population that publishes rather than the one
-that gets built -- and every observation contributes to it. **At nine EPDs the
-noise in the first exceeds the bias in the second. At a thousand, the group
-carrying the weight has hundreds of declarations of its own, the noise is gone,
-and only the bias is left.**
+## 5. At the fit level the rule helps; on the worst single dataset it does not
 
-Shape moves the same way and is the smaller term: 0.074 to 0.079 and 0.080 to
-0.078 at three to nine declarations, against location's 0.19 to 0.23.
+                                      mean W1   over oracle   worst case
+    uniform weights, switch at 130     0.2015      133.8 pct     62.7x
+    KDE, uniform weights               0.2104      145.7         62.7x
+    Lognormal, uniform weights         0.2077      165.5         61.3x
 
-**So what.** Market share is not the problem. **Market share with very few
-declarations is, because it makes you over-index on a couple of values that may
-not represent the product group carrying the weight.** Once enough declarations
-sit inside that group, knowing the shares is a large help -- four times better
-on the mean above a thousand EPDs. One precision to keep: the sample is
-unrepresentative of the market at every size, which is the whole reason
-weighting exists; what changes with size is how many declarations the dominant
-products have, not whether the sample is representative.
+The rule beats both fixed methods on the average fit. On the single worst
+dataset of 10,000 it is identical to always-KDE, because its worst case IS a
+kernel fit above the cutoff. That is one dataset and it is the runaway-tail case
+decisions 152 and 182 already cover with the profile guard and the truncation
+remedy; it is reported rather than treated as a qualification.
 
-    Reproduce: python audits/weighting_location_shape.py --n 2000
+    Reproduce: outputs/tables/TABLE_MixedPolicyFit.csv
 
-**And the consequence is a bias-variance trade with a floor.** Each fit given
-the bandwidth that minimizes its own distance to the truth, mean W1 against the
-true market-weighted parent:
+## 6. Where the gain comes from
 
-    declarations            3-9   10-80   81-99  100-999   1000+
-    uniform weights      0.2621  0.1614  0.1142   0.0968  0.0844
-    known market shares  0.3005  0.1808  0.1361   0.0762  0.0287
-    how far the two populations differ  ~0.10 to 0.12, at every size
+Pooled relative error by how many of a group's four materials sit above the
+cutoff, for the KNOWN-share rule:
 
-**The market-weighted fit converges: 0.30 to 0.029, still falling. The
-uniform-weighted fit does not: it flattens at about 0.084 while the
-market-weighted one keeps going.** The third row is how far apart the two
-POPULATIONS are -- the one that publishes EPDs and the one that gets built --
-and it is why the uniform-weighted fit has somewhere to flatten.
+    above the cutoff   groups   Lognormal, uniform   KDE, market   the rule
+    0 of 4                117          0.3260            0.3687     0.3260
+    1 of 4                572          0.2892            0.3161     0.2735
+    2 of 4                948          0.2516            0.2465     0.2171
+    3 of 4                690          0.2103            0.1658     0.1504
+    4 of 4                173          0.1614            0.0843     0.0843
 
-**It is not a hard floor, and an earlier draft of this report said it was.** The
-uniform-weighted fit sits BELOW that separation in the top two bands, 0.0968
-against 0.0994 and 0.0844 against 0.0995, because a fit to a finite sample does
-not sit at the uniform-weighted population exactly and its sampling error can
-land it nearer the market-weighted one. The separation bounds the fit's distance
-only up to that error. What survives, and is what the table shows, is that one
-curve keeps falling and the other stops.
+The two ends are exact and are the control: where the rule moves nothing, it
+reproduces the fixed method it collapses to. **Everything it buys is in the
+middle**, peaking where two of four materials move -- which is also the
+commonest composition.
 
-### The bandwidth, settled three ways
+**This split is computed for the known-share rule only.** The feasible rule's
+version is not, and the next run should add it.
 
-The kernel bandwidth uses the effective sample size, so a concentrated weight
-vector widens it. Three tests, each stronger than the last -- share of datasets
-on which the market-weighted kernel estimate is closer:
+    Reproduce: outputs/tables/TABLE_MixedPolicyPooled.csv
 
-    declarations                        3-9   10-80   81-99  100-999   1000+
-    production rule, n_eff             40.3    44.0    53.8     61.4    77.9
-    the plain count n                  38.8    43.7    50.0     61.9    78.4
-    each fit's OWN BEST bandwidth      46.0    42.7    51.9     55.3    74.6
+## 7. Numbers that moved
 
-**Using the plain count does not flip it.** **And giving each fit the bandwidth
-that minimizes its own distance to the truth -- which no rule can beat -- does
-not flip it either**: the market-weighted fit still loses on 54 percent of
-datasets at 3 to 9 declarations. The bandwidth costs it about 6 points there
-and the crossover is still below 81 without it.
+**In the study's existing tables: none.** Nine of ten pre-existing tables are
+content-identical after the re-run and the tenth differs only in its
+`written_utc` stamp.
 
-**A fourth argument needs no bandwidth at all**: the three-parameter lognormal
-has none, and it shows the same crossover, 32.8 percent at 3 to 9 and 78.7
-above a thousand.
+**In this stage's own earlier output, four things moved and all four were
+defects:** the claim that no quantity of EPDs gets a uniform-weighted fit below
+a floor, contradicted by this stage's own table (decision 222); the claim that
+the crossing lands at the cutoff, which rested on 52 datasets (section 4); a
+duplicated claim counted twice in the headline (section 3); and the
+indistinguishable band, which was a contest among grid points rather than a
+difference test and so moved when the grid was filled in (decision 224).
 
-    Reproduce: python audits/bandwidth_neff.py --n 2500
+**And the reference cutoff is 80, not 81.** 81 is decision 142's FIT-level
+argmin on a dense grid and stays what it is there; carrying it into a
+claim-level sweep was more significant figures than this analysis supports.
 
-## 3. What the feasible rule buys, claim by claim
-
-**At a cutoff of 81**, against the best of the three uniform-weighted methods on
-each claim -- a harder test than the pooled comparison, because the comparator
-changes per claim -- with a paired cluster bootstrap over pLCA groups. (81 is
-the FIT-level argmin, not the claim-level one; what this table looks like at 130,
-the claim-level argmin and the top of the published range, is not yet measured.)
-
-    the chance of meeting a budget                 +6.42   [ 5.61,  7.23]
-    a cap's chance of saving 5 pct                 +2.81   [ 1.61,  3.93]
-    a material's 95th percentile                   +2.73   [ 2.17,  3.30]
-    the total's 90th percentile                    +2.33   [ 0.79,  3.89]
-    how often a cap binds                          +2.22   [ 1.05,  3.39]
-    the total's mean                               +2.17   [ 1.68,  2.69]
-    the total's standard deviation                 +1.95   [ 0.66,  3.37]
-    a material's share at the building's 95th      +1.01   [ 0.24,  1.79]
-    a cap's mean saving                            +0.82   [ 0.46,  1.18]
-    ---- above this line the interval clears zero ----
-    a material's standard deviation                +0.53   [-0.38,  1.43]
-    the probability B beats A                      +0.19   [-0.51,  0.90]
-    a material's mean contribution                 -0.25   [-0.51, -0.01]
-    the uncertainty index                          -0.45   [-1.67,  0.75]
-    a material's chance of being largest           -0.53   [-0.97, -0.07]
-    a material's share of the total                -0.63   [-0.83, -0.44]
-    using 25 pct less: its mean saving             -0.63   [-0.82, -0.43]
-
-**Two of those sixteen rows are one claim counted twice.** Using 25 percent less
-of a material removes exactly a quarter of its share of the building total, so
-its error IS that share's error (decision 186), and both read -0.63. Counting it
-once gives **9 of 15 and a median of +1.0 percent**, which is the pair to
-publish. And the uncertainty index's comparator is `Normal, Uniform`, the method
-the paper tells readers not to use, so that row is not a loss to a method anyone
-would field.
-
-**So what.** Switching family by size buys accuracy on the tail and
-intervention claims -- budget compliance, what a cap delivers -- and costs a
-little on the averages, where a lognormal fitted to everything is already about
-as good as anything. Worth doing, not transformative.
-
-    Reproduce: outputs/tables/TABLE_MixedPolicyGain.csv, rows where rule=feasible
-
-## 4. The figure
-
-![Mean error over the 16 claims against where the method switches](../outputs/figures/CompareUQMethods_FIG_MixedPolicy.png)
-
-Mean error over the sixteen claims a probabilistic LCA makes, each divided by
-its own true level, against the cutoff on a log axis. **The orange curve is the
-rule a reader can follow.** The grey one adds the true market shares above the
-cutoff and is not a method; **the vertical gap between them is what knowing
-market share would be worth -- about 3 points of the roughly 23 a probabilistic
-LCA gets wrong**, against the 0.73 points the whole choice of cutoff is worth.
-The dotted lines are fixed methods, and the curves' four ends land on them
-exactly, because at a cutoff of 3 or 10,000 each rule IS a fixed method. The
-shaded band is 50 to 130, the cutoffs indistinguishable from the best.
-
-*If the image does not render:* two shallow U curves on a log x axis from 3 to
-10,000 declarations. The upper, orange, runs from 23.92 percent at a cutoff of
-3 down to 23.24 at 130 and back to 23.96 at 10,000. The lower, grey, runs from
-22.93 down to 20.25 at 70 and back to 23.96. A shaded band covers 50 to 130.
-
-## 5. Numbers that moved
-
-**In the study's existing tables: none.** The committed notebook was run end to
-end with no error in any cell and every pre-existing table reproduces
-content-identically; the only differing bytes are gzip header timestamps and
-one `written_utc` field.
-
-**In this stage's own earlier output: the headline.** An earlier version of
-this report led with "beats every fixed method on all sixteen claims, median
-11.4 percent". That number is unchanged and belongs to the known-share rule,
-which needs information nobody has. The feasible rule's median is **0.9
-percent**. Nothing was recomputed; what changed is which rule is called the
-recommendation.
-
-**One change to shared code.** `plca.swap_run` drew the same five columns once
-per claimed saving; the draws are now hoisted out of that loop. Bit-identical,
-pinned by a test, and it is what made a 37-column sweep affordable.
-
-## 6. Still open
+## 8. Still open
 
 | Item | |
 |---|---|
-| **How the paper frames a 0.9 percent method improvement beside a 3-point value of market-share data.** Both are real; the second is the larger story and it is an argument for obtaining production volumes |
-| **Every figure except the scorecard and this one still carries the retired weighting labels.** Twelve savefig cells across notebooks 1 and 2 are unmarked, so the fast renderer refuses those notebooks; marking them is Stage 3's first task and the prerequisite either way |
-| **No test compares `flip.FLIP_THRESHOLDS` with the value notebook 3 recomputes.** Stage 3 |
-| **British spellings in files earlier stages wrote.** The deposit tidy-up |
+| **The composition split is computed for the known-share rule only.** The feasible rule's version needs the next notebook run |
+| **Every figure except the scorecard and this stage's still carries the retired weighting labels.** Stage 3 |
+| **No test compares `flip.FLIP_THRESHOLDS` with the value notebook 3 recomputes**, and decision 175's two-fit rounding rule has not been re-applied since the constants were recalibrated. Stage 3 |
 
-## 7. Inputs, outputs, reproduce
+## 9. Inputs, outputs, reproduce
 
 **Read:** the synthetic corpus and the true parents replayed from it;
 `TABLE_MethodScores.csv` from notebook 2.
 
-**Written:** thirteen tables named `TABLE_MixedPolicy*` plus
-`CompareUQMethods_FIG_MixedPolicy.png`, and
-`outputs/tables/audits/TABLE_BandwidthNeff.csv` and
-`TABLE_WeightingLocationShape.csv`. **Code:**
+**Written:** thirteen `TABLE_MixedPolicy*` tables,
+`CompareUQMethods_FIG_MixedPolicy.png`, and two audit tables,
+`TABLE_BandwidthNeff.csv` and `TABLE_WeightingLocationShape.csv`. **Code:**
 `src/mixedpolicy.py`, `tests/test_mixedpolicy.py` (36 tests),
-`audits/bandwidth_neff.py`, `audits/weighting_location_shape.py`, the hoist in
-`src/plca.py`, and nine cells at the end of notebook 3. **628 tests pass.**
+`audits/bandwidth_neff.py`, `audits/weighting_location_shape.py`, the swap-draw
+hoist in `src/plca.py`, and nine cells at the end of notebook 3. **628 tests
+pass, 2 skipped** -- the skips are notebooks 1 and 2 having no `OUT` cell, which
+is Stage 3's first task.
 
     cd notebooks && python -m nbconvert --to notebook --execute \
       --ExecutePreprocessor.kernel_name=compareuq \
       --output-dir=/tmp/nbrun --output=out.ipynb 03_CompareUQ_PerformPLCA.ipynb
 
-About 95 minutes, of which the Stage 2j block is about 35. The figure alone:
+About 3 hours 15 minutes, of which the Stage 2j block is about 75.
 
-    python audits/render_figures.py 03_CompareUQ_PerformPLCA \
-      --only "how much the cutoff matters" --into-outputs
+## 10. What Stage 3 picks up first
 
-## 8. What Stage 3 picks up first
-
-1. **Add the FEASIBLE rule as a seventh column to the scorecard figure**
-   (decision 211) and fold this stage's per-claim gains into it. Not the
-   known-share rule: a scorecard column a reader cannot reproduce is worse
-   than none.
-2. **Mark the twelve unmarked savefig cells in notebooks 1 and 2**, which
-   unlocks the fast renderer, then do the caption sweep: the retired weighting
-   labels and the corrected framing of decisions 212 and 219.
+1. **Give notebooks 1 and 2 an `OUT` cell AND mark their twelve unmarked
+   `savefig` cells.** There are two blockers, not one: the renderer raises on a
+   missing setup cell before it ever checks markers, and two tests skip today
+   saying exactly that. Clearing both gives seven-second figure rounds.
+2. **Add the FEASIBLE rule as a seventh scorecard column** (decision 211), never
+   the known-share one. Note that decision 211 was written when the rule won all
+   sixteen claims; the feasible rule wins 9 of 15, so `best_method` and `stakes`
+   move on some rows and not others.
+3. **The caption sweep**: the retired weighting labels, and the corrected
+   framings of decisions 212, 219 and 222.

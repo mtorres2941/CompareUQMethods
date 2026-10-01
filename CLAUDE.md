@@ -8133,3 +8133,46 @@ rather than in conversation.
      recalibration and Stage 3 owns it.
 
          python -c "import sys; sys.path.insert(0,'src'); import flip; print(flip.FLIP_THRESHOLDS)"
+
+224. **2026-09-30, Stage 2j review. THE PUBLISHED CUTOFF RANGE IS 40 TO 170, the
+     indistinguishable band, and NOT the argmin's bootstrap interval. And the
+     band rule itself was a contest rather than a difference test until this
+     entry.** `[AUTHOR]` "If it's indistinguishable 40 to 170, why are you
+     recommending 50 to 140? ... I'm not sure how 50-140 and 40-170 are answers
+     to different questions. This is a calculation."
+
+     **THE BAND RULE WAS WRONG AND IS FIXED.** `threshold_curve` measured each
+     cutoff's penalty as its excess over whichever cutoff won THAT RESAMPLE.
+     Subtracting a per-resample minimum makes every penalty non-negative by
+     construction, so a cutoff's lower bound could reach zero only by WINNING
+     some resamples -- a contest among however many near-tied points share the
+     grid, not a test of a difference. Filling the grid from 14 points to 27
+     split the wins among more neighbours and moved the reported band while the
+     curve itself did not change, and opened a hole at 80 to 90 across a span
+     whose pooled error varies by 0.00013 on a level of 0.232. The penalty is
+     now the excess over the cutoff that wins on the FULL SAMPLE, held fixed, and
+     a cutoff is indistinguishable when that interval straddles zero. The band is
+     then **40 to 170, contiguous**, with 30 and 180 out.
+
+     **AND THE ARGMIN INTERVAL IS NOT THE THING TO PUBLISH.** It is [50, 140].
+     The author's objection was that it is a min-statistic, of the kind decisions
+     102, 143 and 210 demoted. **That specific worry was tested and does not
+     hold**: on a curve constructed to be exactly flat from 40 to 170 the argmin
+     bootstrap recovers 40 to 170 exactly, with 13.3 percent of argmins landing
+     on the two edge points, so it is not pathologically drawn inward. An earlier
+     draft of this entry asserted an edge artifact and that assertion is
+     WITHDRAWN -- it failed its own test.
+
+     **The real reason is that it answers a different question.** [50, 140] is
+     where the single lowest point of the curve lands on resampling; it is
+     narrower than the band because the curve genuinely tilts at the band's edges
+     -- 40 sits 0.00025 above the minimum and 170 sits 0.00017 above, both inside
+     the noise. **A practitioner is not choosing the optimum, they are choosing
+     something good enough**, so the band is the quantity that answers their
+     question and the argmin interval is a diagnostic.
+
+     **AND THE BAND IS CONSERVATIVE.** Its reference is the argmin of the same
+     data, so differences measured against it are biased slightly positive and
+     the band is if anything too narrow.
+
+         Reproduce: outputs/tables/TABLE_MixedPolicyThreshold.csv, family=feasible
