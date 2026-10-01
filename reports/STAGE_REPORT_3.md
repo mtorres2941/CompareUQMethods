@@ -275,6 +275,28 @@ score table at 147 by 30, and `TABLE_MethodScores` over all 60,882 rows -- the
 the policy comparison, the regret table and the size crossover are identical
 too.
 
+## 6b. Where this report is most likely wrong
+
+**For the window whose job is to attack it.** These are the three places I would
+start, named here rather than left to be rediscovered.
+
+**Section 2 carries three near-identical counts** -- 2 of 16, 10 of 16, and
+decision 217's 9 of 16 -- and this project's recurring failure is exactly that:
+one number appearing twice at two values. The section says why they differ.
+Check that the explanation survives the tables.
+
+**The scorecard's title is a box count, not a margin.** It says the size rule is
+the best available choice on 10 of 16 claims. The pooled margin behind that is
+0.7 points, 23.25 against 23.92, which the cells show and the title does not.
+The title was chosen by the author from four options with that trade-off stated;
+the question for a reviewer is whether the figure as drawn lets a reader see it.
+
+**Section 4 asserts that every ordering held across five re-run audits.** That is
+a claim about five separate tables, each independently re-runnable, and "should
+survive" is not a measurement.
+
+    python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_ClaimScorecardWithRule.csv'); p=d.pivot(index='claim',columns='method',values='total_error')*100; print(p.mean().sort_values().round(2))"
+
 ## 7. What is still open, who owns it, and when
 
 **Four items. Two are repository work and two cannot be done before the
