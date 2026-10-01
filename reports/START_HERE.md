@@ -22,12 +22,12 @@ at session start, and this file names everything else.
 3. **Your stage's section of `reports/STAGE_PROMPTS.md`** -- the instructions
    for the work itself. The sections are:
 
-        Stage 0    line   569   SENT AND RUN, a record, do not edit
-        Stage 1    line   638   SENT AND RUN
-        Stage 2    line   747   SENT AND RUN, covers 2a through 2h
-        Stage 2j   line  2776   SENT AND RUN 2026-09-25
-        Stage 3    line  2905   LIVE
-        Stage 4    line  3926   LIVE
+        Stage 0    line   578   SENT AND RUN, a record, do not edit
+        Stage 1    line   647   SENT AND RUN
+        Stage 2    line   756   SENT AND RUN, covers 2a through 2h
+        Stage 2j   line  2785   SENT AND RUN 2026-09-25
+        Stage 3    line  2914   LIVE
+        Stage 4    line  3939   LIVE
 
    **Stage 2j has been sent and run and its text is now a record too**, so
    only Stage 3 and Stage 4 may be edited. **Stage 2i is closed** and is not

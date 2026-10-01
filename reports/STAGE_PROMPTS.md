@@ -2935,7 +2935,11 @@ recommendation. **Put the FEASIBLE rule on the scorecard as a seventh column and
 not the known-share one**, because a column a reader cannot reproduce is worse
 than no column.
 
-**Two: the published cutoff range is 40 to 170 declarations, not 81.** The sweep
+**Two: the paper prints TWO RANGES AND NO SINGLE-DECLARATION CUTOFF, at either
+level (decision 225).** The family split is **40 to 170** declarations and the
+weighting split is **80 to 100**; `mixedpolicy.MIXED_THRESHOLD = 80` is a
+constant the code needs to name one policy, not a result. Treat any `81` found
+in a draft as stale rather than as a number to defend. The sweep
 runs every 10 from 10 to 200 plus both degenerate ends, and everything from 40
 to 170 is statistically
 indistinguishable from the best; the whole sweep spans 0.73 points. **81 is a
@@ -2980,7 +2984,23 @@ owes the intuition in plain words, not just the three tests.**
 
 **AND THE STAGE 2j FIGURE EXISTS AND IS CURRENT:**
 `outputs/figures/CompareUQMethods_FIG_MixedPolicy.png`, drawn from
-`TABLE_MixedPolicySweep.csv`, needs a slot in the figure numbering.
+`TABLE_MixedPolicyThreshold.csv` and `TABLE_MixedPolicyRanking.csv`, needs a
+slot in the figure numbering. It went through about a dozen rounds with the
+author and the lessons generalise to Stage 3's own figures: **label every line
+that is drawn** (three lines and two labels is unreadable); **separate a close
+pair by pointing one label up and the next down**, not by nudging; **put
+reference labels outside the panel** when the interior is crowded;
+**colour-code a label to what it names and never reuse a curve's colour for a
+band**; **mark anything hypothetical** -- the market-weighted lines carry an
+asterisk and one footnote, because a reader who takes them for options misreads
+the whole figure; and **a title should be a positive claim** that the panel can
+actually support.
+
+**TWO MORE THINGS 2j LEFT FOR LATER, both recorded and neither blocking.** The
+group-composition split is computed for the known-share rule only, and
+`MixedBackwards` -- market shares BELOW the cutoff, a control that should lose
+to both recommended rules -- is in the code and has never been run. Both land
+on the next full notebook run, whenever Stage 3 triggers one.
 
 ### Read this before anything else in this stage
 
