@@ -118,55 +118,36 @@ rule at all is worth.
 ## 2b. The figure
 
 ![Mean error over the sixteen claims a probabilistic LCA makes, each divided by
-its own true level, against the cutoff on a log axis. **Both curves sweep the
-same thing -- where the method switches -- and they share their BELOW branch**,
-so the vertical gap between them is purely what knowing market share buys on the
-materials above the cutoff.
+its own true level, against the cutoff on a log axis. **One curve, and it is the
+rule the paper recommends**: a kernel estimate at or above the cutoff, a
+three-parameter lognormal below, uniform weights throughout because nobody
+publishes market shares.
 
-**Orange: KDE with uniform weights above the cutoff, three-parameter lognormal
-with uniform weights below. This is the rule a reader can follow.** Blue: the
-same, except the materials above the cutoff get their true market shares, which
-nobody publishes -- so it is a value of information, not a method.
+**The panel does one job -- substantiate the cutoff range -- and the shaded band
+is the answer: 40 to 170 declarations, all indistinguishable from the best.**
+The curve's own ends are the self-check: at a cutoff of 3 every dataset takes a
+kernel estimate and at 10,000 every dataset takes a lognormal, and both land on
+those fixed methods to 0.00e+00.
 
-**Each curve's end points ARE the fixed methods and are labelled there**, which
-is why the panel carries no separate reference lines: at a cutoff of 3 every
-dataset takes the above-method, and at 10,000 every dataset takes the
-below-method. Both curves therefore end at the same point, lognormal with
-uniform weights, and that shared end is checked to **0.00e+00** on every run.
+**The four dashed lines are the four fixed methods**, so the rule can be read
+against every constant choice. The rule beats both uniform-weighted methods --
+the ones a reader can actually choose between -- and still sits above both
+market-weighted ones, which is the headroom market shares would buy.
 
-**The shaded bands are each curve's own indistinguishable span, in its own
-colour and on its own half of the panel** -- orange 40 to 170, blue 50 to 110 --
-and each curve's label sits on the facing edge of its own band. A light dashed
-rule runs from each vertex back to the y axis so the three end points can be
-read against the scale.
+**WHAT MARKET SHARES ARE WORTH IS NOT ON THIS PANEL, deliberately.** An earlier
+version carried a second curve for the known-share rule and the vertical gap
+between the two was the 2.98 points of headline 2. It was cut because neither
+curve isolated a principle: this one switches family with the weighting held at
+uniform, which is the family question CONDITIONAL on uniform weights, and the
+other switched both axes at once. Two curves that each answer a mixed question
+invite the reader to compare them as though they were two principles. The
+weighting question is carried by the claim scorecard and the size-band table,
+which compare every method on every claim and can make that case properly.
 
-**TWO OTHER TWO-BRANCH RULES EXIST AND NEITHER EARNS A CURVE.** Both put market
-shares BELOW the cutoff, which is where section 4 measures them doing harm.
-`KDE market above / lognormal market below` -- market shares everywhere, only
-the family switching -- is measured at **0.2296**, against 0.2025 for the rule
-that uses shares only above the cutoff: putting them below costs 13 percent of
-the gain. `KDE uniform above / lognormal market below` is the exact inverse of
-this stage's finding, using shares only where they hurt and not where they help;
-it is now in the code as a named BACKWARDS CONTROL and the next run will report
-it. A rule built backwards should lose to both recommended rules, and if it does
-not, something upstream is wrong.
-
-**The sixth fixed method, a lognormal with market weights at 23.65, is not on
-this panel.** Neither swept rule can produce it: both use a kernel estimate
-above the cutoff, so a lognormal-with-market-weights policy belongs to a third
-rule family that was not swept. It is worth one line of text rather than a line
-on the figure, because it beats the better of the two uniform-weighted fixed
-methods -- 23.65 against 23.92 -- and still needs market shares nobody
-publishes. It is in `TABLE_MixedPolicyRanking.csv`.
-Neither is the 80-to-100 band for when market share starts helping: that is a
-per-dataset measurement against the true parent (section 4) and does not live on
-this axis.
-
-*If the image does not render:* two shallow U curves on a log x axis from 3 to
-10,000 declarations. The orange one runs from 23.92 percent at a cutoff of 3
-down to 23.24 around 130 and back up to 23.96 at 10,000. The blue one runs from
-22.93 down to 20.25 around 70 to 80 and back up to 23.96, meeting the orange
-curve there.
+*If the image does not render:* one shallow U curve on a log x axis from 3 to
+10,000 declarations, running from 23.92 percent at a cutoff of 3 down to 23.24
+around 130 and back up to 23.96 at 10,000, with a shaded band over 40 to 170 and
+four horizontal dashed reference lines at 23.96, 23.92, 23.65 and 22.93.
 
 ## 3. What the rule buys, claim by claim
 
