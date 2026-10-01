@@ -8510,17 +8510,30 @@ rather than in conversation.
      legend label, so "KDE, Variable" was printed where decision 199 settled on
      "market weights".
 
-235. **2026-10-01, Stage 3. THE FIGURE NUMBERING IS DEFERRED TO THE MANUSCRIPT
-     AND IS NOT STAGE 4'S.** `[AUTHOR]` "Don't worry about figure renumbering
-     yet. That'll depend on what we end up including in the manuscript. That
-     will be one of the last things we do."
+235. **2026-10-01, Stage 3. THE FIGURE NUMBERING, FULL STYLE COMPLIANCE AND THE
+     CONFIDENCE INTERVALS ALL BELONG TO THE MANUSCRIPT WORK, NOT TO A
+     REPOSITORY STAGE.** `[AUTHOR]` "Don't worry about figure renumbering yet.
+     That'll depend on what we end up including in the manuscript." And, on the
+     proposal Stage 3 wrote anyway: "to number figures, we need to decide what
+     figures belong in the manuscript. To do that, we need to clearly understand
+     the structure of the manuscript. You don't have enough information to do
+     that right now ... This can't be done in isolation without reviewing the
+     manuscript itself."
 
      This supersedes the Stage 3 prompt's instruction to propose a numbering and
      have it confirmed. The numbering cannot be settled before the figure
-     SELECTION is, and the selection is a manuscript decision: about fifty
-     images is far more than a Building and Environment paper carries. Stage 3
-     therefore proposed and did not apply, and **Stage 4 should not apply it
-     either**.
+     SELECTION is, the selection needs the manuscript's structure, and no
+     repository stage has it: about fifty images against the six or seven a
+     Building and Environment paper carries. **Stage 4 does not do it either.**
+
+     **TWO OF STAGE 3'S OPEN ITEMS HAVE THE SAME DEPENDENCY AND MOVE WITH IT.**
+     Bringing the 31 figure cells that never call `figstyle.apply()` up to
+     `FIGURE_STYLE.md`, and putting a confidence interval on every figure
+     aggregate that needs one, are both PER-FIGURE work. Doing either for forty
+     figures when six reach the paper is the wrong order, and which aggregates
+     need an interval is a question about what the paper claims rather than
+     about what the repository holds. All three are one pass, taken once the
+     selection exists.
 
      **The cost of deferring is near zero**, which is what makes it the right
      call rather than a postponement. `figstyle.savefig` takes a STEM rather
@@ -8535,3 +8548,32 @@ rather than in conversation.
      worked out twice.
 
 
+
+236. **2026-10-01, Stage 3. THE BACKWARDS CONTROL RAN FOR THE FIRST TIME AND IT
+     LOSES, WHICH IS WHAT SAYS THE RULE'S DIRECTION IS NOT ARBITRARY.**
+     `[DELEGATED, 3 measured]` Stage 2j built `MixedBackwards` -- market weights
+     BELOW the cutoff and uniform above, the rule the wrong way round -- as a
+     control that should lose to both recommended rules, and left it unrun. The
+     Stage 3 re-run of notebook 3 is the first time it has been scored.
+
+     Pooled over the sixteen claims, as a percentage of the true level:
+
+         known-share rule                      0.2025
+         KDE, market weights                   0.2293
+         FEASIBLE rule                         0.2325
+         Lognormal, market weights             0.2365
+         KDE, uniform weights                  0.2392
+         Lognormal, uniform weights            0.2396
+         BACKWARDS control                     0.2591
+         Normal, uniform / market              0.3144 / 0.3165
+
+     **It is worse than every fixed method except the two normals.** Putting
+     market weights on the SMALL datasets, where decision 222 shows they make
+     the estimate of the mean worse, and withholding them from the large ones,
+     where they help, costs more than any fixed choice a reader could have made.
+
+     **And adding it changed nothing else**: all 61 policies that already
+     existed move by at most 1.1e-16 in pooled error, which is the control on
+     the control.
+
+         python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_MixedPolicyRanking.csv'); print(d.nsmallest(9,'pooled_error')[['display','pooled_error']].to_string(index=False))"

@@ -206,11 +206,12 @@ the code is cited in the paper as a public Zenodo deposit.
 **NOTHING IS WAITING ON THE AUTHOR.** Stage 3 proposed a figure numbering and
 did not apply it, and the author then DEFERRED it to the manuscript: the
 numbering depends on which figures the paper includes, which is one of the last
-things decided (decision 235). **Stage 4 must not apply it either.** The sketch
-is `reports/STAGE_REPORT_3.md` section 5 and the full file list is
-`outputs/tables/audits/TABLE_FigureManifest.csv`, so nothing is worked out
-twice; applying any numbering later is a one-line change per figure cell,
-because `figstyle.savefig` takes a stem rather than a path.
+things decided (decision 235). **Stage 4 must not apply it either**, and two of Stage 3's
+open items travel with it: full `FIGURE_STYLE.md` compliance and confidence
+intervals on figure aggregates are both per-figure work that should wait for the
+selection. `outputs/tables/audits/TABLE_FigureManifest.csv` lists every image
+with its generator, and `figstyle.savefig` takes a stem rather than a path, so
+the rename itself is one word per figure cell.
 
 **THE FLIP-THRESHOLD ITEM IS CLOSED and this section said otherwise until
 2026-09-25.** `flip.FLIP_THRESHOLDS` was a hard-coded constant calibrated on the

@@ -3988,13 +3988,29 @@ kept for diffability rather than as a second dataset. And the retired vocabulary
 "variable", "sampled market shares", "Dirichlet shares" -- has to be swept out of
 column names, filenames and the README, not only out of the figures.
 
+**TWO ITEMS STAGE 3 LEFT ARE THIS STAGE'S, added 2026-10-01.** Both are
+repository work and one notebook-3 run verifies both together. First, the
+group-composition split covers the known-share rule only:
+`TABLE_MixedPolicyPooled.csv` has columns for `Lognormal, Uniform`,
+`KDE, Variable` and `Mixed` and none for the feasible rule, which Stage 2j left
+for "the next full run" and that run did not change. Second, nine of notebook
+3's thirteen figure cells cannot be rendered on their own, so a figure change
+there still costs that run;
+`outputs/tables/audits/TABLE_FigureRendererSafety.csv` names them and what each
+needs, four of the nine need only `dct_resultlabels` and a frame already on
+disk, and the fix is the compute/plot split Stage 3 did for notebooks 1 and 2.
+
 **RENUMBERING THE FIGURES IS NOT THIS STAGE'S, added 2026-10-01 by the author.**
 "Don't worry about figure renumbering yet. That'll depend on what we end up
 including in the manuscript. That will be one of the last things we do." Stage 3
 proposed a numbering and did not apply it; it stays unapplied until the
 manuscript's figure selection is settled. Decision 235. The figure manifest at
 `outputs/tables/audits/TABLE_FigureManifest.csv` is still what the README
-needs, and it does not depend on the numbering.
+needs, and it does not depend on the numbering. **Nor are the other two
+manuscript-dependent items this stage's**: bringing the 31 figure cells that
+never call `figstyle.apply()` up to `FIGURE_STYLE.md`, and putting confidence
+intervals on figure aggregates, are per-figure work that waits on the same
+selection. Decision 235.
 
 Update the README and repository structure for re-deposit to Zenodo at
 submission. The code is cited in the paper as a public artifact, so it
