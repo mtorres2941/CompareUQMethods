@@ -230,6 +230,28 @@ def _names(src):
     return bound, used
 
 
+#: A figure cell that shows an AGGREGATE -- a mean, a median, an NRMSE, a win
+#: share -- should show its uncertainty too. These are the crudest possible
+#: proxies for "shows an aggregate" and "shows an interval", so the output is a
+#: list to look at rather than a verdict: several of the cells it names are
+#: scatters of every dataset, which need no interval at all.
+RE_AGGREGATE = re.compile(
+    r"\.(mean|median)\(|_mean\b|nrmse|win_share|best_error|total_error")
+RE_INTERVAL = re.compile(
+    r"fill_between|errorbar|_lo\b|_hi\b|_p9|ci_lo|ci_hi|\byerr\b|interval")
+
+
+def aggregates_without_intervals():
+    out = []
+    for label, text in code_units():
+        head = text.lstrip().split('\n', 1)[0]
+        if not head.startswith(FIGURE_MARKERS):
+            continue
+        if RE_AGGREGATE.search(text) and not RE_INTERVAL.search(text):
+            out.append((label, head.lstrip('# ').strip()[:52]))
+    return out
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--write', action='store_true')
@@ -296,6 +318,12 @@ def main(argv=None):
           f'figure cells run against the setup block alone')
     for r in bad:
         print(f"  {r['notebook']} cell {r['cell']}: needs {r['missing']}")
+
+    nob = aggregates_without_intervals()
+    print(f'\nFIGURE CELLS SHOWING AN AGGREGATE WITH NO INTERVAL: {len(nob)} '
+          f'candidates, several of which are scatters that need none')
+    for label, title in nob:
+        print(f'  {label}  -- {title}')
 
     if args.write:
         import pandas as pd

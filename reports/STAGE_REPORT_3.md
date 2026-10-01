@@ -8,7 +8,8 @@ re-run, it was re-run on them. Branch `stage-3-figures`, from `97acefd`.
 
 ## What changed
 
-**A figure round is now seven seconds instead of thirty-five minutes.**
+**A figure round on notebooks 1 and 2 is now 1.6 seconds instead of 30 or 35
+minutes.**
 `audits/render_figures.py` refused notebooks 1 and 2 outright, and two tests
 skipped saying so. There were two blockers, not one: neither notebook defined
 `OUT`, and their figure cells read fitted models and frames out of kernel
@@ -38,8 +39,8 @@ compare it against is beside it**, `FIG_WeightingGap_*`.
 options a reader has on 10 of 16 claims.
 
 **Five figures had no generator anywhere** and are in `archive/` with reasons.
-Three tests now fail on a duplicate filename, an orphan, or a retired weighting
-word in a filename.
+Four tests now fail on a duplicate filename, an orphan, a retired weighting word
+in a filename, or a PNG with no vector sibling.
 
 ## What needs a decision
 
@@ -67,7 +68,7 @@ what the single cells consumed, in the same order; the figure halves consume
 nothing.
 
 **So what.** Moving a label on a figure used to cost half an hour, so labels did
-not get moved. They do now.
+not get moved. A single figure now redraws in **1.6 seconds**.
 
     python -m pytest tests/test_render_figures.py tests/test_notebooks.py -q
     python audits/render_figures.py 01_CompareUQ_CreateData --out /tmp/figs
@@ -155,75 +156,53 @@ the one asked for.
 All six re-ran on the current corpus -- the generator sweep was already re-run
 in Stage 2h (decision 200), so five ran here. **Every ordering held and every
 level moved**, which is what an absolute distance does when the corpus gets more
-dispersed.
+dispersed. **Four decision entries need their numbers updated and one needs
+narrowing:**
 
-**The upper truncation.** The worst runaway fit is 4.95 times the data's own
-spread uncapped, not the 5.4 decision 182 records, and a cap at twice the
-largest observation takes it to 1.85. Against the truth the cap still costs
-nothing: `Lognormal, Variable` 0.19924 uncapped against 0.19913 capped, and the
-kernel estimate and the normal do not move at all. **Decision 199's one-line
-remedy stands and its numbers need updating from 5.4 and 1.8 to 4.95 and 1.85.**
+| audit | what it says now | what the decision log says |
+|---|---|---|
+| upper truncation (182) | worst runaway fit **4.95** times the data's spread, **1.85** at a 2x cap, and the cap still costs nothing against the truth: `Lognormal, Variable` 0.19924 uncapped against 0.19913 capped, kernel and normal unmoved | 5.4 and 1.8 |
+| judgment arm (184) | six data-driven methods span 0.0756 to 0.1140 on the design comparison; a correctly centered pedigree model at matched spread reads **0.0886** and holds 0.0886 to 0.1136 over a six-fold spread range; the realistic one-declaration case 0.1612 to 0.2722; uniform **0.2349** and triangular **0.2228**, so the shape finding is 2.5-fold not 2.1 | 0.097, 0.206, 0.198 |
+| certification credit (187) | at a 10 pct credit with 75 pct confidence the truth earns it on **12.7 pct** of 3,000 cases, two methods disagree on **19.4**, best wrong on **7.5**, worst on **13.0**; the six disagree on 59.1 pct of designs within 0.05 of the line and 5.1 pct beyond 0.25; **a normal is worst on 9 of 15** tier-and-confidence cells | 17.4, 18.2, 8.8, 12.5, and 8 of 15 |
+| bandwidth sweep (188) | unchanged: the arms disagree about held-out likelihood, Scott winning 64.0 pct under market weights, and agree about W1, Silverman 0.0716 against Scott's 0.1244 | -- |
 
-**The judgment arm.** The six data-driven methods span 0.0756 to 0.1140 on the
-design comparison; a correctly centred pedigree model at matched spread reads
-0.0886, and 0.0886 to 0.1136 across a six-fold spread range. A common offset
-cancels to the last digit, which reproduces decision 184's control exactly. The
-realistic case -- the centre taken from one declaration -- reads 0.1612 to
-0.2722. At matched spread and correct centre, uniform reads 0.2349 and
-triangular 0.2228 against the pedigree lognormal's 0.0886, so the shape finding
-is now 2.5-fold rather than 2.1-fold.
+**The one that NARROWS a decision is the bandwidth through the pLCA (195).**
+Averaged over the five outputs Scott is still worst under both weightings --
+29.23 against Silverman's 28.24 and the shipped rule's 28.51 under uniform
+weights, 30.06 against 28.89 and 28.93 under market weights -- so the shipped
+rule stands. **What does not survive is "Scott is worst on every one of the five
+outputs":** under uniform weights it is now best on two, a material's standard
+deviation at 31.091 against 31.035 and the uncertainty index at 49.412 against
+49.428. And **the guard no longer buys anything under market weights**, where
+that decision records it buying 0.15 of a point; it costs 0.04 there and 0.28
+under uniform weights. The control fires: the four parametric methods move
+0.0000 points across the three rules.
 
-**The certification credit.** At a 10 percent credit demonstrated with 75
-percent confidence the truth earns it on **12.7 percent** of 3,000 cases, at
-least two of the six methods disagree on **19.4 percent**, the best method calls
-it wrong on **7.5** and the worst on **13.0**. **The fragility is still the
-threshold and not the methods**: the six disagree on 59.1 percent of designs
-whose true confidence sits within 0.05 of the line, 54.0 percent between 0.05
-and 0.10, 23.4 percent out to 0.25 and 5.1 percent beyond it. A normal is the
-worst method on **9 of the 15** tier-and-confidence combinations, where decision
-187 records 8.
-
-**The bandwidth sweep.** The two arms still disagree about the density criterion
-and agree about the study's own: on the synthetic arm Scott beats the other two
-on held-out likelihood 64.0 percent of the time under market weights, while on
-W1 Silverman reads 0.0716 against Scott's 0.1244. Decision 188 holds.
-
-**The bandwidth through the pLCA, and this one NARROWS decision 195.** Averaged
-over the five outputs, Scott is still the worst rule under both weightings --
-29.23 against Silverman's 28.24 and the shipped guarded rule's 28.51 under
-uniform weights, 30.06 against 28.89 and 28.93 under market weights -- so the
-shipped rule stands and nothing changes. **What does not survive is "Scott is
-worst on every one of the five outputs":** under uniform weights Scott is now
-best on two of them, a material's standard deviation at 31.091 against the
-guarded rule's 31.035 and the uncertainty index at 49.412 against 49.428. And
-**the guard no longer buys anything under market weights**, where decision 195
-records it buying 0.15 of a point; it now costs 0.04 there and 0.28 under
-uniform weights. Both are small and neither changes the choice. The control
-fires: the four parametric methods move 0.0000 points across the three rules.
+A displacement applied to every material alike still cancels to the last digit,
+which is decision 184's own control, and one drawn per material does not.
 
     bash -c 'for a in upper_truncation bandwidth_rules judgment_arm credit_design bandwidth_downstream; do python audits/$a.py; done'
 
 ## 4b. The caption sweep, and the one stale number it found
 
 Every figure title in the four notebooks was checked for a hard-coded number.
-**There is exactly one, and it was wrong on one of the two arms it describes.**
-The rolling-average supplement titled its left panel "rolling mean, 250
-datasets each side". `comparison.curve_window` scales the window to the arm and
-returns 501 on the synthetic arm -- which is where 250 each side came from --
-and **15 on the empirical one**, so that panel claimed a window thirty-three
-times the one drawn. The title now reads the window from the data.
+**There is exactly one and it was wrong on one of the two arms it describes.**
+The rolling-average supplement titled its left panel "rolling mean, 250 datasets
+each side"; `comparison.curve_window` scales to the arm and returns 501 on the
+synthetic arm -- where 250 each side came from -- and **15 on the empirical
+one**, so that panel claimed a window thirty-three times the one drawn. It now
+reads the window from the data.
 
-**So what.** Every other figure title in the repository computes its numbers
-from the table beneath it, which is why this sweep took minutes rather than the
-afternoon the Stage 2h caption did. The captions that remain at risk are the
-ones in the MANUSCRIPT, which this repository does not hold.
+**So what.** Every other figure title computes its numbers from the table
+beneath it, which is why this took minutes rather than the afternoon the Stage
+2h caption did. What remains at risk is the captions in the MANUSCRIPT, which
+this repository does not hold.
 
     python -c "import sys; sys.path.insert(0,'src'); import comparison; print(comparison.curve_window(147), comparison.curve_window(10000))"
 
 ## 5. The proposed figure numbering, which needs your yes
 
-**Six main-text figures**, following the five questions a probabilistic LCA
-answers. Everything else becomes supplement.
+**Six main-text figures**, in the order the results section takes.
 
 | new | current stem | what it says |
 |---|---|---|
@@ -265,18 +244,25 @@ and the duplicate-name check makes a collision impossible.
 | `TABLE_MethodCurves` | 96.4 MB csv.gz | 44.4 MB parquet | container only; every float still float64 and every row verified element by element before the CSV was removed |
 | `TABLE_MethodWinShare` | 22.8 MB | 6.7 MB | same |
 | `audits/judgment_arm.py` column `centre` | `centre` | `center` | the US spelling sweep; the table is regenerated under the new name |
+| `TABLE_MethodCurves` characteristics | 21 | 23 | the notebook held TWO definitions of its characteristic set and the curves table was built from the one that misses `modality_index_fitted`, the measure decision 134 added and decision 82 says to report. One definition now, and the per-characteristic supplement gains two pages. Nothing already in the table changes |
 
-**Nothing else moved.** The empirical and synthetic characteristic tables, the
-six W1 score columns and every pLCA table are bit identical.
+**Nothing else moved**, and the three places it could have are checked rather
+than asserted: the empirical characteristic table is bit identical over 147 rows
+and 24 columns, the synthetic score table over 10,000 and 39, and the empirical
+score table likewise. Every pLCA table is written by notebook 3, whose only
+changed figures are the two named above.
 
 ## 7. What is still open
 
 | item | |
 |---|---|
 | **The figure numbering needs your confirmation before anything is renamed.** Section 5 |
-| **30 of 36 marked figure cells do not call `figstyle.apply()`**, so they follow the palette, the type sizes and the spine rules of whatever they were written with. The ASCII-minus requirement is now met at notebook level, which was the correctness half; the rest is a redesign of 30 figures and is a Stage 4 or manuscript-session job. `outputs/tables/audits/TABLE_FigureStyleCompliance.csv` names them |
+| **31 of 37 marked figure cells do not call `figstyle.apply()`**, so they follow the palette, the type sizes and the spine rules of whatever they were written with. The ASCII-minus requirement is now met at notebook level, which was the correctness half; the rest is a redesign of 31 figures and is a Stage 4 or manuscript-session job. `outputs/tables/audits/TABLE_FigureStyleCompliance.csv` names them |
 | **Nine of notebook 3's thirteen figure cells cannot be rendered on their own**, so a figure change there still costs a three-hour run. `outputs/tables/audits/TABLE_FigureRendererSafety.csv` names them and what each needs; four of the nine need only `dct_resultlabels` and a frame that is already on disk |
+| **"Report every aggregate in a figure with its confidence interval" is NOT done.** The scorecard's table carries them and the cutoff curve draws them; the merged distance-and-rank figure prints a mean W1 per method with no interval, and so do the bandwidth figure and the two strip supplements. A static sweep lists thirteen candidate cells, several of which are scatters of every dataset and need none. The command below prints the list; deciding which of them is really an aggregate is a figure-by-figure judgment and is Stage 4's |
 | **`FIG_MetricCoverage` still needs its claim restated in the text** from the rebuilt table: the figure is current, the sentence in the manuscript is not |
+
+    python audits/figure_manifest.py
 
 ## 8. Inputs and outputs
 
