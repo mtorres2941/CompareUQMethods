@@ -901,10 +901,11 @@ materials; this asks what happens when it does not.
 
 **THE RULE IS ONE NUMBER AND IT IS THE STUDY'S OWN.** A kernel estimate with
 market weights at or above `MIXED_THRESHOLD = 80` declarations, a
-three-parameter lognormal with uniform weights below. **80 at the CLAIM level
-from 2026-09-30, decision 224**; decision 142's 81 is a FIT-level argmin on a
-dense grid and stays that, and carrying it into a claim-level sweep was more
-significant figures than the analysis supports. **The rule the paper recommends
+three-parameter lognormal with uniform weights below. **80 from 2026-09-30, decision 224**, and it
+is a round reference constant the code needs in order to name one policy, NOT a
+published result. **The paper quotes two numbers and both are ranges**: 40 to
+170 declarations for the family split and 80 to 100 for where knowing market
+share starts helping. No single-declaration threshold is published. **The rule the paper recommends
 is the FEASIBLE one** -- uniform weights throughout, only the family switching
 -- because nobody publishes market shares (decision 216), and its published
 cutoff range is **40 to 170** (decision 224). `select_method` takes exactly one required argument and a test

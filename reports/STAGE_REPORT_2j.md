@@ -127,9 +127,9 @@ the cutoff and is not a method. **The vertical gap between them is what knowing
 market share would be worth: about 3 points of the roughly 23 a probabilistic
 LCA gets wrong**, against the 0.73 points the whole choice of cutoff is worth
 across two and a half orders of magnitude. The dotted lines are the fixed
-methods: the two just below 24.0 are always-KDE at 23.92 and always-lognormal at
-23.96, which sit 0.04 apart and share one label, and the lower one at 22.93 is
-always-KDE with known market shares. Both curves' ends land on those lines
+methods, each labelled: lognormal-uniform at 23.96 and KDE-uniform at 23.92,
+which sit 0.04 apart and read as one line at this scale; lognormal-market at
+23.65; and KDE-market at 22.93. Both curves' ends land on those lines
 exactly, because at a cutoff of 3 or 10,000 each rule IS a fixed method. **The
 shaded band is the ORANGE curve's**, 40 to 170; the grey curve's own band is 50
 to 110.
@@ -244,8 +244,8 @@ sample".
 
 **This is the answer to decision 166**, which opened this stage. That decision
 found a fit advantage heavily attenuated by the time it reached a pLCA answer --
-a fit threshold near 81 declarations becoming a claim threshold near 1,000 --
-and named the mechanism: a probabilistic LCA picks ONE method for all four of
+a fit-level crossover around a hundred declarations becoming a claim-level one
+near a thousand -- and named the mechanism: a probabilistic LCA picks ONE method for all four of
 its materials, so one material's advantage is averaged against three neighbours
 drawn at random. Letting the method vary by material removes the averaging, and
 the rule improves the fit and the claims together rather than one at the
@@ -289,9 +289,13 @@ duplicated claim counted twice in the headline (section 3); and the
 indistinguishable band, which was a contest among grid points rather than a
 difference test and so moved when the grid was filled in (decision 224).
 
-**And the reference cutoff is 80, not 81.** 81 is decision 142's FIT-level
-argmin on a dense grid and stays what it is there; carrying it into a
-claim-level sweep was more significant figures than this analysis supports.
+**AND THIS PAPER QUOTES TWO NUMBERS, BOTH RANGES.** 40 to 170 declarations for
+the kernel-estimate-against-lognormal split, and 80 to 100 for where knowing
+market share stops hurting and starts helping. **No single-declaration threshold
+is published** -- not at the claim level and not at the fit level, where the
+earlier point estimate carried the same false precision and the measured band
+was already much wider. `MIXED_THRESHOLD = 80` is a round reference constant the
+code needs in order to name one policy; it is not a result.
 
 ## 8. Still open
 

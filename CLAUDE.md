@@ -8176,3 +8176,33 @@ rather than in conversation.
      the band is if anything too narrow.
 
          Reproduce: outputs/tables/TABLE_MixedPolicyThreshold.csv, family=feasible
+
+225. **2026-09-30. THE PAPER QUOTES TWO NUMBERS AND BOTH ARE RANGES: 40 to 170
+     declarations for the family split, 80 to 100 for the weighting one. NO
+     SINGLE-DECLARATION THRESHOLD IS PUBLISHED, at either level.** `[AUTHOR]`
+     "81 is not a number worth quoting at all. Too specific. The only numbers
+     we're quoting are 40-170 for KDE/lognormal split and 80-100 for
+     market/uniform split. I don't know why I have to keep reiterating this."
+
+     **The author said it three times and each of my answers kept a use for 81
+     alive**: first as the claim-level constant, then as the fit-level argmin
+     that was "still correct", then as a thing the fit-level text should also
+     turn into a range. The decision is simpler than any of those. **Nothing in
+     the manuscript prints a single-declaration cutoff.**
+
+         THE FAMILY SPLIT        40 to 170 declarations   decision 224
+         THE WEIGHTING SPLIT     80 to 100 declarations   decision 222
+
+     `mixedpolicy.MIXED_THRESHOLD = 80` stays, because the code needs one value
+     to name one policy and to define the reference the gain table is computed
+     at. **It is a constant, not a result**, and no table, figure, caption or
+     sentence presents it as an answer.
+
+     **What this supersedes in presentation only, with no number moving.**
+     Decision 142's 81 and decision 198's reproduction of it are measurements
+     and stand as the record of what was found; what changes is that the FIT
+     level publishes a range too, on the same grounds the author gave for the
+     claim level. Decisions 139, 204, 208, 213, 218 and 220 each printed a point
+     estimate or a narrower range at some stage; 224 and this entry are the
+     final form. **A later stage that finds 81 in a draft should treat it as
+     stale rather than as a result to defend.**
