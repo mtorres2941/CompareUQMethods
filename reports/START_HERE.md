@@ -203,11 +203,14 @@ Stages 0 through 2h are run, Stage 2j is run, and **Stage 3 is run**. Stage 2i
 is closed. **Stage 4 runs next** and is required rather than optional, because
 the code is cited in the paper as a public Zenodo deposit.
 
-**ONE THING IS WAITING ON THE AUTHOR AND NOTHING ELSE IS.** Stage 3 proposes a
-figure numbering and did not apply it, because the instruction was to confirm
-before renaming. `reports/STAGE_REPORT_3.md` section 5 carries the proposal.
-Applying it is a stem change per figure cell; `figstyle.savefig` takes a stem
-rather than a path and refuses a name two places write.
+**NOTHING IS WAITING ON THE AUTHOR.** Stage 3 proposed a figure numbering and
+did not apply it, and the author then DEFERRED it to the manuscript: the
+numbering depends on which figures the paper includes, which is one of the last
+things decided (decision 235). **Stage 4 must not apply it either.** The sketch
+is `reports/STAGE_REPORT_3.md` section 5 and the full file list is
+`outputs/tables/audits/TABLE_FigureManifest.csv`, so nothing is worked out
+twice; applying any numbering later is a one-line change per figure cell,
+because `figstyle.savefig` takes a stem rather than a path.
 
 **THE FLIP-THRESHOLD ITEM IS CLOSED and this section said otherwise until
 2026-09-25.** `flip.FLIP_THRESHOLDS` was a hard-coded constant calibrated on the

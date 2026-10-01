@@ -297,7 +297,7 @@ and generation is closed; neither input moves again.
 | **2h DONE** | Eighteen sweeps, each closing a "you only tested one variant" objection. **ITS TWO LARGEST RESULTS REVERSE PREMISES THIS TABLE USED TO CARRY.** First, the two arms drew market shares by different rules on the dimension the paper is built on; that is fixed, both arms now use one rule at coherence 0.5, and the tenfold disagreement above 1,000 declarations is a factor of 1.9 (decisions 178, 190). Second, **the dispersion-versus-weighting trade this row called structural was an ARTIFACT of that weighting mismatch and disappears once it is repaired** -- so the corpus was regenerated as `corpus_2026-09-25` with the dispersion distance 0.409 to 0.247 and the weighting distance 0.340 to 0.151, improving together for the first time (decisions 193, 197). Not one recommendation moved: the practitioner threshold is still 81 declarations and every size band has the same winner (decision 198). Also: the scorecard put on one numerator, the both-fits rule for every published crossing, the judgment arm with the pedigree matrix SOURCED and found to be narrower than real data, the certification credit, Weibull, the bandwidth through the pLCA, the parent-level gate and the end-to-end smoke test. Decisions 174 to 199. `reports/HANDOFF_stage-2h.md` | Anything not framed as a sweep with a tabulated result. It did NOT adopt the upper truncation (decision 199) and did NOT measure the mixed-method policy, which is 2j |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **2j DONE** | **THE MIXED-METHOD POLICY, AND THE HONEST VERSION IS MODEST.** The rule a practitioner can follow -- uniform weights throughout, kernel estimate above the cutoff and three-parameter lognormal below -- beats the best uniform-weighted method on 9 of 16 claims, median 0.9 percent, pooled 2.9 percent (decision 217). **The 16-of-16 at 11.4 percent belongs to the same switch PLUS known market shares, which nobody has** (decisions 204, 216), so the gap between the two is the VALUE OF MARKET-SHARE DATA at 12.8 percent -- four times what the rule itself is worth, and the paper's strongest practical statement. **The cutoff is published as 40 to 170** (decision 224), the feasible rule's own indistinguishable band under a paired difference test against a FIXED reference -- the earlier band rule was a contest among grid points and moved when the grid was filled in. The claim-level constant is 80, not 81. A SECOND and much tighter band answers a different question: knowing MARKET SHARE is significantly harmful below 80 declarations and significantly helpful above 100, statistically zero in between, on all 10,000 datasets (decision 222). The sweep's degenerate ends reproduce their fixed methods to 0.00e+00 (decisions 213, 218). **And a correction the paper must carry**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so using a KNOWN share is what hurts below about 81 declarations -- because importance weights re-aim a fixed sample rather than adding to it, leaving a median Kish effective sample of 2.8 at 3 to 9 declarations, and the bandwidth's effective sample size is NOT the cause (decisions 212, 215). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the FEASIBLE rule as a seventh scorecard column (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
-| **3 DONE** | Figures. Notebooks 1 and 2 got an `OUT` cell and the compute/plot split that makes their figure cells redrawable, and **the split moved nothing: 147 x 24 empirical values bit identical, four of five PNGs byte identical**. Figures 2 and 3 merged; Figure 4 rebuilt on the 2f survivors with its three-curve alternative beside it; the feasible rule added as a seventh scorecard column; one `savefig` helper writing a PNG and a vector sibling and refusing a duplicate name; the figure manifest and four guard tests; the six stale audits re-run, every ordering holding and decisions 182, 184, 187 and 195 needing updated numbers; the hump-spacing levers measured alone and still declined; the two 96 MB tables moved to Parquet; the ASCII, spelling and vocabulary sweeps. `reports/STAGE_REPORT_3.md` | Changing any number. **The figure NUMBERING is proposed and NOT applied**, awaiting the author, and full FIGURE_STYLE.md compliance for the 30 figure cells that never call the style module is Stage 4's |
+| **3 DONE** | Figures. Notebooks 1 and 2 got an `OUT` cell and the compute/plot split that makes their figure cells redrawable, and **the split moved nothing: 147 x 24 empirical values bit identical, four of five PNGs byte identical**. Figures 2 and 3 merged; Figure 4 rebuilt on the 2f survivors with its three-curve alternative beside it; the feasible rule added as a seventh scorecard column; one `savefig` helper writing a PNG and a vector sibling and refusing a duplicate name; the figure manifest and four guard tests; the six stale audits re-run, every ordering holding and decisions 182, 184, 187 and 195 needing updated numbers; the hump-spacing levers measured alone and still declined; the two 96 MB tables moved to Parquet; the ASCII, spelling and vocabulary sweeps. `reports/STAGE_REPORT_3.md` | Changing any number. **The figure NUMBERING is DEFERRED to the manuscript by decision 235 and is not Stage 4's either**; full FIGURE_STYLE.md compliance for the 31 figure cells that never call the style module is Stage 4's |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
 Items already known to be open and owned by a named stage, so that none of them
@@ -8510,22 +8510,28 @@ rather than in conversation.
      legend label, so "KDE, Variable" was printed where decision 199 settled on
      "market weights".
 
-235. **2026-10-01, Stage 3. THE FIGURE NUMBERING IS PROPOSED AND NOT APPLIED,
-     AND THE PROPOSAL IS AS MUCH ABOUT WHICH FIGURES ARE MAIN TEXT.**
-     `[AWAITING THE AUTHOR]` The instruction is to propose and let the author
-     confirm before renaming, and 49 images is far more than a Building and
-     Environment paper carries.
+235. **2026-10-01, Stage 3. THE FIGURE NUMBERING IS DEFERRED TO THE MANUSCRIPT
+     AND IS NOT STAGE 4'S.** `[AUTHOR]` "Don't worry about figure renumbering
+     yet. That'll depend on what we end up including in the manuscript. That
+     will be one of the last things we do."
 
-     The proposal is **six main-text figures**, following the five questions a
-     probabilistic LCA answers: the six methods drawn; the merged distance and
-     rank figure; which method is closest against category size; where each
-     method sits against the characteristics that carry signal; the claim
-     scorecard with all seven policies; and the cutoff curve. `FIG_WeightingDrivers`
-     is the obvious seventh. Everything else becomes `SUPP<N>_*`.
-     `reports/STAGE_REPORT_3.md` section 5 carries it and
-     `outputs/tables/audits/TABLE_FigureManifest.csv` carries every file with its
-     generator.
+     This supersedes the Stage 3 prompt's instruction to propose a numbering and
+     have it confirmed. The numbering cannot be settled before the figure
+     SELECTION is, and the selection is a manuscript decision: about fifty
+     images is far more than a Building and Environment paper carries. Stage 3
+     therefore proposed and did not apply, and **Stage 4 should not apply it
+     either**.
 
-     **Applying it is a stem change per cell**, because `figstyle.savefig` takes
-     a stem rather than a path, and the duplicate-name check makes a collision
-     impossible. Stage 4 does it once the author says yes.
+     **The cost of deferring is near zero**, which is what makes it the right
+     call rather than a postponement. `figstyle.savefig` takes a STEM rather
+     than a path, so applying any numbering later is a one-line change per
+     figure cell; the duplicate-name guard makes a collision impossible; and
+     `tests/test_figure_manifest.py` fails on any file a rename leaves behind
+     without a generator.
+
+     The sketch is in `reports/STAGE_REPORT_3.md` section 5 and the full file
+     list with every generator is
+     `outputs/tables/audits/TABLE_FigureManifest.csv`, so nothing has to be
+     worked out twice.
+
+

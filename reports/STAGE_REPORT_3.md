@@ -44,12 +44,10 @@ in a filename, or a PNG with no vector sibling.
 
 ## What needs a decision
 
-**The figure numbering, which is below and which I have NOT applied.** You asked
-to confirm before renaming, and about fifty images is more than any paper
-carries, so the proposal is as much about which figures are main text as about
-numbers.
-
-**Nothing else.**
+**Nothing.** The figure numbering is DEFERRED by your decision of 2026-10-01: it
+depends on which figures the manuscript ends up including, so it is one of the
+last things done rather than something to settle now. Section 5 is a sketch to
+argue with later, not a question.
 
 ---
 
@@ -200,7 +198,11 @@ this repository does not hold.
 
     python -c "import sys; sys.path.insert(0,'src'); import comparison; print(comparison.curve_window(147), comparison.curve_window(10000))"
 
-## 5. The proposed figure numbering, which needs your yes
+## 5. A sketch of the numbering, for later
+
+**DEFERRED, 2026-10-01.** Renumbering waits on which figures the manuscript
+includes, which is a manuscript decision and one of the last to be taken. This
+is recorded so the work is not repeated, not to be acted on.
 
 **Six main-text figures**, in the order the results section takes.
 
@@ -221,9 +223,10 @@ version in the supplement, because the levels are what a reader needs first.
 Everything else becomes `SUPP<N>_*`. The full list, with the generator of every
 one, is `outputs/tables/audits/TABLE_FigureManifest.csv`.
 
-**Nothing is renamed until you say so.** `figstyle.savefig` already takes a stem
-rather than a path, so applying the numbering is a one-line change per figure
-and the duplicate-name check makes a collision impossible.
+**The cost of deferring is near zero.** `figstyle.savefig` takes a stem rather
+than a path, so applying any numbering later is a one-line change per figure
+cell, the duplicate-name check makes a collision impossible, and the test that
+forbids an orphan will catch any file the rename leaves behind.
 
     python audits/figure_manifest.py
 
@@ -256,7 +259,6 @@ changed figures are the two named above.
 
 | item | |
 |---|---|
-| **The figure numbering needs your confirmation before anything is renamed.** Section 5 |
 | **31 of 37 marked figure cells do not call `figstyle.apply()`**, so they follow the palette, the type sizes and the spine rules of whatever they were written with. The ASCII-minus requirement is now met at notebook level, which was the correctness half; the rest is a redesign of 31 figures and is a Stage 4 or manuscript-session job. `outputs/tables/audits/TABLE_FigureStyleCompliance.csv` names them |
 | **Nine of notebook 3's thirteen figure cells cannot be rendered on their own**, so a figure change there still costs a three-hour run. `outputs/tables/audits/TABLE_FigureRendererSafety.csv` names them and what each needs; four of the nine need only `dct_resultlabels` and a frame that is already on disk |
 | **"Report every aggregate in a figure with its confidence interval" is NOT done.** The scorecard's table carries them and the cutoff curve draws them; the merged distance-and-rank figure prints a mean W1 per method with no interval, and so do the bandwidth figure and the two strip supplements. A static sweep lists thirteen candidate cells, several of which are scatters of every dataset and need none. The command below prints the list; deciding which of them is really an aggregate is a figure-by-figure judgment and is Stage 4's |
@@ -285,12 +287,11 @@ that notebook 2 has a smoke configuration, and neither was true.
 
 ## 9. What Stage 4 picks up first
 
-1. **The figure numbering, once confirmed.** It is a stem change per cell plus a
-   manifest regeneration, and the duplicate check will catch any collision.
-2. **Re-run notebook 3 end to end.** Stage 2j left two measurements for the next
+1. **Re-run notebook 3 end to end.** Stage 2j left two measurements for the next
    full run -- the feasible rule's group-composition split, and `MixedBackwards`
    as a control that should lose to both recommended rules -- and the pLCA
    scatter figure's highlighted points were dropped this stage, which shifts the
    illustrative sampling in `FIG_PLCAVisualizeUQFits` and nothing else.
-3. **The README and the deposit**, which is Stage 4's own work, now with a
-   figure manifest to put in it.
+2. **The README and the deposit**, which is Stage 4's own work, now with a
+   figure manifest to put in it. **Renumbering is NOT Stage 4's**: it waits on
+   the manuscript's figure selection.

@@ -3988,6 +3988,14 @@ kept for diffability rather than as a second dataset. And the retired vocabulary
 "variable", "sampled market shares", "Dirichlet shares" -- has to be swept out of
 column names, filenames and the README, not only out of the figures.
 
+**RENUMBERING THE FIGURES IS NOT THIS STAGE'S, added 2026-10-01 by the author.**
+"Don't worry about figure renumbering yet. That'll depend on what we end up
+including in the manuscript. That will be one of the last things we do." Stage 3
+proposed a numbering and did not apply it; it stays unapplied until the
+manuscript's figure selection is settled. Decision 235. The figure manifest at
+`outputs/tables/audits/TABLE_FigureManifest.csv` is still what the README
+needs, and it does not depend on the numbering.
+
 Update the README and repository structure for re-deposit to Zenodo at
 submission. The code is cited in the paper as a public artifact, so it
 needs to be legible to someone arriving from the citation: what to run, in
