@@ -135,7 +135,18 @@ below-method. Both curves therefore end at the same point, lognormal with
 uniform weights, and that shared end is checked to **0.00e+00** on every run.
 
 **The shaded bands are each curve's own indistinguishable span, in its own
-colour and on its own half of the panel** -- orange 40 to 170, blue 50 to 110.
+colour and on its own half of the panel** -- orange 40 to 170, blue 50 to 110 --
+and each curve's label sits on the facing edge of its own band. A light dashed
+rule runs from each vertex back to the y axis so the three end points can be
+read against the scale.
+
+**The sixth fixed method, a lognormal with market weights at 23.65, is not on
+this panel.** Neither swept rule can produce it: both use a kernel estimate
+above the cutoff, so a lognormal-with-market-weights policy belongs to a third
+rule family that was not swept. It is worth one line of text rather than a line
+on the figure, because it beats the better of the two uniform-weighted fixed
+methods -- 23.65 against 23.92 -- and still needs market shares nobody
+publishes. It is in `TABLE_MixedPolicyRanking.csv`.
 Neither is the 80-to-100 band for when market share starts helping: that is a
 per-dataset measurement against the true parent (section 4) and does not live on
 this axis.
