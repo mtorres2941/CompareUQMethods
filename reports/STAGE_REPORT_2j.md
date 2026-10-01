@@ -127,9 +127,19 @@ the cutoff and is not a method. **The vertical gap between them is what knowing
 market share would be worth: about 3 points of the roughly 23 a probabilistic
 LCA gets wrong**, against the 0.73 points the whole choice of cutoff is worth
 across two and a half orders of magnitude. The dotted lines are the fixed
-methods, and both curves' ends land on them exactly, because at a cutoff of 3 or
-10,000 each rule IS a fixed method. The shaded band is 40 to 170, the cutoffs
-indistinguishable from the best.
+methods: the two just below 24.0 are always-KDE at 23.92 and always-lognormal at
+23.96, which sit 0.04 apart and share one label, and the lower one at 22.93 is
+always-KDE with known market shares. Both curves' ends land on those lines
+exactly, because at a cutoff of 3 or 10,000 each rule IS a fixed method. **The
+shaded band is the ORANGE curve's**, 40 to 170; the grey curve's own band is 50
+to 110.
+
+**BOTH CURVES SWEEP THE SAME THING on the x axis** -- where the FAMILY switches,
+kernel estimate at or above, lognormal below. The grey one additionally turns on
+the true market shares at that same point, so the vertical gap between them is
+what knowing market share is worth. **Neither curve is a sweep of where to
+switch WEIGHTING**, and the 80-to-100 band for that question is a different
+measurement entirely (section 4), not on this figure.
 
 *If the image does not render:* two shallow U curves on a log x axis from 3 to
 10,000 declarations. The upper, orange, runs from 23.92 percent at a cutoff of 3
