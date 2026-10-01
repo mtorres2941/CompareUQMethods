@@ -297,7 +297,7 @@ and generation is closed; neither input moves again.
 | **2h DONE** | Eighteen sweeps, each closing a "you only tested one variant" objection. **ITS TWO LARGEST RESULTS REVERSE PREMISES THIS TABLE USED TO CARRY.** First, the two arms drew market shares by different rules on the dimension the paper is built on; that is fixed, both arms now use one rule at coherence 0.5, and the tenfold disagreement above 1,000 declarations is a factor of 1.9 (decisions 178, 190). Second, **the dispersion-versus-weighting trade this row called structural was an ARTIFACT of that weighting mismatch and disappears once it is repaired** -- so the corpus was regenerated as `corpus_2026-09-25` with the dispersion distance 0.409 to 0.247 and the weighting distance 0.340 to 0.151, improving together for the first time (decisions 193, 197). Not one recommendation moved: the practitioner threshold is still 81 declarations and every size band has the same winner (decision 198). Also: the scorecard put on one numerator, the both-fits rule for every published crossing, the judgment arm with the pedigree matrix SOURCED and found to be narrower than real data, the certification credit, Weibull, the bandwidth through the pLCA, the parent-level gate and the end-to-end smoke test. Decisions 174 to 199. `reports/HANDOFF_stage-2h.md` | Anything not framed as a sweep with a tabulated result. It did NOT adopt the upper truncation (decision 199) and did NOT measure the mixed-method policy, which is 2j |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **2j DONE** | **THE MIXED-METHOD POLICY, AND THE HONEST VERSION IS MODEST.** The rule a practitioner can follow -- uniform weights throughout, kernel estimate above the cutoff and three-parameter lognormal below -- beats the best uniform-weighted method on 9 of 16 claims, median 0.9 percent, pooled 2.9 percent (decision 217). **The 16-of-16 at 11.4 percent belongs to the same switch PLUS known market shares, which nobody has** (decisions 204, 216), so the gap between the two is the VALUE OF MARKET-SHARE DATA at 12.8 percent -- four times what the rule itself is worth, and the paper's strongest practical statement. **The cutoff is published as 40 to 170** (decision 224), the feasible rule's own indistinguishable band under a paired difference test against a FIXED reference -- the earlier band rule was a contest among grid points and moved when the grid was filled in. The claim-level constant is 80, not 81. A SECOND and much tighter band answers a different question: knowing MARKET SHARE is significantly harmful below 80 declarations and significantly helpful above 100, statistically zero in between, on all 10,000 datasets (decision 222). The sweep's degenerate ends reproduce their fixed methods to 0.00e+00 (decisions 213, 218). **And a correction the paper must carry**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so using a KNOWN share is what hurts below about 81 declarations -- because importance weights re-aim a fixed sample rather than adding to it, leaving a median Kish effective sample of 2.8 at 3 to 9 declarations, and the bandwidth's effective sample size is NOT the cause (decisions 212, 215). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the FEASIBLE rule as a seventh scorecard column (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
-| **3** | Figures: merge 2 and 3, rebuild 4 from the 2f survivors, the figure manifest, the naming convention, vector output, duplicate-filename check. **ITS FIRST TWO TASKS COME FROM 2j.** Mark the twelve unmarked `savefig` cells in notebooks 1 and 2 AND give each of those notebooks an `OUT` cell -- the renderer raises on a missing setup cell BEFORE it ever checks markers, and `tests/test_render_figures.py` skips both notebooks today for exactly that reason, so marking alone unlocks nothing; then add the FEASIBLE mixed rule as a seventh scorecard column (decision 211), never the known-share one, and sweep every caption for the retired weighting labels, for the corrected weighting framing of decision 212, and for the corrected n_eff wording of decision 219. **The figure SIZE problem is FIXED, 2026-09-15, and the diagnosis recorded here was wrong: no figure ever declared a 94 by 55 inch `figsize`. The cause was RESOLUTION. Notebook 2 set `matplotlib.rcParams['figure.dpi'] = 1200`, and `savefig.dpi` defaults to `'figure'`, so that was silently the save resolution for every figure in the notebook; notebook 3 passed `dpi=1200` to six `savefig` calls directly. All are now 300, with `figure.dpi` at 100 for the screen. Layout is measured in inches, so nothing moved but the pixel count.** | Changing any number |
+| **3 DONE** | Figures. Notebooks 1 and 2 got an `OUT` cell and the compute/plot split that makes their figure cells redrawable, and **the split moved nothing: 147 x 24 empirical values bit identical, four of five PNGs byte identical**. Figures 2 and 3 merged; Figure 4 rebuilt on the 2f survivors with its three-curve alternative beside it; the feasible rule added as a seventh scorecard column; one `savefig` helper writing a PNG and a vector sibling and refusing a duplicate name; the figure manifest and four guard tests; the six stale audits re-run, every ordering holding and decisions 182, 184, 187 and 195 needing updated numbers; the hump-spacing levers measured alone and still declined; the two 96 MB tables moved to Parquet; the ASCII, spelling and vocabulary sweeps. `reports/STAGE_REPORT_3.md` | Changing any number. **The figure NUMBERING is proposed and NOT applied**, awaiting the author, and full FIGURE_STYLE.md compliance for the 30 figure cells that never call the style module is Stage 4's |
 | **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
 
 Items already known to be open and owned by a named stage, so that none of them
@@ -8256,3 +8256,276 @@ rather than in conversation.
      the corpus. A claim that something cannot be measured deserves at least as
      much scepticism as a claim that it can, and I reached for it twice without
      testing it once.
+
+227. **2026-10-01, Stage 3. COMPUTE AND PLOTTING ARE SEPARATED IN NOTEBOOKS 1
+     AND 2, AND THE SPLIT MOVED NOTHING.** `[AUTHOR]` This is Stage 1's deferred
+     Phase 5 and Stage 3's first task, and it had TWO blockers rather than the
+     one the prompt file carried.
+
+     `audits/render_figures.py` raises on a missing `OUT` BEFORE it checks
+     markers, and neither notebook defined one, so marking their figure cells
+     would have unlocked nothing. `tests/test_render_figures.py` skipped both
+     with that reason. The second blocker is the one that mattered: their figure
+     cells read fitted models and frames out of kernel memory, which the
+     standing constraint forbids and which is why those figures could not be
+     reproduced without a 30- and a 35-minute run.
+
+     **Where a figure needed something never persisted, the cell is SPLIT**: a
+     compute half that writes a table, a figure half that draws it. Eight new
+     tables carry what used to live only in memory -- the example parents, the
+     example datasets by stratum, the W1 definition demo, the six fitted
+     densities of one dataset, the KS and W2 scores, the rank frequencies, and
+     every empirical dataset's values and fitted curves.
+
+     **THE SPLIT PRESERVES THE RANDOM STREAM EXACTLY, WHICH IS THE WHOLE POINT.**
+     Notebook 1's example figures draw from the main Generator, and
+     `corpus.make_combos` later takes the pLCA groupings from that same stream,
+     so moving a draw would have moved every pLCA number in the paper. The
+     compute halves consume what the single cells consumed, in the same order;
+     the figure halves consume nothing.
+
+     **THE CONTROL, and it is as clean as this project has had.** Notebook 1
+     re-ran end to end: all 147 x 24 empirical characteristic values are BIT
+     IDENTICAL, and four of its five figure PNGs are BYTE IDENTICAL. The fifth
+     changed because an axis label said "W1, uniform vs variable" and now says
+     "market weights". Notebook 2's synthetic score table is bit identical over
+     10,000 rows and 39 columns.
+
+     **The one exception is the strip jitter, and it cannot touch an analysis
+     stream.** It comes from a Generator seeded independently from `SEED`,
+     because spawning one would renumber every later spawn and move the
+     empirical weights and the cross-validation splits.
+     `tests/test_notebooks.py` permits exactly that, declared with a marker, and
+     still fails on an undeclared second Generator.
+
+         python -m pytest tests/test_render_figures.py tests/test_notebooks.py -q
+
+228. **2026-10-01, Stage 3. FIGURES 2 AND 3 ARE ONE FIGURE, AND THE EMPIRICAL
+     STRIP IS NEW.** `[AUTHOR]` `CompareUQMethods_FIG_W1DistanceAndRank`: the W1
+     strip with mean labels on the left, the rank-frequency heatmap on the
+     right, one row per arm, one cell, one file. The synthetic strip existed and
+     the empirical one did not, so the merge adds a panel rather than only
+     combining two.
+
+     The two superseded images are in `archive/figures/` with a reason, not
+     deleted.
+
+229. **2026-10-01, Stage 3. A FIGURE IS WRITTEN BY ONE CALL THAT TAKES A STEM,
+     EMITS A VECTOR SIBLING, AND REFUSES A NAME TWO PLACES WRITE.** `[AUTHOR]`
+     `figstyle.savefig(fig, OUT, stem)`. The naming convention lives in one
+     place, a journal gets a PDF beside every PNG from the same call so the two
+     cannot drift, and a duplicate stem raises.
+
+     **That last part is not hypothetical.** This repository carried two
+     different figures both called `FIG2`, which is what happens when two cells
+     write one name: nothing fails and the second silently discards the first.
+
+     **`audits/figure_manifest.py` joins every image on disk against the code
+     that writes it**, and reports three things: orphans, duplicates, and which
+     figure cells the fast renderer can execute on its own. It found FIVE images
+     with no generator anywhere; they are in `archive/figures/` with reasons.
+     `tests/test_figure_manifest.py` fails on a duplicate filename, on an orphan,
+     on a retired weighting word in a filename, and on a PNG with no vector
+     sibling.
+
+     **AND IT FOUND THAT NOTEBOOK 3 WAS NEVER RENDERER-SAFE.** 28 of 37 figure
+     cells run against the setup block alone; the nine that cannot are all in
+     notebook 3, which was believed clear because every use of it had passed
+     `--only` and rendered a cell that happened to be self-sufficient. Stage 4
+     owns it; `TABLE_FigureRendererSafety.csv` names them.
+
+         python audits/figure_manifest.py
+
+230. **2026-10-01, Stage 3. THE SCORECARD HAS ITS SEVENTH COLUMN, AND IT CARRIES
+     TWO COUNTS THAT MUST NOT BE QUOTED FOR EACH OTHER.** `[AUTHOR]` This
+     implements decision 211. The column is the FEASIBLE rule -- uniform weights
+     throughout, kernel estimate above the cutoff, three-parameter lognormal
+     below -- and never the known-share one.
+
+     **The rule is closest of ALL SEVEN on 2 of 16 claims and closest of the
+     FOUR A READER CAN CHOOSE on 10 of 16.** Both are true and they answer
+     different questions, so the figure draws two boxes, black for the best of
+     seven and dashed for the best of the four, and asterisks the three
+     market-weighted columns with one footnote saying they need product-level
+     shares nobody publishes.
+
+     **NEITHER IS DECISION 217'S 9 OF 16.** That one is the rule's gain over the
+     best uniform-weighted method for each claim with a PAIRED interval
+     excluding zero; mine is a plain argmin. They differ on exactly one claim, a
+     material's standard deviation, where the rule is closest by 0.52 percent on
+     an interval running -0.37 to +1.46. Pooled over the sixteen: the rule 23.25
+     percent of true level, the kernel estimate with uniform weights 23.92, the
+     three-parameter lognormal with uniform weights 23.96.
+
+     **No cutoff is printed anywhere on the figure**, per decisions 224 and 225;
+     the footnote gives the range.
+
+     **`metricset.rescore` is the one implementation of the derived columns.**
+     `best_method`, `stakes`, `excess` and `methods_differ` are properties of
+     the SET of methods compared, so a seventh policy changes all four;
+     `claim_scorecard` calls the same function, which is what stops the
+     six-method and seven-policy tables disagreeing about how they were derived.
+
+         python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_ClaimScorecardWithRule.csv'); print(d[d['rank']==1].method.value_counts())"
+
+231. **2026-10-01, Stage 3. DECISION 175'S ROUNDING RULE GAINS ONE GUARD: the
+     printed spread may not be more than twice the real one.** `[DELEGATED, 3
+     found and fixed]` The rule prints a crossing at the first significant
+     figure the logistic and the isotonic fit disagree on. On the recalibrated 5
+     percent flip threshold it rendered **0.015021 and 0.013899 -- which agree to
+     7.5 percent -- as "0.02 against 0.01"**, which reads as a factor of two. The
+     cause is a value sitting on a rounding boundary, where one unit in the last
+     place is far larger than the difference being displayed.
+
+     The chosen digit must now also satisfy that the gap between the PRINTED
+     numbers is at most twice the gap between the real ones. It only ever
+     increases the digit count, and **both of decision 175's published examples
+     return exactly what they did**: 2.1 against 2.2, and 1.5 against 1.4.
+
+     **Two prose values move and no constant does**: the 5 percent crossing from
+     "0.02 against 0.01" to **"0.015 against 0.014"**, and the 10 percent from
+     "0.032 against 0.031" to **"0.0316 against 0.0314"**.
+
+     **AND `CONTEXT.md` WAS STILL PRINTING THE SUPERSEDED CONSTANTS.** Decision
+     223 corrected the four decision-log entries that carried 0.0018, 0.011 and
+     0.025 and did not reach the mechanics file, which a session is told to read
+     before touching code. Corrected, and
+     `tests/test_flip.py::test_stored_flip_thresholds_sit_inside_their_own_intervals`
+     now fails if the stored constants drift outside their own recomputed
+     intervals again -- which is the open item Stage 2j handed here.
+
+232. **2026-10-01, Stage 3. THE TWO HUMP-SPACING LEVERS ARE MEASURED ALONE UNDER
+     THE SETTLED WEIGHT RULE, AND THE RECOMMENDATION IS STILL NOT TO
+     REGENERATE.** `[DELEGATED, 3 measured]` `separation_dispersion_frac` and
+     `shoulder_frac` were both still at 0.0 and every earlier measurement of
+     either was taken under the mismatched weight rules, on the superseded
+     corpus, or bundled with `mode_share_alpha` so neither could be read on its
+     own. 1,000-dataset drafts, judged against the **weight-draw noise of 0.006
+     to 0.015**:
+
+         candidate        multimodal  both   multi|dispersed  objective  weighting
+         shipped              0.200  0.013            0.147     0.2281     0.1722
+         + separation         0.233  0.022            0.191     0.2730     0.1520
+         + shoulder           0.167  0.019            0.167     0.2214     0.1420
+         the real arm         0.246  0.054            0.212         --         --
+
+     **Separation closes most of the conditional gap** -- 0.147 to 0.191 against
+     a real 0.212 -- **and costs 0.045 on the objective, three to seven times the
+     noise.** Shoulder is free on the objective at -0.0067, buys about half the
+     joint gap, and gives up the multimodal marginal, 0.200 to 0.167.
+
+     **AND BOTH IMPROVE THE WEIGHTING MARGIN**, 0.1722 to 0.1520 and 0.1420,
+     where every pre-port measurement had widening cost it. **Decision 193 is
+     confirmed on a lever it was never measured on.**
+
+     Neither closes the gap and both have a price, so **decision 203 stands and
+     generation stays closed**. What is new is that the limitation now rests on a
+     direct measurement of the two levers built for it.
+
+     **A DEFECT FOUND DOING IT, and it is the stale-input failure this project
+     keeps hitting.** The audit reused any existing draft directory, and the
+     `current` draft had been generated under the SUPERSEDED configuration --
+     `cv_log10_mean` 0.129 against 0.329, `min_q1_over_iqr` 0.5 against 0.2 --
+     so every candidate was being compared against the wrong baseline while the
+     table said `current`. It now refuses a draft whose recorded configuration
+     differs from the one asked for, and regenerates under a dated label rather
+     than overwriting a corpus.
+
+         python audits/corpus_joint_structure.py 1000 --only current,shipped_plus_separation,shipped_plus_shoulder
+
+233. **2026-10-01, Stage 3. THE SIX STALE AUDITS ARE RE-RUN ON THE CURRENT
+     CORPUS. EVERY ORDERING HELD, EVERY LEVEL MOVED, AND THREE DECISION ENTRIES
+     NEED THEIR NUMBERS UPDATED.** `[DELEGATED, 3 measured]`
+
+     **Decision 182, the upper truncation.** The worst runaway fit is **4.95**
+     times the data's own spread uncapped, not 5.4, and a cap at twice the
+     largest observation takes it to **1.85**, not 1.8. Against the truth the cap
+     still costs nothing: `Lognormal, Variable` 0.19924 uncapped against 0.19913
+     capped, and the kernel estimate and the normal do not move. Decision 199's
+     one-line remedy stands with the new figures.
+
+     **Decision 184, the judgment arm.** The six data-driven methods span 0.0756
+     to 0.1140 on the design comparison; a correctly centered pedigree model at
+     matched spread reads **0.0886**, and 0.0886 to 0.1136 across a six-fold
+     spread range. A common offset cancels to the last digit, which reproduces
+     that decision's control exactly. The realistic one-declaration case reads
+     0.1612 to 0.2722. At matched spread and correct center, uniform reads
+     **0.2349** and triangular **0.2228** against the pedigree lognormal's
+     0.0886, so the shape finding is **2.5-fold** rather than 2.1-fold.
+
+     **Decision 187, the certification credit.** At a 10 percent credit with 75
+     percent confidence the truth earns it on **12.7 percent** of 3,000 cases,
+     at least two methods disagree on **19.4**, the best method is wrong on
+     **7.5** and the worst on **13.0**. The fragility is still the threshold:
+     the six disagree on 59.1 percent of designs within 0.05 of the line and 5.1
+     percent beyond 0.25. **A normal is the worst method on 9 of the 15
+     tier-and-confidence combinations**, where that decision records 8.
+
+     **Decision 195, the bandwidth through the pLCA, and this one is NARROWED.**
+     Averaged over the five outputs Scott is still worst under both weightings
+     -- 29.23 against 28.24 and the shipped rule's 28.51 under uniform weights,
+     30.06 against 28.89 and 28.93 under market weights -- so the shipped rule
+     stands. **What does not survive is "Scott is worst on every one of the five
+     outputs":** under uniform weights Scott is now best on two, a material's
+     standard deviation at 31.091 against 31.035 and the uncertainty index at
+     49.412 against 49.428. **And the guard no longer BUYS anything under market
+     weights**, where that decision records it buying 0.15 of a point; it costs
+     0.04 there and 0.28 under uniform weights. The control fires: the four
+     parametric methods move 0.0000 points across the three rules.
+
+     **Decision 188, the bandwidth sweep**, is unchanged: the two arms disagree
+     about the density criterion and agree about the study's own.
+
+234. **2026-10-01, Stage 3. THE TWO OVERSIZED TABLES MOVE TO PARQUET, AND THE
+     ASCII AND SPELLING SWEEPS ARE DONE.** `[AUTHOR]`
+
+     `TABLE_MethodCurves` 96.4 MB to **44.4 MB** and `TABLE_MethodWinShare` 22.8
+     to **6.7**, with every float still float64, every row verified element by
+     element before the CSVs were removed, and a 23-fold speedup on read.
+     Decision 15 already chose Parquet for this repository's bulk data and gave
+     the reason that applies here: a Zenodo reader can open it from R or Julia.
+
+     **THE UNICODE MINUS WAS STILL IN MOST FIGURES.** `figstyle.apply()` has set
+     `axes.unicode_minus` since Stage 2e, and the new style audit shows **30 of
+     36 marked figure cells never call it**, so every figure with a negative tick
+     label carried U+2212. Each notebook's matplotlib config cell now sets it,
+     which reaches all of them without re-tuning layouts built before the style
+     module existed. **The rest of FIGURE_STYLE.md compliance is a redesign of 30
+     figures and is NOT done**; `TABLE_FigureStyleCompliance.csv` names them.
+
+     **US spelling across 19 files.** Two exclusions, both deliberate: the sent
+     prompt sections are a record of what a session was given, and
+     "characterisation" appears only inside the title of Marsh, Lewis, Hattam
+     and Allen (in press), which keeps its published spelling. **The sweep broke
+     two things and both are repaired**: a local variable in
+     `metricreduction.py` whose assignment was skipped by the identifier guard
+     while its use was renamed, and a regex in `audits/judgment_arm.py` parsing a
+     label the sweep had just changed. That column is now `center` and the audit
+     re-runs under it. **The remaining non-ASCII in the repository is four
+     justified cases**: unit strings that must match EC3's own text, French
+     product names in a regex that must match real EPDs, and the author's name.
+
+     **And the retired weighting vocabulary is out of figure LABELS, not just
+     filenames.** Seven cells across three notebooks passed the raw PEWT key as a
+     legend label, so "KDE, Variable" was printed where decision 199 settled on
+     "market weights".
+
+235. **2026-10-01, Stage 3. THE FIGURE NUMBERING IS PROPOSED AND NOT APPLIED,
+     AND THE PROPOSAL IS AS MUCH ABOUT WHICH FIGURES ARE MAIN TEXT.**
+     `[AWAITING THE AUTHOR]` The instruction is to propose and let the author
+     confirm before renaming, and 49 images is far more than a Building and
+     Environment paper carries.
+
+     The proposal is **six main-text figures**, following the five questions a
+     probabilistic LCA answers: the six methods drawn; the merged distance and
+     rank figure; which method is closest against category size; where each
+     method sits against the characteristics that carry signal; the claim
+     scorecard with all seven policies; and the cutoff curve. `FIG_WeightingDrivers`
+     is the obvious seventh. Everything else becomes `SUPP<N>_*`.
+     `reports/STAGE_REPORT_3.md` section 5 carries it and
+     `outputs/tables/audits/TABLE_FigureManifest.csv` carries every file with its
+     generator.
+
+     **Applying it is a stem change per cell**, because `figstyle.savefig` takes
+     a stem rather than a path, and the duplicate-name check makes a collision
+     impossible. Stage 4 does it once the author says yes.

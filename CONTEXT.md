@@ -1127,9 +1127,9 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 628 tests, 2 skipped, about 180 s
-                                 # the 2 skips are notebooks 1 and 2
-                                 # having no OUT cell; Stage 3 owns it
+python -m pytest tests/          # 640 tests, 0 skipped, about 200 s
+                                 # the two Stage 2j skips are gone:
+                                 # notebooks 1 and 2 define OUT
 ```
 
 Headless execution, from `notebooks/`:
@@ -1330,7 +1330,7 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 9,999 x 37 |
 | `TABLE_MethodScores.csv` | NB2 | one row per (arm, dataset, method): W1, held-out W1, both ranks, model-spread ratio |
 | `TABLE_MethodSummary.csv` | NB2 | the six methods by arm, the table to read first |
-| `TABLE_MethodCurves.csv.gz` | NB2 | every score against every characteristic, unbinned, with the rolling mean the figures draw |
+| `TABLE_MethodCurves.parquet` | NB2 | every score against every characteristic, unbinned, with the rolling mean the figures draw. **Parquet since Stage 3**: 4.0M rows of which five columns are repeated strings, 96.4 MB as csv.gz against 44.4 as parquet and 23x faster to read. Every float is still float64 |
 | `TABLE_BandwidthRules.csv` | NB2 | the two KDE methods under all three bandwidth rules |
 | `TABLE_TargetComparison.csv` | NB2 | **the Stage 2c table to read.** One row per (arm, dataset, method): the in-sample score, the recovery score against the parent it estimates and against the market parent, the cross-validated score with its spread across splits, the decomposition and the overlap area |
 | `TABLE_TargetSummary.csv` | NB2 | the six methods by arm, criterion and weighting scheme |
@@ -1377,7 +1377,7 @@ beside its replacement so the two can be checked against each other.
 `FIG_Regret`, `FIG_MethodByMaterial` (which is the POLICY comparison, not a
 material breakdown -- the tier is not a mechanism, decision 84) and
 `SUPP_AllEmpiricalFits`, all 147 empirical datasets with all six fits.
-| `TABLE_MethodWinShare.csv.gz` | NB2 | how often each method wins, against the percentile of each characteristic |
+| `TABLE_MethodWinShare.parquet` | NB2 | how often each method wins, against the percentile of each characteristic. Parquet since Stage 3, 22.8 MB to 6.7 |
 | `TABLE_WeightingLocationShape.csv` | NB1 | one row per (arm, dataset): the uniform-to-variable W1 split into the mean shift it must at least contain and the residual |
 | `TABLE_WeightingRelativeMeasure.csv` | NB1 | the same quantity computed on normalized and on RAW values, which is the check that the normalization is not doing secret work |
 | `TABLE_WeightingRisk.csv` | NB1 | **the per-dataset practitioner table.** A_IQR, the median and 90th percentile separation over 1,000 Dirichlet draws, and the probability that a possible weighting carries a 1, 5 or 10 percent chance of changing the top contributor |
@@ -1652,5 +1652,34 @@ Without `--into-outputs` it writes to a scratch directory whose `tables/` is a
 symlink to the real one, so the figures read production data while `outputs/`
 is untouched. It REFUSES a notebook with an unmarked figure cell rather than
 redrawing only some of them; a figure cell announces itself by starting with
-`# FIGURE` or `# SUPPLEMENT`. Notebook 4 is marked, notebooks 1 to 3 are not
-and the tool declines them until Stage 3 does that work.
+`# FIGURE` or `# SUPPLEMENT`.
+
+**ALL FOUR NOTEBOOKS ARE ACCEPTED AS OF STAGE 3.** Notebooks 1 and 2 had TWO
+blockers and the first is the one that is easy to miss: the tool raises on a
+missing `OUT` BEFORE it checks markers, so marking alone unlocked nothing.
+Both now define `OUT` in their configuration cell and every figure cell reads
+its data from a table.
+
+**BEING ACCEPTED IS NOT THE SAME AS EVERY CELL BEING RENDERABLE, and `--only`
+hides the difference.** The tool runs the SETUP BLOCK -- every code cell up to
+and including the one defining `OUT` -- and then a figure cell; a cell that
+reads a frame or a helper defined in a compute cell in between will raise.
+Render one self-sufficient cell with `--only` and the tool reports success.
+**28 of 37 figure cells pass; the nine that do not are all in notebook 3**,
+which was believed clear for exactly that reason.
+`python audits/figure_manifest.py` lists them and writes
+`outputs/tables/audits/TABLE_FigureRendererSafety.csv`.
+
+### Writing a figure
+
+`figstyle.savefig(fig, OUT, stem)` and nothing else. It writes
+`CompareUQMethods_<stem>.png` plus a `.pdf` sibling from one call, so the
+raster and the vector cannot drift apart, and it RAISES if two places in one
+process write the same stem. This repository carried two different figures both
+called `FIG2`; a duplicate filename fails silently and the second writer wins.
+
+`python audits/figure_manifest.py` joins every image on disk against the code
+that writes it and reports orphans, duplicates, style-module compliance and
+renderer safety. `tests/test_figure_manifest.py` fails on an orphan, a
+duplicate, a retired weighting word in a filename, or a PNG with no vector
+sibling.
