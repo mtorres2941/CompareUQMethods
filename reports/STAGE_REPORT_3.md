@@ -249,11 +249,14 @@ forbids an orphan will catch any file the rename leaves behind.
 | `audits/judgment_arm.py` column `centre` | `centre` | `center` | the US spelling sweep; the table is regenerated under the new name |
 | `TABLE_MethodCurves` characteristics | 21 | 23 | the notebook held TWO definitions of its characteristic set and the curves table was built from the one that misses `modality_index_fitted`, the measure decision 134 added and decision 82 says to report. One definition now, and the per-characteristic supplement gains two pages. Nothing already in the table changes |
 
-**Nothing else moved**, and the three places it could have are checked rather
-than asserted: the empirical characteristic table is bit identical over 147 rows
-and 24 columns, the synthetic score table over 10,000 and 39, and the empirical
-score table likewise. Every pLCA table is written by notebook 3, whose only
-changed figures are the two named above.
+**Nothing else moved**, and every place it could have is checked rather than
+asserted. After notebook 2's full run: the empirical characteristic table is bit
+identical at 147 by 24, the synthetic score table at 10,000 by 39, the empirical
+score table at 147 by 30, and `TABLE_MethodScores` over all 60,882 rows -- the
+882 that first read as different are the empirical arm's absent
+`parent_scheme`, NaN compared against itself as a string. The method summary,
+the policy comparison, the regret table and the size crossover are identical
+too.
 
 ## 7. What is still open
 
