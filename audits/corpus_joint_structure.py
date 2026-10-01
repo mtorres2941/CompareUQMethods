@@ -156,7 +156,42 @@ CANDIDATES = {
     'shipped_plus_alpha1': dict(mode_share_alpha=1.0),
     'shipped_plus_alpha1_sep': dict(mode_share_alpha=1.0,
                                     overlap_log10_hi=-0.10),
+    # THE SIXTH ROUND, Stage 3, and it closes the one measurement the Stage 3
+    # prompt asks for by name. `separation_dispersion_frac` and `shoulder_frac`
+    # are the two levers built FOR the joint structure -- the first solves the
+    # component SPACING so the mixture itself carries the drawn coefficient of
+    # variation, the second pairs the heaviest weight with the widest component
+    # so a mode is a shoulder on a body rather than half of a symmetric pair --
+    # and both are still at 0.0 in the live configuration and inside
+    # corpus_2026-09-25. Every earlier measurement of either was taken under
+    # the mismatched weight rules, or on the superseded corpus, or bundled with
+    # `mode_share_alpha` so that neither lever could be read on its own.
+    #
+    # Each is therefore measured ALONE against the shipped configuration, which
+    # is what makes the result attributable. Decision 203 settled
+    # `mode_share_alpha` and is not reopened here.
+    'shipped_plus_separation': dict(separation_dispersion_frac=1.0),
+    'shipped_plus_shoulder': dict(shoulder_frac=1.0),
 }
+
+
+def _config_matches(directory, cfg):
+    """Was this draft generated under `cfg`?
+
+    Compares every scalar generation parameter recorded in the corpus's own
+    runmeta against the configuration about to be asked for. `strata`, `probe`
+    and `seed` are excluded: a draft is deliberately scaled down, so those
+    differ by construction and say nothing about the shape of the parents.
+    """
+    import dataclasses
+    try:
+        rec = json.load(open(os.path.join(directory, 'runmeta.json')))['config']
+    except Exception:
+        return False
+    want = dataclasses.asdict(cfg)
+    skip = ('strata', 'probe', 'seed')
+    return all(rec.get(k) == v for k, v in want.items()
+               if k not in skip and not isinstance(v, (list, tuple, dict)))
 
 
 def empirical_targets():
@@ -215,9 +250,28 @@ def main(argv):
         # script cheap to re-run when only one candidate is added.
         label = f'draft_joint_{name}'
         d = os.path.join(ROOT, 'data', 'processed', f'corpus_{label}')
-        if os.path.isdir(d):
+        # A DRAFT IS REUSED ONLY IF IT WAS GENERATED UNDER THE CONFIGURATION
+        # BEING ASKED FOR. It used to be reused whenever the directory existed,
+        # and Stage 3 found `current` coming back from a draft made before the
+        # Stage 2h regeneration -- `cv_log10_mean` 0.129 against the shipped
+        # 0.329 and `min_q1_over_iqr` 0.5 against 0.2 -- so every candidate was
+        # being compared against the SUPERSEDED configuration while the table
+        # said `current`. A corpus is never overwritten (decision 26), so a
+        # stale draft is reported and regenerated under a dated label rather
+        # than replaced.
+        if os.path.isdir(d) and _config_matches(d, cfg):
             print(f'  {name:24s} reusing existing draft', flush=True)
         else:
+            if os.path.isdir(d):
+                label = f'{label}_{time.strftime("%Y-%m-%d")}'
+                d2 = os.path.join(ROOT, 'data', 'processed', f'corpus_{label}')
+                print(f'  {name:24s} existing draft was generated under a '
+                      f'DIFFERENT configuration; regenerating as {label}',
+                      flush=True)
+                if os.path.isdir(d2):
+                    raise SystemExit(
+                        f'{label} also exists; delete it or rename the '
+                        f'candidate rather than overwriting a corpus')
             d = corpus.generate_corpus(cfg, label, progress=False)
         metrics, values, _meta = corpus.load_corpus(d)
         modes = visible_modes(values, metrics)

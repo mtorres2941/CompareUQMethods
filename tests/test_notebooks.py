@@ -10,6 +10,7 @@ cell catches that class of damage in under a second.
 """
 
 import ast
+import builtins
 import json
 import re
 from pathlib import Path
@@ -366,3 +367,77 @@ def test_no_cell_shadows_an_imported_module(path):
     clashes = sorted(f'{name} (assigned in cell {assigned[name]})'
                      for name in imported & set(assigned))
     assert not clashes, f'{path.name}: shadowed modules: {clashes}'
+
+
+# ---------------------------------------------------------------------------
+# a name a cell reads must be bound somewhere above it
+# ---------------------------------------------------------------------------
+
+def _bound_and_used(src):
+    """(names this cell binds, names it reads) at any nesting level."""
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        return set(), set()
+    bound, used = set(), set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name):
+            (bound if isinstance(node.ctx, ast.Store) else used).add(node.id)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            bound.add(node.name)
+            a = node.args
+            for arg in (a.posonlyargs + a.args + a.kwonlyargs
+                        + ([a.vararg] if a.vararg else [])
+                        + ([a.kwarg] if a.kwarg else [])):
+                bound.add(arg.arg)
+        elif isinstance(node, ast.ClassDef):
+            bound.add(node.name)
+        elif isinstance(node, ast.Lambda):
+            a = node.args
+            for arg in a.posonlyargs + a.args + a.kwonlyargs:
+                bound.add(arg.arg)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                bound.add((alias.asname or alias.name).split('.')[0])
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            bound.add(node.name)
+        elif isinstance(node, ast.comprehension):
+            for t in ast.walk(node.target):
+                if isinstance(t, ast.Name):
+                    bound.add(t.id)
+        elif isinstance(node, ast.Global):
+            bound.update(node.names)
+    return bound, used
+
+
+#: Supplied by the kernel or by the figure renderer rather than by a cell.
+NOTEBOOK_BUILTINS = {'get_ipython', 'display', 'In', 'Out', '_', '__', '___'}
+
+
+@pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
+def test_every_name_a_cell_reads_is_bound_above_it(path):
+    """No cell may read a name that nothing above it defines.
+
+    WHY THIS EXISTS, and it cost 25 minutes to learn. Stage 3 split a cell that
+    both computed a rank frame and drew a figure; the figure moved and the
+    frame went with it, and two cells further down still counted off
+    `df_rank1`. The forward-reference test above could not see it -- that one
+    asks whether a name is defined LATER, and this name was now defined
+    nowhere. A full run of notebook 2 is about 35 minutes and it failed 30
+    cells in.
+
+    Interactive kernels hide exactly this: the name is still in memory from the
+    run before the edit. A headless run is the only thing that finds it, and
+    this test is the cheap version of a headless run.
+    """
+    nb = json.loads(path.read_text())
+    code = [(i, "".join(c["source"])) for i, c in enumerate(nb["cells"])
+            if c["cell_type"] == "code"]
+    seen = set(dir(builtins)) | NOTEBOOK_BUILTINS
+    unbound = []
+    for i, src in code:
+        bound, used = _bound_and_used(src)
+        for name in sorted(used - bound - seen):
+            unbound.append(f"cell {i} reads {name!r}, which nothing above binds")
+        seen |= bound
+    assert not unbound, f"{path.name}: " + "; ".join(unbound[:12])

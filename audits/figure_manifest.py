@@ -27,6 +27,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..'))
 IMAGE_EXT = ('.png', '.pdf', '.svg', '.jpg', '.jpeg')
 
+#: What announces a figure cell to audits/render_figures.py.
+FIGURE_MARKERS = ('# FIGURE', '# SUPPLEMENT')
+
 #: `plt.savefig('.../NAME.png')`, `fig.savefig(f'{OUT}/figures/NAME.png')`, and
 #: the project's own `figstyle.savefig(fig, OUT, 'STEM')`.
 RE_SAVEFIG = re.compile(r"savefig\(\s*f?['\"]([^'\"]*?([A-Za-z0-9_\-]+\.(?:png|pdf|svg)))['\"]")
@@ -145,6 +148,88 @@ def style_compliance():
     return rows
 
 
+def renderer_safety():
+    """Which figure cells the fast renderer can execute on its own.
+
+    `audits/render_figures.py` runs the SETUP BLOCK -- every code cell up to and
+    including the one that defines OUT -- and then a figure cell. A figure cell
+    that reads a frame or a helper defined in a compute cell in between will
+    raise, and `--only` hides it: render one cell that happens to be
+    self-sufficient and the tool reports success.
+
+    Stage 3 cleared notebooks 1 and 2 this way. Notebook 3 was believed clear
+    because every use of it had passed `--only`; rendering all of it at once
+    showed nine of thirteen figure cells reaching for something the setup block
+    does not define.
+
+    This is a STATIC check and deliberately conservative: it reports a name
+    read but never bound above, which is the failure the renderer hits.
+    """
+    import ast
+    import builtins
+    rows = []
+    for name in sorted(os.listdir(os.path.join(ROOT, 'notebooks'))):
+        if not name.endswith('.ipynb') or name in LEGACY_NOTEBOOKS:
+            continue
+        nb = json.load(open(os.path.join(ROOT, 'notebooks', name)))
+        cells = [(i, ''.join(c['source'])) for i, c in enumerate(nb['cells'])
+                 if c['cell_type'] == 'code']
+        setup_names = set(dir(builtins)) | {'OUT', 'UPSTREAM', 'SMOKE',
+                                            'display', 'get_ipython'}
+        after_setup = False
+        for i, src in cells:
+            bound, used = _names(src)
+            if not after_setup:
+                setup_names |= bound
+                if re.search(r'^OUT\s*=', src, re.M):
+                    after_setup = True
+                continue
+            head = src.lstrip().split('\n', 1)[0]
+            if not head.startswith(FIGURE_MARKERS):
+                continue
+            missing = sorted(used - bound - setup_names)
+            rows.append(dict(notebook=name, cell=i,
+                             title=head.lstrip('# ').strip()[:52],
+                             renderable=not missing,
+                             missing='; '.join(missing[:6])))
+    return rows
+
+
+def _names(src):
+    """(bound, used) at any nesting level, for the static check above."""
+    import ast
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        return set(), set()
+    bound, used = set(), set()
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Name):
+            (bound if isinstance(n.ctx, ast.Store) else used).add(n.id)
+        elif isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            bound.add(n.name)
+            a = n.args
+            for arg in (a.posonlyargs + a.args + a.kwonlyargs
+                        + ([a.vararg] if a.vararg else [])
+                        + ([a.kwarg] if a.kwarg else [])):
+                bound.add(arg.arg)
+        elif isinstance(n, ast.ClassDef):
+            bound.add(n.name)
+        elif isinstance(n, ast.Lambda):
+            for arg in n.args.posonlyargs + n.args.args + n.args.kwonlyargs:
+                bound.add(arg.arg)
+        elif isinstance(n, (ast.Import, ast.ImportFrom)):
+            for alias in n.names:
+                bound.add((alias.asname or alias.name).split('.')[0])
+        elif isinstance(n, ast.ExceptHandler) and n.name:
+            bound.add(n.name)
+        elif isinstance(n, ast.comprehension):
+            for t in ast.walk(n.target):
+                if isinstance(t, ast.Name):
+                    bound.add(t.id)
+    return bound, used
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--write', action='store_true')
@@ -205,6 +290,13 @@ def main(argv=None):
     n_full = sum(1 for r in style if all(r[k] for k in STYLE_CALLS))
     print(f'  {n_full} of {len(style)} call all four')
 
+    safe = renderer_safety()
+    bad = [r for r in safe if not r['renderable']]
+    print(f'\nFAST-RENDERER SAFETY: {len(safe) - len(bad)} of {len(safe)} '
+          f'figure cells run against the setup block alone')
+    for r in bad:
+        print(f"  {r['notebook']} cell {r['cell']}: needs {r['missing']}")
+
     if args.write:
         import pandas as pd
         d = os.path.join(ROOT, 'outputs', 'tables', 'audits')
@@ -213,7 +305,9 @@ def main(argv=None):
         pd.DataFrame(rows).to_csv(p, index=False)
         ps = os.path.join(d, 'TABLE_FigureStyleCompliance.csv')
         pd.DataFrame(style).to_csv(ps, index=False)
-        print(f'\nwrote {p}\nwrote {ps}')
+        pr = os.path.join(d, 'TABLE_FigureRendererSafety.csv')
+        pd.DataFrame(safe).to_csv(pr, index=False)
+        print(f'\nwrote {p}\nwrote {ps}\nwrote {pr}')
     return 0
 
 
