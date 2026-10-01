@@ -315,6 +315,13 @@ three new tests in `test_notebooks.py` and `test_flip.py`. The README's output
 and runtime sections are corrected: it said notebook 3 takes about an hour and
 that notebook 2 has a smoke configuration, and neither was true.
 
+**The suite is 640 passed, 0 skipped**, against 628 passed and 2 skipped at the
+branch point: the two Stage 2j skips are gone and ten tests are new. Zero orphan
+figures, zero duplicate filenames, every PNG with a vector sibling, no retired
+weighting word in any filename, and non-ASCII in four tracked files, all of them
+unit strings EC3 itself writes, French product names a regex must match, and the
+author's name.
+
 **Reproduce:** notebooks 1, 2, 3 and 4 in order. Measured in this stage: 36, 13,
 110 and about 20 minutes, against the 30, 35, 195 and 20 the documentation
 carried. Notebook 3 has a smoke configuration and it is worth using first --
