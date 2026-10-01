@@ -140,6 +140,17 @@ and each curve's label sits on the facing edge of its own band. A light dashed
 rule runs from each vertex back to the y axis so the three end points can be
 read against the scale.
 
+**TWO OTHER TWO-BRANCH RULES EXIST AND NEITHER EARNS A CURVE.** Both put market
+shares BELOW the cutoff, which is where section 4 measures them doing harm.
+`KDE market above / lognormal market below` -- market shares everywhere, only
+the family switching -- is measured at **0.2296**, against 0.2025 for the rule
+that uses shares only above the cutoff: putting them below costs 13 percent of
+the gain. `KDE uniform above / lognormal market below` is the exact inverse of
+this stage's finding, using shares only where they hurt and not where they help;
+it is now in the code as a named BACKWARDS CONTROL and the next run will report
+it. A rule built backwards should lose to both recommended rules, and if it does
+not, something upstream is wrong.
+
 **The sixth fixed method, a lognormal with market weights at 23.65, is not on
 this panel.** Neither swept rule can produce it: both use a kernel estimate
 above the cutoff, so a lognormal-with-market-weights policy belongs to a third

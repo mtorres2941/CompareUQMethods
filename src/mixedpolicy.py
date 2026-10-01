@@ -214,6 +214,17 @@ def variant_policies(threshold=MIXED_THRESHOLD):
                'Lognormal, Uniform',
                f'lognormal throughout, weighting switches at {t}', 'variant',
                family='variant'),
+        # THE BACKWARDS RULE, AND IT IS A CONTROL RATHER THAN A CANDIDATE.
+        # Market shares BELOW the cutoff and uniform weights above -- which is
+        # the exact inverse of what this stage measures, since knowing shares
+        # hurts below about 80 declarations and helps above 100 (decision 222).
+        # Added 2026-09-30 after the author asked which other two-branch rules
+        # exist. A rule built backwards should come out worse than both of the
+        # rules the stage recommends, and if it does not, something upstream is
+        # wrong. It is one extra column and it is never a recommendation.
+        Policy(f'MixedBackwards@{t}', t, 'KDE, Uniform', 'Lognormal, Variable',
+               f'BACKWARDS control: market shares BELOW {t}, uniform above',
+               'variant', family='variant'),
     ]
 
 
