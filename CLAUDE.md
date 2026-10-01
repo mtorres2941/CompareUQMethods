@@ -8206,3 +8206,53 @@ rather than in conversation.
      estimate or a narrower range at some stage; 224 and this entry are the
      final form. **A later stage that finds 81 in a draft should treat it as
      stale rather than as a result to defend.**
+
+226. **2026-10-01. GROUPED MARKET WEIGHTS ARE TESTABLE ON THIS CORPUS AND ARE A
+     DISCUSSION POINT FOR THE MANUSCRIPT, NOT A LIMITATION. My claim that the
+     generator makes them untestable was wrong, twice over.** `[AUTHOR
+     CORRECTED ME]` "Knowing group sums is not equivalent to knowing individual
+     shares ... this generator definitely can say what real shares would do.
+     Stop treating this like an impossibility."
+
+     **THE PROPOSAL, which is KL2's group weight constraints.** A practitioner
+     will never know every product's market share, but may well know the summed
+     share of a GROUP -- a production route, a region. Split a category's values
+     into 2 to 5 groups, keep each group's summed weight, and assume the weight
+     is spread EVENLY inside the group. Nine values where three sum to 60
+     percent become 20 percent each, against a truth that might be 2, 48 and 10.
+
+     **MY FIRST ERROR: I said that is equivalent to knowing the shares.** It is
+     not, and the author's arithmetic is the refutation -- 20/20/20 is a
+     different weight vector from 2/48/10 and produces a different fit. What
+     decision 79 actually established is narrower: it is equivalent **when the
+     groups are the generator's own mixture components**, because every point in
+     a component is drawn from the same density, so the within-group split
+     cannot move the target. That is a statement about ONE choice of grouping,
+     not about grouping.
+
+     **MY SECOND ERROR: I called the experiment untestable here.** Under the
+     author's construction -- groups drawn at RANDOM, not aligned with the
+     components -- a group mixes components, averaging inside it genuinely
+     destroys information, and the cost is real and measurable. The corpus can
+     in fact BRACKET the question, which is better than either bound alone:
+
+         groups = the true components     an upper bound, recovers everything
+         groups drawn at random           a lower bound, blurs across components
+         2 to 5 groups swept              how fast the gap closes with k
+
+     **WHAT THE MANUSCRIPT OWES, and it is more than a sentence.** The gap
+     between the orange and blue curves -- about 3 points of the roughly 23 a
+     probabilistic LCA gets wrong -- is what full market shares would buy.
+     Grouped weights are a far more realistic information state than full
+     shares, and they close some of that gap. The discussion should say so, in
+     generalities, name KL2 as where the machinery already exists, and mark the
+     measurement as future work rather than claiming a number this stage did not
+     produce. **It is an avenue for making the model better, not a limitation of
+     the corpus.** Discrepancy entry 185.
+
+     **AND THE GENERAL LESSON ABOUT MY OWN REASONING.** Both errors ran the same
+     way: I took a result that holds under one specific construction -- decision
+     79's, with groups equal to components -- and restated it as a property of
+     the corpus. A claim that something cannot be measured deserves at least as
+     much scepticism as a claim that it can, and I reached for it twice without
+     testing it once.

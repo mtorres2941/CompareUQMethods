@@ -306,6 +306,7 @@ code needs in order to name one policy; it is not a result.
 | Item | |
 |---|---|
 | **The composition split is computed for the known-share rule only.** The feasible rule's version needs the next notebook run |
+| **Grouped market weights are a route to closing the 3-point gap and are not measured.** Knowing a GROUP's summed share -- a production route, a region -- is far more realistic than knowing every product's, and it is KL2's own instrument. The corpus can bracket it: random groups give a lower bound, groups equal to the true components an upper one. The manuscript's discussion owes a paragraph and a future-work sentence; decision 226 and discrepancy entry 185 |
 | **Every figure except the scorecard and this stage's still carries the retired weighting labels.** Stage 3 |
 | **No test compares `flip.FLIP_THRESHOLDS` with the value notebook 3 recomputes**, and decision 175's two-fit rounding rule has not been re-applied since the constants were recalibrated. Stage 3 |
 
