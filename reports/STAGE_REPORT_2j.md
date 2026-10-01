@@ -123,7 +123,10 @@ its own true level, against the cutoff on a log axis.
 **Orange is the rule a reader can follow**: a kernel estimate at or above the
 cutoff, a three-parameter lognormal below, uniform weights throughout. **The
 shaded band is its answer -- 40 to 170 declarations, all indistinguishable from
-the best.** The curve's own ends are the self-check: at a cutoff of 3 every
+the best** -- and the title states the positive form: the split beats either
+method used alone, anywhere in that range. It stops short of calling it the best
+UQ method, because a kernel estimate with market weights is better still and is
+on the panel as a starred line. The curve's own ends are the self-check: at a cutoff of 3 every
 dataset takes a kernel estimate and at 10,000 every dataset takes a lognormal,
 and both land on those fixed methods to 0.00e+00.
 
@@ -149,7 +152,8 @@ size-band table, which compare every method on every claim.
 declarations. The orange runs 23.92 at a cutoff of 3, down to 23.24 near 130,
 back to 23.96 at 10,000. The blue runs 22.93 down to 20.25 near 70 and back to
 23.96, meeting the orange curve there. Four horizontal dashed lines at 23.96,
-23.92, 23.65 and 22.93, and a shaded band over 40 to 170.
+23.92, 23.65 and 22.93, labelled outside the right edge, and a shaded band over
+40 to 170.
 
 ## 3. What the rule buys, claim by claim
 
