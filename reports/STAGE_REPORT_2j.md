@@ -118,36 +118,38 @@ rule at all is worth.
 ## 2b. The figure
 
 ![Mean error over the sixteen claims a probabilistic LCA makes, each divided by
-its own true level, against the cutoff on a log axis. **One curve, and it is the
-rule the paper recommends**: a kernel estimate at or above the cutoff, a
-three-parameter lognormal below, uniform weights throughout because nobody
-publishes market shares.
+its own true level, against the cutoff on a log axis.
 
-**The panel does one job -- substantiate the cutoff range -- and the shaded band
-is the answer: 40 to 170 declarations, all indistinguishable from the best.**
-The curve's own ends are the self-check: at a cutoff of 3 every dataset takes a
-kernel estimate and at 10,000 every dataset takes a lognormal, and both land on
-those fixed methods to 0.00e+00.
+**Orange is the rule a reader can follow**: a kernel estimate at or above the
+cutoff, a three-parameter lognormal below, uniform weights throughout. **The
+shaded band is its answer -- 40 to 170 declarations, all indistinguishable from
+the best.** The curve's own ends are the self-check: at a cutoff of 3 every
+dataset takes a kernel estimate and at 10,000 every dataset takes a lognormal,
+and both land on those fixed methods to 0.00e+00.
 
-**The four dashed lines are the four fixed methods**, so the rule can be read
-against every constant choice. The rule beats both uniform-weighted methods --
-the ones a reader can actually choose between -- and still sits above both
-market-weighted ones, which is the headroom market shares would buy.
+**Blue is the same rule given the true market shares above the cutoff, and the
+starred lines need them too.** Nobody publishes market shares, so all three are
+a ceiling rather than a choice, which the footnote says. **The vertical gap
+between the curves is what a reader gives up by not having them: about 3 points
+of the roughly 23 a probabilistic LCA gets wrong.**
 
-**WHAT MARKET SHARES ARE WORTH IS NOT ON THIS PANEL, deliberately.** An earlier
-version carried a second curve for the known-share rule and the vertical gap
-between the two was the 2.98 points of headline 2. It was cut because neither
-curve isolated a principle: this one switches family with the weighting held at
-uniform, which is the family question CONDITIONAL on uniform weights, and the
-other switched both axes at once. Two curves that each answer a mixed question
-invite the reader to compare them as though they were two principles. The
-weighting question is carried by the claim scorecard and the size-band table,
-which compare every method on every claim and can make that case properly.
+**AND THE RULE DOES NOT BEAT A KERNEL ESTIMATE WITH MARKET WEIGHTS APPLIED
+CONSISTENTLY -- 23.24 against 22.93**, which is the `KDE, market*` line sitting
+below the orange curve across the whole sweep. Switching family by size is worth
+less than having the shares would be, and the figure should not be read as
+saying otherwise.
 
-*If the image does not render:* one shallow U curve on a log x axis from 3 to
-10,000 declarations, running from 23.92 percent at a cutoff of 3 down to 23.24
-around 130 and back up to 23.96 at 10,000, with a shaded band over 40 to 170 and
-four horizontal dashed reference lines at 23.96, 23.92, 23.65 and 22.93.
+**Neither curve isolates a principle and the panel does not claim to.** The
+orange one switches family with weighting held at uniform, which is the family
+question conditional on uniform weights; the blue one switches both axes at
+once. The weighting question proper is carried by the claim scorecard and the
+size-band table, which compare every method on every claim.
+
+*If the image does not render:* two U curves on a log x axis from 3 to 10,000
+declarations. The orange runs 23.92 at a cutoff of 3, down to 23.24 near 130,
+back to 23.96 at 10,000. The blue runs 22.93 down to 20.25 near 70 and back to
+23.96, meeting the orange curve there. Four horizontal dashed lines at 23.96,
+23.92, 23.65 and 22.93, and a shaded band over 40 to 170.
 
 ## 3. What the rule buys, claim by claim
 
