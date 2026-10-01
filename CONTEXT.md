@@ -900,10 +900,14 @@ prose and is untouched.
 materials; this asks what happens when it does not.
 
 **THE RULE IS ONE NUMBER AND IT IS THE STUDY'S OWN.** A kernel estimate with
-market weights at or above `MIXED_THRESHOLD = 81` declarations, a
-three-parameter lognormal with uniform weights below. 81 is decision 142's
-practitioner threshold, reproduced unchanged on the regenerated corpus by
-decision 198. `select_method` takes exactly one required argument and a test
+market weights at or above `MIXED_THRESHOLD = 80` declarations, a
+three-parameter lognormal with uniform weights below. **80 at the CLAIM level
+from 2026-09-30, decision 224**; decision 142's 81 is a FIT-level argmin on a
+dense grid and stays that, and carrying it into a claim-level sweep was more
+significant figures than the analysis supports. **The rule the paper recommends
+is the FEASIBLE one** -- uniform weights throughout, only the family switching
+-- because nobody publishes market shares (decision 216), and its published
+cutoff range is **40 to 170** (decision 224). `select_method` takes exactly one required argument and a test
 asserts that, because a rule with two numbers in it is not the deliverable and
 decisions 88 and 139 tested every other characteristic without finding one that
 yields a usable threshold.

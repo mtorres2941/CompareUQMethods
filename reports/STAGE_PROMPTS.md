@@ -152,22 +152,31 @@ GENERATOR -- genconfig.DEFAULT (src/genconfig.py)
         plca.COMPARISON_MARGINS               (1.0, 1.05, 1.2)
     
     MIXED POLICY -- src/mixedpolicy.py, added by Stage 2j
-        mixedpolicy.MIXED_THRESHOLD           81
+        mixedpolicy.MIXED_THRESHOLD           80
         mixedpolicy.FEASIBLE_ABOVE            KDE, Uniform
         mixedpolicy.FEASIBLE_BELOW            Lognormal, Uniform
         mixedpolicy.LARGE_METHOD              KDE, Variable
         mixedpolicy.SMALL_METHOD              Lognormal, Uniform
-        mixedpolicy.SWEEP_THRESHOLDS          (3, 10, 20, 30, 50, 70, 81,
-                                               100, 130, 200, 300, 1000,
-                                               3000, 10000)
+        mixedpolicy.SWEEP_THRESHOLDS          every 10 from 10 to 200,
+                                               plus 3, 300, 500, 1000,
+                                               3000, 10000  (27 points)
         THE RULE THE PAPER RECOMMENDS is the FEASIBLE one: uniform
         weights throughout, the FAMILY switching at the cutoff. The
         pair above it -- KDE with market weights over a lognormal with
         uniform weights -- needs market shares nobody publishes and is
         a value of information, not a method. Decision 216.
-        THE PUBLISHED CUTOFF RANGE is 50 to 130, the feasible rule's
-        own indistinguishable span. 81 is a FIT-level argmin and is not
-        to be printed as a claim-level number. Decisions 218, 220.
+        THE PUBLISHED CUTOFF RANGE is 40 to 170, the feasible rule's
+        own indistinguishable band under a paired difference test
+        against a FIXED reference. Do NOT publish the argmin's own
+        bootstrap interval of [50, 140]: it answers where the curve's
+        lowest point lands, not which cutoffs a reader can use.
+        The CLAIM-level constant is 80; decision 142's 81 is a
+        FIT-level argmin and stays that, and must not be printed as a
+        claim-level number. Decisions 218, 220, 224.
+        AND A SECOND, TIGHTER BAND ANSWERS A DIFFERENT QUESTION:
+        knowing MARKET SHARE is significantly harmful below 80
+        declarations and significantly helpful above 100, statistically
+        zero in between. Decision 222.
     
     ACTIVE CORPUS
         data/processed/CORPUS.json               corpus_2026-09-25
@@ -2926,8 +2935,9 @@ recommendation. **Put the FEASIBLE rule on the scorecard as a seventh column and
 not the known-share one**, because a column a reader cannot reproduce is worse
 than no column.
 
-**Two: the published cutoff range is 50 to 130 declarations, not 81.** The sweep
-runs 3 to 10,000 and everything from 50 to 130 is statistically
+**Two: the published cutoff range is 40 to 170 declarations, not 81.** The sweep
+runs every 10 from 10 to 200 plus both degenerate ends, and everything from 40
+to 170 is statistically
 indistinguishable from the best; the whole sweep spans 0.73 points. **81 is a
 FIT-level argmin and must never be printed as a claim-level threshold** -- that
 is the conflation decision 163 already warns about, and Stage 2j is where the

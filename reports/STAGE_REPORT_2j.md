@@ -40,6 +40,14 @@ Knowing the true shares makes a fit WORSE below about 80 declarations and much
 better above 100. With two declarations carrying ninety percent of the weight
 you over-index on two values that may not represent their own product group.
 
+**TWO BANDS, TWO QUESTIONS, AND THEY ARE DIFFERENT NUMBERS.** Where to switch
+FAMILY -- kernel estimate against three-parameter lognormal -- is anywhere from
+**40 to 170** declarations; the cost is flat across all of it. Where knowing
+MARKET SHARE stops hurting and starts helping is a much tighter **80 to 100**:
+significantly harmful below 80, significantly helpful above 100, statistically
+zero in between. A reader who absorbs the first and carries it into the second
+will be wrong, so the paper must keep them apart.
+
 **Needs an author decision: nothing.**
 
 ---
@@ -106,6 +114,28 @@ Getting the number exactly right is worth about a quarter of what having the
 rule at all is worth.
 
     Reproduce: outputs/tables/TABLE_MixedPolicyThreshold.csv, family=feasible
+
+## 2b. The figure
+
+![Mean error over the sixteen claims against where the method switches](../outputs/figures/CompareUQMethods_FIG_MixedPolicy.png)
+
+Mean error over the sixteen claims a probabilistic LCA makes, each divided by
+its own true level, against the cutoff on a log axis. **The upper, orange curve
+is the rule a reader can follow** -- uniform weights throughout, the family
+switching at the cutoff. The lower, grey one adds the true market shares above
+the cutoff and is not a method. **The vertical gap between them is what knowing
+market share would be worth: about 3 points of the roughly 23 a probabilistic
+LCA gets wrong**, against the 0.73 points the whole choice of cutoff is worth
+across two and a half orders of magnitude. The dotted lines are the fixed
+methods, and both curves' ends land on them exactly, because at a cutoff of 3 or
+10,000 each rule IS a fixed method. The shaded band is 40 to 170, the cutoffs
+indistinguishable from the best.
+
+*If the image does not render:* two shallow U curves on a log x axis from 3 to
+10,000 declarations. The upper, orange, runs from 23.92 percent at a cutoff of 3
+down to 23.24 at 130 and back to 23.96 at 10,000. The lower, grey, runs from
+22.93 down to 20.25 at 70 to 80 and back to 23.96. A shaded band covers 40 to
+170.
 
 ## 3. What the rule buys, claim by claim
 
@@ -195,18 +225,21 @@ sample".
     Reproduce: python audits/weighting_location_shape.py --n 10000
                python audits/bandwidth_neff.py --n 2500
 
-## 5. At the fit level the rule helps; on the worst single dataset it does not
+## 5. The rule recovers the fit advantage too, which is what the stage was for
 
-                                      mean W1   over oracle   worst case
-    uniform weights, switch at 130     0.2015      133.8 pct     62.7x
-    KDE, uniform weights               0.2104      145.7         62.7x
-    Lognormal, uniform weights         0.2077      165.5         61.3x
+                                      mean W1   cost over the per-dataset oracle
+    uniform weights, switch at 130     0.2015             133.8 pct
+    Lognormal, uniform weights         0.2077             165.5
+    KDE, uniform weights               0.2104             145.7
 
-The rule beats both fixed methods on the average fit. On the single worst
-dataset of 10,000 it is identical to always-KDE, because its worst case IS a
-kernel fit above the cutoff. That is one dataset and it is the runaway-tail case
-decisions 152 and 182 already cover with the profile guard and the truncation
-remedy; it is reported rather than treated as a qualification.
+**This is the answer to decision 166**, which opened this stage. That decision
+found a fit advantage heavily attenuated by the time it reached a pLCA answer --
+a fit threshold near 81 declarations becoming a claim threshold near 1,000 --
+and named the mechanism: a probabilistic LCA picks ONE method for all four of
+its materials, so one material's advantage is averaged against three neighbours
+drawn at random. Letting the method vary by material removes the averaging, and
+the rule improves the fit and the claims together rather than one at the
+expense of the other.
 
     Reproduce: outputs/tables/TABLE_MixedPolicyFit.csv
 
