@@ -274,7 +274,11 @@ forbids an orphan will catch any file the rename leaves behind.
 | `TABLE_MethodCurves` characteristics | 21 | 23 | the notebook held TWO definitions of its characteristic set and the curves table was built from the one that misses `modality_index_fitted`, the measure decision 134 added and decision 82 says to report. One definition now, and the per-characteristic supplement gains two pages. Nothing already in the table changes |
 
 **Nothing else moved**, and every place it could have is checked rather than
-asserted. After notebook 2's full run: the empirical characteristic table is bit
+asserted. **After notebook 3's full run `TABLE_PLCAResults` is bit identical
+over all 60,000 rows and 46 columns**, and 127 of the 131 tables that already
+existed are identical; the four that grew are the mixed-policy row-level tables,
+each by exactly one policy's worth of rows, which is the backwards control of
+section 3b. After notebook 2's full run: the empirical characteristic table is bit
 identical at 147 by 24, the synthetic score table at 10,000 by 39, the empirical
 score table at 147 by 30, and `TABLE_MethodScores` over all 60,882 rows -- the
 882 that first read as different are the empirical arm's absent
@@ -311,7 +315,11 @@ three new tests in `test_notebooks.py` and `test_flip.py`. The README's output
 and runtime sections are corrected: it said notebook 3 takes about an hour and
 that notebook 2 has a smoke configuration, and neither was true.
 
-**Reproduce:** notebooks 1, 2 and 3 in order, about 30, 35 and 195 minutes.
+**Reproduce:** notebooks 1, 2, 3 and 4 in order. Measured in this stage: 36, 13,
+110 and about 20 minutes, against the 30, 35, 195 and 20 the documentation
+carried. Notebook 3 has a smoke configuration and it is worth using first --
+`COMPAREUQ_SMOKE_COMBOS=20`, about five minutes -- because this stage found that
+guard itself broken at its last block.
 
 ## 9. What Stage 4 picks up first
 
