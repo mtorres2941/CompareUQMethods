@@ -131,6 +131,27 @@ several define methods this analysis implements directly.
   numpy state.
 - Be concise. Answer the question asked, at the length the answer needs. Do not
   restate what a commit message, a handoff or a table already says; point at it.
+- **THE HANDOFF IS THE LAST THING IN THE MESSAGE. NOTHING FOLLOWS IT.** Not a
+  summary of it, not a caveat about it, not "three things to point the reviewer
+  at", not "one thing worth noting", not "two places I'd push on". **If it
+  matters, it goes INSIDE the file or INSIDE the prompt, and then the message
+  ends.**
+
+  **THIS IS THE SINGLE MOST FREQUENT ERROR MADE ON THIS PROJECT.** The author,
+  2026-10-01, after a prompt was given and then followed by three things to keep
+  in mind for it: "If there's something I need to keep in mind for that prompt,
+  then JUST INCLUDE IT IN THE PROMPT!!! It's that simple. A prompt should be
+  final and should have no additional after thoughts. Why do you always do
+  this??? And it's always at the end of a good session so it completely ruins
+  it." And again: "this is one of your most common and consistent errors."
+
+  **THE MECHANICAL TEST, APPLY IT BEFORE SENDING ANY MESSAGE THAT CONTAINS A
+  PROMPT OR NAMES A HANDOFF FILE:** is the prompt, or the filename, the last
+  thing in the message? If anything comes after it, delete that text and put its
+  content in the artifact. A postscript is never the right answer. "The prompt
+  is complete" is a claim that must be made true by editing the prompt, not
+  asserted and then undermined by what follows.
+
 - **All communication between sessions goes through the handoff and discrepancy
   files, never through chat.** When a session ends, the author's job is to hand
   the next session a FILE, nothing else. Do not also summarize that file's
