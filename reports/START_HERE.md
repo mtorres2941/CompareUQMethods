@@ -108,11 +108,38 @@ stage, before the next stage runs:
    figures embedded. The older `HANDOFF_stage-*.md` files keep their names and
    nothing is renamed retroactively.
 2. **Open a FRESH window whose only job is to read that report and attack it.**
-   Give it the report and the prompt file and nothing else at first. Its task is
+   Give it the report and the prompt file and nothing else at first. **The
+   invocation is below and is complete; nothing has to be remembered and added
+   to it.**
+
+        Read reports/STAGE_REPORT_<id>.md and reports/STAGE_PROMPTS.md. Your
+        only job is to attack that report: find what is wrong, stale,
+        internally contradictory, or asserted without measurement. Form your
+        questions from the report before you open the repository. Two rules
+        bind you: a finding is admissible ONLY if you give the command that
+        produces the number, and you are writing to the author, who has not
+        done the work -- open each finding with one plain sentence saying what
+        is wrong and what it changes, before any table. Its task is
    to find what is wrong, stale, internally contradictory or asserted without
    measurement, and to write the follow-up questions. It may then open the
    repository to check, but it forms its questions from the report first.
 3. Only after that window's questions are answered does the next stage start.
+
+**A FINDING IS ONLY ADMISSIBLE IF IT COMES WITH A COMMAND THAT PRODUCES THE
+NUMBER. Added 2026-10-01 after the Stage 2j review.** That review found real
+defects -- a bolded claim its own table contradicted, a headline resting on 52
+datasets, a number counted twice, a wrong first task for the next stage -- and
+the author could not read it. Every finding that mattered resolved to a value
+that could be re-run; every finding that was merely rhetorical did not, and the
+two sets were indistinguishable in the prose. Requiring the command would have
+cut that review to a page, and a page the author could read.
+
+**AND THE REVIEW WRITES TO THE AUTHOR, NOT TO THE SESSION THAT DID THE WORK.**
+Give it the report and the tables, and tell it so explicitly. Left alone it
+inherits the register of the documents it is given -- which is this repository's
+house style, dense and bolded -- and produces something only the window that
+wrote the analysis can read. Each finding opens with one plain sentence saying
+what is wrong and what it changes, before any table or number.
 
 The review window's standing questions, which this project has learned the hard
 way:
