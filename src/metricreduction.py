@@ -1194,7 +1194,7 @@ def partial_dependence_table(frame, metrics, target, which, arm=None,
     moderate one is not evidence that it carries something of its own if it is
     strongly correlated with a survivor. Read this table beside
     `redundancy_table`, and treat a pair above about 0.9 as one quantity.
-    `tests/test_metricreduction.py` pins the behaviour on a planted copy.
+    `tests/test_metricreduction.py` pins the behavior on a planted copy.
     """
     from sklearn.inspection import partial_dependence
 
@@ -1836,10 +1836,10 @@ def best_method_curve(scores, sizes, value='w1_market', arm='synthetic',
     window = int(min(window, max(50, len(nn) // 6)))
     for start in range(0, len(nn) - window + 1, step):
         sl = slice(start, start + window)
-        centre = float(np.median(nn[sl]))
+        center = float(np.median(nn[sl]))
         w = winner[sl]
         for m in methods:
-            rows.append(dict(method=m, n=centre,
+            rows.append(dict(method=m, n=center,
                              closest_pct=float(100 * (w == m).mean()),
                              n_datasets=window))
     return pd.DataFrame(rows)

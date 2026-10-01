@@ -567,7 +567,7 @@ def test_per_unit_error_separates_a_cancelling_method_from_an_exact_one():
     assert got.loc['exact', 'error'] == pytest.approx(0.0)
     # The portfolio error is the truth about the AVERAGE over many, and it is
     # near zero for the cancelling method. That is not wrong, it is a different
-    # question -- which is why both are reported and both are labelled.
+    # question -- which is why both are reported and both are labeled.
     assert got.loc['cancels', 'error_portfolio'] == pytest.approx(0.0,
                                                                   abs=1e-12)
     # The two must not be interchangeable, or the correction would be empty.

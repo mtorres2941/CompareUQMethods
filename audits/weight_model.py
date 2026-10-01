@@ -292,7 +292,7 @@ def report_status_quo(sq):
     print('rule it uses today, with the flat-draw counterfactual beside it.')
     print('The counterfactual is what proves the arm-to-arm gap is the RULE')
     print('and not the data: reweighting the synthetic values flat reproduces')
-    print("the empirical arm's behaviour.")
+    print("the empirical arm's behavior.")
     print()
     piv = sq.pivot_table(index=['arm', 'rule'], columns='band',
                          values='separation', aggfunc='median')

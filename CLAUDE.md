@@ -338,7 +338,7 @@ is worked from later. Keep appending. Do not start editing the paper.
 
 Figures are governed by **FIGURE_STYLE.md**, which is binding on every figure
 this repository produces: one message per figure with the takeaway in the title,
-Tufte's data-ink discipline, direct labelling rather than legends, and a
+Tufte's data-ink discipline, direct labeling rather than legends, and a
 checklist. `src/figstyle.py` implements what can be implemented. It was written
 in Stage 2d at the author's instruction, after a review found the stage's figures
 followed no written guide.
@@ -2206,7 +2206,7 @@ rather than in conversation.
 96. **2026-09-17, Stage 2d. WHETHER WEIGHTING MATTERS HAS A CLOSED FORM IN TWO
     NUMBERS A PRACTITIONER ALREADY HAS, and it is the strongest
     practitioner-facing result in the study.** `[AUTHOR]` Asked for directly:
-    "Is there a way we can visualise the contribution of size and dispersion?"
+    "Is there a way we can visualize the contribution of size and dispersion?"
     The answer turned out to be better than a figure.
 
     Regressing the log of the separation between the uniform-weighted fit and a
@@ -2891,7 +2891,7 @@ rather than in conversation.
      It also makes the strategy paired across methods with ONE uniform block
      where the loop needed a cache of variates indexed by redraw pass, and it
      reports the case it cannot serve -- no mass below the cap -- instead of
-     returning values still above a cap labelled as capped.
+     returning values still above a cap labeled as capped.
 
 118. **2026-09-18, Stage 2e review. WHAT SWITCHING METHOD DOES TO THE DECISION A
      DESIGNER ACTUALLY MAKES: almost nothing. This is the stage's strongest
@@ -3691,10 +3691,10 @@ rather than in conversation.
 
          configuration                     objective  coeffvar  weighting  max CV
          current                             0.2251     0.380     0.275     1.65
-         mult 5, floor 0.02, centre +0.3     0.2666     0.188     0.661     3.52
-         mult 8, floor 0.02, centre +0.3     0.2638     0.262     0.355     1.83
-         mult 8, floor 0.01, centre +0.5     0.3063     0.297     0.869     2.01
-         mult 12, floor 0.01, centre +0.5    0.3917     0.325     1.168     1.92
+         mult 5, floor 0.02, center +0.3     0.2666     0.188     0.661     3.52
+         mult 8, floor 0.02, center +0.3     0.2638     0.262     0.355     1.83
+         mult 8, floor 0.01, center +0.5     0.3063     0.297     0.869     2.01
+         mult 12, floor 0.01, center +0.5    0.3917     0.325     1.168     1.92
 
      The best dispersion match halves the coefficient-of-variation distance,
      0.380 to 0.188, and **multiplies the uniform-to-variable Wasserstein
@@ -4573,12 +4573,12 @@ rather than in conversation.
      kept two denominators on one figure and printed each under its question,
      on the reasoning that naming them made them comparable. It does not: they
      are two different statistics, one a signal-to-noise ratio and one a
-     relative error, and a shared colour scale over both compares unlike things
-     however they are labelled. Every row now divides by the true LEVEL. The
+     relative error, and a shared color scale over both compares unlike things
+     however they are labeled. Every row now divides by the true LEVEL. The
      original paragraph follows unchanged.
 
      **AND EACH QUESTION NOW NAMES ITS OWN DENOMINATOR ON THE FIGURE**, because
-     the five do not share one and a shared colour scale without that is
+     the five do not share one and a shared color scale without that is
      misleading. A material's mean contribution is 1.0 for every material by
      construction -- every dataset is normalized to an unweighted mean of 1.0,
      decision 6 -- so the only meaningful scale for an attribution claim is how
@@ -4881,7 +4881,7 @@ rather than in conversation.
      **THE FIX IS THE MECHANISM, NOT A WARNING.** A caption telling the reader
      not to count boxes would have asked them to take it on trust. The figure
      now carries a second panel, four size bands by six methods, on the same
-     colour scale because it is the same quantity in the same units, with the
+     color scale because it is the same quantity in the same units, with the
      closest method in each band boxed exactly as in the panel above.
      `metricset.size_band_recovery`, `TABLE_MetricSizeBands.csv`.
 
@@ -5769,7 +5769,7 @@ rather than in conversation.
      averaged the signed error over pLCA groups first, so a method too high on
      one building and too low on the next reported almost nothing; the other
      eleven rows were already per unit. The figure was again drawing two
-     statistics on one colour scale.
+     statistics on one color scale.
 
      **WHAT MOVED, best method, as a percentage of each claim's own true
      level:**
@@ -6205,18 +6205,18 @@ rather than in conversation.
      124 asked for the sweep and the stage prompt required two dimensions.
 
      `src/judgment.py` holds the pedigree matrix as a lognormal specified by a
-     centre and a geometric standard deviation, plus a uniform and a triangular
+     center and a geometric standard deviation, plus a uniform and a triangular
      over a range derived from the SAME two inputs, so the three differ in
      SHAPE and not in information. They are not in the main comparison, for the
      reason decision 151 gives.
 
      **AT THE FIT LEVEL A JUDGMENT MODEL IS 2 TO 100 TIMES FURTHER FROM THE
-     TRUTH** than the best data-driven fit. The realistic model, the centre
+     TRUTH** than the best data-driven fit. The realistic model, the center
      drawn as one random declaration, is 4.1 to 12 times worse.
 
      **AT THE DECISION LEVEL A WELL-CENTRED ONE IS COMPETITIVE.** Error in
      P(B beats A) per design pair, 300 pairs: the six data-driven methods span
-     0.080 to 0.114, and a pedigree model centred on the category mean reads
+     0.080 to 0.114, and a pedigree model centered on the category mean reads
      0.097 at a matched spread and **0.097 to 0.121 across a SIX-FOLD range of
      spread**. The spread axis is nearly flat. That attenuation between the two
      levels is the same one decision 166 records for data-driven methods.
@@ -6233,7 +6233,7 @@ rather than in conversation.
      material reads 0.170 to 0.271, one and a half to two and a half times the
      worst data-driven method.
 
-     **THE SHAPE MATTERS TOO.** At a matched spread and a correct centre the
+     **THE SHAPE MATTERS TOO.** At a matched spread and a correct center the
      pedigree lognormal reads 0.097 where a uniform reads 0.206 and a
      triangular 0.198.
 
@@ -6806,7 +6806,7 @@ rather than in conversation.
      over 1, since `gsd = 1 + (gsd_data - 1) * ratio` and a GSD of 1 is no
      spread at all, the reachable band is 0.028 to 0.674. Ratio 0.5 is
      reachable on 62.6 percent of real categories, 1.0 on 38.1 and 3.0 on 5.4.
-     The wide end of that sweep is a sensitivity and must not be labelled a
+     The wide end of that sweep is a sensitivity and must not be labeled a
      pedigree model.
 
      **THIS STRENGTHENS DECISION 184 RATHER THAN UNDERMINING IT.** That entry
@@ -6880,7 +6880,7 @@ rather than in conversation.
 
      **The characteristic that worsens moves the comparison about a QUARTER as
      much as the one that improves**, in the same direction, so the widening
-     trade is favourable on this evidence rather than merely favourable on the
+     trade is favorable on this evidence rather than merely favorable on the
      objective. **And `fit_lognorm_SF` moves it by essentially nothing**, which
      is worth recording because decision 37 called that characteristic the
      worst in the project and structural, and four stages have worried about
@@ -7191,7 +7191,7 @@ rather than in conversation.
 
      **THE LESSON, AND IT IS THE ONE THIS STAGE SPENT ITSELF ON.** A caption
      mixing two corpora while reading as one paragraph is the same failure as a
-     scorecard mixing two statistics on one colour scale (decision 157) and a
+     scorecard mixing two statistics on one color scale (decision 157) and a
      figure mixing two error definitions (decision 174). **When the data under
      a piece of prose is replaced, REBUILD the prose from the table rather than
      repairing the numbers that are known to have moved**, because the ones not

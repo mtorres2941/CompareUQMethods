@@ -55,7 +55,7 @@ import recovery as R                # noqa: E402
 TABLES = os.path.join(ROOT, 'outputs', 'tables', 'audits')
 
 #: The joint grid. `None` in the offset column is the PRIMARY, no-free-
-#: parameter location model: the centre is one declaration drawn at random,
+#: parameter location model: the center is one declaration drawn at random,
 #: which is what a practitioner without a dataset holds.
 #:
 #: THE MODE MATTERS MORE THAN THE SIZE, which the first run of this script
@@ -72,7 +72,7 @@ OFFSET_CELLS = ([(None, 'oneEPD')]
 
 def cell_name(ratio, offset, mode):
     off = 'oneEPD' if offset is None else f'{mode[:3]}{offset:+.2f}'
-    return f'judgment gsd x{ratio:g} centre {off}'
+    return f'judgment gsd x{ratio:g} center {off}'
 
 
 # ---------------------------------------------------------------------------
@@ -117,7 +117,7 @@ def fit_level(n_datasets, rng):
                         base, arm='judgment', method=shape, gsd_ratio=ratio,
                         offset=(np.nan if off is None else off),
                         offset_mode=mode,
-                        centre=('oneEPD' if off is None
+                        center=('oneEPD' if off is None
                                 else f'{mode[:3]}{off:+.2f}'),
                         w1=R.w1_against_parent(mod, parent, 'market', grid)))
         if (i + 1) % 100 == 0:
@@ -211,11 +211,11 @@ def report_fit(fit):
         s = jd[jd.method == shape]
         if s.empty:
             continue
-        piv = s.pivot_table(index='gsd_ratio', columns='centre', values='w1',
+        piv = s.pivot_table(index='gsd_ratio', columns='center', values='w1',
                             aggfunc='median', dropna=False)
         cols = ['oneEPD'] + [c for c in piv.columns if c != 'oneEPD']
         print(f'--- {shape} --- as a MULTIPLE of the best data-driven method.')
-        print('    `oneEPD` is the primary model: the centre is one random')
+        print('    `oneEPD` is the primary model: the center is one random')
         print('    declaration. `com` is a displacement applied to every')
         print('    material alike, `ind` one drawn per material.')
         print((piv[cols] / best).to_string(float_format=lambda v: f'{v:.2f}'))
@@ -241,14 +241,14 @@ def report_decision(dec):
     parts = j.method.str.split(' \\| ', regex=True, expand=True)
     j['cell'], j['shape'] = parts[0], parts[1]
     j['gsd_ratio'] = j.cell.str.extract(r'gsd x([0-9.]+)').astype(float)
-    j['centre'] = j.cell.str.extract(r'centre (\S+)')
-    j['mode'] = np.where(j.centre.str.startswith('ind'), 'independent',
-                         np.where(j.centre == 'oneEPD', 'oneEPD', 'common'))
+    j['center'] = j.cell.str.extract(r'center (\S+)')
+    j['mode'] = np.where(j.center.str.startswith('ind'), 'independent',
+                         np.where(j.center == 'oneEPD', 'oneEPD', 'common'))
     for shape in ('pedigree', 'uniform', 'triangular'):
         s = j[j['shape'] == shape]
         if s.empty:
             continue
-        piv = s.pivot_table(index='gsd_ratio', columns='centre',
+        piv = s.pivot_table(index='gsd_ratio', columns='center',
                             values='abs_err', aggfunc='mean')
         print(f'--- {shape} ---   (worst data-driven method: {worst_dd:.4f})')
         print(piv.to_string(float_format=lambda v: f'{v:.4f}'))

@@ -56,7 +56,7 @@ PEWT = [f"{pe}, {wt}" for pe in PE_METHODS for wt in WT_METHODS]
 # real production volumes, which this study does not have. Two things keep
 # that from misleading: the methods section says at first use that market
 # weights are DRAWN from a Dirichlet because production volumes are not
-# published, and the oracle scheme is labelled "known market shares", so the
+# published, and the oracle scheme is labeled "known market shares", so the
 # contrast between a drawn weight and a known one is visible wherever both
 # appear. A label cannot carry a caveat; a sentence can.
 #

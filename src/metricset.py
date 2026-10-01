@@ -692,7 +692,7 @@ def per_unit_error(frame, output, method='method', block=None):
     pLCA groups before taking the absolute value, so a method that is too high
     on one group and too low on the next reported almost no error at all. The
     other eleven rows were already per unit, so the figure put two statistics
-    on one colour scale and the five flattered themselves: the best method on
+    on one color scale and the five flattered themselves: the best method on
     "how often a cap binds" read 0.48 percent of the true level where the
     per-unit figure is 33.01, and on "what using 25 percent less saves" it read
     0.00 against 10.02.
@@ -708,7 +708,7 @@ def per_unit_error(frame, output, method='method', block=None):
         block is given. **This is the error in the AVERAGE claim over many
         decisions**, which is the right quantity for a portfolio of buildings
         or a stock model and the wrong one for a single design. It is kept and
-        labelled rather than dropped, because it is a real quantity that a
+        labeled rather than dropped, because it is a real quantity that a
         different reader wants; it is not a worse version of the first.
 
     The gap between them is the extent to which a method's error cancels
@@ -772,7 +772,7 @@ def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
     per unit, because five rows were averaging the signed error over groups
     first and so reported a cancellation rather than an error.
 
-    Both statistics are returned for all sixteen rows and both are labelled:
+    Both statistics are returned for all sixteen rows and both are labeled:
 
         `total_error`       the per-unit relative error. **What the figure
                             draws**, and what a single design decision carries.

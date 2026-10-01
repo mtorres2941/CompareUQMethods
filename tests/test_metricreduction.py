@@ -536,7 +536,7 @@ def choice_fixture(n_datasets=500, seed=50):
              + 0.8 * np.log(per.coeffvar.to_numpy(float)))
     # The tilt is SMALL against the level, which is the real situation: every
     # method gets worse on spread, small data by far more than any one family
-    # is favoured by shape. So skewness explains about 2 percent of the level
+    # is favored by shape. So skewness explains about 2 percent of the level
     # and essentially all of the ratio, because the shared level cancels.
     tilt = 0.15 * per.skewness.to_numpy(float)
     rows = []
@@ -703,7 +703,7 @@ def test_cv_r2_refuses_to_report_below_the_row_floor():
 
 
 def test_cv_r2_can_be_negative_when_the_model_predicts_worse_than_the_mean():
-    """The empirical arm's actual behaviour: base R2 -0.724. A clipped-at-zero
+    """The empirical arm's actual behavior: base R2 -0.724. A clipped-at-zero
     score would have hidden it."""
     rng = np.random.default_rng(0)
     n = 60

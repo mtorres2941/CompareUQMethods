@@ -20,7 +20,7 @@ import numpy as np
 #: survives greyscale. Order chosen so the first two are the furthest apart.
 CATEGORICAL = ('#0072B2', '#D55E00', '#009E73', '#CC79A7', '#E69F00', '#56B4E9')
 
-#: The single saturated colour reserved for whatever the message is about.
+#: The single saturated color reserved for whatever the message is about.
 #: Everything else in a figure should be grey; see FIGURE_STYLE.md section 4.
 ACCENT = '#D55E00'
 MUTED = '#9A9A9A'
@@ -172,7 +172,7 @@ def check_overlaps(fig, verbose=True):
              if t.get_text().strip()]
     texts += [t for t in fig.texts if t.get_text().strip()]
     # ALL THREE TITLE ARTISTS, and this was a real blind spot. matplotlib keeps
-    # a separate Text for the centre, left and right title, `ax.get_title()`
+    # a separate Text for the center, left and right title, `ax.get_title()`
     # reads the CENTRE one by default, and `apply()` above sets
     # `axes.titlelocation` to 'left' -- so every title this project draws lives
     # in `_left_title`, the guard `if ax.get_title()` was always false, and
@@ -213,7 +213,7 @@ def check_overlaps(fig, verbose=True):
         fig.canvas.draw()
         h = bare.shape[0]
         # The BACKGROUND is the figure's own facecolor, not the median pixel.
-        # A median over the canvas is the plot's dominant colour whenever the
+        # A median over the canvas is the plot's dominant color whenever the
         # data fill the axes, which is exactly the case this check exists for:
         # a label on a solid band then reads as sitting on 'background'.
         import matplotlib.colors as _mc

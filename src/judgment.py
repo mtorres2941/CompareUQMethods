@@ -108,7 +108,7 @@ import families as FAM
 #: ONLY 0.75 IS REACHABLE BY ANY PEDIGREE SCORE ON THE MEDIAN CATEGORY; see
 #: PEDIGREE_GSD below and the module docstring. The values at and above 1.0 are
 #: kept because a flat sensitivity is only informative if it is measured over a
-#: range wide enough to have shown a slope, and they must be labelled as a
+#: range wide enough to have shown a slope, and they must be labeled as a
 #: sensitivity rather than as pedigree models.
 GSD_RATIOS = (0.5, 0.75, 1.0, 1.5, 2.0, 3.0)
 
@@ -240,7 +240,7 @@ def plausible_range(center, gsd, coverage=0.95):
     return float(d.ppf(q)), float(d.ppf(1.0 - q))
 
 
-#: How a deliberate centre offset is applied ACROSS the materials of a
+#: How a deliberate center offset is applied ACROSS the materials of a
 #: building, which turns out to matter more than its size.
 #:
 #: `common`       every material is displaced by the SAME fraction. Measured:

@@ -96,7 +96,7 @@ def test_notebook_three_is_fully_marked():
 
 
 def test_notebook_four_is_fully_marked():
-    """The notebook this tool is used on must have every figure cell labelled,
+    """The notebook this tool is used on must have every figure cell labeled,
     or the refusal above fires and the tool is useless there."""
     path = ROOT / "notebooks" / "04_CompareUQ_ReduceMetrics.ipynb"
     _setup, figs = RF.read_cells(path)

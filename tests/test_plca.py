@@ -94,7 +94,7 @@ def test_materials_are_independent_within_an_iteration():
     """Columns of the uniform block must not induce rank correlation.
 
     Sharing ONE variate across materials would make every material's draw move
-    together, which is a modelling claim this study does not make. The variates
+    together, which is a modeling claim this study does not make. The variates
     are shared across METHODS and independent across MATERIALS.
     """
     names, _, models = a_group(k=3)
@@ -785,7 +785,7 @@ def test_the_figure_style_writes_ascii_minus_signs():
 def test_the_overlap_check_sees_a_LEFT_aligned_panel_title():
     """The clash detector had never checked a single title in this project.
 
-    matplotlib keeps a separate Text artist for the centre, left and right
+    matplotlib keeps a separate Text artist for the center, left and right
     title; `ax.get_title()` reads the CENTRE one, and `figstyle.apply` sets
     `axes.titlelocation` to 'left'. So every title this project draws lives in
     `_left_title`, the old guard `if ax.get_title()` was always false, and the
@@ -838,7 +838,7 @@ def test_the_overlap_check_sees_a_label_sitting_on_the_data():
 def test_the_overlap_check_is_quiet_for_a_label_in_white_space():
     """The control, and the reason the background is the figure facecolor and
     not the median pixel: a median over a canvas the data fill IS the data's
-    colour, so every label would read as sitting on background."""
+    color, so every label would read as sitting on background."""
     import figstyle
     figstyle.apply()
     fig, ax = plt.subplots(figsize=(4, 2.5))

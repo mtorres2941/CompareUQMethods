@@ -1,0 +1,101 @@
+panel_row,panel_col,row_label,title,kind,x_hi,n_values
+0,0,s1_3_9,"n=7  CV=0.54
+2 mode(s)",synthetic,2.1473570172411196,7
+0,1,s1_3_9,"n=6  CV=0.57
+5 mode(s)",synthetic,1.804548023505089,6
+0,2,s1_3_9,"n=5  CV=0.09
+2 mode(s)",synthetic,1.313697598659147,5
+0,3,s1_3_9,"n=3  CV=0.75
+3 mode(s)",synthetic,2.338440547396917,3
+0,4,s1_3_9,"n=6  CV=0.67
+3 mode(s)",synthetic,2.800611042591848,6
+0,5,s1_3_9,"n=5  CV=1.23
+5 mode(s)",synthetic,3.870962738700854,5
+0,6,s1_3_9,"n=5  CV=0.67
+3 mode(s)",synthetic,2.38422456752081,5
+0,7,s1_3_9,"n=3  CV=1.03
+3 mode(s)",synthetic,2.795029300690237,3
+0,8,s1_3_9,"n=3  CV=0.17
+2 mode(s)",synthetic,1.4151482067186132,3
+0,9,s1_3_9,"n=3  CV=0.69
+1 mode(s)",synthetic,1.9565294022025732,3
+1,0,s2_10_99,"n=29  CV=0.66
+2 mode(s)",synthetic,3.8273929579625054,29
+1,1,s2_10_99,"n=85  CV=0.87
+2 mode(s)",synthetic,5.250793193560089,85
+1,2,s2_10_99,"n=28  CV=0.83
+4 mode(s)",synthetic,4.977784614036765,28
+1,3,s2_10_99,"n=13  CV=0.88
+2 mode(s)",synthetic,3.421883497574685,13
+1,4,s2_10_99,"n=24  CV=0.64
+4 mode(s)",synthetic,3.2870548167189257,24
+1,5,s2_10_99,"n=51  CV=0.11
+4 mode(s)",synthetic,1.4192344444823715,51
+1,6,s2_10_99,"n=32  CV=0.55
+4 mode(s)",synthetic,2.5653684664778402,32
+1,7,s2_10_99,"n=64  CV=0.66
+4 mode(s)",synthetic,3.6159723792762692,64
+1,8,s2_10_99,"n=77  CV=0.80
+5 mode(s)",synthetic,5.1173797519138695,77
+1,9,s2_10_99,"n=32  CV=1.24
+2 mode(s)",synthetic,7.441477202004325,32
+2,0,s3_100_999,"n=165  CV=0.25
+5 mode(s)",synthetic,2.1289087692123303,165
+2,1,s3_100_999,"n=117  CV=0.97
+5 mode(s)",synthetic,4.911804868870232,117
+2,2,s3_100_999,"n=198  CV=0.83
+3 mode(s)",synthetic,4.903049579499974,198
+2,3,s3_100_999,"n=320  CV=1.25
+4 mode(s)",synthetic,10.47341998162437,320
+2,4,s3_100_999,"n=422  CV=0.86
+1 mode(s)",synthetic,6.433572942810506,422
+2,5,s3_100_999,"n=688  CV=0.63
+4 mode(s)",synthetic,3.540175353735213,688
+2,6,s3_100_999,"n=604  CV=1.11
+1 mode(s)",synthetic,6.720784071068222,604
+2,7,s3_100_999,"n=495  CV=0.26
+5 mode(s)",synthetic,2.416621830703624,495
+2,8,s3_100_999,"n=604  CV=0.73
+3 mode(s)",synthetic,5.26302524053703,604
+2,9,s3_100_999,"n=457  CV=1.24
+4 mode(s)",synthetic,6.838636864816308,457
+3,0,s4_1000_9999,"n=1097  CV=0.61
+3 mode(s)",synthetic,4.954607960501614,1097
+3,1,s4_1000_9999,"n=2673  CV=0.40
+3 mode(s)",synthetic,3.309736471838462,2673
+3,2,s4_1000_9999,"n=9262  CV=0.78
+1 mode(s)",synthetic,6.877454942160507,9262
+3,3,s4_1000_9999,"n=4541  CV=0.87
+4 mode(s)",synthetic,6.183732926274443,4541
+3,4,s4_1000_9999,"n=1859  CV=0.81
+2 mode(s)",synthetic,5.923238563326613,1859
+3,5,s4_1000_9999,"n=9379  CV=0.23
+1 mode(s)",synthetic,2.2516026438519994,9379
+3,6,s4_1000_9999,"n=7957  CV=0.86
+1 mode(s)",synthetic,6.526313693169814,7957
+3,7,s4_1000_9999,"n=6335  CV=0.99
+5 mode(s)",synthetic,7.087349870684124,6335
+3,8,s4_1000_9999,"n=1399  CV=0.40
+5 mode(s)",synthetic,2.839360661428969,1399
+3,9,s4_1000_9999,"n=1146  CV=0.68
+4 mode(s)",synthetic,5.176716520890324,1146
+4,0,EMPIRICAL,"Shotcrete [<3000
+n=4  CV=0.24",empirical,1.5357921486154922,4
+4,1,EMPIRICAL,"VinylSiding
+n=11  CV=1.38",empirical,5.337982996426213,11
+4,2,EMPIRICAL,"CMU [4000-4999 p
+n=18  CV=0.28",empirical,1.8912762558340284,18
+4,3,EMPIRICAL,"MasonryCement
+n=26  CV=0.32",empirical,1.9913189651847483,26
+4,4,EMPIRICAL,"ConcretePaving [
+n=42  CV=0.26",empirical,1.6481979770770847,42
+4,5,EMPIRICAL,"CableTrays
+n=59  CV=1.33",empirical,7.911562251126927,59
+4,6,EMPIRICAL,"WoodFlooring
+n=86  CV=0.76",empirical,3.4488865613437616,86
+4,7,EMPIRICAL,"DampproofingAndW
+n=162  CV=2.55",empirical,18.952452412833598,162
+4,8,EMPIRICAL,"OilPatch
+n=282  CV=1.20",empirical,12.345961483982132,282
+4,9,EMPIRICAL,"CementGrout
+n=3764  CV=0.37",empirical,3.027264605229668,3764

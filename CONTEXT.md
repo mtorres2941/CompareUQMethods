@@ -45,7 +45,7 @@ CompareUQMethods/
 |   |                          NAME only, so the comparison can be read by what
 |   |                          a material IS (Stage 2c)
 |   |-- figstyle.py            FIGURE_STYLE.md in code: palette, rcParams,
-|   |                          direct labelling, the greyscale check
+|   |                          direct labeling, the greyscale check
 |   |-- metricreduction.py     which characteristics carry signal (Stage 2f):
 |   |                          the candidate set and its transforms, explicit
 |   |                          missingness, the size confound, two model
@@ -833,7 +833,7 @@ characteristic of the empirical arm, which the generator is calibrated against.
 
 ### The judgment arm
 
-`src/judgment.py`. The pedigree matrix as a lognormal specified by a centre and
+`src/judgment.py`. The pedigree matrix as a lognormal specified by a center and
 a geometric standard deviation, plus a uniform and a triangular over a
 plausible range derived from the SAME two inputs, so the three differ in SHAPE
 and not in information. All three expose the same pdf/cdf/ppf/rvs_from_uniform
@@ -851,7 +851,7 @@ displacement applied identically to every material cancels EXACTLY in a design
 comparison, because both options' totals scale by the same factor; one drawn
 per material does not. `OFFSET_MODES` separates them, and sweeping only the
 common case would have reported a null that was an artifact of the sweep. The
-primary location model has no free parameter: the centre is ONE declaration
+primary location model has no free parameter: the center is ONE declaration
 drawn at random, which is what a practitioner without a dataset holds.
 
 **THE SPREAD IS SWEPT RELATIVE TO THE DATA'S OWN.** The pedigree matrix's
@@ -1448,7 +1448,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_CapReductionNormalization.csv` | NB3 | the two sums of the corrected cap rank frequencies, which are now both quantities |
 | `TABLE_CapReductionByMethod.csv` | NB3 | how often the cap binds under each method, which the old constant divisor forced to 0.25 |
 | `TABLE_FiveStatements.csv` | NB3 | **the results section in order.** The five statements a pLCA makes, each with the truth and the span across the six methods, assembled from the tables already on disk |
-| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** SIXTEEN claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks, each scored for all six methods against the truth on **one definition for every row**: `total_error` is the mean absolute error divided by the mean TRUE LEVEL of the same quantity, and it is what the figure shows in every cell. `best_error` is what the closest of the six still gets wrong, `excess` is each method's excess over it, and `stakes` is worst minus best, which is what the CHOICE of method costs and is the right-hand bar. **The last two answer different questions**: a small spread can mean every method is right or every method is wrong. **An earlier version used two denominators** -- the between-material spread for the attribution rows and the true level for the rest -- and drew both on one colour scale; those are a signal-to-noise ratio and a relative error, they are not a fixed multiple of each other, and decision 157 is the correction. `total_w1` was dropped with that change, because a distance has a true value of zero and no level to be a percentage of |
+| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** SIXTEEN claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks, each scored for all six methods against the truth on **one definition for every row**: `total_error` is the mean absolute error divided by the mean TRUE LEVEL of the same quantity, and it is what the figure shows in every cell. `best_error` is what the closest of the six still gets wrong, `excess` is each method's excess over it, and `stakes` is worst minus best, which is what the CHOICE of method costs and is the right-hand bar. **The last two answer different questions**: a small spread can mean every method is right or every method is wrong. **An earlier version used two denominators** -- the between-material spread for the attribution rows and the true level for the rest -- and drew both on one color scale; those are a signal-to-noise ratio and a relative error, they are not a fixed multiple of each other, and decision 157 is the correction. `total_w1` was dropped with that change, because a distance has a true value of zero and no level to be a percentage of |
 | `TABLE_MetricSizeBands.csv` | NB3 | the seven per-material claims by (dataset size band, method), each error as a pct of that claim's true level over the whole arm. **The scorecard's own caveat**: the pooled box count is an average over a size mix that is a design choice, and the ordering inverts at about 100 declarations. It is the figure's second panel |
 | `TABLE_MetricConclusions.csv` | NB3 | whether the paper's existing claims survive the companion metrics: the method ordering under each, how much worse the normal is, and how far the four non-normal methods span |
 | `TABLE_MetricWinLeaders.csv` | NB3 | whether each metric's win-share leader is separated from the runner-up or tied with it. On two of seven it is tied |

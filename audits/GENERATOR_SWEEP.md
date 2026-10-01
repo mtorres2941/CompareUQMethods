@@ -63,7 +63,7 @@ any row.
     mode_coupling        currently 1.0, the parameter introduced in Stage 2a
                          Part 3. At 0 a point's weight carries no information
                          about which mode it came from, which is the old
-                         uncoupled behaviour.
+                         uncoupled behavior.
 
 ## Two more the weight model reaches
 

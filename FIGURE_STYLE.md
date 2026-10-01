@@ -111,8 +111,8 @@ is worth recording why the title failed: "charging" was internal shorthand for
 not a title.** Write the message in the words a reader of the paper already
 has.
 
-**The subtitle is also where a series legend belongs when direct labelling will
-not fit.** Naming two lines in a subtitle costs one short line; labelling them
+**The subtitle is also where a series legend belongs when direct labeling will
+not fit.** Naming two lines in a subtitle costs one short line; labeling them
 at their ends cost a collision with the panel next door.
 
 ### A takeaway title is not a licence to hide the data
@@ -141,10 +141,10 @@ edit. The last is the one people skip.
   which case use one faint set on one axis only;
 - boxes around legends, around panels, around anything;
 - background fills and shading of any kind;
-- tick marks that duplicate a labelled value;
+- tick marks that duplicate a labeled value;
 - minor ticks, unless a log axis genuinely needs them;
 - redundant axis labels on shared axes in a small-multiple grid;
-- any use of colour that also has a position or a shape encoding the same thing.
+- any use of color that also has a position or a shape encoding the same thing.
 
 **Keep and strengthen:**
 
@@ -155,10 +155,10 @@ edit. The last is the one people skip.
   three to five;
 - annotation of the specific points the message depends on.
 
-**Direct labelling beats a legend.** A legend forces the reader to look away,
-decode a colour, and look back. Doumont's objection is blunter: a legend is "an
+**Direct labeling beats a legend.** A legend forces the reader to look away,
+decode a color, and look back. Doumont's objection is blunter: a legend is "an
 arbitrary dictionary of colors, hard to process". Put the series name at the end of the series, in the series
-colour. Use a legend only when lines are too dense to label in place.
+color. Use a legend only when lines are too dense to label in place.
 
 ---
 
@@ -174,9 +174,9 @@ project's data -- two arms, four size bands, six UQ methods -- suits them.
 
 ---
 
-## 4. Colour
+## 4. Color
 
-Colour encodes, it does not decorate.
+Color encodes, it does not decorate.
 
 - **Categorical:** at most six, from a colourblind-safe set. `figstyle.CATEGORICAL`
   is Okabe-Ito, which is safe for deuteranopia and protanopia and prints legibly
@@ -187,17 +187,17 @@ Colour encodes, it does not decorate.
 - **Diverging:** only where the variable genuinely has a meaningful midpoint, and
   then anchored at that midpoint.
 - **Greyscale first.** If the figure fails in greyscale, position, shape or
-  direct labelling is doing too little work.
-- **One accent.** Reserve a single saturated colour for the thing the message is
+  direct labeling is doing too little work.
+- **One accent.** Reserve a single saturated color for the thing the message is
   about, and render everything else in grey. A figure where everything is
-  coloured emphasises nothing.
-- **One colour scale means ONE quantity.** Added 2026-09-23, Stage 2g, after a
+  colored emphasises nothing.
+- **One color scale means ONE quantity.** Added 2026-09-23, Stage 2g, after a
   heatmap drew seventeen rows on a shared ramp where seven of them were divided
   by one thing and ten by another. Both were percentages, so nothing on the page
   said they were different statistics. **If the cells of a shared scale are not
   computed the same way, the scale is a lie, and naming the denominators in the
   row headers does not repair it** -- the reader still has to do arithmetic the
-  colour has already done wrongly. Either put every cell on one definition or
+  color has already done wrongly. Either put every cell on one definition or
   use separate panels with separate scales.
 
 ---
@@ -259,9 +259,9 @@ Colour encodes, it does not decorate.
 2. Does every panel earn its place, and does each make a different point?
 3. Have I deleted the top and right spines, the gridlines, the legend box and
    every background fill?
-4. Is each series labelled where it is drawn, rather than in a legend?
+4. Is each series labeled where it is drawn, rather than in a legend?
 5. Does it survive greyscale?
-6. Is the colour ramp perceptually uniform, and is the accent colour on the
+6. Is the color ramp perceptually uniform, and is the accent color on the
    thing the message is about?
 7. Do any two pieces of text touch, at final size?
 8. Is it built at final width, with text legible there?
@@ -270,7 +270,7 @@ Colour encodes, it does not decorate.
     rather than repeat the title?
 11. **Doumont's test:** show it to someone representative of the audience with
     no spoken explanation. Can they say what it shows and why it is there? If a
-    reader has to ask what a mark means, the mark is not labelled.
+    reader has to ask what a mark means, the mark is not labeled.
 
 ---
 
@@ -305,7 +305,7 @@ Colour encodes, it does not decorate.
   and why it is there.
 
 **This project's own conventions, which neither author states.** The Okabe-Ito
-palette and the six-colour limit; the specific point sizes; the ASCII-only rule,
+palette and the six-color limit; the specific point sizes; the ASCII-only rule,
 which is a standing constraint of this repository and not a design principle;
 the file-naming scheme; the 3.5 and 7.2 inch widths; and the requirement that
 figures be built from tables on disk. These are ours. They are listed separately
@@ -332,7 +332,7 @@ and the note that a takeaway title does not license hiding the data. One figure
 was cut rather than repaired.
 
 **Revised again 2026-09-23, same stage.** A second figure was cut, its title
-having needed a glossary. Section 4 gained the rule that one colour scale means
+having needed a glossary. Section 4 gained the rule that one color scale means
 one quantity, and section 1's worked example moved to the figure that survived
 and gained the requirement that a number in a title be computed from the table
 rather than typed.

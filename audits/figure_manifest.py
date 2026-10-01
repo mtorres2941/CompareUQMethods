@@ -117,6 +117,34 @@ def images_on_disk():
     return found
 
 
+#: What FIGURE_STYLE.md asks of a figure cell, as far as a reader of the source
+#: can check it. The parts that matter most -- a title that states a finding, a
+#: panel that earns its place -- cannot be checked here and are the checklist's
+#: job. These four can.
+STYLE_CALLS = {
+    'apply': 'figstyle.apply(',          # the rcParams, including ASCII minus
+    'savefig': 'figstyle.savefig(',      # one name, PNG plus vector
+    'finish': 'figstyle.finish(',        # erase what the guide says to erase
+    'overlaps': 'figstyle.check_overlaps(',
+}
+
+
+def style_compliance():
+    """Which figure cells call which part of the style module."""
+    rows = []
+    for label, text in code_units():
+        if 'savefig' not in text:
+            continue
+        head = text.lstrip().split('\n', 1)[0]
+        if not head.startswith(('# FIGURE', '# SUPPLEMENT')):
+            continue
+        row = dict(source=label, title=head.lstrip('# ').strip()[:60])
+        for name, call in STYLE_CALLS.items():
+            row[name] = call in text
+        rows.append(row)
+    return rows
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--write', action='store_true')
@@ -164,13 +192,28 @@ def main(argv=None):
     for g, labels in unwritten:
         print(f'  {g}  <- {"; ".join(labels)}')
 
+    style = style_compliance()
+    print(f'\nFIGURE_STYLE.md COMPLIANCE, {len(style)} marked figure cells')
+    print('  apply finish overlap  source')
+    for r in style:
+        if all(r[k] for k in STYLE_CALLS):
+            continue
+        print(f"  {'y' if r['apply'] else '.':5s} "
+              f"{'y' if r['finish'] else '.':6s} "
+              f"{'y' if r['overlaps'] else '.':7s} "
+              f"{r['source']}  -- {r['title']}")
+    n_full = sum(1 for r in style if all(r[k] for k in STYLE_CALLS))
+    print(f'  {n_full} of {len(style)} call all four')
+
     if args.write:
         import pandas as pd
         d = os.path.join(ROOT, 'outputs', 'tables', 'audits')
         os.makedirs(d, exist_ok=True)
         p = os.path.join(d, 'TABLE_FigureManifest.csv')
         pd.DataFrame(rows).to_csv(p, index=False)
-        print(f'\nwrote {p}')
+        ps = os.path.join(d, 'TABLE_FigureStyleCompliance.csv')
+        pd.DataFrame(style).to_csv(ps, index=False)
+        print(f'\nwrote {p}\nwrote {ps}')
     return 0
 
 
