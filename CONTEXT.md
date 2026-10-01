@@ -286,11 +286,28 @@ it and is the guard.
 
 `src/flip.py`, Stage 2d. Every score in this study is a distance; this is what a
 distance DOES. The probability that a probabilistic LCA names a different
-largest contributor crosses 1, 5 and 10 percent at relative W1 of **0.0018,
-0.011 and 0.025**, in units of the dataset's own unweighted mean.
-`flip.FLIP_THRESHOLDS` carries them, rounded to two significant figures because
-the bootstrap interval is about 30 percent wide and an independent run differed
-in the third figure.
+largest contributor crosses 1, 5 and 10 percent at relative W1 of **0.0029,
+0.015 and 0.032**, in units of the dataset's own unweighted mean.
+`flip.FLIP_THRESHOLDS` carries them.
+
+**THOSE THREE VALUES WERE 0.0018, 0.011 and 0.025 UNTIL 2026-09-25 AND THIS
+FILE PRINTED THE OLD ONES UNTIL STAGE 3.** They were calibrated on the corpus
+that Stage 2h replaced, and on the regenerated corpus all three had fallen
+outside their own recomputed 95 percent intervals, by factors of 1.62, 1.37 and
+1.26. The recalibration is decision 223; notebook 1 reads the constant and was
+re-run on it. They rose because the new corpus is more dispersed, so a given
+flip probability corresponds to a larger absolute model distance -- the same
+scale effect that raised every goodness-of-fit score without any fit getting
+worse. `tests/test_flip.py::test_stored_flip_thresholds_sit_inside_their_own_intervals`
+now fails if they drift again.
+
+**HOW MANY DIGITS TO PRINT IS NOT A FIXED COUNT**, by decision 175: every
+crossing is fitted twice, once with a logistic and once with an isotonic fit,
+and prose rounds at the first figure the two disagree on. `flip.prose_crossing`
+is that rule. Stage 3 added one guard to it -- the printed spread may not be
+more than twice the real one -- after it rendered 0.015021 and 0.013899, which
+agree to 7.5 percent, as "0.02 against 0.01". Both of decision 175's published
+examples are unchanged.
 
 **THE STUDY'S pLCA GIVES EACH METHOD ITS OWN RANDOM DRAWS.** Two methods are
 therefore compared under two independent Monte Carlo samples. For every

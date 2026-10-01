@@ -72,15 +72,39 @@ def test_no_global_numpy_randomness(path):
     assert not offenders, f"{path.name}: global numpy randomness at {offenders}"
 
 
+#: A line creating a second Generator must carry this marker to be allowed.
+#: Stage 3 added it for the strip-plot jitter, which has to be reproducible
+#: from the figure cell ALONE -- audits/render_figures.py executes a figure
+#: cell against the setup block and nothing else -- and which must not be
+#: spawned from the notebook's Generator, because inserting a spawn renumbers
+#: every later one and would move the empirical weights and the
+#: cross-validation splits. A decoration stream is seeded from SEED and may
+#: only move pixels.
+DECORATION_MARKER = "# decoration-only generator"
+
+
 @pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
 def test_generator_is_created_exactly_once(path):
-    creations = [
-        (i, line.strip())
-        for i, source in code_cells(path)
-        for line in source.splitlines()
-        if ALLOWED_GLOBAL_RANDOM in line and not line.strip().startswith("#")
-    ]
-    assert len(creations) == 1, f"{path.name}: expected 1 Generator, found {creations}"
+    """One ANALYSIS Generator per notebook, plus declared decoration streams.
+
+    The exemption is deliberately noisy rather than silent: an undeclared
+    second Generator still fails, and every exempted line is one grep away.
+    """
+    creations, decoration = [], []
+    for i, source in code_cells(path):
+        for line in source.splitlines():
+            stripped = line.strip()
+            if ALLOWED_GLOBAL_RANDOM not in line or stripped.startswith("#"):
+                continue
+            (decoration if DECORATION_MARKER in line else creations).append(
+                (i, stripped))
+    assert len(creations) == 1, (
+        f"{path.name}: expected 1 analysis Generator, found {creations}. "
+        f"A figure-only stream must carry {DECORATION_MARKER!r}.")
+    for i, line in decoration:
+        assert "SEED" in line, (
+            f"{path.name} cell {i}: a decoration Generator must be seeded "
+            f"from SEED so the figure is reproducible: {line}")
 
 
 #: Bytes. A notebook carrying stored figure outputs runs to hundreds of

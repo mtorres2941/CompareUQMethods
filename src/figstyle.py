@@ -243,3 +243,60 @@ def check_overlaps(fig, verbose=True):
         if not hits and not on_ink:
             print('no overlapping text, no text on data')
     return hits + on_ink
+
+
+#: Every figure stem this process has written, so that two generators writing
+#: the same file is an error rather than a silent overwrite. Stage 3 added it
+#: because two different cells once both wrote `CompareUQMethods_FIG2_*`, which
+#: is how the duplicate FIG2 names in the repository happened: nothing failed,
+#: and the second cell's figure simply replaced the first cell's.
+_WRITTEN = {}
+
+#: Vector formats emitted beside every PNG. A journal wants a vector figure and
+#: a reader wants a PNG; writing both from one call is the only way they cannot
+#: drift apart.
+VECTOR_EXT = ('.pdf',)
+
+PREFIX = 'CompareUQMethods_'
+
+
+def reset_written():
+    """Forget what this process has written. For tests and for a re-run."""
+    _WRITTEN.clear()
+
+
+def savefig(fig, out_root, stem, vector=True, **kw):
+    """Write one figure as PNG plus a vector sibling, under `out_root/figures`.
+
+    `stem` is the filename without the `CompareUQMethods_` prefix and without
+    an extension, so the naming convention lives in one place and a cell cannot
+    spell it differently. Returns the PNG path.
+
+    RAISES if this process has already written this stem from a different
+    place. A duplicate filename is not a near miss: the second writer wins, the
+    first figure is gone, and nothing anywhere says so.
+    """
+    import os
+    import inspect
+    import matplotlib.pyplot as plt
+
+    caller = inspect.stack()[1]
+    where = f'{os.path.basename(caller.filename)}:{caller.lineno}'
+    if stem in _WRITTEN and _WRITTEN[stem] != where:
+        raise RuntimeError(
+            f'two generators write {PREFIX}{stem}.png: {_WRITTEN[stem]} and '
+            f'{where}. Rename one; a duplicate filename silently discards the '
+            f'figure written first.')
+    _WRITTEN[stem] = where
+
+    figdir = os.path.join(out_root, 'figures')
+    os.makedirs(figdir, exist_ok=True)
+    base = os.path.join(figdir, f'{PREFIX}{stem}')
+    kw.setdefault('bbox_inches', 'tight')
+    kw.setdefault('dpi', 300)
+    fig.savefig(f'{base}.png', **kw)
+    if vector:
+        vkw = {k: v for k, v in kw.items() if k != 'dpi'}
+        for ext in VECTOR_EXT:
+            fig.savefig(f'{base}{ext}', **vkw)
+    return f'{base}.png'

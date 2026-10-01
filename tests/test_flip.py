@@ -333,3 +333,67 @@ def test_prose_crossing_passes_through_a_crossing_that_does_not_exist():
     out = FL.crossing_precision(frame)
     assert out.prose_text.iloc[0] == '2.1 against 2.2'
     assert isinstance(out.prose_text.iloc[1], str)
+
+
+# --------------------------------------------------------------------------
+# Stage 3: the stored constants against the table the notebook recomputes.
+# --------------------------------------------------------------------------
+
+_CROSSINGS = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'outputs', 'tables', 'TABLE_FlipCrossings.csv')
+
+
+def test_stored_flip_thresholds_sit_inside_their_own_intervals():
+    """`FL.FLIP_THRESHOLDS` is a HARD-CODED constant and notebook 1 reads it.
+
+    It was calibrated once and then the corpus was regenerated under it. By the
+    close of Stage 2h all three stored values had fallen OUTSIDE their own
+    recomputed 95 percent intervals, by factors of 1.62, 1.37 and 1.26, and the
+    only thing that would have shown it was a reader comparing two printed
+    lines in a notebook's output. Decision 223 records the recalibration; this
+    is the guard that makes the next drift fail a test instead.
+    """
+    if not os.path.exists(_CROSSINGS):
+        pytest.skip('TABLE_FlipCrossings.csv not present; run notebook 3')
+    got = pd.read_csv(_CROSSINGS)
+    got = got[got.outcome == 'flip_top'].set_index('level')
+    drifted = []
+    for level, stored in sorted(FL.FLIP_THRESHOLDS.items()):
+        row = got.loc[round(float(level), 2)]
+        if not (row.ci_lo <= stored <= row.ci_hi):
+            drifted.append(
+                f'{level:.0%}: stored {stored} outside '
+                f'[{row.ci_lo:.5f}, {row.ci_hi:.5f}] '
+                f'(recomputed {row.crossing:.5f})')
+    assert not drifted, (
+        'FL.FLIP_THRESHOLDS has drifted away from the calibration the '
+        'notebook recomputes. Recalibrating is an AUTHOR decision -- it moves '
+        'every weighting-risk probability notebook 1 reports -- so bring this '
+        'to the author rather than editing the constant: ' + '; '.join(drifted))
+
+
+def test_prose_rounding_never_overstates_the_gap_between_the_two_fits():
+    """A printed spread must be about the size of the real one.
+
+    The first-differing-digit rule alone turned 0.015021 and 0.013899, which
+    agree to 7.5 percent, into "0.02 against 0.01", which reads as a factor of
+    two. That is a value sitting on a rounding boundary, and it is the opposite
+    of what decision 175's rule is for.
+    """
+    text = FL.prose_crossing(0.015021, 0.013899)
+    assert text['text'] == '0.015 against 0.014', text
+
+    # and the two crossings decision 175 published are unchanged
+    assert FL.prose_crossing(2.132671, 2.222710)['text'] == '2.1 against 2.2'
+    assert FL.prose_crossing(1.460185, 1.352174)['text'] == '1.5 against 1.4'
+
+    # the general property, over a grid that includes boundary cases
+    rng = np.random.default_rng(7)
+    for a in rng.uniform(0.001, 50, 400):
+        b = a * float(rng.uniform(0.9, 1.1))
+        out = FL.prose_crossing(a, b)
+        if out['agree']:
+            continue
+        assert abs(out['parametric'] - out['monotone']) <= 2.0 * abs(a - b) \
+            or out['sigfigs'] == FL.PROSE_MAX_SIGFIGS, (a, b, out)

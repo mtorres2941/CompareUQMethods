@@ -830,6 +830,28 @@ def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
         return frame
     frame['total_error'] = frame['error'] / frame['scale']
     frame['portfolio_error'] = frame['error_portfolio'] / frame['scale']
+    frame = rescore(frame, difference_floor=difference_floor)
+    order = {lab: i for i, (_, lab, _, _) in enumerate(claims)}
+    return (frame.assign(_o=frame['claim'].map(order))
+            .sort_values(['_o', 'method']).drop(columns='_o')
+            .reset_index(drop=True))
+
+
+def rescore(frame, difference_floor=DIFFERENCE_FLOOR):
+    """Recompute the derived columns over whatever methods `frame` holds.
+
+    `rank`, `stakes`, `best_error`, `excess`, `best_method` and
+    `methods_differ` are properties of the SET of methods compared, not of any
+    one method. So a scorecard that gains a seventh policy -- Stage 3 adds the
+    feasible size rule as a column, decision 211 -- cannot keep the six-method
+    values for them: the best method on a row may now be the rule, and `stakes`
+    then measures a different choice.
+
+    Split out of `claim_scorecard` so there is ONE implementation of those six
+    columns. Doing it a second time in a notebook cell is how two tables end up
+    disagreeing about which method is best.
+    """
+    frame = frame.copy()
     piv = frame.pivot(index='claim', columns='method', values='total_error')
     lo, hi = piv.min(axis=1), piv.max(axis=1)
     frame['rank'] = frame.groupby('claim')['total_error'].rank(
@@ -839,7 +861,4 @@ def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
     frame['excess'] = frame['total_error'] - frame['claim'].map(lo)
     frame['best_method'] = frame['claim'].map(piv.idxmin(axis=1))
     frame['methods_differ'] = frame['stakes'] > difference_floor
-    order = {lab: i for i, (_, lab, _, _) in enumerate(claims)}
-    return (frame.assign(_o=frame['claim'].map(order))
-            .sort_values(['_o', 'method']).drop(columns='_o')
-            .reset_index(drop=True))
+    return frame

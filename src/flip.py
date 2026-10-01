@@ -546,8 +546,27 @@ def prose_digits(parametric, monotone, max_sigfigs=PROSE_MAX_SIGFIGS):
         return 1
     if a == b:
         return int(max_sigfigs)
+    gap = abs(a - b)
     for k in range(1, int(max_sigfigs) + 1):
-        if _round_sig(a, k) != _round_sig(b, k):
+        ra, rb = _round_sig(a, k), _round_sig(b, k)
+        if ra == rb:
+            continue
+        # AND THE PRINTED SPREAD MUST NOT OVERSTATE THE REAL ONE. Stage 3 found
+        # the first-differing-digit rule alone misfiring on the 5 percent flip
+        # crossing: 0.015021 and 0.013899 agree to 7.5 percent and the rule
+        # printed "0.02 against 0.01", which reads as a factor of two. The
+        # cause is a value sitting on a rounding boundary, where one unit in
+        # the last place is far larger than the difference being shown.
+        #
+        # So the chosen digit must also satisfy: the gap BETWEEN THE PRINTED
+        # NUMBERS is no more than twice the gap between the real ones. Rounding
+        # moves each value by at most half a unit in the last place, so this is
+        # just the statement that the last place is fine enough to carry the
+        # difference it is being used to display. It changes nothing where the
+        # two fits are already far apart relative to the digit -- both of
+        # decision 175's published examples return 2 as before, 2.1 against 2.2
+        # and 1.5 against 1.4 -- and only ever increases k.
+        if abs(ra - rb) <= 2.0 * gap:
             return k
     return int(max_sigfigs)
 
