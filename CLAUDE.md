@@ -131,26 +131,48 @@ several define methods this analysis implements directly.
   numpy state.
 - Be concise. Answer the question asked, at the length the answer needs. Do not
   restate what a commit message, a handoff or a table already says; point at it.
-- **THE HANDOFF IS THE LAST THING IN THE MESSAGE. NOTHING FOLLOWS IT.** Not a
-  summary of it, not a caveat about it, not "three things to point the reviewer
-  at", not "one thing worth noting", not "two places I'd push on". **If it
-  matters, it goes INSIDE the file or INSIDE the prompt, and then the message
-  ends.**
+- **RULE: A MESSAGE THAT DELIVERS A PROMPT OR NAMES A HANDOFF ARTIFACT ENDS
+  THERE. ZERO SENTENCES FOLLOW IT.**
 
-  **THIS IS THE SINGLE MOST FREQUENT ERROR MADE ON THIS PROJECT.** The author,
-  2026-10-01, after a prompt was given and then followed by three things to keep
-  in mind for it: "If there's something I need to keep in mind for that prompt,
-  then JUST INCLUDE IT IN THE PROMPT!!! It's that simple. A prompt should be
-  final and should have no additional after thoughts. Why do you always do
-  this??? And it's always at the end of a good session so it completely ruins
-  it." And again: "this is one of your most common and consistent errors."
+  **When this rule is in force.** Any message containing either (a) text the
+  author is meant to copy into another window, or (b) the name of a file written
+  for a later session -- a stage report, a handoff, a discrepancy entry.
 
-  **THE MECHANICAL TEST, APPLY IT BEFORE SENDING ANY MESSAGE THAT CONTAINS A
-  PROMPT OR NAMES A HANDOFF FILE:** is the prompt, or the filename, the last
-  thing in the message? If anything comes after it, delete that text and put its
-  content in the artifact. A postscript is never the right answer. "The prompt
-  is complete" is a claim that must be made true by editing the prompt, not
-  asserted and then undermined by what follows.
+  **What the rule requires.** The prompt block, or the filename, is the final
+  content of the message. Nothing is appended after it: no summary, no caveat,
+  no list of things to watch for, no "two places I would push on", no "one thing
+  worth noting".
+
+  **Procedure. Run this on the draft before sending.**
+  1. Locate the last prompt block or handoff filename in the draft.
+  2. Delete every sentence that follows it.
+  3. For each deleted sentence ask: does a later session need this? If yes, add
+     it to the prompt text or to the file, then verify it is there. If no, it
+     was noise and is now correctly gone.
+  4. Send the message.
+
+  **Five rationalizations produce this error. Each is wrong, for the reason
+  given.**
+  - *"The next window should pay attention to X."* X is an instruction. Put it
+    in the prompt.
+  - *"I should flag where my own work is weakest."* That is a section of the
+    report, written for the reader who will attack it.
+  - *"This is context, not an instruction."* The author cannot distinguish the
+    two from outside, so they must treat everything as an action item.
+  - *"It is only one short line."* Length is not the fault. Position is.
+  - *"The session went well, so a closing summary is a courtesy."* It is not a
+    courtesy. It is work transferred to the author.
+
+  **Why a hard rule rather than a preference.** The author moves the message's
+  content into a different window by hand. Anything outside the pasted block is
+  either lost or must be merged manually, and in both cases it signals that the
+  artifact was incomplete. An artifact that needs a spoken footnote is an
+  artifact with a defect; fix the artifact.
+
+  **Provenance.** Stated by the author 2026-09-14 and again 2026-10-01, the
+  second time after a review prompt was followed by three things to keep in mind
+  for it: "A prompt should be final and should have no additional after
+  thoughts." Recorded as one of the most frequent errors made on this project.
 
 - **All communication between sessions goes through the handoff and discrepancy
   files, never through chat.** When a session ends, the author's job is to hand
