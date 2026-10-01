@@ -117,35 +117,34 @@ rule at all is worth.
 
 ## 2b. The figure
 
-![Mean error over the sixteen claims against where the method switches](../outputs/figures/CompareUQMethods_FIG_MixedPolicy.png)
+![Mean error over the sixteen claims a probabilistic LCA makes, each divided by
+its own true level, against the cutoff on a log axis. **Both curves sweep the
+same thing -- where the method switches -- and they share their BELOW branch**,
+so the vertical gap between them is purely what knowing market share buys on the
+materials above the cutoff.
 
-Mean error over the sixteen claims a probabilistic LCA makes, each divided by
-its own true level, against the cutoff on a log axis. **The upper, orange curve
-is the rule a reader can follow** -- uniform weights throughout, the family
-switching at the cutoff. The lower, grey one adds the true market shares above
-the cutoff and is not a method. **The vertical gap between them is what knowing
-market share would be worth: about 3 points of the roughly 23 a probabilistic
-LCA gets wrong**, against the 0.73 points the whole choice of cutoff is worth
-across two and a half orders of magnitude. The dotted lines are the fixed
-methods, each labelled: lognormal-uniform at 23.96 and KDE-uniform at 23.92,
-which sit 0.04 apart and read as one line at this scale; lognormal-market at
-23.65; and KDE-market at 22.93. Both curves' ends land on those lines
-exactly, because at a cutoff of 3 or 10,000 each rule IS a fixed method. **The
-shaded band is the ORANGE curve's**, 40 to 170; the grey curve's own band is 50
-to 110.
+**Orange: KDE with uniform weights above the cutoff, three-parameter lognormal
+with uniform weights below. This is the rule a reader can follow.** Blue: the
+same, except the materials above the cutoff get their true market shares, which
+nobody publishes -- so it is a value of information, not a method.
 
-**BOTH CURVES SWEEP THE SAME THING on the x axis** -- where the FAMILY switches,
-kernel estimate at or above, lognormal below. The grey one additionally turns on
-the true market shares at that same point, so the vertical gap between them is
-what knowing market share is worth. **Neither curve is a sweep of where to
-switch WEIGHTING**, and the 80-to-100 band for that question is a different
-measurement entirely (section 4), not on this figure.
+**Each curve's end points ARE the fixed methods and are labelled there**, which
+is why the panel carries no separate reference lines: at a cutoff of 3 every
+dataset takes the above-method, and at 10,000 every dataset takes the
+below-method. Both curves therefore end at the same point, lognormal with
+uniform weights, and that shared end is checked to **0.00e+00** on every run.
+
+**The shaded bands are each curve's own indistinguishable span, in its own
+colour and on its own half of the panel** -- orange 40 to 170, blue 50 to 110.
+Neither is the 80-to-100 band for when market share starts helping: that is a
+per-dataset measurement against the true parent (section 4) and does not live on
+this axis.
 
 *If the image does not render:* two shallow U curves on a log x axis from 3 to
-10,000 declarations. The upper, orange, runs from 23.92 percent at a cutoff of 3
-down to 23.24 at 130 and back to 23.96 at 10,000. The lower, grey, runs from
-22.93 down to 20.25 at 70 to 80 and back to 23.96. A shaded band covers 40 to
-170.
+10,000 declarations. The orange one runs from 23.92 percent at a cutoff of 3
+down to 23.24 around 130 and back up to 23.96 at 10,000. The blue one runs from
+22.93 down to 20.25 around 70 to 80 and back up to 23.96, meeting the orange
+curve there.
 
 ## 3. What the rule buys, claim by claim
 
