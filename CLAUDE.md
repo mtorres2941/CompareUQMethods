@@ -8866,3 +8866,21 @@ rather than in conversation.
          d=pd.read_csv('outputs/tables/audits/TABLE_FigureStyleCompliance.csv')
          print('do not call apply():', int((~d['apply']).sum()), 'of', len(d))
          print('call all four:', int(d[['apply','savefig','finish','overlaps']].all(axis=1).sum()))"
+
+245. **2026-10-02, Stage 3 review. THE SCORECARD TITLE STAYS A BOX COUNT AND
+     STAGE 4 UPDATES THE NUMBER IN IT WITHOUT ASKING AGAIN.** `[AUTHOR]`
+     "Scorecard title looks great."
+
+     Decision 230 records the author choosing that title from four options, so
+     a changed count could otherwise look like a question to re-open. It is
+     not. The FORM is approved -- the title counts the solid boxes, which is
+     what the boxes say -- and the count moves with decisions 237 and 238: the
+     rebuild on one truth pass and the dropped duplicate claim take it from
+     "10 of 16" to **10 or 11 of 15**, forecast at 11.
+
+     **The claim that decides 10 against 11 is the design comparison, where the
+     rule and the best uniform-weighted method differ by 0.03 points of true
+     level against a run-to-run spread of 0.70.** They are indistinguishable
+     there. Stage 4 writes whichever count the rebuilt table gives and says in
+     one sentence that the deciding claim is a tie, rather than defending the
+     integer.
