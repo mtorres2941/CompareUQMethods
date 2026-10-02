@@ -254,7 +254,7 @@ def remetric_corpus(label, source=None, out_root=PROCESSED, progress=True):
     # a cache from a genuinely different corpus must not be read. But a copy
     # made here is not from a different corpus in any sense that matters, so
     # the label is rewritten and `copied_from` records where it came from, so
-    # the provenance is not lost by the relabelling. Notebook 2 failed on this
+    # the provenance is not lost by the relabeling. Notebook 2 failed on this
     # nineteen minutes in, the first time a remetriced corpus was used.
     spec_path = os.path.join(out, PARENT_SPEC_FILE)
     if os.path.exists(spec_path):

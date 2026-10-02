@@ -67,12 +67,12 @@ def test_remetric_relabels_the_parent_spec_cache_it_copies(tmp_path):
     with gzip.open(out / corpus.PARENT_SPEC_FILE, 'rt') as f:
         payload = json.load(f)
     assert payload['corpus'] == 'corpus_dst'
-    # the provenance is not lost by the relabelling
+    # the provenance is not lost by the relabeling
     assert payload['copied_from'] == 'corpus_src'
 
 
 def test_a_cache_from_a_genuinely_different_corpus_is_still_refused(tmp_path):
-    """The guard the relabelling must not weaken."""
+    """The guard the relabeling must not weaken."""
     _tiny_corpus(tmp_path)
     out = Path(corpus.remetric_corpus('dst', source=str(tmp_path / 'corpus_src'),
                                       out_root=str(tmp_path), progress=False))

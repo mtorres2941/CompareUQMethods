@@ -178,7 +178,7 @@ project's data -- two arms, four size bands, six UQ methods -- suits them.
 
 Color encodes, it does not decorate.
 
-- **Categorical:** at most six, from a colourblind-safe set. `figstyle.CATEGORICAL`
+- **Categorical:** at most six, from a colorblind-safe set. `figstyle.CATEGORICAL`
   is Okabe-Ito, which is safe for deuteranopia and protanopia and prints legibly
   in greyscale.
 - **Sequential:** one perceptually uniform ramp, `viridis` or `cividis`. Never
@@ -190,7 +190,7 @@ Color encodes, it does not decorate.
   direct labeling is doing too little work.
 - **One accent.** Reserve a single saturated color for the thing the message is
   about, and render everything else in grey. A figure where everything is
-  colored emphasises nothing.
+  colored emphasizes nothing.
 - **One color scale means ONE quantity.** Added 2026-09-23, Stage 2g, after a
   heatmap drew seventeen rows on a shared ramp where seven of them were divided
   by one thing and ten by another. Both were percentages, so nothing on the page

@@ -173,7 +173,7 @@ def check_overlaps(fig, verbose=True):
     texts += [t for t in fig.texts if t.get_text().strip()]
     # ALL THREE TITLE ARTISTS, and this was a real blind spot. matplotlib keeps
     # a separate Text for the center, left and right title, `ax.get_title()`
-    # reads the CENTRE one by default, and `apply()` above sets
+    # reads the CENTER one by default, and `apply()` above sets
     # `axes.titlelocation` to 'left' -- so every title this project draws lives
     # in `_left_title`, the guard `if ax.get_title()` was always false, and
     # this function had never checked a single panel title. Found in Stage 2f

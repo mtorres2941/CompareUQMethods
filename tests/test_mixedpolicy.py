@@ -440,7 +440,7 @@ def test_add_policies_points_every_key_at_an_existing_model_object():
 def test_the_variant_that_uses_market_weights_below_the_cutoff_differs():
     """The author's question: what if the lognormal below the cutoff uses
     market weights too. It must be a genuinely different policy, not a
-    relabelling."""
+    relabeling."""
     names, _, models, sizes = a_group(sizes=(6, 30, 300, 3000))
     MP.add_policies(models, sizes, MP.all_policies())
     u = np.random.default_rng(6).random((NECCS, len(names)))
@@ -524,7 +524,7 @@ def test_a_flat_curve_gives_a_wider_range_than_a_steep_one():
 
 def test_the_gain_comparator_is_a_fixed_method_and_never_another_policy():
     """With a sweep in the frame, 'everything except me' would pick the
-    neighbouring cutoff as the thing to beat and collapse every gain."""
+    neighboring cutoff as the thing to beat and collapse every gain."""
     errors, policies = _sweep_errors(n_groups=60)
     got = MP.claim_gain(errors, name=MP.MIXED, rng=np.random.default_rng(2),
                         resamples=100)

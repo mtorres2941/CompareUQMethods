@@ -1799,7 +1799,7 @@ def weighting_by_concentration(scores, eff, family='KDE', value='w1_market',
     out = d.groupby('q', observed=True).apply(
         lambda g: pd.Series(dict(
             median_eff_frac=float(g.eff_frac.median()),
-            variable_closer_pct=float(100 * (g[v] < g[u]).mean()),
+            market_closer_pct=float(100 * (g[v] < g[u]).mean()),
             n_datasets=int(len(g)))))
     out = out.reset_index()
     out.insert(0, 'family', family)

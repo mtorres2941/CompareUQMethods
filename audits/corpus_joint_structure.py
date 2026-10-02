@@ -246,7 +246,7 @@ def main(argv):
             cfg = dataclasses.replace(cfg, **overrides)
         t0 = time.time()
         # A corpus is never overwritten (decision 26), so an existing draft for
-        # this candidate is REUSED rather than relabelled. That also makes the
+        # this candidate is REUSED rather than relabeled. That also makes the
         # script cheap to re-run when only one candidate is added.
         label = f'draft_joint_{name}'
         d = os.path.join(ROOT, 'data', 'processed', f'corpus_{label}')

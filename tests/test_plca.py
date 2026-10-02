@@ -786,7 +786,7 @@ def test_the_overlap_check_sees_a_LEFT_aligned_panel_title():
     """The clash detector had never checked a single title in this project.
 
     matplotlib keeps a separate Text artist for the center, left and right
-    title; `ax.get_title()` reads the CENTRE one, and `figstyle.apply` sets
+    title; `ax.get_title()` reads the CENTER one, and `figstyle.apply` sets
     `axes.titlelocation` to 'left'. So every title this project draws lives in
     `_left_title`, the old guard `if ax.get_title()` was always false, and the
     function reported no overlap on a five-column figure whose titles plainly

@@ -815,7 +815,7 @@ def test_weighting_by_concentration_is_taken_inside_a_size_band():
         ignore_index=True)
     out = R.weighting_by_concentration(sc, eff)
     assert len(out) == 4
-    assert out.variable_closer_pct.between(25, 75).all()
+    assert out.market_closer_pct.between(25, 75).all()
     assert out.n_datasets.sum() == n
 
 
