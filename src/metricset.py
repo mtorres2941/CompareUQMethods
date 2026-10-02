@@ -641,7 +641,7 @@ def tail_exposure(stress, outputs_=None, w1='w1_rel'):
 # ---------------------------------------------------------------------------
 # the claim scorecard, and the two errors it must not confuse
 # ---------------------------------------------------------------------------
-#: The sixteen claims a probabilistic LCA makes, grouped by the five questions
+#: The FIFTEEN claims a probabilistic LCA makes, grouped by the five questions
 #: a reader asks. Each entry is
 #:
 #:     (question, label, source, output)
@@ -649,6 +649,23 @@ def tail_exposure(stress, outputs_=None, w1='w1_rel'):
 #: where `source` names which of the four tidy frames the claim is read from.
 #: `'recovery'` rows come from `recovery_table`, which is already per material;
 #: the other three are ROW-LEVEL frames and the per-unit error is taken here.
+#:
+#: IT WAS SIXTEEN UNTIL STAGE 4, AND ONE OF THE SIXTEEN WAS A COPY OF ANOTHER.
+#: "using 25 pct less: its mean saving" (`qty_reduction_mean`) is an exact
+#: algebraic function of "a material: its share of the total"
+#: (`eci_perc_mean`): using 25 percent less of a material removes exactly a
+#: quarter of that material's share of the building total, with no
+#: distribution entering, so
+#:
+#:     qty_reduction_mean__error  =  0.25 * eci_perc_mean__error
+#:
+#: exactly, and the two true LEVELS stand in the same ratio, so the two
+#: RELATIVE errors are equal to within floating point. Verified at 7e-16
+#: across every policy (decisions 186 and 238). Keeping both made the
+#: scorecard count one claim twice and gave every count a denominator of 16
+#: where it should be 15. `DUPLICATE_CLAIMS` records what was removed and why,
+#: so a later stage adding a claim can check it is not a third copy; the
+#: underlying column is untouched in `TABLE_PLCATruthIntervention.csv.gz`.
 SCORECARD_CLAIMS = (
     ('magnitude', 'the total: its mean', 'building', 'total_mean'),
     ('magnitude', 'the total: its standard deviation', 'building', 'total_sd'),
@@ -672,9 +689,19 @@ SCORECARD_CLAIMS = (
     ('action', 'a cap: its mean saving', 'intervention', 'cap_reduction_mean'),
     ('action', 'a cap: its chance of saving 5 pct', 'intervention',
      'cap_p_reduction_over_5'),
-    ('action', 'using 25 pct less: its mean saving', 'intervention',
-     'qty_reduction_mean'),
     ('comparison', 'the probability B beats A', 'swap', 'discernibility'),
+)
+
+#: Claims removed from `SCORECARD_CLAIMS` because they are algebraic copies of
+#: a claim that stays, with the factor relating the two and the claim they
+#: duplicate. Kept as a record rather than deleted outright: the finding --
+#: that a quantity reduction is a deterministic fraction of a material's own
+#: share, so its accuracy IS that share's accuracy -- is worth a sentence in
+#: the paper, and a later stage adding a claim can check against this list.
+DUPLICATE_CLAIMS = (
+    ('action', 'using 25 pct less: its mean saving', 'intervention',
+     'qty_reduction_mean', 0.25,
+     'a material: its share of the total'),
 )
 
 #: Below this fraction of the true level the six methods are treated as
@@ -761,7 +788,7 @@ def per_unit_error(frame, output, method='method', block=None):
 def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
                     claims=SCORECARD_CLAIMS, method='method',
                     swap_block='saving', difference_floor=DIFFERENCE_FLOOR):
-    """The sixteen claims by the six methods, every row on ONE definition.
+    """The fifteen claims by the six methods, every row on ONE definition.
 
     ONE DEFINITION FOR EVERY ROW IS THE WHOLE POINT OF THE TABLE, and it has
     now been established twice. Stage 2g's decision 157 put every row on the
@@ -772,7 +799,7 @@ def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
     per unit, because five rows were averaging the signed error over groups
     first and so reported a cancellation rather than an error.
 
-    Both statistics are returned for all sixteen rows and both are labeled:
+    Both statistics are returned for all fifteen rows and both are labeled:
 
         `total_error`       the per-unit relative error. **What the figure
                             draws**, and what a single design decision carries.

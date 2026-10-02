@@ -2,7 +2,7 @@
 
 WHY THIS STAGE EXISTS. Every simulated building in this study fits ONE method
 to all four of its materials, so a material's own goodness-of-fit advantage is
-averaged against three neighbours drawn at random from the whole corpus, most
+averaged against three neighbors drawn at random from the whole corpus, most
 of them below the size where that advantage exists. Stage 2h measured the
 consequence: the kernel estimate overtakes the three-parameter lognormal on FIT
 at about 81 declarations and does not pull clear on the downstream CLAIMS until
@@ -492,7 +492,7 @@ def _paired_boot(values, clusters, rng, resamples, alpha=BOOTSTRAP_ALPHA):
     with replacement and the statistic is the mean over the rows they carry.
     It is written as a ratio of per-cluster sums to per-cluster counts rather
     than by materializing the resampled rows, because this stage bootstraps
-    sixteen claims over 2,500 clusters and the row-materializing form spends
+    fifteen claims over 2,500 clusters and the row-materializing form spends
     minutes doing it. `tests/test_mixedpolicy.py` pins that the two agree.
     """
     values = np.asarray(values, dtype=float)
@@ -542,7 +542,7 @@ def claim_gain(errors, name=MIXED, reference=None, rng=None,
             continue
         # THE COMPARATOR IS ONE OF THE SIX FIXED METHODS AND NEVER ANOTHER
         # POLICY. With a sweep in the frame, "everything except me" would pick
-        # a neighbouring cutoff as the thing to beat, which is not the
+        # a neighboring cutoff as the thing to beat, which is not the
         # comparison a reader would otherwise make and would collapse every
         # gain to nearly zero.
         pool = list(fixed) if fixed is not None else list(FT.PEWT)
@@ -704,11 +704,11 @@ def claim_blocks(errors, policies, claims=None):
     """Per-unit-universe arrays of mean absolute error, one block per cluster
     kind, plus each claim's true level.
 
-    **THERE ARE TWO UNIT UNIVERSES AND POOLING NEEDS BOTH.** Fifteen of the
-    sixteen claims belong to a pLCA GROUP; the design comparison belongs to a
+    **THERE ARE TWO UNIT UNIVERSES AND POOLING NEEDS BOTH.** Fourteen of the
+    fifteen claims belong to a pLCA GROUP; the design comparison belongs to a
     design PAIR drawn from its own resampling. A single array indexed by pLCA
     group silently leaves the design comparison as a column of NaN, so a
-    "pooled over sixteen claims" number would quietly be over fifteen. Each
+    "pooled over fifteen claims" number would quietly be over fourteen. Each
     block carries its own units and is resampled in its own universe, which is
     also correct: the two experiments are independent.
 
@@ -784,7 +784,7 @@ def threshold_curve(errors, policies, rng=None,
     only for a cutoff that actually WINS some resamples. That is a contest, not
     a difference test, and what it measures depends on how many near-tied
     cutoffs share the grid: filling the grid in from 14 points to 27 split the
-    wins among more neighbours and moved the reported band, even though the
+    wins among more neighbors and moved the reported band, even though the
     curve had not changed at all. It also produced a hole -- 50, 60, 70 in, 80
     and 90 out, 100 to 140 in -- across a span whose pooled error varies by
     0.00013 on a level of 0.232. A fixed reference cannot do any of that: it
@@ -870,7 +870,7 @@ def policy_table(errors, policies, fixed=None):
 
     This is the small table the report prints: one number per policy, so a
     reader can see what each variant of the rule is worth without reading
-    sixteen rows of a scorecard.
+    fifteen rows of a scorecard.
     """
     pool = list(fixed) if fixed is not None else list(FT.PEWT)
     names = pool + [p.name for p in policies if p.name not in pool]
