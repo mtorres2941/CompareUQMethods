@@ -340,7 +340,7 @@ and generation is closed; neither input moves again.
 | **2h DONE** | Eighteen sweeps, each closing a "you only tested one variant" objection. **ITS TWO LARGEST RESULTS REVERSE PREMISES THIS TABLE USED TO CARRY.** First, the two arms drew market shares by different rules on the dimension the paper is built on; that is fixed, both arms now use one rule at coherence 0.5, and the tenfold disagreement above 1,000 declarations is a factor of 1.9 (decisions 178, 190). Second, **the dispersion-versus-weighting trade this row called structural was an ARTIFACT of that weighting mismatch and disappears once it is repaired** -- so the corpus was regenerated as `corpus_2026-09-25` with the dispersion distance 0.409 to 0.247 and the weighting distance 0.340 to 0.151, improving together for the first time (decisions 193, 197). Not one recommendation moved: the practitioner threshold is still 81 declarations and every size band has the same winner (decision 198). Also: the scorecard put on one numerator, the both-fits rule for every published crossing, the judgment arm with the pedigree matrix SOURCED and found to be narrower than real data, the certification credit, Weibull, the bandwidth through the pLCA, the parent-level gate and the end-to-end smoke test. Decisions 174 to 199. `reports/HANDOFF_stage-2h.md` | Anything not framed as a sweep with a tabulated result. It did NOT adopt the upper truncation (decision 199) and did NOT measure the mixed-method policy, which is 2j |
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **2j DONE** | **THE MIXED-METHOD POLICY, AND THE HONEST VERSION IS MODEST.** The rule a practitioner can follow -- uniform weights throughout, kernel estimate above the cutoff and three-parameter lognormal below -- beats the best uniform-weighted method on 9 of 16 claims, median 0.9 percent, pooled 2.9 percent (decision 217). **The 16-of-16 at 11.4 percent belongs to the same switch PLUS known market shares, which nobody has** (decisions 204, 216), so the gap between the two is the VALUE OF MARKET-SHARE DATA at 12.8 percent -- four times what the rule itself is worth, and the paper's strongest practical statement. **The cutoff is published as 40 to 170** (decision 224), the feasible rule's own indistinguishable band under a paired difference test against a FIXED reference -- the earlier band rule was a contest among grid points and moved when the grid was filled in. The claim-level constant is 80, not 81. A SECOND and much tighter band answers a different question: knowing MARKET SHARE is significantly harmful below 80 declarations and significantly helpful above 100, statistically zero in between, on all 10,000 datasets (decision 222). The sweep's degenerate ends reproduce their fixed methods to 0.00e+00 (decisions 213, 218). **And a correction the paper must carry**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so using a KNOWN share is what hurts below about 81 declarations -- because importance weights re-aim a fixed sample rather than adding to it, leaving a median Kish effective sample of 2.8 at 3 to 9 declarations, and the bandwidth's effective sample size is NOT the cause (decisions 212, 215). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the FEASIBLE rule as a seventh scorecard column (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
-| **3 DONE** | Figures. Notebooks 1 and 2 got an `OUT` cell and the compute/plot split that makes their figure cells redrawable, and **the split moved nothing: 147 x 24 empirical values bit identical, four of five PNGs byte identical**. Figures 2 and 3 merged; Figure 4 rebuilt on the 2f survivors with its three-curve alternative beside it; the feasible rule added as a seventh scorecard column; one `savefig` helper writing a PNG and a vector sibling and refusing a duplicate name; the figure manifest and four guard tests; the six stale audits re-run, every ordering holding and decisions 182, 184, 187 and 195 needing updated numbers; the hump-spacing levers measured alone and still declined; the two 96 MB tables moved to Parquet; the ASCII, spelling and vocabulary sweeps. `reports/STAGE_REPORT_3.md` | Changing any number. **The figure NUMBERING is DEFERRED to the manuscript by decision 235 and is not Stage 4's either**; full FIGURE_STYLE.md compliance for the 31 figure cells that never call the style module is Stage 4's |
+| **3 DONE** | Figures. Notebooks 1 and 2 got an `OUT` cell and the compute/plot split that makes their figure cells redrawable, and **the split moved nothing: 147 x 24 empirical values bit identical, four of five PNGs byte identical**. Figures 2 and 3 merged; Figure 4 rebuilt on the 2f survivors with its three-curve alternative beside it; the feasible rule added as a seventh scorecard column; one `savefig` helper writing a PNG and a vector sibling and refusing a duplicate name; the figure manifest and four guard tests; the six stale audits re-run, every ordering holding and decisions 182, 184, 187 and 195 needing updated numbers; the hump-spacing levers measured alone and still declined; the two 96 MB tables moved to Parquet; the ASCII, spelling and vocabulary sweeps. `reports/STAGE_REPORT_3.md` | Changing any number. **The figure NUMBERING is DEFERRED to the manuscript by decision 235 and is not Stage 4's either**; full FIGURE_STYLE.md compliance for the 29 figure cells that never call the style module is DEFERRED with it, by the same decision, and was never Stage 4's -- an earlier version of this row said it was |
 | **4** REQUIRED, and it is the LAST stage | **Four code changes FIRST, then ONE notebook-3 run, then the controls (decision 239).** The seventh scorecard column rebuilt on the SAME truth pass as the other six, which moves the published count from 10 of 16 to 11 (decision 237); the duplicate claim row dropped, which moves the denominator to 15 (decision 238); the feasible rule's group-composition column, absent after two full runs because the gap is in the code; and the compute/plot split for notebook 3's nine unrenderable figure cells. Then the (a)(b)(c)(d) panel labels (241), the residual spelling sweep in `FIGURE_STYLE.md` and two notebook-3 cells, the retired weighting vocabulary in column names and the README, saying which corpus on disk the paper describes, deleting the superseded reports after checking nothing outstanding lives only there, and the README and figure manifest for the Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28.** **NOT the figure NUMBERING, NOT full `FIGURE_STYLE.md` compliance for the 29 cells that never call `figstyle.apply()`, and NOT confidence intervals on figure aggregates**: all three are per-figure work that waits on the manuscript's figure selection, decision 235 |
 
 Items already known to be open and owned by a named stage, so that none of them
@@ -8916,3 +8916,217 @@ rather than in conversation.
      there. Stage 4 writes whichever count the rebuilt table gives and says in
      one sentence that the deciding claim is a tie, rather than defending the
      integer.
+
+246. **2026-10-02, Stage 4. THE SEVENTH SCORECARD COLUMN IS SCORED ON THE MAIN
+     TRUTH PASS, and the control that says it moved nothing is EXACT on the
+     numerator and CANNOT be on the ratio. This IMPLEMENTS decision 237.**
+     `[AUTHOR]`
+
+     `Feasible@80` is added to `prob_models` before notebook 3's main truth run
+     and main design swap and passed in `methods`, so the six-method scorecard
+     and the seven-policy one are one Monte Carlo experiment rather than two.
+     Both passes draw their uniform block ONCE per group and per pair, BEFORE
+     the loop over methods, so a seventh entry consumes no randomness.
+
+     **THE SIX-METHOD TABLES KEEP EXACTLY THE ROWS AND THE ORDER THEY HAD.**
+     The rule's rows are split off into four tables of their own --
+     `TABLE_PLCATruthRule.csv.gz`, `...BuildingRule`, `...InterventionRule` and
+     `TABLE_PLCADesignSwapRule.csv.gz` -- so none of the thirteen cells that
+     read the truth tables needed a filter and none of them changed.
+
+     **WHAT THE CONTROL CAN AND CANNOT SAY, and the distinction is not
+     pedantry.** `error` is the mean absolute error WITHIN one method, so no
+     other method can touch it: it agrees to **0.000e+00** across all 90
+     (claim, method) cells, and so does `error_portfolio`. `scale` is the mean
+     TRUE level over every row of a claim, and the truth column repeats
+     identically once per method, so with seven it is a mean over seven
+     identical blocks instead of six -- the same number by a different
+     summation order, differing in the last bit. It moves by **2.2e-16**, and
+     `total_error`, their ratio, inherits that.
+
+     **AND THE EXACT STATEMENT IS PINNED BY A TEST RATHER THAN BY THE RUN**,
+     because the notebook's two paths differ in more than the seventh policy.
+     `tests/test_metricset.py::test_adding_a_method_leaves_every_other_method_s_error_bit_identical`
+     adds a seventh method with genuinely different values and asserts every
+     other method's `abs_error`, `bias_raw`, `error` and `error_portfolio` are
+     unchanged to the last bit, through both `recovery_table` and
+     `per_unit_error`.
+
+     **TWO FALSE ALARMS THIS CONTROL RAISED BEFORE IT WAS RIGHT, both worth
+     recording because both look like the real thing.** First, recomputing the
+     recovery table from the CSV the run had just written moved `abs_error` by
+     2e-16: **`to_csv` followed by `read_csv` does not round-trip a float64 to
+     the last bit in this pandas**, so the control was failing on the CSV and
+     not on anything the seventh policy did. Second, comparing the in-memory
+     seven-policy frame against the six-method scorecard READ BACK OFF DISK
+     failed the same way, at 9e-17. Both sides are now in memory.
+
+         python -m pytest tests/test_metricset.py -q
+
+247. **2026-10-02, Stage 4. THE SCORECARD IS FIFTEEN CLAIMS. This IMPLEMENTS
+     decision 238.** `[AUTHOR]` "Let's get rid of 'what using 25% less of a
+     material saves'."
+
+     It is exactly 0.25 times "a material: its share of the total" -- a
+     quantity reduction removes a deterministic fraction of a material's own
+     contribution, so no distribution enters and the two RELATIVE errors are
+     equal, verified at 7e-16 across every policy (decision 186). Carrying both
+     made every count have a denominator of 16 where it should have been 15.
+
+     `metricset.DUPLICATE_CLAIMS` records what was removed, with the factor and
+     the claim it duplicates, so a later stage adding a claim can check it is
+     not a third copy. The underlying column is untouched in
+     `TABLE_PLCATruthIntervention.csv.gz`.
+
+     **EVERY POOLED FIGURE AND EVERY "N OF 16" IN THE DECISION LOG MOVES WITH
+     THE DENOMINATOR, and no measurement does.** Decision 217's 9 of 16 and 16
+     of 16, decision 230's 10 of 16 and 2 of 16, and the pooled errors of
+     decisions 213, 217, 218, 221 and 236 are all over the sixteen-claim set.
+     **A manuscript session must take these from the rebuilt tables and not
+     from the decision log.**
+
+     **AND THE SENTENCE THE PAPER KEEPS** is the identity itself: a quantity
+     reduction is a deterministic fraction of a material's own share, so its
+     accuracy IS that share's accuracy and no distributional assumption enters.
+     That is a finding, and it is why the row could go.
+
+248. **2026-10-02, Stage 4. ALL 37 OF 37 FIGURE CELLS NOW REDRAW ON THEIR OWN,
+     AND ONE OF THEM WAS DRAWING FROM THE NOTEBOOK'S RANDOM STREAM.**
+     `[AUTHOR]` This finishes the compute/plot split Stage 3 did for notebooks
+     1 and 2; notebook 3 had nine of thirteen figure cells that could not be
+     rendered without the whole run.
+
+     **THE SERIOUS ONE IS THE RANDOMNESS.** `FIG_PLCAVisualizeUQFits` drew its
+     whole-building totals with `rvs(..., random_state=rng)` INSIDE the figure
+     cell -- 72 blocks of 10,000 draws from the notebook's own Generator -- so
+     redrawing that figure moved every number after it. The standing constraint
+     is that all randomness comes from an explicitly passed Generator, and it
+     did; what nobody had noticed is that a FIGURE was consuming it. The draws
+     move to a compute cell in the same place in the stream, which preserves it
+     exactly: same nesting order, same count.
+
+     The other three changes are mechanical. The display constants and the two
+     comparison helpers move into the setup cell -- the renderer executes every
+     cell up to and including the one defining `OUT`, then one figure cell --
+     and the helpers take their frames as ARGUMENTS rather than reading
+     globals. Five frames that lived only in kernel memory are persisted:
+     `TABLE_PLCAInterMethodDistance.parquet` and four `TABLE_PLCAExample*`
+     tables carrying the three case-study pLCAs' values, fitted densities, W1
+     matrices and whole-building draws.
+
+     **A HELPER DEFINED ABOVE A CELL MUST NOT EVEN MENTION A NAME THAT CELL
+     ASSIGNS.** `compare_results` took a parameter called `df_plca`, which is
+     also the global the pLCA cell creates far below it, and
+     `tests/test_notebooks.py`'s forward-read guard cannot tell a parameter
+     from the mistake it exists to catch. Renamed to `plca_results`.
+
+     **AND AN EXPLORATORY CELL IS REMOVED.** It recomputed the case-study
+     variance over all 2,500 groups -- which the cell below it computes again
+     -- and drew the highlighted single-pLCA points the author asked to drop in
+     Stage 3, coloring the four materials of the group with the largest spread,
+     which is a maximum picked out of 2,500 and so the least representative
+     group there is. Nothing below it read any name it defined.
+
+     **WHAT IT BUYS.** A figure round in notebook 3 was the full run. On the
+     heaviest of its figures, a scatter of about 1.8 million points, it is
+     **27 seconds** with a smoke run competing for the processor.
+
+         python audits/figure_manifest.py
+         python -m pytest tests/test_figure_manifest.py -q
+
+249. **2026-10-02, Stage 4. DECISION 241 IS WITHDRAWN: the panel labels it asks
+     for have been on that figure since 2026-05-12. The defect next to them is
+     real and is fixed instead.** `[DELEGATED, 4 checked]`
+
+     Decision 241 records that the Stage 3 prompt asked for (a) (b) (c) (d)
+     panel labels on the pLCA scatter figure alongside dropping the highlighted
+     single-pLCA points, that the points were dropped and the labels were not,
+     and that the Stage 3 report did not say so. The labels are there, in the
+     cell and in the committed PNG, and they predate Stage 3 by five months.
+
+         git log -S "alphabet[ires]" --oneline -- notebooks/03_CompareUQ_PerformPLCA.ipynb
+
+     **What IS wrong with that figure is visible in the same image**: the top
+     row's x axis labels print on top of the bottom row's two-line titles. The
+     row spacing is fixed.
+
+     **The lesson is the one this project keeps relearning.** The review formed
+     the finding from the prompt's instruction rather than from the figure, so
+     it reported a defect that had been fixed and missed one that was next to
+     it. `reports/START_HERE.md` already requires a reproduce-command for every
+     review finding; an image is reproduced by looking at it.
+
+250. **2026-10-02, Stage 4. THE DEPOSIT SAYS WHICH CORPUS THE PAPER DESCRIBES,
+     AND THE README'S ACCOUNT OF THE WEIGHTS WAS WRONG IN TWO WAYS.**
+     `[AUTHOR]`
+
+     **The corpus.** A reader arriving from the paper's citation saw 49
+     `corpus_*` directories and nothing saying which one the study used.
+     `data/processed/README.md` says it: **`corpus_2026-09-25`**, named by
+     `CORPUS.json`. Every other directory is superseded and is kept because a
+     corpus here is immutable -- a change to generation writes a new one beside
+     the old so the two can be diffed file by file, which is how a change is
+     proved to have moved only what it was meant to (decisions 58, 64, 125).
+     They are not a second dataset and no number in the paper comes from any of
+     them. `corpus_2026-09-15b`'s two derived replay caches, 6.6 MB of cache
+     for a superseded corpus whose data the deposit does not carry, are
+     untracked; `.gitignore` explicitly left that removal to this stage.
+
+     **THE WEIGHTS. The README said both arms draw market shares from a flat
+     Dirichlet. Neither arm does, and the error inverts what the comparison
+     means.** Since decision 190 the empirical arm uses
+     `weighting.coherent_weights` at a coherence of 0.5, and on the synthetic
+     arm the share attached to a product group is that group's TRUE share in
+     the parent, exact to 1.1e-16 (decision 212). So uniform against market on
+     the synthetic arm is **ignoring a known share against using it**, never
+     guessing against knowing -- which is precisely the objection the author
+     raised in Stage 2j and which decision 212 answered. A reader checking the
+     repository against the paper would have drawn the wrong conclusion from
+     the README alone.
+
+     **The figure manifest is in the README itself** rather than referenced,
+     because the audit table it comes from is under `outputs/tables/audits/`
+     and is gitignored, so the deposit would not carry it. 55 images grouped by
+     notebook, each with what it shows. **No file carries a figure number**
+     (decision 235), and the `FIG_` and `SUPP_` prefixes record what the
+     generating cell declares itself to be rather than where the manuscript
+     puts it. `WassVsResultDiff` was the one image with neither prefix and is
+     written as `FIG_WassVsResultDiff`; the old pair is in `archive/`.
+
+     **The spelling and vocabulary sweeps are finished**, which closes the item
+     Stage 2g handed to the deposit tidy-up. Fourteen files, all comments and
+     prose. `characterisation` survives in exactly one place, the published
+     title of Marsh, Lewis, Hattam and Allen (in press), and the four files
+     with non-ASCII characters are the justified ones: the author's name,
+     French product names a regex must match, and unit strings EC3 itself
+     writes. The retired weighting vocabulary is out of the COLUMN NAMES --
+     `variable`, `variable_wins`, `rank_vs_variable_target` and
+     `variable_closer_pct` all become `market*` -- and out of one figure the
+     Stage 3 sweep missed, whose title asked "Does variable weighting help?".
+     **The stored `method` values keep "Variable"** by decision 199, so a
+     pivoted table still shows `KDE, Variable` as a column header: that is the
+     join key, not a label.
+
+251. **2026-10-02, Stage 4. THE SUPERSEDED REPORTS ARE DELETED, and nothing
+     outstanding lived only in them.** `[AUTHOR]` CLAUDE.md's retention rule
+     keeps only the CURRENT stage's report; this is the last stage, so six
+     `HANDOFF_stage-*.md` files, `STAGE_REPORT_2j.md` and `STAGE_REPORT_3.md`
+     go. Git history retains them, which is what makes it safe, and the
+     repository is published alongside the paper where a reader has no use for
+     the editing process that produced it (decision 59).
+
+     **The check was done per item rather than per file.** The Stage 2h handoff
+     carries the cumulative open list and every item on it is either resolved
+     in this decision log or is this stage's own work; the two it assigned to
+     "the deposit tidy-up" are the British spellings and the retired
+     vocabulary, both in decision 250. Stage 2j's open items were settled by
+     decision 207 and Stage 3's by decision 235 and the Stage 4 prompt. The one
+     manuscript item that lives in neither -- restating the coverage claim from
+     the rebuilt table -- is entry 34 of
+     `reports/MANUSCRIPT_discrepancies.md`, which survives.
+
+     **`reports/STAGE_PROMPTS.md` IS NOW A RECORD IN FULL** and no section of
+     it may be edited. The only part still maintained is the configuration
+     block at the top, which supersedes any value quoted inside a sent stage
+     and has to stay true for as long as anyone reads the code; this stage
+     added its two production changes to it.
