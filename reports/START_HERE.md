@@ -7,10 +7,12 @@ says what to read, in what order, and where the stage's own instructions are.
 
 Paste this into a fresh window:
 
-    Read reports/START_HERE.md and follow it. I am starting Stage 3.
+    Read reports/START_HERE.md and follow it. I am starting Stage <id>.
 
-Substitute the stage. Nothing else is needed: `CLAUDE.md` is read automatically
-at session start, and this file names everything else.
+Nothing else is needed: `CLAUDE.md` is read automatically at session start, and
+this file names everything else. **There is no stage left to start** -- see
+section 5 -- so this is now the invocation for a window reviewing Stage 4, or
+for one picking up a manuscript item.
 
 ## What to read, in order
 
@@ -22,18 +24,15 @@ at session start, and this file names everything else.
 3. **Your stage's section of `reports/STAGE_PROMPTS.md`** -- the instructions
    for the work itself. The sections are:
 
-        Stage 0    line   578   SENT AND RUN, a record, do not edit
-        Stage 1    line   647   SENT AND RUN
-        Stage 2    line   756   SENT AND RUN, covers 2a through 2h
-        Stage 2j   line  2785   SENT AND RUN 2026-09-25
-        Stage 3    line  2914   LIVE
-        Stage 4    line  3939   LIVE
+        Stage 0    SENT AND RUN     Stage 2j   SENT AND RUN 2026-09-25
+        Stage 1    SENT AND RUN     Stage 3    SENT AND RUN 2026-10-01
+        Stage 2    SENT AND RUN     Stage 4    SENT AND RUN 2026-10-02
 
-   **Stage 2j has been sent and run and its text is now a record too**, so
-   only Stage 3 and Stage 4 may be edited. **Stage 2i is closed** and is not
-   coming back; the real-building anchor comes from citing Marsh et al. (in
-   press). **The configuration block at the top of that file supersedes any
-   value quoted inside a sent stage.**
+   **EVERY SECTION IS NOW A RECORD AND NONE OF IT MAY BE EDITED.** Stage 2i is
+   closed and is not coming back; the real-building anchor comes from citing
+   Marsh et al. (in press). The one part of that file still maintained is the
+   configuration block at the top, which **supersedes any value quoted inside
+   a sent stage** and has to stay true for as long as anyone reads the code.
 4. **`CONTEXT.md`** -- mechanics: package layout, the fitting interface, how to
    run the pinned environment, the table inventory, the test suite. Read it
    before touching code.
@@ -70,7 +69,7 @@ Edit it directly. The rules on it are unchanged and they are strict:
   is the only account of what each session was actually given. Where a sent stage
   disagrees with current reality, the configuration block at the top of the file
   supersedes it.
-- **Only Stage 2j, Stage 3 and Stage 4 are live.** Stage 2i is closed and is not
+- **NO STAGE IS LIVE ANY MORE**, as of 2026-10-02. Stage 2i is closed and is not
   coming back; the real-building anchor comes from citing Marsh et al. (in press).
 - When you change a prompt, say so in your stage report and move on. Do not
   hand the author a list of things to do that are yours to do.
@@ -199,9 +198,21 @@ none of the code.
 
 ## 5. Where the work stands
 
-Stages 0 through 2h are run, Stage 2j is run, and **Stage 3 is run**. Stage 2i
-is closed. **Stage 4 runs next** and is required rather than optional, because
-the code is cited in the paper as a public Zenodo deposit.
+**EVERY STAGE IS RUN. Stage 4 closed on 2026-10-02 and there is no Stage 5.**
+Stage 2i was closed by decision; the real-building anchor is the citation to
+Marsh, Lewis, Hattam and Allen (in press).
+
+**What is left is the MANUSCRIPT, and it is not Claude Code's work.** It needs
+the advisor's markup and the reference PDFs, neither of which is in this
+repository, and section 3 below says why the draft must not be brought here.
+Three things are waiting for it and all three are in
+`reports/STAGE_REPORT_4.md` section 9: the figure selection, then the
+numbering, then the style pass and the confidence intervals -- one pass over
+the six or seven figures the paper carries rather than three passes over 55.
+`CLAUDE.md` carries the checklist of which Discussion limitation each part of
+the rework retires and what replaces it, and
+`reports/MANUSCRIPT_discrepancies.md` carries every place the manuscript and
+the code disagree.
 
 **NOTHING IS WAITING ON THE AUTHOR.** Stage 3 proposed a figure numbering and
 did not apply it, and the author then DEFERRED it to the manuscript: the

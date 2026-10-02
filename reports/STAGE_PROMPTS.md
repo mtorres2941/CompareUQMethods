@@ -9,9 +9,14 @@ destroys the only account of why a session did what it did. Where a sent stage
 describes a parameter or a count that has since changed, the sent text stands and
 the block below supersedes it.
 
-**Stage 2j has now been sent and run as well, 2026-09-25, and its text below is
-a RECORD on the same terms.** Only Stage 3 and Stage 4 are live and may be
-edited. Where the Stage 2j text says "handoff" it means what is now called the
+**Stage 3 and Stage 4 have now been sent and run as well -- Stage 3 on
+2026-10-01 and Stage 4 on 2026-10-02 -- so EVERY SECTION of this file is a
+RECORD and none of it may be edited.** There is no live stage left; the only
+part of this file that is still maintained is the configuration block below,
+which has to stay true for as long as anyone reads the code.
+
+**Stage 2j was sent and run on 2026-09-25 and its text below is a RECORD on
+the same terms.** Where the Stage 2j text says "handoff" it means what is now called the
 stage report, `reports/STAGE_REPORT_2j.md`; the specification changed between
 that section being written and being run, and the section is not edited for it.
 
