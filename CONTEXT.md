@@ -1354,7 +1354,7 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_CrossValidatedSummary.csv` | NB2 | the mean over splits and the spread across them |
 | `TABLE_PairedBootstrap.csv` | NB2 | whether a gap between two methods survives resampling the datasets |
 | `TABLE_WeightingDecomposition.csv` | NB2 | fit error against the definitional gap |
-| `TABLE_WeightingOnCommonTarget.csv` | NB2 | does variable weighting help, on the market parent, by size band |
+| `TABLE_WeightingOnCommonTarget.csv` | NB2 | do market weights help, on the market parent, by size band. Its columns are `uniform`, `market` and `market_wins`; they were `variable*` until Stage 4 |
 | `TABLE_Regret.csv` | NB2 | mean, median and upper tail of regret per method |
 | `TABLE_PostStratifiedScores.csv` | NB2 | every headline aggregate equally allocated and reweighted. **NOT `TABLE_PostStratified.csv`, which is NB1's and is about the dataset characteristics** |
 | `TABLE_ModalityConditioned.csv` | NB2 | the method comparison split by visible modality, within size band |
@@ -1371,8 +1371,8 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_VisibleModes.csv` | NB1 | visible modes per dataset at scipy's default bandwidth and at the one the study fits |
 | `TABLE_VisibleModeSummary.csv` | NB1 | the share with one, two, three or more visible modes, at both bandwidths |
 
-**Figures added in Stage 2g: ONE, `FIG_ClaimScorecard`.** Sixteen claims by the
-six methods under the five questions, every cell the method's own distance from
+**Figures added in Stage 2g: ONE, `FIG_ClaimScorecard`.** Fifteen claims by the
+six methods and, from Stage 3, the size rule under the five questions, every cell the method's own distance from
 the truth on one definition, with a bar beside it for what the choice of method
 costs. **Two others were built and cut in the same stage.** `FIG_MetricChoice`
 showed the same recovery error as a best-to-worst range, hid which method was
@@ -1418,7 +1418,8 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCARatioAnchor.csv` | NB3 | the one real top-two contribution ratio available, transcribed from the text of Marsh et al. (in press) |
 | `TABLE_FlipCrossingsByGroupSize.csv` | NB3 | the Stage 2d flip thresholds recalibrated at 2, 3, 4, 6, 8 and 12 materials |
 | `TABLE_FlipCalibrationByGroupSize.csv.gz` | NB3 | the calibration rows behind it |
-| `TABLE_PLCATruth.csv.gz` | NB3 | **the Stage 2e table to read.** One row per (pLCA, material, method, truth parent): every output, the value the TRUE parent gives, and the error |
+| `TABLE_PLCATruth.csv.gz` | NB3 | **the Stage 2e table to read.** One row per (pLCA, material, method, truth parent): every output, the value the TRUE parent gives, and the error. **The SIX methods only** |
+| `TABLE_PLCATruthRule.csv.gz`, `TABLE_PLCATruthBuildingRule.csv.gz`, `TABLE_PLCATruthInterventionRule.csv.gz`, `TABLE_PLCADesignSwapRule.csv.gz` | NB3 | the same rows for the FEASIBLE size rule, which rides along on the main truth and swap passes so the seven-policy scorecard is one experiment rather than two (Stage 4, decision 237). They are separate files so the four tables above keep exactly the rows and the order they had |
 | `TABLE_PLCATruthSummary.csv` | NB3 | per method, the mean absolute error against the truth with an interval, and how often it names the true largest contributor |
 | `TABLE_PLCATruthWinShare.csv` | NB3 | how often each method is closest to the truth, with an interval |
 | `TABLE_PLCATruthPostStratified.csv` | NB3 | the same error at equal allocation and reweighted to the empirical size mix |
@@ -1482,7 +1483,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_MixedPolicyThreshold.csv` | NB3 | **the range to print.** One row per (rule family, cutoff): pooled error over all sixteen claims at each of fourteen cutoffs from 3 to 10,000, with a PAIRED penalty interval against whichever cutoff won on the same resample, and the flag for the longest unbroken run of cutoffs that cannot be told apart from the best |
 | `TABLE_MixedPolicyRanking.csv` | NB3 | every policy and every fixed method on ONE number, pooled over the sixteen claims. This is where the four one-axis variants say that the WEIGHTING switch does the work and the family switch does not |
 | `TABLE_MixedPolicyWeighting.csv` | NB3 | the share of datasets on which a fit using the TRUE market shares beats its own uniform-weighted twin, by size band, with the Kish effective sample size beside it. It crosses half at the cutoff, for both families, with nothing tuned to make it |
-| `TABLE_MixedPolicyPooled.csv` | NB3 | pooled relative error over every claim belonging to a pLCA group, by three splits of the group's composition. **The `n_above` split carries its own control**: at 0 and at 4 the rule IS a fixed policy and the gain must be exactly zero |
+| `TABLE_MixedPolicyPooled.csv` | NB3 | pooled relative error over every claim belonging to a pLCA group, split by how many of the group's four materials the rule moves. **BOTH RULES since Stage 4** -- the known-share rule and the feasible one, each beside the two fixed methods it collapses to -- and each carries its own control: at 0 and at 4 a rule IS a fixed policy and must equal it exactly |
 
 `TABLE_PLCAResults.csv` is tidy long format, one row per
 (pLCA, UQ method, dataset). It did not exist before Stage 1: notebook 3 wrote
@@ -1541,7 +1542,7 @@ the worst observed value.
 | `test_generator.py` | 18 | strata allocate and cover their endpoints, the probe set sits outside the corpus, generated datasets are valid and normalized, the record reconstructs the parent, the validity filter passes extreme-but-analysable data and catches unanalysable data, undefined kurtosis at n = 3 is not a failure, generation is reproducible and never touches global numpy state |
 | `test_metricreduction.py` | 59 | a cross-validated gain cannot be bought by adding a useless term and its fold spread grows as the data thin; a negative R2 is reported rather than clipped, which is what exposed the empirical arm; forward selection refuses a near-duplicate column; the policy curve puts its flat region around the true crossover and beats both fixed policies; the effective sample size matches its closed forms; a transform propagates an undefined metric instead of inventing a value; every candidate has a declared modeling scale; the missingness report names kurtosis and the complete-case cost names the band it would drop, while both models still report the FULL row count; the reduction recovers a planted signal and ranks noise below it, and finds nothing when there is nothing, which is the control; an importance from a model that predicts nothing is refused a rank; size confounding catches a metric that IS log(n) in disguise; a bootstrap band widens where the data thin out and equal-count bins hold equal counts; the winner model reports its majority baseline beside its accuracy; partial dependence separates a real effect from a borrowed one AND retains a near-copy, which is the caveat the docstring records; the marginal and partial ranges are both in log units; log(n) comes from the frame and not from the candidate list; the unimodal share uses the denominator the measure is defined on |
 | `test_metricset.py` | 28 | the new companion is a SHARE read at the BUILDING's bad end and not at the material's, with a planted case where one material drives the total's upper tail and the two metrics have to disagree; the corrected cap rank-1 frequencies sum to exactly 1.0 across the materials and are the old count divided by the measured applicability; a method that IS the truth has exactly zero recovery error, recovery grows with the error, and a method that reports one number for every material cannot score better than one that tracks the truth with noise; the argmax agreement is 1.0 for the truth and chance for a shuffle; the contaminated model inverts its own mixture CDF and reduces to its base at zero weight; **W1 over the scoring grid alone gives the SAME score at ten, a hundred and a thousand times the mean while the tail term rises with the distance**; and a share saturates under contamination while a mean, a standard deviation and a variance share do not. **Two tests pin the two divisors apart**: `rel_error` is the error over the true LEVEL and `recovery` the error over the true SPREAD, their ratio is not one, and a single planted near-zero truth cannot move `rel_error`, which is why it is a ratio of means and not the ordinary mean absolute percentage error. **Three more pin this stage's review**: the display rename maps only the weighting and leaves `fitting.PEWT` untouched; the size-band split recovers an ordering that flips with dataset size where the pooled table cannot see it; and an output with a true value of zero is skipped rather than divided by |
-| `test_mixedpolicy.py` | 36 | the rule reads NOTHING but the dataset's size, and the interface cannot express a second selector; adding the policy refits nothing and the selected model object is the same object, so a group entirely on one side of the threshold reproduces that fixed policy bit for bit and the six fixed policies come back identical from a truth run whether or not the seventh is present; the fit score is a SELECTION out of the six-method table and cannot disagree with it; the paired bootstrap agrees with `plca.cluster_bootstrap`; a policy that IS a fixed policy on every unit scores a gain of exactly zero with an interval that closes on it, which is the null control; the oracle is a per-unit minimum and not a grand mean, which is the defect the first draft had; a design PAIR is not given a pLCA group's composition even though their ids collide; and no display label uses the retired weighting vocabulary. **The sweep adds**: every swept cutoff and every variant reads only the size; the study's cutoff keeps its bare name inside the sweep so older tables still join; the gain's comparator is one of the SIX FIXED methods and never a neighbouring cutoff, which would collapse it; a planted curve's minimum and a range around it are recovered, and a flat curve gives a wider range than a steep one; and pooling covers the design comparison's own unit universe rather than leaving it a column of NaN. **And the two rule families**: the feasible one uses uniform weights on both sides, a curve over both families at once is refused, and the synthetic market weights carry the TRUE group-level shares, which is the claim three stages described backwards |
+| `test_mixedpolicy.py` | 36 | the rule reads NOTHING but the dataset's size, and the interface cannot express a second selector; adding the policy refits nothing and the selected model object is the same object, so a group entirely on one side of the threshold reproduces that fixed policy bit for bit and the six fixed policies come back identical from a truth run whether or not the seventh is present; the fit score is a SELECTION out of the six-method table and cannot disagree with it; the paired bootstrap agrees with `plca.cluster_bootstrap`; a policy that IS a fixed policy on every unit scores a gain of exactly zero with an interval that closes on it, which is the null control; the oracle is a per-unit minimum and not a grand mean, which is the defect the first draft had; a design PAIR is not given a pLCA group's composition even though their ids collide; and no display label uses the retired weighting vocabulary. **The sweep adds**: every swept cutoff and every variant reads only the size; the study's cutoff keeps its bare name inside the sweep so older tables still join; the gain's comparator is one of the SIX FIXED methods and never a neighboring cutoff, which would collapse it; a planted curve's minimum and a range around it are recovered, and a flat curve gives a wider range than a steep one; and pooling covers the design comparison's own unit universe rather than leaving it a column of NaN. **And the two rule families**: the feasible one uses uniform weights on both sides, a curve over both families at once is refused, and the synthetic market weights carry the TRUE group-level shares, which is the claim three stages described backwards |
 | `test_remetric.py` | 3 | `remetric_corpus` relabels the parent-spec replay cache it copies, a cache from a genuinely DIFFERENT corpus is still refused, and the values are copied byte for byte while the characteristics really are recomputed |
 
 `test_notebooks.py::test_all_code_cells_parse` exists because a Stage 1 patch
@@ -1631,7 +1632,7 @@ targets.
 the stratified design, about 100 seconds each, and adds the marginal
 calibration objective and the two margins that matter most -- dispersion and
 `w_v_uw_wasserstein`. Use it to JUDGE. It reuses an existing draft rather than
-relabelling, because a corpus is never overwritten.
+relabeling, because a corpus is never overwritten.
 
 `audits/corpus_examples.py` draws notebook 1's example-dataset panels for any
 candidate, real categories in the bottom row. Use it to LOOK. The probe numbers
@@ -1681,10 +1682,35 @@ hides the difference.** The tool runs the SETUP BLOCK -- every code cell up to
 and including the one defining `OUT` -- and then a figure cell; a cell that
 reads a frame or a helper defined in a compute cell in between will raise.
 Render one self-sufficient cell with `--only` and the tool reports success.
-**28 of 37 figure cells pass; the nine that do not are all in notebook 3**,
+Stage 3 cleared notebooks 1, 2 and 4 that way and left notebook 3 at 28 of 37,
 which was believed clear for exactly that reason.
-`python audits/figure_manifest.py` lists them and writes
-`outputs/tables/audits/TABLE_FigureRendererSafety.csv`.
+
+**ALL 37 OF 37 PASS FROM STAGE 4**, and clearing notebook 3's nine took four
+kinds of change, all of them the compute/plot split Stage 3 did elsewhere:
+
+  - the display constants moved INTO the setup cell -- `PE`, `WT`,
+    `dct_colors` and `dct_resultlabels`, the last of which seven figure cells
+    read -- alongside two loaders, `figure_plca()` and `figure_combos()`, and
+    `result_columns()`, which derives the output list the figure panels are
+    laid out in. The cell that built `df_stds` asserts its own list against
+    that function, so a figure drawn from disk cannot reorder its panels
+    against one drawn from kernel state;
+  - `compare_results` and `compare_results_bypewt` moved into the setup cell
+    and take their two frames as ARGUMENTS rather than reading globals, which
+    is what made that possible;
+  - four frames that existed only in memory are persisted:
+    `TABLE_PLCAInterMethodDistance.parquet` and the four
+    `TABLE_PLCAExample*` tables, the last of which carry the three case-study
+    pLCAs' values, fitted densities, W1 matrices and whole-building draws;
+  - **a figure cell was consuming the notebook's random stream.** The
+    whole-building draws in `FIG_PLCAVisualizeUQFits` were taken with
+    `rvs(..., random_state=rng)` INSIDE the figure cell, so redrawing the
+    figure moved every number after it. They are taken in the compute cell
+    now, in the same place in the stream, and the figure reads them.
+
+`python audits/figure_manifest.py` writes
+`outputs/tables/audits/TABLE_FigureRendererSafety.csv` and the suite fails if
+the count regresses.
 
 ### Writing a figure
 
