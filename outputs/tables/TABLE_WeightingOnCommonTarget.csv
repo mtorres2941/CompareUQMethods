@@ -1,4 +1,4 @@
-size_band,family,n_datasets,uniform,variable,variable_wins
+size_band,family,n_datasets,uniform,market,market_wins
 all,Normal,10000,0.30659898594843715,0.3150861556598475,0.4974
 all,Lognormal,10000,0.20766374871515364,0.20582197970317212,0.549
 all,KDE,10000,0.21040742091190204,0.20472435265430627,0.5464

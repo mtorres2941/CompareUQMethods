@@ -1,4 +1,4 @@
-arm,method,w1_total,w1_own,w1_definitional,w1_slack,definitional_share,rank_vs_variable_target,rank_vs_own_target
+arm,method,w1_total,w1_own,w1_definitional,w1_slack,definitional_share,rank_vs_market_target,rank_vs_own_target
 empirical,"KDE, Uniform",0.2411807900449203,0.11260783517782251,0.1898256953058515,0.06125274043875375,0.7870680549246736,3.0,1.0
 empirical,"KDE, Variable",0.13733100246580165,0.13733100246580165,0.0,0.0,0.0,1.0,2.0
 empirical,"Lognormal, Uniform",0.25357315519333296,0.1605220629075121,0.1898256953058515,0.09729763960149013,0.7486032784547789,4.0,3.0
