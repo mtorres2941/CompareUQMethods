@@ -1,4 +1,4 @@
-family,n_band,q,median_eff_frac,variable_closer_pct,n_datasets
+family,n_band,q,median_eff_frac,market_closer_pct,n_datasets
 KDE,3-9,q1,0.3560601453397472,33.92,625.0
 KDE,3-9,q2,0.5213317435964097,36.96,625.0
 KDE,3-9,q3,0.6477989852620462,40.160000000000004,625.0
