@@ -192,6 +192,26 @@ GENERATOR -- genconfig.DEFAULT (src/genconfig.py)
     
     === DUMP COMPLETE, no exception ===
 
+STAGE 4 CHANGED TWO THINGS IN THE PRODUCTION PATH AND NEITHER IS IN THE
+DUMP ABOVE, so they are recorded here.
+
+    metricset.SCORECARD_CLAIMS               15 claims, not 16
+        "using 25 pct less: its mean saving" is dropped: it is exactly 0.25
+        times "a material: its share of the total", verified at 7e-16 across
+        every policy, so the scorecard counted one claim twice and every
+        count had a denominator of 16 where it should have been 15.
+        `metricset.DUPLICATE_CLAIMS` records it. Decisions 186, 238.
+        Every pooled figure, every "N of 16" and the gain tables move with
+        the denominator; no measurement does.
+
+    THE SEVENTH POLICY IS SCORED ON THE MAIN TRUTH PASS
+        `Feasible@80` is added to `prob_models` before notebook 3's main
+        truth run and main design swap and is passed in `methods`, so the
+        seven-policy scorecard and the six-method one are one experiment.
+        Both passes draw their uniform block before the loop over methods,
+        so it consumes no randomness; the notebook asserts the six columns'
+        numerator comes back bit-identical. Decision 237.
+
 **`LOGFIT_OFFSET = 0.5` still exists in `fitting.py` but no production path
 reads it**: it is used only by the superseded `fit_pewt_models`, by the named
 comparison family `lognormal_offset`, and by two audit scripts.

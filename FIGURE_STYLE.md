@@ -89,14 +89,14 @@ what is on the axes except the axis label, which then becomes a paragraph.
 **Three slots, three jobs, and none of them does two:**
 
     title       the message. What the panel means. A sentence.
-    subtitle    what is plotted. Small, grey, directly under the title.
+    subtitle    what is plotted. Small, gray, directly under the title.
                 One line, occasionally two.
     axis label  a short noun phrase with its units. NOT a sentence.
 
 `CompareUQMethods_FIG_ClaimScorecard` is the worked example: "Under the BEST of
 the six methods a probabilistic LCA is right to 1 pct on the design comparison
 and wrong by 32 pct on which material leads" as the message, "a black box marks
-the method closest to the truth on that row" as the grey subtitle, and "mean
+the method closest to the truth on that row" as the gray subtitle, and "mean
 absolute error against the true parent, as a pct of the true level of the same
 quantity" as the colorbar label.
 
@@ -180,16 +180,16 @@ Color encodes, it does not decorate.
 
 - **Categorical:** at most six, from a colorblind-safe set. `figstyle.CATEGORICAL`
   is Okabe-Ito, which is safe for deuteranopia and protanopia and prints legibly
-  in greyscale.
+  in grayscale.
 - **Sequential:** one perceptually uniform ramp, `viridis` or `cividis`. Never
   `jet`, `rainbow` or any ramp with a luminance reversal, which manufactures
   boundaries that are not in the data.
 - **Diverging:** only where the variable genuinely has a meaningful midpoint, and
   then anchored at that midpoint.
-- **Greyscale first.** If the figure fails in greyscale, position, shape or
+- **Grayscale first.** If the figure fails in grayscale, position, shape or
   direct labeling is doing too little work.
 - **One accent.** Reserve a single saturated color for the thing the message is
-  about, and render everything else in grey. A figure where everything is
+  about, and render everything else in gray. A figure where everything is
   colored emphasizes nothing.
 - **One color scale means ONE quantity.** Added 2026-09-23, Stage 2g, after a
   heatmap drew seventeen rows on a shared ramp where seven of them were divided
@@ -260,7 +260,7 @@ Color encodes, it does not decorate.
 3. Have I deleted the top and right spines, the gridlines, the legend box and
    every background fill?
 4. Is each series labeled where it is drawn, rather than in a legend?
-5. Does it survive greyscale?
+5. Does it survive grayscale?
 6. Is the color ramp perceptually uniform, and is the accent color on the
    thing the message is about?
 7. Do any two pieces of text touch, at final size?

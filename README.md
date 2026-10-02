@@ -247,8 +247,14 @@ python audits/render_figures.py 02_CompareUQ_AnalyzeData --into-outputs
 
 The tests run with `pytest` from the repository root and cover the source
 library and the notebooks themselves, including that every code cell parses,
-that no cell reads a frame a later cell defines, and that all randomness comes
-from an explicitly passed Generator.
+that no cell reads a frame a later cell defines, that every figure cell can be
+redrawn on its own, and that all randomness comes from an explicitly passed
+Generator.
+
+**What each output table holds** is in `CONTEXT.md` section 6, which lists
+every file under `outputs/tables/` with the notebook that writes it and its
+shape, and marks the handful a reader should start from. The figures are in
+the manifest below.
 
 ---
 

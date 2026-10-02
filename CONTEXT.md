@@ -45,7 +45,7 @@ CompareUQMethods/
 |   |                          NAME only, so the comparison can be read by what
 |   |                          a material IS (Stage 2c)
 |   |-- figstyle.py            FIGURE_STYLE.md in code: palette, rcParams,
-|   |                          direct labeling, the greyscale check
+|   |                          direct labeling, the grayscale check
 |   |-- metricreduction.py     which characteristics carry signal (Stage 2f):
 |   |                          the candidate set and its transforms, explicit
 |   |                          missingness, the size confound, two model

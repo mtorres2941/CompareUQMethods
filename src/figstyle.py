@@ -17,11 +17,11 @@ Usage, at the top of a figure cell:
 import numpy as np
 
 #: Okabe-Ito, which is distinguishable under deuteranopia and protanopia and
-#: survives greyscale. Order chosen so the first two are the furthest apart.
+#: survives grayscale. Order chosen so the first two are the furthest apart.
 CATEGORICAL = ('#0072B2', '#D55E00', '#009E73', '#CC79A7', '#E69F00', '#56B4E9')
 
 #: The single saturated color reserved for whatever the message is about.
-#: Everything else in a figure should be grey; see FIGURE_STYLE.md section 4.
+#: Everything else in a figure should be gray; see FIGURE_STYLE.md section 4.
 ACCENT = '#D55E00'
 MUTED = '#9A9A9A'
 FAINT = '#D4D4D4'
@@ -130,11 +130,11 @@ def stagger(values, minimum_gap):
     return np.array(out)
 
 
-def greyscale_check(path):
+def grayscale_check(path):
     """Luminance spread of a saved figure, as a crude legibility proxy.
 
     Returns the fraction of distinct luminance levels used. A figure whose marks
-    collapse to one level in greyscale is relying on hue alone, which
+    collapse to one level in grayscale is relying on hue alone, which
     FIGURE_STYLE.md section 4 forbids. It is a smell test, not a proof.
     """
     from PIL import Image

@@ -673,3 +673,57 @@ def test_claim_scorecard_marks_a_row_the_six_agree_on():
         recovery, building, intervention, swap,
         claims=(('attribution', 'a', 'recovery', 'eci_mean'),))
     assert not got.methods_differ.any()
+
+
+def test_adding_a_method_leaves_every_other_method_s_error_bit_identical():
+    """A seventh policy on the scorecard cannot move the six.
+
+    THIS IS THE STATEMENT THE NOTEBOOK'S CONTROL CANNOT MAKE EXACTLY, so it is
+    made here. Stage 4 added the feasible size rule to notebook 3's MAIN truth
+    pass rather than scoring it in a pass of its own, because the scorecard
+    figure's title is a COUNT of claims and comparing a column measured in one
+    Monte Carlo experiment against six measured in another decided one of them
+    on the experiment rather than on the method (decision 237). What licenses
+    that is: the error of a method is computed WITHIN that method, so adding
+    another cannot touch it.
+
+    `scale` is excluded deliberately and is not a hole. It is the mean TRUE
+    level over every row of a claim, and the truth repeats identically once
+    per method, so with a seventh it is a mean over seven identical blocks
+    instead of six: the same number by a different summation order, which can
+    differ in the last bit. `total_error` is the ratio and inherits it. The
+    notebook prints both gaps.
+    """
+    rng = np.random.default_rng(11)
+    base = a_truth_frame(seed=3, noise=0.3, offset=0.2)
+    extra = base[base.method == 'A'].copy()
+    extra['eci_mean'] = extra['eci_mean'] + 0.37      # a genuinely new column
+    extra['eci_mean__error'] = extra['eci_mean'] - extra['eci_mean__truth']
+    extra['method'] = 'C'
+    with_extra = pd.concat([base, extra], ignore_index=True)
+
+    kw = dict(outputs=('eci_mean',), resamples=40, rng=rng)
+    six = MS.recovery_table(base, **kw).set_index('method')
+    seven = MS.recovery_table(with_extra, **dict(kw, rng=np.random.default_rng(11))
+                              ).set_index('method')
+    for m in ('A', 'B'):
+        assert seven.loc[m, 'abs_error'] == six.loc[m, 'abs_error']
+        assert seven.loc[m, 'bias_raw'] == six.loc[m, 'bias_raw']
+
+    # and the same for a row-level claim, which is where `per_unit_error` runs
+    rows = pd.DataFrame(dict(
+        plca=list(range(30)) * 2,
+        method=['A'] * 30 + ['B'] * 30,
+        total_mean=rng.normal(4.0, 0.3, 60),
+        total_mean__truth=np.tile(rng.normal(4.0, 0.3, 30), 2)))
+    rows['total_mean__error'] = rows.total_mean - rows.total_mean__truth
+    more = rows[rows.method == 'A'].copy()
+    more['method'] = 'C'
+    more['total_mean'] = more['total_mean'] * 1.15
+    more['total_mean__error'] = more.total_mean - more.total_mean__truth
+    u6 = MS.per_unit_error(rows, 'total_mean')
+    u7 = MS.per_unit_error(pd.concat([rows, more], ignore_index=True),
+                           'total_mean')
+    for m in ('A', 'B'):
+        assert u7.loc[m, 'error'] == u6.loc[m, 'error']
+        assert u7.loc[m, 'error_portfolio'] == u6.loc[m, 'error_portfolio']

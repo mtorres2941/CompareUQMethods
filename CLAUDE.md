@@ -4542,7 +4542,7 @@ rather than in conversation.
      goes. A writer following it puts the message in the title and then has
      nowhere to say what is on the axes except the axis label, which becomes a
      paragraph. Three slots, three jobs: **title** the message, **subtitle**
-     small and grey under it saying what is plotted, **axis label** a short noun
+     small and gray under it saying what is plotted, **axis label** a short noun
      phrase with units.
 
      **AND A TAKEAWAY TITLE IS NOT A LICENCE TO HIDE THE DATA.** The author on
@@ -4552,7 +4552,7 @@ rather than in conversation.
      as a best-to-worst range with no method named, vague row labels, and a
      title that asserted a recommendation the panel could not support.
      **`CompareUQMethods_FIG_MetricChoice` is deleted**, cell and PNG, and its
-     one unique content is now the grey half of the scorecard's stacked bar.
+     one unique content is now the gray half of the scorecard's stacked bar.
 
 154. **2026-09-22, Stage 2g review. THE SCORECARD IS THE STAGE'S FIGURE, and
      three changes made it readable.** `[AUTHOR]` "I have a feeling this figure
