@@ -13,6 +13,13 @@ renumbered during the Stage 2c rewrite and one pointer to the unimodality
 finding kept saying 4.9 after that section became 4.11 -- it read as a plausible
 sentence and sent the reader to the wrong finding. These tests are cheap and
 catch exactly that.
+
+WHAT CHANGED IN STAGE 4. The six `HANDOFF_stage-*.md` files and the two earlier
+stage reports are deleted by the retention rule, so a glob for handoffs alone
+now matches nothing and these tests would silently cover nothing. They run over
+**every report in `reports/`**, whichever naming it uses, which is also what
+brings the current stage report inside the guard rather than leaving it the one
+document nobody checks.
 """
 
 import re
@@ -23,7 +30,10 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS = ROOT / "reports"
 
-HANDOFFS = sorted(REPORTS.glob("HANDOFF_stage-*.md"))
+#: Every report in reports/, under either naming. The handoff name is kept so
+#: that a restored file is covered without editing this list.
+REPORT_FILES = sorted(set(REPORTS.glob("HANDOFF_stage-*.md"))
+                      | set(REPORTS.glob("STAGE_REPORT_*.md")))
 
 
 def _decisions_in_claude_md():
@@ -51,7 +61,7 @@ def _cited_numbers(text, singular, plural):
     return found
 
 
-@pytest.mark.parametrize("path", HANDOFFS, ids=lambda p: p.name)
+@pytest.mark.parametrize("path", REPORT_FILES, ids=lambda p: p.name)
 def test_internal_section_references_resolve(path):
     """`Section 4.11` must name a heading that exists in the same file."""
     text = path.read_text()
@@ -61,7 +71,7 @@ def test_internal_section_references_resolve(path):
     assert not missing, f"{path.name} points at sections that do not exist: {missing}"
 
 
-@pytest.mark.parametrize("path", HANDOFFS, ids=lambda p: p.name)
+@pytest.mark.parametrize("path", REPORT_FILES, ids=lambda p: p.name)
 def test_decision_references_resolve(path):
     """Every `decision N` must exist in CLAUDE.md's log."""
     cited = _cited_numbers(path.read_text(), "decision", "decisions")
@@ -69,7 +79,7 @@ def test_decision_references_resolve(path):
     assert not missing, f"{path.name} cites decisions not in CLAUDE.md: {missing}"
 
 
-@pytest.mark.parametrize("path", HANDOFFS, ids=lambda p: p.name)
+@pytest.mark.parametrize("path", REPORT_FILES, ids=lambda p: p.name)
 def test_entry_references_resolve(path):
     """Every `entry N` must exist in the discrepancy file."""
     cited = _cited_numbers(path.read_text(), "entry", "entries")
@@ -77,6 +87,11 @@ def test_entry_references_resolve(path):
     assert not missing, f"{path.name} cites entries not in the discrepancy file: {missing}"
 
 
-def test_a_handoff_exists():
-    """Guard against the parametrized tests silently covering nothing."""
-    assert HANDOFFS, "no HANDOFF_stage-*.md in reports/"
+def test_a_report_exists():
+    """Guard against the parametrized tests silently covering nothing.
+
+    This is the guard that would have fired in Stage 4 had the retention rule
+    been applied without rewriting the glob: six handoffs went, and a test
+    parametrized over them would have passed by covering no files at all.
+    """
+    assert REPORT_FILES, "no stage report in reports/"

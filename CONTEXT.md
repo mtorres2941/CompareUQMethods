@@ -1135,9 +1135,12 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 640 tests, 0 skipped, about 200 s
-                                 # the two Stage 2j skips are gone:
-                                 # notebooks 1 and 2 define OUT
+python -m pytest tests/          # 627 tests, 0 skipped, about 175 s
+                                 # it FELL in Stage 4 and the drop is
+                                 # exact: three tests run per report,
+                                 # six handoffs went to the retention
+                                 # rule, and the surviving report adds
+                                 # three cases back. 642 -> 627
 ```
 
 Headless execution, from `notebooks/`:
@@ -1197,8 +1200,9 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 notebooks print it, so the remainder is stated rather than inferred.
 
 **Approximate runtimes, re-measured end to end in Stage 3 and corrected by
-decision 240: NB1 about 35 min, NB2 about 15 min, NB3 about 110 min at
-`neccs = 10000`, and NB4 about 20 min.** They are wall clock with nothing else
+decision 240, with NB4 corrected again in Stage 4 from 20 to 15 after it ran
+in 13.6 minutes: NB1 about 35 min, NB2 about 15 min, NB3 about 110 min at
+`neccs = 10000`, and NB4 about 15 min.** They are wall clock with nothing else
 competing; a machine running other work can take half again as long, which is
 why they are quoted to the nearest five minutes and not defended further. Three
 different sets of these numbers were in the repository before Stage 3's review

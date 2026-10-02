@@ -229,7 +229,7 @@ Run the notebooks in order from the `notebooks/` directory:
 
 Approximate wall-clock time on a 2026 laptop with nothing else running:
 notebook 1 about 35 minutes, notebook 2 about 15, notebook 3 about 110 minutes,
-notebook 4 about 20. A machine running other work can take half again as long,
+notebook 4 about 15. A machine running other work can take half again as long,
 which is why these are quoted to the nearest five minutes.
 
 **Notebook 3 is the expensive one and the only one with a smoke configuration**:

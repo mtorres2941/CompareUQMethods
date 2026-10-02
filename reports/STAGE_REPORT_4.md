@@ -11,8 +11,9 @@ first.
 
 **The four code changes went in first and the run came once, which is the
 order the Stage 3 review set (decision 239).** Notebooks 2, 3 and 4 then ran in
-sequence: 14 minutes, 107 minutes, and notebook 4. Notebook 1 is unchanged by
-this stage and was not re-run.
+sequence: **14, 107 and 14 minutes**, all three `rc=0`. Notebook 1 is unchanged
+by this stage and was not re-run. Notebook 4's documented runtime is corrected
+from 20 minutes to 15 on that measurement.
 
 **The scorecard's count is 10 of 15, not the 11 decision 237 forecast, and the
 reason is worth one sentence.** The rule is the best available choice on 10 of
@@ -338,18 +339,26 @@ file.
 **Read.** `corpus_2026-09-25`; the frozen EC3 extract; every table under
 `outputs/tables/`.
 
-**Written.** Nine new tables -- four carrying the size rule's rows from the
-main truth and swap passes, and five backing notebook 3's figure cells; the
-figure manifest and the renderer-safety list; `data/processed/README.md`; the
-figure manifest section of the README; and the manuscript-limitation checklist
-in CLAUDE.md.
+**Written.** Eleven new tables -- four carrying the size rule's rows from the
+main truth and swap passes, seven backing notebook 3's figure cells;
+`data/processed/README.md`; the figure manifest section of the README; and the
+manuscript-limitation checklist in CLAUDE.md.
 
 **Code.** `metricset.SCORECARD_CLAIMS` loses the duplicated claim and gains
 `DUPLICATE_CLAIMS`; notebook 3's setup cell gains the display constants, two
-loaders and the two comparison helpers; two tests are new.
+loaders and the two comparison helpers; `tests/test_reports.py` runs over every
+report rather than over a glob that now matches nothing; two tests are new.
 
-**Reproduce.** Notebooks 2, 3 and 4 in order. Notebook 1 is unchanged by this
-stage and was not re-run.
+**Checks.** **627 tests pass, 0 skipped**, against 628 passed and 2 skipped at
+the branch point. The count FELL and the arithmetic is exact: three tests are
+parametrized over the reports and six handoffs went, which is 18 cases removed,
+while the one surviving report adds 3 back -- 642 before the deletion, 627
+after. Zero orphan figures, zero duplicate filenames,
+every PNG with a vector sibling, no retired weighting word in any filename, and
+**37 of 37 figure cells renderable**. Non-ASCII survives in four tracked files,
+all of them the justified cases.
+
+**Reproduce.** Notebooks 2, 3 and 4 in order.
 
 ## 11. What the manuscript session picks up first
 
