@@ -187,8 +187,10 @@ Run the notebooks in order from the `notebooks/` directory:
 04_CompareUQ_ReduceMetrics.ipynb ->  outputs/figures/, outputs/tables/
 ```
 
-Approximate cell time on a 2026 laptop: notebook 1 about 30 minutes, notebook 2
-about 35, notebook 3 about three and a quarter hours, notebook 4 about 20.
+Approximate wall-clock time on a 2026 laptop with nothing else running:
+notebook 1 about 35 minutes, notebook 2 about 15, notebook 3 about 110 minutes,
+notebook 4 about 20. A machine running other work can take half again as long,
+which is why these are quoted to the nearest five minutes.
 
 **Notebook 3 is the expensive one and the only one with a smoke configuration**:
 `COMPAREUQ_SMOKE_COMBOS=20` runs 20 probabilistic LCAs instead of 2,500 and

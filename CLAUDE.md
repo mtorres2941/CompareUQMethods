@@ -341,7 +341,7 @@ and generation is closed; neither input moves again.
 | **2i** (optional) | Real-building anchor, only if we decide after 2g that citing Marsh et al. (in press) is not enough | Becoming a case study |
 | **2j DONE** | **THE MIXED-METHOD POLICY, AND THE HONEST VERSION IS MODEST.** The rule a practitioner can follow -- uniform weights throughout, kernel estimate above the cutoff and three-parameter lognormal below -- beats the best uniform-weighted method on 9 of 16 claims, median 0.9 percent, pooled 2.9 percent (decision 217). **The 16-of-16 at 11.4 percent belongs to the same switch PLUS known market shares, which nobody has** (decisions 204, 216), so the gap between the two is the VALUE OF MARKET-SHARE DATA at 12.8 percent -- four times what the rule itself is worth, and the paper's strongest practical statement. **The cutoff is published as 40 to 170** (decision 224), the feasible rule's own indistinguishable band under a paired difference test against a FIXED reference -- the earlier band rule was a contest among grid points and moved when the grid was filled in. The claim-level constant is 80, not 81. A SECOND and much tighter band answers a different question: knowing MARKET SHARE is significantly harmful below 80 declarations and significantly helpful above 100, statistically zero in between, on all 10,000 datasets (decision 222). The sweep's degenerate ends reproduce their fixed methods to 0.00e+00 (decisions 213, 218). **And a correction the paper must carry**: the synthetic arm's market weights are the TRUE group-level shares to 1.1e-16, not a flat-Dirichlet guess, so using a KNOWN share is what hurts below about 81 declarations -- because importance weights re-aim a fixed sample rather than adding to it, leaving a median Kish effective sample of 2.8 at 3 to 9 declarations, and the bandwidth's effective sample size is NOT the cause (decisions 212, 215). Nothing already on disk moved (decision 206); the argmax qualification is dropped (decision 210); Stage 3 adds the FEASIBLE rule as a seventh scorecard column (decisions 211, 214). `reports/STAGE_REPORT_2j.md` | Inventing a second selector; every candidate is still one cutoff on one number. It did NOT reopen `mode_share_alpha`, settled by decision 203 |
 | **3 DONE** | Figures. Notebooks 1 and 2 got an `OUT` cell and the compute/plot split that makes their figure cells redrawable, and **the split moved nothing: 147 x 24 empirical values bit identical, four of five PNGs byte identical**. Figures 2 and 3 merged; Figure 4 rebuilt on the 2f survivors with its three-curve alternative beside it; the feasible rule added as a seventh scorecard column; one `savefig` helper writing a PNG and a vector sibling and refusing a duplicate name; the figure manifest and four guard tests; the six stale audits re-run, every ordering holding and decisions 182, 184, 187 and 195 needing updated numbers; the hump-spacing levers measured alone and still declined; the two 96 MB tables moved to Parquet; the ASCII, spelling and vocabulary sweeps. `reports/STAGE_REPORT_3.md` | Changing any number. **The figure NUMBERING is DEFERRED to the manuscript by decision 235 and is not Stage 4's either**; full FIGURE_STYLE.md compliance for the 31 figure cells that never call the style module is Stage 4's |
-| **4** (optional) | README and Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28** |
+| **4** REQUIRED, and it is the LAST stage | **Four code changes FIRST, then ONE notebook-3 run, then the controls (decision 239).** The seventh scorecard column rebuilt on the SAME truth pass as the other six, which moves the published count from 10 of 16 to 11 (decision 237); the duplicate claim row dropped, which moves the denominator to 15 (decision 238); the feasible rule's group-composition column, absent after two full runs because the gap is in the code; and the compute/plot split for notebook 3's nine unrenderable figure cells. Then the (a)(b)(c)(d) panel labels (241), the residual spelling sweep in `FIGURE_STYLE.md` and two notebook-3 cells, the retired weighting vocabulary in column names and the README, saying which corpus on disk the paper describes, deleting the superseded reports after checking nothing outstanding lives only there, and the README and figure manifest for the Zenodo re-deposit | Anything analytical. **NOT the `.git` history rewrite: declined by the author, decision 28.** **NOT the figure NUMBERING, NOT full `FIGURE_STYLE.md` compliance for the 29 cells that never call `figstyle.apply()`, and NOT confidence intervals on figure aggregates**: all three are per-figure work that waits on the manuscript's figure selection, decision 235 |
 
 Items already known to be open and owned by a named stage, so that none of them
 reads as a fresh discovery: the bandwidth rule and its KL1/KL2 inconsistency
@@ -8629,3 +8629,240 @@ rather than in conversation.
      the control.
 
          python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_MixedPolicyRanking.csv'); print(d.nsmallest(9,'pooled_error')[['display','pooled_error']].to_string(index=False))"
+
+237. **2026-10-02, Stage 3 review. THE SEVEN-POLICY SCORECARD COMPARES COLUMNS
+     MEASURED IN TWO DIFFERENT MONTE CARLO EXPERIMENTS, AND ITS PUBLISHED COUNT
+     IS 11 OF 16 RATHER THAN 10 WHEN THE COMPARISON IS MADE ON ONE. This
+     NARROWS decision 206.** `[AUTHOR]` "Why are there two separate monte carlo
+     experiments? That doesn't make any sense ... We should definitely rebuild
+     the seventh column from the same 10,000 runs as the other six."
+
+     **WHAT IS WRONG.** `TABLE_ClaimScorecardWithRule.csv` is built by
+     concatenating the six-method scorecard, which comes from the study's main
+     run against the true parents, with the feasible rule's row, which comes
+     from the separate pass Stage 2j added at the end of notebook 3. The two
+     passes spawn their own random streams, and on the design comparison they
+     also resample their 2,500 design pairs separately.
+
+     **MEASURED, the same six methods on the same sixteen claims, one pass
+     against the other:** median difference 0.007 points of true level, and
+     **0.70 on the design comparison**. The rule's smallest winning margin is
+     0.10 and its margin on the design comparison is 0.03, so that claim is
+     decided by which pass it was measured in. Taking all seven columns from
+     the mixed pass, which already holds every one of them:
+
+         across two passes (the figure today)   10 of 16
+         within one pass                        11 of 16
+         best of all seven, either way           2 of 16
+
+     **DECISION 206'S REASON WAS SOUND AND ITS CONSEQUENCE WAS NOT.** A seventh
+     policy changes `best_method`, `stakes`, `excess` and every win-share
+     denominator, because those are properties of the SET compared, and a
+     separate pass protected the six-method tables from that. But
+     `metricset.rescore` already derives those columns separately for the two
+     tables, so the protection did not need a separate EXPERIMENT.
+
+     **THE FIX IS SAFE AND ITS CONTROL IS EXACT.** `plca.truth_run` and
+     `plca.swap_run` each draw the uniform block ONCE per group or per pair,
+     BEFORE the loop over methods, so adding a seventh entry to `methods`
+     consumes no random numbers. The six existing columns must come back
+     BIT-IDENTICAL; if they do not, something else moved and the run stops.
+     Stage 4 owns it, as its first code change rather than after a run.
+
+         python -c "
+         import pandas as pd
+         m=pd.read_csv('outputs/tables/TABLE_MixedPolicyScorecard.csv')
+         CH=['KDE, Uniform','Lognormal, Uniform','Normal, Uniform','Feasible@80']
+         p=m[m.method.isin(CH)].pivot(index='claim',columns='method',values='total_error')*100
+         print(int((p.drop(columns=['Feasible@80']).min(axis=1)-p['Feasible@80']>0).sum()),'of',len(p))"
+
+238. **2026-10-02, Stage 3 review. THE SCORECARD COUNTS ONE CLAIM TWICE AND THE
+     DUPLICATE IS DROPPED. The denominator is 15, not 16.** `[AUTHOR]` "Let's
+     get rid of 'what using 25% less of a material saves'."
+
+     Decision 186 established that "what using 25 percent less of a material
+     saves" is an exact algebraic function of "a material's share of the total"
+     -- removing a quarter of a material's contribution makes the error in the
+     first exactly 0.25 times the error in the second, so their RELATIVE errors
+     are equal. Verified again on the seven-policy table: identical in all
+     seven columns to **7.2e-16**. The Stage 3 prompt asked for the row to be
+     dropped from the figure and it was not, so the figure presents one claim
+     as two pieces of evidence, and both copies are losses for the rule.
+
+     **WHAT MOVES WHEN IT GOES.** The rule is best of the four a reader can
+     choose on **10 of 15** rather than 10 of 16, and the pooled figures rise
+     because the dropped claim is one of the easiest: the rule 23.97 against
+     24.66 for a kernel estimate with uniform weights and 24.73 for a
+     three-parameter lognormal, where the sixteen-claim version reads 23.25,
+     23.92 and 23.96. **These are the sixteen-claim numbers on two passes; they
+     are superseded again by decision 237's rebuild and must be recomputed
+     once, after it.** The caption keeps one sentence saying why the row is
+     gone, because the identity is itself worth knowing: a quantity reduction
+     is a deterministic fraction of a material's own share, so its accuracy IS
+     that share's accuracy and no distributional assumption enters.
+
+         python -c "
+         import pandas as pd
+         d=pd.read_csv('outputs/tables/TABLE_ClaimScorecardWithRule.csv')
+         a=d[d.claim=='a material: its share of the total'].set_index('method').total_error
+         b=d[d.claim=='using 25 pct less: its mean saving'].set_index('method').total_error
+         print('max difference across all seven policies:', (a-b).abs().max())"
+
+239. **2026-10-02, Stage 3 review. STAGE 4'S FIRST TASK IS THE CODE CHANGE, NOT
+     THE RUN, AND THE ORDER IS REVERSED FROM WHAT THE STAGE 3 REPORT SAYS.**
+     `[AUTHOR]` "Sounds good, let's change the order."
+
+     The Stage 3 report's section 9 tells Stage 4 to re-run notebook 3 first,
+     for two measurements Stage 2j had left pending. Sections 3b and 7 of the
+     same report say both already ran in Stage 3: the backwards control scored
+     0.2591 pooled, and the group-composition split "has happened and it is
+     unchanged, because widening it needs a code change nobody made". So the
+     instruction sends the next window to spend about 110 minutes regenerating
+     what exists, after which the one genuinely missing column is still
+     missing.
+
+     **THE ORDER IS: the four code changes of the Stage 4 section -- the
+     seventh column on one pass (237), the dropped claim (238), the feasible
+     rule's composition column, and the compute/plot split for notebook 3's
+     nine unrenderable figure cells -- then ONE notebook-3 run, then the
+     bit-identity controls.** This is the "wrong first task for the next stage"
+     failure the Stage 2j review already caught once, and it is recorded here
+     because it has now happened twice.
+
+240. **2026-10-02, Stage 3 review. ONE SET OF RUNTIMES, IN ALL THREE PLACES
+     THAT CARRIED THREE DIFFERENT SETS.** `[AUTHOR]` "Let's update the
+     estimated times. It's hard to tell because I'm running code in other
+     repositories so sometimes it takes longer ... let's update it with our best
+     guess."
+
+     Stage 3 measured 36, 13, 110 and about 20 minutes for notebooks 1 to 4 and
+     recorded that in its report, while in the same stage ADDING to the README
+     a line reading "notebook 1 about 30 minutes, notebook 2 about 35, notebook
+     3 about three and a quarter hours, notebook 4 about 20" -- so the deposit's
+     own README overstated notebook 2 by a factor of 2.7 and notebook 3 by 1.8.
+     `CONTEXT.md` carried a third set again, 30 / 35 / 45 / 15.
+
+     **The published figures are now 35, 15, 110 and 20 minutes**, quoted to
+     the nearest five minutes as wall clock with nothing else competing, with
+     one sentence saying a busy machine can take half again as long. README,
+     `CONTEXT.md` and the prompt file agree. The Stage 2f cell-by-cell profile
+     stays in `CONTEXT.md` because it says WHERE the time goes; its totals are
+     explicitly superseded.
+
+241. **2026-10-02, Stage 3 review. THE pLCA SCATTER FIGURE GETS ITS (a) (b) (c)
+     (d) PANEL LABELS, AND IT IS NOT URGENT.** `[AUTHOR]` "Sure, add in some
+     figure panel labels. This won't be super relevant until we pick which
+     figures are actually going into the manuscript though."
+
+     The Stage 3 prompt asked for two changes to that figure: drop the
+     highlighted single-pLCA points, and label the panels explicitly. The first
+     was done, the second was not, and the Stage 3 report mentions only the
+     first, so it reads as complete. No figure cell in any notebook labels its
+     panels. Stage 4 does it cheaply; the full per-figure pass waits on the
+     manuscript's figure selection with decision 235's other two items.
+
+242. **2026-10-02, Stage 3 review. THE BANDWIDTH IS NOT UP FOR DEBATE AND THE
+     REVIEW IMPLIED IT WAS. `silverman_guarded` STANDS, AND IT WAS NEVER THE
+     BEST ON W1 OR ON THE pLCA -- IT IS INSURANCE ON THE WORST CASE.**
+     `[AUTHOR ASKED]` "I thought we found that guarded Silverman outperformed
+     both Scott and Silverman? Why is this still up for debate?"
+
+     It is not up for debate and nothing in Stage 3 reopened it. What the Stage
+     3 review actually found was a wrong SENTENCE in the report, not a wrong
+     rule.
+
+     **NO LATER STAGE RE-MEASURES THIS.** The author has now had to ask twice
+     why it was being discussed, and the reason both times was a review finding
+     about prose that read as a finding about the rule. `BW_METHOD =
+     'silverman_guarded'` with `SILVERMAN_MIN_NEFF = 20` is settled by
+     decisions 54 and 80, re-run as a stale audit in decision 233, and
+     confirmed downstream here. The author's own statement of the reason is the
+     one to carry into the paper: **the guard exists to avoid the small-n
+     interquartile-range trap**, where at three to ten declarations the
+     quartiles are interpolated between two order statistics and the robust
+     scale estimate collapses. A later window that finds a sentence about
+     bandwidths wrong should correct the sentence and say so, and must not
+     present it as an open question. The sentence said Scott is "now best on two outputs" and printed two
+     numbers that show it losing one of them; and it confined the exception to
+     uniform weights when it occurs under both.
+
+     **WHAT THE RULE WAS CHOSEN ON, because the record is spread over four
+     decisions and is easy to misremember.** Decisions 54 and 80 chose the
+     guard on the FIFTH PERCENTILE of held-out log-likelihood -- the small-n
+     failure where a collapsing bandwidth does its damage -- and deliberately
+     NOT on W1, because W1 falls monotonically as the bandwidth shrinks and
+     would have chosen a spike. Decision 71 then recorded that pure Silverman
+     beats the guarded rule against the known parent on 90.1 and 83.2 percent
+     of datasets, and decision 75 recorded that the W1 optimum is at a
+     threshold of 5 rather than 20. **So "guarded beats both" was never the
+     finding.** The finding is that both Silverman forms beat Scott decisively,
+     and the guard costs a fraction of a percent against pure Silverman in
+     exchange for repairing the worst case at three to ten declarations.
+
+     **ON THE CURRENT CORPUS, mean relative error over the five pLCA outputs:**
+
+         uniform weights   Scott 29.23   Silverman 28.24   guarded 28.51
+         market weights    Scott 30.06   Silverman 28.89   guarded 28.93
+
+     Scott is worst on the mean under both weightings, which is why the rule
+     stands. Per output Scott is best on ONE of the five, the uncertainty
+     index, under BOTH weightings, and non-worst on a second; decision 195's
+     "Scott is worst on every one of the five outputs" is withdrawn and
+     decision 233's restatement of it is corrected here. **The guard now costs
+     0.28 of a point under uniform weights and 0.04 under market weights**,
+     where decision 195 recorded it BUYING 0.15 under market weights. The
+     control fires: the four parametric methods move 0.0000 across all three
+     rules.
+
+         python -c "
+         import pandas as pd
+         d=pd.read_csv('outputs/tables/audits/TABLE_BandwidthDownstreamSummary.csv')
+         k=d[d.method.str.startswith('KDE')]
+         print((k.pivot_table(index=['method','output'],columns='bw_rule',values='rel_error')*100).round(3))"
+
+243. **2026-10-02, Stage 3 review. THE RUNAWAY-TAIL FIGURE IS REPORTED AS AN
+     AGGREGATE OVER ALL FITS, NOT AS THE SINGLE WORST ONE.** `[AUTHOR]` "Why do
+     we care about the worst runaway fit? We shouldn't isolate any single fit.
+     That's not what this study is about. We're looking at aggregated results
+     across 10,000 datasets."
+
+     Correct, and the review's own finding on it was the wrong shape: it
+     argued about which single fit the maximum belongs to. The maximum exists
+     in this project as a GUARD -- decision 149 is why level metrics are safe
+     to report at all, and decision 152 watches `model_sd_ratio` as the
+     sentinel -- and a guard is not a result.
+
+     **SO THE ONE-LINE TRUNCATION REMEDY OF DECISION 199 IS STATED IN AGGREGATE
+     TERMS.** On the current corpus, over 3,882 fits with no cap: the median
+     fitted model's spread is **0.98 times the data's own**, **1.75 percent**
+     exceed twice it, **0.39 percent** exceed three times, and **none** exceeds
+     five times. A cap at twice the largest observed value takes the share above
+     twice the data's spread from 1.75 percent to **0.03**, and against the
+     known truth it costs nothing: four of the six methods do not move at all,
+     one gains 0.00011 and one loses 0.00124. **That is the sentence the paper
+     carries**, and it says the same thing as decisions 182 and 199 without
+     resting on one fit. The single worst fit stays in the audit table as the
+     sentinel it is.
+
+         python -c "
+         import pandas as pd
+         d=pd.read_csv('outputs/tables/audits/TABLE_UpperTruncationSweep.csv.gz')
+         u=d[d.cap=='none']
+         print('fits', len(u), 'median ratio', round(u.model_sd_ratio.median(),3))
+         for t in (2,3,5): print(f'above {t}x: {100*(u.model_sd_ratio>t).mean():.3f} pct')"
+
+244. **2026-10-02, Stage 3 review. THE FIGURES NEEDING A RESTYLE ARE 29, NOT
+     31, AND DECISION 234'S "30 OF 36" IS THE SAME SLIP.** `[AUTHOR]` "Sure,
+     change 31 to 29. This feels super nitpicky."
+
+     It is, and it is recorded only because the number is handed forward as the
+     size of a job. `TABLE_FigureStyleCompliance.csv` says 8 of 37 figure cells
+     call `figstyle.apply()`, so **29** do not. The 31 is 37 minus the 6 cells
+     that call all FOUR style helpers, which is a different count attributed to
+     the wrong one. Decision 234 made the same substitution at the older total.
+
+         python -c "
+         import pandas as pd
+         d=pd.read_csv('outputs/tables/audits/TABLE_FigureStyleCompliance.csv')
+         print('do not call apply():', int((~d['apply']).sum()), 'of', len(d))
+         print('call all four:', int(d[['apply','savefig','finish','overlaps']].all(axis=1).sum()))"

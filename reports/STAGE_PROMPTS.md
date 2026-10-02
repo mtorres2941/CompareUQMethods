@@ -217,9 +217,20 @@ categories; the frozen extract behind it holds 120,280 records, all of which the
 database flags as product declarations rather than industry averages. The corpus
 is 10,000 datasets plus a 50-dataset probe set.
 
-The practitioner threshold is **81 declarations**, unchanged across the
-regeneration, with the band of equally good choices now **68 to 106** where the
-old corpus gave 68 to 97.
+**NO SINGLE-DECLARATION CUTOFF IS PUBLISHED, at either level. Corrected
+2026-10-02 by the author, decision 237; this block previously said "81
+declarations, band 68 to 106" and that instruction is withdrawn.** The paper
+quotes two RANGES and nothing else:
+
+    the FAMILY split        40 to 170 declarations   decision 224
+    the WEIGHTING split     80 to 100 declarations   decision 222
+
+`mixedpolicy.MIXED_THRESHOLD = 80` is a constant the code needs in order to
+name one policy and to fix the reference the gain table is computed against. It
+is not a result and no table, figure, caption or sentence presents it as one.
+**Treat any `81`, `68 to 97` or `68 to 106` found anywhere outside the
+historical decision-log entries as stale**, including in the sent stage
+sections below, which this block supersedes.
 
 ## How to use this file
 
@@ -3238,24 +3249,20 @@ evidence supports something more specific and more useful. Three things follow.
 - **The claim is a policy, not a method.** Use a KDE above about 80 EPDs and a
   three-parameter lognormal below.
 
-  **Quote the threshold as 81 with a band of 68 to 106, and never as "about
-  100".** The threshold itself is 81 on both the superseded corpus and the
-  regenerated one, which is the strongest single piece of evidence the rule has.
-  The band widened from 68-97 to 68-106 with the regeneration; quote the band from
-  the current corpus. Stage 2f measured it properly: the datasets are resampled, the whole
-  cost curve refitted, and each candidate threshold compared against whichever
-  won on that same resample, so the interval is about the difference rather than
-  the level. Eight independent bootstrap streams return 81, 68 and 97 every time.
-  An earlier range of 59 to 134 came from a chosen tolerance rather than a
-  measurement and is withdrawn.
+  **WITHDRAWN IN FULL 2026-10-02 by the author, decision 237.** This block
+  told a later window to quote a single threshold with a band around it, and
+  it did so three times over at three different values. It is replaced by one
+  rule: **the paper quotes 40 to 170 declarations for the family split and 80
+  to 100 for the weighting split, and no single-declaration cutoff at either
+  level.** The reproduction of the fit-level argmin across two independently
+  generated corpora stays as internal evidence that the rule is stable
+  (decision 198); it is not a number the paper prints.
 
   **Two ranges exist and they are different quantities. Do not quote one as the
-  other.** The kernel and lognormal families change places at 46 to 70
-  declarations, which is a property of the win-share curves and moves a little on
-  a reseed, so it gets two significant figures. The best place to put a RULE is
-  68 to 97, which does not move on a reseed. The rule sits above the crossing
-  because the penalties are asymmetric: 4.8 points of extra error at a threshold
-  of 24 against 6.5 at 304.
+  other.** The family split is the cutoff a reader sets, 40 to 170. The
+  weighting split answers a different question -- knowing market share is
+  significantly harmful below 80 declarations and significantly helpful above
+  100, statistically zero in between -- and is 80 to 100 (decision 222).
 
 - **The two arms disagree about which fixed policy is better, and the text must
   reconcile it rather than quote whichever suits the sentence.** On the empirical
@@ -3315,7 +3322,8 @@ not the specific values.
 **And this argument is now stronger than it was, by an amount worth stating.**
 The practitioner rule was calibrated on one synthetic corpus and came back
 unchanged on a second, independently generated one with materially different
-dispersion: the threshold is 81 declarations under both. That is a reproduction
+dispersion: the fit-level argmin is the same under both, and every size band
+has the same winner. That is a reproduction
 across two corpora rather than a robustness check within one, and the paper
 should make it as such. Note that the paper describes ONE set of synthetic data,
 not two -- the superseded corpus is the less representative of the pair and
@@ -4005,17 +4013,71 @@ outstanding lives only there**: an unresolved item belongs in the decision log
 or in `MANUSCRIPT_discrepancies.md`, not in a file about to be removed. Git
 history retains them, which is what makes the deletion safe.
 
-**TWO ITEMS STAGE 3 LEFT ARE THIS STAGE'S, added 2026-10-01.** Both are
-repository work and one notebook-3 run verifies both together. First, the
-group-composition split covers the known-share rule only:
+### What the Stage 3 review settled, 2026-10-02, and the order to do it in
+
+**THE CODE CHANGES COME FIRST AND THE NOTEBOOK-3 RUN COMES ONCE, AFTER THEM.**
+Stage 3's report told this stage to re-run notebook 3 first, for two
+measurements it had already taken in the same stage, and that run would not
+have produced the one thing still missing because the gap is in the code rather
+than in the run. Decision 239. Do these four edits, then run notebook 3 once,
+then check the controls.
+
+**1. THE SEVENTH SCORECARD COLUMN MUST COME FROM THE SAME RUN AS THE OTHER SIX.
+Decision 237, and it is the one that changes a published count.** The scorecard
+figure's title is a count of claims, and it is currently computed by comparing
+the rule's column -- measured in Stage 2j's own pass against the truth -- with
+three columns measured in the study's main pass. Two separate Monte Carlo
+experiments, and on the design comparison their two passes also resample their
+design pairs separately, which differ there by 0.70 points of true level while
+the rule's margin is 0.03. Done on one pass the count is **11 of 16**, not 10.
+
+**The fix is safe and the control is exact.** `plca.truth_run` and
+`plca.swap_run` each draw the uniform block ONCE per group or per pair, BEFORE
+the loop over methods, so adding a seventh entry to the `methods` list consumes
+no random numbers and cannot move the other six. Add the feasible rule to the
+MAIN truth pass and the MAIN swap pass, build both scorecards from it, and
+assert that the six existing columns come back bit-identical. If they do not,
+stop: something else moved.
+
+Decision 206 is NARROWED rather than reversed. Its reason for a separate pass
+was sound -- `best_method`, `stakes`, `excess` and every win-share denominator
+are properties of the SET compared, so a seventh policy moves them -- and
+`metricset.rescore` already handles that by deriving those columns separately
+for the six-method table and the seven-policy table. What does not survive is
+scoring the two sets in two different experiments. The 62-policy threshold
+sweep may keep its own pass, because nothing on the scorecard is read from it.
+
+**2. DROP "WHAT USING 25 PCT LESS OF A MATERIAL SAVES" FROM THE SCORECARD.
+Decision 238.** It is an exact algebraic copy of "a material's share of the
+total" -- identical in all seven columns to 7e-16, verified across the table --
+so the figure counts one claim twice and the denominator is 16 where it should
+be 15. Decision 186 established the identity and the Stage 3 prompt asked for
+the row to be dropped; it was not. Drop the row, keep the identity in one
+sentence of the caption, and renumber the counts: the rule is best of the four
+a reader can choose on **10 of 15** on the current figure, and the pooled
+figures move to 23.97 for the rule against 24.66 for a kernel estimate with
+uniform weights.
+
+**3. THE GROUP-COMPOSITION SPLIT STILL COVERS THE KNOWN-SHARE RULE ONLY.**
 `TABLE_MixedPolicyPooled.csv` has columns for `Lognormal, Uniform`,
-`KDE, Variable` and `Mixed` and none for the feasible rule, which Stage 2j left
-for "the next full run" and that run did not change. Second, nine of notebook
-3's thirteen figure cells cannot be rendered on their own, so a figure change
-there still costs that run;
+`KDE, Variable` and `Mixed` and none for the feasible rule. Stage 2j left it
+for "the next full run"; that run has happened twice now and the column is
+still absent, because widening it needs a code change nobody has made. Make it
+in the same edit as item 1.
+
+**4. NINE OF NOTEBOOK 3'S THIRTEEN FIGURE CELLS CANNOT BE RENDERED ON THEIR
+OWN**, so a figure change there still costs the full run.
 `outputs/tables/audits/TABLE_FigureRendererSafety.csv` names them and what each
-needs, four of the nine need only `dct_resultlabels` and a frame already on
+needs; four of the nine need only `dct_resultlabels` and a frame already on
 disk, and the fix is the compute/plot split Stage 3 did for notebooks 1 and 2.
+Do this before the run, not after, or the next figure change pays for another.
+
+**AND ADD PANEL LABELS (a), (b), (c), (d) TO THE pLCA SCATTER FIGURE.**
+Decision 241. It was asked for in the Stage 3 prompt alongside dropping the
+highlighted single-pLCA points; the points were dropped and the labels were
+not, and the Stage 3 report did not say so. The author's note with the
+decision: this matters once the manuscript's figure selection exists and not
+much before, so do it cheaply and do not spend the stage on it.
 
 **RENUMBERING THE FIGURES IS NOT THIS STAGE'S, added 2026-10-01 by the author.**
 "Don't worry about figure renumbering yet. That'll depend on what we end up
@@ -4024,7 +4086,7 @@ proposed a numbering and did not apply it; it stays unapplied until the
 manuscript's figure selection is settled. Decision 235. The figure manifest at
 `outputs/tables/audits/TABLE_FigureManifest.csv` is still what the README
 needs, and it does not depend on the numbering. **Nor are the other two
-manuscript-dependent items this stage's**: bringing the 31 figure cells that
+manuscript-dependent items this stage's**: bringing the 29 figure cells that
 never call `figstyle.apply()` up to `FIGURE_STYLE.md`, and putting confidence
 intervals on figure aggregates, are per-figure work that waits on the same
 selection. Decision 235.

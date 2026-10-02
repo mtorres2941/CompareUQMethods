@@ -6,6 +6,37 @@ re-run, it was re-run on them. Branch `stage-3-figures`, from `97acefd`.
 
 ---
 
+## Corrections from the review, 2026-10-02
+
+**Seven things in this report are wrong or stale. They are listed here rather
+than edited into the body, so the body stays the record of what the stage
+believed.** Decisions 237 to 244 carry the detail and the reproduce-commands.
+
+| where | what is wrong | decision |
+|---|---|---|
+| section 2, and the figure's title | The seventh column is measured in a DIFFERENT truth pass from the six it is compared against. On one pass the count is **11 of 16**, not 10. The claim that flips is the design comparison, where the two passes differ by 0.70 points and the rule's margin is 0.03 | 237 |
+| section 2, the sixteen claims | Two of the sixteen are the same number to 7e-16, so the figure counts one claim twice. The denominator is **15**, and the Stage 3 prompt had asked for the row to be dropped | 238 |
+| section 9 | Stage 4's first task is the code change, not the run. Both measurements it sends Stage 4 to collect were collected in Stage 3, and the one column still missing needs a code change the run will not supply | 239 |
+| section 8 | The README was NOT corrected to the runtimes this stage measured. It carries 30 / 35 / 195 / 20 where the stage measured 36 / 13 / 110 / 20, and `CONTEXT.md` carried a third set again. One set, 35 / 15 / 110 / 20, now stands in all three | 240 |
+| section 4 | "Scott is now best on two outputs" is contradicted by the two numbers printed beside it, and the exception occurs under both weightings rather than only uniform. Scott is best on ONE output and non-worst on a second. **The shipped bandwidth rule is unaffected and was never in question** | 242 |
+| section 4 | The upper-truncation row quotes the worst SINGLE fit. The study is about aggregates: 1.75 percent of fits exceed twice the data's spread uncapped and 0.03 percent at a 2x cap, and that is the form the paper uses | 243 |
+| section 7 | 29 figure cells do not call `figstyle.apply()`, not 31. The 31 is the count that do not call all FOUR style helpers | 244 |
+
+**Also not done and not reported**: the pLCA scatter figure's (a) (b) (c) (d)
+panel labels, asked for in the Stage 3 prompt beside the highlighted-point
+removal that WAS done (decision 241).
+
+**What the review checked and could not break**, since the report named three
+places to start: section 2's reconciliation of 2, 10 and decision 217's 9 holds
+exactly, differing on the one claim it names; the caption sweep holds, with no
+figure title in any notebook now carrying a hard-coded number; the credit audit
+and the judgment arm verify on every number including the one-declaration range;
+640 tests pass with 0 skipped; there are zero orphan figures and zero duplicate
+filenames; and the renderer redraws all five of notebook 1's figure cells in
+four seconds.
+
+---
+
 ## What changed
 
 **A figure round on notebooks 1 and 2 is now 1.6 seconds instead of 30 or 35

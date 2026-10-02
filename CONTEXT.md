@@ -695,9 +695,16 @@ QUANTITIES.** `family_lead_curve` and `crossover_band` give the first: the size
 range over which the leading FAMILY is genuinely in doubt, from the last size
 one is clearly ahead to the first the other is, which is an interval of
 ignorance rather than a confidence interval. On the corpus that is 46 to 70
-declarations. `threshold_interval` gives the second: **81, with 68 to 97
-indistinguishable from it**, and it sits ABOVE the crossing because the penalty
-curve is steeper on the high side.
+declarations. `threshold_interval` gives the second, and it sits ABOVE the
+crossing because the penalty curve is steeper on the high side.
+
+**NO SINGLE-DECLARATION CUTOFF IS PUBLISHED, at the fit level or the claim
+level (decisions 225 and 237).** The paper quotes two RANGES: **40 to 170**
+declarations for the family split and **80 to 100** for the weighting split.
+`mixedpolicy.MIXED_THRESHOLD = 80` is a constant the code needs to name one
+policy, not a result. Any bare `81`, `68 to 97` or `68 to 106` found in this
+repository outside the historical decision-log entries is stale; the decision
+log keeps them because they are the record of what was measured.
 
 **WHICH COMPARISON PRODUCES A CROSSING MATTERS MORE THAN THE CROSSING.** The
 market-share kernel estimate passes the better SINGLE lognormal at 65; the
@@ -718,7 +725,8 @@ uncertainty at all, and which reported a band nearly twice too wide at the top.
 indistinguishable flag instead of its longest unbroken run: at the edge of a
 near-zero effect the flag jitters, 106 excluded at a lower bound of 0.120 while
 116 is included at 0.000, and one isolated threshold widened the reported band
-from 68-97 to 68-116.
+by nearly a factor of two at the top. The band that rule was guarding is a
+fit-level one and is no longer published; see the note above.
 
 `effective_sample_fraction` and `weighting_by_concentration` answer when
 market-share weighting pays, split by how concentrated the weights are INSIDE a
@@ -1188,8 +1196,16 @@ and cell 56 fed the two to `pearsonr` 18 minutes into the run. It now indexes by
 `df_stds.index`. `corpus.describe_combos` names the held-out datasets and both
 notebooks print it, so the remainder is stated rather than inferred.
 
-Approximate runtimes on a 2026 laptop: **NB1 about 30 min**, **NB2 about 35
-min**, **NB3 about 45 min** at `neccs = 10000`, and **NB4 about 15 min**.
+**Approximate runtimes, re-measured end to end in Stage 3 and corrected by
+decision 240: NB1 about 35 min, NB2 about 15 min, NB3 about 110 min at
+`neccs = 10000`, and NB4 about 20 min.** They are wall clock with nothing else
+competing; a machine running other work can take half again as long, which is
+why they are quoted to the nearest five minutes and not defended further. Three
+different sets of these numbers were in the repository before Stage 3's review
+-- this file, the README and the Stage 3 report each carried its own -- and one
+set now stands in all three places. The paragraph below is the Stage 2f
+profile, kept because it says WHERE the time goes, and its totals are
+superseded by the line above.
 Profiled cell by cell in the Stage 2f review, which also corrected a wrong
 figure: NB3 was reported as two hours, which was wall clock while other jobs
 competed for the processor, against 58 minutes of actual cell time -- 43 of it
