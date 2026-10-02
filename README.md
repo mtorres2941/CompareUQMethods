@@ -26,7 +26,18 @@ Each PE method is evaluated under two WT strategies:
 | Label | Strategy |
 |---|---|
 | **Uniform** | Equal weights across all data points, which is what a practitioner pulling declarations from a database actually holds |
-| **Variable** | Market-share weights, drawn from a flat Dirichlet distribution because real production volumes are not published |
+| **Variable** | Market-share weights. `Variable` is the stored label, kept because every table and fixture in the project joins on it; everywhere a reader sees it, the scheme is called **market weights** |
+
+**"Market weights" does not mean real production volumes, and the paper says so
+at first use.** Nobody publishes product-level market shares, so the shares are
+simulated. What the two arms do with them differs, and the difference is the
+point of the comparison: on the **synthetic** arm the share attached to each
+product group is the group's TRUE share in the parent the data were drawn from,
+exact to 1.1e-16, and only its division among the products inside the group is
+arbitrary -- so uniform against market there is IGNORING a known share against
+USING it. On the **empirical** arm there is no truth to know, so the shares are
+simulated under a published-volume-shaped model and the arm says what weighting
+WOULD do, not what ignoring a known share costs.
 
 Performance is measured as the Wasserstein-1 distance between each fitted model
 and the distribution it is estimating -- the known parent for the synthetic
@@ -50,17 +61,32 @@ CompareUQMethods/
 |-- tests/                             # pytest suite over src/ and the notebooks
 |-- data/
 |   |-- raw/                           # Frozen, checksummed EC3 extracts
-|   `-- processed/                     # Corpus pointer and prepared empirical arm
+|   `-- processed/                     # Corpus pointer, the corpora, and the
+|                                      # prepared empirical arm. See its README
+|                                      # for WHICH corpus the paper describes
 |-- outputs/
 |   |-- figures/                       # Publication figures, PNG at 300 dpi
 |   |                                  # with a PDF sibling for each
 |   `-- tables/                        # Result tables (CSV, XLSX, Parquet)
-|-- reports/                           # Stage handoff and manuscript discrepancies
+|-- archive/                           # Superseded figures, each with the
+|                                      # reason it was replaced
+|-- reports/                           # The stage prompts, the manuscript
+|                                      # discrepancy log, and timing baselines
 |-- CLAUDE.md                          # Project brief and the full decision log
 |-- CONTEXT.md                         # Package layout, conventions, test inventory
 |-- FIGURE_STYLE.md                    # Binding style guide for every figure
 `-- LICENSE
 ```
+
+**The paper describes ONE synthetic corpus, `corpus_2026-09-25`.**
+`data/processed/CORPUS.json` names it and the notebooks read it from there.
+The other `corpus_*` directories beside it are superseded, and they are kept
+because a corpus here is immutable -- a change to generation writes a new
+directory so the two can be diffed file by file, which is how a change is
+proved to have moved only what it was meant to. They are not a second dataset
+and no number in the paper comes from any of them. `data/processed/README.md`
+says this in full, and says which files are tracked and how to rebuild the
+large ones.
 
 **Every figure and table under `outputs/` is reproducible from a notebook cell,
 and the code that produces it lives in a notebook.** Nothing reaches `outputs/`
@@ -100,10 +126,24 @@ configuration is tuned so the synthetic characteristic distributions match the
 empirical ones. A corpus is a named, dated, immutable directory carrying its
 seed, configuration, git commit and library versions.
 
-**Weights.** Both arms receive market-share weights drawn from a flat Dirichlet,
-since real production volumes are not published. On the synthetic arm share
-attaches at the mode level, so the market-weighted distribution is a real
-population object rather than a property of one realized sample.
+**Weights.** Both arms draw market shares by the **same rule**, which they did
+not until late in the project: declarations are divided into product groups,
+each group's share of the market is drawn from a flat Dirichlet, and that share
+is divided among the declarations inside the group. What differs is how the
+groups are found, and it has to. The synthetic arm KNOWS them -- they are the
+mixture components the data were drawn from -- so the share it attaches to a
+group is that group's true share in the parent. The empirical arm cannot know
+them, so `weighting.coherent_weights` cuts the sorted values into contiguous
+groups instead, at a coherence of 0.5: the value at which that cut reproduces
+what the synthetic arm's TRUE component labels give, to within four percent on
+the typical dataset. It is measured against the truth, not chosen.
+
+Drawing a flat Dirichlet over every declaration independently, which is what
+the empirical arm did before, is not the neutral alternative: it is the
+specific claim that market share is uncorrelated with carbon intensity, which
+published production volumes contradict. It also forces the measured weighting
+effect to decay as the dataset grows, which is a property of that model and not
+of markets.
 
 **Characteristics and weighting risk.** Computes the statistical
 characteristics of every dataset under both weightings, and the per-dataset
@@ -212,6 +252,81 @@ from an explicitly passed Generator.
 
 ---
 
+## Figure manifest
+
+Every image under `outputs/figures/` with the notebook that writes it and what
+it shows. Each file has a `.pdf` sibling of the same name; names are given here
+without the `CompareUQMethods_` prefix and the extension.
+
+**The `FIG_` and `SUPP_` prefixes record what the generating cell declares
+itself to be, not where the manuscript puts it.** The manuscript's figure
+selection and numbering are settled while the manuscript is written, which is
+after this deposit is cut, so no file here carries a figure number. Renaming is
+one word per cell -- `figstyle.savefig` takes a stem, not a path -- and
+`tests/test_figure_manifest.py` fails on any file a rename would leave behind
+without a generator, so the renumbering is cheap whenever it happens.
+
+`python audits/figure_manifest.py` regenerates this list from the code.
+
+### Notebook 1 - the data
+
+| File | What it shows |
+|---|---|
+| `FIG_DemonstrateDataGeneration` | How one synthetic dataset is built, from drawn targets to realized sample |
+| `SUPP_DatasetExamplesByStratum` | Synthetic datasets by size stratum, with real categories beside them |
+| `FIG_MetricCoverage` | Where the 147 real categories sit inside the synthetic cloud, characteristic by characteristic |
+| `SUPP_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
+| `FIG_WeightingDrivers` | Which categories can safely assume uniform weights, against size and dispersion |
+
+### Notebook 2 - the fits
+
+| File | What it shows |
+|---|---|
+| `DEF_DemoW1Dist` | What a Wasserstein-1 distance is: the area between two cumulative curves |
+| `FIG_PDFandCDFofUQMethods` | The six UQ methods on one dataset, as densities and as distribution functions |
+| `FIG_W1DistanceAndRank` | How far each method sits from its target, and how often it is closest. Both arms |
+| `SUPP_KSTestStripAndRank`, `SUPP_Wass2DistStripAndRank` | The same under two other distances, as a robustness check |
+| `FIG_W1VsCharacteristic_{Empirical,Synthetic}` | W1 against every dataset characteristic, one panel each |
+| `FIG_W1VsSurvivors_{Empirical,Synthetic}` | The same for the characteristics the reduction keeps, the two weightings side by side |
+| `FIG_WeightingGap_{Empirical,Synthetic}` | The alternative to the above: the uniform-minus-market difference, three curves instead of six |
+| `SUPP_ByCharacteristic_<name>` (12 files) | One page per characteristic, so each can be read on its own |
+| `FIG_RankVsDatasetSize` | Which method wins against dataset size, and by how much |
+| `FIG_WinShareVsCharacteristic_{Empirical,Synthetic}` | Which method wins, by percentile of each characteristic |
+| `FIG_BandwidthRule` | What the bandwidth rule does, against dataset size |
+| `FIG_EvaluationTarget` | What changing the scoring target does to the comparison |
+| `FIG_TargetBySize` | The size dependence, which is what both arms agree on |
+| `FIG_Regret` | What it costs to use one method on every dataset instead of the best one for each |
+| `FIG_MethodByMaterial` | Which default to use, and what it costs, by material tier |
+| `SUPP_AllEmpiricalFits` | Every real category with all six fitted models |
+
+### Notebook 3 - the probabilistic LCA
+
+| File | What it shows |
+|---|---|
+| `DEF_VisualizeReductionStrategies` | The four reduction strategies, drawn |
+| `FIG_ScatterPlot_UQResults_Subset` | What switching method does to four pLCA outputs, every pair of methods on every pLCA |
+| `SUPP_ScatterPlot_UQResults_All` | The same for every output |
+| `SUPP_AllResultsByAllUQMethods` | The NRMSE between every pair of methods, for every output |
+| `FIG_WassVsResultDiff` | The distance between two fitted models against the difference it makes downstream |
+| `FIG_PLCAW1Distances` | W1 between the six methods, for the three example pLCAs |
+| `FIG_PLCAVisualizeUQFits` | The components and the total of those three pLCAs |
+| `FIG_RanksByDatasetAndPEWT` | How often each material leads, by dataset and method, in those three |
+| `FIG_FlipCalibration` | How far apart two models must be before the answer changes, and what such a distance looks like |
+| `FIG_MaterialDominance` | What a leading material buys -- the ranking -- and what it does not -- the magnitude |
+| `FIG_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
+| `FIG_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule |
+| `FIG_MixedPolicy` | How much the cutoff matters, and what knowing market share would buy |
+
+### Notebook 4 - which characteristics decide
+
+| File | What it shows |
+|---|---|
+| `FIG_WhenToUseWhich` | Which method is closest to the truth, against category size |
+| `FIG_ChoiceDrivers` | Whether dataset size is enough on its own |
+| `SUPP_RollingVersusBinned_{Empirical,Synthetic}` | The rolling average against its replacement, kept so the two can be compared |
+
+---
+
 ## Source modules
 
 | File | Description |
@@ -226,7 +341,7 @@ from an explicitly passed Generator.
 | `src/fitting.py` | The single fitting and scoring implementation, including the W1 grid, route and tail term |
 | `src/recovery.py` | Scores a fitted model against a known parent, and post-stratifies |
 | `src/comparison.py` | Cross-validated scoring and the paired bootstraps |
-| `src/weighting.py` | The uniform-to-variable separation, its location and shape split, and the weighting-risk measures |
+| `src/weighting.py` | The one market-share rule both arms use, the uniform-to-market separation with its location and shape split, and the weighting-risk measures |
 | `src/flip.py` | Calibrates how far apart two models must be before the answer changes |
 | `src/plca.py` | The probabilistic LCA, common random numbers, the interventions and the design swap |
 | `src/metricreduction.py` | The metric reduction: cross-validated gains, forward selection, permutation importance, and the practitioner thresholds |

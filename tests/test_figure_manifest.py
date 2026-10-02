@@ -101,3 +101,29 @@ def test_every_png_has_a_vector_sibling():
         f'{len(missing)} figure(s) have no vector sibling; these are written '
         f'by a cell that still calls plt.savefig directly rather than '
         f'figstyle.savefig: {missing}')
+
+
+def test_every_figure_cell_runs_against_the_setup_block_alone():
+    """The fast renderer must be able to redraw ANY figure, not just the ones
+    that happen to be self-sufficient.
+
+    `audits/render_figures.py` executes the setup block -- every code cell up
+    to and including the one defining OUT -- and then one figure cell. A figure
+    cell reading a frame or a helper that a compute cell in between defines
+    raises, and `--only` hides it: render one cell that happens to work and the
+    tool reports success. That is how notebook 3 was believed clear through
+    Stage 3 while nine of its thirteen figure cells could not be rendered at
+    all, which meant a label change there cost the whole 110-minute run.
+
+    All 37 pass as of Stage 4. This test is what stops that regressing: a new
+    figure cell that reaches into kernel state fails here rather than in a
+    renderer run somebody tries six weeks later.
+    """
+    rows = manifest.renderer_safety()
+    bad = [(r['notebook'], r['cell'], r['missing'])
+           for r in rows if not r['renderable']]
+    assert not bad, (
+        f'{len(bad)} of {len(rows)} figure cells cannot be rendered on their '
+        'own, so changing one costs a full notebook run. Each needs the named '
+        'frames persisted to a table and read back, or the helper moved into '
+        f'the setup cell: {bad}')

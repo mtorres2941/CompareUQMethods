@@ -84,10 +84,10 @@ appointment at Bath, but is not an author on the present paper:
   is 63.75 percent of global production while Austrian EAF is 0.03 percent.
 - **Marsh, Lewis, Hattam and Allen (in press)**, "Uncertainty characterization
   for construction products and comparative metrics for probabilistic building
-  LCA." Six uncertainty characterisation scenarios applied to a four-option
+  LCA." Six uncertainty characterization scenarios applied to a four-option
   staircase comparison, evaluated with four comparative metrics. Two findings
   matter here: the ranking of top-contributing products within a design changes
-  depending on the characterisation scenario, and they use dependent sampling
+  depending on the characterization scenario, and they use dependent sampling
   across compared options.
 
 Where the current analysis makes a choice that differs from those papers, flag
@@ -392,6 +392,38 @@ smoke configuration, the input and output tables, the regression fixture
 inventory and what each one pins, and the test suite. Read it before touching
 code. It was split out of this file at the end of Stage 1, when this file grew
 past a comfortable size.
+
+---
+
+## What this rework retires from the manuscript's Discussion
+
+**A checklist for the manuscript rewrite, assembled in Stage 4 from the decision
+log.** Several Discussion paragraphs in the current draft exist to excuse
+limitations that no longer hold. Each row names the limitation as drafted, what
+replaces it, and the decisions that did it, so the rewrite reads a table rather
+than reconstructing this from memory. **Every one of these INVERTS: what was a
+caveat is now a measured finding.**
+
+| The draft says | What replaces it | Decisions |
+|---|---|---|
+| **Only two parametric families were tested** | Six data-driven families were. The three-parameter lognormal is never worse than gamma out of sample and Weibull is the weakest of them; nothing in the conclusions moves when either is added. And the comparison a reader actually cares about is drawn explicitly: against the TWO-parameter lognormal, which is ecoinvent's default and what the pedigree matrix produces, the kernel estimate is 31 to 41 percent closer to the truth above 100 declarations and wins on 71.5 percent of datasets | 70, 151, 167, 189 |
+| **Only one KDE bandwidth rule was tried** | Four were, on three criteria. Scott, Silverman, Silverman guarded by a minimum effective sample size, and a cross-validated bandwidth, judged on held-out likelihood, on W1 against the known parent, and through the pLCA to the answer. The shipped rule stands; Scott is worst on the mean of five pLCA outputs under both weightings, and the manuscript's own configuration used Scott, so its numbers UNDERSTATE the kernel estimate -- the conservative direction | 54, 71, 80, 188, 195, 233, 242 |
+| **Only one lognormal fitting method was tried** | Five. A three-parameter fit with the threshold chosen by profile likelihood under a calibrated guard, a two-parameter MLE, gamma, Weibull, and the Stage 1 offset method -- plus every parametric family REFITTED by direct W1 minimization, which is the fair-comparison control that answers "the parametric families were judged by a rule they were never fitted under". Against that control the kernel estimate still wins two times in three | 51, 52, 70, 167, 181 |
+| **There is no out-of-sample evaluation** | There are three, and the in-sample score is retained only for comparison. The synthetic arm is scored against the KNOWN parent the data were drawn from; the empirical arm is cross-validated over ten random half-splits shared by all six methods; and every pLCA is run a second time against the datasets' TRUE parents, so the error a method causes is measured and not inferred | 65, 66, 109 |
+| **The pLCA construction is designed to amplify the effect** | It is, and the amplification is now MEASURED rather than conceded. Group size is swept from 2 to 12 materials and material use intensity over the simplex: a material must lead the next by about 2.1 to 2.2 times before the choice of method cannot change which one leads, and the one real building element available sits at 1.02. Equal intensities are therefore an upper bound on how often a modeling choice changes a real answer, and the bound is quantified | 101, 106, 107, 113 |
+| **Goodness-of-fit stands in for what the method does to the answer** | It no longer has to. Every claim a probabilistic LCA makes is scored directly against the truth, and the gap between the two levels is itself a result: a fit threshold of about 81 declarations becomes a claim threshold near 1,000, because a pLCA picks one method for all four of its materials | 143, 163, 166, 174 |
+
+**AND THREE LIMITATIONS THE REWORK ADDS, which the Discussion now owes.**
+The corpus spans the modality of real categories and their dispersion and
+under-represents their INTERSECTION: multimodal-and-dispersed is 1.3 percent of
+the corpus against 5.4 percent of the real arm, so the paper cannot speak to
+about one real category in twenty (decision 203). The characteristic on which
+the two arms sit furthest apart is now how lognormal they look, not dispersion,
+so the limitation paragraph must be rewritten around it (decision 197). And
+market shares are simulated rather than observed on both arms, which makes
+every weighting number a statement about a share model; on the synthetic arm
+the group-level share is the TRUE one, so that arm alone measures what
+ignoring a known share costs (decisions 199, 212).
 
 ---
 
@@ -2838,7 +2870,7 @@ rather than in conversation.
      these methods and still cannot trust the magnitude, and the magnitude is
      what a carbon budget is written in.
 
-114. **2026-09-18, Stage 2e review. THE PAPER IS RE-CENTRED ON THE FIVE
+114. **2026-09-18, Stage 2e review. THE PAPER IS RE-CENTERED ON THE FIVE
      STATEMENTS A PROBABILISTIC LCA MAKES, and the ranking metrics are demoted
      to one of them.** `[AUTHOR]` The author's objection to the first draft of
      this stage: it led with the error in a material's chance of being the
@@ -5048,7 +5080,7 @@ rather than in conversation.
          100-999                     286      5.3      7.0          1.7
          1000+                        48      3.6      6.9          3.3
 
-     A big material among big neighbours sits at **3.6 against 6.9** and the
+     A big material among big neighbors sits at **3.6 against 6.9** and the
      kernel estimate's edge nearly doubles. That configuration occurs **48 times
      in 10,000**. So the benefit of fitting one material well is diluted by
      whatever it is grouped with, and random grouping guarantees the dilution.
@@ -5198,7 +5230,7 @@ rather than in conversation.
      chance level, and the ordering does follow at the top of the size range.
      The attenuation has a cause: **a probabilistic LCA chooses ONE method for
      all four materials in a group**, so a material's own fit advantage is
-     averaged against three neighbours drawn at random from the whole corpus,
+     averaged against three neighbors drawn at random from the whole corpus,
      most of them below the threshold where that advantage exists (decision
      163).
 
@@ -5827,7 +5859,7 @@ rather than in conversation.
      column reproduces the old values to 2e-15, which is the check that this is
      a change of DEFINITION and not of computation.
 
-     **BOTH ARE KEPT AND BOTH ARE LABELLED**, because the averaged form is a
+     **BOTH ARE KEPT AND BOTH ARE LABELED**, because the averaged form is a
      real quantity a different reader wants rather than a worse version of the
      first: `total_error` is the error in a SINGLE decision, which is what a
      designer choosing between two options carries, and `portfolio_error` is
@@ -6243,7 +6275,7 @@ rather than in conversation.
      the conflation decision 163 warns about.
 
 184. **2026-09-24, Stage 2h. THE JUDGMENT ARM: a pedigree model's SPREAD barely
-     matters and its CENTRE decides everything, and sweeping the geometric
+     matters and its CENTER decides everything, and sweeping the geometric
      standard deviation alone would have missed that.** `[AUTHOR]` Decision
      124 asked for the sweep and the stage prompt required two dimensions.
 
@@ -6257,14 +6289,14 @@ rather than in conversation.
      TRUTH** than the best data-driven fit. The realistic model, the center
      drawn as one random declaration, is 4.1 to 12 times worse.
 
-     **AT THE DECISION LEVEL A WELL-CENTRED ONE IS COMPETITIVE.** Error in
+     **AT THE DECISION LEVEL A WELL-CENTERED ONE IS COMPETITIVE.** Error in
      P(B beats A) per design pair, 300 pairs: the six data-driven methods span
      0.080 to 0.114, and a pedigree model centered on the category mean reads
      0.097 at a matched spread and **0.097 to 0.121 across a SIX-FOLD range of
      spread**. The spread axis is nearly flat. That attenuation between the two
      levels is the same one decision 166 records for data-driven methods.
 
-     **WHAT BREAKS IT IS THE CENTRE, AND THE MODE OF THE OFFSET MATTERS MORE
+     **WHAT BREAKS IT IS THE CENTER, AND THE MODE OF THE OFFSET MATTERS MORE
      THAN ITS SIZE.** A displacement applied to every material alike cancels
      EXACTLY -- every common-offset cell returns the same number to four
      decimals, because both design options' totals scale by the same factor.
@@ -6855,7 +6887,7 @@ rather than in conversation.
      **THIS STRENGTHENS DECISION 184 RATHER THAN UNDERMINING IT.** That entry
      found the spread axis nearly flat -- design-comparison error 0.097 to
      0.121 across a six-fold range -- and the reachable band is narrower still,
-     so its conclusion that the CENTRE decides everything holds with more room
+     so its conclusion that the CENTER decides everything holds with more room
      to spare.
 
      **TWO READING ERRORS ARE RECORDED SO THEY ARE NOT REPEATED.** A note taken
@@ -7391,7 +7423,7 @@ rather than in conversation.
      declarations becoming a claim threshold near 1,000, a factor of more than
      ten, and named the mechanism: a probabilistic LCA picks ONE method for all
      four of its materials, so one material's fit advantage is averaged against
-     three neighbours drawn at random. **Under a per-material policy there is
+     three neighbors drawn at random. **Under a per-material policy there is
      nothing to average against and the attenuation very largely disappears**:
      the same rule is worth **+14.2 percent [12.4, 16.1] on the fit** and a
      median **+11.3 percent on the claims**. The hypothesis decision 166 stated
@@ -7951,7 +7983,7 @@ rather than in conversation.
          known            70           50 to 100          3.71 points
 
      Decision 213's 50-to-81 came from a grid that included 81 as a legacy
-     point and 90 as a neighbour that fell out on jitter. On the rounded grid
+     point and 90 as a neighbor that fell out on jitter. On the rounded grid
      the unbroken run and the individually-indistinguishable span agree for
      both families, and both contain **50 to 100**. **That is the range to
      print**, and the feasible rule tolerates up to 130.
@@ -8190,7 +8222,7 @@ rather than in conversation.
      construction, so a cutoff's lower bound could reach zero only by WINNING
      some resamples -- a contest among however many near-tied points share the
      grid, not a test of a difference. Filling the grid from 14 points to 27
-     split the wins among more neighbours and moved the reported band while the
+     split the wins among more neighbors and moved the reported band while the
      curve itself did not change, and opened a hole at 80 to 90 across a span
      whose pooled error varies by 0.00013 on a level of 0.232. The penalty is
      now the excess over the cutoff that wins on the FULL SAMPLE, held fixed, and
@@ -8547,7 +8579,7 @@ rather than in conversation.
 
      **US spelling across 19 files.** Two exclusions, both deliberate: the sent
      prompt sections are a record of what a session was given, and
-     "characterisation" appears only inside the title of Marsh, Lewis, Hattam
+     "characterization" appears only inside the title of Marsh, Lewis, Hattam
      and Allen (in press), which keeps its published spelling. **The sweep broke
      two things and both are repaired**: a local variable in
      `metricreduction.py` whose assignment was skipped by the identifier guard
