@@ -932,9 +932,10 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
         `pair_mean`     mean over method PAIRS of the mean |difference| per
                         unit. **What a reader choosing between two methods at
                         random should expect one decision to move.**
-        `unit_p10`,     the 10th, 50th and 90th percentile of the per-unit,
-        `unit_p50`,     per-pair absolute difference POOLED over both, which
-        `unit_p90`      is the distribution `pair_mean` is the mean of. A
+        `unit_p05` ..   the 5th, 10th, 25th, 50th, 75th, 90th and 95th
+        `unit_p95`      percentile of the per-unit, per-pair absolute
+                        difference POOLED over both, which is the
+                        distribution `pair_mean` is the mean of. A
                         claim where every building moves a little and one
                         where most move nothing and a few move a lot have the
                         same `pair_mean` and different spreads.
@@ -1015,8 +1016,13 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
         # practitioner with one building actually faces.
         pooled = np.concatenate(diffs)
         pooled = pooled[np.isfinite(pooled)]
-        q10, q50, q90 = (np.nanquantile(pooled, [0.10, 0.50, 0.90])
-                         if pooled.size else (np.nan,) * 3)
+        # A FULL LADDER, not the three the first figure happened to need.
+        # Recomputing this costs a 110-minute notebook run, so the table
+        # carries enough quantiles that a change of figure style never needs
+        # another one.
+        QS = (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95)
+        qq = (np.nanquantile(pooled, QS) if pooled.size
+              else np.full(len(QS), np.nan))
         cells = np.nanmean(np.abs(err), axis=0)
         shared = float(np.nanmean(np.abs(np.nanmean(err, axis=1))))
         worst_cell = float(np.nanmax(cells))
@@ -1026,9 +1032,13 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
             pair_mean=float(np.mean(pairs)) / level,
             pair_worst=float(np.max(pairs)) / level,
             pair_best=float(np.min(pairs)) / level,
-            unit_p10=float(q10) / level,
-            unit_p50=float(q50) / level,
-            unit_p90=float(q90) / level,
+            unit_p05=float(qq[0]) / level,
+            unit_p10=float(qq[1]) / level,
+            unit_p25=float(qq[2]) / level,
+            unit_p50=float(qq[3]) / level,
+            unit_p75=float(qq[4]) / level,
+            unit_p90=float(qq[5]) / level,
+            unit_p95=float(qq[6]) / level,
             shared=shared / level,
             worst_cell=worst_cell / level,
             specific=(worst_cell - shared) / level,

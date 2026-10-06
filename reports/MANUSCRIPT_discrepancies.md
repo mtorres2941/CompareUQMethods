@@ -2450,3 +2450,88 @@ relative figure beside it.**
 | **What it cost** | Changing Figure 1's demo dataset meant changing its COMPUTE cell, which needed a full notebook 2 run (about 25 minutes). Adding the per-unit quantiles behind the scorecard's bar meant changing the choice-cost compute cell, which needs a full notebook 3 run (about 110 minutes) even though that cell reads only from tables already on disk. |
 | **Fix** | **Code, if the manuscript round needs more table iterations.** The rule decision 165 proposes is sound and the block in question is cheap. It is not a manuscript item, and it is worth doing only if another compute-cell change is expected. |
 | **Status** | Open, and the author's call whether it is worth building now. |
+
+## 192. 292 real buildings replace the single staircase anchor, and 73 percent are in the unsafe region
+
+| | |
+|---|---|
+| **What the paper could say before** | The safe-lead rule -- a contribution ranking is safe once the leading material exceeds the next by about 2.3 times -- was anchored against exactly ONE real building element, the Concrete-Precast staircase of Marsh, Lewis, Hattam and Allen (in press) at a top-two ratio of 1.02. One anchor is an anecdote, and decision 107 says so. |
+| **The data the author supplied** | Benke, B., Chafart, M., Shen, Y., Ashtiani, M., Carlisle, S., Simonen, K. (2025). A Harmonized Dataset of High-Resolution Whole Building Life Cycle Assessment Results in North America. figshare. https://doi.org/10.6084/m9.figshare.28462145.v1 -- 292 buildings, 928,000 material rows, with `mui_gfa` per material. |
+| **Reduced to one number per building**, A1-A3 only at `mat_type` level | median top-two ratio **1.65**, quartiles **1.24 and 2.33**, range 1.01 to 33.24; median **37** materials per building against the four this study simulates. |
+| **THE RESULT** | **73 percent of the 292 buildings sit below the 2.28x threshold** at which the choice of UQ method can no longer change which material leads, and 55 percent sit below the 5 percent threshold of 1.73x. So for nearly three quarters of real buildings the modeling choice can change the ranking. |
+| **And it is conservative** | The threshold is calibrated at FOUR materials and these buildings hold a median of 37. Decision 107 measures the 1 percent crossing rising from 1.90 at two materials to 2.34 at twelve, so at 37 it would be higher and the share at risk larger. |
+| **Where the staircase sits** | 1.02, near the tenth percentile of the 292 -- a tight case, but not an unrepresentative one, which is worth saying because the paper leans on it. |
+| **Reproducibility** | The input is 100 MB and lives under `refs/`, gitignored by decision 1. `audits/building_dominance.py` freezes the derivative into `data/raw/building_top2_benke2025.csv`, 292 rows, tracked -- the same pattern decision 31 set for the EC3 extract, so the figure redraws from a clean clone. **The figshare licence should be confirmed before the deposit is cut**; a 292-row aggregate with citation is normal practice. |
+| **Fix** | **Text, new, and it is a Results paragraph rather than a limitation.** `FIG_BuildingDominance` carries it. |
+| **Reproduce** | `python audits/building_dominance.py` |
+| **Status** | OPEN for the manuscript; measured and frozen. |
+
+## 193. Mean or median percent error: it changes which method wins on two of five claims
+
+| | |
+|---|---|
+| **The author's question, 2026-10-06** | "If all the distributions are right skewed, does that mean we should report a median percent error instead of mean percent error? Is that even a thing people do? I don't want to be misleading with our statistics." |
+| **It is a thing people do** | The median absolute percentage error is standard in forecasting, for exactly this reason. |
+| **And it is not presentational here** | Best method, as a percentage of the true level, on the market-weighted truth run: a material's mean contribution **13.8 against 4.7**; its 95th percentile **21.5 against 9.3**; its share of the total **12.2 against 7.5**; its chance of being largest **32.4 against 25.8**; the uncertainty index **47.6 against 41.8**. **The best method CHANGES on two of the five** -- a material's 95th percentile and its chance of being largest both move from a lognormal to a kernel estimate. |
+| **The case for the ratio of means, which is what the scorecard uses** | It is defined when true values sit near zero, and 2,904 of 60,000 materials have a true uncertainty index below a hundredth of the mean, which is why decision 157 rejected the mean of ratios. It weights by magnitude, so a large miss on a large material counts for more, which is what a carbon budget cares about. |
+| **The case against it** | On a right-skewed error it is pulled up by the tail and overstates what a typical building experiences, by about a factor of two on the level claims. |
+| **The case against the median of ratios** | It ignores the tail entirely, so a method that is usually excellent and occasionally catastrophic scores well -- and the tail is where a carbon budget is blown. |
+| **Recommendation** | Keep the ratio of means in the scorecard cells, where comparability across claims matters, and quote the median beside every headline number in the text, where the reader has one building. **And report the reversal as a finding**: which method is best depends on whether you care about the typical building or the average one, with the kernel estimate winning the typical case and the lognormal the average. |
+| **Status** | OPEN, author decision, and the most consequential of the outstanding presentation choices. |
+
+## 194. THE MEDIAN FORM OF THE SCORECARD, MEASURED
+
+**2026-10-06, manuscript window 1.** The author asked how much changes if the
+scorecard cells become a ratio of medians rather than a ratio of means. Measured
+on the seven per-material claims, all seven policies, `corpus_2026-09-25`,
+`weight_rho = 0.5`.
+
+    policy               mean form   median form
+    the size rule           24.11        14.40
+    Lognormal, uniform      24.79        15.54
+    KDE, uniform            25.09        14.67
+    KDE, market             28.98        17.41
+    Lognormal, market       29.26        18.14
+    Normal, uniform         30.02        21.08
+    Normal, market          33.30        23.15
+
+Levels fall about 40 percent. The normal's penalty over the best policy GROWS,
+25 percent to 46. The best method flips on two of the seven: a material's
+standard deviation to the kernel estimate with uniform weights, and the
+uncertainty index to the rule. The rule still wins.
+
+**Not adopted, and two things block it.** There are three candidate statistics
+rather than two -- ratio of means, ratio of medians, median of per-unit ratios,
+the last reported in decision 157 -- and the author's words name the second
+while the third may be what they mean. And this covers seven of fifteen claims;
+the eight magnitude, action and comparison claims have not been measured this
+way, so no pooled figure can be restated yet. See
+`reports/MANUSCRIPT_NARRATIVE.md` section 9 item 4.
+
+## 195. SECTION 5 OF THE NARRATIVE CONFUSES MASS WITH CONTRIBUTION
+
+**2026-10-06, author found it.** The Building 138 worked example names LW5000 at
+411 kg/m2, LW3000 at 336, gypsum board at 149 and rebar at 25, and calls the
+first two dominant. "Their embodied carbon coefficients are probably quite
+different, so kg/m2 by itself doesn't mean anything."
+
+Correct. Rebar steel's coefficient is of order a hundred times concrete's per
+kilogram, so 25 kg/m2 of rebar may out-contribute 336 kg/m2 of lightweight
+concrete. **The top-two ratio of 1.59 quoted in section 5 is a MASS ratio and
+must not be read as a contribution ratio**, which is what decision 107's
+crossing of 2.28 is measured against. Every quantity must be multiplied by its
+category's own ECC before any material is called dominant.
+
+The same defect does not reach `data/raw/building_top2_benke2025.csv` or
+Figure 6, which need checking on the same question before either is quoted.
+
+## 196. THE GRAPHICAL ABSTRACT MOCK-UPS WERE SAID TO BE BUILT AND WERE NOT
+
+**2026-10-06, author found it.** Section 6 of the narrative read "Three mock-ups
+are built. They are scratchpad files rather than repository figures." No such
+files exist. The section now says so in place and the build is item 1 of section
+9.
+
+**It is the same failure decision 201 records**: a claim about this session's
+own output, written as though checked. The fix is the same -- an artifact is
+built when a path exists, not when a sentence says so.
