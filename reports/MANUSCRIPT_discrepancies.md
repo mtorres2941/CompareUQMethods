@@ -348,10 +348,17 @@ claim. See entries 3, 4 and 6.
 
 ## CURRENT CANONICAL NUMBERS, as of the Stage 2c review closing, 2026-09-17
 
-**Read this before working from any entry below.** Entries are appended and never
-rewritten, so an older one may quote a figure that a later stage has moved. This
-block is the single place to check what a number currently is. Anything here
-beats anything below it.
+**THIS BLOCK IS NO LONGER CANONICAL AND IS KEPT AS A DATED RECORD. Added
+2026-10-05.** It is from 2026-09-17, which is BEFORE the empirical weight rule
+was ported to both arms (decision 190) and BEFORE the corpus was regenerated as
+`corpus_2026-09-25` (decision 197). Every synthetic number in it has moved and
+every weighted empirical number has moved. **The live reference is the tables in
+`outputs/tables/`**, and the headline values are restated in decision 252. Read
+the block below for the ARGUMENTS and the history, not for a current number.
+
+**What it said about itself, which was true when written:** Entries are appended
+and never rewritten, so an older one may quote a figure that a later stage has
+moved. This block was the single place to check what a number currently was.
 
 **Every entry from 1 to 27 was written against the 2026-03 empirical data and the
 pre-regeneration corpus. Treat their NUMBERS as historical and their ARGUMENTS as
@@ -2340,7 +2347,7 @@ relative figure beside it.**
 |---|---|
 | **Manuscript** | Compares uniform and market weighting as two methods a reader chooses between, and reports the difference as a ratio. |
 | **The framing that is wrong** | Nobody chooses to ignore a market share they know, and nobody can look one up. Uniform weighting is the situation every reader is in. The question the paper answers is **what not knowing market shares costs**. |
-| **The number, and state it in absolute points** | Giving the recommended rule the true market shares above the cutoff takes the pooled error over the sixteen claims from **23.24 to 20.25 percent** of the true level: **2.98 points, or 12.8 percent of what was there**. The ratio oversells it. A probabilistic LCA is wrong by about 23 percent either way, and knowing every share exactly would take it to 20. |
+| **The number, and state it in absolute points** | **CORRECTED 2026-10-05 to the FIFTEEN-claim scorecard of decision 247; the sixteen-claim values follow in brackets.** Giving the recommended rule the true market shares above the cutoff takes the pooled error from **23.97 to 20.89 percent** of the true level [was 23.24 to 20.25]: **3.08 points, or 12.8 percent of what was there** [was 2.98 points, and the relative figure is unchanged]. The ratio oversells it. A probabilistic LCA is wrong by about 24 percent either way, and knowing every share exactly would take it to 21. |
 | **And it has a floor, which is the better result** | Each fit at its own best bandwidth, mean W1 against the true market-weighted parent by dataset size: uniform weighting 0.2621, 0.1614, 0.1142, 0.0968, **0.0844**; market weighting 0.3005, 0.1808, 0.1361, 0.0762, **0.0287**. The market-weighted fit converges toward zero; **the uniform-weighted one flattens at 0.084 against a floor of 0.099, which is the distance between the population that publishes EPDs and the population that gets built. No quantity of declarations takes it below that floor.** |
 | **Why knowing shares can still lose below about 81 declarations** | Because a handful of declarations lets you over-index on a few values that may not represent the product group carrying the weight. See entry 184, which states it and measures it; the wording in earlier drafts of this row is withdrawn. |
 | **Status** | OPEN. Text only; no number moves. |
@@ -2366,3 +2373,43 @@ relative figure beside it.**
 | **What the discussion should say** | That the orange-to-blue gap is not all-or-nothing: weights that are closer to market weights, even aggregated or grouped ones, close part of it, and grouped shares are a far more realistic information state than full shares. Name KL2 as where the machinery exists. **Speak in generalities and mark it as future work**, because Stage 2j did not measure it. |
 | **It is testable here and an earlier draft wrongly said otherwise** | Decision 226 corrects it. With groups drawn at random the corpus gives a LOWER bound, because a random group mixes mixture components and averaging inside it genuinely destroys information; with groups equal to the true components it gives an UPPER bound, because every point in a component is drawn from the same density so the within-group split cannot move the target. Sweeping 2 to 5 groups shows how fast the gap closes. The corpus brackets the question rather than being unable to answer it. |
 | **Status** | OPEN. Discussion text plus a future-work sentence; no number from this stage changes. |
+
+## 186. The scorecard's right-hand bar was an averaged quantity beside per-decision cells
+
+| | |
+|---|---|
+| **What was wrong** | The claim scorecard's right-hand bar was labeled "what the choice costs (worst minus best)" and drew `metricset`'s `stakes`, which is `max(mean error) - min(mean error)` over the methods: the spread of the AVERAGE error. Every CELL of the same figure is the error in ONE decision, which is what decision 174 put all fifteen rows onto. So the figure carried two statistics on one panel again, which is the fault decisions 157 and 174 each had to correct once already. |
+| **How far apart they are** | They agree wherever one method is simply worse than another, and part company wherever the methods are each about equally wrong but wrong about DIFFERENT buildings. **On the uncertainty index the bar read 2.2 percent of the true level; the mean per-pair per-decision difference is 27.3 and the worst pair is 40.2.** The study's own published NRMSE for that output, 0.5504 in `TABLE_PLCANRMSE.csv`, implies 44.0 percent independently. The seven columns of that row run 47.6 to 49.8, which is why the spread of the averages is small. |
+| **What a reader was being told** | That for "which material drives the uncertainty" the choice of UQ method is nearly free. It is not. What is nearly free is the average over many buildings, which is a narrower claim and a different reader's question. The same understatement applies to every row, by a factor of 1.11 at least -- the chance of meeting a budget -- and 12.66 at most, the uncertainty index. |
+| **What the figure now shows** | `pair_mean` from `TABLE_ClaimChoiceCost.csv`: the mean over method pairs of the mean absolute difference PER UNIT, on the same divisor as every cell, with the x axis reading "what the choice costs in one decision". The fifteen rows now read 5.5 to 37.3 percent of true level where the old bar read 0.8 to 28.8. Rows are sorted by that quantity, so the bars read descending within each question block; **no cell value moved and `TABLE_ClaimScorecardWithRule.csv` is byte-identical.** |
+| **Both readings are kept** | `stakes` stays in the scorecard tables and `stakes_mean`, `shared` and `specific` in `TABLE_ClaimChoiceCost.csv`. The averaged form is the right quantity for a portfolio of buildings or a stock model and the wrong one for a single design, which is the distinction decision 174 established and which the paper must name wherever it quotes either. |
+| **One pair that must not be interchanged** | `pair_mean` is a per-case distance between two methods; `specific` (`worst_cell - shared`) is a difference of two averaged magnitudes. On the uncertainty index they read 27.3 and 5.2. A figure built on the second would reproduce the misreading being corrected here. |
+| **Found** | 2026-10-05 by an independent review of one cell, written up in `reports/REVIEW_scorecard_uncertainty_index.md`. No number on disk was wrong and no analysis was re-run. |
+| **Reproduce** | `python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_ClaimChoiceCost.csv').set_index('claim'); print((d[['stakes_mean','pair_mean','pair_worst']]*100).round(1))"` |
+| **Status** | RESOLVED in the figure and in `CONTEXT.md`, which described `stakes` the same wrong way. The manuscript owes nothing beyond quoting the corrected bar and saying which of the two statistics any sentence means. |
+
+## 187. WHY the flexible methods win, in one line of algebra the paper should print
+
+| | |
+|---|---|
+| **The author's question, 2026-10-05** | "I think an important explanation here is that a normal distribution imposes a shape. 2-parameter lognormal also imposes a shape, right? But since we use KDE and 3-parameter lognormal, those are more flexible, so they're more effective." |
+| **It is right, and it is exact rather than qualitative** | For a two-parameter lognormal, `CV = sqrt(exp(s^2) - 1)` and `skewness = (exp(s^2) + 2) * sqrt(exp(s^2) - 1)`. Substituting, **skewness = CV^3 + 3 CV**, identically. So once the spread is matched the skewness is decided for you: a two-parameter lognormal has NO free shape parameter, which is the same disability as the normal's skewness fixed at zero and not a milder version of it. |
+| **Why the third parameter escapes it** | **Skewness is shift-invariant.** A three-parameter lognormal is `t + exp(mu + sigma Z)`, so sigma alone sets the skewness and the threshold `t` then sets the coefficient of variation independently -- verified numerically at sigma = 0.3, 0.6 and 1.0, where moving `t` from 0 to 5 changes CV from 0.307 to 0.053 and leaves skewness at 0.9495 to four decimals. Two parameters, two moments, matched together. A kernel estimate constrains neither. |
+| **The ladder, and it predicts the study's own ordering before any fit is run** | normal (skewness fixed at 0) -- two-parameter lognormal (skewness fixed by the spread) -- three-parameter lognormal (spread and skewness free together) -- kernel estimate (unconstrained). |
+| **The measurement, on the real categories with n >= 10** | Only **21.3 percent** have a skewness within 25 percent of what a two-parameter lognormal of their own coefficient of variation must have. The median category is **0.58** times as skewed as the curve requires and **23.6 percent** are MORE skewed, so real ECC data misses the curve in both directions. Under market weights: 18.1 percent within 25 percent, median 0.62. On the synthetic arm 35.3 percent are within 25 percent, median 0.85 -- **the corpus sits closer to the lognormal curve than the real categories do**, which is a conservative direction for this paper and belongs in the limitations. |
+| **Fix** | **Text, new, and short.** One equation and one percentage in the methods or the early results. It is the mechanism behind the whole comparison and the paper currently asserts the ordering without explaining it. |
+| **Reproduce** | `python -c "import pandas as pd; d=pd.read_excel('outputs/tables/TABLE_EmpiricalECCMetrics.xlsx'); x=d[d.n>=10]; r=x.skewness_uw/(x.coeffvar_uw**3+3*x.coeffvar_uw); print(round(r.median(),3), round(100*((r>0.75)&(r<1.25)).mean(),1))"` |
+| **Status** | OPEN. New result, measured 2026-10-05, no analysis re-run needed beyond the one line above. Decision 252. |
+
+## 188. The two-parameter comparison is re-run on the shipped corpus and it got stronger
+
+| | |
+|---|---|
+| **Why it was stale** | `audits/lognormal_variants.py` was last run 2026-09-23, on `corpus_2026-09-21` and the pre-port empirical weight rule, and its table carried no provenance stamp. Entry 153 says the manuscript owes this comparison **in the results, not a footnote**, so it is a number the paper needs. |
+| **Re-run on `corpus_2026-09-25`, 1,500 datasets, against the KNOWN PARENT, uniform weights** | Median relative gain over the two-parameter lognormal, by band, negative meaning better: three-parameter lognormal **+0.4 / -4.1 / -22.9 / -25.0**; gamma +0.3 / -0.4 / -14.5 / -17.6; normal +2.3 / +16.7 / +23.1 / +36.3; kernel estimate **-0.0 / -3.0 / -33.2 / -48.1** across n = 3-9, 10-99, 100-999 and 1000+. |
+| **What moved from decision 167** | The kernel estimate's advantage above 100 declarations goes from "31 to 41 percent" to **33 to 48 percent**; it beats the two-parameter fit on **67.4 percent** of datasets against 71.5; closest family is kernel estimate 41.5 percent (was 47.8), three-parameter lognormal 19.6 (17.8), two-parameter 16.9 (14.7), gamma 12.5 (9.3), normal 9.5 (10.5). **Every ordering is identical and the headline strengthened.** |
+| **And the three-parameter gain is worth its own sentence** | It is **23 to 25 percent** closer to the truth than the two-parameter fit above 100 declarations and essentially free below 10, which is exactly where a third parameter becomes estimable. That answers the author's question of whether the extra machinery earns its place without needing the kernel estimate in the comparison at all. |
+| **The script now stamps its provenance** | `corpus` and `weight_rho` columns, per decision 202. It had neither, which is why nobody could tell the table had gone stale. |
+| **Fix** | **Text.** Quote the re-run figures, not decision 167's. |
+| **Reproduce** | `python audits/lognormal_variants.py 1500` (about 20 seconds) |
+| **Status** | RESOLVED in the analysis. The text is open. Decision 252. |

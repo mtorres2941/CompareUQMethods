@@ -901,7 +901,7 @@ every scorecard row on one DIVISOR; this puts every row on one NUMERATOR.
                      claim over many decisions, which is the right quantity for
                      a stock model and the wrong one for one design.
 
-Both are kept for all sixteen rows because they are different questions, not a
+Both are kept for all fifteen rows because they are different questions, not a
 better and a worse answer.
 
 ### How many digits of a fitted crossing to print
@@ -979,12 +979,12 @@ INTERIOR cutoff falls out on bootstrap jitter**; the run rule was written to
 stop a lone far-away point widening a band and is the wrong instrument for a
 hole in the middle. Every candidate is still ONE number on ONE input and a test asserts it.
 
-**POOLING RUNS OVER TWO UNIT UNIVERSES.** Fifteen of the sixteen claims belong
+**POOLING RUNS OVER TWO UNIT UNIVERSES.** Fourteen of the fifteen claims belong
 to a pLCA GROUP and the design comparison belongs to a design PAIR from its own
 resampling. `claim_blocks` builds one array per universe and each is resampled
 in its own; a single array indexed by pLCA group leaves the design comparison
-as a column of NaN, so a number described as pooled over sixteen claims would
-quietly be over fifteen.
+as a column of NaN, so a number described as pooled over fifteen claims would
+quietly be over fourteen.
 
 **THE STAGE RUNS ITS OWN TRUTH PASS rather than extending the study's**, and a
 later stage adding an eighth policy should do the same. A win share, a
@@ -992,7 +992,7 @@ later stage adding an eighth policy should do the same. A win share, a
 adding a seventh to the existing run would change every one of them in the
 six-method tables the paper reports, for a reason that has nothing to do with
 any method changing. The cost is about sixteen minutes of the notebook's
-seventy-eight; the benefit is that re-running notebook 3 reproduces every
+110; the benefit is that re-running notebook 3 reproduces every
 pre-existing table content-identically.
 
 ### The comparison is paired, and the pivot that makes it so
@@ -1006,7 +1006,7 @@ and `tests/test_mixedpolicy.py` is where it is written down.
 
 `_paired_boot` is the same estimator as `plca.cluster_bootstrap` -- whole pLCA
 groups resampled, the statistic the mean over the rows they carry -- written as
-a ratio of per-cluster sums so that sixteen claims over 2,500 clusters at 2,000
+a ratio of per-cluster sums so that fifteen claims over 2,500 clusters at 2,000
 resamples costs seconds rather than minutes. A test pins that the two agree.
 
 `claim_gain` compares against the **best FIXED policy on that claim** by
@@ -1135,7 +1135,7 @@ Each corpus directory holds:
 conda env create -f environment.yml
 conda activate compareuq
 python -m ipykernel install --user --name compareuq --display-name compareuq
-python -m pytest tests/          # 627 tests, 0 skipped, about 175 s
+python -m pytest tests/          # 632 tests, 0 skipped, about 177 s
                                  # it FELL in Stage 4 and the drop is
                                  # exact: three tests run per report,
                                  # six handoffs went to the retention
@@ -1366,7 +1366,6 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_RuleSelection.csv` | NB2 | whether adding a characteristic to the rule beats a size threshold alone. It does not |
 | `TABLE_RuleCandidates.csv` | NB2 | how much each characteristic adds to predicting the KDE-lognormal gap once log(n) is in the model |
 | `TABLE_SizeCrossover.csv` | NB2 | the fitted slope and break-even n for each arm |
-| `TABLE_SizeVersusMaterial.csv` | NB2 | the same fit used by the material figure |
 | `TABLE_MaterialTiers.csv` | NB2 | every category with its material tier and size. **Publish this**: a hot-spot argument cannot be checked without it |
 | `TABLE_MethodByMaterialTier.csv` | NB2 | the method comparison inside each tier |
 | `TABLE_CharacteristicsByTier.csv` | NB2 | median characteristics by tier, which is why the tiers differ |
@@ -1444,8 +1443,8 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_PLCANRMSE.csv` | NB3 | every pLCA output's NRMSE between the six methods, with a bootstrap interval. None had one before |
 | `TABLE_ReductionSurvivors.csv` | NB3 | **the Stage 2f table to read.** Each candidate's mean permutation-importance rank pooled over every model that predicted anything, by target family, and with the definitional candidate removed |
 | `TABLE_ReductionImportance.csv` | NB3 | one row per (arm, method, target, model, metric): the permutation importance, its spread across folds, and the model's own out-of-sample R2 |
-| `TABLE_ReductionIncremental.csv` | NB3 | what each characteristic adds to predicting a target once a spline in log(n) is already in the model |
-| `TABLE_ReductionFitVersusAnswer.csv` | NB3 | **the table the stage's design exists for.** Each characteristic's rank against the FIT score beside its rank against the DOWNSTREAM error, and the shift |
+| `AUDIT_ReductionIncremental.csv` | `audits/metric_reduction.py` | what each characteristic adds to predicting a target once a spline in log(n) is already in the model |
+| `AUDIT_ReductionFitVersusAnswer.csv` | `audits/metric_reduction.py` | **the table Stage 2f's design exists for.** Each characteristic's rank against the FIT score beside its rank against the DOWNSTREAM error, and the shift |
 | `TABLE_ReductionDefinitional.csv` | NB3 | whether a candidate PREDICTS a fit score or IS part of one. `w_v_uw_wasserstein` reproduces the definitional term exactly for every uniform-weighted method |
 | `TABLE_ReductionSizeConfounding.csv` | NB3 | how much of each characteristic log(n) alone explains, by a spline fit |
 | `TABLE_ReductionRedundancy.csv` | NB3 | the correlation structure and the effective dimension of the candidate set |
@@ -1453,11 +1452,11 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_ReductionRowsUsed.csv` | NB3 | how many datasets each MODEL uses, per size band. Catches the exclusion the missingness table cannot see: the cross-validated empirical target is undefined below n = 10 |
 | `TABLE_ReductionCompleteCaseCost.csv` | NB3 | what a model that dropped incomplete rows would have thrown away |
 | `TABLE_ReductionPostStratified.csv` | NB3 | every importance at equal allocation and on a corpus resampled to the empirical size mix |
-| `TABLE_ReductionWinner.csv` | NB3 | whether WHICH METHOD WINS can be predicted, with the majority-class baseline beside every accuracy |
+| `AUDIT_ReductionWinner.csv` | `audits/metric_reduction.py` | whether WHICH METHOD WINS can be predicted, with the majority-class baseline beside every accuracy |
 | `TABLE_ReductionModality.csv` | NB3 | the three modality measures head to head, each offered alone over a spline in log(n) |
 | `TABLE_ReductionModalityAgreement.csv` | NB3 | how far apart the modality measures are, and the share each calls unimodal over the datasets it is DEFINED on |
-| `TABLE_ReductionPartialDependence.csv.gz` | NB3 | what each survivor is worth with the others HELD, as a curve |
-| `TABLE_ReductionMarginalVersusPartial.csv` | NB3 | the marginal range beside the partial one, BOTH IN LOG UNITS of the target, and the ratio |
+| `AUDIT_ReductionPartialDependence.csv` | `audits/metric_reduction.py` | what each survivor is worth with the others HELD, as a curve |
+| `AUDIT_ReductionMarginalVersusPartial.csv` | `audits/metric_reduction.py` | the marginal range beside the partial one, BOTH IN LOG UNITS of the target, and the ratio |
 | `TABLE_ReductionCurves.csv.gz` | NB3 | the curves that replace the rolling averages: equal-count bins with a bootstrap band and a count, plus a LOWESS smooth |
 | `TABLE_ReductionCoverageVsImportance.csv` | NB3 | **the generalization question, as a join.** Each candidate's importance beside how far the corpus reaches past the empirical range on it |
 | `TABLE_MetricRecovery.csv` | NB3 | **the Stage 2g table to read.** Per (truth parent, candidate metric, method): the mean absolute error against the true parent with an interval, and TWO normalizations of it that answer different questions. `recovery` divides by `truth_sd`, the spread of the TRUE value across materials, and says whether the metric can tell two materials apart -- this is what ranks the CANDIDATE METRICS. `rel_error` divides by `truth_mean`, the LEVEL, and says how wrong the number is -- this is what compares one CLAIM with another and is what the scorecard draws. The level runs from 1.17 to 6.57 times the spread across the seven outputs, so the two are not interchangeable and must not share an axis |
@@ -1469,7 +1468,8 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_CapReductionNormalization.csv` | NB3 | the two sums of the corrected cap rank frequencies, which are now both quantities |
 | `TABLE_CapReductionByMethod.csv` | NB3 | how often the cap binds under each method, which the old constant divisor forced to 0.25 |
 | `TABLE_FiveStatements.csv` | NB3 | **the results section in order.** The five statements a pLCA makes, each with the truth and the span across the six methods, assembled from the tables already on disk |
-| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** SIXTEEN claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks, each scored for all six methods against the truth on **one definition for every row**: `total_error` is the mean absolute error divided by the mean TRUE LEVEL of the same quantity, and it is what the figure shows in every cell. `best_error` is what the closest of the six still gets wrong, `excess` is each method's excess over it, and `stakes` is worst minus best, which is what the CHOICE of method costs and is the right-hand bar. **The last two answer different questions**: a small spread can mean every method is right or every method is wrong. **An earlier version used two denominators** -- the between-material spread for the attribution rows and the true level for the rest -- and drew both on one color scale; those are a signal-to-noise ratio and a relative error, they are not a fixed multiple of each other, and decision 157 is the correction. `total_w1` was dropped with that change, because a distance has a true value of zero and no level to be a percentage of |
+| `TABLE_MetricClaimScorecard.csv` | NB3 | **the claim-by-method table, and the one to print.** FIFTEEN claims grouped under the FIVE QUESTIONS a reader of a probabilistic LCA asks, each scored for all six methods against the truth on **one definition for every row**: `total_error` is the mean absolute error divided by the mean TRUE LEVEL of the same quantity, and it is what the figure shows in every cell. `best_error` is what the closest of the six still gets wrong, `excess` is each method's excess over it, and `stakes` is worst minus best. **`stakes` IS NOT WHAT THE CHOICE OF METHOD COSTS AND IS NOT THE RIGHT-HAND BAR**, which this row said until 2026-10-05. It is `max(mean error) - min(mean error)`, the spread of the AVERAGE error across methods, so it is an averaged quantity where every CELL of the same figure is the error in ONE decision (decision 174). The two part company wherever the methods are each about equally wrong but wrong about DIFFERENT buildings: on the uncertainty index `stakes` is 2.2 percent of the true level while the mean per-pair per-decision difference is 27.3 and the study's own NRMSE of 0.5504 for that output implies 44.0. **What the choice costs per decision is `pair_mean` in `TABLE_ClaimChoiceCost.csv`, and that is what the bar draws.** `best_error` and `stakes` still answer different questions from each other: a small spread can mean every method is right or every method is wrong. **An earlier version used two denominators** -- the between-material spread for the attribution rows and the true level for the rest -- and drew both on one color scale; those are a signal-to-noise ratio and a relative error, they are not a fixed multiple of each other, and decision 157 is the correction. `total_w1` was dropped with that change, because a distance has a true value of zero and no level to be a percentage of |
+| `TABLE_ClaimChoiceCost.csv` | NB3 | **what the choice of method costs IN ONE DECISION**, which `stakes` is not. One row per claim, every column divided by the claim's mean true level so it is comparable with `total_error`. `pair_mean` is the mean over method PAIRS of the mean absolute difference PER UNIT and is the scorecard figure's right-hand bar; `pair_worst` is the same for the worst pair. `shared` is the part of the error every method makes, `specific` is `worst_cell - shared` so the two close on the worst method's own cell, and `stakes_mean` reproduces `rescore`'s `stakes` from the row-level frames as the control that this is the same experiment. **`pair_mean` and `specific` are not the same quantity and must not be quoted for each other**: on the uncertainty index they read 27.3 and 5.2 percent of the true level |
 | `TABLE_MetricSizeBands.csv` | NB3 | the seven per-material claims by (dataset size band, method), each error as a pct of that claim's true level over the whole arm. **The scorecard's own caveat**: the pooled box count is an average over a size mix that is a design choice, and the ordering inverts at about 100 declarations. It is the figure's second panel |
 | `TABLE_MetricConclusions.csv` | NB3 | whether the paper's existing claims survive the companion metrics: the method ordering under each, how much worse the normal is, and how far the four non-normal methods span |
 | `TABLE_MetricWinLeaders.csv` | NB3 | whether each metric's win-share leader is separated from the runner-up or tied with it. On two of seven it is tied |
@@ -1481,11 +1481,11 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_MixedPolicyBuilding.csv.gz` | NB3 | one row per (group, policy): the building total against the truth |
 | `TABLE_MixedPolicyIntervention.csv.gz` | NB3 | one row per (group, material, policy): what a cap and a quantity reduction deliver, against the truth |
 | `TABLE_MixedPolicySwap.csv.gz` | NB3 | one row per (design pair, claimed saving, policy): P(B beats A) against the truth |
-| `TABLE_MixedPolicyScorecard.csv` | NB3 | **the Stage 2j table to read beside the six-method one.** The sixteen claims by SEVEN policies, both numerators, on the same divisor as `TABLE_MetricClaimScorecard.csv`. The six-method table is NOT superseded: `best_method`, `stakes` and `excess` there are properties of the six-policy set and stay the paper's comparison of METHODS |
+| `TABLE_MixedPolicyScorecard.csv` | NB3 | **the Stage 2j table to read beside the six-method one.** The fifteen claims by every policy the cutoff sweep builds -- 62 of them, the six fixed methods plus each swept cutoff and each one-axis variant -- both numerators, on the same divisor as `TABLE_MetricClaimScorecard.csv`. The six-method table is NOT superseded: `best_method`, `stakes` and `excess` there are properties of the six-policy set and stay the paper's comparison of METHODS. **`stakes` carries the same caveat here as above**: it is the spread of the AVERAGE error across policies, not what choosing one over another costs in one decision |
 | `TABLE_MixedPolicyGain.csv` | NB3 | per claim: the size rule against the best FIXED policy on that claim, with a paired cluster-bootstrap interval. Positive means the rule is closer to the truth |
 | `TABLE_MixedPolicyCeiling.csv` | NB3 | per claim: the best fixed policy, the unreachable per-material oracle, the rule, and the fraction of the distance it closes. **The oracle is a bound and never a policy**, and it is optimistic because a minimum over six noisy errors is biased low |
-| `TABLE_MixedPolicyThreshold.csv` | NB3 | **the range to print.** One row per (rule family, cutoff): pooled error over all sixteen claims at each of fourteen cutoffs from 3 to 10,000, with a PAIRED penalty interval against whichever cutoff won on the same resample, and the flag for the longest unbroken run of cutoffs that cannot be told apart from the best |
-| `TABLE_MixedPolicyRanking.csv` | NB3 | every policy and every fixed method on ONE number, pooled over the sixteen claims. This is where the four one-axis variants say that the WEIGHTING switch does the work and the family switch does not |
+| `TABLE_MixedPolicyThreshold.csv` | NB3 | **the range to print.** One row per (rule family, cutoff): pooled error over all fifteen claims at each of fourteen cutoffs from 3 to 10,000, with a PAIRED penalty interval against whichever cutoff won on the same resample, and the flag for the longest unbroken run of cutoffs that cannot be told apart from the best |
+| `TABLE_MixedPolicyRanking.csv` | NB3 | every policy and every fixed method on ONE number, pooled over the fifteen claims (`n_claims` carries it). This is where the four one-axis variants say that the WEIGHTING switch does the work and the family switch does not |
 | `TABLE_MixedPolicyWeighting.csv` | NB3 | the share of datasets on which a fit using the TRUE market shares beats its own uniform-weighted twin, by size band, with the Kish effective sample size beside it. It crosses half at the cutoff, for both families, with nothing tuned to make it |
 | `TABLE_MixedPolicyPooled.csv` | NB3 | pooled relative error over every claim belonging to a pLCA group, split by how many of the group's four materials the rule moves. **BOTH RULES since Stage 4** -- the known-share rule and the feasible one, each beside the two fixed methods it collapses to -- and each carries its own control: at 0 and at 4 a rule IS a fixed policy and must equal it exactly |
 

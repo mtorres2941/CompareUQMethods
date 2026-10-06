@@ -39,6 +39,7 @@ ROOT = os.path.abspath(os.path.join(HERE, '..'))
 sys.path.insert(0, os.path.join(ROOT, 'src'))
 
 import corpus                      # noqa: E402
+import empirical as EMP            # noqa: E402
 import fitting as FT               # noqa: E402
 import recovery as R               # noqa: E402
 
@@ -102,10 +103,17 @@ def main(argv):
         if c == 'lognorm2':
             continue
         print(f'  {c:9s} {100 * (r[c] < r.lognorm2).mean():5.1f} pct')
+    # Provenance, per decision 202: which corpus and which weight rule. An
+    # earlier version of this table carried neither, and the Stage 2h result
+    # taken from it went stale when the corpus was regenerated without anyone
+    # being able to tell from the file.
+    r['corpus'] = os.path.basename(corpus.active_dir()).replace('corpus_', '')
+    r['weight_rho'] = float(EMP.WEIGHT_RHO)
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, 'TABLE_LognormalVariants.csv')
     r.to_csv(path, index=False)
-    print(f'\nwrote {path}')
+    print(f"\nwrote {path}  (corpus {r['corpus'].iloc[0]}, "
+          f"weight_rho {r['weight_rho'].iloc[0]})")
 
 
 if __name__ == '__main__':

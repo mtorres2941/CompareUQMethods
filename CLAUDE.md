@@ -445,8 +445,12 @@ rather than in conversation.
    publisher PDFs and a 104 MB third-party dataset. This repository is public
    and Zenodo-archived.
 2. **2026-09-11, Stage 0. Manuscript drafts are not tracked.** The working
-   `.docx` carries 98 unresolved comments from named third parties, and git
-   history would retain them even after deletion.
+   `.docx` carries unresolved comments from a named third party, and git
+   history would retain them even after deletion. **Measured 2026-10-05 on
+   `CompareUQMethods_BE1_Manuscript_v1_wvs.docx`: 97 comments, all from one
+   author, dated 2026-08-21 to 2026-08-31.** The earlier "98 from named third
+   parties" overstated both the count and the number of commenters; the rule is
+   unaffected and so is the reason for it.
 3. **2026-09-11, Stage 0. Notebooks remain the entry point.** The author values
    seeing inputs and outputs inline and considers notebooks more reviewable by
    an outside reader. The Stage 0 session initially recommended scripts and
@@ -2641,7 +2645,19 @@ rather than in conversation.
          10 percent                            1.46   [1.45, 1.47]
 
      An isotonic fit, which assumes only that the probability does not rise as
-     the leader pulls away, gives 2.22, 1.61 and 1.35. **The crossing moves
+     the leader pulls away, gives 2.22, 1.61 and 1.35.
+
+     **THE THREE CROSSINGS PRINTED ABOVE ARE SUPERSEDED AND MUST NOT BE
+     PUBLISHED. They were measured on `corpus_2026-09-21` and the pre-port
+     empirical weight rule, both replaced by decisions 190 and 197.** On the
+     shipped corpus the 1 percent crossing at FOUR materials is **2.28 against
+     2.33** (parametric against monotone), 5 percent 1.7 against 1.6, 10
+     percent 1.53 against 1.51; pooled over group sizes the 1 percent crossing
+     is 2.5 against 2.3. The SHAPE of this entry -- that the crossing moves
+     little with group size, and that dominance protects the ranking without
+     moving the magnitude -- is unchanged. See decision 252 and take the
+     numbers from `TABLE_PLCARatioCrossings.csv`, which carries both fits and
+     the interval. **The crossing moves
      little with the group size**: the 1 percent crossing is 1.90 at two
      materials and 2.34 at twelve.
 
@@ -4164,6 +4180,13 @@ rather than in conversation.
      results section takes.** `[AUTHOR]` Stage 2e recommended the five
      statements and this confirms the order by measurement rather than by
      argument.
+
+     **EVERY NUMBER IN THIS ENTRY IS PRE-REGENERATION AND PRE-WEIGHT-PORT AND
+     MUST BE REBUILT FROM `TABLE_FiveStatements.csv` RATHER THAN PATCHED.** The
+     ORDER this entry sets is what stands. Decision 201 is why the whole entry
+     is flagged instead of the three numbers that are known to have moved: the
+     ones nobody has checked are exactly the ones that get missed. The current
+     values are in decision 252.
 
      1. **The design comparison**, because it is the decision a designer makes
         and the answer is a null: over 800 option pairs scored against the true
@@ -7982,6 +8005,13 @@ rather than in conversation.
          feasible        130           50 to 130          0.73 points
          known            70           50 to 100          3.71 points
 
+     **BOTH BANDS MOVED WHEN DECISION 224 REPLACED THE BAND RULE**, which until
+     then measured each cutoff against whichever cutoff won its own resample --
+     a contest among grid points rather than a difference test. On the fixed
+     rule the feasible band is **40 to 170** and the known-share band is **50
+     to 110**. The published range is the feasible rule's, by decision 220, and
+     is unaffected by the known-share figure.
+
      Decision 213's 50-to-81 came from a grid that included 81 as a legacy
      point and 90 as a neighbor that fell out on jitter. On the rounded grid
      the unbroken run and the individually-indistinguishable span agree for
@@ -9130,3 +9160,140 @@ rather than in conversation.
      block at the top, which supersedes any value quoted inside a sent stage
      and has to stay true for as long as anyone reads the code; this stage
      added its two production changes to it.
+
+252. **2026-10-05, MANUSCRIPT. THE ELEVEN STALE PLACES ARE FIXED, AND THE
+     PAPER'S HEADLINE NUMBERS ARE RESTATED HERE FROM THE TABLES.** `[AUTHOR]`
+     "If there are eleven places the record is now stale, let's go fix them!
+     This repository shouldn't be stale. We're getting ready to write the
+     manuscript so we want this to be as up to date and tidy as possible."
+
+     Found by reading the tables against the decision log while planning the
+     manuscript, and recorded in `reports/MANUSCRIPT_NARRATIVE.md` section 5.
+     **The log was the stale side in every one.** Everything below is on
+     `corpus_2026-09-25` at `weight_rho = 0.5`.
+
+     **THE SAFE-LEAD RATIO IS 2.28 AGAINST 2.33, NOT 2.13.** At the study's own
+     four materials, the chance that the choice of method changes which
+     material leads crosses 1 percent at a top-two contribution ratio of 2.28
+     [2.18, 2.39] parametric and 2.33 monotone; 5 percent at 1.7 against 1.6;
+     10 percent at 1.53 against 1.51. Pooled over group sizes the 1 percent
+     crossing is 2.5 against 2.3. **The anchor is unchanged**: Marsh, Lewis,
+     Hattam and Allen (in press) put their Concrete-Precast staircase at a
+     top-two ratio of 1.02. Decisions 107 and 144 carry superseding notes.
+
+         python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_PLCARatioCrossings.csv'); print(d[d.nmats=='4'][['level','ratio','ratio_lo','ratio_hi','ratio_isotonic','prose_text']].to_string(index=False))"
+
+     **THE SCORECARD IS FIFTEEN CLAIMS AND EVERY POOLED FIGURE IN THE LOG IS
+     OVER SIXTEEN.** Decision 247 flagged this generically; these are the
+     values. Pooled over the fifteen, as a percentage of each claim's own true
+     level: the size rule **23.96**, a kernel estimate with uniform weights
+     24.66, a three-parameter lognormal with uniform weights 24.73, a normal
+     32.50, and a kernel estimate with market weights 23.58. The rule is the
+     best of the four a reader can choose on **10 of 15** and the best of all
+     seven on 2 of 15. **The value of market-share data is 23.97 to 20.89, which
+     is 3.08 points or 12.8 percent**, where entry 183's sixteen-claim version
+     reads 23.24 to 20.25 and 2.98 points. The relative figure did not move.
+
+     **THE FIVE STATEMENTS, REBUILT.** The design comparison: at a claimed 5
+     percent saving the truth is **0.599**, the six methods span **0.609 to
+     0.622**, and every method is within **0.023** of the truth. The building
+     total: every method understates the 90th percentile, by **0.125 to 0.567**
+     on a total averaging 4.24, and at a budget the truth meets 90.0 percent of
+     the time the six report **86.9 to 92.0**. The specification cap: against a
+     true mean saving of **6.48 percent** of the building the six report 5.65 to
+     7.27, and asked for the chance of achieving at least 5 percent the truth is
+     **24.7** and the six span **23.9 to 33.7**. Decision 144's own numbers are
+     superseded wholesale rather than patched, per decision 201.
+
+     **THE TWO-PARAMETER LOGNORMAL COMPARISON IS RE-RUN AND IT GOT STRONGER.**
+     `audits/lognormal_variants.py` was last run on the superseded corpus and
+     carried no provenance stamp; it now stamps the corpus and the weight rule.
+     On 1,500 shipped-corpus datasets scored against the KNOWN PARENT under
+     uniform weights, median relative gain over the two-parameter lognormal:
+
+         band       3-par lognormal   gamma   normal   kernel estimate
+         3-9             +0.4          +0.3    +2.3        -0.0
+         10-99           -4.1          -0.4   +16.7        -3.0
+         100-999        -22.9         -14.5   +23.1       -33.2
+         1000+          -25.0         -17.6   +36.3       -48.1
+
+     The kernel estimate is **33 to 48 percent** closer to the truth than a
+     two-parameter lognormal above 100 declarations, where decision 167 reports
+     31 to 41, and beats it on **67.4 percent** of datasets against that entry's
+     71.5. The three-parameter lognormal is **23 to 25 percent** closer above
+     100 declarations and beats it on 62.7 percent. Closest family overall:
+     kernel estimate 41.5 percent, three-parameter lognormal 19.6,
+     two-parameter 16.9, gamma 12.5, normal 9.5. **Decision 167's ORDERING
+     stands and its levels are superseded.**
+
+     **AND THE REASON HAS A ONE-LINE PROOF, WHICH THE PAPER SHOULD CARRY.** The
+     author asked whether the two-parameter lognormal also imposes a shape. It
+     does, exactly: for a two-parameter lognormal, **skewness = CV^3 + 3 CV**.
+     Once the spread is matched the skewness is decided, so it has no free
+     shape parameter at all, which is the same disability as the normal's fixed
+     skewness of zero and not a milder version of it. The THREE-parameter fit
+     escapes because **skewness is shift-invariant**: sigma alone sets the
+     skewness and the threshold then sets the coefficient of variation
+     independently, so the two can be matched together. A kernel estimate
+     constrains neither. **Measured on the real categories with ten or more
+     declarations: only 21.3 percent have a skewness within 25 percent of what a
+     two-parameter lognormal of their own spread must have**, the median
+     category is 0.58 times as skewed as the curve requires, and 23.6 percent
+     are more skewed. So the ladder normal, two-parameter lognormal,
+     three-parameter lognormal, kernel estimate is a ladder of SHAPE FREEDOM,
+     and it predicts the study's own ordering before any fit is run.
+
+     **DECISION 65'S PROHIBITION HAS LOST ITS PREMISE AND IS AN OPEN
+     QUESTION.** It forbids comparing a cross-validated score across weighting
+     schemes, on the grounds that the empirical weights are an exchangeable flat
+     Dirichlet draw so the uniform-weighted fit is the better predictor by
+     construction. Since decision 190 those weights are coherent blocks at
+     rho = 0.5 and are correlated with the values, so a random half preserves
+     the correlation and the exchangeability argument does not apply. On the
+     current table the market-weighted lognormal beats its uniform twin (0.3373
+     against 0.3462) while the market-weighted kernel estimate loses (0.3907
+     against 0.3764), which is not what the prohibition predicts. **Nothing is
+     reversed here and no number moves**; the question of whether the empirical
+     arm can now say anything about weighting is put to the author.
+
+     **THE EMPIRICAL ARM'S HEADLINE HAS MOVED AND NOW CONTRADICTS THE DRAFT.**
+     Cross-validated over the 127 categories that reach n = 10, the closest
+     method is a three-parameter lognormal on **53.6 percent** of categories
+     (26.8 market, 26.8 uniform) against the kernel estimate's **26.0** and the
+     normal's 20.5. The manuscript says the empirical arm corroborates that the
+     kernel estimate is best. It does not. Decision 66 is why -- the criterion
+     and the size mix, not a corpus-versus-arm disagreement -- and the paper has
+     to say it rather than assert agreement.
+
+     **SEVEN ORPHAN TABLES ARE DELETED AND `CONTEXT.md`'s INVENTORY IS
+     CORRECTED.** `TABLE_ReductionWinner`, `TABLE_ReductionFitVersusAnswer`,
+     `TABLE_ReductionIncremental`, `TABLE_ReductionMarginalVersusPartial`,
+     `TABLE_ReductionPartialDependence`, `TABLE_ReductionChoiceIncrements` and
+     `TABLE_SizeVersusMaterial` sat in the top level of `outputs/tables/`, were
+     dated 2026-09-17 to 2026-09-21, and **had no producer anywhere in the
+     repository** -- `CONTEXT.md` attributed five of them to notebooks that do
+     not write them. That is the exact condition decision 56 exists to prevent
+     and its precedent is deletion. Five are duplicated as `AUDIT_*` in
+     `outputs/tables/audits/`, where `audits/metric_reduction.py` does write
+     them and where decision 56 says audit output belongs; the inventory now
+     names that script as the producer. `TABLE_SizeVersusMaterial` held the
+     empirical size crossover that decisions 136 and 183 both WITHDREW as
+     unmeasurable on 127 categories, so it carried retired numbers as well.
+     **No table in `outputs/tables/` now predates the regeneration.**
+
+     **TWO SMALLER CORRECTIONS.** `FIG_PLCATruth` printed "KDE, Variable" and
+     "Lognormal, Variable" in its row labels, which decision 199 retired from
+     every axis label and panel title; its cell now maps through
+     `fitting.display_method` and the figure is redrawn. And
+     `TABLE_FiveStatements.csv` describes the quantity reduction as
+     "method-independent" with no qualifier, which is the PORTFOLIO reading that
+     decision 174 corrected -- per building every method is 10.0 to 13.4 percent
+     out. **The cell's note is fixed and the table on disk still carries the old
+     wording until notebook 3 is next run**, which is a prose column rather than
+     a number, so nothing is re-run for it.
+
+     **WHAT IS NOT FIXED, AND WHY IT IS NOT A DEFECT.** The "CURRENT CANONICAL
+     NUMBERS" block in `reports/MANUSCRIPT_discrepancies.md` is dated
+     2026-09-17 and says it "beats anything below it". It no longer does, and it
+     is a dated record of what was true then rather than a live reference, so it
+     gains a header saying so rather than being rewritten.
