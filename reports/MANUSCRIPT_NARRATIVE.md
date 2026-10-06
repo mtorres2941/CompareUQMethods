@@ -355,11 +355,24 @@ Without that sentence the pairing looks arbitrary.
   on both axes at once, from a lognormal with uniform weights below to a kernel
   estimate with market weights above."
 
-The right-hand bar now spans the **10th to 90th percentile of the per-building,
+The right-hand bar spans the **10th to 90th percentile of the per-building,
 per-method-pair difference** with the median marked, rather than a single
-averaged number: a claim where every building moves a little and one where most
-move nothing and a few move a lot have the same mean and different spreads, and
-only the second is a reason to worry about one building.
+averaged number -- and **the distribution turns out to be strongly right skewed
+on every one of the fifteen claims**, which the averaged bar was hiding:
+
+    claim                                  p10    median    p90    mean
+    a material: its mean contribution      0.0      5.3     32.1   12.2
+    a material: its 95th percentile        0.2      5.6     32.8   12.6
+    the chance of meeting a budget         0.3      2.9     14.1    5.5
+    a material: its chance of being largest 3.1    24.2     73.9   33.0
+    a cap: its chance of saving 5 pct      1.1     25.2     90.5   37.3
+
+**So the honest sentence is not "the choice moves a material's estimated
+contribution by 12 percent".** It is that for most buildings it moves it by
+about 5 percent and for one in ten by more than 32 -- the mean is more than
+twice the median on four of the fifteen claims. That is a different and more
+useful statement for a reader with one building, and it is the one the author
+asked for.
 
 ### Figure 4 -- the rule, and what market-share data would buy
 `FIG_MixedPolicy`
