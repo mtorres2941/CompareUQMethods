@@ -2426,3 +2426,27 @@ relative figure beside it.**
 | **The link to entry 187** | Muller et al.'s own Eq. 5, `GSD = exp(sqrt(ln(CV^2 + 1)))`, is the same constraint from the other side: one parameter sets the spread, and therefore the shape, so the family cannot match both. Entry 187 states it as `skewness = CV^3 + 3 CV` and measures that only 21.3 percent of real ECC categories sit on that curve. |
 | **Fix** | **Text, Introduction.** The pedigree paragraph says what distribution the field defaults to, cites both Muller papers for it, quotes their own first limitation, and then says that this study is in exactly the situation their own guidance points away from the default. That is a far better motivation than "normal and lognormal are used out of habit", which is what the draft currently says. |
 | **Status** | OPEN, text only. Both PDFs are in `refs/`. |
+
+## 190. The weighting-sensitivity criterion is WITHDRAWN, and the claim it supported is made better without it
+
+| | |
+|---|---|
+| **The author's objection, 2026-10-06** | "Why is 'shares matter' based on W1 distance? Didn't we show that W1 distance exaggerates how strong the effect will be? This seems like a weird distinction to make. Changing 5% of the time is also a strange, arbitrary metric." |
+| **It is correct on all three counts** | The criterion counted a real category as one where market shares matter when the median W1 distance between its uniform-weighted and market-weighted fit exceeded `flip.FLIP_THRESHOLDS[0.05]` = 0.015. That threshold is (a) calibrated on the ARGMAX, which decisions 102, 143 and 210 demote as the worst-recovered of seven candidate metrics; (b) set at an arbitrary 5 percent level, the sensitive count being 144, 134 and 117 at the 1, 5 and 10 percent levels; and (c) conditional on four materials at equal intensity, which decision 101 states is an upper bound on fragility rather than a description of a building. |
+| **And it contradicts the paper's own takeaway 8** | Decisions 163 and 166 establish that a fit-level W1 difference attenuates by about an order of magnitude before it reaches a probabilistic LCA claim. Using a fit-level W1 threshold to decide what "matters" leans on exactly the quantity the paper has demoted. |
+| **WHAT REPLACES IT, and it needs none of that machinery** | **The median real EC3 category holds 47 declarations, and 94 of 147 -- 64 percent -- hold fewer than 80**, which is the point below which a market-share estimate makes the fit worse rather than better. That rests on the real arm's size distribution, which is a fact, and on the synthetic arm's weighting crossover, which is measured against a known truth. No W1 threshold, no flip level, no argmax, no four-material construction. |
+| **What is withdrawn** | The "134 of 147 categories where market shares matter" count, and the "93 of 134, about two thirds" that was derived from it. Neither should be published. `FIG_WeightingDrivers` is withdrawn with them; the figure in the repository is the rebuilt version and is kept so the decision can be reviewed, but the recommendation is to cut it. |
+| **Fix** | **Text.** One sentence in the Discussion's data-collection argument, in place of the figure. Optionally a size histogram of the 147 real categories with the cutoff marked, as a panel of the coverage figure. |
+| **Reproduce** | `python -c "import pandas as pd; e=pd.read_csv('outputs/tables/TABLE_WeightingRisk.csv'); e=e[e.arm=='empirical']; print(int(e.n.median()), int((e.n<80).sum()), len(e))"` |
+| **Status** | RESOLVED by withdrawal. No number that survives moves. |
+
+## 191. The figure renderer covers figure cells and not table cells, and that gap has now cost two full runs
+
+| | |
+|---|---|
+| **The author's question, 2026-10-06** | "Didn't we organize the code so we could reproduce figures much more easily and quickly?" |
+| **Yes, for FIGURES** | `audits/render_figures.py` re-executes a notebook's own figure cells against the tables already on disk, in 2 to 30 seconds. Figures 1, 6, 7 and 8 were all iterated that way. |
+| **The gap is TABLE cells, and decision 165 already names it** | "extending the renderer from figure cells to table cells needs a rule for what a safe partial re-run of table cells IS, since a table computed from a stale input is a worse failure than a stale figure. The honest version is probably 'execute every cell from the first one that writes a table', which is cheap here because that block reads from disk." It was left unbuilt. |
+| **What it cost** | Changing Figure 1's demo dataset meant changing its COMPUTE cell, which needed a full notebook 2 run (about 25 minutes). Adding the per-unit quantiles behind the scorecard's bar meant changing the choice-cost compute cell, which needs a full notebook 3 run (about 110 minutes) even though that cell reads only from tables already on disk. |
+| **Fix** | **Code, if the manuscript round needs more table iterations.** The rule decision 165 proposes is sound and the block in question is cheap. It is not a manuscript item, and it is worth doing only if another compute-cell change is expected. |
+| **Status** | Open, and the author's call whether it is worth building now. |

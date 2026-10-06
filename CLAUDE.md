@@ -78,10 +78,10 @@ constraints on consistency, not just as citations:
   kernel density estimation and the Dirichlet distribution for uncertainty
   quantification of building material emissions. Resources, Conservation and
   Recycling, 234. https://doi.org/10.1016/j.resconrec.2026.109022 Software:
-  https://doi.org/10.5281/ZENODO.19246154 **The code DOI the author gave ends
-  154, not the 153 printed above.** Zenodo mints a concept DOI and a version
-  DOI one apart, so both resolve and they name different things. **Cite the
-  author's.**
+  **https://doi.org/10.5281/zenodo.19246153**, which is the CONCEPT DOI and is
+  what the paper cites, by author decision 2026-10-06: it resolves to whatever
+  the latest version is, where the version DOI (...154) pins v1.0.0 and goes
+  stale. A note on 2026-10-05 recommended the version DOI and was wrong.
 
 Two papers by Ellen Marsh (University of Bath) are also directly relevant. She
 is a co-author on the KL2 paper above and a collaborator from my visiting

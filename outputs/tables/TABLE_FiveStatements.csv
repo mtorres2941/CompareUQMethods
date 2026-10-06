@@ -12,7 +12,7 @@ order,statement,quantity,truth,methods_lo,methods_hi,spread,note
 3,magnitude: the budget statement,believed chance of meeting a budget the truth meets 90 pct of the time,0.9,0.8686376,0.9201050399999999,0.05146743999999992,lo and hi are the six UQ methods
 4,action: what a specification cap delivers,"CAP: mean saving, as a share of the whole building",0.06479374083099869,0.0565233766451716,0.0727233529562826,0.016199976311111003,lo and hi are the six UQ methods
 4,action: what a specification cap delivers,chance of achieving at least a 5 percent building saving,0.24653250000000002,0.23922803,0.33733275,0.09810472,"the normal is the highest, and that is the stage-2e finding"
-4,action: what a QUANTITY reduction delivers,"QUANTITY: mean saving, as a share of the whole building",0.0625,0.0625,0.0625,0.0,method-independent: a deterministic fraction of the material itself
+4,action: what a QUANTITY reduction delivers,"QUANTITY: mean saving, as a share of the whole building",0.0625,0.0625,0.0625,0.0,method-independent ON AVERAGE over many buildings. Per building every method is 10.0 to 13.4 pct out; decision 174
 5,information: where to collect better data,"uncertainty index, NRMSE between the six methods",,0.5377387813017114,0.5617702847545242,0.024031503452812797,against 1.089 for a rank-1 frequency
 5,information: does the metric recover the right answer,ui: recovery error against the true parent,,0.5536126552941572,0.5787086349035936,0.025095979609436436,"lo is the best of the six methods, hi the worst"
 5,information: does the metric recover the right answer,eci_perc_mean: recovery error against the true parent,,0.6688166446863574,0.9123320381309197,0.2435153934445623,"lo is the best of the six methods, hi the worst"

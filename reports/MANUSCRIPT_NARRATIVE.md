@@ -36,16 +36,23 @@ percent.**
 
 ### 1. A probabilistic LCA is wrong by about a quarter whatever method you pick, and most of that is shared
 
-Pooled over the fifteen claims a probabilistic LCA makes, as a percentage of
-each claim's own true level: the best available choice **23.9**, the size rule
+**Different claims are wrong by very different amounts and the paper must not
+flatten that.** Under the recommended rule, as a percentage of each claim's own
+true level, the error runs from **5.2 percent** on the chance of meeting a
+carbon budget to **48.8** on the uncertainty index, with a median of 23.7 -- a
+nearly tenfold range. The averages: the best available choice **23.9**, the rule
 **24.0**, a kernel estimate everywhere **24.7**, a three-parameter lognormal
 everywhere **24.7**, a normal everywhere **32.5**. Per claim, the part of the
-error that *every* method makes together runs from 5.9 percent of the true level
-for the chance of meeting a budget to **44.6** for the uncertainty index.
+error that *every* method makes together runs from 5.9 to **44.6**.
 
-**So what:** expect the numbers a probabilistic LCA gives you to be out by
-roughly a quarter. Choosing the best available method instead of the worst
-sensible one gets about one point of that back; choosing a normal costs eight.
+**So what:** how badly a probabilistic LCA misses depends far more on what you
+ask it than on how you model it. Ask it whether a building meets a budget and it
+is out by about 5 percent; ask it which material drives the uncertainty and it
+is out by about 49. Choosing the best available method instead of the worst
+sensible one gets about one point back on average; choosing a normal costs eight.
+
+**The single "about a quarter" figure is the mean over the fifteen claims and is
+a headline, not a result.** Wherever it appears the range goes with it.
 
 Decisions 174, 230, 246, 247.
 `python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_ClaimScorecardWithRule.csv'); print((d.pivot(index='claim',columns='method',values='total_error')*100).mean().round(2))"`
@@ -260,9 +267,10 @@ data-collection argument, which the measurements support in this order:**
 2. It only pays above about eighty declarations, so publishing shares without
    also deepening the declaration count for the dominant products would not help
    and could hurt.
-3. **Of the 134 real categories where market shares matter, about two thirds are
-   too small to use an estimate of them** (section 4, Figure 7). For those the
-   uncertainty is irreducible by modeling.
+3. **The median real EC3 category holds 47 declarations and 64 percent hold
+   fewer than 80**, so for most real materials a market-share estimate would not
+   help even if one existed. The uncertainty missing share data creates is, for
+   those categories, irreducible by modeling.
 4. Grouped shares are a far more realistic information state than full shares and
    close part of the gap; KL2's group weight constraints are the instrument
    (decision 226). Future work, in generalities.
@@ -284,8 +292,9 @@ agreement not being accuracy.
 
 ## 4. The figures
 
-Eight figures. Topic sentences are written to `WRITING_STYLE.md` principle 1: a
-claim with a number, first sentence of the paragraph.
+**Eight built, six recommended**: Figures 6 and 7 are withdrawn below and
+replaced by sentences. Topic sentences follow `WRITING_STYLE.md` principle 1 --
+a claim with a number, first sentence of the paragraph.
 
 ### Figure 1 -- the six methods on one real category
 `FIG_PDFandCDFofUQMethods`
@@ -392,57 +401,69 @@ carries the same inversion at the claim level.
   the error in a material's estimated contribution is unchanged across the whole
   range of dominance."
 
-Cleaned up -- no shouting capitals, short axis labels, and the two faint notes
-about the deliberate 10:1 and 100:1 test cases moved to the printout. **It is
-still a monotone decline beside a flat line, and both are shapes a sentence
-states exactly as well.** My recommendation is to cut it and keep the two
-findings as sentences; it is embedded here so the judgment can be made on the
-cleaned-up version.
+**What the two panels say, because the lower one is not self-explanatory.** The
+upper panel is the one most readers would expect: as the leading material pulls
+away from the next, the chance that switching UQ method changes which material
+leads falls to zero, crossing 1 percent at about 2.3x. **The lower panel is
+there to stop the obvious wrong conclusion from that** -- which is "so if my
+building has a dominant material, the UQ method does not matter". It does
+matter. The y axis is how much a material's *estimated contribution* moves when
+you switch method, and it is **flat**: about 0.3 to 0.5 of a material's own
+contribution at every level of dominance. Dominance makes the ORDER safe and
+leaves the NUMBERS exactly where they were.
 
-### Figure 7 -- where not knowing market shares actually bites
-`FIG_WeightingDrivers`
+**That is a real and useful finding, and it is two sentences rather than a
+figure.** A monotone decline and a flat line are the two shapes that a sentence
+states exactly as well as a plot, and the author's difficulty reading the lower
+panel is the evidence: if the person who knows the study cannot see the message,
+a reviewer will not. **Recommendation: cut, keep both findings in the text.**
+Embedded here so the judgment is made on the cleaned-up version rather than the
+one with the shouting capitals.
+
+### Figure 7 -- WITHDRAWN, and what replaces it
 
 ![](../outputs/figures/CompareUQMethods_FIG_WeightingDrivers.png)
 
-- "For 134 of the 147 real EC3 categories, swapping uniform weights for a
-  plausible market share moves the fitted distribution by more than the amount
-  that changes which material leads five percent of the time."
-- "About two thirds of those categories hold too few declarations for a
-  market-share estimate to improve the fit, so for them the uncertainty that
-  missing market-share data creates cannot be removed by any modeling choice --
-  only by more declarations in the products that dominate the market, or by
-  published shares."
+**This figure is withdrawn and should be cut.** The rebuild above is cleaner
+than what it replaced, and the criterion underneath it does not survive
+scrutiny.
 
-Rebuilt. The previous version asked which categories can "safely" assume uniform
-weights, and that word invited the reader to conclude "unsafe here, so weight
-here" -- the opposite of the recommendation. The two axes carry the two
-different things being measured, and the counts are in the quadrants.
+**Why.** Its "market shares matter" axis counts a category when the median W1
+distance between its uniform-weighted and market-weighted fit exceeds 0.015.
+That number is `flip.FLIP_THRESHOLDS[0.05]`, and it carries three weaknesses the
+paper argues against elsewhere:
 
-**THE TWO CRITERIA, EXACTLY, because the caption has to carry them and because
-they sound contradictory until they are stated.**
+1. **It is calibrated on the argmax** -- which material has the highest rank-1
+   frequency -- and decisions 102, 143 and 210 demote that metric as the
+   worst-recovered of seven candidates and the noisiest.
+2. **The 5 percent level is arbitrary.** The sensitive count is 144 at the 1
+   percent level, 134 at 5 and 117 at 10, and nothing in the study picks one.
+3. **It is conditional on four materials at equal intensity**, which decision
+   101 states is an upper bound on fragility rather than a description of a
+   building.
 
-**"Market shares matter"** is a statement about SENSITIVITY, measured on the
-real categories. For each one, draw 1,000 market-share vectors from the coherent
-block model at `rho = 0.5`, fit the distribution under each, and take the MEDIAN
-W1 distance between that fit and the uniform-weighted fit, in units of the
-dataset's own mean. A category counts when that median exceeds **0.015**, which
-is `flip.FLIP_THRESHOLDS[0.05]` -- the model distance at which the top
-contributor of a four-material pLCA changes 5 percent of the time. **134 of
-147.**
+**And it sits badly with takeaway 8.** The paper's own finding is that a
+fit-level W1 difference attenuates by roughly an order of magnitude before it
+reaches a claim. Using a fit-level W1 threshold to decide what "matters" is
+leaning on exactly the quantity the paper has just demoted.
 
-**"Too small to use them"** is a statement about ACCURACY, and its threshold is
-measured on the SYNTHETIC arm because only there is there a known truth to be
-closer to. The market-weighted fit beats its own uniform twin on 42 to 44
-percent of datasets below 80 declarations and 53 percent above, so 80 is where
-using a share starts to pay. **93 of the 134, which is 69 percent.**
+**The replacement needs none of that machinery and says the same thing better:**
 
-**Three qualifications the paper owes.** The two criteria come from different
-arms, and combining them assumes the synthetic crossover transfers to real
-categories -- which cannot be checked, because real categories have no known
-parent. The sensitivity count moves with the flip level: 144 at 1 percent, 134
-at 5, 117 at 10. And the 69 percent moves with the size cut: 48 percent at
-n < 40, 69 at n < 80, 83 at n < 170. **So the paper says "about two thirds" and
-not "93 of 134".**
+> **The median real EC3 category holds 47 declarations, and 64 percent hold
+> fewer than 80 -- the point below which using a market-share estimate makes the
+> fit worse rather than better.**
+
+That rests on two things only: the real arm's size distribution, which is a
+fact, and the synthetic arm's weighting crossover, which is measured against a
+known truth. No W1 threshold, no flip level, no argmax, no four-material
+construction.
+
+**If a visual is wanted it is a size histogram of the 147 real categories with
+the cutoff marked**, which would sit naturally as a panel of Figure 2 rather
+than as a figure of its own. **My recommendation is a sentence and no figure**,
+which takes the paper to seven.
+
+`python -c "import pandas as pd; e=pd.read_csv('outputs/tables/TABLE_WeightingRisk.csv'); e=e[e.arm=='empirical']; print(int(e.n.median()), int((e.n<80).sum()), len(e))"`
 
 ### Figure 8 -- why the rigid families lose
 `FIG_ShapePlane`
@@ -517,34 +538,55 @@ and make the rule's bite a separate sentence.
 
 ## 6. The graphical abstract
 
-The existing one is three panels: generate 10,000 datasets, apply 6 UQ methods,
-compare goodness-of-fit and pLCA results. Its third panel asserts "KDE has the
-best mean fit", which is the in-sample circular result the paper no longer
-reports, and "Key results differ between UQ methods", which is no longer the
-headline. Panels one and two need units and a legend.
+The existing one is three panels -- generate, apply, compare -- and its third
+panel asserts "KDE has the best mean fit", which is the in-sample circular
+result the paper no longer reports, and "Key results differ between UQ
+methods", which is no longer the headline.
 
-**Proposed, same three-panel structure:**
+**Three mock-ups are built.** They are scratchpad files rather than repository
+figures, because a graphical abstract is a PowerPoint object the author
+rebuilds; nothing here writes to `outputs/`.
 
-| | Proposed |
-|---|---|
-| **1** | **"We generate 10,000 datasets whose true distribution we know"** -- one dataset drawn from a parent with the parent curve behind it, x axis labeled ECC / mean ECC. The known truth is the paper's whole method and panel 1 should say so |
-| **2** | The six fits, with "uniform weights" and "market weights" replacing the retired labels |
-| **3** | **"A probabilistic LCA is wrong by about a quarter, and here is what you can control"** -- one stacked bar: the error the best available method still makes, plus what the choice of method adds, plus what market-share data would buy |
+**Option A -- three panels, the existing structure, rebuilt.** Panel 1 becomes
+the paper's actual method, which the current version does not show: a dataset
+drawn from a parent, with the parent curve behind it, so the reader sees that
+the truth is known. Panel 2 keeps the six fits with the corrected vocabulary.
+Panel 3 is three bars: the rule at 24 percent, a normal at 32, and the rule
+given market shares at 21.
 
-Panel 3 is the paper in one picture and is a simplification of Figure 3's logic
-rather than new analysis. A PowerPoint rebuild; it does not touch the repository.
+**Option B -- panel 3 alone**, at full width. One claim, three bars, no
+process. Punchiest, and gives up the method entirely.
 
----
+**Option C -- the rule as a number line.** "Count your EPDs. That is the whole
+rule." A log axis of declarations with the 40-to-170 band shaded, lognormal to
+the left, kernel estimate to the right, and one line of provenance underneath.
+**It claims the least and is the most actionable**, and it is the only one of
+the three a reader could act on from the abstract alone.
+
+**My recommendation is C**, with A as the fallback if the editors expect a
+graphical abstract to show the method rather than the finding. B is a subset of
+A and is worth building only if the word budget for the abstract is very tight.
+
+**One caution on all three:** the three-bar panel compares a rule a reader can
+follow against one that needs data nobody publishes, so the 21 percent bar must
+be labeled as unreachable, not as a recommendation. Option A and B both do that
+in the bar label; C sidesteps it by not showing the bar at all.
 
 ## 7. What is still open
 
-1. **The worked example's fourth material** -- all four candidates sit above the
-   cutoff (section 5).
-2. **Figure 6: cut, as recommended, or keep the cleaned-up version?**
-3. **Figure 8: keep?**
-4. **Figure 5: keep at eight figures, or cut to seven?**
-5. **The KL2 code DOI** ends 154 in the author's citation and 153 in the project
-   brief -- probably Zenodo's concept-versus-version pair, worth one check.
+1. **The worked example should be a REAL building.** The author has empirical
+   building datasets with material quantities; section 5 is written against four
+   real EC3 categories with no building behind them, which is weaker. **A real
+   bill of quantities would also give real material use intensities**, which is
+   the single biggest caveat on the pLCA results (decision 101: every material
+   carries an intensity of 1.0, which makes the ranking as fragile as it can be
+   made). **Point me at the data and section 5 gets rewritten around it.**
+2. **Figure 6: cut, as recommended?** Both findings become sentences.
+3. **Figure 7: cut, as recommended?** Replaced by one sentence; optionally a
+   size histogram as a panel of Figure 2.
+4. **Figure 5: keep, or cut to six figures?**
+5. **The graphical abstract**: three mock-ups are in this session's scratchpad
+   and described in section 6. Option C is the punchiest and claims least.
 
 ---
 
