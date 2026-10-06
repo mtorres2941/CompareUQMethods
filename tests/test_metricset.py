@@ -824,3 +824,49 @@ def test_choice_cost_skips_a_claim_whose_frame_is_absent():
                 ('action', 'gone', 'intervention', 'q'),
                 ('magnitude', 'no such output', 'building', 'zz')))
     assert list(got['claim']) == ['q']
+
+
+def test_choice_cost_quantiles_describe_the_distribution_pair_mean_averages():
+    """Two claims with the SAME pair_mean and different spreads must differ.
+
+    `pair_mean` averages over units and then over pairs, so a claim where
+    every building moves a little is indistinguishable from one where most
+    move nothing and a few move a lot. The quantiles exist to tell them
+    apart, and this plants exactly that pair.
+    """
+    import numpy as np
+    import pandas as pd
+    import metricset
+
+    n = 400
+    rng = np.random.default_rng(0)
+    # EVEN: every unit differs by exactly 1.0 between the two methods.
+    even = pd.DataFrame({
+        'plca': np.repeat(np.arange(n), 2),
+        'method': ['A', 'B'] * n,
+        'x__error': np.ravel([[0.0, 1.0]] * n),
+        'x__truth': 1.0})
+    # SPIKY: four units in five differ by 0, one in five by 5.0. SAME MEAN of
+    # 1.0. One in five rather than one in ten so the 90th percentile lands
+    # inside the spike rather than exactly on its edge, where a linear
+    # interpolation would return something between the two values and the
+    # test would be checking numpy's quantile convention instead of the code.
+    big = (np.arange(n) % 5 == 0)
+    spiky = pd.DataFrame({
+        'plca': np.repeat(np.arange(n), 2),
+        'method': ['A', 'B'] * n,
+        'x__error': np.ravel([[0.0, 5.0 if b else 0.0] for b in big]),
+        'x__truth': 1.0})
+
+    keys = {'s': ['plca']}
+    claims = [('g', 'c', 's', 'x')]
+    a = metricset.choice_cost({'s': even}, claims=claims, unit_keys=keys)
+    b = metricset.choice_cost({'s': spiky}, claims=claims, unit_keys=keys)
+
+    # The two are indistinguishable on the averaged statistic ...
+    assert np.isclose(a.pair_mean.iloc[0], b.pair_mean.iloc[0], atol=1e-12)
+    # ... and the quantiles separate them, which is the whole point.
+    assert np.isclose(a.unit_p10.iloc[0], 1.0) and np.isclose(a.unit_p90.iloc[0], 1.0)
+    assert np.isclose(b.unit_p10.iloc[0], 0.0) and np.isclose(b.unit_p90.iloc[0], 5.0)
+    # And the median is not the mean on a skewed claim.
+    assert b.unit_p50.iloc[0] == 0.0 and b.pair_mean.iloc[0] > 0.9

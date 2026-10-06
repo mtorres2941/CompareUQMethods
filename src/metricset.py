@@ -932,6 +932,12 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
         `pair_mean`     mean over method PAIRS of the mean |difference| per
                         unit. **What a reader choosing between two methods at
                         random should expect one decision to move.**
+        `unit_p10`,     the 10th, 50th and 90th percentile of the per-unit,
+        `unit_p50`,     per-pair absolute difference POOLED over both, which
+        `unit_p90`      is the distribution `pair_mean` is the mean of. A
+                        claim where every building moves a little and one
+                        where most move nothing and a few move a lot have the
+                        same `pair_mean` and different spreads.
         `pair_worst`    the same for the worst pair, which is what the choice
                         costs between the two methods that disagree most.
         `shared`        mean over units of |mean signed error over methods|:
@@ -996,9 +1002,21 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
         err = piv.to_numpy(float)
         level = abs(float(np.nanmean(
             pd.to_numeric(frame[tcol], errors='coerce').to_numpy(float))))
-        pairs = [float(np.nanmean(np.abs(err[:, i] - err[:, j])))
+        diffs = [np.abs(err[:, i] - err[:, j])
                  for i in range(len(names))
                  for j in range(i + 1, len(names))]
+        pairs = [float(np.nanmean(d)) for d in diffs]
+        # THE DISTRIBUTION BEHIND `pair_mean`, NOT ANOTHER SUMMARY OF IT.
+        # `pair_mean` averages twice -- over units within a pair, then over
+        # pairs -- so it cannot say whether a claim is one where every
+        # building moves a little or one where most move nothing and a few
+        # move a lot. These are the quantiles of the per-unit, per-pair
+        # absolute difference POOLED over both, which is the spread a
+        # practitioner with one building actually faces.
+        pooled = np.concatenate(diffs)
+        pooled = pooled[np.isfinite(pooled)]
+        q10, q50, q90 = (np.nanquantile(pooled, [0.10, 0.50, 0.90])
+                         if pooled.size else (np.nan,) * 3)
         cells = np.nanmean(np.abs(err), axis=0)
         shared = float(np.nanmean(np.abs(np.nanmean(err, axis=1))))
         worst_cell = float(np.nanmax(cells))
@@ -1008,6 +1026,9 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
             pair_mean=float(np.mean(pairs)) / level,
             pair_worst=float(np.max(pairs)) / level,
             pair_best=float(np.min(pairs)) / level,
+            unit_p10=float(q10) / level,
+            unit_p50=float(q50) / level,
+            unit_p90=float(q90) / level,
             shared=shared / level,
             worst_cell=worst_cell / level,
             specific=(worst_cell - shared) / level,

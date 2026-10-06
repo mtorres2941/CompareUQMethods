@@ -2413,3 +2413,16 @@ relative figure beside it.**
 | **Fix** | **Text.** Quote the re-run figures, not decision 167's. |
 | **Reproduce** | `python audits/lognormal_variants.py 1500` (about 20 seconds) |
 | **Status** | RESOLVED in the analysis. The text is open. Decision 252. |
+
+## 189. What lognormal the field actually uses, sourced, and why it matters
+
+| | |
+|---|---|
+| **The author's question, 2026-10-06** | "For 3-parameter vs 2-parameter lognormal, do we know what papers like Muller et al., 2016 and Ciroth et al., 2016 use? Those papers talk about what's used in ecoinvent. We should discuss what type of lognormal distribution most people use in literature." |
+| **The answer, and it is explicit** | Muller, Lesage, Ciroth, Mutel, Weidema and Samson (2016), Int J Life Cycle Assess 21:1327-1337: "The lognormal distribution is represented by **two definition parameters: the geometric mean and the geometric standard deviation**. The geometric mean (also the median) is the deterministic value, and the GSD captures the information on the uncertainty." And Muller et al. (2016), IJLCA 21:1185-1196: "By default, exchange values are assumed to be **lognormally distributed, with the geometric mean defined as the deterministic value for the exchange and the geometric standard deviation estimated based on the basic and additional uncertainty factors**." |
+| **So the field's default is a TWO-parameter lognormal**, which is what this study's comparison has to be against, and entry 153's requirement that the manuscript draw that comparison explicitly is now sourced rather than asserted. |
+| **Their own paper names it as a limitation** | "Three important limitations are (1) **the imposition of the lognormal to describe the uncertainty of exchange values**, (2) the reliance on experts' judgments rather than on empirical data to quantify uncertainty factors, and (3) the use of additional uncertainty factors that ignore the type of exchange or industrial sector." (2016, 21:1185-1196.) |
+| **AND THEY SAY WHEN IT SHOULD NOT BE USED, which is this paper's whole situation** | "Distributions other than the lognormal are more appropriate when they better represent the uncertainty associated with the datum. **Most often, this will be the case when the basic uncertainty has been calculated based on available data.**" (2016, 21:1327-1337.) The pedigree lognormal is for the case where you have no data. This paper is about the case where you have 204 declarations. |
+| **The link to entry 187** | Muller et al.'s own Eq. 5, `GSD = exp(sqrt(ln(CV^2 + 1)))`, is the same constraint from the other side: one parameter sets the spread, and therefore the shape, so the family cannot match both. Entry 187 states it as `skewness = CV^3 + 3 CV` and measures that only 21.3 percent of real ECC categories sit on that curve. |
+| **Fix** | **Text, Introduction.** The pedigree paragraph says what distribution the field defaults to, cites both Muller papers for it, quotes their own first limitation, and then says that this study is in exactly the situation their own guidance points away from the default. That is a far better motivation than "normal and lognormal are used out of habit", which is what the draft currently says. |
+| **Status** | OPEN, text only. Both PDFs are in `refs/`. |
