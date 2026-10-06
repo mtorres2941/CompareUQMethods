@@ -73,6 +73,16 @@ constraints on consistency, not just as citations:
   constraints, and a representativeness parameter. Code at
   https://doi.org/10.5281/zenodo.19246153
 
+  **THE CITATIONS TO USE, supplied by the author 2026-10-05.** Article: Torres,
+  M. I., Lupton, R., Marsh, E., Srubar III, W. V., & Allen, S. (2026). Using
+  kernel density estimation and the Dirichlet distribution for uncertainty
+  quantification of building material emissions. Resources, Conservation and
+  Recycling, 234. https://doi.org/10.1016/j.resconrec.2026.109022 Software:
+  https://doi.org/10.5281/ZENODO.19246154 **The code DOI the author gave ends
+  154, not the 153 printed above.** Zenodo mints a concept DOI and a version
+  DOI one apart, so both resolve and they name different things. **Cite the
+  author's.**
+
 Two papers by Ellen Marsh (University of Bath) are also directly relevant. She
 is a co-author on the KL2 paper above and a collaborator from my visiting
 appointment at Bath, but is not an author on the present paper:
