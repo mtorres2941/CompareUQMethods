@@ -284,6 +284,7 @@ without a generator, so the renumbering is cheap whenever it happens.
 | `SUPP_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
 | `FIG_WeightingDrivers` | Which categories can safely assume uniform weights, against size and dispersion |
 | `FIG_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit on that curve |
+| `FIG_WeightingBySize` | When knowing a market share starts to help, against dataset size, with the real categories' own sizes underneath |
 
 ### Notebook 2 - the fits
 
@@ -323,6 +324,7 @@ without a generator, so the renumbering is cheap whenever it happens.
 | `FIG_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
 | `FIG_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule |
 | `FIG_MixedPolicy` | How much the cutoff matters, and what knowing market share would buy |
+| `FIG_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
 
 ### Notebook 4 - which characteristics decide
 
