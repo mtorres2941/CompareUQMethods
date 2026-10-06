@@ -727,3 +727,100 @@ def test_adding_a_method_leaves_every_other_method_s_error_bit_identical():
     for m in ('A', 'B'):
         assert u7.loc[m, 'error'] == u6.loc[m, 'error']
         assert u7.loc[m, 'error_portfolio'] == u6.loc[m, 'error_portfolio']
+
+
+# ---------------------------------------------------------------------------
+# what the CHOICE of method costs in one decision, which is not `stakes`
+# ---------------------------------------------------------------------------
+def a_disagreeing_frame():
+    """Two methods that disagree on every single decision and whose AVERAGE
+    errors are identical, which is the case `stakes` cannot see.
+
+    `high` is wrong by +0.3 on the even units and -0.3 on the odd ones;
+    `low` is wrong the other way round. On any one building they are 0.6
+    apart. Their mean absolute errors are both 0.3, so `stakes` is zero.
+    `exact` is the truth, so one pair is 0.3 apart and one is 0.6.
+    """
+    rows = []
+    for unit in range(200):
+        sign = 1.0 if unit % 2 == 0 else -1.0
+        for name, err in (('high', +0.3 * sign), ('low', -0.3 * sign),
+                          ('exact', 0.0)):
+            rows.append(dict(plca=unit, method=name, q__error=err,
+                             q__truth=1.0, q=1.0 + err))
+    return pd.DataFrame(rows)
+
+
+def test_choice_cost_sees_a_disagreement_that_stakes_reports_as_zero():
+    """The defect, planted. Two methods 0.6 apart on every building, whose
+    average errors are equal, must not be reported as a free choice."""
+    got = MS.choice_cost(
+        {'building': a_disagreeing_frame()},
+        claims=(('magnitude', 'q', 'building', 'q'),)).iloc[0]
+    # `stakes` is blind to it: both methods average 0.3, the third averages 0.
+    assert got['stakes_mean'] == pytest.approx(0.3)
+    # The per-decision reading is not. The three pairs are 0.6, 0.3 and 0.3.
+    assert got['pair_worst'] == pytest.approx(0.6)
+    assert got['pair_mean'] == pytest.approx(0.4)
+    assert got['pair_best'] == pytest.approx(0.3)
+    # And the gap between the two readings is the whole point of the column.
+    assert got['pair_worst'] > 2 * got['stakes_mean']
+    assert got['n_methods'] == 3 and got['n_units'] == 200
+
+
+def test_choice_cost_shared_and_specific_close_on_the_worst_cell():
+    """Design C stacks `shared` under `specific`, so the two must sum to the
+    worst method's own cell exactly, not approximately."""
+    got = MS.choice_cost(
+        {'building': a_disagreeing_frame()},
+        claims=(('magnitude', 'q', 'building', 'q'),)).iloc[0]
+    assert got['shared'] + got['specific'] == pytest.approx(got['worst_cell'])
+    # Here the three signed errors cancel exactly on every unit, so NONE of
+    # the error is shared and all of it is the choice of method.
+    assert got['shared'] == pytest.approx(0.0, abs=1e-12)
+    assert got['worst_cell'] == pytest.approx(0.3)
+
+
+def test_choice_cost_differences_each_decision_rather_than_the_averages():
+    """A method biased the SAME way on every unit is a different situation and
+    must read differently: there the two statistics agree."""
+    rows = []
+    for unit in range(200):
+        for name, err in (('high', +0.3), ('exact', 0.0)):
+            rows.append(dict(plca=unit, method=name, q__error=err,
+                             q__truth=1.0))
+    got = MS.choice_cost(
+        {'building': pd.DataFrame(rows)},
+        claims=(('magnitude', 'q', 'building', 'q'),)).iloc[0]
+    assert got['pair_mean'] == pytest.approx(got['stakes_mean'])
+    # And half of it reads as shared, because the cross-method mean error is
+    # +0.15 on every unit: a bias one method carries alone still moves the
+    # average of the two, which is why `shared` is a floor on what no choice
+    # can remove and not a measure of how many methods are wrong.
+    assert got['shared'] == pytest.approx(0.15)
+
+
+def test_choice_cost_divides_by_the_level_like_every_scorecard_row():
+    """Decision 157: one divisor, the mean true LEVEL. Scaling the truth and
+    the errors together must leave every column unchanged."""
+    frame = a_disagreeing_frame()
+    scaled = frame.assign(q__error=frame.q__error * 7.0,
+                          q__truth=frame.q__truth * 7.0)
+    claims = (('magnitude', 'q', 'building', 'q'),)
+    a = MS.choice_cost({'building': frame}, claims=claims).iloc[0]
+    b = MS.choice_cost({'building': scaled}, claims=claims).iloc[0]
+    for col in ('pair_mean', 'pair_worst', 'shared', 'specific',
+                'worst_cell', 'stakes_mean'):
+        assert a[col] == pytest.approx(b[col])
+    assert b['truth_level'] == pytest.approx(7.0)
+
+
+def test_choice_cost_skips_a_claim_whose_frame_is_absent():
+    """A smoke run holds some frames and not others, and a missing source must
+    drop its claims rather than raise."""
+    got = MS.choice_cost(
+        {'building': a_disagreeing_frame()},
+        claims=(('magnitude', 'q', 'building', 'q'),
+                ('action', 'gone', 'intervention', 'q'),
+                ('magnitude', 'no such output', 'building', 'zz')))
+    assert list(got['claim']) == ['q']

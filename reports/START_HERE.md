@@ -164,9 +164,19 @@ is one `git add -f` or one careless `.gitignore` edit away from publishing an
 advisor's private comments. If a session needs it, the author supplies an absolute
 path outside the tree.
 
-The manuscript revision itself is not Claude Code's work and is not happening
-here. It is prose work that needs the advisor's markup and the reference PDFs and
-none of the code.
+**THE MANUSCRIPT REVISION IS CLAUDE CODE'S WORK, and this paragraph said the
+opposite until 2026-10-05.** It claimed the revision "needs the advisor's
+markup and the reference PDFs and none of the code". Two thirds of that is
+false, and the remaining third is a file-location rule rather than a
+prohibition. The reference PDFs are in `refs/`, in this directory, gitignored
+by decision 1 -- so a window HERE has them and a chat window on the web does
+not. The rewrite is driven by `reports/MANUSCRIPT_discrepancies.md`, by the
+decision log, by the figure manifest and by the tables behind them, every one
+of which is here. What is true is only that the DRAFT FILE must live outside
+the tree, which the paragraph above already provides for: the author supplies
+an absolute path and the session reads it there. A `.docx` is readable in
+place, comments and tracked changes included, without ever being copied inside
+the repository.
 
 `refs/` is untracked by decision 1, because it holds copyrighted publisher PDFs.
 
@@ -202,9 +212,12 @@ none of the code.
 Stage 2i was closed by decision; the real-building anchor is the citation to
 Marsh, Lewis, Hattam and Allen (in press).
 
-**What is left is the MANUSCRIPT, and it is not Claude Code's work.** It needs
-the advisor's markup and the reference PDFs, neither of which is in this
-repository, and section 3 below says why the draft must not be brought here.
+**What is left is the MANUSCRIPT, and it IS Claude Code's work.** It needs the
+advisor's markup, which the author supplies as an absolute path OUTSIDE the
+tree, and the reference PDFs, which are in `refs/` and so are available here
+and nowhere else. Section 3 says why the draft FILE must not be brought inside
+the repository, which is a rule about where a file sits and not about who does
+the work.
 Three things are waiting for it and all three are in
 `reports/STAGE_REPORT_4.md` section 9: the figure selection, then the
 numbering, then the style pass and the confidence intervals -- one pass over

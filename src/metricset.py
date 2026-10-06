@@ -889,3 +889,129 @@ def rescore(frame, difference_floor=DIFFERENCE_FLOOR):
     frame['best_method'] = frame['claim'].map(piv.idxmin(axis=1))
     frame['methods_differ'] = frame['stakes'] > difference_floor
     return frame
+
+
+#: The unit a claim is made about, per `SCORECARD_CLAIMS` source. A claim's
+#: per-decision statistics are taken by aligning the methods on these keys, so
+#: that two methods are compared on the SAME building, material or design pair
+#: rather than on two averages.
+CLAIM_UNIT_KEYS = {
+    'recovery': ('plca', 'dataset'),
+    'building': ('plca',),
+    'intervention': ('plca', 'dataset'),
+    'swap': ('pair', 'saving'),
+}
+
+
+def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
+                unit_keys=CLAIM_UNIT_KEYS):
+    """What choosing one method over another costs IN ONE DECISION.
+
+    THIS EXISTS BECAUSE `stakes` IS AN AVERAGED QUANTITY AND THE SCORECARD'S
+    CELLS ARE NOT. `rescore` computes `stakes` as
+
+        max over methods of (mean error)  -  min over methods of (mean error)
+
+    which is the spread of the AVERAGE error across methods. Every cell of the
+    same figure is `total_error`, the mean error in ONE decision, which is what
+    decision 174 put all fifteen rows onto. The two differ by more than an
+    order of magnitude where a method's error cancels across units: on the
+    uncertainty index `stakes` is 2.2 percent of the true level where the mean
+    per-pair per-decision difference is 27.9 and the worst pair is 40.2, and
+    the study's own published NRMSE of 0.5504 for that output implies 44.0. A
+    bar drawn from `stakes` beside those cells tells a reader the choice of
+    method is nearly free on that claim, when what is nearly free is the
+    average over many buildings.
+
+    Two methods are differenced UNIT BY UNIT, which is the whole point: a
+    method that runs high on one building and low on the next differs from its
+    rival on both, and averaging first hides exactly that.
+
+    Returns one row per claim with
+
+        `pair_mean`     mean over method PAIRS of the mean |difference| per
+                        unit. **What a reader choosing between two methods at
+                        random should expect one decision to move.**
+        `pair_worst`    the same for the worst pair, which is what the choice
+                        costs between the two methods that disagree most.
+        `shared`        mean over units of |mean signed error over methods|:
+                        the part of the error EVERY method makes, which no
+                        choice of method can remove.
+        `worst_cell`    the worst method's own `total_error`, recomputed here
+                        so the stack below closes exactly.
+        `specific`      `worst_cell - shared`, so `shared + specific` is the
+                        worst method's cell by construction. It is a residual
+                        and NOT a mean deviation from the cross-method mean;
+                        the two differ because a mean of absolute values does
+                        not decompose additively.
+        `stakes_mean`   `max(mean error) - min(mean error)` over the same
+                        methods and the same frames, which is `rescore`'s
+                        `stakes`. Carried so the two readings can be shown
+                        together and labeled, never so one can stand in for
+                        the other.
+
+    All six are divided by the claim's mean TRUE LEVEL, which is the divisor
+    decision 157 put every scorecard row onto, so they are directly comparable
+    with `total_error` and with each other.
+
+    `pair_mean` AND `specific` ARE NOT THE SAME QUANTITY AND MUST NOT BE
+    QUOTED FOR EACH OTHER. `pair_mean` is a per-case distance between two
+    methods; `specific` is a difference of two averaged magnitudes. On the
+    uncertainty index they read 27.9 and 5.2 percent of the true level.
+
+    Parameters
+    ----------
+    sources : mapping
+        `{'recovery': frame, 'building': frame, 'intervention': frame,
+        'swap': frame}`, each row-level and carrying `<output>__error` and
+        `<output>__truth`. The recovery frame must already be filtered to one
+        truth parent. A missing source drops its claims rather than raising,
+        which is what lets a smoke run produce a partial table.
+    claims : sequence
+        `(question, label, source, output)` tuples, defaulting to the fifteen.
+    method : str
+        The column naming the UQ method or policy.
+    unit_keys : mapping
+        Source name to the columns identifying one decision.
+
+    Returns
+    -------
+    DataFrame, one row per claim, in `claims` order.
+    """
+    rows = []
+    for group, label, source, output in claims:
+        frame = sources.get(source)
+        if frame is None or frame.empty:
+            continue
+        ecol, tcol = f'{output}__error', f'{output}__truth'
+        if ecol not in frame.columns or tcol not in frame.columns:
+            continue
+        keys = [k for k in unit_keys[source] if k in frame.columns]
+        if not keys:
+            raise KeyError(f'{label}: none of {unit_keys[source]} present')
+        piv = frame.pivot_table(index=keys, columns=method, values=ecol)
+        names = list(piv.columns)
+        if len(names) < 2:
+            continue
+        err = piv.to_numpy(float)
+        level = abs(float(np.nanmean(
+            pd.to_numeric(frame[tcol], errors='coerce').to_numpy(float))))
+        pairs = [float(np.nanmean(np.abs(err[:, i] - err[:, j])))
+                 for i in range(len(names))
+                 for j in range(i + 1, len(names))]
+        cells = np.nanmean(np.abs(err), axis=0)
+        shared = float(np.nanmean(np.abs(np.nanmean(err, axis=1))))
+        worst_cell = float(np.nanmax(cells))
+        rows.append(dict(
+            group=group, claim=label, output=output, source=source,
+            n_methods=len(names), n_units=int(piv.shape[0]),
+            pair_mean=float(np.mean(pairs)) / level,
+            pair_worst=float(np.max(pairs)) / level,
+            pair_best=float(np.min(pairs)) / level,
+            shared=shared / level,
+            worst_cell=worst_cell / level,
+            specific=(worst_cell - shared) / level,
+            stakes_mean=float(np.nanmax(cells) - np.nanmin(cells)) / level,
+            worst_method=names[int(np.nanargmax(cells))],
+            truth_level=level))
+    return pd.DataFrame(rows)
