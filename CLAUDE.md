@@ -9397,3 +9397,39 @@ rather than in conversation.
      decision 253, is now a table re-slice and never a run.
 
          python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables --only "every claim" --out /tmp/fast
+
+255. **2026-10-07. THE 394 UNPUSHED COMMITS WERE REWRITTEN TO DROP FILE VERSIONS
+     OVER 50 MB, AND THE BRANCH IS PUSHED IN BATCHES. A deliberate, bounded
+     exception to decision 28.** `[AUTHOR]` "Let's take care of large files and
+     then figure out what to do with GitHub ... I'm also fine with pushing in
+     batches."
+
+     **What was wrong.** Nothing had reached GitHub since 2026-06-02: every
+     stage since committed to a local branch and none was pushed, which the
+     author had assumed was handled. A push of `stage-4-deposit` failed with
+     HTTP 500. The unpushed history held two files over GitHub's 100 MB limit --
+     a 141 MB vector PDF of a million-point scatter and a 101 MB old version of
+     notebook 2 -- and packed to more than GitHub's 2 GB per-push cap.
+
+     **What was done.** (1) `figstyle.savefig` now rasterizes any marker
+     collection over 5,000 points in the PDF sibling only: 141 MB to 0.7 MB and
+     66 MB to 0.4 MB, every PNG byte-identical. (2) `git filter-repo
+     --refs origin/main..stage-4-deposit --strip-blobs-bigger-than 50M`
+     removed 27 file versions over 50 MB from the unpushed range: three of
+     notebook 2, five of the two scatter PDFs, the archive's old-name PDF, and
+     17 of the 23 versions of `TABLE_MethodCurves.csv.gz`. Verified: the final
+     tree is identical to before, all 395 commits remain, and `origin/main` is
+     still their ancestor. (3) The branch is pushed in three batches of at most
+     about 1.2 GB.
+
+     **Why decision 28 does not forbid it.** That decision refused a rewrite
+     because it would change the commit hashes the Zenodo deposit cites. Those
+     commits are all on `origin/main`, which `--refs` leaves untouched; only
+     commits that had never left this machine were rewritten. **The cost is
+     that 27 intermediate commits no longer carry those specific file
+     versions**; every such file is regenerable from that commit's notebooks.
+     The pre-rewrite history is kept locally in branch
+     `backup/pre-rewrite-2026-10-07`, never pushed.
+
+     **The standing rule that follows**: every session that commits pushes, and
+     confirms `git ls-remote origin <branch>` matches HEAD.
