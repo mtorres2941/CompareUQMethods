@@ -618,3 +618,30 @@ def test_the_synthetic_market_weights_carry_the_true_group_shares():
         if found >= 3:
             break
     assert found >= 3, 'no multi-group parent drawn to test'
+
+
+def test_median_ratio_threshold_curve_ranks_a_typically_better_policy_first():
+    """The median form must rank on the TYPICAL unit: a policy that is usually
+    excellent and occasionally catastrophic wins on the median and loses on the
+    ratio of means, on the same errors frame (decision 253)."""
+    import mixedpolicy as MP
+    rows = []
+    for g in range(60):
+        for u in range(4):
+            for name, err in (('Feasible@10', 5.0 if (g * 4 + u) % 10 == 0
+                               else 0.01), ('Feasible@20', 0.2)):
+                rows.append(dict(question='attribution', claim='c',
+                                 method=name, cluster=g, cluster_kind='plca',
+                                 unit=f'{g}|{u}', truth=1.0, error=err,
+                                 abs_error=err))
+    errors = pd.DataFrame(rows)
+    pols = [p for p in MP.feasible_policies(thresholds=(10, 20))
+            if p.kind == 'threshold']
+    _, s_mean = MP.threshold_curve(errors, pols, resamples=50,
+                                   family=pols[0].family)
+    _, s_med = MP.threshold_curve(errors, pols, resamples=50,
+                                  family=pols[0].family,
+                                  statistic='median_ratio')
+    assert s_mean['best_threshold'] == 20
+    assert s_med['best_threshold'] == 10
+    assert s_med['statistic'] == 'median_ratio'

@@ -760,9 +760,86 @@ def pooled_from_blocks(blocks, levels, n_claims, draws=None):
     return np.nanmean(per_claim, axis=0)
 
 
+def ratio_blocks(errors, policies, claims=None):
+    """Per-claim arrays of PER-UNIT RATIOS |error| / |truth|, for the median
+    form of the cutoff test (decision 253).
+
+    Returns `(blocks, claims)`, one entry per claim: `(ratios, cluster_index,
+    n_clusters)` where `ratios` has shape (units, policies), NaN where the truth
+    is zero, and `cluster_index` maps each unit to its pLCA group or design
+    pair so a cluster bootstrap can weight it. Each claim keeps its own cluster
+    universe, as `claim_blocks` does.
+    """
+    policies = list(policies)
+    claims = list(claims if claims is not None
+                  else errors['claim'].drop_duplicates())
+    blocks = []
+    for claim in claims:
+        sub = errors[errors['claim'] == claim]
+        sub = sub.assign(_r=(sub['abs_error'] / sub['truth'].abs())
+                         .where(sub['truth'].abs() > 0))
+        piv = sub.pivot_table(index=['cluster', 'unit'], columns='method',
+                              values='_r', aggfunc='first', observed=True)
+        ratios = np.column_stack([
+            piv[p].to_numpy(float) if p in piv.columns
+            else np.full(len(piv), np.nan) for p in policies])
+        clus = piv.index.get_level_values('cluster').to_numpy()
+        kind = str(sub['cluster_kind'].iloc[0])
+        blocks.append((ratios, clus, kind))
+    # ONE CLUSTER UNIVERSE PER KIND, shared by every claim of that kind, so a
+    # resample draws each pLCA group once for all fourteen per-group claims --
+    # exactly as `claim_blocks` does for the mean form.
+    universe = {}
+    for _, clus, kind in blocks:
+        universe.setdefault(kind, set()).update(np.unique(clus).tolist())
+    universe = {k: np.array(sorted(v)) for k, v in universe.items()}
+    out = [(ratios, np.searchsorted(universe[kind], clus), kind)
+           for ratios, clus, kind in blocks]
+    return out, claims, universe
+
+
+def _weighted_medians(ratios, order, weights):
+    """Column-wise weighted median, `order` the precomputed argsort per column."""
+    out = np.full(ratios.shape[1], np.nan)
+    for j in range(ratios.shape[1]):
+        o = order[:, j]
+        w = weights[o]
+        v = ratios[o, j]
+        ok = np.isfinite(v) & (w > 0)
+        if not ok.any():
+            continue
+        c = np.cumsum(w[ok])
+        out[j] = v[ok][int(np.searchsorted(c, 0.5 * c[-1]))]
+    return out
+
+
+def pooled_median_ratio(blocks, counts=None):
+    """Mean over claims of each policy's median per-unit ratio; `counts` maps
+    each cluster kind to a count per cluster for a bootstrap resample, None for
+    every unit once."""
+    per = []
+    for ratios, idx, kind in blocks:
+        w = (np.ones(idx.max() + 1) if counts is None else counts[kind])[idx]
+        order = blocks_order(ratios)
+        per.append(_weighted_medians(ratios, order, w))
+    return np.nanmean(np.vstack(per), axis=0)
+
+
+def blocks_order(ratios):
+    """argsort per column with NaN last, cached on the array object."""
+    key = id(ratios)
+    if key not in _ORDER_CACHE:
+        _ORDER_CACHE[key] = np.argsort(np.where(np.isfinite(ratios), ratios,
+                                                np.inf), axis=0)
+    return _ORDER_CACHE[key]
+
+
+_ORDER_CACHE = {}
+
+
 def threshold_curve(errors, policies, rng=None,
                     resamples=BOOTSTRAP_RESAMPLES, alpha=BOOTSTRAP_ALPHA,
-                    family=None):
+                    family=None, statistic='mean'):
     """The cost of the rule at every cutoff, and the cutoffs that cannot be
     told apart from the best one.
 
@@ -791,6 +868,13 @@ def threshold_curve(errors, policies, rng=None,
     can go negative, it does not care how many other points are on the grid,
     and the reference itself scores exactly zero.
 
+    `statistic` chooses what is pooled. 'mean' is the ratio of means, the
+    average error over the average true level, and is what the published band
+    of decision 224 was measured on. 'median_ratio' is the median over units of
+    |error| / |truth|, the scorecard's headline from decision 253; a bootstrap
+    resample of clusters becomes a COUNT per cluster and the median a weighted
+    median, so the paired design and the fixed reference are unchanged.
+
     The selection caveat is real and is why BOTH numbers are reported: the
     reference is the argmin of the same data, so the differences are biased
     slightly positive. `argmin_lo` and `argmin_hi` are the honest companion --
@@ -808,15 +892,29 @@ def threshold_curve(errors, policies, rng=None,
             f'got families {sorted({p.family for p in sweep})}')
     names = [p.name for p in sweep]
     thresholds = np.array([p.threshold for p in sweep])
-    blocks, claims, _, levels = claim_blocks(errors, names)
-    point = pooled_from_blocks(blocks, levels, len(claims))
-    sizes = [arr.shape[0] for arr, _ in blocks]
+    if statistic == 'mean':
+        blocks, claims, _, levels = claim_blocks(errors, names)
+        point = pooled_from_blocks(blocks, levels, len(claims))
+        sizes = [arr.shape[0] for arr, _ in blocks]
+    elif statistic == 'median_ratio':
+        _ORDER_CACHE.clear()
+        blocks, claims, universe = ratio_blocks(errors, names)
+        point = pooled_median_ratio(blocks)
+        kinds = sorted(universe)
+        sizes = [len(universe[k]) for k in kinds]
+    else:
+        raise ValueError(f'unknown statistic {statistic!r}')
     best = np.empty(int(resamples))
     penalty = np.empty((int(resamples), len(names)))
     ref = int(np.nanargmin(point))
     for b in range(int(resamples)):
         draws = [rng.integers(0, n, n) for n in sizes]
-        cost = pooled_from_blocks(blocks, levels, len(claims), draws)
+        if statistic == 'mean':
+            cost = pooled_from_blocks(blocks, levels, len(claims), draws)
+        else:
+            cost = pooled_median_ratio(
+                blocks, {k: np.bincount(d, minlength=n)
+                         for k, d, n in zip(kinds, draws, sizes)})
         best[b] = thresholds[int(np.nanargmin(cost))]
         # AGAINST A FIXED REFERENCE, not against whichever cutoff won this
         # resample. See the docstring: the old form could not go negative, so
@@ -846,7 +944,7 @@ def threshold_curve(errors, policies, rng=None,
         in_range=[t in run for t in thresholds]))
     flagged = thresholds[ok]
     summary = dict(
-        family=family,
+        family=family, statistic=statistic,
         best_threshold=int(thresholds[int(np.nanargmin(point))]),
         best_error=float(np.nanmin(point)),
         range_lo=int(run[0]) if run else None,
