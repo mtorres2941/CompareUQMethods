@@ -105,23 +105,24 @@ Uniform weights throughout, a kernel estimate at or above the cutoff, a
 three-parameter lognormal below. **The cutoff is 40 to 170 declarations**, every
 value in that band indistinguishable from the best on the ratio of means
 (decision 224). **Re-tested on the median of ratios it holds and widens**: 20 to
-300 indistinguishable, best at 60, and both ends -- a kernel estimate everywhere
-and a lognormal everywhere -- remain distinguishably worse (300 resamples; the
-6,000-resample table is `TABLE_MixedPolicyThresholdBothStats.csv`). So 40 to 170
-is the range that survives BOTH statistics and is the one to print. The rule is
-closest of the four options a reader can choose on **7 of 15** claims -- the
-kernel estimate on 5, the lognormal on 3 -- and pooled it is the lowest of the
-four, **17.38 against 17.54** for a kernel estimate everywhere and 17.23 for
-knowing in advance which fixed method wins each claim.
+200 indistinguishable, best at 60, and both ends -- a kernel estimate everywhere
+and a lognormal everywhere -- remain distinguishably worse (6,000 resamples,
+`TABLE_MixedPolicyThresholdBothStats.csv`). So 40 to 170 is the range that
+survives BOTH statistics and is the one to print. The rule is closest of the
+four options a reader can choose on **7 of 15** claims -- the kernel estimate on
+5, the lognormal on 3 -- and pooled it is the lowest of the four: **17.4**
+against 17.5 for a kernel estimate everywhere, 18.4 for a lognormal everywhere
+and 26.5 for a normal.
 
-**The honest size of it: under the typical-case statistic the rule is worth
-0.16 points over a kernel estimate everywhere.** It is the best available
-choice and not by much. That is a result to state, not to hide, and it is what
-makes takeaway 4 the paper's main practical lever.
+**The honest size of it: under the typical-case statistic a kernel estimate
+everywhere is 0.2 points worse than the rule at its best cutoff, 95 percent
+interval 0.03 to 0.35.** Measured and clear of zero, but small. The rule is the
+best available choice and not by much. That is a result to state, not to hide,
+and it is what makes takeaway 4 the paper's main practical lever.
 
-**So what:** count the EPDs you have. Above about a hundred use a kernel density
-estimate, below about fifty fit a three-parameter lognormal, in between it does
-not matter which.
+**So what:** count the EPDs you have. Below about 40 fit a three-parameter
+lognormal, above about 170 use a kernel density estimate, and in between either
+does as well.
 
 Decisions 204, 216, 217, 220, 224, 225. **No single-declaration cutoff is
 printed anywhere in the paper.**
@@ -129,10 +130,10 @@ printed anywhere in the paper.**
 ### 4. Knowing market shares is worth many times what the rule is worth
 
 Giving the same rule the true market shares above the cutoff takes the pooled
-typical-case error from **17.42 to 13.02 percent**: **4.40 points, or 25.3
-percent of what was there**. The rule itself is worth 0.14 points over the best
-uniform-weighted fixed method on the same pass. On the average building (ratio
-of means) the same comparison reads 23.97 to 20.89, 3.08 points or 12.8 percent.
+typical-case error from **17.4 to 13.0 percent**: **4.4 points, or a quarter of
+what was there**, against the rule's 0.2 points (takeaway 3). On the average
+building (ratio of means) the same comparison reads 24.0 to 20.9, 3.1 points or
+13 percent.
 
 **So what:** for a typical building a probabilistic LCA is off by about 17
 percent today. Knowing exactly how much of each product is actually built would
@@ -170,7 +171,7 @@ weight on each product group is that group's true share to 1.1e-16.
 ### 6. Do not fit a normal distribution, and say which claim you mean
 
 A normal is **52 percent** worse pooled than the rule on the typical case
-(26.45 against 17.38), and **65 percent** worse than the best available choice
+(26.5 against 17.4), and **65 percent** worse than the best available choice
 on a material's chance of being the largest contributor (42.2 against 25.6). It
 is the worst of the seven policies on 14 of 15 claims and the best of the four a
 reader can choose on none. On the average building the penalty is 36 percent,
@@ -262,10 +263,17 @@ averaged form must never be quoted as "the method is right".
 ### 11. A better fit does give a better answer, and not by as much as the fit suggests
 
 Within a material, ranking the six methods by how well they fit and by how wrong
-their answer is gives a median rank correlation of **+0.83**, positive on **88.2
+their answer is gives a median rank correlation of **+0.66**, positive on **85.3
 percent** of the 10,000 materials; the best-fitting method is also the most
-claim-accurate **42.8 percent** of the time against a 16.7 percent chance level.
-What does not transfer is the magnitude.
+claim-accurate **41.6 percent** of the time against a 16.7 percent chance level.
+It holds in every size band (positive on 80.5 percent at 3 to 9 declarations,
+91.2 above 1,000). What does not transfer is the magnitude.
+
+Fit is W1 against the market-weighted true parent; claim error is the mean, over
+the seven per-material claims, of the per-unit ratio |method - truth| / |truth|
+(decision 253). `TABLE_FitVersusClaim.csv`, written by the last table cell of
+notebook 3. The +0.83, 88.2 and 42.8 this section previously quoted had no
+producing table and do not reproduce (review of 2026-10-07).
 
 **So what:** there is no check you can run on your own data to find out whether
 your choice of method will matter for your building. Follow the rule precisely
@@ -273,8 +281,8 @@ because you cannot tell.
 
 This is the summarizing takeaway and where the draft's retired second
 contribution lands. **It goes last in the Results and feeds the Conclusion.**
-Recomputed on the shipped corpus; decision 166's +0.600, 82.2 and 39.0 are from
-a superseded one.
+Decision 166's +0.600, 82.2 and 39.0 are from a superseded corpus and a
+different claim definition.
 
 ---
 
@@ -328,10 +336,13 @@ data-collection argument, which the measurements support in this order:**
 5. An industry-average EPD would be the one published production-weighted number,
    and the frozen extract contains none -- all 120,280 records are product EPDs
    (decision 176). A concrete ask of the EPD programs.
-6. **More declarations alone has a floor.** A uniform-weighted fit flattens at
-   0.084 against a floor of 0.099, the distance between the population that
-   publishes and the population that gets built. No quantity of EPDs takes it
-   below that floor (decision 219). Only share information does.
+6. **More declarations alone stops helping.** Above 100 declarations a
+   uniform-weighted fit's error against the market-weighted truth levels off
+   near 0.1 (0.097 at 100 to 999, 0.084 above 1,000), about the distance between
+   the population that publishes and the population that gets built (0.099).
+   With market weights the same error keeps falling, from 0.076 to 0.029. More
+   EPDs alone do not close that gap; share information does (decision 219,
+   `outputs/tables/audits/TABLE_BandwidthNeff.csv`).
 
 Plus the remedies the paper names without adopting: upper truncation (decision
 199) and the rule's own limits (decision 205).
@@ -386,9 +397,18 @@ worked example in section 5.
 
 ![](../outputs/figures/CompareUQMethods_FIG_MetricCoverage.png)
 
-- "The 10,000 synthetic datasets span the statistical characteristics of the 147
-  real EC3 categories on every characteristic tested, leaving four uncovered
-  dataset-metric pairs out of 1,470."
+- "The 10,000 synthetic datasets span the real EC3 categories on every
+  characteristic except two extremes: the three largest ready-mix classes exceed
+  the corpus's maximum size, and Aggregates exceeds its maximum dispersion.
+  Across the six panels, 15 of 882 category points fall outside the synthetic
+  cloud."
+
+  **This goes in the manuscript text beside the figure, not in the caption or
+  on the figure** (author, 2026-10-07). The paragraph adds why neither gap
+  matters: above 10,000 declarations the results do not change (decision 137),
+  and Aggregates is a contaminated EC3 category whose removal moves no headline
+  result (decision 138). `TABLE_MetricCoverage.csv`,
+  `TABLE_CoverageFigureStats.csv`.
 - "Generating datasets rather than relying on the categories EC3 happens to hold
   is what lets this study measure accuracy against a known answer, and it is why
   the findings generalize past the 147 categories available."
@@ -713,10 +733,9 @@ is best") and would oversell a fraction of a point.
 ### 3. The cutoff band survives both statistics
 
 Measured, not assumed: 40 to 170 on the ratio of means (reproduced from a fresh
-stream), 20 to 300 on the median of ratios, best cutoff 130 and 60
-respectively. **Recommendation: print 40 to 170**, the range that holds under
-both. Figure 4 is still drawn on the ratio of means and should be redrawn with
-both curves, which is now a figure-cell change and no run.
+stream), 20 to 200 on the median of ratios, best cutoff 130 and 60
+respectively. **Print 40 to 170**, the range that holds under both (author,
+2026-10-07). Figure 4 draws both statistics and shades 40 to 170.
 
 ### 4. Smaller
 
@@ -749,11 +768,11 @@ plots. What is left is below, in order.
 
 ### 1. THE REVIEW HAS RUN
 
-`reports/REVIEW_MANUSCRIPT_NARRATIVE.md`, 2026-10-07. Findings 1, 2, 4, 5, 7,
-10 and most of 11 are applied in this file. Findings 3 (the cutoff band and
-Figure 4's shading), 6 (the pooled-error precision and the per-claim
-benchmark), 8 (takeaway 11's numbers and Discussion item 6's floor) and 9
-(Figure 2's coverage caption) are waiting on author agreement.
+`reports/REVIEW_MANUSCRIPT_NARRATIVE.md`, 2026-10-07. All eleven findings are applied in this
+file, with the author's decisions of 2026-10-07: print 40 to 170 and shade it on
+Figure 4; pooled errors to one decimal; takeaway 11 quoted from a new table;
+the coverage statement in the text beside Figure 2, not in a caption;
+`FIG_Building138` in the main text.
 
 ### 2. THEN THE FIGURE PASS, THEN PROSE
 
