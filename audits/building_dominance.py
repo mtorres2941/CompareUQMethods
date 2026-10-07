@@ -32,6 +32,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..'))
 SRC = os.path.join(ROOT, 'refs', '28462145', 'full_lca_results.xlsx')
 FROZEN = os.path.join(ROOT, 'data', 'raw', 'building_top2_benke2025.csv')
+# THE WORKED EXAMPLE'S BUILDING, frozen the same way: one row per material type
+# with its A1-A3 emissions AND its mass, so the case study in notebook 3 runs
+# from a clean clone. Both columns are kept because the author's objection was
+# that mass alone says nothing about contribution: Benke's own emission factor
+# per kilogram is 1.91 for rebar against 0.28 to 0.37 for the concrete.
+CASE_PROJECT = 138
+FROZEN_CASE = os.path.join(ROOT, 'data', 'raw', 'building138_benke2025.csv')
 OUT = os.path.join(ROOT, 'outputs', 'tables', 'audits')
 
 #: A1-A3 only. The study is about embodied carbon COEFFICIENTS, which are
@@ -59,6 +66,27 @@ def derive(path=SRC):
     return pd.DataFrame(rows).sort_values('top2_ratio').reset_index(drop=True)
 
 
+def derive_case(path=SRC, project=CASE_PROJECT):
+    """One building's materials: A1-A3 emissions, mass and intensity."""
+    d = pd.read_excel(path, usecols=['project_index', 'mat_group', 'mat_type',
+                                     'life_cycle_stage', 'inv_mass', 'gwp',
+                                     'mui_gfa'])
+    b = d[(d.project_index == project) & (d.life_cycle_stage == STAGE)]
+    g = (b.groupby(['mat_group', 'mat_type'])
+         .agg(mass_kg=('inv_mass', 'sum'), gwp_kgco2e=('gwp', 'sum'),
+              mass_kg_per_m2=('mui_gfa', 'sum'))
+         .reset_index().sort_values('gwp_kgco2e', ascending=False))
+    g['share_of_gwp'] = g.gwp_kgco2e / g.gwp_kgco2e.sum()
+    g['gwp_per_kg'] = g.gwp_kgco2e / g.mass_kg
+    meta = pd.read_excel(os.path.join(os.path.dirname(path),
+                                      'buildings_metadata.xlsx'))
+    gfa = float(meta.loc[meta.project_index == project, 'bldg_gfa'].iloc[0])
+    g['gwp_kgco2e_per_m2'] = g.gwp_kgco2e / gfa
+    g.insert(0, 'project_index', project)
+    g['bldg_gfa_m2'] = gfa
+    return g.reset_index(drop=True)
+
+
 def main():
     if not os.path.exists(SRC):
         print(f'{SRC} not found. It is gitignored by decision 1; the frozen '
@@ -67,6 +95,7 @@ def main():
     r = derive()
     os.makedirs(os.path.dirname(FROZEN), exist_ok=True)
     r.to_csv(FROZEN, index=False)
+    derive_case().to_csv(FROZEN_CASE, index=False)
     os.makedirs(OUT, exist_ok=True)
 
     # The two thresholds the study publishes, at its own four materials.
@@ -90,7 +119,7 @@ def main():
     print('so if anything it UNDERSTATES the share at risk: decision 107 '
           'measures the 1 percent')
     print('crossing rising from 1.90 at two materials to 2.34 at twelve.')
-    print(f'\nwrote {FROZEN}')
+    print(f'\nwrote {FROZEN} and {FROZEN_CASE}')
     return 0
 
 
