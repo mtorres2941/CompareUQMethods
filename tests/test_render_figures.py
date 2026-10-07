@@ -101,3 +101,13 @@ def test_notebook_four_is_fully_marked():
     path = ROOT / "notebooks" / "04_CompareUQ_ReduceMetrics.ipynb"
     _setup, figs = RF.read_cells(path)
     assert len(figs) >= 3
+
+
+def test_table_cells_never_touch_the_random_stream():
+    """Every `# TABLE` cell is re-executable out of order (decision 254), which
+    is only safe if none of them draws from the notebook's stream."""
+    import render_figures as R
+    cells = R.read_table_cells(R.notebook_path('03_CompareUQ_PerformPLCA'))
+    assert len(cells) >= 4
+    for i, src in cells:
+        assert not R._RNG_USE.search(src), i

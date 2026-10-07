@@ -101,6 +101,41 @@ def read_cells(path):
     return setup, figs
 
 
+#: A code cell is a TABLE cell -- a re-slice of tables already on disk -- if
+#: its first line starts with this. `--tables` executes every one of them, in
+#: notebook order, before the figure cells (decision 254).
+TABLE_MARKER = '# TABLE'
+
+#: A table cell may not touch the notebook's random stream. Re-executing a cell
+#: that spawns from `rng` out of order would draw different numbers from the
+#: full run and write them under the same table name.
+#: A keyword argument named `rng=` handing over the cell's OWN fixed-seed
+#: generator is allowed; any other use of the name is the notebook's stream.
+_RNG_USE = re.compile(r'(?<![\w.])rng\b(?!=[^=])')
+
+
+def read_table_cells(path):
+    """[(index, source)] for every `# TABLE` cell, REFUSING one that uses `rng`.
+
+    ALL of them, never a subset: a table computed from a stale upstream table is
+    a worse failure than a stale figure, so the rule decision 165 left open is
+    the simplest one -- every table cell, in order, every time.
+    """
+    nb = json.load(open(path))
+    out = []
+    for i, c in enumerate(nb['cells']):
+        if c['cell_type'] != 'code':
+            continue
+        src = ''.join(c['source'])
+        if src.lstrip().startswith(TABLE_MARKER):
+            if _RNG_USE.search(src):
+                raise SystemExit(
+                    f'cell {i} is marked {TABLE_MARKER} but uses `rng`; a '
+                    f're-slice cell must not consume randomness')
+            out.append((i, src))
+    return out
+
+
 def prepare(out_dir):
     """A directory shaped like `outputs/`, reading the real tables."""
     figs = os.path.join(out_dir, 'figures')
@@ -121,6 +156,9 @@ def main(argv=None):
                     help='directory to write into; defaults to a scratch dir')
     ap.add_argument('--into-outputs', action='store_true',
                     help="write to the repository's own outputs/")
+    ap.add_argument('--tables', action='store_true',
+                    help='first re-execute every # TABLE cell (re-slices of '
+                         'tables on disk), then the figure cells')
     ap.add_argument('--only', default=None,
                     help='substring of the figure cell title to render')
     args = ap.parse_args(argv)
@@ -147,6 +185,28 @@ def main(argv=None):
         exec(compile(cell, f'setup{j}', 'exec'), g)
     g['OUT'] = out                                     # ... redirected
     g['display'] = lambda *a, **k: None                # no rich display here
+    if args.tables:
+        cells = read_table_cells(path)
+        if not args.into_outputs:
+            # A SCRATCH TARGET MUST NOT WRITE THROUGH A LINK INTO outputs/.
+            # `prepare` links the real tables so figures read production data;
+            # every table a table cell writes has its link replaced by nothing,
+            # so the write lands in scratch and the real file is untouched.
+            tdir = os.path.join(out, 'tables')
+            if os.path.islink(tdir):
+                real = os.path.realpath(tdir)
+                os.unlink(tdir)
+                os.makedirs(tdir)
+                for f in os.listdir(real):
+                    os.symlink(os.path.join(real, f), os.path.join(tdir, f))
+            for _, src in cells:
+                for name in re.findall(
+                        r"to_csv\(\s*f?['\"][^'\"]*tables/(TABLE_[\w.]+)", src):
+                    if os.path.islink(os.path.join(tdir, name)):
+                        os.unlink(os.path.join(tdir, name))
+        for i, src in cells:
+            print(f'table cell {i}', flush=True)
+            exec(compile(src, f'cell{i}', 'exec'), g)
     for i, title, src in figs:
         print(f'cell {i}: {title}', flush=True)
         exec(compile(src, f'cell{i}', 'exec'), g)

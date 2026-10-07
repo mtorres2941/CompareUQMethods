@@ -83,6 +83,12 @@ def test_no_global_numpy_randomness(path):
 #: only move pixels.
 DECORATION_MARKER = "# decoration-only generator"
 
+#: A fixed-seed stream owned by ONE `# TABLE` cell (decision 254). Such a cell
+#: is re-executed out of order by `audits/render_figures.py --tables`, so it
+#: cannot spawn from the notebook's Generator; it seeds its own instead, and
+#: the seed is a literal so the stream does not depend on anything above it.
+RESLICE_MARKER = "# re-slice generator"
+
 
 @pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
 def test_generator_is_created_exactly_once(path):
@@ -96,6 +102,11 @@ def test_generator_is_created_exactly_once(path):
         for line in source.splitlines():
             stripped = line.strip()
             if ALLOWED_GLOBAL_RANDOM not in line or stripped.startswith("#"):
+                continue
+            if RESLICE_MARKER in line:
+                assert source.lstrip().startswith("# TABLE"), (
+                    f"{path.name} cell {i}: {RESLICE_MARKER!r} outside a "
+                    f"# TABLE cell")
                 continue
             (decoration if DECORATION_MARKER in line else creations).append(
                 (i, stripped))
