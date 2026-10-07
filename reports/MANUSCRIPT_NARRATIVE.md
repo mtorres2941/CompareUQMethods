@@ -6,7 +6,7 @@ the decision log and in `reports/MANUSCRIPT_discrepancies.md`.
 
 Every number is from the tables on disk, on `corpus_2026-09-25` at
 `weight_rho = 0.5`. **Building and Environment allows 10,000 words excluding
-references, 15 figures and 5 tables**, so eight figures and one table is less
+references, 15 figures and 5 tables**, so nine figures and one table is less
 than half the figure allowance and the binding constraint is the word count.
 
 `reports/WRITING_STYLE.md` is binding on the prose.
@@ -42,7 +42,7 @@ headline numbers as "the average building".
 
 ## 2. The takeaways, ranked
 
-### 1. A probabilistic LCA is wrong by about a quarter whatever method you pick, and most of that is shared
+### 1. A probabilistic LCA is wrong by about a sixth whatever method you pick, and most of that is shared
 
 **Different claims are wrong by very different amounts and the paper must not
 flatten that.** Under the recommended rule, the typical case's error runs from
@@ -126,7 +126,7 @@ not matter which.
 Decisions 204, 216, 217, 220, 224, 225. **No single-declaration cutoff is
 printed anywhere in the paper.**
 
-### 4. Knowing market shares is worth four times what the rule is worth
+### 4. Knowing market shares is worth many times what the rule is worth
 
 Giving the same rule the true market shares above the cutoff takes the pooled
 typical-case error from **17.42 to 13.02 percent**: **4.40 points, or 25.3
@@ -145,7 +145,8 @@ Decisions 217, 221, 252, 253. Entry 183. Mixed-policy pass,
 
 Share of datasets on which the market-weighted fit is *closer* to the truth than
 its own uniform-weighted twin: **32.8 percent** at 3 to 9 declarations for the
-lognormal and 38.5 for the kernel -- wrong about twice as often as right --
+lognormal and 38.5 for the kernel -- worse about twice as often as better for
+the lognormal, and 1.6 times as often for the kernel --
 **53.6 and 52.7** at 81 to 99, and **78.7 and 76.2** above a thousand. Under
 true weights the Kish effective sample size has a median of **2.8** at 3 to 9
 declarations, with 92.4 percent of such datasets below five effective
@@ -190,24 +191,28 @@ Decisions 109, 148, 198, 253.
 
 At a claimed 5 percent saving the truth is **0.599**, the six methods span
 **0.609 to 0.622**, and every method is within **0.023** of the truth -- on
-average over 2,500 comparisons. On *one* comparison the median absolute error
-runs **0.089 to 0.140** and the six disagree about which design is better on
-**28 percent** of comparisons.
+average over 2,500 comparisons. On *one* comparison the mean absolute error
+runs **0.089 to 0.140** (median 0.052 to 0.115), and the six fall on both sides
+of an even chance on **41.6 percent** of comparisons -- they disagree about
+which design is better. All on `corpus_2026-09-25`;
+`TABLE_PLCADesignSwap.csv.gz`.
 
 A contribution ranking needs the leader to exceed the next by **2.28 against
 2.33** times. **In 292 real North American buildings, 73 percent do not**: the
 median building sits at 1.65 times, quartiles 1.24 and 2.33 (Benke et al. 2025,
 A1-A3). The single staircase the literature previously supplied sits at 1.02,
-near the tenth percentile.
+at about the 3rd percentile.
 
-**AND THE ONE REAL BUILDING RUN AT ITS OWN INTENSITIES SAYS THE 73 PERCENT IS
-CONSERVATIVE.** Building 138 leads at 1.59 times, inside the "unsafe" region, and
-yet every one of the seven policies names the same leader: ready-mix 5000 psi
-leads in 86 to 88 percent of iterations under all of them. The 2.3x threshold
-was calibrated on synthetic materials of the corpus's typical spread, and a
-concrete strength class is much tighter, so a concrete-led building is safer
-than the threshold says. Run with every material at equal intensity, the same
-building's methods name three different leaders. See section 5.
+**The one real building run at its own intensities is consistent with this.**
+Building 138 leads at 1.59 times, and every one of the seven policies names the
+same leader: ready-mix 5000 psi leads in 86 to 88 percent of iterations under
+all of them. That agreement is what the calibration predicts. At 1.59 times
+the chance that switching method changes the leader is between the 10 percent
+crossing (1.53) and the 5 percent crossing (1.73), so agreement is expected
+about 90 to 95 percent of the time. One building cannot show that the 73
+percent overstates the risk. What it suggests is narrower: a concrete strength
+class (CV 0.24) is tighter than the corpus's median material (CV 0.61), so a
+concrete-led building plausibly sits on the safe side. See section 5.
 
 **So what:** compare two designs many times and any of these methods is right on
 average. Compare two designs within a few percent of each other and the method
@@ -217,10 +222,10 @@ Decisions 107, 118, 157, 162, 171, 172, 252.
 
 ### 8. A goodness-of-fit result overstates what the better method buys
 
-The kernel estimate overtakes the three-parameter lognormal on fit at **81
-declarations**, 68 to 106 indistinguishable. At the claim level the whole band 40
-to 170 is flat and the entire sweep from 3 to 10,000 moves the pooled error by
-0.78 points. The mechanism: a pLCA picks one method for all four of its
+The kernel estimate overtakes the three-parameter lognormal on fit somewhere
+between **68 and 106 declarations**. At the claim level the whole band 40 to 170
+is flat and the entire sweep from 3 to 10,000 moves the pooled typical-case
+error by 1.0 points (0.78 on the average building). The mechanism: a pLCA picks one method for all four of its
 materials, so one material's advantage is averaged against three neighbors.
 
 Decisions 163, 166, 204.
@@ -307,8 +312,9 @@ measurement on real buildings rather than on real material categories.
 that table row by row. Then the three the rework adds. **Then the
 data-collection argument, which the measurements support in this order:**
 
-1. Market-share data is worth **3.08 of the 24 points** -- the largest single
-   lever measured, and not a method.
+1. Market-share data is worth **4.4 of the 17.4 points** on the typical case
+   (3.1 of 24.0 on the average building) -- the largest single lever measured,
+   and not a method.
 2. It only pays above about eighty declarations, so publishing shares without
    also deepening the declaration count for the dominant products would not help
    and could hurt.
@@ -337,11 +343,11 @@ agreement not being accuracy.
 
 ## 4. The figures
 
-**Eight figures, and every takeaway in section 2 has one.** The two weak ones
+**Nine figures, and every takeaway in section 2 has one.** The two weak ones
 were not cut but REPLACED, because a reader who skips the text and looks only at
 the figures should still get every finding. Topic sentences follow
 `WRITING_STYLE.md` principle 1 -- a claim with a number, first sentence of the
-paragraph.
+paragraph. The graphical abstract (section 6) is separate and not counted.
 
 | # | Figure | The takeaways it carries |
 |---|---|---|
@@ -350,9 +356,10 @@ paragraph.
 | 3 | `FIG_ClaimScorecard` | 1, 6, 9, 10 |
 | 4 | `FIG_MixedPolicy_SpreadZoom` | 3, 4 |
 | 5 | `FIG_WhenToUseWhich` | 8, 11 |
-| 6 | `FIG_BuildingDominance_A`, `_B` or `_C` | 7 |
-| 7 | `FIG_WeightingBySize_A`, `_B` or `_C` | 5 |
+| 6 | `FIG_BuildingDominance` (sorted dots) | 7 |
+| 7 | `FIG_WeightingBySize` (box plus strip) | 5 |
 | 8 | `FIG_ShapePlane` | 2 |
+| 9 | `FIG_Building138` | the worked example, section 5 |
 
 ### Figure 1 -- the six methods on one real category
 `FIG_PDFandCDFofUQMethods`
@@ -507,13 +514,12 @@ interval (2.18 to 2.39; parametric 2.28, monotone 2.33), Building 138 marked at
 - "The median real building sits at 1.65 times, with quartiles of 1.24 and 2.33;
   the one staircase the literature had previously supplied sits at 1.02."
 
-**Building 138 qualifies the 73 percent, and the qualification goes in the
-case-study text, not the caption** (author, 2026-10-07). It sits at 1.59x,
-inside the band's unsafe side, and its ranking does not change under any method
-(section 5), because concrete strength classes are much tighter than the
-corpus's typical material. So 73 percent is the share of buildings NOT protected
-by a large lead; for a building led by a tight material the risk is lower. The
-share is 69.9 percent below the interval's low end and 76.4 below its high end.
+**Building 138's note goes in the case-study text, not the caption** (author,
+2026-10-07). It sits at 1.59x and its ranking does not change under any method
+(section 5), which is what the calibration predicts at that lead, so it neither
+confirms nor corrects the 73 percent. 73 percent is the share of buildings NOT
+protected by a large lead, not the share whose ranking flips. The share is 69.9
+percent below the interval's low end and 76.4 below its high end.
 
 **The data.** Benke et al. (2025), A1-A3, frozen into
 `data/raw/building_top2_benke2025.csv` by `audits/building_dominance.py` so the
@@ -614,28 +620,36 @@ Everything else to the supplement.
 **Intensity is emissions, not mass**, as the author required: rebar is 25 kg/m2
 and the third-largest contributor, because its coefficient is about six times
 concrete's. Each material's intensity in the pLCA is Benke's own A1-A3
-emissions per m2, and every dataset has a mean of 1.0, so a material's mean
-contribution is exactly that intensity. The other 32 materials, 12.2 percent,
-enter the total as a fixed amount. The run uses every method and the size rule
-on common random numbers, at the REAL intensities and with all seven set EQUAL
-at their mean. **There is no true parent for a real category, so this measures
-how far the methods disagree about one building, never how wrong they are.**
+emissions per m2. Every dataset has an unweighted mean of 1.0, so the DATA's
+mean contribution equals that intensity. A fitted model's mean need not: under
+a normal fit, truncation at zero raises rebar's mean contribution from 47.8 to
+59.2 and brick's from 10.1 to 16.4, which is why the normal moves the total in
+item 3. The other 32 materials, 12.2 percent, enter the total as a fixed
+amount. The run uses every method and the size rule on common random numbers,
+at the building's real intensities. **There is no true parent for a real
+category, so this measures how far the methods disagree about one building,
+never how wrong they are.**
+
+The three ready-mix classes hold 14,366, 20,814 and 31,025 declarations,
+above the corpus maximum of 9,978. That does not weaken the case study: the
+size rule assigns them a kernel estimate however large they are, and decision
+137 found the kernel estimate's advantage is already unanimous at 4,000 to
+9,999 declarations, with all three classes behaving like that band.
 
 **What it found** (`TABLE_Building138.csv`, `TABLE_Building138Curves.csv.gz`;
 the cell has its own fixed-seed stream, decision 254):
 
 1. **The ranking is safe.** Every one of the seven policies names ready-mix 5000
    psi as the largest contributor, in 85.7 to 87.7 percent of iterations, even
-   though its lead is only 1.59x. Concrete strength classes are much tighter
-   than the typical synthetic material the 2.3x threshold was calibrated on, so
-   Figure 6's 73 percent overstates the risk for a concrete-led building. This
-   sentence belongs here in the case-study text. (Every material at equal intensity, which the
-   rest of the study uses, gives three different leaders across the methods --
-   one sentence, not a figure.)
+   though its lead is only 1.59x. The calibration predicts this: at 1.59x
+   agreement is expected about 90 to 95 percent of the time. Concrete strength
+   classes are also tighter than the corpus's typical material, so a
+   concrete-led building plausibly sits on the safe side of the 2.3x threshold.
+   That is a suggestion from one building, not a correction to Figure 6.
 2. **Which material drives the uncertainty depends on the method.** Rebar under
    six policies (42.6 percent of the variance under the size rule, 45.2 under a
    kernel estimate with market weights); ready-mix 5000 under the
-   uniform-weighted lognormal, 35.2 against rebar's 35.7 -- effectively a tie.
+   uniform-weighted normal, 34.8 against rebar's 34.3 -- effectively a tie.
    The kernel estimates put rebar well ahead because they keep its long right
    tail; the normal flattens rebar's distribution.
 3. A normal fit moves the building's median total by about 7 percent: 423 to
@@ -672,8 +686,8 @@ are the pooled median of per-unit ratios (decision 253), read from the tables.
 
 **The two items this section carried are settled.** The median form is the
 median of per-unit ratios (decision 253), implemented in every scorecard cell,
-rank, box and figure panel. Building 138 is run at its real intensities and at
-equal ones (section 5).
+rank, box and figure panel. Building 138 is run at its real intensities only;
+the equal-intensity run was dropped by the author (section 5).
 
 ### 1. Every figure design is settled
 
@@ -733,13 +747,13 @@ statistic (decision 253), the scorecard box, three designs each for Figures 6
 and 7 and the graphical abstract, and the Building 138 case study with three
 plots. What is left is below, in order.
 
-### 1. A FRESH REVIEW WINDOW ATTACKS THIS FILE
+### 1. THE REVIEW HAS RUN
 
-Per `reports/START_HERE.md`, before any prose. This window rewrote many numbers
-on the median statistic and its own reading of the file is not a check. The
-standing questions apply, plus two specific ones: **do the captions of Figures
-1, 2, 5 and 8 still quote ratio-of-means numbers without saying so**, and **does
-any section still describe a figure design that was replaced**.
+`reports/REVIEW_MANUSCRIPT_NARRATIVE.md`, 2026-10-07. Findings 1, 2, 4, 5, 7,
+10 and most of 11 are applied in this file. Findings 3 (the cutoff band and
+Figure 4's shading), 6 (the pooled-error precision and the per-claim
+benchmark), 8 (takeaway 11's numbers and Discussion item 6's floor) and 9
+(Figure 2's coverage caption) are waiting on author agreement.
 
 ### 2. THEN THE FIGURE PASS, THEN PROSE
 
@@ -752,24 +766,10 @@ following section 3's arc and `reports/WRITING_STYLE.md`.
 
     python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables --into-outputs
 
-### 3. ONE CLAIM IN THE PREVIOUS VERSION OF THIS SECTION WAS WRONG
-
-It said section 5's top-two ratio of 1.59 was "a MASS ratio and is almost
-certainly wrong as a contribution ratio". It is an emissions ratio:
-`audits/building_dominance.py` computes it from Benke's `gwp` column, and 37.5
-over 23.6 percent of the building's A1-A3 total is 1.59. What was wrong in
-section 5 was only that it listed kg/m2 beside the shares, which invited the
-misreading; section 5 now gives emissions per m2 and coefficients. And the
-rebar coefficient is 1.91 kgCO2e/kg against 0.28 to 0.37 for the concrete,
-about six times, not a hundred.
-
-### 4. SMALLER, CARRIED
+### 3. SMALLER, CARRIED
 
 - The empirical arm's headline contradicts the draft: cross-validated over the
   127 categories reaching n = 10, a three-parameter lognormal is closest on 53.6
   percent against the kernel estimate's 26.0 (decision 252). The paper must say
   it rather than assert agreement between the arms.
 - Decision 65's prohibition has lost its premise (decision 252); open question.
-- Figure 1, 2, 4, 5 and 8 captions in section 4 still quote ratio-of-means
-  numbers where they quote any; re-read each against the median tables before
-  the prose is written.
