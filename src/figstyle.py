@@ -296,7 +296,35 @@ def savefig(fig, out_root, stem, vector=True, **kw):
     kw.setdefault('dpi', 300)
     fig.savefig(f'{base}.png', **kw)
     if vector:
+        # DENSE MARKER LAYERS ARE RASTERIZED IN THE VECTOR SIBLING ONLY. A
+        # scatter of a million points written as vector paths made one PDF
+        # 141 MB, over GitHub's 100 MB file limit. Text, axes and lines stay
+        # vector; the points become an embedded image at the PNG's dpi. The PNG
+        # is unaffected because rasterization only changes vector backends.
+        dense = rasterize_dense(fig)
         vkw = {k: v for k, v in kw.items() if k != 'dpi'}
+        vkw['dpi'] = kw['dpi']
         for ext in VECTOR_EXT:
             fig.savefig(f'{base}{ext}', **vkw)
+        for coll in dense:
+            coll.set_rasterized(False)
     return f'{base}.png'
+
+
+#: A marker collection with more points than this is rasterized in the vector
+#: sibling. Every scatter in the paper's main figures is far below it.
+RASTERIZE_ABOVE = 5000
+
+
+def rasterize_dense(fig, above=RASTERIZE_ABOVE):
+    """Mark every marker collection with more than `above` points rasterized,
+    and return them so the caller can undo it after writing."""
+    from matplotlib.collections import PathCollection
+    out = []
+    for ax in fig.axes:
+        for coll in ax.collections:
+            if (isinstance(coll, PathCollection) and not coll.get_rasterized()
+                    and len(coll.get_offsets()) > above):
+                coll.set_rasterized(True)
+                out.append(coll)
+    return out
