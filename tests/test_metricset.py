@@ -870,3 +870,62 @@ def test_choice_cost_quantiles_describe_the_distribution_pair_mean_averages():
     assert np.isclose(b.unit_p10.iloc[0], 0.0) and np.isclose(b.unit_p90.iloc[0], 5.0)
     # And the median is not the mean on a skewed claim.
     assert b.unit_p50.iloc[0] == 0.0 and b.pair_mean.iloc[0] > 0.9
+
+
+# --- decision 253: the median of per-unit ratios is the headline -----------
+
+def test_median_error_is_the_median_of_per_unit_ratios_and_drops_zero_truths():
+    frame = pd.DataFrame({
+        'method': ['a'] * 5 + ['b'] * 5,
+        'x__truth': [1.0, 2.0, 4.0, 0.0, 10.0] * 2,
+        'x__error': [0.1, -0.4, 0.4, 0.3, -9.0, 0.5, 0.5, 0.5, 0.5, 0.5]})
+    got = MS.median_error(frame, 'x')
+    # a: ratios 0.1, 0.2, 0.1, (dropped), 0.9 -> median of four is 0.15
+    assert got.loc['a', 'median_error'] == pytest.approx(0.15)
+    assert got.loc['a', 'ratio_dropped'] == 1
+    # b: 0.5, 0.25, 0.125, (dropped), 0.05 -> 0.1875
+    assert got.loc['b', 'median_error'] == pytest.approx(0.1875)
+
+
+def test_scorecard_ranks_on_the_median_when_row_level_frames_are_given():
+    """A method that is usually excellent and occasionally catastrophic wins on
+    the median and loses on the ratio of means, and the scorecard must rank on
+    the headline it says it ranks on."""
+    n = 40
+    units = np.arange(n)
+    spiky = np.where(units < 4, 5.0, 0.01)       # rare huge misses
+    steady = np.full(n, 0.2)
+    rows = pd.DataFrame({
+        'plca': np.concatenate([units, units]), 'dataset': 0,
+        'method': ['spiky'] * n + ['steady'] * n,
+        'eci_mean__truth': 1.0,
+        'eci_mean__error': np.concatenate([spiky, steady])})
+    rec = pd.DataFrame({
+        'output': ['eci_mean'] * 2, 'method': ['spiky', 'steady'],
+        'abs_error': [spiky.mean(), steady.mean()], 'bias_raw': [0, 0],
+        'truth_mean': [1.0, 1.0], 'n': [n, n]})
+    claims = (('attribution', 'c', 'recovery', 'eci_mean'),)
+    empty = pd.DataFrame()
+    mean_form = MS.claim_scorecard(rec, empty, empty, empty, claims=claims)
+    med_form = MS.claim_scorecard(rec, empty, empty, empty, claims=claims,
+                                  recovery_rows=rows)
+    assert (mean_form.best_method == 'steady').all()
+    assert (mean_form.ranked_on == 'total_error').all()
+    assert (med_form.best_method == 'spiky').all()
+    assert (med_form.ranked_on == MS.HEADLINE_ERROR).all()
+    # the ratio of means is still carried, unchanged, beside the headline
+    assert med_form.set_index('method').total_error.to_dict() == pytest.approx(
+        mean_form.set_index('method').total_error.to_dict())
+
+
+def test_choice_cost_ratio_ladder_divides_by_each_unit_s_own_truth():
+    frame = pd.DataFrame({
+        'plca': [0, 0, 1, 1], 'method': ['a', 'b'] * 2,
+        'total_mean__truth': [1.0, 1.0, 10.0, 10.0],
+        'total_mean__error': [0.0, 0.5, 0.0, 0.5]})
+    claims = (('magnitude', 'c', 'building', 'total_mean'),)
+    got = MS.choice_cost({'building': frame}, claims=claims).iloc[0]
+    # differences 0.5 and 0.5; own truths 1 and 10 -> ratios 0.5 and 0.05
+    assert got['ratio_p50'] == pytest.approx(0.275)
+    # the level-scaled ladder is unchanged: 0.5 / mean truth 5.5
+    assert got['unit_p50'] == pytest.approx(0.5 / 5.5)

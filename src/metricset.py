@@ -242,8 +242,11 @@ def size_band_recovery(truth, outputs=CANDIDATES, method='method', n='n',
                 continue
             for name, sub in band.groupby(method, sort=True):
                 err = pd.to_numeric(sub[col], errors='coerce').abs()
+                rat = unit_ratios(sub, out)
                 rows.append(dict(band=label, method=name, output=out,
                                  rel_error=float(err.mean() / level),
+                                 median_error=float(np.nanmedian(rat))
+                                 if rat.notna().any() else np.nan,
                                  truth_level=level, n_materials=int(len(sub))))
     return pd.DataFrame(rows)
 
@@ -710,6 +713,54 @@ DUPLICATE_CLAIMS = (
 DIFFERENCE_FLOOR = 1e-3
 
 
+#: THE STATISTIC EVERY SCORECARD CELL, RANK AND BEST-METHOD BOX IS READ OFF.
+#: Author decision 2026-10-06 (decision 253): the MEDIAN OF PER-UNIT RATIOS,
+#: median over units of |method - truth| / |truth|. It is the error one
+#: typical building, material or design comparison carries as a percentage of
+#: its OWN true value, which is the median absolute percentage error of the
+#: forecasting literature. The ratio of means, `total_error`, stays in every
+#: table beside it and is what a sentence about the average building quotes.
+#: The per-unit errors are strongly right skewed on all fifteen claims, so the
+#: two differ by about a factor of 1.4 pooled and the mean overstates what a
+#: typical building sees.
+HEADLINE_ERROR = 'median_error'
+
+
+def unit_ratios(frame, output):
+    """|error| / |truth| per row, NaN where the truth is zero or not finite.
+
+    A per-unit ratio is undefined at a zero truth -- a specification cap that
+    never binds, a material whose true variance share is exactly zero -- and
+    unbounded near one. The median is robust to the second and the first is
+    dropped and COUNTED rather than silently imputed; see `median_error`.
+    """
+    e = pd.to_numeric(frame[f'{output}__error'], errors='coerce').abs()
+    t = pd.to_numeric(frame[f'{output}__truth'], errors='coerce').abs()
+    r = e / t
+    return r.where(np.isfinite(r) & (t > 0))
+
+
+def median_error(frame, output, method='method'):
+    """Per method: the median over units of |error| / |truth|.
+
+    Returns a DataFrame indexed by method with `median_error` and
+    `ratio_dropped`, the number of units whose truth was zero or not finite
+    and so carry no ratio. Every unit is weighted equally, which is what
+    "the typical building" means; a large miss on a large material counts the
+    same as a small miss on a small one, which is the trade decision 253
+    accepted against the ratio of means.
+    """
+    r = unit_ratios(frame, output)
+    work = pd.DataFrame({'m': frame[method].to_numpy(), 'r': r.to_numpy()})
+    rows = []
+    for name, sub in work.groupby('m', sort=True):
+        rows.append(dict(method=name,
+                         median_error=float(np.nanmedian(sub['r']))
+                         if sub['r'].notna().any() else np.nan,
+                         ratio_dropped=int(sub['r'].isna().sum())))
+    return pd.DataFrame(rows).set_index('method')
+
+
 def per_unit_error(frame, output, method='method', block=None):
     """Both errors a set of signed per-unit errors can be summarized into.
 
@@ -787,7 +838,8 @@ def per_unit_error(frame, output, method='method', block=None):
 
 def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
                     claims=SCORECARD_CLAIMS, method='method',
-                    swap_block='saving', difference_floor=DIFFERENCE_FLOOR):
+                    swap_block='saving', difference_floor=DIFFERENCE_FLOOR,
+                    recovery_rows=None):
     """The fifteen claims by the six methods, every row on ONE definition.
 
     ONE DEFINITION FOR EVERY ROW IS THE WHOLE POINT OF THE TABLE, and it has
@@ -826,11 +878,26 @@ def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
     building_rows, intervention_rows, swap_rows : DataFrame
         The row-level truth-run frames, one row per pLCA, per material and per
         design pair respectively.
+    recovery_rows : DataFrame or None
+        The ROW-LEVEL per-material truth run, filtered to the same truth
+        parent as `recovery`. Needed for `median_error` on the seven
+        per-material claims, which the aggregated `recovery` cannot supply.
+        When it is given every row gains `median_error` and `ratio_dropped`,
+        and the derived columns are ranked on `HEADLINE_ERROR`; when it is not,
+        they are ranked on `total_error` as before and `ranked_on` says so.
     """
     sources = {'building': (building_rows, None),
                'intervention': (intervention_rows, None),
                'swap': (swap_rows, swap_block)}
     rows = []
+    medians = {}
+    row_frames = {'recovery': recovery_rows, 'building': building_rows,
+                  'intervention': intervention_rows, 'swap': swap_rows}
+    if recovery_rows is not None:
+        for _, label, source, output in claims:
+            f = row_frames[source]
+            if f is not None and f'{output}__error' in f.columns:
+                medians[label] = median_error(f, output, method=method)
     for group, label, source, output in claims:
         if source == 'recovery':
             sub = recovery[recovery['output'] == output]
@@ -857,14 +924,21 @@ def claim_scorecard(recovery, building_rows, intervention_rows, swap_rows,
         return frame
     frame['total_error'] = frame['error'] / frame['scale']
     frame['portfolio_error'] = frame['error_portfolio'] / frame['scale']
-    frame = rescore(frame, difference_floor=difference_floor)
+    if medians:
+        med = pd.concat({k: v for k, v in medians.items()},
+                        names=['claim', 'method']).reset_index()
+        frame = frame.merge(med, on=['claim', 'method'], how='left')
+        frame = rescore(frame, difference_floor=difference_floor,
+                        value=HEADLINE_ERROR)
+    else:
+        frame = rescore(frame, difference_floor=difference_floor)
     order = {lab: i for i, (_, lab, _, _) in enumerate(claims)}
     return (frame.assign(_o=frame['claim'].map(order))
             .sort_values(['_o', 'method']).drop(columns='_o')
             .reset_index(drop=True))
 
 
-def rescore(frame, difference_floor=DIFFERENCE_FLOOR):
+def rescore(frame, difference_floor=DIFFERENCE_FLOOR, value='total_error'):
     """Recompute the derived columns over whatever methods `frame` holds.
 
     `rank`, `stakes`, `best_error`, `excess`, `best_method` and
@@ -877,15 +951,22 @@ def rescore(frame, difference_floor=DIFFERENCE_FLOOR):
     Split out of `claim_scorecard` so there is ONE implementation of those six
     columns. Doing it a second time in a notebook cell is how two tables end up
     disagreeing about which method is best.
+
+    `value` names the statistic they are read off, and it is written into the
+    frame as `ranked_on` so a table cannot be read under the wrong one. The
+    scorecard ranks on `HEADLINE_ERROR` from decision 253; `total_error`, the
+    ratio of means, is the default only so that a caller holding no row-level
+    frames still gets a table.
     """
     frame = frame.copy()
-    piv = frame.pivot(index='claim', columns='method', values='total_error')
+    piv = frame.pivot(index='claim', columns='method', values=value)
     lo, hi = piv.min(axis=1), piv.max(axis=1)
-    frame['rank'] = frame.groupby('claim')['total_error'].rank(
+    frame['rank'] = frame.groupby('claim')[value].rank(
         method='min').astype(int)
     frame['stakes'] = frame['claim'].map(hi - lo)
     frame['best_error'] = frame['claim'].map(lo)
-    frame['excess'] = frame['total_error'] - frame['claim'].map(lo)
+    frame['excess'] = frame[value] - frame['claim'].map(lo)
+    frame['ranked_on'] = value
     frame['best_method'] = frame['claim'].map(piv.idxmin(axis=1))
     frame['methods_differ'] = frame['stakes'] > difference_floor
     return frame
@@ -939,6 +1020,11 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
                         claim where every building moves a little and one
                         where most move nothing and a few move a lot have the
                         same `pair_mean` and different spreads.
+        `ratio_p05` ..  the same ladder with each per-unit difference
+        `ratio_p95`     divided by THAT unit's own true value rather than by
+                        the claim's mean level, so it is on the scale of
+                        `median_error`, the headline the cells show (decision
+                        253). Units with a zero truth are dropped.
         `pair_worst`    the same for the worst pair, which is what the choice
                         costs between the two methods that disagree most.
         `shared`        mean over units of |mean signed error over methods|:
@@ -1001,6 +1087,11 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
         if len(names) < 2:
             continue
         err = piv.to_numpy(float)
+        # each unit's OWN true value, for the ratio ladder below. The truth
+        # repeats identically across methods, so the first column is it.
+        tru = np.abs(frame.pivot_table(index=keys, columns=method,
+                                       values=tcol).reindex(piv.index)
+                     .to_numpy(float)[:, 0])
         level = abs(float(np.nanmean(
             pd.to_numeric(frame[tcol], errors='coerce').to_numpy(float))))
         diffs = [np.abs(err[:, i] - err[:, j])
@@ -1023,6 +1114,15 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
         QS = (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95)
         qq = (np.nanquantile(pooled, QS) if pooled.size
               else np.full(len(QS), np.nan))
+        # THE SAME DISTRIBUTION ON THE HEADLINE'S OWN SCALE (decision 253):
+        # each per-unit difference divided by THAT unit's true value, so the
+        # bar is a percentage of the case's own size exactly as the cells
+        # are. Units with a zero truth carry no ratio and are dropped.
+        with np.errstate(divide='ignore', invalid='ignore'):
+            rat = np.concatenate([d / tru for d in diffs])
+        rat = rat[np.isfinite(rat)]
+        rq = (np.nanquantile(rat, QS) if rat.size
+              else np.full(len(QS), np.nan))
         cells = np.nanmean(np.abs(err), axis=0)
         shared = float(np.nanmean(np.abs(np.nanmean(err, axis=1))))
         worst_cell = float(np.nanmax(cells))
@@ -1039,6 +1139,8 @@ def choice_cost(sources, claims=SCORECARD_CLAIMS, method='method',
             unit_p75=float(qq[4]) / level,
             unit_p90=float(qq[5]) / level,
             unit_p95=float(qq[6]) / level,
+            **{f'ratio_p{int(round(100 * q)):02d}': float(v)
+               for q, v in zip(QS, rq)},
             shared=shared / level,
             worst_cell=worst_cell / level,
             specific=(worst_cell - shared) / level,
