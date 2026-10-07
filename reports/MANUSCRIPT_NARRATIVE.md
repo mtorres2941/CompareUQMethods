@@ -22,13 +22,21 @@ ECC datasets whose true distribution is known by construction, and a
 probabilistic LCA run twice on the same random draws, once with fitted models
 and once with the true distributions.
 
-That lets the paper say three things the literature cannot. **A probabilistic
-LCA misstates what it reports by about a quarter of the quantity being claimed,
-and most of that no choice of method removes.** **Two choices do matter and are
-measured: never fit a normal distribution, which costs 36 percent of the error,
-and switch distribution family by dataset size, which buys 3 percent.** **And
-the largest lever is not a method at all -- it is market-share data, worth 13
-percent.**
+That lets the paper say three things the literature cannot. **On a typical
+claim a probabilistic LCA is off by about a sixth of the quantity being claimed
+(median 17 percent; the average over all buildings is 24), and most of that no
+choice of method removes.** **Two choices are measured: never fit a normal
+distribution, which raises the typical error by half, and switch distribution
+family by dataset size, which is the best a reader can do but buys almost
+nothing over a kernel estimate everywhere.** **And the largest lever is not a
+method at all -- it is market-share data, which would cut the typical error by a
+quarter.**
+
+**Every number in this file is the MEDIAN OF PER-UNIT RATIOS unless it says
+otherwise** -- the error one typical building, material or design comparison
+carries as a percentage of its own true value -- by author decision 253. The
+ratio of means, the average error over the average true level, is quoted beside
+headline numbers as "the average building".
 
 ---
 
@@ -37,25 +45,24 @@ percent.**
 ### 1. A probabilistic LCA is wrong by about a quarter whatever method you pick, and most of that is shared
 
 **Different claims are wrong by very different amounts and the paper must not
-flatten that.** Under the recommended rule, as a percentage of each claim's own
-true level, the error runs from **5.2 percent** on the chance of meeting a
-carbon budget to **48.8** on the uncertainty index, with a median of 23.7 -- a
-nearly tenfold range. The averages: the best available choice **23.9**, the rule
-**24.0**, a kernel estimate everywhere **24.7**, a three-parameter lognormal
-everywhere **24.7**, a normal everywhere **32.5**. Per claim, the part of the
-error that *every* method makes together runs from 5.9 to **44.6**.
+flatten that.** Under the recommended rule, the typical case's error runs from
+**4.4 percent** on the chance of meeting a carbon budget to **43.5** on the
+uncertainty index, with a median of 17.1 -- a tenfold range. Pooled over the
+fifteen claims: the rule **17.4**, a kernel estimate everywhere **17.5**, a
+three-parameter lognormal everywhere **18.4**, a normal everywhere **26.5**. The
+average building (ratio of means) reads 24.0, 24.7, 24.7 and 32.5.
 
 **So what:** how badly a probabilistic LCA misses depends far more on what you
-ask it than on how you model it. Ask it whether a building meets a budget and it
-is out by about 5 percent; ask it which material drives the uncertainty and it
-is out by about 49. Choosing the best available method instead of the worst
-sensible one gets about one point back on average; choosing a normal costs eight.
+ask it than on how you model it. Ask a typical building whether it meets a
+budget and the answer is out by about 4 percent; ask which material drives the
+uncertainty and it is out by about 44. Among the three sensible choices a reader
+has, the spread is one point; choosing a normal costs nine.
 
-**The single "about a quarter" figure is the mean over the fifteen claims and is
+**The single "about a sixth" figure is the median over the fifteen claims and is
 a headline, not a result.** Wherever it appears the range goes with it.
 
-Decisions 174, 230, 246, 247.
-`python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_ClaimScorecardWithRule.csv'); print((d.pivot(index='claim',columns='method',values='total_error')*100).mean().round(2))"`
+Decisions 174, 230, 246, 247, 253.
+`python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_ClaimScorecardWithRule.csv'); print((d.pivot(index='claim',columns='method',values='median_error')*100).mean().round(2))"`
 
 ### 2. The flexible methods win because the rigid ones cannot match spread and skew at once
 
@@ -96,10 +103,21 @@ paper is about the case where you have the data.**
 
 Uniform weights throughout, a kernel estimate at or above the cutoff, a
 three-parameter lognormal below. **The cutoff is 40 to 170 declarations**, every
-value in that band indistinguishable from the best. The rule is closest of the
-four options a reader can choose on **10 of 15** claims, and pooled it is as
-good as knowing in advance which fixed method would win each claim (23.96
-against 23.92).
+value in that band indistinguishable from the best on the ratio of means
+(decision 224). **Re-tested on the median of ratios it holds and widens**: 20 to
+300 indistinguishable, best at 60, and both ends -- a kernel estimate everywhere
+and a lognormal everywhere -- remain distinguishably worse (300 resamples; the
+6,000-resample table is `TABLE_MixedPolicyThresholdBothStats.csv`). So 40 to 170
+is the range that survives BOTH statistics and is the one to print. The rule is
+closest of the four options a reader can choose on **7 of 15** claims -- the
+kernel estimate on 5, the lognormal on 3 -- and pooled it is the lowest of the
+four, **17.38 against 17.54** for a kernel estimate everywhere and 17.23 for
+knowing in advance which fixed method wins each claim.
+
+**The honest size of it: under the typical-case statistic the rule is worth
+0.16 points over a kernel estimate everywhere.** It is the best available
+choice and not by much. That is a result to state, not to hide, and it is what
+makes takeaway 4 the paper's main practical lever.
 
 **So what:** count the EPDs you have. Above about a hundred use a kernel density
 estimate, below about fifty fit a three-parameter lognormal, in between it does
@@ -111,14 +129,17 @@ printed anywhere in the paper.**
 ### 4. Knowing market shares is worth four times what the rule is worth
 
 Giving the same rule the true market shares above the cutoff takes the pooled
-error from **23.97 to 20.89 percent** of the true level: **3.08 points, or 12.8
-percent of what was there**. The rule itself is worth 0.7 points.
+typical-case error from **17.42 to 13.02 percent**: **4.40 points, or 25.3
+percent of what was there**. The rule itself is worth 0.14 points over the best
+uniform-weighted fixed method on the same pass. On the average building (ratio
+of means) the same comparison reads 23.97 to 20.89, 3.08 points or 12.8 percent.
 
-**So what:** a probabilistic LCA is wrong by about 24 percent today. Knowing
-exactly how much of each product is actually built would take that to 21 -- four
-times what any choice of curve is worth.
+**So what:** for a typical building a probabilistic LCA is off by about 17
+percent today. Knowing exactly how much of each product is actually built would
+take that to 13 -- many times what any choice of curve is worth.
 
-Decisions 217, 221, 252. Entry 183.
+Decisions 217, 221, 252, 253. Entry 183. Mixed-policy pass,
+`TABLE_MixedPolicyScorecard.csv`, methods `Mixed` and `Feasible@80`.
 
 ### 5. Market share does not merely fail to help below about eighty declarations; it actively hurts
 
@@ -147,17 +168,23 @@ weight on each product group is that group's true share to 1.1e-16.
 
 ### 6. Do not fit a normal distribution, and say which claim you mean
 
-A normal is **35.8 percent** worse pooled than the best available choice, and
-**50.6 percent** worse on a material's chance of being the largest contributor.
-It is the worst of the seven policies on 13 of 15 claims. **And on the
-uncertainty index it is the best of the four a reader can choose.**
+A normal is **52 percent** worse pooled than the rule on the typical case
+(26.45 against 17.38), and **65 percent** worse than the best available choice
+on a material's chance of being the largest contributor (42.2 against 25.6). It
+is the worst of the seven policies on 14 of 15 claims and the best of the four a
+reader can choose on none. On the average building the penalty is 36 percent,
+so **a normal is not dragged down by a few terrible cases; it is worse on the
+typical case by more than the average says.**
 
-**So what:** fitting a normal curve to embodied carbon data increases the error
-in your estimate of which material contributes most by about half. The one
-question it does not hurt is which material drives the uncertainty, and no
-method answers that one well.
+The ratio of means had the normal best of the four on the uncertainty index; the
+median does not, and that reversal is one of the two the previous review
+measured (decision 253).
 
-Decisions 109, 148, 198.
+**So what:** fitting a normal curve to embodied carbon data makes a typical
+building's answer worse by about half, and its estimate of which material
+contributes most worse by about two thirds.
+
+Decisions 109, 148, 198, 253.
 
 ### 7. The decision a designer makes is robust; the number they report is not
 
@@ -172,6 +199,15 @@ A contribution ranking needs the leader to exceed the next by **2.28 against
 median building sits at 1.65 times, quartiles 1.24 and 2.33 (Benke et al. 2025,
 A1-A3). The single staircase the literature previously supplied sits at 1.02,
 near the tenth percentile.
+
+**AND THE ONE REAL BUILDING RUN AT ITS OWN INTENSITIES SAYS THE 73 PERCENT IS
+CONSERVATIVE.** Building 138 leads at 1.59 times, inside the "unsafe" region, and
+yet every one of the seven policies names the same leader: ready-mix 5000 psi
+leads in 86 to 88 percent of iterations under all of them. The 2.3x threshold
+was calibrated on synthetic materials of the corpus's typical spread, and a
+concrete strength class is much tighter, so a concrete-led building is safer
+than the threshold says. Run with every material at equal intensity, the same
+building's methods name three different leaders. See section 5.
 
 **So what:** compare two designs many times and any of these methods is right on
 average. Compare two designs within a few percent of each other and the method
@@ -192,9 +228,10 @@ Decisions 163, 166, 204.
 ### 9. Which material drives the uncertainty is the one answer every method agrees on and every method gets wrong
 
 NRMSE between methods **0.55**, the lowest of the main outputs, against 1.09 for
-a rank-1 frequency. Recovery error against the truth **48.6 to 49.8 percent**,
-the worst of the fifteen claims, and **44.6 points of that is error every method
-makes together**. The cause is dataset size: a variance estimated from nine
+a rank-1 frequency. The typical material's error against the truth is **41.8 to
+47.3 percent** across the seven policies, the worst of the fifteen claims (the
+average-building form reads 47.6 to 49.8, and **44.6 points of that average is
+error every method makes together**). The cause is dataset size: a variance estimated from nine
 declarations is badly understated, and a variance share must sum to one.
 
 **So what:** every method tells you the same thing about which material drives
@@ -206,14 +243,16 @@ Decisions 146, 159. Entry 186.
 
 ### 10. What the choice costs, per decision, by question
 
-Mean over method pairs of the absolute difference in one decision, as a
-percentage of the claim's true level: a specification cap's chance of delivering
-**37.3**, how often it binds **36.4**, which material is largest **33.0**, the
-uncertainty index **27.3**, down to the chance of meeting a budget **5.5**.
+Median over buildings and method pairs of how far one decision moves when the
+method changes, as a percentage of that building's own true value: a
+specification cap's chance of delivering **28.4**, how often it binds **27.4**,
+which material is largest **25.6**, the uncertainty index **24.1**, down to the
+chance of meeting a budget **2.9**. **One building in ten sees more than 93 to
+124 percent on the first four.**
 
-Decision 174, entry 186. Every one is the error in **one** decision; the averaged
-form is 1.1 to 12.7 times smaller and must never be quoted as "the method is
-right".
+Decisions 174, 253, entry 186. `TABLE_ClaimChoiceCost.csv`, columns
+`ratio_p10` to `ratio_p90`. Every one is the error in **one** decision; the
+averaged form must never be quoted as "the method is right".
 
 ### 11. A better fit does give a better answer, and not by as much as the fit suggests
 
@@ -309,10 +348,10 @@ paragraph.
 | 1 | `FIG_PDFandCDFofUQMethods` | what the methods ARE; 2 |
 | 2 | `FIG_MetricCoverage` | generalizability |
 | 3 | `FIG_ClaimScorecard` | 1, 6, 9, 10 |
-| 4 | `FIG_MixedPolicy` | 3, 4 |
+| 4 | `FIG_MixedPolicy_SpreadZoom` | 3, 4 |
 | 5 | `FIG_WhenToUseWhich` | 8, 11 |
-| 6 | `FIG_BuildingDominance` | 7 |
-| 7 | `FIG_WeightingBySize` | 5 |
+| 6 | `FIG_BuildingDominance_A`, `_B` or `_C` | 7 |
+| 7 | `FIG_WeightingBySize_A`, `_B` or `_C` | 5 |
 | 8 | `FIG_ShapePlane` | 2 |
 
 ### Figure 1 -- the six methods on one real category
@@ -360,52 +399,81 @@ Without that sentence the pairing looks arbitrary.
 
 ![](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
 
-- "Across the fifteen claims a probabilistic LCA makes, the best method a
-  practitioner can choose is still wrong by 23.9 percent of the quantity being
-  claimed, and the choice between the three reasonable methods accounts for less
-  than one point of that."
+- "On a typical building, the best method a practitioner can choose is still
+  off by 17 percent of the quantity being claimed, pooled over fifteen claims,
+  and the three reasonable methods sit within one point of each other."
 - "Fitting a normal distribution is the one choice that carries a real penalty,
-  costing 35.8 percent of the pooled error and 50.6 percent on the question of
-  which material contributes most."
-- "How much the answer moves when you pick a different method depends entirely on
-  which claim is being made, and on most claims the spread across buildings is
-  wider than its own average."
+  raising the typical error by half and by two thirds on the question of which
+  material contributes most."
+- "How much the answer moves when you pick a different method depends on which
+  claim is being made: for a typical building it moves the chance of meeting a
+  budget by 3 percent and which material is largest by 26, and for one building
+  in ten by 14 and 94."
 - "Which method is closest to the truth inverts at about a hundred declarations
-  on both axes at once, from a lognormal with uniform weights below to a kernel
-  estimate with market weights above."
+  on both axes at once, from a lognormal or kernel estimate with uniform weights
+  below to a kernel estimate with market weights above."
 
-The right-hand bar spans the **10th to 90th percentile of the per-building,
-per-method-pair difference** with the median marked, rather than a single
-averaged number -- and **the distribution turns out to be strongly right skewed
-on every one of the fifteen claims**, which the averaged bar was hiding:
+**The cells now show the MEDIAN OF PER-UNIT RATIOS (decision 253) and so does
+the lower panel**, which shares their color scale; the box on the right is the
+same statistic's distribution, each per-building difference between two methods
+divided by that building's own true value. Whisker 10th to 90th percentile,
+filled box the interquartile range, dark line and the number in the right-hand
+column the median. **The title's count moved from 10 of 15 to 7 of 15** because
+the boxes are now read off the median.
 
-    claim                                  p10    median    p90    mean
-    a material: its mean contribution      0.0      5.3     32.1   12.2
-    a material: its 95th percentile        0.2      5.6     32.8   12.6
-    the chance of meeting a budget         0.3      2.9     14.1    5.5
-    a material: its chance of being largest 3.1    24.2     73.9   33.0
-    a cap: its chance of saving 5 pct      1.1     25.2     90.5   37.3
+    claim                                   p10   p25  median   p75    p90
+    a cap: its chance of saving 5 pct       1.9   9.7    28.4  61.4  106.7
+    a material: its chance of being largest 3.2   9.8    25.6  52.5   93.5
+    the uncertainty index                   2.7   8.6    24.1  57.1  123.9
+    a material: its mean contribution       0.0   0.9     5.4  17.0   33.8
+    the chance of meeting a budget          0.3   1.1     2.9   7.0   14.1
 
-**So the honest sentence is not "the choice moves a material's estimated
-contribution by 12 percent".** It is that for most buildings it moves it by
-about 5 percent and for one in ten by more than 32 -- the mean is more than
-twice the median on four of the fifteen claims. That is a different and more
-useful statement for a reader with one building, and it is the one the author
-asked for.
+**AND ITS RATIO-OF-MEANS TWIN GOES TO THE SUPPLEMENT** (author, 2026-10-06):
+`SUPP_ClaimScorecardMeanForm`, drawn by the same cell with its cells, lower
+panel and box all on total misstated carbon over total true carbon. That is the
+number for a carbon budget or a building stock; the main figure is the number
+for one building. Its title count is 10 of 15, the main figure's 7 of 15.
 
-### Figure 4 -- the rule, and what market-share data would buy
-`FIG_MixedPolicy`
+![](../outputs/figures/CompareUQMethods_SUPP_ClaimScorecardMeanForm.png)
+
+**The bar is right skewed on every claim**, so the honest sentence is not "the
+choice moves a material's estimated contribution by 12 percent": for a typical
+building it moves it by 5 and for one in ten by more than 34.
+
+### Figure 4 -- the rule, and what market-share data would buy. CHOSEN: ZOOM PLUS SPREAD
+`FIG_MixedPolicy_SpreadZoom` in the main text; `FIG_MixedPolicy` (ratio of
+means) and `FIG_MixedPolicy_Median` in the supplement
+
+![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy_SpreadZoom.png)
+
+Chosen by the author over a single-statistic curve (A, B) and the spread alone
+(C), because it keeps the story legible and the uncertainty on the page. The
+**top panel** zooms on four lines -- the size rule and the size rule given true
+market shares, each as a median (solid) and a mean (dashed) -- with the four pure
+methods as reference lines on both statistics. The **bottom panel** is the size
+rule's per-case error at true scale, the middle half and the middle 80 percent,
+with a box marking where the top panel's window sits.
+
+- "Switching distribution family by dataset size beats either family alone
+  anywhere from 40 to 170 declarations, on both the typical case and the
+  average."
+- "Moving the cutoff shifts the typical error by about one point across the
+  whole sweep, while one building's error ranges over about 60 points; the
+  uncertainty no choice of method removes dwarfs the choice."
+- "Knowing the true market share of every product would cut the typical error
+  from 17.4 to 13.0 percent and the average from 24.0 to 20.9."
+
+**The band, under both statistics** (`TABLE_MixedPolicyThresholdBothStats.csv`,
+6,000 resamples, its own fixed-seed stream): ratio of means 40 to 170, the
+published band reproduced; median of ratios wider and containing it. Both
+degenerate ends -- a kernel estimate everywhere and a lognormal everywhere --
+are distinguishably worse under both. **Print 40 to 170.**
+
+**Supplement: the same curve on each statistic alone.**
 
 ![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy.png)
 
-- "Switching distribution family by dataset size beats using either family
-  everywhere, at any cutoff between 40 and 170 declarations."
-- "Where exactly the cutoff sits is worth a fifth of what having the rule at all
-  is worth: the entire sweep from 3 to 10,000 declarations moves the pooled error
-  by 0.78 points, of which 0.70 is the rule beating the best fixed method."
-- "Knowing the true market share of every product would reduce the error of a
-  probabilistic LCA by 3.08 points of the 24 it carries, which is four times what
-  any choice of fitting method is worth."
+![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy_Median.png)
 
 ### Figure 5 -- which method is closest, by category size
 `FIG_WhenToUseWhich`
@@ -418,57 +486,65 @@ asked for.
   declarations on goodness of fit, and that crossing is much less sharp once the
   fit is carried through to a probabilistic LCA claim."
 
-First candidate for cutting if the word count binds: Figure 3's lower panel
-carries the same inversion at the claim level.
+**Kept, by author decision 2026-10-06**: it makes the point that closeness of
+fit does not translate into probabilistic LCA findings in a way a practitioner
+could check, which is the case for following the size rule rather than trying
+to judge each category. That is the paper's framing for takeaways 8 and 11.
 
-### Figure 6 -- where real buildings sit on the safe-lead axis. NEW
+### Figure 6 -- where real buildings sit on the safe-lead axis. CHOSEN: SORTED DOTS
 `FIG_BuildingDominance`
 
 ![](../outputs/figures/CompareUQMethods_FIG_BuildingDominance.png)
 
-- "In 73 percent of 292 real North American buildings the largest material does
-  not lead the next by the factor of 2.3 that the ranking needs to be safe, so
-  for most buildings the choice of UQ method can change which material is named
-  the biggest contributor."
-- "The median real building sits at 1.65 times, with quartiles of 1.24 and
-  2.33, and the one staircase the literature had previously supplied sits at
-  1.02 -- near the tenth percentile, so it was a tight case but not an
-  unrepresentative one."
+Design C of three, chosen by the author: every one of the 292 buildings as a
+dot sorted by its top-two ratio, nothing binned, the threshold shaded as its
+interval (2.18 to 2.39; parametric 2.28, monotone 2.33), Building 138 marked at
+1.59x. The staircase of Marsh et al. (in press) at 1.02 moves to the caption.
 
-**This replaces the two-panel dominance figure, which drew a monotone decline
-beside a flat line.** It uses the Benke et al. (2025) dataset the author
-supplied, reduced to one number per building. **It is conservative**: the 2.3
-threshold is calibrated at four materials and these buildings hold a median of
-37, and decision 107 measures the crossing rising with group size.
+- "In 73% of 292 real North American buildings the largest material does
+  not lead the next by the factor of about 2.3 that the ranking needs to be safe
+  under a typical material spread."
+- "The median real building sits at 1.65 times, with quartiles of 1.24 and 2.33;
+  the one staircase the literature had previously supplied sits at 1.02."
 
-The derivation is frozen into `data/raw/building_top2_benke2025.csv` by
-`audits/building_dominance.py`, because the 100 MB input is gitignored and the
-figure has to redraw from a clean clone -- the pattern decision 31 set for the
-EC3 extract.
+**Building 138 qualifies the 73 percent, and the qualification goes in the
+case-study text, not the caption** (author, 2026-10-07). It sits at 1.59x,
+inside the band's unsafe side, and its ranking does not change under any method
+(section 5), because concrete strength classes are much tighter than the
+corpus's typical material. So 73 percent is the share of buildings NOT protected
+by a large lead; for a building led by a tight material the risk is lower. The
+share is 69.9 percent below the interval's low end and 76.4 below its high end.
 
-**The flat-line finding the old figure carried survives as one sentence**: a
-dominant material protects the ranking and leaves the magnitude untouched, the
-error in a material's estimated contribution being unchanged across the whole
-range of dominance.
+**The data.** Benke et al. (2025), A1-A3, frozen into
+`data/raw/building_top2_benke2025.csv` by `audits/building_dominance.py` so the
+figure redraws from a clean clone (the pattern decision 31 set). The threshold
+is calibrated at four materials and these buildings hold a median of 37.
 
-### Figure 7 -- when market shares start to help. NEW
+### Figure 7 -- when market shares start to help. CHOSEN: BOX PLUS STRIP
 `FIG_WeightingBySize`
 
 ![](../outputs/figures/CompareUQMethods_FIG_WeightingBySize.png)
 
-- "Applying a known market share makes the fit worse rather than better below
-  about eighty declarations, and the crossing is the same for a kernel estimate
-  and a three-parameter lognormal, so it is not a property of the kernel
-  bandwidth."
-- "The median real EC3 category holds 47 declarations and 64 percent hold fewer
-  than eighty, so for most real materials a market-share estimate would not help
-  even if one existed."
+Design B of three, chosen by the author, with "shares help" and "shares hurt"
+beside the line at 1x. It shades 80 to 100 declarations and draws no line at 80
+(decisions 222, 225). The y quantity is per dataset: the error ignoring the true
+shares divided by the error using them, on a log axis.
 
-**This replaces the weighting-drivers scatter and needs none of the machinery
-that one rested on.** It asks a single question with a known answer -- does
-applying the true shares get the fit closer to the true market-weighted parent
--- and reads the crossing off where the curves pass half. No W1 threshold, no
-flip level, no argmax, no four-material construction.
+    n          KDE helped / median ratio     Lognormal helped / median ratio
+    3-9          38.5 pct   0.90x              32.8 pct   0.86x
+    30-79        45.2       0.92x              46.9       0.96x
+    80-100       52.3       1.03x              54.3       1.05x
+    1000-2999    71.1       1.78x              75.7       1.28x
+    3000-9999    80.6       2.92x              81.4       1.36x
+
+- "Applying a known market share makes the fit worse rather than better below 80
+  to 100 declarations, and the crossing is the same for a kernel estimate and a
+  three-parameter lognormal, so it is not a property of the kernel bandwidth."
+- "Above the band the kernel estimate gains far more from known shares than the
+  lognormal: above 3,000 declarations its median error falls to a third."
+- "The median real EC3 category holds 47 declarations and 64 percent hold fewer
+  than 80, so for most real materials a market-share estimate would not help
+  even if one existed."
 
 ### Figure 8 -- why the rigid families lose
 `FIG_ShapePlane`
@@ -515,169 +591,123 @@ Everything else to the supplement.
 
 ---
 
-## 5. The worked example
-
-The paper is abstract from end to end -- 10,000 synthetic datasets, every
-material normalized to a mean of 1.0. A reader who designs buildings has nothing
-concrete to hold, and the advisor's covering instruction is to teach.
-
-**The example is now a real building rather than four categories picked to look
-like one.** The earlier draft of this section named four EC3 categories and
-called them a building, which they were not; the author caught it.
+## 5. The worked example, run
 
 > **Building 138 of Benke et al. (2025): a new multifamily residential
-> building, 16,550 square metres, six to ten storeys, North America.** Its 39
-> materials produce 6.7 million kgCO2e at A1-A3, and four of them carry 82
-> percent of that: lightweight ready-mix at 5000 psi (37.5 percent of the
-> total, 411 kg per square metre of floor), lightweight ready-mix at 3000 psi
-> (23.6 percent, 336 kg/m2), reinforcing steel (11.9 percent, 25 kg/m2) and
-> gypsum board (8.9 percent, 149 kg/m2). Its top-two ratio is **1.59**, against
-> a median of 1.65 across the 292 buildings, so it is an ordinary building
-> rather than a chosen one.
+> building in Oregon, 16,550 square metres, six to ten storeys.** A1-A3
+> emissions of 403 kgCO2e per m2 of floor across 39 materials. Its seven
+> largest, mapped to EC3 categories, carry 87.8 percent of that:
+>
+>     material             kgCO2e/m2   kg/m2   kgCO2e/kg   EC3 category
+>     ready-mix LW 5000       151.4    411.2     0.37      ReadyMix [5000-5999 psi]
+>     ready-mix LW 3000        95.3    335.7     0.28      ReadyMix [3000-3999 psi]
+>     rebar                    47.8     25.0     1.91      RebarSteel
+>     gypsum board             35.9    148.8     0.24      Gypsum
+>     clay brick               10.1     34.9     0.29      Brick
+>     ready-mix LW 4000         8.6     26.1     0.33      ReadyMix [4000-4999 psi]
+>     insulated glass           5.1      3.8     1.34      InsulatingGlazingUnits
+>
+> Its top-two ratio is **1.59** -- an emissions ratio, 151.4 over 95.3 -- against
+> a median of 1.65 across the 292 buildings, so it is an ordinary building and
+> not a chosen one.
 
-**It is introduced in the Methods as the thing Figure 1 draws, and referred back
-to once in each Results subsection**: what the six methods say its total is,
-which material each names as largest, what a specification cap would deliver.
+**Intensity is emissions, not mass**, as the author required: rebar is 25 kg/m2
+and the third-largest contributor, because its coefficient is about six times
+concrete's. Each material's intensity in the pLCA is Benke's own A1-A3
+emissions per m2, and every dataset has a mean of 1.0, so a material's mean
+contribution is exactly that intensity. The other 32 materials, 12.2 percent,
+enter the total as a fixed amount. The run uses every method and the size rule
+on common random numbers, at the REAL intensities and with all seven set EQUAL
+at their mean. **There is no true parent for a real category, so this measures
+how far the methods disagree about one building, never how wrong they are.**
 
-**Three things this buys that the invented version could not.**
+**What it found** (`TABLE_Building138.csv`, `TABLE_Building138Curves.csv.gz`;
+the cell has its own fixed-seed stream, decision 254):
 
-1. **Real material use intensities.** Every pLCA in the study gives each
-   material an intensity of 1.0, which decision 101 records as making the
-   ranking as fragile as it can be made. This building's actual quantities span
-   a factor of sixteen, from 411 to 25 kg/m2, and running it both ways would
-   turn that caveat from a statement into a measurement.
-2. **A real top-two ratio**, 1.59, which sits inside the unsafe region Figure 6
-   measures and lets the ranking claim be made concretely about one building.
-3. **A building type a reader recognizes.** Multifamily residential is where
-   most of the embodied carbon argument in practice happens.
+1. **The ranking is safe.** Every one of the seven policies names ready-mix 5000
+   psi as the largest contributor, in 85.7 to 87.7 percent of iterations, even
+   though its lead is only 1.59x. Concrete strength classes are much tighter
+   than the typical synthetic material the 2.3x threshold was calibrated on, so
+   Figure 6's 73 percent overstates the risk for a concrete-led building. This
+   sentence belongs here in the case-study text. (Every material at equal intensity, which the
+   rest of the study uses, gives three different leaders across the methods --
+   one sentence, not a figure.)
+2. **Which material drives the uncertainty depends on the method.** Rebar under
+   six policies (42.6 percent of the variance under the size rule, 45.2 under a
+   kernel estimate with market weights); ready-mix 5000 under the
+   uniform-weighted lognormal, 35.2 against rebar's 35.7 -- effectively a tie.
+   The kernel estimates put rebar well ahead because they keep its long right
+   tail; the normal flattens rebar's distribution.
+3. A normal fit moves the building's median total by about 7 percent: 423 to
+   425 kgCO2e/m2 against 395 to 399 for every other policy.
 
-**The honest caveats, which travel with it.** The dataset's concrete is
-LIGHTWEIGHT and this study's EC3 categories are split by specified strength
-rather than by weight, so the mapping from `Ready mix LW 5000` to
-`ReadyMix [5000-5999 psi]` is approximate and the text must say so. And **every
-accuracy claim stays on the synthetic arm**, because a real category has no
-known parent -- that single line is what separates a worked example from a case
-study, and it is why the three-pLCA case study was cut rather than rebuilt.
+**The figure: a ridgeline of every material's fitted contribution under all
+seven policies, beside the uncertainty index per method.** The shared kgCO2e
+axis shows which material leads; the dots show that the uncertainty does not
+follow the same order. 
+![](../outputs/figures/CompareUQMethods_FIG_Building138.png)
 
-**Cost: about 250 words and no new figure**, unless the author wants the
-equal-intensity experiment of point 1, which is a real analysis and one more
-figure. See section 7.
+**Chosen by the author: by contribution** (`FIG_Building138`). The
+uncertainty-index ordering is in `archive/figures/`.
 
-## 6. The graphical abstract
+**The honest caveats.** The concrete is lightweight and the categories split by
+strength only, so the three concrete mappings are approximate. Market weights
+on the empirical arm are simulated (decision 190), so the two market-weighted
+methods describe a share model. Every accuracy claim stays on the synthetic arm.
 
-The existing one is three panels -- generate, apply, compare -- and its third
-panel asserts "KDE has the best mean fit", which is the in-sample circular
-result the paper no longer reports, and "Key results differ between UQ
-methods", which is no longer the headline.
+## 6. The graphical abstract. CHOSEN: THREE PANELS, TIGHTENED
+`FIG_GraphicalAbstract`
 
-**THREE MOCK-UPS ARE DESCRIBED BELOW AND NONE OF THEM EXISTS AS AN IMAGE.**
-An earlier version of this section said they were built. They were not, and the
-author caught it: "Why aren't there examples of the graphical abstracts here?"
-What follows is three written proposals. **Building them is the first item in
-section 9**, and all three must be built, not one, per the standing instruction
-recorded there.
+![](../outputs/figures/CompareUQMethods_FIG_GraphicalAbstract.png)
 
-**Option A -- three panels, the existing structure, rebuilt.** Panel 1 becomes
-the paper's actual method, which the current version does not show: a dataset
-drawn from a parent, with the parent curve behind it, so the reader sees that
-the truth is known. Panel 2 keeps the six fits with the corrected vocabulary.
-Panel 3 is three bars: the rule at 24 percent, a normal at 32, and the rule
-given market shares at 21.
-
-**Option B -- panel 3 alone**, at full width. One claim, three bars, no
-process. Punchiest, and gives up the method entirely.
-
-**Option C -- the rule as a number line.** "Count your EPDs. That is the whole
-rule." A log axis of declarations with the 40-to-170 band shaded, lognormal to
-the left, kernel estimate to the right, and one line of provenance underneath.
-**It claims the least and is the most actionable**, and it is the only one of
-the three a reader could act on from the abstract alone.
-
-**My recommendation is C**, with A as the fallback if the editors expect a
-graphical abstract to show the method rather than the finding. B is a subset of
-A and is worth building only if the word budget for the abstract is very tight.
-
-**One caution on all three:** the three-bar panel compares a rule a reader can
-follow against one that needs data nobody publishes, so the 21 percent bar must
-be labeled as unreachable, not as a recommendation. Option A and B both do that
-in the bar label; C sidesteps it by not showing the bar at all.
+Design A of three, chosen by the author ("I like the idea") and tightened
+("too wordy"): a known truth with EPDs sampled from it, the fitted methods, and
+the error in a typical claim -- 26% for a normal fit, 17% for the size rule,
+13% for the size rule given every market share, which is hatched and labeled
+unreachable because nobody publishes those shares. B (the bars alone) and C (the
+rule as a number line) were too simple and are in `archive/figures/`. The bars
+are the pooled median of per-unit ratios (decision 253), read from the tables.
 
 ## 7. What needs an author decision
 
-**Everything else from the 2026-10-06 review is implemented**, including the
-Figure 1 label, which was edited last round and never rendered.
+**The two items this section carried are settled.** The median form is the
+median of per-unit ratios (decision 253), implemented in every scorecard cell,
+rank, box and figure panel. Building 138 is run at its real intensities and at
+equal ones (section 5).
 
-### 1. Mean or median percent error, and it is not presentational
+### 1. Every figure design is settled
 
-The author asked whether the right-skewed error distributions mean the paper
-should report a median percent error. **It is a real thing -- the median
-absolute percentage error is standard in forecasting -- and here it changes
-which method is best on 2 of the 5 claims tested.**
+Figure 4: zoom plus spread (`FIG_MixedPolicy_SpreadZoom`), with the two
+single-statistic versions in the supplement. Figure 6: sorted dots. Figure 7:
+box plus strip. Building 138: the ridgeline by contribution. The graphical
+abstract: three panels, tightened. Figure 5 stays. Every unchosen design is in
+`archive/figures/` with its reason in `archive/README.md`.
 
-    claim                                    ratio-of-means   median-of-ratios
-    a material: its mean contribution              13.8             4.7
-    a material: its 95th percentile                21.5             9.3
-    a material: its share of the total             12.2             7.5
-    a material: its chance of being largest        32.4            25.8
-    the uncertainty index                          47.6            41.8
+### 2. Both statistics are reported, and the emphasis is settled
 
-    best method changes on: a material's 95th percentile, and its chance
-    of being largest -- both from a lognormal to a kernel estimate
+**Settled 2026-10-06**: the median of ratios in the main scorecard (what one
+building sees), the ratio of means in the supplement (total misstated carbon
+over total true carbon, for a budget or a stock).
 
-**The trade.** The ratio of means is defined when true values sit near zero,
-which matters because 2,904 of 60,000 materials have a true uncertainty index
-below a hundredth of the mean; it weights by magnitude, so a large miss on a
-large material counts for more, which is what a carbon budget cares about; and
-it is what decision 157 chose deliberately. **Against it: on a right-skewed
-error it is pulled up by the tail and overstates what a typical building sees,
-by about a factor of two on the level claims.** The median of ratios is what a
-typical single building experiences, is robust to both skew and near-zero
-truths, and **ignores the tail entirely -- so a method that is usually
-excellent and occasionally catastrophic scores well on it.**
+**The emphasis is section 1's thesis, confirmed by the author**: a large share
+of the uncertainty survives any choice of method; avoid the normal; the size
+rule is the best choice a reader has but buys little over a kernel estimate
+everywhere; market-share data is worth far more than any choice of curve. **The
+paper is not a method-recommendation paper**, which was the draft's story ("KDE
+is best") and would oversell a fraction of a point.
 
-**My recommendation: keep the ratio of means in the scorecard cells, and quote
-the median beside every headline number in the text.** And treat the reversal
-as a finding rather than an inconvenience: which method is "best" depends on
-whether you care about the typical building or the average one, and the kernel
-estimate wins the typical case while the lognormal wins the average. **Author's
-call, and it is the most consequential open item.**
+### 3. The cutoff band survives both statistics
 
-### 2. Run building 138 with its REAL quantities, or leave the caveat stated?
+Measured, not assumed: 40 to 170 on the ratio of means (reproduced from a fresh
+stream), 20 to 300 on the median of ratios, best cutoff 130 and 60
+respectively. **Recommendation: print 40 to 170**, the range that holds under
+both. Figure 4 is still drawn on the ratio of means and should be redrawn with
+both curves, which is now a figure-cell change and no run.
 
-**The concreteness problem is solved** -- section 5 now threads a real building
-through the paper and Figure 6 grounds the rule in 292 of them. What is NOT
-solved is the equal-intensity caveat, and this is the one experiment that would
-close it.
+### 4. Smaller
 
-Every pLCA in the study gives each material an intensity of 1.0. Decision 101
-records that this makes the ranking as fragile as it can be made and that every
-flip probability the paper reports is therefore an **upper bound**. Building
-138's real quantities span a factor of sixteen -- 411, 336, 149 and 25 kg per
-square metre for its four largest contributors -- so running it both ways would
-replace "this is an upper bound" with "and here is how much of an upper bound".
-
-**What it costs:** a mapping from the dataset's `mat_type` to the study's EC3
-categories, four fits, and one pLCA run at both intensity settings. One figure,
-or a table. The mapping is the only judgment in it and it is a short one for
-four materials.
-
-**What it risks:** the dataset's concrete is lightweight and this study splits
-concrete by specified strength, so the mapping is approximate. A reviewer will
-see that immediately, and the answer is to state it rather than to hide it.
-
-**My recommendation: do it.** It converts the paper's single largest stated
-limitation into a measured result, on a building the paper already describes,
-for roughly a day of work. **Author's call.**
-
-### 3. Smaller
-
-- **Figure 5: keep at eight figures, or cut to seven?** It overlaps Figure 3's
-  lower panel at a different level.
-- **Graphical abstract: A, B or C?** Mock-ups in the session scratchpad,
-  described in section 6. I recommend C.
-- **Licensing check on the frozen Benke derivative.** A 292-row aggregate with
-  citation is normal practice, and the author should confirm the figshare terms
-  before the deposit is cut.
+- **Decision 65's prohibition** on comparing cross-validated scores across
+  weighting schemes has lost its premise since decision 190 (decision 252).
 
 ## 8. Reference material
 
@@ -697,226 +727,49 @@ for roughly a day of work. **Author's call.**
 
 ## 9. What the next window picks up first
 
-**Written 2026-10-06 at the close of the first manuscript window, which ran out
-of context.** Everything below is an open item from the author's fourth review
-round. Nothing here is a suggestion of mine; items 1 to 8 are the author's own
-words or a direct restatement of them.
+**Written 2026-10-06 at the close of the second manuscript window.** The fourth
+review round's items 0 to 7 are implemented: one notebook-3 run, the median
+statistic (decision 253), the scorecard box, three designs each for Figures 6
+and 7 and the graphical abstract, and the Building 138 case study with three
+plots. What is left is below, in order.
 
-### 0. ONE NOTEBOOK-3 RUN IS OWED, AND `outputs/` IS CLEAN UNTIL IT HAPPENS
+### 1. A FRESH REVIEW WINDOW ATTACKS THIS FILE
 
-A run of notebook 3 was killed mid-flight when the session ended. It had written
-the truth run and the design swap and had NOT reached the scorecard block, so
-`outputs/` held a mixture of two runs -- the stale-input failure decisions 201
-and 232 both record. **That mixture was reverted with `git checkout -- outputs/`
-and nothing was lost**: the interrupted run was executing the same analysis code
-as the last commit, and the only pending code change had not run yet. Every
-table in `outputs/` is now from one consistent committed run.
+Per `reports/START_HERE.md`, before any prose. This window rewrote many numbers
+on the median statistic and its own reading of the file is not a check. The
+standing questions apply, plus two specific ones: **do the captions of Figures
+1, 2, 5 and 8 still quote ratio-of-means numbers without saying so**, and **does
+any section still describe a figure design that was replaced**.
 
-**What is pending and has never executed:** `src/metricset.py`'s `choice_cost`
-now returns the full quantile ladder -- `unit_p05`, `unit_p25`, `unit_p75` and
-`unit_p95` beside the existing p10, p50 and p90 -- and notebook 3's scorecard
-cell reads `unit_p25` and `unit_p75` to draw a box. The table on disk carries
-only the three old columns, so **that figure cell will raise until notebook 3 is
-re-run.** `tests/test_metricset.py` covers the new code and passes.
+### 2. THEN THE FIGURE PASS, THEN PROSE
 
-**So the sequence is: make every code change first, then ONE run, then the
-controls.** That is decision 239's ordering, and it exists because this project
-has twice sent a window to spend 110 minutes regenerating what it already had.
-Items 1, 2, 5, 6 and 7 below are figure work that needs no run at all once the
-table exists.
+The selection is now fixed, so decision 235's deferred pass can run once: number
+the figures, bring every chosen figure up to `FIGURE_STYLE.md`, and put
+confidence intervals on the figure aggregates that need them. Then the prose,
+following section 3's arc and `reports/WRITING_STYLE.md`.
 
-    python -m pytest tests/test_metricset.py -q
-    python audits/render_figures.py 03_CompareUQ_PerformPLCA --only "every claim" --into-outputs
+**Any table change from here is a re-slice, not a run** (decision 254):
 
-### 1. BUILD ALL THREE GRAPHICAL ABSTRACTS AS IMAGES
+    python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables --into-outputs
 
-The author: "Why aren't there examples of the graphical abstracts here?"
-Section 6 describes options A, B and C and asserted they were built. They were
-not. Build all three, embed all three in section 6, and let the author choose.
+### 3. ONE CLAIM IN THE PREVIOUS VERSION OF THIS SECTION WAS WRONG
 
-### 2. THE STANDING INSTRUCTION THIS ROUND ADDED
+It said section 5's top-two ratio of 1.59 was "a MASS ratio and is almost
+certainly wrong as a contribution ratio". It is an emissions ratio:
+`audits/building_dominance.py` computes it from Benke's `gwp` column, and 37.5
+over 23.6 percent of the building's A1-A3 total is 1.59. What was wrong in
+section 5 was only that it listed kg/m2 beside the shares, which invited the
+misreading; section 5 now gives emissions per m2 and coefficients. And the
+rebar coefficient is 1.91 kgCO2e/kg against 0.28 to 0.37 for the concrete,
+about six times, not a hundred.
 
-The author, on a figure proposal that offered one design: **"Please plot
-multiple options for these proposed figures so I can decide which direction is
-best."**
-
-Treat that as binding on every NEW figure from here on. Two or three designs of
-the same message, rendered and embedded side by side, and a recommendation. One
-design is not a proposal, it is a fait accompli.
-
-**And the companion instruction, now said twice:** implement the changes before
-the next review round. "Frustrating that you didn't implement that change.
-Implementing changes makes it a lot easier to move forward and continue
-reviewing these things." A review round that returns prose where a figure was
-asked for costs the author a round.
-
-### 3. FIGURE 3, THE SCORECARD BAR: THE BOX PLOT IS APPROVED AND NOT BUILT
-
-The author: "Box seems like the right call." And then, on finding it absent:
-"Huh I was expecting to see the box plots here."
-
-The cell is written -- whisker from the 10th to the 90th percentile, filled box
-over the interquartile range, a line at the median, `xlabel='how much the
-answer\nmoves (%)'` -- and it reads `unit_p25` and `unit_p75`, which the stale
-table does not carry. **It is blocked on item 0 and on nothing else.**
-
-A box was chosen over the kernel density the author suggested for one reason
-worth keeping in the caption discussion: a paper comparing kernel density
-estimates should not draw its own figures with one and then have to defend a
-bandwidth, which is the same reason the fit panels use histograms. The author
-has not objected to that reasoning and has separately objected to histograms
-elsewhere, so it may need revisiting -- see item 5.
-
-### 4. MEAN OR MEDIAN, AND THE MEASUREMENT THE AUTHOR ASKED FOR
-
-The author: "I'm leaning towards median - what do you think? ... My current
-thinking is to flip your suggestion: keep the ratio of medians in the scorecard
-cells and quote the mean beside every headline number. How exactly does this
-change the numbers?"
-
-**MEASURED, on the seven per-material claims, all seven policies, from
-`TABLE_PLCATruth.csv.gz` and `TABLE_PLCATruthRule.csv.gz` at corpus
-`corpus_2026-09-25`, `weight_rho = 0.5`.** The mean form is
-`mean|error| / mean(truth)`, which is what every cell shows today. The median
-form is `median|error| / median(truth)`.
-
-    policy                      mean form   median form
-    the size rule                  24.11        14.40
-    Lognormal, uniform             24.79        15.54
-    KDE, uniform                   25.09        14.67
-    KDE, market                    28.98        17.41
-    Lognormal, market              29.26        18.14
-    Normal, uniform                30.02        21.08
-    Normal, market                 33.30        23.15
-
-**Three things change and one does not.**
-
-**The headline level falls by about forty percent.** "A probabilistic LCA is
-wrong by about a quarter whatever method you pick" becomes about a seventh on
-these claims. That is not a softening of the finding -- it is the honest
-statement for a right-skewed distribution, which is what the scorecard bar is
-now drawn as a box to show.
-
-**The verdict on the normal gets STRONGER, which is the opposite of what I
-expected.** Its penalty over the best policy goes from 25 percent under the mean
-to 46 percent under the median. A normal fit is not merely dragged down by a few
-terrible cases; it is worse on the typical case by more than the average says.
-
-**The best method changes on two of the seven claims.** A material's standard
-deviation moves from the rule to the kernel estimate with uniform weights; the
-uncertainty index moves from a normal to the rule. Both flips favor the paper's
-own recommendation, which is a reason to be careful rather than pleased: the
-author's instinct about asymmetric data is sound and independent of the result,
-and the choice must be made on that ground and stated plainly.
-
-**What does not change: the rule still wins**, and the top three are still the
-same three policies.
-
-**TWO THINGS THE NEXT WINDOW MUST SETTLE BEFORE THIS IS IMPLEMENTED.**
-
-First, **there are three candidate statistics and not two.** Decision 157
-settled the current one and rejected a fourth: ratio of means (today), ratio of
-medians (measured above), median of per-unit ratios (decision 157 reports this
-too: 40.57 against a ratio-of-means 45.04 on the uncertainty index), and mean of
-per-unit ratios, which is unusable because the true uncertainty index reaches
--0.000671 and 2,904 of 60,000 materials carry a true value below a hundredth of
-the mean. The author's words name the ratio of medians; the median of ratios is
-the per-decision reading and may be what they mean. **Ask.**
-
-Second, **the table above covers seven of the fifteen claims.** The eight
-magnitude, action and comparison claims live in
-`TABLE_PLCATruthBuilding.csv.gz`, `...Intervention` and `TABLE_PLCADesignSwap`,
-and have not been measured under a median form. The pooled figure the paper
-quotes cannot be restated until they are. **Do not publish 14.40 as a pooled
-number**; it is over seven claims and the published 23.96 is over fifteen.
-
-### 5. FIGURE 6, THE SAFE-LEAD HISTOGRAM: REJECTED, REBUILD WITH OPTIONS
-
-The author: "histograms are the poster child of binning, which is something we
-avoid per Tufte's teachings. Surely there's a better way to show this data?
-There are many things I could critique about this figure (orange text redundant
-with title and clashing with the orange line, too much gray text on the figure,
-unclear x axis, etc.), but I'm going to wait to see if there's a better way you
-can package this for the same message. Very disappointed in this figure."
-
-The message to preserve: **292 real buildings, 73 percent of them sit below the
-2.28x safe-lead threshold, median 1.65.** The figure must say that a real
-building usually sits where the choice of method can change which material
-leads.
-
-Candidate designs, and at least two must be rendered: an empirical CDF of the
-top-two ratio with the threshold as a vertical rule and the share below it read
-off the curve; a box-and-strip of the 292 buildings on a log ratio axis; a dot
-plot sorted by ratio. The axis is the ratio of the largest mean contribution to
-the second largest, which is what decision 107 reports the crossing against.
-
-Fix with whichever design wins: the orange annotation duplicates the title, the
-gray annotation load is too high, and the x axis label does not say what the
-ratio is.
-
-### 6. FIGURE 7, WHEN MARKET SHARES START TO HELP: GOOD MESSAGE, WRONG CHART
-
-The author: "again, histograms are bad ways to show data. Much better way is
-box + strip plot (if we want to avoid using KDE for visualization). This is a
-good figure though. The message is much clearer."
-
-Rebuild as box plus strip. Then three defects named in the same message:
-
-- **The text overlaps the orange dashed line in both panels.**
-- **"using it makes the fit WORSE" clashes with "about 80 declarations".**
-- **"Why does it say 'about'? Is that line not at exactly 80? If we want to show
-  a band, show a band."** This one is substantive rather than cosmetic. Decision
-  225 is explicit that no single-declaration cutoff is published at either
-  level, and that the weighting split is published as **80 to 100**
-  (decision 222). `mixedpolicy.MIXED_THRESHOLD = 80` is a code constant, not a
-  result. **So the figure must shade the 80-to-100 band and must not draw a line
-  at 80.** The word "about" was hedging a number that should not have been a
-  number at all.
-
-### 7. THE BUILDING 138 CASE STUDY: RUN IT, AND NOT ON MASS ALONE
-
-The author: "For building 138 - don't just focus on the kg/m2 for the different
-materials. Their embodied carbon coefficients are probably quite different, so
-kg/m2 by itself doesn't mean anything. Let's do the case study just to see what
-we learn from it."
-
-**The objection is correct and section 5 as written has the defect.** It names
-LW5000 at 411 kg/m2, LW3000 at 336, gypsum board at 149 and rebar at 25, and
-calls the first two the dominant materials. Mass is not contribution. Rebar
-steel carries an embodied carbon coefficient of order a hundred times
-concrete's per kilogram, so 25 kg/m2 of rebar may out-contribute 336 kg/m2 of
-lightweight concrete. **Every quantity in section 5 must be multiplied by its
-category's own ECC before any material is called dominant, and the top-two ratio
-of 1.59 quoted there is a MASS ratio and is almost certainly wrong as a
-contribution ratio.**
-
-What the case study answers that nothing else in the paper does: the
-equal-intensity construction is an upper bound on how often a modeling choice
-changes an answer (decision 101), and Building 138's real quantities span a
-factor of sixteen. Running it both ways converts that stated limitation into a
-measurement.
-
-The frozen input is `data/raw/building_top2_benke2025.csv`, written by
-`audits/building_dominance.py` from the gitignored Benke et al. (2025) deposit
-at `refs/28462145/`, one row per building, tracked so the figure redraws from a
-clean clone.
-
-**The author also asked what plots the case study would carry, and that is
-unanswered.** Propose two or three, render them, do not pick one.
-
-The honest risk to state: the dataset's concrete is lightweight while this
-study's categories split by specified compressive strength, so the mapping from
-a Benke material to an EC3 category is approximate and must be written down
-material by material.
-
-### 8. SMALLER, AND NOT YET DONE
+### 4. SMALLER, CARRIED
 
 - The empirical arm's headline contradicts the draft: cross-validated over the
   127 categories reaching n = 10, a three-parameter lognormal is closest on 53.6
-  percent against the kernel estimate's 26.0. Decision 252 records it; the paper
-  must say it rather than assert agreement between the arms.
-- Decision 65's prohibition on comparing cross-validated scores across weighting
-  schemes has lost its premise since decision 190 and is an open question for
-  the author (decision 252).
-- A figshare licence check on the frozen Benke derivative, before the deposit
-  carries it.
+  percent against the kernel estimate's 26.0 (decision 252). The paper must say
+  it rather than assert agreement between the arms.
+- Decision 65's prohibition has lost its premise (decision 252); open question.
+- Figure 1, 2, 4, 5 and 8 captions in section 4 still quote ratio-of-means
+  numbers where they quote any; re-read each against the median tables before
+  the prose is written.

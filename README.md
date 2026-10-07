@@ -60,7 +60,9 @@ CompareUQMethods/
 |-- audits/                            # One-off measurements cited by the decision log
 |-- tests/                             # pytest suite over src/ and the notebooks
 |-- data/
-|   |-- raw/                           # Frozen, checksummed EC3 extracts
+|   |-- raw/                           # Frozen, checksummed EC3 extracts, and
+|   |                                  # two small derivatives of Benke et al.
+|   |                                  # (2025); see Third-party data below
 |   `-- processed/                     # Corpus pointer, the corpora, and the
 |                                      # prepared empirical arm. See its README
 |                                      # for WHICH corpus the paper describes
@@ -93,8 +95,11 @@ and the code that produces it lives in a notebook.** Nothing reaches `outputs/`
 whose source a reader cannot open and read there. A different EXECUTOR of a
 notebook's own cells is allowed -- `audits/render_figures.py` re-runs the
 notebook's figure cells verbatim so a figure can be iterated on in seconds
-instead of in a notebook run -- and a different AUTHOR is not. Audit scripts
-write only to `outputs/tables/audits/`.
+instead of in a notebook run -- and a different AUTHOR is not. Its `--tables`
+mode does the same for the notebook's `# TABLE` cells, which only re-slice
+tables already on disk and draw no randomness from the notebook's stream, so a
+change of summary statistic redraws in minutes rather than a full run. Audit
+scripts write only to `outputs/tables/audits/`.
 
 `python audits/figure_manifest.py` lists every image with the code that writes
 it, and fails the test suite on an image with no generator or a filename two
@@ -284,7 +289,7 @@ without a generator, so the renumbering is cheap whenever it happens.
 | `SUPP_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
 | `FIG_WeightingDrivers` | Which categories can safely assume uniform weights, against size and dispersion |
 | `FIG_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit on that curve |
-| `FIG_WeightingBySize` | When knowing a market share starts to help, against dataset size, with the real categories' own sizes underneath |
+| `FIG_WeightingBySize` | When knowing a market share starts to help: per dataset, the error ignoring the true shares over the error using them, by size band, with the real categories' own sizes underneath |
 
 ### Notebook 2 - the fits
 
@@ -322,9 +327,13 @@ without a generator, so the renumbering is cheap whenever it happens.
 | `FIG_FlipCalibration` | How far apart two models must be before the answer changes, and what such a distance looks like |
 | `FIG_MaterialDominance` | What a leading material buys -- the ranking -- and what it does not -- the magnitude |
 | `FIG_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
-| `FIG_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule |
-| `FIG_MixedPolicy` | How much the cutoff matters, and what knowing market share would buy |
+| `FIG_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule, on the median per-case error |
+| `SUPP_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
+| `FIG_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
+| `FIG_MixedPolicy`, `FIG_MixedPolicy_Median` | The same cutoff sweep on each statistic alone |
 | `FIG_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
+| `FIG_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty |
+| `FIG_GraphicalAbstract` | The graphical abstract |
 
 ### Notebook 4 - which characteristics decide
 
@@ -368,6 +377,25 @@ If you use this code or data in your research, please cite:
 > Torres, M.I. and Srubar III, W.V. (submitted). Uncertainty quantification methods for probabilistic whole-building life cycle assessment: A comparative analysis. *Building & Environment*.
 
 The dataset and code are archived on Zenodo: https://doi.org/10.5281/zenodo.19226429
+
+---
+
+## Third-party data
+
+Two files in `data/raw/` are small derivatives of a public dataset, used for
+the real-building results: `building_top2_benke2025.csv` (one row per building:
+how far its largest material leads the next, A1-A3) and
+`building138_benke2025.csv` (one building's materials, emissions and masses).
+`audits/building_dominance.py` derives both from the original, which is not
+redistributed here.
+
+> Benke, B., Chafart, M., Shen, Y., Ashtiani, M., Carlisle, S., Simonen, K.
+> (2025). A Harmonized Dataset of High-Resolution Whole Building Life Cycle
+> Assessment Results in North America: Data only - First Public Release.
+> figshare. Dataset. https://doi.org/10.6084/m9.figshare.28462145.v1
+
+The original is published on figshare under its own license, which governs
+these derivatives; please cite it if you use them.
 
 ---
 

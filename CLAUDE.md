@@ -9307,3 +9307,93 @@ rather than in conversation.
      2026-09-17 and says it "beats anything below it". It no longer does, and it
      is a dated record of what was true then rather than a live reference, so it
      gains a header saying so rather than being rewritten.
+
+253. **2026-10-06, MANUSCRIPT. THE SCORECARD'S HEADLINE STATISTIC IS THE MEDIAN
+     OF PER-UNIT RATIOS, and the ratio of means is carried beside it. This
+     SUPERSEDES decision 157's choice of statistic and keeps its divisor
+     argument for the second column.** `[AUTHOR]` Asked which of the three
+     median forms he meant, with all three measured on all fifteen claims and
+     seven policies, the author chose "Median of ratios".
+
+     `metricset.HEADLINE_ERROR = 'median_error'`: the median over units of
+     |method - truth| / |truth|, the error ONE typical building, material or
+     design pair carries as a percentage of its OWN true value -- the median
+     absolute percentage error of the forecasting literature. Every scorecard
+     cell, rank, box and `best_method` is read off it; `rescore` writes
+     `ranked_on` into the table so it cannot be read under the wrong one.
+     `total_error`, the ratio of means, is unchanged in every table and is what
+     a sentence about the AVERAGE building quotes. Units with a zero truth carry
+     no ratio and are counted in `ratio_dropped`; the uncertainty index is the
+     only claim where near-zero truths are common, 4.05 percent of materials
+     below a hundredth of its mean level.
+
+     **WHY, in one sentence: the per-unit errors are right skewed on all fifteen
+     claims, so the mean overstates what a typical building sees by about a
+     factor of 1.4 pooled.** The cost decision 157 named is accepted: every unit
+     counts equally, so a large miss on a large material counts the same as a
+     small miss on a small one.
+
+     **WHAT MOVES, pooled over the fifteen claims, ratio of means against median
+     of ratios, on `corpus_2026-09-25` at `weight_rho = 0.5`:**
+
+         size rule                     23.96 -> 17.38
+         KDE, uniform weights          24.66 -> 17.54
+         Lognormal, uniform weights    24.73 -> 18.39
+         Normal, uniform weights       32.50 -> 26.45
+         KDE, market weights           23.58 -> 14.00
+         known-share rule (mixed pass) 20.89 -> 13.02
+
+     **The rule is best of the four a reader can choose on 7 of 15 claims, not
+     10**, and still the lowest pooled of the four. **The normal's penalty rises
+     from 36 to 52 percent**, and it is worst of all seven on 14 of 15 claims.
+     **The value of market-share data roughly doubles in relative terms**: the
+     known-share rule against the feasible one is 4.40 points or 25.3 percent
+     of the error, where decision 221 records 3.08 points or 12.8 percent, and
+     the feasible rule's margin over the best uniform-weighted fixed method
+     shrinks to 0.14 points (17.42 against 17.56, mixed pass). So under the
+     typical-case statistic the rule is worth very little and market-share
+     data is worth about thirty times as much.
+
+     **WHAT DID NOT MOVE, and was not re-derived.** The cutoff band of decision
+     224 and the per-claim gain intervals in `TABLE_MixedPolicyGain.csv` are
+     computed by `mixedpolicy`, which works on the ratio of means. Every feasible
+     cutoff from 40 to 170 pools to 17.39 to 17.42 under the median, a curve
+     flatter than the one the band was read from, but the paired bootstrap has
+     NOT been re-run on the median and the band stays a ratio-of-means result
+     until it is.
+
+         python -c "import sys; sys.path.insert(0,'src'); import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_ClaimScorecardWithRule.csv'); print((d.groupby('method')[['median_error','total_error']].mean()*100).round(2))"
+
+254. **2026-10-06, MANUSCRIPT. A TABLE THAT IS A RE-SLICE OF TABLES ON DISK IS
+     RE-EXECUTED WITHOUT THE NOTEBOOK RUN. This closes the open item decision
+     165 left.** `[AUTHOR]` "Why do we need to do the full notebook-3 run? Can't
+     we create figures without running the whole notebook? If not, is there a
+     way we can fix that?"
+
+     **The rule decision 165 asked for.** A cell whose first line starts with
+     `# TABLE` reads only from `OUT`, `UPSTREAM` and the setup cells, and
+     `audits/render_figures.py --tables` executes EVERY such cell, in notebook
+     order, verbatim, before the figure cells. Never a subset, because a table
+     computed from a stale upstream table is worse than a stale figure.
+
+     **The guard that makes it safe is about randomness.** A table cell may not
+     use the notebook's `rng`, and the renderer refuses one that does; a cell
+     that needs a bootstrap seeds its OWN generator from a literal and marks it
+     `# re-slice generator`, which `tests/test_notebooks.py` permits only inside
+     a `# TABLE` cell. In a scratch target the renderer replaces each written
+     table's link into `outputs/` with nothing first, so a scratch run cannot
+     overwrite a real table through a symlink.
+
+     **What it took.** The six-method scorecard, the size-band split and the
+     seven-policy scorecard read the truth table from kernel memory; all three
+     now read it from disk, which moves their numerators by float round-trip
+     noise of order 1e-16 and nothing else, and keeps the seven-policy cell's
+     exact control exact because both sides read the same rows the same way.
+     The choice-cost cell already read from disk.
+
+     **What it buys.** The scorecard's tables and both its figures redraw in 26
+     seconds against 110 minutes, verified with every control passing and the
+     real tables byte-identical afterwards. A change of STATISTIC, such as
+     decision 253, is now a table re-slice and never a run.
+
+         python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables --only "every claim" --out /tmp/fast
