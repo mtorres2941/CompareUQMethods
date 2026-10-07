@@ -51,10 +51,19 @@ used to align with the width of the actual figure."
 
 Three rules, and the first is the one that was being broken:
 
-- **Anything longer than two short lines goes in the CAPTION** -- the
-  paragraph beside the figure in the report and in the manuscript -- and not
-  on the figure. What stays on the figure is the title, a subtitle of at most
-  two lines saying what is plotted, and the axis labels.
+- **Anything longer than two short lines goes in the CAPTION**, not on the
+  figure. What stays on the figure is the title, a subtitle of at most two
+  lines saying what is plotted, and the axis labels.
+- **A CAPTION IS THE SHORT TEXT PRINTED DIRECTLY BELOW THE FIGURE, AND NOTHING
+  ELSE. Corrected 2026-10-07 by the author**, after this guide defined it as
+  "the paragraph beside the figure in the report and in the manuscript" and
+  several windows put argument into captions on the strength of that. A caption
+  says WHAT IS PLOTTED: the panels, the quantities and units, what a mark or
+  shading means, the data source and its size. **Why the figure is built this
+  way, what it shows, how it compares with anything else, and every caveat go
+  in the BODY TEXT near the figure, never in the caption.** When a document
+  plans text, it names the slot explicitly: "caption" or "text beside the
+  figure".
 - **Every line of title and subtitle is broken by hand to the figure's own
   width.** Matplotlib will not wrap for you and `bbox_inches='tight'` will
   happily widen the saved image to fit a long line, so the text sets the

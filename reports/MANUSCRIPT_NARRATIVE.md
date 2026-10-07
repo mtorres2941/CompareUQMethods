@@ -89,15 +89,23 @@ same dial sets how lopsided it is. Real embodied carbon data does not oblige.
 
 Decision 252, entries 187, 188, 189. `python audits/lognormal_variants.py 1500`
 
-**This is what the field actually uses, and that is now sourced.** ecoinvent's
-default is a two-parameter lognormal -- "the geometric mean and the geometric
-standard deviation" (Muller et al. 2016, IJLCA 21:1327-1337) -- and the same
-authors name "the imposition of the lognormal" as the first of three
+**This is what the field actually uses, and that is now sourced.** The
+lognormal, parameterized by "the geometric mean and the geometric standard
+deviation" (Muller et al. 2016, IJLCA 21:1327-1337), is "the most common
+distribution chosen to describe the uncertainty in ecoinvent" (ecoinvent support
+page "Uncertainties", support.ecoinvent.org/uncertainties, accessed 2026-10-07).
+It was ecoinvent's default in version 2; version 3 also offers normal, uniform,
+triangular, gamma and beta PERT distributions (Muller et al. 2016, Table 1).
+**So write "the most common", never "the default", for the current database.**
+The pedigree approach was built on the lognormal, and the same authors name
+"the imposition of the lognormal" as the first of three
 limitations of the pedigree approach, and say that other distributions "are more
 appropriate when they better represent the uncertainty associated with the
 datum. Most often, this will be the case when the basic uncertainty has been
-calculated based on available data." **The default is for the no-data case. This
-paper is about the case where you have the data.**
+calculated based on available data." **The pedigree lognormal is for the
+no-data case. This paper is about the case where you have the data.** If the
+manuscript cites ecoinvent's Data Quality Guidelines directly, the document
+itself must be obtained first; it is not in `refs/`.
 
 ### 3. The rule a reader can follow is one number: count your EPDs
 
@@ -198,8 +206,15 @@ of an even chance on **41.6 percent** of comparisons -- they disagree about
 which design is better. All on `corpus_2026-09-25`;
 `TABLE_PLCADesignSwap.csv.gz`.
 
-A contribution ranking needs the leader to exceed the next by **2.28 against
-2.33** times. **In 292 real North American buildings, 73 percent do not**: the
+**For the choice of UQ method to change which material is the largest
+contributor less than 1 percent of the time, the largest material's mean
+contribution must be about 2.3 times the second largest's.** The two fits of
+that crossing give 2.28 (logistic) and 2.33 (monotone), 95 percent interval 2.18
+to 2.39 -- two estimates of one number, not a range of leads. Below it the risk
+rises: 5 percent at about 1.7 times (1.73 and 1.62) and 10 percent at about 1.5
+(1.53 and 1.51). Calibrated on groups of four synthetic materials of
+corpus-typical spread (`TABLE_PLCARatioCrossings.csv`, `nmats = 4`). **In 292
+real North American buildings, 73 percent do not reach 2.3 times**: the
 median building sits at 1.65 times, quartiles 1.24 and 2.33 (Benke et al. 2025,
 A1-A3). The single staircase the literature previously supplied sits at 1.02,
 at about the 3rd percentile.
@@ -289,10 +304,11 @@ different claim definition.
 ## 3. The arc, section by section
 
 **Introduction.** The gap: nobody has been able to say how wrong a UQ method is,
-only how different two are. The pedigree paragraph says what the field defaults
-to -- a two-parameter lognormal, cited to both Muller et al. (2016) papers --
-quotes their own first limitation, and notes that their guidance points away
-from the default precisely when data is available, which is this paper's case.
+only how different two are. The pedigree paragraph says what the field most
+commonly uses -- a two-parameter lognormal, cited to both Muller et al. (2016)
+papers and ecoinvent's own documentation (takeaway 2) -- quotes their own first
+limitation, and notes that their guidance points away from it precisely when
+data is available, which is this paper's case.
 The matrix also spans a geometric standard deviation of 1.02 to 1.59 while a
 median real ECC category sits at 1.87, so **61.9 percent of real categories are
 more dispersed than its worst possible score**; it quantifies a different thing
@@ -354,6 +370,12 @@ agreement not being accuracy.
 
 ## 4. The figures
 
+**Two words, used strictly below** (author, 2026-10-07; `FIGURE_STYLE.md`): a
+**caption** is the short text printed directly below a figure and says only
+what is plotted; the **text beside the figure** is the manuscript paragraph
+around it and carries every argument, comparison and caveat. The quoted bullets
+under each figure are topic sentences for that text, not captions.
+
 **Nine figures, and every takeaway in section 2 has one.** The two weak ones
 were not cut but REPLACED, because a reader who skips the text and looks only at
 the figures should still get every finding. Topic sentences follow
@@ -413,7 +435,8 @@ worked example in section 5.
   is what lets this study measure accuracy against a known answer, and it is why
   the findings generalize past the 147 categories available."
 
-**The caption must say why these six pairs.** They are the leading
+**The text beside the figure must say why these six pairs** (not the caption,
+which only names what each panel plots). They are the leading
 characteristics of the principal components of the full characteristic set,
 paired so each panel shows two that are *not* redundant with one another, plus
 two pairs of direct interest: dataset size against the effect of weighting, and
@@ -526,7 +549,8 @@ to judge each category. That is the paper's framing for takeaways 8 and 11.
 Design C of three, chosen by the author: every one of the 292 buildings as a
 dot sorted by its top-two ratio, nothing binned, the threshold shaded as its
 interval (2.18 to 2.39; parametric 2.28, monotone 2.33), Building 138 marked at
-1.59x. The staircase of Marsh et al. (in press) at 1.02 moves to the caption.
+1.59x. The staircase of Marsh et al. (in press) at 1.02 is not plotted; it is
+mentioned in the text beside the figure.
 
 - "In 73% of 292 real North American buildings the largest material does
   not lead the next by the factor of about 2.3 that the ranking needs to be safe
@@ -582,8 +606,8 @@ shares divided by the error using them, on a log axis.
   it can represent exactly lies on a single curve."
 - "Only 27 of 127 real ECC categories sit within 25 percent of that curve, and
   the median category is 0.58 times as skewed as a lognormal of its spread
-  requires, so the family ecoinvent defaults to is systematically the wrong shape
-  for this data."
+  requires, so the family ecoinvent most commonly uses is systematically the
+  wrong shape for this data."
 
 If it is cut, the algebra and the 21.3 percent survive as two sentences and lose
 little: the equation is the finding and the figure illustrates it.
@@ -760,26 +784,83 @@ respectively. **Print 40 to 170**, the range that holds under both (author,
 
 ## 9. What the next window picks up first
 
-**Written 2026-10-06 at the close of the second manuscript window.** The fourth
-review round's items 0 to 7 are implemented: one notebook-3 run, the median
-statistic (decision 253), the scorecard box, three designs each for Figures 6
-and 7 and the graphical abstract, and the Building 138 case study with three
-plots. What is left is below, in order.
+**Updated 2026-10-07 at the close of the review window.** The narrative is final
+pending the author's own read. The review (`reports/REVIEW_MANUSCRIPT_NARRATIVE.md`)
+ran and all eleven findings are applied, with these author decisions: print the
+cutoff band as 40 to 170 and shade it on Figure 4; quote pooled errors to one
+decimal; quote takeaway 11 from `TABLE_FitVersusClaim.csv`; put the coverage
+statement in the text beside Figure 2; keep `FIG_Building138` in the main text;
+no equal-intensity Building 138 run; "the most common", not "the default", for
+ecoinvent's lognormal; and **a caption is only the short text below a figure
+saying what is plotted** (`FIGURE_STYLE.md`, corrected the same day). Decision
+256.
 
-### 1. THE REVIEW HAS RUN
+### 1. THE FIGURE PASS -- the next window's whole job
 
-`reports/REVIEW_MANUSCRIPT_NARRATIVE.md`, 2026-10-07. All eleven findings are applied in this
-file, with the author's decisions of 2026-10-07: print 40 to 170 and shade it on
-Figure 4; pooled errors to one decimal; takeaway 11 quoted from a new table;
-the coverage statement in the text beside Figure 2, not in a caption;
-`FIG_Building138` in the main text.
+Decision 235 deferred three per-figure tasks until the selection was fixed. It
+is fixed. Do them once, on these ten figures and no others:
 
-### 2. THEN THE FIGURE PASS, THEN PROSE
+    #   stem                          generator                          status 2026-10-07
+    1   FIG_PDFandCDFofUQMethods      notebook 2 cell 22                 never calls figstyle.apply()
+    2   FIG_MetricCoverage            notebook 1 cell 43                 never calls figstyle.apply()
+    3   FIG_ClaimScorecard            notebook 3 cell 109                text-overlap flag set
+    4   FIG_MixedPolicy_SpreadZoom    notebook 3 cell 114 (fig4-median)  band redrawn 2026-10-07
+    5   FIG_WhenToUseWhich            notebook 4 cell 32                 text-overlap flag set
+    6   FIG_BuildingDominance         notebook 3 cell 113
+    7   FIG_WeightingBySize           notebook 2 cell 84
+    8   FIG_ShapePlane                notebook 1 cell 56
+    9   FIG_Building138               notebook 3 cell 117
+    GA  FIG_GraphicalAbstract         notebook 3 cell 118
 
-The selection is now fixed, so decision 235's deferred pass can run once: number
-the figures, bring every chosen figure up to `FIGURE_STYLE.md`, and put
-confidence intervals on the figure aggregates that need them. Then the prose,
-following section 3's arc and `reports/WRITING_STYLE.md`.
+Status is from `outputs/tables/audits/TABLE_FigureStyleCompliance.csv`, which
+does not yet cover cells 114, 117 and 118; re-run `python audits/figure_manifest.py`
+first. Cell numbers shift when cells are added, so find each by its stem.
+
+**a. Number them.** `figstyle.savefig` takes a stem, so a number is one word
+per cell (decision 235). Archive each old file to `archive/figures/` with its
+reason in `archive/README.md`, as Stage 3 did, so
+`tests/test_figure_manifest.py` finds no orphan. Then update every reference:
+section 4 of this file, the figure list in `README.md`, and any cell that reads
+a figure file. The supplement figures (`SUPP_ClaimScorecardMeanForm`,
+`FIG_MixedPolicy`, `FIG_MixedPolicy_Median`) keep their stems until the
+supplement list is decided.
+
+**b. Bring each up to `FIGURE_STYLE.md`.** Run its whole checklist on each
+figure, at final width, by looking at the rendered PNG rather than the code.
+Then draft a CAPTION for each under its entry in section 4: what is plotted,
+panels, units, what marks and shading mean, data source and size. **Nothing
+argumentative goes in a caption.** The author approved every current design on
+2026-10-07 ("the figures look great"), so this is compliance and polish, not
+redesign. Show any visible change before committing it.
+
+**c. Intervals where a figure's comparison needs one.** Decide per figure, and
+write down why for each figure that gets none. The test: does the text beside
+the figure compare two plotted values close enough that noise could reverse
+them? Likely candidates: Figure 3's pooled cells and boxes (bootstrap over pLCA
+groups, the resampling unit fixed by decision 110), Figure 7's per-band medians,
+Figure 5's crossing. Figure 4 already carries its band test. Every interval is
+computed in a `# TABLE` cell that reads only from disk and seeds its own
+generator from a literal, marked `# re-slice generator` (decision 254), and is
+written to a table before any figure draws it.
+
+**Constraints.** No point estimate in this file may move. If one does, stop and
+report which number, by how much and why. Redraw with
+`audits/render_figures.py`: scratch first (`--out`), compare every rewritten
+table against `outputs/` byte for byte, then `--into-outputs`. Revert files
+whose only change is a gzip or PDF timestamp. Run `tests/test_notebooks.py`,
+`tests/test_render_figures.py` and `tests/test_figure_manifest.py` before every
+commit, and push and verify the remote at the end.
+
+**Close.** Write `reports/REPORT_FIGURE_PASS.md` to the stage report
+specification in `CLAUDE.md`, with every figure embedded and its caption
+beneath, then hand the author a review prompt for a fresh window.
+
+### 2. THEN THE PROSE, in a separate window
+
+Following section 3's arc, `reports/WRITING_STYLE.md`, the Discussion table in
+`CLAUDE.md` and `reports/MANUSCRIPT_discrepancies.md`. It needs the
+advisor-marked draft at an absolute path OUTSIDE the repository, supplied by
+the author; the file is never copied inside (`reports/START_HERE.md` section 3).
 
 **Any table change from here is a re-slice, not a run** (decision 254):
 

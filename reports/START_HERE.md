@@ -157,7 +157,7 @@ way:
 
 ## 3. What stays out of the repository
 
-**The manuscript docx with the advisor's 98 unresolved comments must never be
+**The manuscript docx with the advisor's 97 unresolved comments must never be
 committed and must not be placed inside the repository tree at all, gitignored or
 otherwise.** The repository is public and Zenodo-archived, and a gitignored file
 is one `git add -f` or one careless `.gitignore` edit away from publishing an
@@ -218,24 +218,22 @@ tree, and the reference PDFs, which are in `refs/` and so are available here
 and nowhere else. Section 3 says why the draft FILE must not be brought inside
 the repository, which is a rule about where a file sits and not about who does
 the work.
-Three things are waiting for it and all three are in
-`reports/STAGE_REPORT_4.md` section 9: the figure selection, then the
-numbering, then the style pass and the confidence intervals -- one pass over
-the six or seven figures the paper carries rather than three passes over 55.
-`CLAUDE.md` carries the checklist of which Discussion limitation each part of
-the rework retires and what replaces it, and
-`reports/MANUSCRIPT_discrepancies.md` carries every place the manuscript and
-the code disagree.
+**The plan for the paper is `reports/MANUSCRIPT_NARRATIVE.md`**: the thesis,
+the eleven takeaways with their numbers and reproduce-commands, the arc, the
+nine figures and the worked example. It was reviewed on 2026-10-07
+(`reports/REVIEW_MANUSCRIPT_NARRATIVE.md`) and every finding is applied.
+**Its section 9 says what comes next, in order: the figure pass (numbering,
+`FIGURE_STYLE.md` compliance, captions and intervals on the ten chosen
+figures), then the prose.** Each runs in its own window. The figure selection
+is fixed, which is what decision 235 was waiting for. `CLAUDE.md` carries the
+checklist of which Discussion limitation each part of the rework retires and
+what replaces it, and `reports/MANUSCRIPT_discrepancies.md` carries every place
+the manuscript and the code disagree.
 
-**NOTHING IS WAITING ON THE AUTHOR.** Stage 3 proposed a figure numbering and
-did not apply it, and the author then DEFERRED it to the manuscript: the
-numbering depends on which figures the paper includes, which is one of the last
-things decided (decision 235). **Stage 4 must not apply it either**, and two of Stage 3's
-open items travel with it: full `FIGURE_STYLE.md` compliance and confidence
-intervals on figure aggregates are both per-figure work that should wait for the
-selection. `outputs/tables/audits/TABLE_FigureManifest.csv` lists every image
-with its generator, and `figstyle.savefig` takes a stem rather than a path, so
-the rename itself is one word per figure cell.
+**A CAPTION IS ONLY THE SHORT TEXT PRINTED BELOW A FIGURE, saying what is
+plotted.** Every argument, comparison and caveat goes in the text beside the
+figure. This was corrected in `FIGURE_STYLE.md` on 2026-10-07 after several
+windows got it wrong.
 
 **THE FLIP-THRESHOLD ITEM IS CLOSED and this section said otherwise until
 2026-09-25.** `flip.FLIP_THRESHOLDS` was a hard-coded constant calibrated on the

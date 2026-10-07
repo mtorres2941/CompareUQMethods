@@ -9444,3 +9444,53 @@ rather than in conversation.
 
      **The standing rule that follows**: every session that commits pushes, and
      confirms `git ls-remote origin <branch>` matches HEAD.
+
+256. **2026-10-07, MANUSCRIPT. THE NARRATIVE IS REVIEWED AND SETTLED, AND THE
+     NEXT JOB IS THE FIGURE PASS.** `[AUTHOR]` A fresh window attacked
+     `reports/MANUSCRIPT_NARRATIVE.md` (`reports/REVIEW_MANUSCRIPT_NARRATIVE.md`,
+     eleven findings, every one with a reproduce-command) and all eleven are
+     applied. The author's decisions, each of which a later window must not
+     reopen:
+
+     - **The cutoff band printed is 40 to 170**: the cutoffs indistinguishable
+       from the best under BOTH statistics (ratio of means 40 to 170, median of
+       ratios 20 to 200, 6,000 resamples). Figure 4 now shades 40 to 170.
+     - **Pooled errors are quoted to one decimal** (rule 17.4, kernel estimate
+       17.5, lognormal 18.4, normal 26.5). The rule's margin over a kernel
+       estimate everywhere is 0.2 points, 95 percent interval 0.03 to 0.35.
+       The rule moves by 0.04 between the two Monte Carlo passes, so a second
+       decimal is noise.
+     - **Takeaway 11 is quoted from `TABLE_FitVersusClaim.csv`**, written by a
+       new `# TABLE` cell at the end of notebook 3: median within-material rank
+       correlation between fit and claim error +0.66, positive on 85.3 percent,
+       best fit is best claim on 41.6 percent against 16.7 by chance. The
+       +0.83, 88.2 and 42.8 the narrative had quoted had no producer and did not
+       reproduce.
+     - **Building 138 is run at its real intensities only.** The equal-intensity
+       run was dropped as meaningless. Its seven policies naming one leader at
+       1.59x is what the calibration predicts (about 90 to 95 percent agreement
+       expected at that lead), so it neither confirms nor corrects the 73
+       percent of buildings below the safe lead. Its ready-mix classes exceed
+       the corpus's size cap, which decision 137 shows does not matter.
+       `FIG_Building138` is a main-text figure, the ninth.
+     - **ecoinvent's lognormal is "the most common", not "the default".** The
+       current ecoinvent support page says "the most common distribution chosen
+       to describe the uncertainty in ecoinvent"; Muller et al. (2016) say it
+       was the default in version 2 and that version 3 also offers normal,
+       uniform, triangular, gamma and beta PERT.
+     - **A caption is only the short text printed below a figure, saying what is
+       plotted.** `FIGURE_STYLE.md` had defined it as "the paragraph beside the
+       figure", which is why several windows kept putting argument into
+       captions; corrected there. Arguments, comparisons and caveats go in the
+       text beside the figure.
+
+     Also restated without a false claim: the uniform-weighted fit's error
+     levels off near the distance between the two populations rather than
+     having a hard floor (0.084 above 1,000 declarations against 0.099), and
+     the design comparison's per-comparison figures are a mean of 0.089 to
+     0.140 with the six disagreeing on 41.6 percent of comparisons at a 5
+     percent saving (28 percent was the superseded corpus). No point estimate
+     in any table moved; nine re-sliced tables were verified byte-identical.
+
+     **Next: the figure pass**, specified in full in section 9 of the
+     narrative, then the prose in a separate window.
