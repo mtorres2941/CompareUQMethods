@@ -574,6 +574,17 @@ rather than in conversation.
 
 - Branch per stage: `stage-<id>-<short-name>`, e.g. `stage-0-1-refactor`.
 - Commit in logical units so any result change can be bisected.
+- **Every session that commits PUSHES its branch before it ends, and confirms
+  `git ls-remote origin <branch>` matches `git rev-parse HEAD`.** Added
+  2026-10-07, after GitHub turned out to hold nothing past 2026-06-02 (decision
+  255). Claude owns this; the author should never have to ask.
+- **No tracked file over 50 MB**, and no single push over about 1.5 GB: GitHub
+  refuses files over 100 MB and pushes over 2 GB. A large vector figure is
+  rasterized by `figstyle.savefig`; a large table goes to Parquet.
+- **`main` moves only at a release** -- journal submission or acceptance -- as
+  a fast-forward from the working branch, tagged, with a new Zenodo version.
+  The working branch is pushed and visible throughout; `main` stays at the
+  version the current Zenodo DOI describes.
 - `refs/` is gitignored: it holds copyrighted publisher PDFs and large
   third-party datasets, kept locally only.
 
