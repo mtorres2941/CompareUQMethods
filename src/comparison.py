@@ -344,14 +344,16 @@ def base_characteristic(name):
 def base_label(label):
     """Strip the trailing weighting tag from a metric label.
 
-    The stored labels end in `(Var)` or `(Uni)` because the overview figures
+    The stored labels end in `(market weights)` or `(uniform weights)` because the overview figures
     show the two as separate panels and need to say which is which. A
     per-characteristic figure says it once in the column headers instead, so
     repeating it in the title and on all four x axes is noise. Newlines in the
     stored label are flattened, because these are used in running text.
     """
     text = ' '.join(str(label).split())
-    for tag in (' (Var)', ' (Uni)'):
+    # the tags were (Var) and (Uni) until the supplement pass of 2026-10-07,
+    # which brought them into the settled vocabulary (decision 199)
+    for tag in (' (market weights)', ' (uniform weights)', ' (Var)', ' (Uni)'):
         if text.endswith(tag):
             return text[:-len(tag)]
     return text
