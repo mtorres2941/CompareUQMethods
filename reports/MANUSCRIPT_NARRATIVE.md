@@ -74,10 +74,10 @@ skewness is shift invariant: sigma sets the skewness and the threshold then sets
 the coefficient of variation independently. A kernel estimate constrains
 neither.
 
-Only **21.3 percent** of real categories with ten or more EPDs have a
-skewness within 25 percent of what a two-parameter lognormal of their spread
-requires; the median is **0.58** times as skewed as the curve demands and 23.6
-percent are more skewed, so the family is the wrong shape in both directions.
+Only **27 of 127** real categories with ten or more EPDs have a skewness
+within 25 percent of what a two-parameter lognormal of their spread requires;
+the median is **0.58** times as skewed as the curve demands and 23.6 percent are
+more skewed, so the family is the wrong shape in both directions.
 
 And the ladder predicts the study's own ordering. Against the known parent,
 median gain over the two-parameter lognormal: at 100-999 EPDs the
@@ -112,7 +112,7 @@ itself must be obtained first; it is not in `refs/`.
 Uniform weights throughout, a kernel estimate at or above the cutoff, a
 three-parameter lognormal below. **The cutoff is 40 to 170 EPDs**, every
 value in that band indistinguishable from the best on the ratio of means
-(decision 224). **Re-tested on the median of ratios it holds and widens**: 20 to
+(decision 224). **Re-tested on the median of ratios it holds and widens**: 30 to
 200 indistinguishable, best at 60, and both ends -- a kernel estimate everywhere
 and a lognormal everywhere -- remain distinguishably worse (6,000 resamples,
 `TABLE_MixedPolicyThresholdBothStats.csv`). So 40 to 170 is the range that
@@ -123,9 +123,12 @@ against 17.5 for a kernel estimate everywhere, 18.4 for a lognormal everywhere
 and 26.4 for a normal.
 
 **The honest size of it: under the typical-case statistic a kernel estimate
-everywhere is 0.2 points worse than the rule at its best cutoff, 95 percent
-interval 0.03 to 0.35.** Measured and clear of zero, but small. The rule is the
-best available choice and not by much. That is a result to state, not to hide,
+everywhere is 0.2 points worse than the rule (0.16, 95 percent interval 0.01 to
+0.32), barely clear of zero.** That is the comparison Figure 3 shows, with the
+rule's cutoff at 80, inside the published band. It is deliberately not taken at
+the sweep's best cutoff, which is chosen after seeing the data and so flatters
+the rule (decision 258; `TABLE_ClaimScorecardIntervals.csv`, panel `pooled`). The
+rule is the best available choice and not by much. That is a result to state, not to hide,
 and it is what makes takeaway 4 the paper's main practical lever.
 
 **So what:** count the EPDs you have. Below about 40 fit a three-parameter
@@ -138,7 +141,7 @@ printed anywhere in the paper.**
 ### 4. Knowing market shares is worth many times what the rule is worth
 
 Giving the same rule the true market shares above the cutoff takes the pooled
-typical-case error from **17.4 to 13.0 percent**: **4.4 points, or a quarter of
+typical-case error from **17.4 to 13.0 percent**: **4.3 points, or a quarter of
 what was there**, against the rule's 0.2 points (takeaway 3). On the average
 building (ratio of means) the same comparison reads 24.0 to 20.9, 3.1 points or
 13 percent.
@@ -238,10 +241,14 @@ Decisions 107, 118, 157, 162, 171, 172, 252.
 
 ### 8. A goodness-of-fit result overstates what the better method buys
 
-The kernel estimate overtakes the three-parameter lognormal on fit somewhere
-between **68 and 106 EPDs**. At the claim level the whole band 40 to 170
+On fit, which method is closest to the parent changes with category size, and
+the kernel estimate pulls clearly ahead only in large categories: above 1,000
+EPDs a kernel estimate is closest on **89 percent** of datasets (67 with market
+weights, 22 with uniform) and a three-parameter lognormal on 11 (Figure 5,
+`TABLE_ReductionBestMethod.csv`). No fit-level crossing point is printed
+(decisions 225, 258). At the claim level the whole band 40 to 170
 is flat and the entire sweep from 3 to 10,000 moves the pooled typical-case
-error by 1.0 points (0.78 on the average building). The mechanism: a pLCA picks one method for all four of its
+error by 1.0 points (0.77 on the average building). The mechanism: a pLCA picks one method for all four of its
 materials, so one material's advantage is averaged against three neighbors.
 
 Decisions 163, 166, 204.
@@ -336,7 +343,7 @@ measurement on real buildings rather than on real material categories.
 that table row by row. Then the three the rework adds. **Then the
 data-collection argument, which the measurements support in this order:**
 
-1. Market-share data is worth **4.4 of the 17.4 points** on the typical case
+1. Market-share data is worth **4.3 of the 17.4 points** on the typical case
    (3.1 of 24.0 on the average building) -- the largest single lever measured,
    and not a method.
 2. It only pays above about eighty EPDs, so publishing shares without
@@ -428,8 +435,8 @@ worked example in section 5.
 ![](../outputs/figures/CompareUQMethods_FIG2_MetricCoverage.png)
 
 **Caption.** Six pairs of dataset characteristics for the 10,000 synthetic
-datasets (blue) and the 147 real EC3 categories (orange), characteristics under
-market weights, panels (a) to (f). A ring marks a real category outside the
+datasets (gray) and the 147 real EC3 categories (orange), characteristics under
+market weights, panels (a) to (f). A dark ring marks a real category outside the
 synthetic range on that pair, judged on a 26 by 26 grid over the pair's joint
 range; each panel title gives the share of real categories inside.
 
@@ -469,14 +476,15 @@ grouped by the question a reader asks) under seven policies: three UQ families
 with uniform weights and the size rule (left block), and the same three families
 with market weights (right block). 2,500 synthetic pLCAs of four materials each;
 the design comparison uses 2,500 design pairs. Solid box: lowest of the left
-block. Dashed box: lowest of all seven, where it lies in the right block. Thin
-box: a cell whose paired 95 percent bootstrap interval of difference from its
-row's box reaches zero (2,000 resamples of pLCA groups or design pairs). (b)
+block. Dashed orange box: lowest of all, where it lies in the right block. A
+thin solid box marks a cell tied with the solid box, and a thin dashed box a
+cell tied with the dashed box: tied means the 95 percent interval of the paired
+difference reaches zero (2,000 resamples of pLCA groups or design pairs). (b)
 how much the claim moves between two methods for one case, as a percentage of
 that case's true value; whisker 10th to 90th percentile, box interquartile
 range, line and right-hand number the median. (c) The mean over the
 seven per-material claims of the same median error, by the material's own
-dataset size, six fixed methods.
+dataset size, six fixed methods; boxes as in (a).
 
 - "On a typical building, the best method a practitioner can choose is still
   off by 17 percent of the quantity being claimed, pooled over fifteen claims,
@@ -569,14 +577,21 @@ are distinguishably worse under both. **Print 40 to 170.**
 
 **Caption.** Share of synthetic datasets on which each of the six UQ methods
 is closest to the market-weighted parent (W1), in a window of 800 datasets
-sliding along dataset size. Gray band: 68 to 106 EPDs, the fit-level
-cutoffs indistinguishable from the best. 10,000 synthetic datasets.
+sliding along dataset size. Gray band: 40 to 170 EPDs, the size rule's
+cutoff range. 10,000 synthetic datasets.
 
 - "No single UQ method is closest to the truth across the range of dataset sizes
   real ECC categories span, and which one leads changes twice."
-- "The kernel estimate overtakes the three-parameter lognormal at 68 to 106
-  EPDs on goodness of fit, and that crossing is much less sharp once the
-  fit is carried through to a probabilistic LCA claim."
+- "On goodness of fit the kernel estimate pulls clearly ahead only in large
+  categories: above 1,000 EPDs it is closest on 89 percent of datasets. Carried
+  through to a probabilistic LCA claim, a kernel estimate everywhere beats a
+  lognormal everywhere by under a point, 17.5 against 18.4 pooled (takeaway 8)."
+
+**One band, the published one** (author, 2026-10-08; decision 258). The figure
+used to shade 68 to 106 EPDs, a fit-level band for the version of the rule that
+needs market shares, computed with the tie test decision 224 retired. It now
+shades the size rule's 40 to 170, read from the same table as Figure 4, and
+prints no other range.
 
 **Kept, by author decision 2026-10-06**: it makes the point that closeness of
 fit does not translate into probabilistic LCA findings in a way a practitioner
@@ -675,8 +690,8 @@ symmetric-log y axis, linear between -1 and 1). Orange curve: skewness = CV^3 +
   requires, so the family ecoinvent most commonly uses is systematically the
   wrong shape for this data."
 
-If it is cut, the algebra and the 21.3 percent survive as two sentences and lose
-little: the equation is the finding and the figure illustrates it.
+If it is cut, the algebra and the 27 of 127 survive as two sentences and
+lose little: the equation is the finding and the figure illustrates it.
 
 ### Cut
 
@@ -782,6 +797,16 @@ percent interval from 1,000 bootstrap resamples of the 10,000 Monte Carlo
 iterations. The other 32 materials, 12.2 percent of A1-A3, enter as a fixed
 amount.
 
+**The text beside the figure must say what the bars are** (author, 2026-10-08;
+decision 258). They are Monte Carlo noise only: 10,000 iterations pin each
+uncertainty index to within about 1.5 to 2.7 points, which is converged for any
+decision a reader makes. Under three policies -- both normals and the
+uniform-weighted lognormal -- rebar and ready-mix 5000 psi sit within 2.2 points
+of each other, so those models put the two materials level, and more iterations
+would only decide which of two near-equal numbers is larger. The bars do not
+include the uncertainty from fitting each model to its EPDs, which is not
+measured here. `TABLE_Building138UIInterval.csv`.
+
 **Chosen by the author: by contribution** (`FIG9_Building138`). The
 uncertainty-index ordering is in `archive/figures/`.
 
@@ -841,8 +866,8 @@ is best") and would oversell a fraction of a point.
 ### 3. The cutoff band survives both statistics
 
 Measured, not assumed: 40 to 170 on the ratio of means (reproduced from a fresh
-stream), 20 to 200 on the median of ratios, best cutoff 130 and 60
-respectively. **Print 40 to 170**, the range that holds under both (author,
+stream), 30 to 200 on the median of ratios, best cutoff 100 and 60
+respectively. Both on the single Monte Carlo run since decision 258. **Print 40 to 170**, the range that holds under both (author,
 2026-10-07). Figure 4 draws both statistics and shades 40 to 170.
 
 ### 4. Smaller
@@ -883,22 +908,23 @@ saying what is plotted** (`FIGURE_STYLE.md`, corrected the same day). Decision
 
 The nine figures are numbered `FIG1_` to `FIG9_`, each has a caption under its
 entry in section 4, and Figures 3, 7 and 9 carry new intervals. No point
-estimate in this file moved. **Three sentences in this file are now qualified by
-those intervals, and the prose window must carry the qualification**:
+estimate in this file moved in that pass. **After the review of 2026-10-08
+(`reports/REVIEW_FIGURE_PASS.md`, decision 258), these are what the prose window
+must carry**:
 
 - Takeaway 3 and Figure 3: the size rule is the best of the four choosable
   policies on 7 of 15 claims, and on 4 of those 7 no other choosable policy is
-  within noise (`TABLE_ClaimScorecardIntervals.csv`).
-- Section 5 item 2 and Figure 9: rebar drives the most uncertainty under 6 of 7
-  policies, and clear of Monte Carlo noise under 4 -- the three kernel-estimate
-  policies and the market-weighted lognormal. Under both normals and the
-  uniform-weighted lognormal the top two are within noise
-  (`TABLE_Building138UIInterval.csv`).
-- Takeaway 8 and Figure 5 say the kernel estimate "overtakes the lognormal on
-  fit between 68 and 106 EPDs". On the figure, 68 to 106 is the band of
-  fit-level CUTOFFS indistinguishable from the best; the families themselves
-  cross at 62 to 88. The prose should name which it means (decision 142 records
-  the two as different quantities).
+  tied with it (`TABLE_ClaimScorecardIntervals.csv`). Pooled, a kernel estimate
+  everywhere is 0.2 points worse than the rule (0.16, interval 0.01 to 0.32),
+  barely clear of zero.
+- Section 5 and Figure 9: rebar drives the most uncertainty under 6 of 7
+  policies. Under both normals and the uniform-weighted lognormal, rebar and
+  ready-mix 5000 psi are within 2.2 points of each other: those models put the
+  two level. Say that, and say the bars are Monte Carlo noise only, converged at
+  10,000 iterations, with fitting uncertainty not shown. Do not write "within
+  noise" (`TABLE_Building138UIInterval.csv`).
+- Figure 5 shades only the size rule's 40 to 170. No fit-level crossing or
+  fit-level band is printed anywhere (decisions 225, 258).
 
 The original brief follows, unchanged.
 

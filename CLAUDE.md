@@ -9515,6 +9515,41 @@ rather than in conversation.
        policies and the market-weighted lognormal).
      - **Figure 7**: an interval on each band's median ratio. Only the 80-to-100
        band straddles 1x for both families, which supports the published band.
+
+258. **2026-10-08, MANUSCRIPT. THE FIGURE-PASS REVIEW, SETTLED, AND ONE MONTE
+     CARLO RUN FOR EVERYTHING. This SUPERSEDES decision 206.** `[AUTHOR]`
+     `reports/REVIEW_FIGURE_PASS.md`, `reports/REPORT_FIGURE_PASS.md` section 1b.
+
+     - **One run.** "There should be one Monte Carlo run that everything draws
+       its findings from." Notebook 3's cutoff sweep starts from a copy of the
+       main run's random-number stream, so every policy sees the same draws; a
+       control asserts the 7 shared policies agree to 0.0 on every row. Only
+       the sweep's tables moved: the published 40 to 170 band is unchanged,
+       the median band is 30 to 200 (was 20 to 200), and what market shares buy
+       on the typical case is 4.3 points (was 4.4). Decision 206's reason --
+       that win shares and `best_method` depend on the set compared -- stands,
+       and is handled by `metricset.rescore`, not by separate random numbers.
+     - **Figure 5** shades only the size rule's 40 to 170. The 68-to-106 band was
+       a fit-level band for the rule needing market shares, computed with the
+       tie test decision 224 retired; the author: "meaningless". No fit-level
+       crossing or band is printed anywhere.
+     - **Figure 8** says "two-parameter lognormal" and carries no benchmark. A
+       sampling-noise benchmark was built and withdrawn: "text on a figure
+       really really really has to earn its place".
+     - **Figure 9** carries no subtitle; the bars show the overlaps. The text
+       says the bars are Monte Carlo noise only, converged at 10,000
+       iterations.
+     - **Figure 3**: one box language in every panel, four styles in the legend.
+     - **Colors mean one thing everywhere.** Dark shades are market weights, so
+       the graphical abstract's uniform-weighted fits use the light shades;
+       Figure 2's cloud is gray and its real categories orange.
+     - **Takeaway 3** quotes the pooled comparison Figure 3 shows (0.16 points,
+       interval 0.01 to 0.32), never one taken at the sweep's best cutoff.
+     - **There is one parent: the market-weighted distribution.** The
+       distribution EPDs are drawn through is a sampling mechanism, and the
+       code's names that call it a parent (`w1_parent`, `truth_parent =
+       'sampling'`, "sampling parent") are to be renamed. Owned by the next
+       commit; it must change no number.
      - Figures 4, 5, 6 and 8 and the graphical abstract need no interval, for
        the reasons the report gives per figure.
      - **The supplement is twelve figures, `SUPP1_` to `SUPP12_`**, numbered in

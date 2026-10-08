@@ -222,3 +222,17 @@ change list before you approve against it.
   classes) fall outside the cloud. `TABLE_CoverageFigureStats.csv` also lists
   ConcreteAdmixtures, DampproofingAndWaterproofing, PowerCabling,
   ProcessedNonInsulatingGlassPanes, WallFinishes and DemountablePartitionTrack.
+
+---
+
+## Outcome, 2026-10-08 (decision 258)
+
+| Finding | Author's decision |
+|---|---|
+| 1, Figure 5's band | Shade only 40 to 170; 68 to 106 dropped as meaningless |
+| 2, Figure 8 benchmark | Title fixed to "two-parameter"; no benchmark on the figure or in the text |
+| 3, Figure 9 intervals | 10,000 iterations is converged; subtitle removed; the text says the bars are Monte Carlo noise only |
+| 4, Figure 3 boxes | Fixed: same rules in every panel, four styles in the legend |
+| 5, Figure 5 subtitle | There is one parent, the market-weighted one; code names calling the sampling mechanism a parent are to be renamed |
+| 6, colors and two runs | Colors fixed; the cutoff sweep now uses the main run's random numbers, so there is one Monte Carlo run |
+| 7, takeaway 3 and the report | Takeaway 3 quotes Figure 3's comparison; the report's change lists rewritten to the final images |

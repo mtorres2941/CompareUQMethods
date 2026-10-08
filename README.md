@@ -290,7 +290,7 @@ in `archive/figures/`.
 | `FIG2_MetricCoverage` | Where the 147 real categories sit inside the synthetic cloud, characteristic by characteristic |
 | `SUPP3_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
 | `FIG_WeightingDrivers` | Which categories can safely assume uniform weights, against size and dispersion |
-| `FIG8_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit on that curve |
+| `FIG8_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit near that curve |
 
 ### Notebook 2 - the fits
 

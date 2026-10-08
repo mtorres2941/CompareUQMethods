@@ -29,43 +29,90 @@ its right-hand header is left-justified to its own heatmap. The two
 supplement twins drawn by the Figure 3 and 4 cells picked up the same
 vocabulary. **Third round:** Figure 3 is labeled as three panels, (a) the
 claims heatmap with both blocks, (b) how much the answer moves, (c) the size
-bands, each with a small title in the style of (c); S1, its ratio-of-means
+bands, each with a small title in the style of (c); SUPP7, its ratio-of-means
 twin, gets the same labels and its own tie boxes, from bootstrapping the ratio
 of means too; Figure 7 tried standard box-plot whiskers and went back to the
 10th and 90th percentiles at the author's request; the graphical abstract's headings read "Step 1:" to "Step 3:" and its
 third panel shows five bars to one decimal -- normal 26.4, lognormal 18.4,
 kernel estimate 17.5, size rule 17.4, size rule with market shares 13.0.
-Section 2's change lists below describe the first round.
+**Fifth round, after the review of 2026-10-08** (`reports/REVIEW_FIGURE_PASS.md`,
+decision 258): see section 1b. Section 2's change lists below describe each
+figure's final state.
 
 **What moved: no point estimate.** Every pre-existing table that the re-slice
 rewrote came back byte-identical, except `TABLE_Building138Curves.csv.gz`, which
 differs only in its gzip header and was reverted. Three tables are new.
 
-**What needs an author decision.** Three things, in order:
+**What needs an author decision.** Item 1 below is settled; the review of
+2026-10-08 settled items 2 and 3, recorded in section 1b.
 
 1. **Approve or reject the visible changes**, shown before and after in
-   section 2. Nothing is committed until you do.
-2. **Figure 3's title count is fragile.** The size rule is the best of the four
-   policies a reader can choose on **7 of 15** claims. On **3 of those 7** the
-   runner-up is within noise: the total's mean, the total's standard
-   deviation and the uncertainty index. The title still says 7, which is the
-   point estimate. The figure now shows the ties, and the prose must say "clear
-   of noise on 4".
-3. **Figure 9's title count is fragile too.** Rebar drives the most
-   uncertainty under **6 of 7** policies, but clear of Monte Carlo noise under
-   only **4**: the three kernel-estimate policies and the market-weighted
-   lognormal. The narrative's "effectively a tie" under the uniform-weighted
-   normal is right. The same tie also holds under the market-weighted normal
-   and the uniform-weighted lognormal, which the narrative does not say. The
-   kernel estimates' clear rebar lead is the robust half of the finding; the
-   title could say that instead. **Your wording call.**
+   section 2. Approved by the author through the review of 2026-10-08.
+2. **Figure 3's title count.** The size rule is the best of the four policies a
+   reader can choose on **7 of 15** claims, and on 3 of those 7 a choosable
+   policy is tied with it. The figure draws the ties; the prose says so.
+3. **Figure 9.** Rebar drives the most uncertainty under **6 of 7** policies.
+   Under both normals and the uniform-weighted lognormal, rebar and ready-mix
+   5000 psi are within 2.2 points of each other. The figure carries no subtitle
+   about it: the points and their bars show the overlaps (author, 2026-10-08).
+
+## 1b. The fifth round, after the review of 2026-10-08
+
+Decision 258. The review is `reports/REVIEW_FIGURE_PASS.md`.
+
+**What changed on the figures.**
+- **Figure 2**: synthetic cloud gray, real categories orange, dark rings.
+- **Figure 3 and SUPP7**: panel (c) boxed by the same rules as (a); a legend of
+  all four box styles; one gray line saying what "tied" means.
+- **Figure 5**: shades only the size rule's 40 to 170 EPDs and prints no other
+  range; the subtitle says "closest to the parent distribution (W1)".
+- **Figure 8**: the title says "two-parameter lognormal"; no other text added.
+- **Figure 9**: no subtitle.
+- **Graphical abstract**: the three fitted families in their uniform-weight
+  shades.
+
+**ONE MONTE CARLO RUN.** The cutoff sweep -- every policy behind Figure 4,
+SUPP9, the 13.0 bar of the graphical abstract and takeaway 4 -- used to draw its
+own random numbers (decision 206), so a policy scored there and the same policy
+scored in the main run differed by Monte Carlo noise. It now starts from a copy
+of the main run's random-number stream. The control is exact: the 7 policies
+both score agree on every one of 70,000 material rows, 17,500 building rows,
+70,000 intervention rows and 105,000 design-comparison rows, largest difference
+0.0. Every table outside the sweep came back byte-identical apart from gzip
+timestamps.
+
+    python -c "import pandas as pd; m=pd.read_csv('outputs/tables/TABLE_MixedPolicyScorecard.csv').groupby('method').median_error.mean()*100; s=pd.read_csv('outputs/tables/TABLE_ClaimScorecardWithRule.csv').groupby('method').median_error.mean()*100; print(m['Feasible@80'], s['size rule\n(uniform)'])"
+
+**Numbers that moved**, all Monte Carlo noise, all on `corpus_2026-09-25` at
+`weight_rho = 0.5`:
+
+| Number | Before | After |
+|---|---|---|
+| Published cutoff band, ratio of means | 40 to 170 | **40 to 170, unchanged** |
+| Cutoff band, median of ratios | 20 to 200 | 30 to 200 |
+| Best cutoff, ratio of means | 130 | 100 |
+| Size rule, pooled median error (sweep) | 17.42 | 17.38, now equal to Figure 3 |
+| Kernel estimate, pooled median error (sweep) | 17.56 | 17.54, now equal to Figure 3 |
+| Size rule with market shares, pooled median | 13.02 | 13.03 |
+| What market shares buy, typical case | 4.4 points | **4.3 points** (25.0 percent) |
+| What market shares buy, average building | 3.1 points | 3.1 points |
+| Cutoff sweep's range, average building | 0.78 | 0.77 |
+| Figure 4 title, one building's error range | 60 points | 61 points |
+| Known-share rule's band, ratio of means (not published) | 50 to 110 | 40 to 110 |
+
+    python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_MixedPolicyThresholdBothStats.csv'); [print(f,st,g[g.in_range].threshold.min(),g[g.in_range].threshold.max()) for (f,st),g in d.groupby(['family','statistic'])]"
+
+The narrative quotes the new values. **Figure 8's noise benchmark was built and
+then withdrawn by the author** ("text on a figure really has to earn its
+place"), and its table deleted.
 
 ## 2. The ten figures, before and after, with their captions
 
 **Figure 1** `FIG1_PDFandCDFofUQMethods`. Changes: 10 in to 7.2 in; a takeaway
 title and a gray subtitle replace the centered category name; the legend loses
 its frame and moves from on top of the kernel estimate's far tail into the
-empty lower right of panel (b); the y axes are named in the panel titles;
+empty lower right of panel (b); the panels are titled "(a) probability density
+function (PDF)" and "(b) cumulative distribution function (CDF)";
 `figstyle.apply()`. Design unchanged.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_PDFandCDFofUQMethods.png)
@@ -82,24 +129,31 @@ because production volumes are not published.
 **Figure 2** `FIG2_MetricCoverage`. Changes: 11.5 in to 7.2 in; the legend leaves
 the first panel's data for a frameless row under the title; the title becomes a
 message, with the coverage figure computed from the panels and rounded DOWN, so
-95.9 prints as "at least 95"; panel titles shortened to "98.0 pct inside";
-`figstyle.apply()`, which also turns the Unicode minus on the skewness axes into
-ASCII. `TABLE_CoverageFigureStats.csv`, written by the same cell, is
-byte-identical.
+95.9 prints as "at least 95"; panels labeled (a) to (f) with titles such as
+"(a) 98.0% inside"; the synthetic cloud is gray and the real categories orange,
+with dark rings (decision 258: the old blue was the color of "Normal, market
+weights" and the red ring that of "KDE, market weights"); `figstyle.apply()`,
+which also turns the Unicode minus on the skewness axes into ASCII.
+`TABLE_CoverageFigureStats.csv`, written by the same cell, is byte-identical.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_MetricCoverage.png)
 After: ![](../outputs/figures/CompareUQMethods_FIG2_MetricCoverage.png)
 
 *Caption.* Six pairs of dataset characteristics for the 10,000 synthetic
-datasets (blue) and the 147 real EC3 categories (orange), characteristics under
-market weights, panels (a) to (f). A ring marks a real category outside the
+datasets (gray) and the 147 real EC3 categories (orange), characteristics under
+market weights, panels (a) to (f). A dark ring marks a real category outside the
 synthetic range on that pair, judged on a 26 by 26 grid over the pair's joint
 range; each panel title gives the share of real categories inside.
 
-**Figure 3** `FIG3_ClaimScorecard`. Changes: thin boxes for ties, plus one
-subtitle line saying what a thin box means. Nothing else. The supplement's
-ratio-of-means twin is byte-identical, because the intervals are computed on the
-median only.
+**Figure 3** `FIG3_ClaimScorecard`. Changes: three panels labeled (a) the
+claims heatmap with both blocks, (b) the switching cost, (c) the size bands,
+each with a title; thin boxes for ties; a legend of all four box styles, solid
+and thin solid for the best a reader can choose and ties with it, dashed and
+thin dashed for the best of all and ties with it (decision 258 added the fourth,
+which was drawn and never keyed); and panel (c) boxed by the same rules as (a),
+where until 2026-10-08 its solid box marked the best of all six and so sat on
+market-weighted cells. The supplement's ratio-of-means twin, SUPP7, is drawn by
+the same cell and has the same changes, its ties tested on its own statistic.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_ClaimScorecard.png)
 After: ![](../outputs/figures/CompareUQMethods_FIG3_ClaimScorecard.png)
@@ -110,14 +164,15 @@ grouped by the question a reader asks) under seven policies: three UQ families
 with uniform weights and the size rule (left block), and the same three
 families with market weights (right block). 2,500 synthetic pLCAs of four
 materials each; the design comparison uses 2,500 design pairs. Solid box: lowest
-of the left block. Dashed box: lowest of all seven, where it lies in the right
-block. Thin box: a cell whose paired 95 percent bootstrap interval of difference
-from its row's box reaches zero (2,000 resamples of pLCA groups or design
-pairs). (b) How much the claim moves between two methods for one case, as a
-percentage of that case's true value; whisker 10th to 90th percentile, box
-interquartile range, line and right-hand number the median. (c) The
-mean over the seven per-material claims of the same median error, by the
-material's own dataset size, six fixed methods.
+of the left block. Dashed orange box: lowest of all, where it lies in the right
+block. A thin solid box marks a cell tied with the solid box, and a thin dashed
+box a cell tied with the dashed box: tied means the 95 percent interval of the
+paired difference reaches zero (2,000 resamples of pLCA groups or design pairs).
+(b) How much the claim moves between two methods for one case, as a percentage
+of that case's true value; whisker 10th to 90th percentile, box interquartile
+range, line and right-hand number the median. (c) The mean over the seven
+per-material claims of the same median error, by the material's own dataset
+size, six fixed methods; boxes as in (a).
 
 **Figure 4** `FIG4_MixedPolicy_SpreadZoom`. Change: the four gray "mean" labels
 at the top right touched; they are now spaced one text line apart. The pixel
@@ -136,17 +191,21 @@ per-case error, middle half and middle 80 percent shaded; the dotted box is the
 top panel's window. Vertical shading: 40 to 170 EPDs. 2,500 synthetic
 pLCAs.
 
-**Figure 5** `FIG5_WhenToUseWhich`. Change: the title named the axes ("Which
+**Figure 5** `FIG5_WhenToUseWhich`. Changes: the title named the axes ("Which
 method is closest to the truth, by category size"); it now states the finding,
-with a gray subtitle saying what is plotted.
+with a gray subtitle saying what is plotted. The shaded band is the size rule's
+40 to 170 EPDs, read from the same table as Figure 4, and no other range is
+printed; it used to shade 68 to 106, a fit-level band for the version of the
+rule needing market shares, computed with the tie test decision 224 retired
+(decision 258).
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_WhenToUseWhich.png)
 After: ![](../outputs/figures/CompareUQMethods_FIG5_WhenToUseWhich.png)
 
 *Caption.* Share of synthetic datasets on which each of the six UQ methods is
 closest to the market-weighted parent (W1), in a window of 800 datasets sliding
-along dataset size. Gray band: 68 to 106 EPDs, the fit-level cutoffs
-indistinguishable from the best. 10,000 synthetic datasets.
+along dataset size. Gray band: 40 to 170 EPDs, the size rule's cutoff range.
+10,000 synthetic datasets.
 
 **Figure 6** `FIG6_BuildingDominance`. **No visible change**: the PNG is
 byte-identical to the old file; only its name changed.
@@ -178,8 +237,10 @@ below 80, with their median and interquartile range.
 
 **Figure 8** `FIG8_ShapePlane`. Changes: "100 of 127 real categories do not"
 never said what the dark points were; both classes are now named, "dark: 27 of
-127 within 25 pct of the curve" and "gray: 100 further from it". The x ticks
-print as 0.1, 0.3, 1, 3, 10 instead of 10^-1, 10^0, 10^1.
+127 categories within 25% of the curve" and "gray: the other 100". The title
+says "two-parameter". No other text: the figure speaks for itself (author,
+2026-10-08). The x ticks print as 0.1,
+0.3, 1, 3, 10 instead of 10^-1, 10^0, 10^1.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_ShapePlane.png)
 After: ![](../outputs/figures/CompareUQMethods_FIG8_ShapePlane.png)
@@ -191,8 +252,11 @@ symmetric-log y axis, linear between -1 and 1). Orange curve: skewness = CV^3 +
 27 categories whose skewness is within 25 percent of the curve; gray: the other
 100.
 
-**Figure 9** `FIG9_Building138`. Change: an interval bar on every
-uncertainty-index point, and a gray subtitle with the count clear of noise.
+**Figure 9** `FIG9_Building138`. Changes: an interval bar on every
+uncertainty-index point and the method colors of `figstyle.METHOD_COLORS`. No
+subtitle: the one counting policies "clear of Monte Carlo noise" was removed
+(author, 2026-10-08), because the points and their bars show the overlaps
+directly.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_Building138.png)
 After: ![](../outputs/figures/CompareUQMethods_FIG9_Building138.png)
@@ -208,9 +272,13 @@ percent interval from 1,000 bootstrap resamples of the 10,000 Monte Carlo
 iterations. The other 32 materials, 12.2 percent of A1-A3, enter as a fixed
 amount.
 
-**Graphical abstract** `FIG_GraphicalAbstract`, not numbered. Change: each bar
-label sat midway between two bars, so "size rule" read as belonging to either.
-Each label now sits directly above its own bar.
+**Graphical abstract** `FIG_GraphicalAbstract`, not numbered. Changes: each bar
+label sat midway between two bars, so "size rule" read as belonging to either,
+and now sits directly above its own bar; the headings read "Step 1:" to "Step
+3:"; the third panel shows five bars to one decimal; and the three fitted
+families are drawn in their UNIFORM-weight shades, because every one of them is
+a uniform-weighted fit and the dark shades mean market weights everywhere else
+(decision 258).
 
 Before: it kept its stem and was overwritten in place, so the before image is
 in git: `git show 4055ccc:outputs/figures/CompareUQMethods_FIG_GraphicalAbstract.png > /tmp/ga_before.png`.
@@ -358,7 +426,7 @@ estimate at or above, three-parameter lognormal below) for the size rule with
 uniform weights (orange) and the same rule given the true market shares above
 the cutoff (blue), as (a) the ratio of means and (b) the median of per-case
 ratios. Gray lines are four fixed methods. Shading: the cutoffs
-indistinguishable from the best on that statistic, 40 to 170 EPDs in (a) and 20
+indistinguishable from the best on that statistic, 40 to 170 EPDs in (a) and 30
 to 200 in (b). 2,500 synthetic pLCAs.
 
 **SUPP10** `SUPP10_ChoiceDrivers`. The retired "equal weights", "market-share
@@ -432,8 +500,11 @@ normal with market weights [-0.1, +4.5], and normal with uniform weights, where
 ready-mix 5000 psi leads [-1.7, +2.8]. Monte Carlo noise only; the fitted models
 are held fixed.
 *So what:* the methods that keep rebar's long right tail say clearly that rebar
-is where better data would cut the uncertainty most; the methods that flatten
-the tail cannot tell rebar from concrete.
+is where better data would cut the uncertainty most; under the methods that
+flatten the tail, rebar and ready-mix 5000 psi are level, within 2.2 points. The
+intervals are Monte Carlo noise only, and 10,000 iterations converge each index
+to within about 1.5 to 2.7 points; they do not measure fitting uncertainty
+(decision 258).
 
     python -c "import pandas as pd; d=pd.read_csv('outputs/tables/TABLE_Building138UIInterval.csv'); print(d[d.is_leader][['method','leader','lead_lo','lead_hi','leader_clear']])"
 
@@ -450,21 +521,26 @@ fit worse; above about 100 it measurably helps; in between, nobody can say.
 
 **F4. Why the other figures get no interval.**
 - Figure 1 is one illustrative category.
-- Figures 2 and 8 are counts over the whole real arm, not estimates of a
-  population quantity.
+- Figure 2 is a count over the whole real arm, not an estimate of a population
+  quantity.
+- Figure 8 is a count over the whole real arm against an exact curve; the
+  author decided 2026-10-08 that it carries no benchmark or interval.
 - Figure 4 already carries its band test (decision 224).
-- Figure 5's text quotes the family crossing as an interval, 62 to 88, from the
-  win-share bounds, and quotes the fit-level cutoff as the 68-to-106 band; the
-  curves themselves are compared only far apart.
+- Figure 5's curves are compared only far apart, and the text quotes no
+  crossing point from them (decision 258).
 - Figure 6 draws the threshold as its own interval, 2.18 to 2.39, and the 292
   buildings are a census.
 - The graphical abstract's bars are the pooled values F1 already bounds.
 
 ## 4. Numbers that moved
 
-**None.** Every point estimate printed on a figure or in the narrative is
-unchanged. The re-slice reproduced every existing table it rewrote
-byte-identical, apart from one gzip header. The two interval cells assert their
+**In the figure pass itself, none.** Every point estimate printed on a figure
+or in the narrative was unchanged. The re-slice reproduced every existing table
+it rewrote byte-identical, apart from one gzip header, and one table changed by
+design: `TABLE_GenerationExampleCurves.csv.gz`, the curves SUPP1 draws, now on a
+grid that ends where the data do, with the drawn values beside it
+byte-identical. **The fifth round moved numbers on purpose; they are in section
+1b.** The two interval cells assert their
 points equal the scorecard's and the size-band table's to 1e-12, and the
 Building 138 cell asserts the same for its uncertainty index. The counts in
 F1 and F2 are new qualifications, not changed numbers.
