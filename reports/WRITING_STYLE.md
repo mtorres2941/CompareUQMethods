@@ -115,7 +115,7 @@ may be used for these concepts, in text, figures, captions or tables.**
 | **uniform weights** | unweighted, equal weighting | decision 199 |
 | **market weights** | variable, Dirichlet shares, sampled market shares | decision 199. Four vocabularies were tried; this is the last |
 | **known market shares** | oracle, true weights | the contrast with "market weights" is the point |
-| **declarations** (or **EPDs**, consistently, never both) | records, data points, values, ECCs when the count is meant | an EPD is a document, an ECC is the number it carries. The draft and one figure use both for the same count |
+| **EPDs** | declarations, records, data points, values, ECCs when the count is meant | an EPD is a document, an ECC is the number it carries. **Settled by the author 2026-10-07: "never refer to EPDs as 'declarations'... This applies everywhere across the manuscript and figures."** "40 to 170 EPDs", "EPDs in the category" |
 | the five questions: **magnitude, attribution, information, action, comparison** | "results", "key results", "takeaways" | "result" was flagged four times as too vague |
 | **a probabilistic LCA claim** | a result, an output | principle 8 |
 

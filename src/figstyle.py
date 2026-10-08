@@ -20,6 +20,22 @@ import numpy as np
 #: survives grayscale. Order chosen so the first two are the furthest apart.
 CATEGORICAL = ('#0072B2', '#D55E00', '#009E73', '#CC79A7', '#E69F00', '#56B4E9')
 
+#: ONE COLOR PER UQ METHOD, in every figure (author, 2026-10-07: "Why are
+#: method colors not consistent across figures?"). Hue by family, LIGHT for
+#: uniform weights and DARK for market weights, so the weighting survives
+#: grayscale. These are exactly seaborn's 'Paired' palette in `fitting.PEWT`
+#: order, which three notebooks already built independently; it now lives here
+#: once, and `tests/test_figstyle.py` pins the equality. Keys are the stored
+#: method names ("Variable" is the data key for market weights, decision 199).
+METHOD_COLORS = {
+    'Normal, Uniform': '#a6cee3', 'Normal, Variable': '#1f78b4',
+    'Lognormal, Uniform': '#b2df8a', 'Lognormal, Variable': '#33a02c',
+    'KDE, Uniform': '#fb9a99', 'KDE, Variable': '#e31a1c',
+}
+
+#: A family drawn once, with no weighting split, takes its DARK shade.
+FAMILY_COLORS = {'Normal': '#1f78b4', 'Lognormal': '#33a02c', 'KDE': '#e31a1c'}
+
 #: The single saturated color reserved for whatever the message is about.
 #: Everything else in a figure should be gray; see FIGURE_STYLE.md section 4.
 ACCENT = '#D55E00'

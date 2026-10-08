@@ -102,7 +102,7 @@ what is on the axes except the axis label, which then becomes a paragraph.
                 One line, occasionally two.
     axis label  a short noun phrase with its units. NOT a sentence.
 
-`CompareUQMethods_FIG_ClaimScorecard` is the worked example: "Under the BEST of
+`CompareUQMethods_FIG3_ClaimScorecard` (then `FIG_ClaimScorecard`) is the worked example: "Under the BEST of
 the six methods a probabilistic LCA is right to 1 pct on the design comparison
 and wrong by 32 pct on which material leads" as the message, "a black box marks
 the method closest to the truth on that row" as the gray subtitle, and "mean
@@ -215,6 +215,21 @@ Color encodes, it does not decorate.
 
 - Plain ASCII only, as everywhere in this project. No Unicode minus, no
   multiplication sign, no typographic quotes. Write `CO2`, not a subscript.
+- **Percentages use the `%` symbol, never "pct"** (author, 2026-10-07: "Just
+  use the percent symbol throughout all these figures"). `%` is ASCII. A stored
+  table key that contains "pct" is mapped to display text in the figure cell;
+  the data is not renamed.
+- **EPDs are "EPDs", never "declarations"** (author, 2026-10-07), in every title,
+  label, annotation and caption. `reports/WRITING_STYLE.md` carries the same rule
+  for prose.
+- **Panels of a multi-panel figure are labeled (a), (b), (c)** so the text and
+  caption can refer to them.
+- **A key of mark styles belongs in a legend, not spelled out in a subtitle.**
+  When a figure uses boxes, line styles or markers whose meaning is not a data
+  series -- best-cell boxes, interval bars -- draw a small legend of those marks
+  (author, 2026-10-07, on a scorecard whose subtitle had grown to two gray lines).
+- **Each method keeps ONE color in every figure**: `figstyle.METHOD_COLORS`,
+  hue by family, light for uniform weights and dark for market weights.
 - One font family throughout; the default sans is fine.
 - Sizes: panel title 9 pt, axis label 8 pt, tick label 7 pt, annotation 6.5 pt.
   Set them through `figstyle.apply()` rather than per call.
