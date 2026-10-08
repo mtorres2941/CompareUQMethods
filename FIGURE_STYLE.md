@@ -222,6 +222,11 @@ Color encodes, it does not decorate.
 - **EPDs are "EPDs", never "declarations"** (author, 2026-10-07), in every title,
   label, annotation and caption. `reports/WRITING_STYLE.md` carries the same rule
   for prose.
+- **Numbers stacked in a column align on their decimal point** (author,
+  2026-10-07: "Always align the decimals"). Right-justify the labels against a
+  common edge and left-justify the numbers from it, or right-justify numbers
+  of equal decimal places; never set a label and its number as one
+  left-justified string.
 - **Panels of a multi-panel figure are labeled (a), (b), (c)** so the text and
   caption can refer to them.
 - **A key of mark styles belongs in a legend, not spelled out in a subtitle.**
