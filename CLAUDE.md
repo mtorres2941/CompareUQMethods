@@ -9494,3 +9494,25 @@ rather than in conversation.
 
      **Next: the figure pass**, specified in full in section 9 of the
      narrative, then the prose in a separate window.
+
+257. **2026-10-07, MANUSCRIPT. THE FIGURE PASS: the nine main-text figures are
+     numbered, captioned and brought to `FIGURE_STYLE.md`, and three of them
+     carry intervals that QUALIFY two counts the narrative quotes.**
+     `[DELEGATED, pending the author's review of the before/after images]`
+     `reports/REPORT_FIGURE_PASS.md`.
+
+     - **Stems** `FIG1_` to `FIG9_`; the graphical abstract keeps
+       `FIG_GraphicalAbstract`. The old files are in `archive/figures/`.
+     - **No point estimate moved.** Every pre-existing table re-sliced
+       byte-identical (one differs only in its gzip header); three new tables
+       hold the intervals.
+     - **Figure 3**: a thin box marks every cell a paired cluster bootstrap over
+       pLCA groups cannot separate from its row's box. The size rule is best of
+       the four choosable policies on 7 of 15 claims, CLEAR OF NOISE ON 4.
+     - **Figure 9**: Monte Carlo intervals on the uncertainty index. Rebar leads
+       under 6 of 7 policies, CLEAR OF NOISE UNDER 4 (the three kernel-estimate
+       policies and the market-weighted lognormal).
+     - **Figure 7**: an interval on each band's median ratio. Only the 80-to-100
+       band straddles 1x for both families, which supports the published band.
+     - Figures 4, 5, 6 and 8 and the graphical abstract need no interval, for
+       the reasons the report gives per figure.

@@ -23,11 +23,12 @@ disk. A file in this directory had no generator at all.
 | `CompareUQMethods_FIG_Building138_A.png`, `_B.png`, `_C.png` and `.pdf` | the first three case-study plots, 2026-10-06. A compared the real building with an equal-intensity version the author judged not to make sense; C drew the building total, which he did not find informative; B's uncertainty-index dots survive inside the ridgeline that replaced all three |
 | `CompareUQMethods_FIG_Building138_ByUncertainty.png` and `.pdf` | the case-study ridgeline with rows ordered by uncertainty index, 2026-10-06. The author chose rows by contribution, now `FIG_Building138` |
 | `CompareUQMethods_WassVsResultDiff.png` | RENAMED rather than superseded, in Stage 4. It was the one image in the repository carrying neither the `FIG_` nor the `SUPP_` prefix, and its own cell declares itself a figure, so it is written as `CompareUQMethods_FIG_WassVsResultDiff` from the next run of notebook 3. The content is unchanged |
+| `CompareUQMethods_FIG_PDFandCDFofUQMethods`, `_MetricCoverage`, `_ClaimScorecard`, `_MixedPolicy_SpreadZoom`, `_WhenToUseWhich`, `_BuildingDominance`, `_WeightingBySize`, `_ShapePlane`, `_Building138`, each `.png` and `.pdf` | RENAMED with their manuscript number in the figure pass of 2026-10-07 (`reports/REPORT_FIGURE_PASS.md`): the same nine figures are now written as `FIG1_` to `FIG9_`. Kept here as the before-image of that pass; `FIG6_BuildingDominance.png` is byte-identical to its old file, the other eight carry the style, caption-slot and interval changes the report lists |
 
 Nothing here is cited by the manuscript. The three from 2026-09-21 predate both
 the corpus regeneration and the empirical weight-rule port, so their numbers are
 from a state of the project that no longer exists.
 
-The `.pdf` of that last row was removed on 2026-10-07: it was a 66 MB byte copy
+The `.pdf` of the `WassVsResultDiff` row was removed on 2026-10-07: it was a 66 MB byte copy
 of a figure that still exists as `FIG_WassVsResultDiff`, and files over 50 MB
 cannot go to GitHub.
