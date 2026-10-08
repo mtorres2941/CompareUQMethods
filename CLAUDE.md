@@ -9456,7 +9456,8 @@ rather than in conversation.
        from the best under BOTH statistics (ratio of means 40 to 170, median of
        ratios 20 to 200, 6,000 resamples). Figure 4 now shades 40 to 170.
      - **Pooled errors are quoted to one decimal** (rule 17.4, kernel estimate
-       17.5, lognormal 18.4, normal 26.5). The rule's margin over a kernel
+       17.5, lognormal 18.4, normal 26.4 [corrected 2026-10-07 from 26.5: the
+       table value is 26.447]). The rule's margin over a kernel
        estimate everywhere is 0.2 points, 95 percent interval 0.03 to 0.35.
        The rule moves by 0.04 between the two Monte Carlo passes, so a second
        decimal is noise.

@@ -275,7 +275,7 @@ After: ![](../outputs/figures/CompareUQMethods_SUPP3_GeneratedVsEmpiricalMetrics
 
 *Caption.* The distribution of each dataset characteristic over the 10,000
 synthetic datasets (blue) and the 147 real EC3 categories (orange, with a tick
-per category), under market and under uniform weights, (a) to (w). Fit
+per category), under market and under uniform weights. Fit
 statistics are Shapiro-Francia; the fitted modality index uses the bandwidth the
 study fits. Two real categories are marked for reference. Wide-ranging
 characteristics are on log or symmetric-log axes.
@@ -475,6 +475,10 @@ guard at 30, where the code uses 20; SUPP11's title said a shift of "one
 percent" of the mean, where its 5% crossing is 1.50%; and SUPP5's lower row
 called an in-sample W1 a W1 "against the target".
 
+One quote in the narrative was mis-rounded and is corrected: the normal's
+pooled median error is 26.447, printed as 26.5 in takeaways 1, 3 and 6 and in
+decision 256; it is now 26.4 everywhere, as the graphical abstract prints it.
+
 ## 5. What is still open
 
 - **The three qualifications in narrative section 9, item 1**, which the prose
@@ -483,10 +487,6 @@ called an in-sample W1 a W1 "against the target".
   EPDs". On the figure, 68 to 106 is the band of fit-level CUTOFFS
   indistinguishable from the best, and the families cross at 62 to 88
   (decision 142 treats these as different quantities).
-- **The narrative quotes the normal's pooled error as 26.5; the table value is
-  26.447, which rounds to 26.4.** A rounding slip in the quote, not a moved
-  estimate; the graphical abstract prints 26.4. Decision 256 and narrative
-  takeaways 1, 3 and 6 carry the 26.5.
 - **Four labels in Figure 4 sit on shaded bands by design**, and
   `figstyle.check_overlaps` flags them. All four are legible at final size.
 - **SUPP11's inset prints the flip crossings to four decimals** (0.0029, 0.0150,

@@ -49,7 +49,7 @@ flatten that.** Under the recommended rule, the typical case's error runs from
 **4.4 percent** on the chance of meeting a carbon budget to **43.5** on the
 uncertainty index, with a median of 17.1 -- a tenfold range. Pooled over the
 fifteen claims: the rule **17.4**, a kernel estimate everywhere **17.5**, a
-three-parameter lognormal everywhere **18.4**, a normal everywhere **26.5**. The
+three-parameter lognormal everywhere **18.4**, a normal everywhere **26.4**. The
 average building (ratio of means) reads 24.0, 24.7, 24.7 and 32.5.
 
 **So what:** how badly a probabilistic LCA misses depends far more on what you
@@ -120,7 +120,7 @@ survives BOTH statistics and is the one to print. The rule is closest of the
 four options a reader can choose on **7 of 15** claims -- the kernel estimate on
 5, the lognormal on 3 -- and pooled it is the lowest of the four: **17.4**
 against 17.5 for a kernel estimate everywhere, 18.4 for a lognormal everywhere
-and 26.5 for a normal.
+and 26.4 for a normal.
 
 **The honest size of it: under the typical-case statistic a kernel estimate
 everywhere is 0.2 points worse than the rule at its best cutoff, 95 percent
@@ -179,7 +179,7 @@ weight on each product group is that group's true share to 1.1e-16.
 ### 6. Do not fit a normal distribution, and say which claim you mean
 
 A normal is **52 percent** worse pooled than the rule on the typical case
-(26.5 against 17.4), and **65 percent** worse than the best available choice
+(26.4 against 17.4), and **65 percent** worse than the best available choice
 on a material's chance of being the largest contributor (42.2 against 25.6). It
 is the worst of the seven policies on 14 of 15 claims and the best of the four a
 reader can choose on none. On the average building the penalty is 36 percent,
