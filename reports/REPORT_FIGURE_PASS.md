@@ -278,7 +278,8 @@ and now sits directly above its own bar; the headings read "Step 1:" to "Step
 3:"; the third panel shows five bars to one decimal; and the three fitted
 families are drawn in their UNIFORM-weight shades, because every one of them is
 a uniform-weighted fit and the dark shades mean market weights everywhere else
-(decision 258).
+(decision 258). The step-2 labels use the family's dark shade, for legibility
+(author, 2026-10-08).
 
 Before: it kept its stem and was overwritten in place, so the before image is
 in git: `git show 4055ccc:outputs/figures/CompareUQMethods_FIG_GraphicalAbstract.png > /tmp/ga_before.png`.
