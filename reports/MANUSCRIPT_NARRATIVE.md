@@ -74,13 +74,13 @@ skewness is shift invariant: sigma sets the skewness and the threshold then sets
 the coefficient of variation independently. A kernel estimate constrains
 neither.
 
-Only **21.3 percent** of real categories with ten or more declarations have a
+Only **21.3 percent** of real categories with ten or more EPDs have a
 skewness within 25 percent of what a two-parameter lognormal of their spread
 requires; the median is **0.58** times as skewed as the curve demands and 23.6
 percent are more skewed, so the family is the wrong shape in both directions.
 
 And the ladder predicts the study's own ordering. Against the known parent,
-median gain over the two-parameter lognormal: at 100-999 declarations the
+median gain over the two-parameter lognormal: at 100-999 EPDs the
 three-parameter lognormal is **22.9 percent** closer and the kernel estimate
 **33.2**; above 1,000, **25.0** and **48.1**.
 
@@ -110,7 +110,7 @@ itself must be obtained first; it is not in `refs/`.
 ### 3. The rule a reader can follow is one number: count your EPDs
 
 Uniform weights throughout, a kernel estimate at or above the cutoff, a
-three-parameter lognormal below. **The cutoff is 40 to 170 declarations**, every
+three-parameter lognormal below. **The cutoff is 40 to 170 EPDs**, every
 value in that band indistinguishable from the best on the ratio of means
 (decision 224). **Re-tested on the median of ratios it holds and widens**: 20 to
 200 indistinguishable, best at 60, and both ends -- a kernel estimate everywhere
@@ -132,7 +132,7 @@ and it is what makes takeaway 4 the paper's main practical lever.
 lognormal, above about 170 use a kernel density estimate, and in between either
 does as well.
 
-Decisions 204, 216, 217, 220, 224, 225. **No single-declaration cutoff is
+Decisions 204, 216, 217, 220, 224, 225. **No single-number cutoff is
 printed anywhere in the paper.**
 
 ### 4. Knowing market shares is worth many times what the rule is worth
@@ -150,21 +150,21 @@ take that to 13 -- many times what any choice of curve is worth.
 Decisions 217, 221, 252, 253. Entry 183. Mixed-policy pass,
 `TABLE_MixedPolicyScorecard.csv`, methods `Mixed` and `Feasible@80`.
 
-### 5. Market share does not merely fail to help below about eighty declarations; it actively hurts
+### 5. Market share does not merely fail to help below about eighty EPDs; it actively hurts
 
 Share of datasets on which the market-weighted fit is *closer* to the truth than
-its own uniform-weighted twin: **32.8 percent** at 3 to 9 declarations for the
+its own uniform-weighted twin: **32.8 percent** at 3 to 9 EPDs for the
 lognormal and 38.5 for the kernel -- worse about twice as often as better for
 the lognormal, and 1.6 times as often for the kernel --
 **53.6 and 52.7** at 81 to 99, and **78.7 and 76.2** above a thousand. Under
 true weights the Kish effective sample size has a median of **2.8** at 3 to 9
-declarations, with 92.4 percent of such datasets below five effective
+EPDs, with 92.4 percent of such datasets below five effective
 observations.
 
 **So what:** with nine EPDs of which two are the product holding ninety percent
 of the market, weighting by market share rests your whole answer on two numbers.
 It is aimed at exactly the right question and it is wild. Better to ignore the
-shares until enough declarations sit inside the products that dominate the
+shares until enough EPDs sit inside the products that dominate the
 market.
 
 Decisions 212, 215, 219, 222, 252.
@@ -239,7 +239,7 @@ Decisions 107, 118, 157, 162, 171, 172, 252.
 ### 8. A goodness-of-fit result overstates what the better method buys
 
 The kernel estimate overtakes the three-parameter lognormal on fit somewhere
-between **68 and 106 declarations**. At the claim level the whole band 40 to 170
+between **68 and 106 EPDs**. At the claim level the whole band 40 to 170
 is flat and the entire sweep from 3 to 10,000 moves the pooled typical-case
 error by 1.0 points (0.78 on the average building). The mechanism: a pLCA picks one method for all four of its
 materials, so one material's advantage is averaged against three neighbors.
@@ -253,7 +253,7 @@ a rank-1 frequency. The typical material's error against the truth is **41.8 to
 47.3 percent** across the seven policies, the worst of the fifteen claims (the
 average-building form reads 47.6 to 49.8, and **44.6 points of that average is
 error every method makes together**). The cause is dataset size: a variance estimated from nine
-declarations is badly understated, and a variance share must sum to one.
+EPDs is badly understated, and a variance share must sum to one.
 
 **So what:** every method tells you the same thing about which material drives
 your uncertainty, and all of them are about half wrong. **Agreement between
@@ -281,7 +281,7 @@ Within a material, ranking the six methods by how well they fit and by how wrong
 their answer is gives a median rank correlation of **+0.66**, positive on **85.3
 percent** of the 10,000 materials; the best-fitting method is also the most
 claim-accurate **41.6 percent** of the time against a 16.7 percent chance level.
-It holds in every size band (positive on 80.5 percent at 3 to 9 declarations,
+It holds in every size band (positive on 80.5 percent at 3 to 9 EPDs,
 91.2 above 1,000). What does not transfer is the magnitude.
 
 Fit is W1 against the market-weighted true parent; claim error is the mean, over
@@ -314,7 +314,7 @@ median real ECC category sits at 1.87, so **61.9 percent of real categories are
 more dispersed than its worst possible score**; it quantifies a different thing
 and the paper says so.
 
-**Methods.** Six methods; 147 real EC3 categories holding 116,766 declarations;
+**Methods.** Six methods; 147 real EC3 categories holding 116,766 EPDs;
 10,000 synthetic datasets stratified over four size bands whose **true parent is
 known**; two evaluation levels -- fit against the known parent, and every pLCA
 run a second time against the true parents on the same uniform draws. The
@@ -339,10 +339,10 @@ data-collection argument, which the measurements support in this order:**
 1. Market-share data is worth **4.4 of the 17.4 points** on the typical case
    (3.1 of 24.0 on the average building) -- the largest single lever measured,
    and not a method.
-2. It only pays above about eighty declarations, so publishing shares without
-   also deepening the declaration count for the dominant products would not help
+2. It only pays above about eighty EPDs, so publishing shares without
+   also deepening the EPD count for the dominant products would not help
    and could hurt.
-3. **The median real EC3 category holds 47 declarations and 64 percent hold
+3. **The median real EC3 category holds 47 EPDs and 64 percent hold
    fewer than 80**, so for most real materials a market-share estimate would not
    help even if one existed. The uncertainty missing share data creates is, for
    those categories, irreducible by modeling.
@@ -352,7 +352,7 @@ data-collection argument, which the measurements support in this order:**
 5. An industry-average EPD would be the one published production-weighted number,
    and the frozen extract contains none -- all 120,280 records are product EPDs
    (decision 176). A concrete ask of the EPD programs.
-6. **More declarations alone stops helping.** Above 100 declarations a
+6. **More EPDs alone stops helping.** Above 100 EPDs a
    uniform-weighted fit's error against the market-weighted truth levels off
    near 0.1 (0.097 at 100 to 999, 0.084 above 1,000), about the distance between
    the population that publishes and the population that gets built (0.099).
@@ -384,40 +384,54 @@ paragraph. The graphical abstract (section 6) is separate and not counted.
 
 | # | Figure | The takeaways it carries |
 |---|---|---|
-| 1 | `FIG_PDFandCDFofUQMethods` | what the methods ARE; 2 |
-| 2 | `FIG_MetricCoverage` | generalizability |
-| 3 | `FIG_ClaimScorecard` | 1, 6, 9, 10 |
-| 4 | `FIG_MixedPolicy_SpreadZoom` | 3, 4 |
-| 5 | `FIG_WhenToUseWhich` | 8, 11 |
-| 6 | `FIG_BuildingDominance` (sorted dots) | 7 |
-| 7 | `FIG_WeightingBySize` (box plus strip) | 5 |
-| 8 | `FIG_ShapePlane` | 2 |
-| 9 | `FIG_Building138` | the worked example, section 5 |
+| 1 | `FIG1_PDFandCDFofUQMethods` | what the methods ARE; 2 |
+| 2 | `FIG2_MetricCoverage` | generalizability |
+| 3 | `FIG3_ClaimScorecard` | 1, 6, 9, 10 |
+| 4 | `FIG4_MixedPolicy_SpreadZoom` | 3, 4 |
+| 5 | `FIG5_WhenToUseWhich` | 8, 11 |
+| 6 | `FIG6_BuildingDominance` (sorted dots) | 7 |
+| 7 | `FIG7_WeightingBySize` (box plus strip) | 5 |
+| 8 | `FIG8_ShapePlane` | 2 |
+| 9 | `FIG9_Building138` | the worked example, section 5 |
 
 ### Figure 1 -- the six methods on one real category
-`FIG_PDFandCDFofUQMethods`
+`FIG1_PDFandCDFofUQMethods`
 
-![](../outputs/figures/CompareUQMethods_FIG_PDFandCDFofUQMethods.png)
+![](../outputs/figures/CompareUQMethods_FIG1_PDFandCDFofUQMethods.png)
 
-- "Each of the six UQ methods turns the same 204 declarations of reinforcing
+**Caption.** The six UQ methods fitted to the 204 EPDs of the EC3
+category RebarSteel, each EPD divided by the category's unweighted mean
+ECC. (a) Probability density function (PDF) of each fitted method; black ticks
+are the EPDs, longer for a larger market weight. (b) Cumulative distribution
+function (CDF) of each method, with the EPDs' empirical CDF in black.
+Light shades: uniform weights; dark shades: market weights, which are drawn
+because production volumes are not published.
+
+- "Each of the six UQ methods turns the same 204 EPDs of reinforcing
   steel into a different probability distribution, and they disagree most about
   the upper tail, where a carbon budget is written."
 - "The three probability estimation methods differ in how much shape they are
   free to take: a normal distribution fixes the skewness at zero, a lognormal
   ties it to the spread, and a kernel density estimate constrains neither --
   which is why only the kernel estimate reproduces the second group of
-  declarations near twice the mean."
+  EPDs near twice the mean."
 
 Reinforcing steel rather than a synthetic dataset: a reader cannot picture
-`dataset2569`, every structural engineer names rebar, it holds 204 declarations
+`dataset2569`, every structural engineer names rebar, it holds 204 EPDs
 so the kernel estimate is what the paper recommends for it, and its second hump
 near 2.1 makes the families visibly disagree. It is also the thread for the
 worked example in section 5.
 
 ### Figure 2 -- where the real categories sit inside the synthetic cloud
-`FIG_MetricCoverage`
+`FIG2_MetricCoverage`
 
-![](../outputs/figures/CompareUQMethods_FIG_MetricCoverage.png)
+![](../outputs/figures/CompareUQMethods_FIG2_MetricCoverage.png)
+
+**Caption.** Six pairs of dataset characteristics for the 10,000 synthetic
+datasets (blue) and the 147 real EC3 categories (orange), characteristics under
+market weights, panels (a) to (f). A ring marks a real category outside the
+synthetic range on that pair, judged on a 26 by 26 grid over the pair's joint
+range; each panel title gives the share of real categories inside.
 
 - "The 10,000 synthetic datasets span the real EC3 categories on every
   characteristic except two extremes: the three largest ready-mix classes exceed
@@ -427,7 +441,7 @@ worked example in section 5.
 
   **This goes in the manuscript text beside the figure, not in the caption or
   on the figure** (author, 2026-10-07). The paragraph adds why neither gap
-  matters: above 10,000 declarations the results do not change (decision 137),
+  matters: above 10,000 EPDs the results do not change (decision 137),
   and Aggregates is a contaminated EC3 category whose removal moves no headline
   result (decision 138). `TABLE_MetricCoverage.csv`,
   `TABLE_CoverageFigureStats.csv`.
@@ -445,9 +459,24 @@ variation appears in two panels because it loads on two different components.
 Without that sentence the pairing looks arbitrary.
 
 ### Figure 3 -- the centerpiece
-`FIG_ClaimScorecard`
+`FIG3_ClaimScorecard`
 
-![](../outputs/figures/CompareUQMethods_FIG_ClaimScorecard.png)
+![](../outputs/figures/CompareUQMethods_FIG3_ClaimScorecard.png)
+
+**Caption.** (a) Median error against the true distribution, as a percentage of
+each case's own true value, for fifteen claims a probabilistic LCA makes (rows,
+grouped by the question a reader asks) under seven policies: three UQ families
+with uniform weights and the size rule (left block), and the same three families
+with market weights (right block). 2,500 synthetic pLCAs of four materials each;
+the design comparison uses 2,500 design pairs. Solid box: lowest of the left
+block. Dashed box: lowest of all seven, where it lies in the right block. Thin
+box: a cell whose paired 95 percent bootstrap interval of difference from its
+row's box reaches zero (2,000 resamples of pLCA groups or design pairs). (b)
+how much the claim moves between two methods for one case, as a percentage of
+that case's true value; whisker 10th to 90th percentile, box interquartile
+range, line and right-hand number the median. (c) The mean over the
+seven per-material claims of the same median error, by the material's own
+dataset size, six fixed methods.
 
 - "On a typical building, the best method a practitioner can choose is still
   off by 17 percent of the quantity being claimed, pooled over fifteen claims,
@@ -459,7 +488,7 @@ Without that sentence the pairing looks arbitrary.
   claim is being made: for a typical building it moves the chance of meeting a
   budget by 3 percent and which material is largest by 26, and for one building
   in ten by 14 and 94."
-- "Which method is closest to the truth inverts at about a hundred declarations
+- "Which method is closest to the truth inverts at about a hundred EPDs
   on both axes at once, from a lognormal or kernel estimate with uniform weights
   below to a kernel estimate with market weights above."
 
@@ -491,10 +520,20 @@ choice moves a material's estimated contribution by 12 percent": for a typical
 building it moves it by 5 and for one in ten by more than 34.
 
 ### Figure 4 -- the rule, and what market-share data would buy. CHOSEN: ZOOM PLUS SPREAD
-`FIG_MixedPolicy_SpreadZoom` in the main text; `FIG_MixedPolicy` (ratio of
+`FIG4_MixedPolicy_SpreadZoom` in the main text; `FIG_MixedPolicy` (ratio of
 means) and `FIG_MixedPolicy_Median` in the supplement
 
-![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy_SpreadZoom.png)
+![](../outputs/figures/CompareUQMethods_FIG4_MixedPolicy_SpreadZoom.png)
+
+**Caption.** Error of the size rule (kernel density estimate at or above the
+cutoff, three-parameter lognormal below, uniform weights; orange) and of the
+same rule given the true market shares above the cutoff (blue), pooled over
+fifteen claims, against the cutoff from 3 to 10,000 EPDs. Top, zoomed:
+solid lines the median of per-case ratios, dashed lines the ratio of means; gray
+lines the four fixed methods on each statistic. Bottom, at true scale: the size
+rule's per-case error, middle half and middle 80 percent shaded; the dotted box
+is the top panel's window. Vertical shading: 40 to 170 EPDs. 2,500
+synthetic pLCAs.
 
 Chosen by the author over a single-statistic curve (A, B) and the spread alone
 (C), because it keeps the story legible and the uncertainty on the page. The
@@ -505,7 +544,7 @@ rule's per-case error at true scale, the middle half and the middle 80 percent,
 with a box marking where the top panel's window sits.
 
 - "Switching distribution family by dataset size beats either family alone
-  anywhere from 40 to 170 declarations, on both the typical case and the
+  anywhere from 40 to 170 EPDs, on both the typical case and the
   average."
 - "Moving the cutoff shifts the typical error by about one point across the
   whole sweep, while one building's error ranges over about 60 points; the
@@ -526,14 +565,19 @@ are distinguishably worse under both. **Print 40 to 170.**
 ![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy_Median.png)
 
 ### Figure 5 -- which method is closest, by category size
-`FIG_WhenToUseWhich`
+`FIG5_WhenToUseWhich`
 
-![](../outputs/figures/CompareUQMethods_FIG_WhenToUseWhich.png)
+![](../outputs/figures/CompareUQMethods_FIG5_WhenToUseWhich.png)
+
+**Caption.** Share of synthetic datasets on which each of the six UQ methods
+is closest to the market-weighted parent (W1), in a window of 800 datasets
+sliding along dataset size. Gray band: 68 to 106 EPDs, the fit-level
+cutoffs indistinguishable from the best. 10,000 synthetic datasets.
 
 - "No single UQ method is closest to the truth across the range of dataset sizes
   real ECC categories span, and which one leads changes twice."
 - "The kernel estimate overtakes the three-parameter lognormal at 68 to 106
-  declarations on goodness of fit, and that crossing is much less sharp once the
+  EPDs on goodness of fit, and that crossing is much less sharp once the
   fit is carried through to a probabilistic LCA claim."
 
 **Kept, by author decision 2026-10-06**: it makes the point that closeness of
@@ -542,9 +586,16 @@ could check, which is the case for following the size rule rather than trying
 to judge each category. That is the paper's framing for takeaways 8 and 11.
 
 ### Figure 6 -- where real buildings sit on the safe-lead axis. CHOSEN: SORTED DOTS
-`FIG_BuildingDominance`
+`FIG6_BuildingDominance`
 
-![](../outputs/figures/CompareUQMethods_FIG_BuildingDominance.png)
+![](../outputs/figures/CompareUQMethods_FIG6_BuildingDominance.png)
+
+**Caption.** The 292 North American buildings of Benke et al. (2025), A1-A3,
+sorted by the ratio of the largest material's emissions to the second largest
+(log axis). Shaded band: 2.18 to 2.39, the 95 percent interval of the ratio at
+which the chance that the choice of UQ method changes the leading material falls
+to 1 percent, calibrated on four synthetic materials; orange points lie below
+its center, 2.28. Building 138 is marked.
 
 Design C of three, chosen by the author: every one of the 292 buildings as a
 dot sorted by its top-two ratio, nothing binned, the threshold shaded as its
@@ -571,12 +622,22 @@ figure redraws from a clean clone (the pattern decision 31 set). The threshold
 is calibrated at four materials and these buildings hold a median of 37.
 
 ### Figure 7 -- when market shares start to help. CHOSEN: BOX PLUS STRIP
-`FIG_WeightingBySize`
+`FIG7_WeightingBySize`
 
-![](../outputs/figures/CompareUQMethods_FIG_WeightingBySize.png)
+![](../outputs/figures/CompareUQMethods_FIG7_WeightingBySize.png)
+
+**Caption.** For each synthetic dataset, the W1 of a fit with uniform weights
+divided by the W1 of the same family fitted with the true market shares, both
+against the market-weighted parent, by dataset-size band (log2 axis; points
+beyond 1/8x and 8x drawn at the limit). Kernel density estimate red,
+three-parameter lognormal green. Box: interquartile range; whiskers: 10th to
+90th percentile; heavy line: median; shaded bar: 95 percent bootstrap interval
+of the median (2,000 resamples of datasets). Shaded band: 80 to 100
+EPDs. Below: the dataset sizes of the 147 real EC3 categories, orange
+below 80, with their median and interquartile range.
 
 Design B of three, chosen by the author, with "shares help" and "shares hurt"
-beside the line at 1x. It shades 80 to 100 declarations and draws no line at 80
+beside the line at 1x. It shades 80 to 100 EPDs and draws no line at 80
 (decisions 222, 225). The y quantity is per dataset: the error ignoring the true
 shares divided by the error using them, on a log axis.
 
@@ -588,18 +649,25 @@ shares divided by the error using them, on a log axis.
     3000-9999    80.6       2.92x              81.4       1.36x
 
 - "Applying a known market share makes the fit worse rather than better below 80
-  to 100 declarations, and the crossing is the same for a kernel estimate and a
+  to 100 EPDs, and the crossing is the same for a kernel estimate and a
   three-parameter lognormal, so it is not a property of the kernel bandwidth."
 - "Above the band the kernel estimate gains far more from known shares than the
-  lognormal: above 3,000 declarations its median error falls to a third."
-- "The median real EC3 category holds 47 declarations and 64 percent hold fewer
+  lognormal: above 3,000 EPDs its median error falls to a third."
+- "The median real EC3 category holds 47 EPDs and 64 percent hold fewer
   than 80, so for most real materials a market-share estimate would not help
   even if one existed."
 
 ### Figure 8 -- why the rigid families lose
-`FIG_ShapePlane`
+`FIG8_ShapePlane`
 
-![](../outputs/figures/CompareUQMethods_FIG_ShapePlane.png)
+![](../outputs/figures/CompareUQMethods_FIG8_ShapePlane.png)
+
+**Caption.** Skewness against coefficient of variation, uniform weights, for
+the 127 real EC3 categories with at least ten EPDs (log x axis;
+symmetric-log y axis, linear between -1 and 1). Orange curve: skewness = CV^3 +
+3 CV, the only combinations a two-parameter lognormal can take. Dark points: the
+27 categories whose skewness is within 25 percent of the curve; gray: the other
+100.
 
 - "A two-parameter lognormal has no freedom to choose its shape: once its spread
   is matched to the data its skewness is fixed at CV^3 + 3 CV, so every dataset
@@ -674,11 +742,11 @@ at the building's real intensities. **There is no true parent for a real
 category, so this measures how far the methods disagree about one building,
 never how wrong they are.**
 
-The three ready-mix classes hold 14,366, 20,814 and 31,025 declarations,
+The three ready-mix classes hold 14,366, 20,814 and 31,025 EPDs,
 above the corpus maximum of 9,978. That does not weaken the case study: the
 size rule assigns them a kernel estimate however large they are, and decision
 137 found the kernel estimate's advantage is already unanimous at 4,000 to
-9,999 declarations, with all three classes behaving like that band.
+9,999 EPDs, with all three classes behaving like that band.
 
 **What it found** (`TABLE_Building138.csv`, `TABLE_Building138Curves.csv.gz`;
 the cell has its own fixed-seed stream, decision 254):
@@ -703,9 +771,20 @@ the cell has its own fixed-seed stream, decision 254):
 seven policies, beside the uncertainty index per method.** The shared kgCO2e
 axis shows which material leads; the dots show that the uncertainty does not
 follow the same order. 
-![](../outputs/figures/CompareUQMethods_FIG_Building138.png)
+![](../outputs/figures/CompareUQMethods_FIG9_Building138.png)
 
-**Chosen by the author: by contribution** (`FIG_Building138`). The
+**Caption.** Building 138 of Benke et al. (2025), a multifamily residential
+building in Oregon: its seven largest materials, mapped to EC3 categories, rows
+in order of mean contribution. Left: each material's contribution in kgCO2e per
+m2 of floor under each fitted method (solid lines and filled points, light
+shades: uniform weights; dashed lines and open points, dark shades: market
+weights) and under the size rule (gray fill, black diamonds). Right: the uncertainty index, each
+material's share of the total's variance, under every policy, with its 95
+percent interval from 1,000 bootstrap resamples of the 10,000 Monte Carlo
+iterations. The other 32 materials, 12.2 percent of A1-A3, enter as a fixed
+amount.
+
+**Chosen by the author: by contribution** (`FIG9_Building138`). The
 uncertainty-index ordering is in `archive/figures/`.
 
 **The honest caveats.** The concrete is lightweight and the categories split by
@@ -717,6 +796,13 @@ methods describe a share model. Every accuracy claim stays on the synthetic arm.
 `FIG_GraphicalAbstract`
 
 ![](../outputs/figures/CompareUQMethods_FIG_GraphicalAbstract.png)
+
+**Caption.** Left: a known distribution and EPDs sampled from it. Middle: a
+normal, a lognormal and a kernel density estimate fitted to those EPDs
+(illustrative). Right: the pooled median error over fifteen claims for a normal,
+a three-parameter lognormal and a kernel density estimate fitted with uniform
+weights, the size rule, and the size rule given every product's market share,
+hatched because those shares are not published.
 
 Design A of three, chosen by the author ("I like the idea") and tightened
 ("too wordy"): a known truth with EPDs sampled from it, the fitted methods, and
@@ -735,7 +821,7 @@ the equal-intensity run was dropped by the author (section 5).
 
 ### 1. Every figure design is settled
 
-Figure 4: zoom plus spread (`FIG_MixedPolicy_SpreadZoom`), with the two
+Figure 4: zoom plus spread (`FIG4_MixedPolicy_SpreadZoom`), with the two
 single-statistic versions in the supplement. Figure 6: sorted dots. Figure 7:
 box plus strip. Building 138: the ridgeline by contribution. The graphical
 abstract: three panels, tightened. Figure 5 stays. Every unchosen design is in
@@ -795,7 +881,29 @@ ecoinvent's lognormal; and **a caption is only the short text below a figure
 saying what is plotted** (`FIGURE_STYLE.md`, corrected the same day). Decision
 256.
 
-### 1. THE FIGURE PASS -- the next window's whole job
+### 1. THE FIGURE PASS -- DONE 2026-10-07, see `reports/REPORT_FIGURE_PASS.md`
+
+The nine figures are numbered `FIG1_` to `FIG9_`, each has a caption under its
+entry in section 4, and Figures 3, 7 and 9 carry new intervals. No point
+estimate in this file moved. **Three sentences in this file are now qualified by
+those intervals, and the prose window must carry the qualification**:
+
+- Takeaway 3 and Figure 3: the size rule is the best of the four choosable
+  policies on 7 of 15 claims, and on 4 of those 7 no other choosable policy is
+  within noise (`TABLE_ClaimScorecardIntervals.csv`).
+- Section 5 item 2 and Figure 9: rebar drives the most uncertainty under 6 of 7
+  policies, and clear of Monte Carlo noise under 4 -- the three kernel-estimate
+  policies and the market-weighted lognormal. Under both normals and the
+  uniform-weighted lognormal the top two are within noise
+  (`TABLE_Building138UIInterval.csv`).
+- Takeaway 8 and Figure 5 say the kernel estimate "overtakes the lognormal on
+  fit between 68 and 106 EPDs". On the figure, 68 to 106 is the band of
+  fit-level CUTOFFS indistinguishable from the best; the families themselves
+  cross at 62 to 88. The prose should name which it means (decision 142 records
+  the two as different quantities).
+
+The original brief follows, unchanged.
+
 
 Decision 235 deferred three per-figure tasks until the selection was fixed. It
 is fixed. Do them once, on these ten figures and no others:
