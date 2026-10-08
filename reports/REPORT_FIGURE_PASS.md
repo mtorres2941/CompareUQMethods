@@ -277,7 +277,9 @@ After: ![](../outputs/figures/CompareUQMethods_SUPP3_GeneratedVsEmpiricalMetrics
 synthetic datasets (blue) and the 147 real EC3 categories (orange, with a tick
 per category), under market and under uniform weights. Fit
 statistics are Shapiro-Francia; the fitted modality index uses the bandwidth the
-study fits. Two real categories are marked for reference. Wide-ranging
+study fits. Two real categories are marked for reference: RebarSteel, the
+category of Figure 1, and Gypsum, which with rebar is in the worked example of
+Figure 9. Wide-ranging
 characteristics are on log or symmetric-log axes.
 
 **SUPP4** `SUPP4_DemoW1Dist`. The framed legend that sat on the CDF is
