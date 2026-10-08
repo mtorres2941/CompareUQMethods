@@ -273,8 +273,8 @@ without the `CompareUQMethods_` prefix and the extension.
 `FIG9_` -- from the figure pass of 2026-10-07, when the figure selection was
 fixed (`reports/MANUSCRIPT_NARRATIVE.md` section 4). Every other `FIG_` and
 `SUPP_` prefix records what the generating cell declares itself to be, not
-where the manuscript puts it; the supplement's numbering waits on the
-supplement list. Renaming is one word per cell -- `figstyle.savefig` takes a
+where the manuscript puts it. The supplement's twelve figures carry `SUPP1_` to
+`SUPP12_` (SUPP6 is three pages, one per material tier). Renaming is one word per cell -- `figstyle.savefig` takes a
 stem, not a path -- and `tests/test_figure_manifest.py` fails on any file a
 rename leaves behind without a generator. The superseded unnumbered files are
 in `archive/figures/`.
@@ -285,10 +285,10 @@ in `archive/figures/`.
 
 | File | What it shows |
 |---|---|
-| `FIG_DemonstrateDataGeneration` | How one synthetic dataset is built, from drawn targets to realized sample |
-| `SUPP_DatasetExamplesByStratum` | Synthetic datasets by size stratum, with real categories beside them |
+| `SUPP1_DemonstrateDataGeneration` | How one synthetic dataset is built, from drawn targets to realized sample |
+| `SUPP2_DatasetExamplesByStratum` | Synthetic datasets by size stratum, with real categories beside them |
 | `FIG2_MetricCoverage` | Where the 147 real categories sit inside the synthetic cloud, characteristic by characteristic |
-| `SUPP_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
+| `SUPP3_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
 | `FIG_WeightingDrivers` | Which categories can safely assume uniform weights, against size and dispersion |
 | `FIG8_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit on that curve |
 
@@ -296,7 +296,7 @@ in `archive/figures/`.
 
 | File | What it shows |
 |---|---|
-| `DEF_DemoW1Dist` | What a Wasserstein-1 distance is: the area between two cumulative curves |
+| `SUPP4_DemoW1Dist` | What a Wasserstein-1 distance is: the area between two cumulative curves |
 | `FIG1_PDFandCDFofUQMethods` | The six UQ methods on one real category (reinforcing steel), as densities and as distribution functions |
 | `FIG_W1DistanceAndRank` | How far each method sits from its target, and how often it is closest. Both arms |
 | `SUPP_KSTestStripAndRank`, `SUPP_Wass2DistStripAndRank` | The same under two other distances, as a robustness check |
@@ -306,12 +306,12 @@ in `archive/figures/`.
 | `SUPP_ByCharacteristic_<name>` (12 files) | One page per characteristic, so each can be read on its own |
 | `FIG_RankVsDatasetSize` | Which method wins against dataset size, and by how much |
 | `FIG_WinShareVsCharacteristic_{Empirical,Synthetic}` | Which method wins, by percentile of each characteristic |
-| `FIG_BandwidthRule` | What the bandwidth rule does, against dataset size |
+| `SUPP5_BandwidthRule` | What the bandwidth rule does, against dataset size |
 | `FIG_EvaluationTarget` | What changing the scoring target does to the comparison |
 | `FIG_TargetBySize` | The size dependence, which is what both arms agree on |
 | `FIG_Regret` | What it costs to use one method on every dataset instead of the best one for each |
 | `FIG_MethodByMaterial` | Which default to use, and what it costs, by material tier |
-| `SUPP_AllEmpiricalFits` | Every real category with all six fitted models |
+| `SUPP6a`, `SUPP6b`, `SUPP6c_AllEmpiricalFits_<tier>` | Every real category with all six fitted models |
 | `FIG7_WeightingBySize` | When knowing a market share starts to help: per dataset, the error ignoring the true shares over the error using them, by size band, with the 95 pct interval of each band's median and the real categories' own sizes underneath |
 
 ### Notebook 3 - the probabilistic LCA
@@ -326,13 +326,13 @@ in `archive/figures/`.
 | `FIG_PLCAW1Distances` | W1 between the six methods, for the three example pLCAs |
 | `FIG_PLCAVisualizeUQFits` | The components and the total of those three pLCAs |
 | `FIG_RanksByDatasetAndPEWT` | How often each material leads, by dataset and method, in those three |
-| `FIG_FlipCalibration` | How far apart two models must be before the answer changes, and what such a distance looks like |
-| `FIG_MaterialDominance` | What a leading material buys -- the ranking -- and what it does not -- the magnitude |
-| `FIG_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
+| `SUPP11_FlipCalibration` | How far apart two models must be before the answer changes, and what such a distance looks like |
+| `SUPP12_MaterialDominance` | What a leading material buys -- the ranking -- and what it does not -- the magnitude |
+| `SUPP8_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
 | `FIG3_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule, on the median per-case error; thin boxes mark cells noise cannot separate from their row's best |
-| `SUPP_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
+| `SUPP7_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
 | `FIG4_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
-| `FIG_MixedPolicy`, `FIG_MixedPolicy_Median` | The same cutoff sweep on each statistic alone |
+| `SUPP9_MixedPolicy` | The same cutoff sweep on each statistic alone, (a) ratio of means and (b) median |
 | `FIG6_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
 | `FIG9_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |
 | `FIG_GraphicalAbstract` | The graphical abstract |
@@ -342,7 +342,7 @@ in `archive/figures/`.
 | File | What it shows |
 |---|---|
 | `FIG5_WhenToUseWhich` | Which method is closest to the truth, against category size |
-| `FIG_ChoiceDrivers` | Whether dataset size is enough on its own |
+| `SUPP10_ChoiceDrivers` | Whether dataset size is enough on its own |
 | `SUPP_RollingVersusBinned_{Empirical,Synthetic}` | The rolling average against its replacement, kept so the two can be compared |
 
 ---

@@ -1396,7 +1396,7 @@ beside its replacement so the two can be checked against each other.
 **Figures added in Stage 2c:** `FIG_EvaluationTarget`, `FIG_TargetBySize`,
 `FIG_Regret`, `FIG_MethodByMaterial` (which is the POLICY comparison, not a
 material breakdown -- the tier is not a mechanism, decision 84) and
-`SUPP_AllEmpiricalFits`, all 147 empirical datasets with all six fits.
+`SUPP6a` to `SUPP6c_AllEmpiricalFits_<tier>`, all 147 empirical datasets with all six fits.
 | `TABLE_MethodWinShare.parquet` | NB2 | how often each method wins, against the percentile of each characteristic. Parquet since Stage 3, 22.8 MB to 6.7 |
 | `TABLE_WeightingLocationShape.csv` | NB1 | one row per (arm, dataset): the uniform-to-variable W1 split into the mean shift it must at least contain and the residual |
 | `TABLE_WeightingRelativeMeasure.csv` | NB1 | the same quantity computed on normalized and on RAW values, which is the check that the normalization is not doing secret work |

@@ -9516,3 +9516,11 @@ rather than in conversation.
        band straddles 1x for both families, which supports the published band.
      - Figures 4, 5, 6 and 8 and the graphical abstract need no interval, for
        the reasons the report gives per figure.
+     - **The supplement is twelve figures, `SUPP1_` to `SUPP12_`**, numbered in
+       the order the manuscript first needs them and restyled to the same
+       rules. Three numbers printed on them were wrong against their own
+       tables and are corrected: the bandwidth guard drawn at 30 (the code
+       uses 20), a title's "one percent" shift (the crossing is 1.50%), and an
+       in-sample W1 labeled as scored against the target. The data-generation
+       figure's flat panels were a drawing grid running to the truncation
+       bound, not a generator defect.

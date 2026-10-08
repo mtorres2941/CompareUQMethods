@@ -223,162 +223,179 @@ a three-parameter lognormal and a kernel density estimate fitted with uniform
 weights, the size rule, and the size rule given every product's market share,
 hatched because those shares are not published.
 
-## 2b. The proposed supplement, for review -- NOT YET CLEANED
+## 2b. The supplement: twelve figures, numbered and restyled
 
-Thirteen candidates, shown as they stand today, each with a draft caption and
-the defects the supplement pass would fix. **The list is a proposal.** Nothing
-here has been restyled, renumbered or checked against `FIGURE_STYLE.md` beyond
-looking at it. Three were settled in the narrative already (S1 to S3); the
-other ten are proposed, one per method choice or takeaway that the main text
-states without showing.
+Numbered in the order the manuscript first needs them, methods before results.
+All twelve call `figstyle.apply()`, say "EPDs", use the % symbol and the
+settled weighting words, carry panel labels where they have panels, and have a
+takeaway title with a gray subtitle saying what is plotted. The old unnumbered
+files are in `archive/figures/`; each "before" image below is that file.
 
-**S1** `SUPP_ClaimScorecardMeanForm` -- the scorecard on the ratio of means.
-Settled. It already picked up the Figure 3 vocabulary changes because one cell
-draws both.
+**SUPP1** `SUPP1_DemonstrateDataGeneration`. **The flat panels were a drawing
+defect, not a generation one.** Each curve was drawn on a 1,000-point grid
+running to the parent's truncation bound, up to 240 times the mean, a step of
+0.24, which is coarser than the whole body of the distribution. The values
+drawn in those panels top out at 3 to 5 times the mean. The grid now ends at
+the larger of the parent's 99.9th percentile and the largest value drawn. A
+second defect surfaced once the shapes could be seen: each mode was drawn
+untruncated while the mixture is truncated, so the modes fell short of the
+black curve; they are now truncated the same way, and the cell asserts they
+sum to it. The drawn values are byte-identical, so no random number moved.
 
-![](../outputs/figures/CompareUQMethods_SUPP_ClaimScorecardMeanForm.png)
+Before: ![](../archive/figures/CompareUQMethods_FIG_DemonstrateDataGeneration.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP1_DemonstrateDataGeneration.png)
 
-*Draft caption.* As Figure 3, with every cell, the lower panel and the right
-panel computed as total absolute error over total true value (the ratio of
-means) instead of the median of per-case ratios.
-*Done in the third round:* panel titles (a) to (c) and tie boxes, tested on
-the ratio of means against its own row's box (3 cells tie with a best-of-four
-box, 11 with a best-of-seven box, none in the size bands).
+*Caption.* Six synthetic datasets with one to five modes, (a) to (f): each
+mode's density scaled by its share of the values (shaded), the mixture parent
+they are drawn from (black), and the values drawn (ticks). Panel titles give the
+number of modes and values, the mean pairwise component overlap and the
+coefficient of variation.
 
-**S2** `FIG_MixedPolicy` -- the cutoff sweep on the ratio of means. Settled.
+**SUPP2** `SUPP2_DatasetExamplesByStratum`. Transposed to fit the page: a
+column per size band, plus the real categories, and a row per example, 7.2 in
+wide instead of 16. Column headers replace the internal codes.
 
-![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy.png)
+Before: ![](../archive/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP2_DatasetExamplesByStratum.png)
 
-*Draft caption.* Error pooled over fifteen claims as the ratio of means,
-against the cutoff, for the size rule (orange) and the same rule given the true
-market shares above the cutoff (blue); gray lines are four fixed methods.
-Shading: 40 to 170 EPDs.
-*Defects:* drawn by a different cell from Figure 4, so it still says
-"declarations" and "pct".
+*Caption.* Ten synthetic datasets from each of four size bands (blue, the exact
+parent density each was drawn from) and ten real EC3 categories (orange, a
+kernel density estimate of the EPDs), with the values as ticks. Panel titles
+give the number of values, the coefficient of variation and, for synthetic
+datasets, the number of modes.
 
-**S3** `FIG_MixedPolicy_Median` -- the same sweep on the median of ratios.
-Settled.
+**SUPP3** `SUPP3_GeneratedVsEmpiricalMetrics`. Each characteristic's two
+weightings now sit side by side, so the panel titles fit; the retired "(Var)"
+and "Uniform vs Variable" are gone from `src/dct_metriclabels.json`, which
+every figure reading characteristic labels shares; the two marked categories
+are named as references in the legend.
 
-![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy_Median.png)
+Before: ![](../archive/figures/CompareUQMethods_SUPP_GeneratedVsEmpiricalMetrics.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP3_GeneratedVsEmpiricalMetrics.png)
 
-*Draft caption.* As S2, on the median of per-case ratios. Shading: 20 to 200
-EPDs, the cutoffs indistinguishable from the best on this statistic.
-*Defects:* it shades its own statistic's band, 20 to 200, where the paper
-prints 40 to 170. That is correct for this figure but needs one sentence of
-text.
+*Caption.* The distribution of each dataset characteristic over the 10,000
+synthetic datasets (blue) and the 147 real EC3 categories (orange, with a tick
+per category), under market and under uniform weights, (a) to (w). Fit
+statistics are Shapiro-Francia; the fitted modality index uses the bandwidth the
+study fits. Two real categories are marked for reference. Wide-ranging
+characteristics are on log or symmetric-log axes.
 
-**S4** `FIG_DemonstrateDataGeneration` -- how a synthetic dataset is built.
+**SUPP4** `SUPP4_DemoW1Dist`. The framed legend that sat on the CDF is
+replaced by labels on the curves; panels labeled; a title.
 
-![](../outputs/figures/CompareUQMethods_FIG_DemonstrateDataGeneration.png)
+Before: ![](../archive/figures/CompareUQMethods_DEF_DemoW1Dist.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP4_DemoW1Dist.png)
 
-*Draft caption.* Six synthetic datasets with one to five modes: each mode's
-density (shaded, with its share of the points), the mixture parent (black),
-and the drawn values (ticks). Panel titles give the mode count, the number of
-values, the component overlap and the coefficient of variation.
-*Defects:* in (a), (b) and (d) the x axis runs to 250 because the parent's far
-tail is drawn to its truncation bound, so the whole distribution is a spike at
-zero. The legends are boxed and sit on the data. The figure is 9.9 in wide.
+*Caption.* A fitted model (blue) and a small dataset (black). (a) The model's
+probability density and the data as ticks, tick length showing weight. (b) The
+two cumulative distribution functions; the shaded area between them is the
+Wasserstein-1 distance (W1).
 
-**S5** `SUPP_DatasetExamplesByStratum` -- what the synthetic data looks like
-beside the real data.
+**SUPP5** `SUPP5_BandwidthRule`. **The guard line was drawn at 30 and labeled
+30; the shipped threshold has been 20 since decision 80.** It now reads
+`customstats.SILVERMAN_MIN_NEFF`. The W1 rows were labeled "against the
+target"; they are in-sample, each fit scored against the data it was fitted
+to, and now say so.
 
-![](../outputs/figures/CompareUQMethods_SUPP_DatasetExamplesByStratum.png)
+Before: ![](../archive/figures/CompareUQMethods_FIG_BandwidthRule.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP5_BandwidthRule.png)
 
-*Draft caption.* Ten synthetic datasets from each of the four size strata
-(rows 1 to 4; blue, the exact parent density) and ten real EC3 categories
-(bottom row; orange, a kernel density estimate, the only density available for
-real data), with the values as ticks.
-*Defects:* the row labels are internal codes (`s1_3_9`); the figure is 12.8 in
-wide; the description sits in the title.
+*Caption.* Kernel bandwidth over the data's standard deviation (a, b) and
+in-sample W1 (c, d) against dataset size under Scott's rule (red), Silverman's
+rule (blue dashed) and the guarded Silverman rule the study uses (black), for
+the real EC3 categories (a, c) and a sample of synthetic datasets (b, d), all
+under market weights. Lines are rolling means; points are datasets. The dotted
+line marks the guard's threshold of 20 effective observations; since the
+effective count under market weights is below the raw count, the switch appears
+somewhat to the right of it.
 
-**S6** `SUPP_GeneratedVsEmpiricalMetrics` -- every characteristic, both arms.
+**SUPP6** `SUPP6a_AllEmpiricalFits_Structure`, `SUPP6b_..._Envelope`,
+`SUPP6c_..._Other`. One 15.5-in sheet of 147 panels becomes three pages, one
+per material tier, at the printed width.
 
-![](../outputs/figures/CompareUQMethods_SUPP_GeneratedVsEmpiricalMetrics.png)
+Before: ![](../archive/figures/CompareUQMethods_SUPP_AllEmpiricalFits.png)
+After:
+![](../outputs/figures/CompareUQMethods_SUPP6a_AllEmpiricalFits_Structure.png)
+![](../outputs/figures/CompareUQMethods_SUPP6b_AllEmpiricalFits_Envelope.png)
+![](../outputs/figures/CompareUQMethods_SUPP6c_AllEmpiricalFits_Other.png)
 
-*Draft caption.* The distribution of each of 23 dataset characteristics over
-the 10,000 synthetic datasets (blue) and the 147 real EC3 categories (orange),
-under each weighting, with two real categories marked.
-*Defects:* "(Var)" is the retired word for market weights, and "Variable"
-appears in a panel title; the legend is boxed; it is not said why WoodFraming
-and Gypsum are marked; the figure is 10.4 in wide.
+*Caption.* Every real EC3 category in the (a) structure, (b) envelope and (c)
+other tiers, ordered by number of EPDs: a weighted histogram of the EPDs (gray),
+the six fitted models, and the normalized mean of 1.0 (dotted).
 
-**S7** `DEF_DemoW1Dist` -- what a Wasserstein-1 distance is.
+**SUPP7** `SUPP7_ClaimScorecardMeanForm`. Shares Figure 3's cell, so it has
+the same panel titles, legend and % labels, and its own tie boxes, computed on
+the ratio of means.
 
-![](../outputs/figures/CompareUQMethods_DEF_DemoW1Dist.png)
+![](../outputs/figures/CompareUQMethods_SUPP7_ClaimScorecardMeanForm.png)
 
-*Draft caption.* A fitted model (blue) and a small dataset (black): top, the
-density and the values; bottom, the two cumulative distribution functions, with
-the area between them, the Wasserstein-1 distance, shaded green.
-*Defects:* the legend is boxed and sits on the curves; there are no axis
-labels; it needs (a) and (b).
+*Caption.* As Figure 3, with every cell computed as the ratio of means, total
+absolute error over total true value, and the tie test run on that statistic.
 
-**S8** `FIG_BandwidthRule` -- the kernel bandwidth choice.
+**SUPP8** `SUPP8_PLCATruth`. Panel labels, room between the title and the
+panels, and a subtitle naming the orange tick.
 
-![](../outputs/figures/CompareUQMethods_FIG_BandwidthRule.png)
+Before: ![](../archive/figures/CompareUQMethods_FIG_PLCATruth.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP8_PLCATruth.png)
 
-*Draft caption.* Kernel bandwidth over the data's standard deviation (top) and
-W1 against the target (bottom), against dataset size, under Scott's rule,
-Silverman's rule and the guarded Silverman rule the study uses, for the real
-categories (left) and the synthetic datasets (right).
-*Defects:* **the guard line is labeled "effective n = 30"; the shipped
-threshold is 20 (decision 80)**, so this figure must be checked against the
-code before it is published. It also says "variable weighting" and puts the
-legend outside the panels with a frame.
+*Caption.* The distribution over 2,500 synthetic pLCAs of each method's error
+against the true market-weighted parents in (a) one material's contribution and
+(b) the building total, where every material contributes 1.00 on average; the
+orange tick is the mean error.
 
-**S9** `FIG_PLCATruth` -- the full error distributions behind Figure 3.
+**SUPP9** `SUPP9_MixedPolicy`. The two single-statistic cutoff sweeps,
+previously two separate files, are panels (a) and (b) of one figure, as you
+asked.
 
-![](../outputs/figures/CompareUQMethods_FIG_PLCATruth.png)
+Before: ![](../archive/figures/CompareUQMethods_FIG_MixedPolicy.png)
+![](../archive/figures/CompareUQMethods_FIG_MixedPolicy_Median.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP9_MixedPolicy.png)
 
-*Draft caption.* Distribution over 2,500 synthetic pLCAs of each method's
-error against the true parent, in one material's contribution (left) and in the
-building total (right), where every material contributes 1.00; the orange tick
-is the mean error.
-*Defects:* the suptitle touches the panel titles; no panel labels.
+*Caption.* Error pooled over fifteen claims against the cutoff (kernel density
+estimate at or above, three-parameter lognormal below) for the size rule with
+uniform weights (orange) and the same rule given the true market shares above
+the cutoff (blue), as (a) the ratio of means and (b) the median of per-case
+ratios. Gray lines are four fixed methods. Shading: the cutoffs
+indistinguishable from the best on that statistic, 40 to 170 EPDs in (a) and 20
+to 200 in (b). 2,500 synthetic pLCAs.
 
-**S10** `FIG_FlipCalibration` -- how far apart two models must be before the
-answer changes.
+**SUPP10** `SUPP10_ChoiceDrivers`. The retired "equal weights", "market-share
+weights" and "(eq)" are gone; the title says what is measured.
 
-![](../outputs/figures/CompareUQMethods_FIG_FlipCalibration.png)
+Before: ![](../archive/figures/CompareUQMethods_FIG_ChoiceDrivers.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP10_ChoiceDrivers.png)
 
-*Draft caption.* Left: the chance that the top contributor changes against the
+*Caption.* Share of the variation in which family is closer to the truth (the
+log ratio of the kernel estimate's W1 to the three-parameter lognormal's)
+explained on held-out synthetic datasets by dataset size alone (top bars and
+dashed lines) and by size plus one other characteristic, under market (orange)
+and uniform (gray) weights.
+
+**SUPP11** `SUPP11_FlipCalibration`. **Its title said "a shift of one percent
+of the mean ... changes the answer 5 percent of the time"; the 5% crossing in
+its own table is 1.50% of the mean.** The number is now computed from the
+table. Also %, panel labels, and no monospace.
+
+Before: ![](../archive/figures/CompareUQMethods_FIG_FlipCalibration.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP11_FlipCalibration.png)
+
+*Caption.* (a) The chance that the leading material changes against the
 relative W1 between two fitted models, for a calibration set of two weightings
-of the same data (black) and the 15 pairs of the six UQ methods (orange), with
-a logistic fit (gray). Right: two densities as far apart as the 1, 5 and 10%
-crossings.
-*Defects:* "pct" throughout; a monospace inset; no panel labels.
+of the same data (gray points, binned), the 15 pairs of the six UQ methods
+(orange) and a logistic fit (gray line); triangles mark the 1, 5 and 10%
+crossings. (b) to (d) Two densities as far apart as each crossing.
 
-**S11** `FIG_MaterialDominance` -- what a leading material buys.
+**SUPP12** `SUPP12_MaterialDominance`. %, panel labels, "1x 2x 5x" ticks as in
+Figure 6, and the group size in a subtitle.
 
-![](../outputs/figures/CompareUQMethods_FIG_MaterialDominance.png)
+Before: ![](../archive/figures/CompareUQMethods_FIG_MaterialDominance.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP12_MaterialDominance.png)
 
-*Draft caption.* Against the ratio of the leading material's mean contribution
-to the next, in four-material synthetic pLCAs: the chance that switching UQ
-method changes the leading material (top) and the change in a material's
-contribution (bottom); points are pLCAs, lines rolling medians; the vertical
-line is the 1% crossing.
-*Defects:* the suptitle collides with the first panel title; "1 pct"; the
-x-axis ticks print as 10^0.
-
-**S12** `FIG_ChoiceDrivers` -- dataset size is enough on its own.
-
-![](../outputs/figures/CompareUQMethods_FIG_ChoiceDrivers.png)
-
-*Draft caption.* Share of the variation, on held-out synthetic datasets, in
-which family is closer to the truth (the log ratio of the kernel estimate's W1
-to the three-parameter lognormal's), explained by dataset size alone (top row,
-dashed lines) and by size plus one other characteristic, under each weighting.
-*Defects:* "equal weights", "market-share weights" and "(eq)" are retired
-wording.
-
-**S13** `SUPP_AllEmpiricalFits` -- every real category with its fits.
-
-![](../outputs/figures/CompareUQMethods_SUPP_AllEmpiricalFits.png)
-
-*Draft caption.* All 147 real EC3 categories, normalized to a mean of 1.0
-(dotted line), with a histogram of the EPDs and the six fitted models; panel
-titles give the category and its number of EPDs, colored by material tier.
-*Defects:* large blank margins above and below the grid; at 147 panels the
-curves are hard to read at print size, so this may be better split across pages.
+*Caption.* Against the ratio of the leading material's mean contribution to the
+next, in four-material synthetic pLCAs: (a) the chance that switching UQ method
+changes the leading material and (b) the change in a material's contribution.
+Points are pLCAs; lines are a rolling mean (a) and median (b); the vertical
+line is the 1% crossing at about 2.3 times.
 
 ## 3. The findings
 
@@ -452,6 +469,12 @@ F1 and F2 are new qualifications, not changed numbers.
 
     git diff --name-status 4055ccc -- outputs/tables
 
+Three numbers PRINTED ON SUPPLEMENT FIGURES were wrong against their own tables
+and are corrected; no table value moved. SUPP5 drew and labeled the bandwidth
+guard at 30, where the code uses 20; SUPP11's title said a shift of "one
+percent" of the mean, where its 5% crossing is 1.50%; and SUPP5's lower row
+called an in-sample W1 a W1 "against the target".
+
 ## 5. What is still open
 
 - **The three qualifications in narrative section 9, item 1**, which the prose
@@ -466,8 +489,10 @@ F1 and F2 are new qualifications, not changed numbers.
   takeaways 1, 3 and 6 carry the 26.5.
 - **Four labels in Figure 4 sit on shaded bands by design**, and
   `figstyle.check_overlaps` flags them. All four are legible at final size.
-- **The supplement figures keep their stems** until the supplement list is
-  decided.
+- **SUPP11's inset prints the flip crossings to four decimals** (0.0029, 0.0150,
+  0.0316). Decision 175's rule for annotations rounds at the first digit where
+  the two fits disagree, which would print "0.015 against 0.014" for the 5%
+  level. Left as it is pending your view; it is the supplement.
 
 ## 6. Inputs and outputs
 
@@ -485,8 +510,14 @@ tables `TABLE_PLCATruth*`, `TABLE_PLCADesignSwap*`, `TABLE_MetricSizeBands.csv`,
 
 Each carries `corpus` and `weight_rho` columns.
 
-**Figures:** `FIG1_` to `FIG9_` PNG and PDF, the redrawn
-`FIG_GraphicalAbstract`, and the nine old pairs in `archive/figures/`.
+**Figures:** `FIG1_` to `FIG9_` and `SUPP1_` to `SUPP12_` (SUPP6 is three
+pages), PNG and PDF, the redrawn `FIG_GraphicalAbstract`, and every old
+unnumbered pair in `archive/figures/`.
+
+**Changed table:** `TABLE_GenerationExampleCurves.csv.gz`, the curves SUPP1
+draws, now on a grid that ends where the data do; the drawn values beside it
+are byte-identical. Shared labels: `src/dct_metriclabels.json` says "market
+weights" and "uniform weights", and `comparison.base_label` strips both forms.
 
 **Documents:** narrative section 4 (stems and captions) and section 9 (status),
 `README.md` (figure list; `FIG7_WeightingBySize` was listed under notebook 1 and
@@ -494,7 +525,7 @@ is generated in notebook 2), `CONTEXT.md` (table inventory),
 `archive/README.md`, `FIGURE_STYLE.md` (stem of its worked example), and
 `CLAUDE.md` decision 257.
 
-**Tests:** all 638 pass (`python -m pytest tests/ -q`).
+**Tests:** all pass (`python -m pytest tests/ -q`).
 
 ## 7. What the next stage picks up first
 

@@ -508,20 +508,20 @@ the boxes are now read off the median.
     the chance of meeting a budget          0.3   1.1     2.9   7.0   14.1
 
 **AND ITS RATIO-OF-MEANS TWIN GOES TO THE SUPPLEMENT** (author, 2026-10-06):
-`SUPP_ClaimScorecardMeanForm`, drawn by the same cell with its cells, lower
+`SUPP7_ClaimScorecardMeanForm`, drawn by the same cell with its cells, lower
 panel and box all on total misstated carbon over total true carbon. That is the
 number for a carbon budget or a building stock; the main figure is the number
 for one building. Its title count is 10 of 15, the main figure's 7 of 15.
 
-![](../outputs/figures/CompareUQMethods_SUPP_ClaimScorecardMeanForm.png)
+![](../outputs/figures/CompareUQMethods_SUPP7_ClaimScorecardMeanForm.png)
 
 **The bar is right skewed on every claim**, so the honest sentence is not "the
 choice moves a material's estimated contribution by 12 percent": for a typical
 building it moves it by 5 and for one in ten by more than 34.
 
 ### Figure 4 -- the rule, and what market-share data would buy. CHOSEN: ZOOM PLUS SPREAD
-`FIG4_MixedPolicy_SpreadZoom` in the main text; `FIG_MixedPolicy` (ratio of
-means) and `FIG_MixedPolicy_Median` in the supplement
+`FIG4_MixedPolicy_SpreadZoom` in the main text; `SUPP9_MixedPolicy`, panels
+(a) ratio of means and (b) median, in the supplement
 
 ![](../outputs/figures/CompareUQMethods_FIG4_MixedPolicy_SpreadZoom.png)
 
@@ -560,9 +560,7 @@ are distinguishably worse under both. **Print 40 to 170.**
 
 **Supplement: the same curve on each statistic alone.**
 
-![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy.png)
-
-![](../outputs/figures/CompareUQMethods_FIG_MixedPolicy_Median.png)
+![](../outputs/figures/CompareUQMethods_SUPP9_MixedPolicy.png)
 
 ### Figure 5 -- which method is closest, by category size
 `FIG5_WhenToUseWhich`
@@ -929,8 +927,8 @@ per cell (decision 235). Archive each old file to `archive/figures/` with its
 reason in `archive/README.md`, as Stage 3 did, so
 `tests/test_figure_manifest.py` finds no orphan. Then update every reference:
 section 4 of this file, the figure list in `README.md`, and any cell that reads
-a figure file. The supplement figures (`SUPP_ClaimScorecardMeanForm`,
-`FIG_MixedPolicy`, `FIG_MixedPolicy_Median`) keep their stems until the
+a figure file. [Done: the supplement is SUPP1 to SUPP12; see
+`reports/REPORT_FIGURE_PASS.md` section 2b. Original text: the supplement figures keep their stems until the
 supplement list is decided.
 
 **b. Bring each up to `FIGURE_STYLE.md`.** Run its whole checklist on each
