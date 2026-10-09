@@ -147,7 +147,7 @@ def sweep(cfg, n_parents, n_draws, seed):
     # hashes per process, so that would give a different stream on every run
     # and the project requires every draw to come from an explicitly seeded
     # Generator.
-    for si, scheme in enumerate((P.TRUTH_SCHEME, P.TRUTH_SCHEME_SAMPLING)):
+    for si, scheme in enumerate((P.TRUTH_SCHEME, P.SAMPLING_SCHEME)):
         for n in SIZES:
             rng = np.random.default_rng([seed, n, si])
             got = 0

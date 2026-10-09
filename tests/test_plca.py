@@ -315,7 +315,7 @@ def test_parent_sampler_stays_inside_the_parents_support():
 
 
 def test_the_two_truth_schemes_are_different_populations():
-    """Scoring against the market parent and against the sampling parent are
+    """Scoring against the parent and against the sampling distribution are
     different questions, and the sweep reports both."""
     p = a_parent(3)
     a = PL.ParentSampler(p, scheme='market')

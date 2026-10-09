@@ -63,7 +63,7 @@ RULES = ('scott', 'silverman', 'silverman_guarded')
 def one(name, x, w, parent, wt, rng):
     ww = FT.uniform_weights(x) if wt == 'Uniform' else np.asarray(w, float)
     ww = ww / ww.sum()
-    scheme = R.PARENT_SCHEME[wt]
+    scheme = R.OWN_TARGET_SCHEME[wt]
     sd = weighted_std(x, ww)
     grid = R.recovery_grid(x, w, parent)
     scott = FT.weighted_bw(x, ww, bw_method='scott')
@@ -83,7 +83,7 @@ def one(name, x, w, parent, wt, rng):
             dataset=name, n=len(x), weighting=wt, rule=rule, bandwidth=h,
             h_over_sd=h / sd if sd > 0 else np.nan,
             h_over_scott=h / scott if scott > 0 else np.nan,
-            w1_parent=d_parent,
+            w1_own_target=d_parent,
             w1_in_sample=FT.score_w1_model(m, x, w),
             loo=loo_loglik(x, ww, h, rng),
             mass_below=m.mass_below,
@@ -91,7 +91,7 @@ def one(name, x, w, parent, wt, rng):
     for mult, d in swept:
         out.append(dict(dataset=name, n=len(x), weighting=wt,
                         rule=f'sweep_{mult:.4f}', bandwidth=scott * mult,
-                        h_over_scott=mult, w1_parent=d, best_mult=best_mult))
+                        h_over_scott=mult, w1_own_target=d, best_mult=best_mult))
     return out
 
 
@@ -105,14 +105,14 @@ def report(d):
         g = named[named.weighting == wt]
         t = g.groupby('rule').agg(
             median_h_over_sd=('h_over_sd', 'median'),
-            mean_w1_parent=('w1_parent', 'mean'),
-            median_w1_parent=('w1_parent', 'median'),
-            p90_w1_parent=('w1_parent', lambda s: s.quantile(0.90)),
+            mean_w1_own_target=('w1_own_target', 'mean'),
+            median_w1_own_target=('w1_own_target', 'median'),
+            p90_w1_own_target=('w1_own_target', lambda s: s.quantile(0.90)),
             mean_w1_in_sample=('w1_in_sample', 'mean'),
-            mean_loo=('loo', 'mean')).sort_values('mean_w1_parent')
+            mean_loo=('loo', 'mean')).sort_values('mean_w1_own_target')
         print(f'--- {wt} weighting, sorted by the PARENT referee (lower is better) ---')
         print(t.to_string(float_format=lambda v: f'{v:.4f}'))
-        wide = g.pivot_table(index='dataset', columns='rule', values='w1_parent')
+        wide = g.pivot_table(index='dataset', columns='rule', values='w1_own_target')
         if set(RULES) <= set(wide.columns):
             print('  head-to-head, share of datasets each rule wins among the three:')
             win = wide[list(RULES)].idxmin(axis=1).value_counts(normalize=True)

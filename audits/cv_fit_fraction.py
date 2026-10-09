@@ -19,7 +19,7 @@ If the KDE's deficit shrinks as the fitting half grows, the deficit is partly th
 protocol. If it does not, it is the method.
 
 THE SYNTHETIC ARM ANSWERS THE SAME QUESTION WITHOUT ANY SPLITTING, and is
-reported beside it: `w1_parent` fits on ALL n and scores against the truth.
+reported beside it: `w1_own_target` fits on ALL n and scores against the truth.
 
     conda run -n compareuq python audits/cv_fit_fraction.py [n_synth]
 """
@@ -110,7 +110,7 @@ def report(cv, syn, ids, specs):
     print('=' * 78)
     print('AND WITHOUT ANY SPLITTING AT ALL: the synthetic parent')
     print('=' * 78)
-    print('`w1_parent` fits on every value and scores against the truth, so the')
+    print('`w1_own_target` fits on every value and scores against the truth, so the')
     print('halving cannot be the explanation for anything it says.')
     rows = []
     for name in ids:
@@ -124,13 +124,13 @@ def report(cv, syn, ids, specs):
         for label, m in models.items():
             rows.append(dict(
                 arm='synthetic', dataset=name, n=len(x), method=label,
-                w1_parent=R.w1_against_parent(
-                    m, parent, R.PARENT_SCHEME[R.FT_weighting(label)], grid),
+                w1_own_target=R.w1_against_parent(
+                    m, parent, R.OWN_TARGET_SCHEME[R.FT_weighting(label)], grid),
                 model_sd_ratio=_sd_ratio(m, x, w)))
     d = R.add_size_band(pd.DataFrame(rows))
     for wt in ('Uniform', 'Variable'):
         g = d[d.method.isin([f'KDE, {wt}', f'Lognormal, {wt}'])]
-        b = R.paired_bootstrap(g, 'w1_parent', f'KDE, {wt}', by=['size_band'],
+        b = R.paired_bootstrap(g, 'w1_own_target', f'KDE, {wt}', by=['size_band'],
                                rng=np.random.default_rng(0))
         bits = ' | '.join(f'{r.size_band[:4]} {r.mean_difference:+.4f}'
                           f'{"*" if r.distinguishable else " "}'

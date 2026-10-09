@@ -213,7 +213,7 @@ def a_truth_frame(seed=0, n_plca=40, k=4, offset=0.0, noise=0.0):
             for j in range(k):
                 rows.append(dict(
                     plca=p, dataset=f'd{p}_{j}', method=m,
-                    truth_parent='market',
+                    reference='parent',
                     eci_mean=got[j], eci_mean__truth=truth[j],
                     eci_mean__error=got[j] - truth[j]))
     return pd.DataFrame(rows)
@@ -260,7 +260,7 @@ def test_recovery_cannot_be_bought_by_being_less_informative():
         for m, got in (('flat', flat), ('noisy', noisy)):
             for j in range(4):
                 rows.append(dict(plca=p, dataset=f'd{p}_{j}', method=m,
-                                 truth_parent='market', eci_mean=got[j],
+                                 reference='parent', eci_mean=got[j],
                                  eci_mean__truth=truth[j],
                                  eci_mean__error=got[j] - truth[j]))
     got = MS.recovery_table(pd.DataFrame(rows), outputs=('eci_mean',),
@@ -277,7 +277,7 @@ def test_decision_agreement_is_one_for_the_truth_and_chance_for_a_shuffle():
         for m, got in (('exact', truth), ('shuffled', rng.permutation(truth))):
             for j in range(4):
                 rows.append(dict(plca=p, dataset=f'd{p}_{j}', method=m,
-                                 truth_parent='market', eci_mean=got[j],
+                                 reference='parent', eci_mean=got[j],
                                  eci_mean__truth=truth[j],
                                  eci_mean__error=got[j] - truth[j]))
     got = MS.decision_agreement(pd.DataFrame(rows), outputs=('eci_mean',),
@@ -500,7 +500,7 @@ def a_size_banded_truth_frame(seed=1, per_band=30, k=4):
                 for j in range(k):
                     rows.append(dict(
                         plca=plca, dataset=f'd{plca}_{j}', method=m, n=n,
-                        truth_parent='market',
+                        reference='parent',
                         eci_mean=got[j], eci_mean__truth=truth[j],
                         eci_mean__error=got[j] - truth[j]))
             plca += 1

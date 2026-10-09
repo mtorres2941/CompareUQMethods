@@ -138,7 +138,7 @@ if __name__ == '__main__':
                'ks_market', 'ess_market', 'ks_floor_market']].to_string(
         index=False, float_format=lambda v: f'{v:,.6f}'))
     print(f"\nmax KS, uniform parent : {big.ks_uniform.max():.6f}")
-    print(f"max KS, market parent  : {big.ks_market.max():.6f}")
+    print(f"max KS, parent  : {big.ks_market.max():.6f}")
     print(f"Kolmogorov 5% floor    : {big.ks_noise_floor.iloc[0]:.6f}")
     print(f"uniform within its floor : "
           f"{bool((big.ks_uniform < big.ks_noise_floor).all())}")

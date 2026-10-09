@@ -60,7 +60,7 @@ def band_of(n):
 
 
 def split(model, parent, grid):
-    """W1 against the market parent, split into location and shape.
+    """W1 against the parent, split into location and shape.
 
     Both terms are taken on the SAME grid as the W1 itself, so the identity
     `location <= w1` holds exactly rather than up to a clipping rule: the

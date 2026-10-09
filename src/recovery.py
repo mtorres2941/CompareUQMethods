@@ -52,11 +52,11 @@ import fitting as FT
 from customstats import weighted_ecdf, weighted_std
 
 #: Which parent a method is scored against. A uniform-weighted method estimates
-#: the distribution the VALUES came from, so its target is the sampling mixture;
+#: the distribution the VALUES came from, so its target is the sampling distribution;
 #: a variable-weighted method estimates the market-weighted distribution, so its
 #: target is the market-weighted mixture. Scoring both against one parent would
 #: charge one of them for answering the question it was asked.
-PARENT_SCHEME = {'Uniform': 'uniform', 'Variable': 'market'}
+OWN_TARGET_SCHEME = {'Uniform': 'uniform', 'Variable': 'market'}
 
 #: Points on the recovery grid. Ten times the study's in-sample grid, because
 #: nothing here is limited by the number of data points and the integrand is two
@@ -203,36 +203,34 @@ def score_recovery(models, x, weights, parent, grid=None, tail=True,
                    scheme_of=None):
     """Every recovery column for one dataset's six fits.
 
-    TWO COMPARISONS, AND THEY ANSWER DIFFERENT QUESTIONS. Reporting only the
-    first would be a serious error and reporting only the second would waste the
-    parent.
+    THREE SCORES, NAMED FOR WHAT THEY ARE SCORED AGAINST. There is one parent,
+    the MARKET-WEIGHTED mixture, the single source of truth; the EPDs are drawn
+    through the SAMPLING distribution, the same mixture weighted by each
+    group's share of the EPDs, which is a sampling mechanism and not a parent
+    (decision 259).
 
-      `w1_parent`  each method against the parent IT IS ESTIMATING: the sampling
-                   mixture for a uniform-weighted method, the market-weighted
-                   mixture for a variable-weighted one. This says how well each
-                   method does its own job, and it is the only fair way to judge
-                   the ESTIMATION method, because a uniform-weighted fit was
-                   never asked to know anything about market share.
+      `w1_market`      every method, both weightings, against the PARENT. This
+                       is the decision-relevant comparison and the only one
+                       that can say whether market weighting helps, because the
+                       six are then estimating the SAME quantity. A
+                       uniform-weighted model pays a BIAS here -- it estimates
+                       the sampling distribution -- and a market-weighted model
+                       pays VARIANCE, because the weights concentrate the
+                       sample. Which one wins is the bias-variance question the
+                       paper exists to answer.
 
-      `w1_market`  every method, both weightings, against the MARKET-WEIGHTED
-                   parent. This is the decision-relevant comparison and the only
-                   one that can say whether variable weighting helps, because
-                   the six are then estimating the SAME quantity. A pLCA of what
-                   actually gets built is a statement about the market-weighted
-                   population, so that is the target a practitioner needs
-                   recovered. A uniform-weighted model pays a BIAS here -- it is
-                   estimating the wrong distribution -- and a variable-weighted
-                   model pays VARIANCE, because the weights are a noisy
-                   Dirichlet draw. Which one wins is the bias-variance question
-                   the paper exists to answer, and it cannot be read off
-                   `w1_parent`.
+      `w1_own_target`  each method against the distribution ITS OWN WEIGHTING
+                       ESTIMATES: the sampling distribution for uniform
+                       weights, the parent for market weights. It says how well
+                       each method does its own job, and it cannot compare the
+                       two weightings. Called `w1_parent` until 2026-10-08.
 
-      `w1_sampling` the same six against the SAMPLING mixture, for symmetry, so
-                   the two common-target comparisons can be read together.
+      `w1_sampling`    the same six against the sampling distribution, for
+                       symmetry.
 
     Returns {method: {...}}.
     """
-    scheme_of = scheme_of or PARENT_SCHEME
+    scheme_of = scheme_of or OWN_TARGET_SCHEME
     grid = recovery_grid(x, weights, parent) if grid is None else grid
     out = {}
     for label, m in models.items():
@@ -240,12 +238,12 @@ def score_recovery(models, x, weights, parent, grid=None, tail=True,
         body = w1_against_parent(m, parent, scheme, grid)
         t, residual = tail_charge(m, parent, grid) if tail else (0.0, 0.0)
         loc, shape = mean_shape_split(m, parent, scheme, grid)
-        out[label] = dict(w1_parent=body, w1_parent_tail=t,
-                          w1_parent_total=body + t,
+        out[label] = dict(w1_own_target=body, w1_own_target_tail=t,
+                          w1_own_target_total=body + t,
                           overlap=overlap_area(m, parent, scheme, grid),
-                          w1_parent_location=loc, w1_parent_shape=shape,
+                          w1_own_target_location=loc, w1_own_target_shape=shape,
                           tail_residual_mass=residual,
-                          parent_scheme=scheme,
+                          own_target_scheme=scheme,
                           w1_market=w1_against_parent(m, parent, 'market', grid),
                           w1_sampling=w1_against_parent(m, parent, 'uniform',
                                                         grid),
@@ -254,11 +252,11 @@ def score_recovery(models, x, weights, parent, grid=None, tail=True,
 
 
 def parent_separation(parent, grid):
-    """W1 between the sampling parent and the market-weighted parent.
+    """W1 between the sampling distribution and the market-weighted parent.
 
     The synthetic arm's version of the definitional gap: how far apart the two
     populations are for this dataset, before any model is fitted. A method that
-    ignores the weights cannot do better than this against the market parent, so
+    ignores the weights cannot do better than this against the parent, so
     it is the floor on a uniform-weighted method's `w1_market` and the scale
     every weighting result has to be read against.
     """

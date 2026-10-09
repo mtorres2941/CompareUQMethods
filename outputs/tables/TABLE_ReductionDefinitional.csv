@@ -1,4 +1,4 @@
-arm,method,metric,is_declared_definitional,spearman_definitional,spearman_w1,spearman_w1_market,spearman_w1_parent,spearman_err_eci_mean,spearman_err_eci_rank_1,is_an_identity
+arm,method,metric,is_declared_definitional,spearman_definitional,spearman_w1,spearman_w1_market,spearman_w1_own_target,spearman_err_eci_mean,spearman_err_eci_rank_1,is_an_identity
 empirical,"KDE, Uniform",n,False,-0.2670295222596742,-0.4111361049364274,,,,,False
 empirical,"KDE, Uniform",coeffvar,False,0.606188939848431,0.6312665754935814,,,,,False
 empirical,"KDE, Uniform",coeffvar_uw,False,0.6485655350625997,0.6563404332484567,,,,,False

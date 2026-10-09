@@ -97,7 +97,7 @@ def main(n_groups=500, neccs=4000, nmats=4):
 
 
 def report(out):
-    market = out[out.truth_parent == 'market'] if 'truth_parent' in out else out
+    market = out[out.reference == 'parent'] if 'reference' in out else out
     rows = []
     for rule, block in market.groupby('bw_rule'):
         for m, sub in block.groupby('method'):

@@ -113,7 +113,7 @@ def main(n_synth=N_SYNTH):
                  modes=modes_of_fitted_kde(x, w))
         for label, m in models.items():
             r[label] = R.w1_against_parent(
-                m, parent, R.PARENT_SCHEME[R.FT_weighting(label)], grid)
+                m, parent, R.OWN_TARGET_SCHEME[R.FT_weighting(label)], grid)
         rows.append(r)
         if (i + 1) % 500 == 0:
             print(f'  {i+1}/{len(ids)}  {time.time()-t0:.0f}s', flush=True)

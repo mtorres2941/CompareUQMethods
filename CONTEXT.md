@@ -239,15 +239,29 @@ across a 50-fold bandwidth range. Leave-one-out likelihood is the sharp
 instrument for bandwidth and is what decision 54 used.
 
 **The recovery score, Stage 2c.** `src/recovery.py` scores each fitted model
-against the parent the dataset was drawn from, which is the cleanest test
-available and needs no training data in the target. It exists on the SYNTHETIC
-arm only, so it does not replace the in-sample score; the empirical arm's
-equivalent is cross-validation. TWO comparisons come out of it and they answer
-different questions: `w1_parent` scores each method against the parent IT is
-estimating, which is the fair way to judge an estimation method, and `w1_market`
-scores all six against the market-weighted parent, which is the only way to
-compare the two WEIGHTING schemes, because only then are they estimating the
-same thing.
+against the distributions the synthetic dataset was built from, which is the
+cleanest test available and needs no training data in the target. It exists on
+the SYNTHETIC arm only, so it does not replace the in-sample score; the
+empirical arm's equivalent is cross-validation.
+
+**THERE IS ONE PARENT: THE MARKET-WEIGHTED DISTRIBUTION, the single source of
+truth (decisions 258, 259).** The EPDs themselves are drawn through a SAMPLING
+DISTRIBUTION -- the same mixture weighted by each product group's share of the
+EPDs rather than of the market -- which is a sampling mechanism, not a parent.
+Three scores come out, named for what they are scored against:
+
+    w1_market       all six methods against the PARENT. The decision-relevant
+                    score, and the only one that can compare the two weightings.
+    w1_sampling     all six against the sampling distribution.
+    w1_own_target   each method against the distribution its own weighting
+                    estimates: the sampling distribution for uniform weights,
+                    the parent for market weights. Called `w1_parent` until
+                    2026-10-08; the old name gave the sampling distribution the
+                    status of a parent.
+
+In the truth-run tables the column `reference` says which distribution a row
+was scored against: `parent` or `sampling` (until 2026-10-08 `truth_parent`,
+with `market` for the parent).
 
 ### Fitting by the criterion we score by
 
@@ -455,7 +469,7 @@ no Monte Carlo noise at all.
 The truth is the MARKET-weighted parent, because a probabilistic LCA of what
 gets built is a statement about the population weighted by production, and it
 is the one population all six methods can be scored against on equal terms. The
-sampling parent is reported beside it, which is what a uniform-weighted method
+sampling distribution is reported beside it, which is what a uniform-weighted method
 is estimating, so the definitional part of each method's error is visible.
 
 `plca.LazySamplers` builds the samplers four at a time. A `ParentSampler`
@@ -738,11 +752,11 @@ is worth rather than against the best cost, because a relative tolerance
 collapses onto a single point as the best cost approaches zero, which a test
 caught.
 **ALL THREE ARE SCORED AGAINST `w1_market` AND THE TARGET IS DOING REAL WORK.**
-Under `w1_parent` each weighting scheme is graded against a different
+Under `w1_own_target` each weighting scheme is graded against a different
 population; under the in-sample `w1` every model is scored against the
 variable-weighted data. The variable kernel fit beats its uniform twin above
 n = 1,000 on 75.8 percent of datasets under `w1_market`, 20.7 percent under
-`w1_parent` and 98.2 percent under `w1`. Only the first answers the question.
+`w1_own_target` and 98.2 percent under `w1`. Only the first answers the question.
 
 **Two model families, one instrument.** A penalized additive model (natural
 cubic splines per predictor, elastic net) and gradient boosting, both scored
@@ -1353,13 +1367,13 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_MethodSummary.csv` | NB2 | the six methods by arm, the table to read first |
 | `TABLE_MethodCurves.parquet` | NB2 | every score against every characteristic, unbinned, with the rolling mean the figures draw. **Parquet since Stage 3**: 4.0M rows of which five columns are repeated strings, 96.4 MB as csv.gz against 44.4 as parquet and 23x faster to read. Every float is still float64 |
 | `TABLE_BandwidthRules.csv` | NB2 | the two KDE methods under all three bandwidth rules |
-| `TABLE_TargetComparison.csv` | NB2 | **the Stage 2c table to read.** One row per (arm, dataset, method): the in-sample score, the recovery score against the parent it estimates and against the market parent, the cross-validated score with its spread across splits, the decomposition and the overlap area |
+| `TABLE_TargetComparison.csv` | NB2 | **the Stage 2c table to read.** One row per (arm, dataset, method): the in-sample score, the recovery score against the parent it estimates and against the parent, the cross-validated score with its spread across splits, the decomposition and the overlap area |
 | `TABLE_TargetSummary.csv` | NB2 | the six methods by arm, criterion and weighting scheme |
 | `TABLE_CrossValidatedScores.csv.gz` | NB2 | one row per (dataset, method, split, direction) |
 | `TABLE_CrossValidatedSummary.csv` | NB2 | the mean over splits and the spread across them |
 | `TABLE_PairedBootstrap.csv` | NB2 | whether a gap between two methods survives resampling the datasets |
 | `TABLE_WeightingDecomposition.csv` | NB2 | fit error against the definitional gap |
-| `TABLE_WeightingOnCommonTarget.csv` | NB2 | do market weights help, on the market parent, by size band. Its columns are `uniform`, `market` and `market_wins`; they were `variable*` until Stage 4 |
+| `TABLE_WeightingOnCommonTarget.csv` | NB2 | do market weights help, on the parent, by size band. Its columns are `uniform`, `market` and `market_wins`; they were `variable*` until Stage 4 |
 | `TABLE_Regret.csv` | NB2 | mean, median and upper tail of regret per method |
 | `TABLE_PostStratifiedScores.csv` | NB2 | every headline aggregate equally allocated and reweighted. **NOT `TABLE_PostStratified.csv`, which is NB1's and is about the dataset characteristics** |
 | `TABLE_ModalityConditioned.csv` | NB2 | the method comparison split by visible modality, within size band |
@@ -1480,7 +1494,7 @@ material breakdown -- the tier is not a mechanism, decision 84) and
 | `TABLE_CapApplicabilityVsTruth.csv` | NB3 | how often each method finds the specification cap binding, against how often it really does. Only the two lognormals are indistinguishable from the truth |
 | `TABLE_MetricTailReality.csv` | NB3 | whether any model this study actually FITS has the runaway tail the stress test simulates. A quarter of a percent do, all of them equal-weighted fits to small datasets |
 | `TABLE_MixedPolicyComposition.csv` | NB3 | per pLCA group: how many of its four materials the size rule puts on each side of the threshold, the smallest and largest dataset in it, and whether it straddles |
-| `TABLE_MixedPolicyFit.csv` | NB3 | the seven policies on the FIT: mean and median W1 to the market parent, cost over the per-dataset oracle, the worst single dataset, and the head-to-head with the ties the rule creates by construction reported separately |
+| `TABLE_MixedPolicyFit.csv` | NB3 | the seven policies on the FIT: mean and median W1 to the parent, cost over the per-dataset oracle, the worst single dataset, and the head-to-head with the ties the rule creates by construction reported separately |
 | `TABLE_MixedPolicyTruth.csv.gz` | NB3 | one row per (group, material, policy): every output, the true value, the error. 70,000 rows |
 | `TABLE_MixedPolicyBuilding.csv.gz` | NB3 | one row per (group, policy): the building total against the truth |
 | `TABLE_MixedPolicyIntervention.csv.gz` | NB3 | one row per (group, material, policy): what a cap and a quantity reduction deliver, against the truth |

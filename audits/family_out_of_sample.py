@@ -79,15 +79,15 @@ def synthetic_rows(name, x, w, parent):
     grid = R.recovery_grid(x, w, parent)
     rows = []
     for wt, ww in (('Uniform', FT.uniform_weights(x)), ('Variable', w)):
-        scheme = R.PARENT_SCHEME[wt]
+        scheme = R.OWN_TARGET_SCHEME[wt]
         models, status = fit_families(x, ww)
         for fam, m in models.items():
             tail, _ = R.tail_charge(m, parent, grid)
             rows.append(dict(
                 arm='synthetic', dataset=name, n=len(x), weighting=wt,
                 family=fam, n_params=N_PARAMS[fam], guard_status=status,
-                w1_parent=R.w1_against_parent(m, parent, scheme, grid),
-                w1_parent_tail=tail,
+                w1_own_target=R.w1_against_parent(m, parent, scheme, grid),
+                w1_own_target_tail=tail,
                 w1_in_sample=FT.score_w1_model(m, x, w)))
     return rows
 
@@ -162,16 +162,16 @@ def report(d):
     for wt in ('Uniform', 'Variable'):
         g = s[s.weighting == wt]
         t = g.groupby('family').agg(
-            n_params=('n_params', 'first'), parent_mean=('w1_parent', 'mean'),
-            parent_median=('w1_parent', 'median'),
-            parent_p90=('w1_parent', lambda v: v.quantile(0.90)),
-            tail_mean=('w1_parent_tail', 'mean'),
+            n_params=('n_params', 'first'), parent_mean=('w1_own_target', 'mean'),
+            parent_median=('w1_own_target', 'median'),
+            parent_p90=('w1_own_target', lambda v: v.quantile(0.90)),
+            tail_mean=('w1_own_target_tail', 'mean'),
             in_sample_mean=('w1_in_sample', 'mean'),
             n=('dataset', 'nunique')).sort_values('parent_mean')
         print(f'--- {wt} weighting ---')
         print(fmt(t))
         wide = g.pivot_table(index='dataset', columns='family',
-                             values='w1_parent')
+                             values='w1_own_target')
         if {'gamma', 'lognormal_3p'} <= set(wide.columns):
             print(f'  gamma beats the 3-parameter lognormal on '
                   f'{100 * (wide.gamma < wide.lognormal_3p).mean():.1f} pct '
@@ -181,7 +181,7 @@ def report(d):
     print('=' * 78)
     print('WHERE THE GUARD BINDS, which is where Stage 2b saw the difference')
     print('=' * 78)
-    for arm, col in (('empirical', 'w1_cv'), ('synthetic', 'w1_parent')):
+    for arm, col in (('empirical', 'w1_cv'), ('synthetic', 'w1_own_target')):
         g = d[(d.arm == arm) & (d.weighting == 'Variable') & d[col].notna()]
         if not len(g):
             continue
@@ -204,7 +204,7 @@ def report(d):
     print('IS ANY OF IT DISTINGUISHABLE? Paired bootstrap against lognormal_3p')
     print('=' * 78)
     print('Positive = the three-parameter lognormal scored LOWER, so better.')
-    for arm, col in (('empirical', 'w1_cv'), ('synthetic', 'w1_parent')):
+    for arm, col in (('empirical', 'w1_cv'), ('synthetic', 'w1_own_target')):
         for wt in ('Uniform', 'Variable'):
             g = d[(d.arm == arm) & (d.weighting == wt) & d[col].notna()]
             if not len(g):
@@ -221,7 +221,7 @@ def report(d):
     print('=' * 78)
     print('BY SIZE BAND, variable weighting')
     print('=' * 78)
-    for arm, col in (('empirical', 'w1_cv'), ('synthetic', 'w1_parent')):
+    for arm, col in (('empirical', 'w1_cv'), ('synthetic', 'w1_own_target')):
         g = d[(d.arm == arm) & (d.weighting == 'Variable') & d[col].notna()]
         if not len(g):
             continue

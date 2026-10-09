@@ -9548,8 +9548,32 @@ rather than in conversation.
      - **There is one parent: the market-weighted distribution.** The
        distribution EPDs are drawn through is a sampling mechanism, and the
        code's names that call it a parent (`w1_parent`, `truth_parent =
-       'sampling'`, "sampling parent") are to be renamed. Owned by the next
-       commit; it must change no number.
+       'sampling'`, "sampling parent") are renamed by decision 259.
+
+259. **2026-10-08. ONE PARENT, NAMED AS ONE. The code no longer calls the
+     sampling distribution a parent, and no number moved.** `[AUTHOR]` "There
+     should be one parent that represents the source of truth. Having another
+     related but separate parent only serves to confuse the reader."
+
+         w1_market       all six against THE PARENT (unchanged name)
+         w1_sampling     all six against the sampling distribution (unchanged)
+         w1_own_target   each method against what its own weighting estimates;
+                         was `w1_parent`, with `_tail`, `_total`, `_location`,
+                         `_shape` and `own_target_scheme` (was `parent_scheme`)
+         reference       truth-run column, values `parent` / `sampling`; was
+                         `truth_parent` with `market` / `sampling`
+         OWN_TARGET_SCHEME, SAMPLING_SCHEME   were PARENT_SCHEME,
+                         TRUTH_SCHEME_SAMPLING
+
+     231 edits across `src/`, tests, audits, notebooks 2 to 4 and CONTEXT.md;
+     "sampling parent" became "sampling distribution" everywhere it described
+     current code. **Verified by rerunning notebooks 2, 3 and 4: all 41
+     rewritten tables equal their previous versions exactly once the renames
+     are applied**, ten of them with renamed headers or values. No numbered
+     figure changed. Twenty-nine unnumbered figures from notebook 2 changed
+     only in labels, picking up the "market weights" / "uniform weights"
+     vocabulary the figure pass gave `src/dct_metriclabels.json`. Decision
+     entries before this one keep the old names as a dated record.
      - Figures 4, 5, 6 and 8 and the graphical abstract need no interval, for
        the reasons the report gives per figure.
      - **The supplement is twelve figures, `SUPP1_` to `SUPP12_`**, numbered in

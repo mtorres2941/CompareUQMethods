@@ -5,7 +5,7 @@ This is the measurement behind the stage. It computes, for both arms:
   the OLD score      in-sample W1 against the variable-weighted empirical CDF of
                      the same data the model was fitted to;
   the SYNTHETIC fix  W1 against the KNOWN PARENT, under the weighting scheme the
-                     method is estimating -- the sampling mixture for a
+                     method is estimating -- the sampling distribution for a
                      uniform-weighted method, the market-weighted mixture for a
                      variable-weighted one;
   the EMPIRICAL fix  cross-validated W1, fitted on half the values and scored
@@ -134,9 +134,9 @@ def main(n_synth=None):
              'w1_cv_se', 'w1_cv_n_splits']],
         on=['arm', 'dataset', 'method'], how='left')
     scores = scores.merge(
-        rec[['arm', 'dataset', 'method', 'w1_parent', 'w1_parent_tail',
-             'w1_parent_total', 'overlap', 'w1_parent_location',
-             'w1_parent_shape', 'w1_market', 'w1_sampling', 'overlap_market',
+        rec[['arm', 'dataset', 'method', 'w1_own_target', 'w1_own_target_tail',
+             'w1_own_target_total', 'overlap', 'w1_own_target_location',
+             'w1_own_target_shape', 'w1_market', 'w1_sampling', 'overlap_market',
              'parent_separation']],
         on=['arm', 'dataset', 'method'], how='left')
     scores['ovl_loss'] = 1.0 - scores.overlap
@@ -155,29 +155,29 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
 
     section('1. WHAT CHANGING THE TARGET DOES, synthetic arm')
     t = syn.groupby('method').agg(
-        w1_in_sample=('w1', 'mean'), w1_parent=('w1_parent', 'mean'),
-        w1_parent_median=('w1_parent', 'median'),
-        w1_parent_p90=('w1_parent', lambda s: s.quantile(0.90)),
-        tail=('w1_parent_tail', 'mean'),
+        w1_in_sample=('w1', 'mean'), w1_own_target=('w1_own_target', 'mean'),
+        w1_own_target_median=('w1_own_target', 'median'),
+        w1_own_target_p90=('w1_own_target', lambda s: s.quantile(0.90)),
+        tail=('w1_own_target_tail', 'mean'),
         ovl_loss=('ovl_loss', 'mean')).reset_index()
     t['rank_in_sample'] = t.w1_in_sample.rank()
-    t['rank_parent'] = t.w1_parent.rank()
-    print(fmt(t.sort_values('w1_parent')))
+    t['rank_parent'] = t.w1_own_target.rank()
+    print(fmt(t.sort_values('w1_own_target')))
     print('\nper-dataset ranks (1 = best), mean:')
     a = CMP.add_ranks(syn, 'w1').groupby('method').w1_rank.mean()
-    b = CMP.add_ranks(syn, 'w1_parent').groupby('method').w1_parent_rank.mean()
+    b = CMP.add_ranks(syn, 'w1_own_target').groupby('method').w1_own_target_rank.mean()
     c = CMP.add_ranks(syn, 'ovl_loss').groupby('method').ovl_loss_rank.mean()
     print(fmt(pd.DataFrame(dict(method=a.index, in_sample=a.values,
                                 parent=b.values, overlap=c.values))
               .sort_values('parent')))
     print('\nwin share:')
-    for val in ('w1', 'w1_parent'):
+    for val in ('w1', 'w1_own_target'):
         w = R.win_share(syn, val)
         print(f'  by {val}:  ' + '  '.join(
             f'{r.method} {r.win_share:.3f}' for _, r in w.iterrows()))
 
     section('1b. THE COMMON TARGET: every method against the MARKET parent')
-    print('`w1_parent` above scores each method against the parent IT estimates,')
+    print('`w1_own_target` above scores each method against the distribution IT estimates,')
     print('which is the only fair way to judge an ESTIMATION method and CANNOT')
     print('compare the two weighting schemes, because they are estimating')
     print('different things. Against one common target they can. The')
@@ -197,7 +197,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
           f'mean {sep.mean():.4f}, median {sep.median():.4f}, '
           f'p90 {sep.quantile(0.90):.4f}')
     print('  That is the floor a uniform-weighted method cannot beat against the')
-    print('  market parent, and the scale the numbers above have to be read at.')
+    print('  parent, and the scale the numbers above have to be read at.')
     print('\n  head to head, within each estimation family, against the market '
           'parent:')
     wide = syn.pivot_table(index='dataset', columns='method', values='w1_market')
@@ -229,7 +229,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
     print('and a uniform-weighted fit is the better predictor by construction.')
     print('That is a property of the SYNTHETIC weights, not a finding about')
     print('weighting, and it is why the weighting claim rests on the synthetic')
-    print("arm's market parent (section 1b) and not on this table.")
+    print("arm's parent (section 1b) and not on this table.")
     g = cvs[cvs.arm == 'empirical']
     t = g.groupby('method').agg(
         w1_cv=('w1_cv', 'mean'), median=('w1_cv', 'median'),
@@ -286,7 +286,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
         sw = syn[syn.method.str.endswith(wt)]
         ew = emp_s[emp_s.method.str.endswith(wt) & emp_s.w1_cv.notna()]
         sp = sw.pivot_table(index='dataset', columns='method',
-                            values='w1_parent')
+                            values='w1_own_target')
         si = sw.pivot_table(index='dataset', columns='method', values='w1')
         ec = ew.pivot_table(index='dataset', columns='method', values='w1_cv')
         ei = ew.pivot_table(index='dataset', columns='method', values='w1')
@@ -312,7 +312,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
         def order(frame, col):
             return ' < '.join(frame.groupby('method')[col].mean()
                               .sort_values().index.str.split(',').str[0])
-        print(f'  {wt:<9} synthetic, parent : {order(sw, "w1_parent")}')
+        print(f'  {wt:<9} synthetic, parent : {order(sw, "w1_own_target")}')
         print(f'  {wt:<9} synthetic, in samp: {order(sw, "w1")}')
         print(f'  {wt:<9} empirical, CV     : {order(ew, "w1_cv")}')
         print(f'  {wt:<9} empirical, in samp: {order(ew, "w1")}')
@@ -330,7 +330,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
         ew = emp_s[emp_s.method.str.endswith(wt) & emp_s.w1_cv.notna()]
         ref = f'KDE, {wt}'
         print(f'--- {wt} weighting, reference {ref} ---')
-        a = R.paired_bootstrap(sw, 'w1_parent', ref, rng=rngb)
+        a = R.paired_bootstrap(sw, 'w1_own_target', ref, rng=rngb)
         a.insert(0, 'arm_criterion', 'synthetic, parent')
         b = R.paired_bootstrap(ew, 'w1_cv', ref, rng=rngb)
         b.insert(0, 'arm_criterion', 'empirical, CV')
@@ -374,7 +374,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
             return (float(v.mean()),
                     float((v * w).sum() / w.sum()) if w.sum() else np.nan)
 
-        step1 = R.paired_bootstrap(sp, 'w1_parent', ref, rng=rngb)
+        step1 = R.paired_bootstrap(sp, 'w1_own_target', ref, rng=rngb)
         step2 = R.paired_bootstrap(sc, 'w1_cv', ref, rng=rngb)
         _, step3 = band_reweighted(sc, 'w1_cv')
         step4 = R.paired_bootstrap(ec, 'w1_cv', ref, rng=rngb)
@@ -400,7 +400,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
     print('  KDE minus lognormal, per band, all criteria, positive = KDE better:')
     for wt in ('Uniform', 'Variable'):
         pair = [f'KDE, {wt}', f'Lognormal, {wt}']
-        for arm, frame, col in (('synthetic', syn, 'w1_parent'),
+        for arm, frame, col in (('synthetic', syn, 'w1_own_target'),
                                 ('synthetic', syn, 'w1_cv'),
                                 ('empirical', emp_s, 'w1_cv'),
                                 ('empirical', emp_s, 'w1')):
@@ -419,7 +419,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
           + '  '.join(f'{k} {v:.4f}' for k, v in shares.items())
           + f'   (sum {sum(shares.values()):.4f}; the remainder is datasets '
             f'above the corpus maximum of n = 9,999)')
-    for val, arm in (('w1_parent', 'synthetic'), ('w1', 'synthetic'),
+    for val, arm in (('w1_own_target', 'synthetic'), ('w1', 'synthetic'),
                      ('w1_cv', 'empirical'), ('w1', 'empirical')):
         sub = scores[scores.arm == arm]
         if sub[val].notna().sum() == 0:
@@ -431,9 +431,9 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
         print(fmt(ps.sort_values('mean_post_stratified')))
     print('\nMEAN RANK, the number Stage 2b section 4.11 said the two arms '
           'disagreed on:')
-    sr = CMP.add_ranks(syn, 'w1_parent')
+    sr = CMP.add_ranks(syn, 'w1_own_target')
     er = CMP.add_ranks(emp_s[emp_s.w1_cv.notna()], 'w1_cv')
-    a = R.post_stratify(sr, 'w1_parent_rank', shares)
+    a = R.post_stratify(sr, 'w1_own_target_rank', shares)
     b = R.post_stratify(er, 'w1_cv_rank', shares)
     print(fmt(a[['method', 'mean_equal_allocation', 'mean_post_stratified']]
               .rename(columns={'mean_equal_allocation': 'syn_equal',
@@ -445,7 +445,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
                      on='method')))
 
     section('5. REGRET: what it costs to use one method everywhere')
-    for val, arm in (('w1_parent', 'synthetic'), ('w1_cv', 'empirical')):
+    for val, arm in (('w1_own_target', 'synthetic'), ('w1_cv', 'empirical')):
         sub = scores[(scores.arm == arm) & scores[val].notna()]
         t = R.regret_table(sub, val)
         print(f'\n--- {arm}, {val} ---')
@@ -474,14 +474,14 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
 
     section('7. OVERLAP AREA against W1, synthetic arm')
     w = syn.pivot_table(index='dataset', columns='method',
-                        values=['w1_parent', 'ovl_loss'])
-    agree = (w['w1_parent'].idxmin(axis=1) == w['ovl_loss'].idxmin(axis=1))
+                        values=['w1_own_target', 'ovl_loss'])
+    agree = (w['w1_own_target'].idxmin(axis=1) == w['ovl_loss'].idxmin(axis=1))
     print(f'  the two criteria pick the same winner on {100 * agree.mean():.1f} '
           f'percent of datasets')
     print(f'  Spearman correlation of the two per-dataset scores: '
-          f'{syn[["w1_parent", "ovl_loss"]].corr("spearman").iloc[0, 1]:.4f}')
+          f'{syn[["w1_own_target", "ovl_loss"]].corr("spearman").iloc[0, 1]:.4f}')
     print('  mean rank under each:')
-    a = CMP.add_ranks(syn, 'w1_parent').groupby('method').w1_parent_rank.mean()
+    a = CMP.add_ranks(syn, 'w1_own_target').groupby('method').w1_own_target_rank.mean()
     b = CMP.add_ranks(syn, 'ovl_loss').groupby('method').ovl_loss_rank.mean()
     print(fmt(pd.DataFrame(dict(method=a.index, by_w1=a.values,
                                 by_overlap=b.values)).sort_values('by_w1')))
@@ -526,7 +526,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
                       f'not reported')
                 continue
             wide = h.pivot_table(index='dataset', columns='method',
-                                 values='w1_parent')
+                                 values='w1_own_target')
             wsh = (wide.idxmin(axis=1).value_counts(normalize=True)
                    .reindex(wide.columns).fillna(0.0))
             rk = wide.rank(axis=1).mean()
@@ -540,7 +540,7 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
         if not len(g):
             continue
         wide = g.pivot_table(index='dataset', columns='method',
-                             values='w1_parent')
+                             values='w1_own_target')
         uni = g.drop_duplicates('dataset').set_index('dataset').visibly_unimodal
         bits = []
         for flag, label in ((True, 'uni'), (False, 'multi')):
@@ -556,20 +556,20 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
     print('\n  LOCATION against SHAPE, within band, variable weighting:')
     t = (s8[s8.method.str.endswith('Variable')]
          .groupby(['size_band', 'visibly_unimodal', 'method'])
-         .agg(location=('w1_parent_location', 'mean'),
-              shape=('w1_parent_shape', 'mean'),
-              total=('w1_parent', 'mean'),
+         .agg(location=('w1_own_target_location', 'mean'),
+              shape=('w1_own_target_shape', 'mean'),
+              total=('w1_own_target', 'mean'),
               n=('dataset', 'nunique')).reset_index())
     print(fmt(t[t.n >= 20]))
 
     section('9. THE TAIL W1 DOES NOT SEE')
     t = syn.groupby('method').agg(
-        body=('w1_parent', 'mean'), tail_mean=('w1_parent_tail', 'mean'),
-        tail_max=('w1_parent_tail', 'max'),
-        tail_p99=('w1_parent_tail', lambda s: s.quantile(0.99))).reset_index()
+        body=('w1_own_target', 'mean'), tail_mean=('w1_own_target_tail', 'mean'),
+        tail_max=('w1_own_target_tail', 'max'),
+        tail_p99=('w1_own_target_tail', lambda s: s.quantile(0.99))).reset_index()
     t['tail_share_of_total'] = t.tail_mean / (t.body + t.tail_mean)
     print(fmt(t.sort_values('body')))
-    bad = syn[syn.w1_parent_tail > syn.w1_parent]
+    bad = syn[syn.w1_own_target_tail > syn.w1_own_target]
     print(f'\n  fits whose unseen tail exceeds their whole body score: '
           f'{len(bad)} of {len(syn)} ({100 * len(bad) / len(syn):.2f} pct)')
     if len(bad):
@@ -578,10 +578,10 @@ def report(scores, rec, cv, cvs, dec, chars, emp_modes):
         print('  fitted model spread over the data\'s, max by method:')
         print(fmt(syn.groupby('method').model_sd_ratio.max().reset_index()))
     print('  rank correlation between the body score and the total: '
-          f'{syn[["w1_parent", "w1_parent_total"]].corr("spearman").iloc[0, 1]:.4f}')
-    a = CMP.add_ranks(syn, 'w1_parent').groupby('method').w1_parent_rank.mean()
-    b = CMP.add_ranks(syn, 'w1_parent_total').groupby(
-        'method').w1_parent_total_rank.mean()
+          f'{syn[["w1_own_target", "w1_own_target_total"]].corr("spearman").iloc[0, 1]:.4f}')
+    a = CMP.add_ranks(syn, 'w1_own_target').groupby('method').w1_own_target_rank.mean()
+    b = CMP.add_ranks(syn, 'w1_own_target_total').groupby(
+        'method').w1_own_target_total_rank.mean()
     print(fmt(pd.DataFrame(dict(method=a.index, rank_body=a.values,
                                 rank_with_tail=b.values)).sort_values(
         'rank_body')))

@@ -203,7 +203,7 @@ SIZE_BANDS = (('3-9', 3, 9), ('10-99', 10, 99), ('100-999', 100, 999),
 
 
 def size_band_recovery(truth, outputs=CANDIDATES, method='method', n='n',
-                       truth_parent='truth_parent', parent='market',
+                       reference='reference', parent='parent',
                        bands=SIZE_BANDS):
     """Per (size band, method, output): the error as a pct of the true LEVEL.
 
@@ -223,7 +223,7 @@ def size_band_recovery(truth, outputs=CANDIDATES, method='method', n='n',
     Returns a tidy frame with one row per (band, method, output) carrying
     `rel_error`, plus `n_materials` so a thin band is visible as one.
     """
-    work = truth[truth[truth_parent] == parent] if truth_parent in truth else truth
+    work = truth[truth[reference] == parent] if reference in truth else truth
     rows = []
     for out in outputs:
         col, tcol = f'{out}__error', f'{out}__truth'
@@ -252,7 +252,7 @@ def size_band_recovery(truth, outputs=CANDIDATES, method='method', n='n',
 
 
 def recovery_table(truth, outputs=CANDIDATES, method='method',
-                   cluster='plca', truth_parent='truth_parent',
+                   cluster='plca', reference='reference',
                    resamples=400, rng=None):
     """Per (truth parent, output, method): how close the answer is to the truth.
 
@@ -316,7 +316,7 @@ def recovery_table(truth, outputs=CANDIDATES, method='method',
     """
     rng = rng or np.random.default_rng(0)
     rows = []
-    for parent, block in truth.groupby(truth_parent, sort=True):
+    for parent, block in truth.groupby(reference, sort=True):
         for out in outputs:
             col, tcol = out, f'{out}__truth'
             if col not in block.columns or tcol not in block.columns:
@@ -331,7 +331,7 @@ def recovery_table(truth, outputs=CANDIDATES, method='method',
                                            statistic='mean',
                                            resamples=resamples, rng=rng)
                 rows.append(dict(
-                    truth_parent=parent, output=out, method=name,
+                    reference=parent, output=out, method=name,
                     abs_error=got['statistic'], abs_error_lo=got['ci_lo'],
                     abs_error_hi=got['ci_hi'],
                     bias_raw=float(np.nanmean(work['_signed'])),
@@ -350,7 +350,7 @@ def recovery_table(truth, outputs=CANDIDATES, method='method',
 
 
 def decision_agreement(truth, outputs=CANDIDATES, method='method',
-                       cluster='plca', truth_parent='truth_parent',
+                       cluster='plca', reference='reference',
                        resamples=400, rng=None):
     """How often the method's argmax of a metric is the TRUTH's argmax.
 
@@ -366,7 +366,7 @@ def decision_agreement(truth, outputs=CANDIDATES, method='method',
     """
     rng = rng or np.random.default_rng(0)
     rows = []
-    for parent, block in truth.groupby(truth_parent, sort=True):
+    for parent, block in truth.groupby(reference, sort=True):
         for out in outputs:
             col, tcol = out, f'{out}__truth'
             if col not in block.columns or tcol not in block.columns:
@@ -387,7 +387,7 @@ def decision_agreement(truth, outputs=CANDIDATES, method='method',
                                            statistic='mean',
                                            resamples=resamples, rng=rng)
                 rows.append(dict(
-                    truth_parent=parent, output=out, method=name,
+                    reference=parent, output=out, method=name,
                     agreement=got['statistic'], agreement_lo=got['ci_lo'],
                     agreement_hi=got['ci_hi'],
                     chance=float(1.0 / frame['k'].mean()),
@@ -396,7 +396,7 @@ def decision_agreement(truth, outputs=CANDIDATES, method='method',
 
 
 def metric_verdict(recovery, agreement, nrmse_table=None,
-                   truth_parent='market'):
+                   reference='parent'):
     """One row per candidate metric: recovery, agreement and spread together.
 
     The three answer different questions and the paper needs all three in one
@@ -416,8 +416,8 @@ def metric_verdict(recovery, agreement, nrmse_table=None,
     the most misleading thing this study could do. The join is what makes that
     case visible.
     """
-    rec = recovery[recovery['truth_parent'] == truth_parent]
-    agr = agreement[agreement['truth_parent'] == truth_parent]
+    rec = recovery[recovery['reference'] == reference]
+    agr = agreement[agreement['reference'] == reference]
     rows = []
     for out in sorted(set(rec['output'])):
         r = rec[rec['output'] == out]

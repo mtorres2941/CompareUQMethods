@@ -498,12 +498,12 @@ def cap_reduction(model, col, cap, u, scale=1.0):
 #: probabilistic LCA of what actually gets built is a statement about the
 #: population of products weighted by how much of each is produced, and that is
 #: the one population all six methods can be scored against on equal terms
-#: (decision 65). The sampling mixture is reported beside it as
-#: `TRUTH_SCHEME_SAMPLING`, which is what a uniform-weighted method is
+#: (decision 65). The sampling distribution is reported beside it as
+#: `SAMPLING_SCHEME`, which is what a uniform-weighted method is
 #: estimating, so a reader can see how much of a method's error is definitional
 #: rather than an error of estimation.
 TRUTH_SCHEME = 'market'
-TRUTH_SCHEME_SAMPLING = 'uniform'
+SAMPLING_SCHEME = 'uniform'
 
 
 class ParentSampler:

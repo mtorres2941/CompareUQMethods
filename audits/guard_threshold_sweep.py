@@ -71,7 +71,7 @@ def one(name, x, w_var, parent, rng):
             if parent is not None:
                 grid = R.recovery_grid(x, w_var, parent)
                 row[f'parent_{rule}'] = R.w1_against_parent(
-                    m, parent, R.PARENT_SCHEME[wt], grid)
+                    m, parent, R.OWN_TARGET_SCHEME[wt], grid)
         out.append(row)
     return out
 

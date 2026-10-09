@@ -81,7 +81,7 @@ def main(n_synth=N_SYNTH):
         grid = R.recovery_grid(x, w, parent)
         models, _ = FT.fit_pewt(x, w)
         for wt, ww in (('Uniform', FT.uniform_weights(x)), ('Variable', w)):
-            scheme = R.PARENT_SCHEME[wt]
+            scheme = R.OWN_TARGET_SCHEME[wt]
             base = models[f'KDE, {wt}']
             corrected, h, a = variance_corrected_kde(x, ww)
             logn = models[f'Lognormal, {wt}']

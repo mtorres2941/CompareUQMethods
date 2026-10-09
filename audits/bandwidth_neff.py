@@ -24,7 +24,7 @@ weights are closer on 32.8 percent of datasets at 3 to 9 declarations and 78.7
 percent above a thousand.
 
 The script also reports how far apart the two TRUE populations are -- the
-sampling parent a uniform-weighted fit estimates and the market parent it is
+sampling distribution a uniform-weighted fit estimates and the parent it is
 scored against -- because that distance is the bias uniform weighting carries,
 and it is the other half of the trade.
 

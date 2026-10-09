@@ -242,13 +242,13 @@ def assemble(characteristics, scores, truth=None, modes=None,
             chars = chars.drop(columns=dupes)
         chars = chars.merge(modes[keep], on=['arm', 'dataset'], how='left')
 
-    cols = ['arm', 'dataset', 'method', 'w1', 'w1_cv', 'w1_market', 'w1_parent']
+    cols = ['arm', 'dataset', 'method', 'w1', 'w1_cv', 'w1_market', 'w1_own_target']
     sc = scores[[c for c in cols if c in scores.columns]].copy()
     frame = sc.merge(chars, on=['arm', 'dataset'], how='left',
                      suffixes=('', '__chars'))
 
     if truth is not None:
-        t = truth[truth.truth_parent == 'market'].copy()
+        t = truth[truth.reference == 'parent'].copy()
         ren = {f'{o}__error': f'err_{o}' for o in
                ('eci_mean', 'eci_rank_1', 'ui', 'eci_p95', 'eci_std')}
         t = t.rename(columns=ren)
@@ -1079,7 +1079,7 @@ DEFINITIONAL_CANDIDATES = ('w_v_uw_wasserstein',)
 
 
 def definitional_check(frame, scores, metrics=CANDIDATE_METRICS,
-                       targets=('w1', 'w1_market', 'w1_parent',
+                       targets=('w1', 'w1_market', 'w1_own_target',
                                 'err_eci_mean', 'err_eci_rank_1')):
     """Is a candidate predicting a target, or IS it part of that target?
 
@@ -1677,7 +1677,7 @@ def best_method_share(scores, sizes, value='w1_market', arm='synthetic',
 
     `value` must be a target all six methods are scored against on equal
     terms. On the synthetic arm that is `w1_market`, the market-weighted
-    parent: `w1_parent` grades each weighting scheme against a DIFFERENT
+    parent: `w1_own_target` grades each weighting scheme against a DIFFERENT
     population, so a comparison across schemes under it is meaningless, and the
     in-sample `w1` scores every model against the variable-weighted data, which
     makes variable weighting win by construction.

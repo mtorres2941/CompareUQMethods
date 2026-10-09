@@ -73,7 +73,7 @@ def synthetic_frame(n_datasets=500, seed=0, planted=('n', 'coeffvar')):
         s['w1'] = np.exp(signal + rng.normal(0, 0.3, N))
         s['w1_cv'] = s.w1 * 1.1
         s['w1_market'] = s.w1 * 0.9
-        s['w1_parent'] = s.w1
+        s['w1_own_target'] = s.w1
         scores.append(s)
     scores = pd.concat(scores, ignore_index=True)
     modes = chars[['arm', 'dataset'] + list(R.MODE_METRICS)]
@@ -552,7 +552,7 @@ def choice_fixture(n_datasets=500, seed=50):
         modes[m] = per[f'{m}_x'] if f'{m}_x' in per else per[m]
     per = per.rename(columns={f'{m}_x': m for m in R.MODE_METRICS})
     chars = per.drop(columns=['method', 'w1', 'w1_cv', 'w1_market',
-                              'w1_parent', 'size_band'], errors='ignore')
+                              'w1_own_target', 'size_band'], errors='ignore')
     return R.assemble(chars, scores, modes=modes)
 
 

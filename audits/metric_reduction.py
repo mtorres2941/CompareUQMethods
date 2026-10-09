@@ -261,7 +261,7 @@ def run(quick=False):
     # ---- which method wins ----------------------------------------------
     wrows = []
     for value, tag in (('w1', 'in sample'), ('w1_cv', 'cross-validated'),
-                       ('w1_market', 'against the market parent')):
+                       ('w1_market', 'against its own target')):
         if value not in frame.columns:
             continue
         w = RED.winner_frame(frame, value, within_weighting=True)

@@ -199,7 +199,7 @@ def main(n_datasets=500, n_pairs=250):
 def report_fit(fit):
     dd = fit[fit.arm == 'data-driven']
     print()
-    print('The six data-driven methods, median W1 against the market parent:')
+    print('The six data-driven methods, median W1 against the parent:')
     print(dd.groupby('method').w1.median()
           .sort_values().to_string(float_format=lambda v: f'{v:.4f}'))
     best = float(dd.groupby('method').w1.median().min())
