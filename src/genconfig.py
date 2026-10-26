@@ -242,7 +242,7 @@ class GeneratorConfig:
     range of width c give a mixture with mean about c/2 and standard deviation
     about c/3.5, so a coefficient of variation near 0.57 whatever the
     components are. That is why 47 percent of targets were unreachable at
-    position_skew = 1, and why the corpus came out centerd at 0.24 against an
+    position_skew = 1, and why the corpus came out centered at 0.24 against an
     empirical 0.600."""
 
     comp_sd_log10_lo: float = -0.7
