@@ -145,3 +145,29 @@ through wider bounds.
 
 Verified before re-freezing: 588 of 591 tests passed, and all three failures
 were this fixture and the two tests that read it.
+
+## Re-frozen 2026-10-27, Silverman's divisor 1.34 to 1.35
+
+All three tables. `customstats.SILVERMAN_IQR_DIVISOR` moved from 1.34 to 1.35
+(decision 260), which changes every KDE bandwidth taken on the robust scale by
+about 0.75 percent. The corpus was recomputed, not regenerated, as
+`corpus_2026-10-26`: `values.parquet` is byte-identical.
+
+**Exactly the four columns that use the KDE bandwidth moved, on every table,
+and nothing else did** -- that is the control.
+
+    table                              column                     rows    max      median
+    TABLE_EmpiricalECCMetrics          modality_index_fitted        62   0.0039   0.0007
+                                       modality_index_fitted_uw     89   0.0042   0.0010
+    TABLE_EmpiricalECCMetricsAndW1     KDE, Uniform                 91   0.0024   0.0002
+                                       KDE, Variable                62   0.0024   0.0004
+                                       (and the two modality columns, as above)
+    TABLE_SyntheticECCMetricsAndW1     KDE, Uniform               6165   0.0017   0.0001
+                                       KDE, Variable              5200   0.0032   0.0002
+                                       modality_index_fitted      5114   0.0072   0.0006
+                                       modality_index_fitted_uw   6061   0.0077   0.0006
+
+Every other numeric column agrees to 1e-9: 22 of 24 on the first table, 26 of
+30 on the second, 32 of 36 on the third. Rows that did not move are datasets
+whose bandwidth uses the standard deviation, either because n_eff is below 20
+or because the standard deviation is smaller than IQR / 1.35.

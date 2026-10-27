@@ -2542,12 +2542,12 @@ built when a path exists, not when a sentence says so.
 coverage figure (Figure 1 in the current text) fall outside the synthetic range.
 Decisions 137 and 138 judged both gaps harmless, on a corpus the study no longer
 uses, so neither may be cited. `audits/coverage_gaps.py` asks the same two
-questions of `corpus_2026-09-25` at `weight_rho = 0.5`, on the per-dataset W1
+questions of `corpus_2026-10-26` at `weight_rho = 0.5`, on the per-dataset W1
 against the market-weighted true distribution, uniform weights.
 
 **Size: no concern.** The kernel estimate's advantage over the three-parameter
 lognormal grows and then levels off: median W1 ratio 0.928 at 100-999 EPDs,
-0.849 at 1,000-1,999, 0.818 at 2,000-3,999 and 0.823 at 4,000-9,999; closest of
+0.851 at 1,000-1,999, 0.817 at 2,000-3,999 and 0.823 at 4,000-9,999; closest of
 six on 63, 81, 90 and 94% of datasets. The three ready-mix classes above 9,999
 EPDs get a kernel estimate under the size rule, which is the direction the
 trend points.
@@ -2555,9 +2555,9 @@ trend points.
 **Dispersion: a real limitation, and it goes in 4.2.** The six most dispersed
 empirical categories (coefficient of variation 1.96 to 5.05, 118 to 398 EPDs)
 sit in the size band where the rule picks the kernel estimate. Inside that band
-the kernel estimate's advantage shrinks as dispersion rises: median ratio 0.890
-in the bottom half of the coefficient of variation, 0.976 from the 50th to 90th
-percentile, and 0.970 [0.901, 1.153] in the top 2% (1.45 to 3.46), where the two
+the kernel estimate's advantage shrinks as dispersion rises: median ratio 0.889
+in the bottom half of the coefficient of variation, 0.975 from the 50th to 90th
+percentile, and 0.971 [0.901, 1.152] in the top 2% (1.45 to 3.46), where the two
 methods are each closest on about half the datasets. So at the edge the corpus
 reaches the two families are tied, and the corpus cannot say which is better
 beyond it. **What the text should say**: for the most dispersed categories,
@@ -2566,5 +2566,8 @@ not supported over a lognormal, and either is defensible.
 
 **Scope**: fit level only. A claim-level version would need pLCA groups binned
 by the dispersion of their members and was not run.
+
+**Re-run 2026-10-27 after the bandwidth divisor moved to 1.35** (decision 260).
+Four figures moved by 0.001 and are updated above; no conclusion moved.
 
     python audits/coverage_gaps.py

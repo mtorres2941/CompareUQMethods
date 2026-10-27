@@ -178,12 +178,12 @@ arbitrate between methods of different flexibility. Use leave-one-out
 likelihood cross-validation for that; `audits/bandwidth_rules.py` has it.
 
 **Silverman's rule breaks at SMALL n, not on small interquartile ranges.** Where
-`(IQR/1.34)/sd` is smallest -- heavy-tailed categories with a tight core -- it
+`(IQR/1.35)/sd` is smallest -- heavy-tailed categories with a tight core -- it
 beats Scott on held-out likelihood every time, and flooring the robust scale
 makes things worse. Where it fails is n = 3 to 10, because the quartiles are
 interpolated between two order statistics. `'silverman_guarded'` is Silverman's
 rule throughout, `0.9 * scale * n_eff ** -0.2`, with the SCALE ESTIMATE guarded:
-the robust `min(sd, IQR/1.34)` at or above `SILVERMAN_MIN_NEFF = 20` effective
+the robust `min(sd, IQR/1.35)` at or above `SILVERMAN_MIN_NEFF = 20` effective
 observations, the plain standard deviation below it. **It is NOT Scott below the
 threshold**: the coefficient stays 0.9 throughout where Scott's is 1.06, and two
 comments said otherwise until Stage 2c.

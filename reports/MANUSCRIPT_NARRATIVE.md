@@ -4,8 +4,10 @@ What the paper says, in what order, on which figures. Written to be read as the
 plan itself rather than as a record of how it was arrived at; the history is in
 the decision log and in `reports/MANUSCRIPT_discrepancies.md`.
 
-Every number is from the tables on disk, on `corpus_2026-09-25` at
-`weight_rho = 0.5`. **Building and Environment allows 10,000 words excluding
+Every number is from the tables on disk, on `corpus_2026-10-26` at
+`weight_rho = 0.5` (the 2026-09-25 corpus remeasured with Silverman's divisor
+at 1.35, decision 260; the one quoted number that moved is the median-of-ratios
+cutoff band, which moved from 30-200 to 30-190). **Building and Environment allows 10,000 words excluding
 references, 15 figures and 5 tables**, so nine figures and one table is less
 than half the figure allowance and the binding constraint is the word count.
 
@@ -866,7 +868,7 @@ is best") and would oversell a fraction of a point.
 ### 3. The cutoff band survives both statistics
 
 Measured, not assumed: 40 to 170 on the ratio of means (reproduced from a fresh
-stream), 30 to 200 on the median of ratios, best cutoff 100 and 60
+stream), 30 to 190 on the median of ratios (30 to 200 before decision 260), best cutoff 100 and 60
 respectively. Both on the single Monte Carlo run since decision 258. **Print 40 to 170**, the range that holds under both (author,
 2026-10-07). Figure 4 draws both statistics and shades 40 to 170.
 

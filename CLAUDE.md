@@ -2381,6 +2381,8 @@ rather than in conversation.
     published convention and moving it would shift every KDE number for a
     correction nobody asked for. Discrepancy entry 90.
 
+    **SUPERSEDED BY DECISION 260: the code uses 1.35 from 2026-10-27.**
+
 99. **2026-09-17, Stage 2d. THE FLIP THRESHOLD IS CONDITIONAL ON FOUR MATERIALS
     and Stage 2e will move it.** `[AUTHOR]` The author asked why the calibration
     still uses groups of four when the plan was to stop doing that, and whether
@@ -9584,3 +9586,45 @@ rather than in conversation.
        in-sample W1 labeled as scored against the target. The data-generation
        figure's flat panels were a drawing grid running to the truncation
        bound, not a generator defect.
+
+260. **2026-10-27, MANUSCRIPT. SILVERMAN'S DIVISOR IS 1.35, NOT 1.34. This
+     REVERSES decision 98.** `[AUTHOR]` "Ugh why would we keep 1.34?? ...
+     rerunning 2.5 hours of notebooks would actually be fine."
+
+     Decision 98 kept 1.34 because it is what Silverman (1986) prints and moving
+     it would shift every KDE number for a correction nobody had asked for. The
+     author asked. The interquartile range of a standard normal is 1.3490, so
+     1.35 is the closer rounding (-0.08 percent bias against +0.67), and it is
+     what KL2 (Torres et al., 2026) uses, so the two papers now agree.
+     `customstats.SILVERMAN_IQR_DIVISOR = 1.35`.
+
+     **The corpus was recomputed, not regenerated**, as `corpus_2026-10-26`
+     (`values.parquet` byte-identical), and notebooks 1 to 4 were re-run end to
+     end. **Only the quantities that use the KDE bandwidth moved, and by the
+     third or fourth decimal**: the fixtures moved on exactly four columns
+     (`KDE, Uniform`, `KDE, Variable`, `modality_index_fitted` and its
+     unweighted twin) with a largest change of 0.0077, and every other numeric
+     column agrees to 1e-9 (`tests/fixtures/README.md`).
+
+     **Moved numbers that are quoted somewhere, before -> after:**
+
+         synthetic KDE, market weights, mean W1         0.0948 -> 0.0946
+         pooled median error, size rule                17.38 -> 17.37
+         pooled median error, KDE uniform / market     17.54 / 14.00 -> 17.53 / 14.01
+         median-of-ratios cutoff band                  30-200 -> 30-190
+         flip crossing, 1 pct, logistic / isotonic     0.00291 / 0.00399 -> 0.00304 / 0.00333
+         fit-versus-claim: positive / best is best     85.28 / 41.64 -> 85.27 / 41.55
+         coverage gaps, entry 197                      four figures by 0.001
+
+     **What did not move.** The published 40-to-170 band; the ratio-of-means
+     scorecard to two decimals; the rule best of four on 7 of 15 claims, clear
+     of noise on 4; Building 138's leader under every policy; the
+     safe-lead ratio at four materials; the empirical cross-validated win
+     shares; every one-decimal figure decision 256 quotes. `flip.FLIP_THRESHOLDS`
+     stays at 0.0029, which is inside its own recomputed interval
+     [0.00245, 0.00376]. Figure 3 gains one thin box and loses another: the
+     kernel estimate with uniform weights is now indistinguishable from the rule
+     on "a material: its mean contribution" (interval -0.004 to 0.372 points,
+     was 0.001 to 0.371), and the market-weighted kernel estimate is no longer
+     indistinguishable from the best of seven on "a material: its share at the
+     building 95th".

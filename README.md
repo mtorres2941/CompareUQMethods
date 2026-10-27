@@ -80,7 +80,7 @@ CompareUQMethods/
 `-- LICENSE
 ```
 
-**The paper describes ONE synthetic corpus, `corpus_2026-09-25`.**
+**The paper describes ONE synthetic corpus, `corpus_2026-10-26`.**
 `data/processed/CORPUS.json` names it and the notebooks read it from there.
 The other `corpus_*` directories beside it are superseded, and they are kept
 because a corpus here is immutable -- a change to generation writes a new

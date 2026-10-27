@@ -2,8 +2,11 @@
 
 ## Which corpus the paper describes
 
-**`corpus_2026-09-25`, and only that one.** `CORPUS.json` names it and the
-notebooks read it from there; they never regenerate.
+**`corpus_2026-10-26`, and only that one.** `CORPUS.json` names it and the
+notebooks read it from there; they never regenerate. It is `corpus_2026-09-25`
+REMEASURED, not redrawn: its `values.parquet` is byte-identical to that
+corpus's, and only the characteristics that use the KDE bandwidth were
+recomputed when Silverman's divisor moved from 1.34 to 1.35 (decision 260).
 
 Every other `corpus_*` directory here is **superseded**. They are not a second
 dataset, an alternative result, or a robustness arm, and no number in the paper
