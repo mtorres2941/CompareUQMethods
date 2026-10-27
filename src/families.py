@@ -1,6 +1,6 @@
 """Parametric families and the KDE on the support (0, inf), with one interface.
 
-Stage 2b. Decision 13 in CLAUDE.md is CONFIRMED BY THE AUTHOR: an embodied
+Stage 2b. Decision 13 in reports/DECISION_LOG.md is CONFIRMED BY THE AUTHOR: an embodied
 carbon coefficient lives on (0, inf), open at zero, because zero is not an
 admissible ECC. That settles a question Stage 1 flagged and four stages built
 on, and it has a consequence this module exists to discharge.
@@ -415,7 +415,7 @@ def fit_lognorm3_profile(x, w, delta_lo_frac=PROFILE_DELTA_LO_FRAC,
     it the profile has no maximum to find. It is reported, swept in Stage 2h
     alongside the offset, and its effect is visible in `status`.
 
-    Decision 10 in CLAUDE.md governs the other end: the threshold is NOT
+    Decision 10 in reports/DECISION_LOG.md governs the other end: the threshold is NOT
     constrained to keep it away from the normal limit. As gamma goes to minus
     infinity the lognormal converges to a normal, and the author's position is
     that this is an asset of the family rather than a defect: "It can

@@ -72,9 +72,10 @@ CompareUQMethods/
 |   `-- tables/                        # Result tables (CSV, XLSX, Parquet)
 |-- archive/                           # Superseded figures, each with the
 |                                      # reason it was replaced
-|-- reports/                           # The stage prompts, the manuscript
-|                                      # discrepancy log, and timing baselines
-|-- CLAUDE.md                          # Project brief and the full decision log
+|-- reports/                           # The decision log, the stage prompts,
+|                                      # the manuscript discrepancy log, and
+|                                      # timing baselines
+|-- CLAUDE.md                          # Project brief, standing rules, repository conventions
 |-- CONTEXT.md                         # Package layout, conventions, test inventory
 |-- FIGURE_STYLE.md                    # Binding style guide for every figure
 `-- LICENSE

@@ -16,9 +16,10 @@ for one picking up a manuscript item.
 
 ## What to read, in order
 
-1. **`CLAUDE.md`** -- the project brief, the standing constraints, the pipeline
-   roadmap and the decision log. Loaded automatically; read the roadmap row for
-   your stage and the last ten decisions before doing anything.
+1. **`CLAUDE.md`** -- the project brief, the standing constraints and the
+   repository conventions. Loaded automatically. The pipeline roadmap and the
+   decision log are in `reports/DECISION_LOG.md`; open it to check a specific
+   fact, never as a source for manuscript prose.
 2. **This file, below** -- how the workflow runs and what the standing
    conventions are.
 3. **Your stage's section of `reports/STAGE_PROMPTS.md`** -- the instructions

@@ -27,7 +27,7 @@ Three choices are applied here, and each moves numbers.
    production.
 
 3. Each dataset is divided by its own UNWEIGHTED mean, matching the synthetic
-   path exactly. See decision 6 in CLAUDE.md.
+   path exactly. See decision 6 in reports/DECISION_LOG.md.
 
 4. A category that is not one product population is SPLIT into the populations
    its record metadata identifies, before cleaning. Stage 2a-3; see

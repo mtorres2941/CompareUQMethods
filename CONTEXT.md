@@ -10,7 +10,7 @@ the end of Stage 1, when CLAUDE.md grew past a comfortable size.
 
 ```
 CompareUQMethods/
-|-- CLAUDE.md                  Project brief, constraints, decision log
+|-- CLAUDE.md                  Project brief, constraints, conventions
 |-- CONTEXT.md                 This file
 |-- FIGURE_STYLE.md            how every figure is built, after Tufte and
 |                              Doumont. Read before writing a figure

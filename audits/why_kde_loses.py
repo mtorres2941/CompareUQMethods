@@ -18,7 +18,7 @@ estimation.
      oversmooths right-skewed data. Silverman's robust rule,
      0.9 * min(sd, IQR/1.35) * n_eff ** -0.2, beats it on essentially every
      empirical dataset. THE AUTHOR'S OWN KL2 PAPER USES SILVERMAN AND JUSTIFIES
-     IT; this study uses Scott. CLAUDE.md decision 9 and discrepancy entry 10.
+     IT; this study uses Scott. decision 9 (reports/DECISION_LOG.md) and discrepancy entry 10.
 
   3. THE CRITERION. W1 falls monotonically as the bandwidth shrinks, all the way
      to a few percent of any standard rule, because a KDE with a vanishing

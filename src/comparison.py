@@ -300,7 +300,7 @@ def bandwidth_comparison(datasets, arm, rules=('scott', 'silverman',
                                                'silverman_guarded')):
     """W1 for the two KDE methods under each bandwidth rule. One row per fit.
 
-    The bandwidth rule is a stated methodological decision (CLAUDE.md decision
+    The bandwidth rule is a stated methodological decision (decision log,
     54), so the paper has to show what it does. Note that W1 alone cannot choose
     a rule -- it falls monotonically as the bandwidth shrinks -- which is why
     the rule was chosen on held-out likelihood in

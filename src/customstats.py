@@ -1028,7 +1028,7 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
     is better on the criterion the study actually reports, and because one rule
     with one conditional is what a reader can check.
 
-    Decision 9 in CLAUDE.md is unaffected: these labels are Scott (1992) and
+    Decision 9 in reports/DECISION_LOG.md is unaffected: these labels are Scott (1992) and
     Silverman's robust rule of thumb, and `scipy.stats.gaussian_kde` uses the
     same two words for different formulas. Never describe the method by pointing
     at a scipy keyword.

@@ -197,7 +197,7 @@ def clean_empirical_symmetric(data, mult=3.0):
 
         Q1(log x) - mult * IQR(log x)  <  log(x)  <  Q3(log x) + mult * IQR(log x)
 
-    Decision 12 in CLAUDE.md records the multiplicative direction as the
+    Decision 12 in reports/DECISION_LOG.md records the multiplicative direction as the
     author's. Stage 2a could only apply it to the low end, because the file it
     had was already trimmed additively at the high end and a second high bound
     would have trimmed the same tail twice. Stage 2a-2 works from raw values, so

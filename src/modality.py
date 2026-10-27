@@ -19,7 +19,7 @@ bandwidth. So for each k there is a critical bandwidth
 and a large h_1 means the data resist being smoothed into one mode, which is
 evidence of multimodality. h_1 divided by the data's standard deviation is a
 scale-free statistic that needs no p-value to interpret, which is what decision
-11 in CLAUDE.md asks for: the author's constraint is to report the statistic,
+11 in reports/DECISION_LOG.md asks for: the author's constraint is to report the statistic,
 and the bootstrap significance level is provided here as a secondary
 diagnostic, not as the headline.
 

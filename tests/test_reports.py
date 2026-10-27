@@ -37,8 +37,8 @@ REPORT_FILES = sorted(set(REPORTS.glob("HANDOFF_stage-*.md"))
 
 
 def _decisions_in_claude_md():
-    """Every numbered decision in CLAUDE.md's decision log."""
-    text = (ROOT / "CLAUDE.md").read_text()
+    """Every numbered decision in the decision log, reports/DECISION_LOG.md."""
+    text = (ROOT / "reports" / "DECISION_LOG.md").read_text()
     return {int(m) for m in re.findall(r"^(\d+)\.\s+\*\*20\d\d-", text, re.M)}
 
 
@@ -73,10 +73,10 @@ def test_internal_section_references_resolve(path):
 
 @pytest.mark.parametrize("path", REPORT_FILES, ids=lambda p: p.name)
 def test_decision_references_resolve(path):
-    """Every `decision N` must exist in CLAUDE.md's log."""
+    """Every `decision N` must exist in the decision log."""
     cited = _cited_numbers(path.read_text(), "decision", "decisions")
     missing = sorted(cited - _decisions_in_claude_md())
-    assert not missing, f"{path.name} cites decisions not in CLAUDE.md: {missing}"
+    assert not missing, f"{path.name} cites decisions not in the decision log: {missing}"
 
 
 @pytest.mark.parametrize("path", REPORT_FILES, ids=lambda p: p.name)
