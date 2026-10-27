@@ -70,7 +70,7 @@ def bandwidths(x, w):
     std = CS.weighted_std(x, w)
     iqr = CS.weighted_quantile(x, w, 0.75) - CS.weighted_quantile(x, w, 0.25)
     n = float(len(x))
-    scale = min(std, iqr / 1.34) if n >= CS.SILVERMAN_MIN_NEFF else std
+    scale = min(std, iqr / 1.35) if n >= CS.SILVERMAN_MIN_NEFF else std
     return float(prod), float(0.9 * scale * n ** -0.2)
 
 

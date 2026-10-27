@@ -16,7 +16,7 @@ estimation.
 
   2. THE BANDWIDTH RULE. `BW_METHOD = 'scott'`, 1.06 * sd * n_eff ** -0.2,
      oversmooths right-skewed data. Silverman's robust rule,
-     0.9 * min(sd, IQR/1.34) * n_eff ** -0.2, beats it on essentially every
+     0.9 * min(sd, IQR/1.35) * n_eff ** -0.2, beats it on essentially every
      empirical dataset. THE AUTHOR'S OWN KL2 PAPER USES SILVERMAN AND JUSTIFIES
      IT; this study uses Scott. CLAUDE.md decision 9 and discrepancy entry 10.
 

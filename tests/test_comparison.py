@@ -187,7 +187,7 @@ def test_bandwidth_comparison_covers_every_rule():
     assert set(b.rule) == {'scott', 'silverman', 'silverman_guarded'}
     assert len(b) == 3 * 2 * 3
     # Scott is never the smaller bandwidth: it uses sd where Silverman uses
-    # min(sd, IQR/1.34).
+    # min(sd, IQR/1.35).
     wide = b.pivot_table(index=['dataset', 'weighting'], columns='rule',
                          values='h_over_sd')
     assert (wide['scott'] >= wide['silverman'] - 1e-12).all()

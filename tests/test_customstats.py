@@ -144,7 +144,7 @@ def test_weighted_std_with_kernel_variance():
 # ---------------------------------------------------------------- bandwidth
 
 def test_bandwidth_formulas():
-    """Scott is 1.06*sigma*n_eff^-0.2; Silverman is 0.9*min(sigma, IQR/1.34)*n_eff^-0.2."""
+    """Scott is 1.06*sigma*n_eff^-0.2; Silverman is 0.9*min(sigma, IQR/1.35)*n_eff^-0.2."""
     rng = np.random.default_rng(3)
     x = rng.normal(0, 1, 200)
     w = np.ones_like(x) / len(x)
@@ -153,7 +153,7 @@ def test_bandwidth_formulas():
     assert weighted_bw(x, w, "scott") == pytest.approx(1.06 * sigma * n_eff ** -0.2)
     iqr = weighted_quantile(x, w, 0.75) - weighted_quantile(x, w, 0.25)
     assert weighted_bw(x, w, "silverman") == pytest.approx(
-        0.9 * min(sigma, iqr / 1.34) * n_eff ** -0.2
+        0.9 * min(sigma, iqr / 1.35) * n_eff ** -0.2
     )
 
 
@@ -233,7 +233,7 @@ def test_silverman_guarded_swaps_the_scale_estimate_not_the_rule():
     """One rule throughout: 0.9 * scale * n_eff ** -0.2.
 
     Below the threshold the scale is the standard deviation; at or above it the
-    scale is the robust min(sd, IQR/1.34). The coefficient never changes, which
+    scale is the robust min(sd, IQR/1.35). The coefficient never changes, which
     is what makes this a guarded Silverman rather than a switch between two
     different rules.
     """

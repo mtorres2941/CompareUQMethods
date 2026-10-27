@@ -391,8 +391,8 @@ paragraph. The graphical abstract (section 6) is separate and not counted.
 
 | # | Figure | The takeaways it carries |
 |---|---|---|
-| 1 | `FIG1_PDFandCDFofUQMethods` | what the methods ARE; 2 |
-| 2 | `FIG2_MetricCoverage` | generalizability |
+| 1 | `FIG2_PDFandCDFofUQMethods` | what the methods ARE; 2 |
+| 2 | `FIG1_MetricCoverage` | generalizability |
 | 3 | `FIG3_ClaimScorecard` | 1, 6, 9, 10 |
 | 4 | `FIG4_MixedPolicy_SpreadZoom` | 3, 4 |
 | 5 | `FIG5_WhenToUseWhich` | 8, 11 |
@@ -402,9 +402,9 @@ paragraph. The graphical abstract (section 6) is separate and not counted.
 | 9 | `FIG9_Building138` | the worked example, section 5 |
 
 ### Figure 1 -- the six methods on one real category
-`FIG1_PDFandCDFofUQMethods`
+`FIG2_PDFandCDFofUQMethods`
 
-![](../outputs/figures/CompareUQMethods_FIG1_PDFandCDFofUQMethods.png)
+![](../outputs/figures/CompareUQMethods_FIG2_PDFandCDFofUQMethods.png)
 
 **Caption.** The six UQ methods fitted to the 204 EPDs of the EC3
 category RebarSteel, each EPD divided by the category's unweighted mean
@@ -430,9 +430,9 @@ near 2.1 makes the families visibly disagree. It is also the thread for the
 worked example in section 5.
 
 ### Figure 2 -- where the real categories sit inside the synthetic cloud
-`FIG2_MetricCoverage`
+`FIG1_MetricCoverage`
 
-![](../outputs/figures/CompareUQMethods_FIG2_MetricCoverage.png)
+![](../outputs/figures/CompareUQMethods_FIG1_MetricCoverage.png)
 
 **Caption.** Six pairs of dataset characteristics for the 10,000 synthetic
 datasets (gray) and the 147 real EC3 categories (orange), characteristics under

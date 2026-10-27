@@ -107,13 +107,13 @@ def loo_loglik(x, w, h, rng, max_points=LOO_MAX_POINTS):
 def silverman_floored(x, w, floor=SILVERMAN_FLOOR):
     """Silverman's rule with the robust scale bounded BELOW as well as above.
 
-    Silverman's `min(sd, IQR/1.34)` bounds the scale estimate from above, which
+    Silverman's `min(sd, IQR/1.35)` bounds the scale estimate from above, which
     is what stops a few outliers inflating the bandwidth. It does not bound it
     from below, and the interquartile range can collapse -- to exactly zero at
     small n under concentrated weights, and to a small fraction of the standard
     deviation on a heavy-tailed dataset with a tight core.
 
-    This variant takes `max(IQR/1.34, floor * sd)` before the `min`, so the
+    This variant takes `max(IQR/1.35, floor * sd)` before the `min`, so the
     robust scale can never fall below a stated fraction of the standard
     deviation. `floor` is a free parameter and that is the honest objection to
     this variant; the cross-validated rule has none.
@@ -124,9 +124,9 @@ def silverman_floored(x, w, floor=SILVERMAN_FLOOR):
     iqr = (weighted_quantile(x, w, 0.75, output='perc2val')
            - weighted_quantile(x, w, 0.25, output='perc2val'))
     if not np.isfinite(iqr) or iqr <= 0:
-        iqr = sd * 1.34
+        iqr = sd * 1.35
     n_eff = 1.0 / np.sum(w ** 2)
-    robust = max(iqr / 1.34, floor * sd)
+    robust = max(iqr / 1.35, floor * sd)
     return 0.9 * min(sd, robust) * n_eff ** -0.2
 
 

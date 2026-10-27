@@ -105,10 +105,10 @@ LOGFIT_OFFSET = 0.5
 #
 #   'scott'              1.06 * sigma * n_eff ** -0.2, Scott (1992). What this
 #                        study used through Stage 2a.
-#   'silverman'          0.9 * min(sigma, IQR/1.34) * n_eff ** -0.2. The rule
+#   'silverman'          0.9 * min(sigma, IQR/1.35) * n_eff ** -0.2. The rule
 #                        Torres et al. (2026), the KL2 paper, uses and defends.
 #   'silverman_guarded'  Silverman's rule THROUGHOUT, 0.9 * scale * n_eff ** -0.2,
-#                        with the SCALE guarded: the robust min(sd, IQR/1.34) at
+#                        with the SCALE guarded: the robust min(sd, IQR/1.35) at
 #                        or above customstats.SILVERMAN_MIN_NEFF = 20 effective
 #                        observations, the plain sd below it. IT IS NOT SCOTT
 #                        BELOW THE THRESHOLD -- Scott carries 1.06 where this
@@ -116,9 +116,9 @@ LOGFIT_OFFSET = 0.5
 #                        small-sample bandwidth by 18 percent.
 #
 # WHY GUARDED, and the reason is not the one it looks like. Silverman's
-# min(sigma, IQR/1.34) protects against outliers inflating the bandwidth, and it
+# min(sigma, IQR/1.35) protects against outliers inflating the bandwidth, and it
 # works hardest exactly where it looks most alarming: on the heavy-tailed
-# categories where (IQR/1.34)/sigma falls below 0.2 it beats Scott on held-out
+# categories where (IQR/1.35)/sigma falls below 0.2 it beats Scott on held-out
 # likelihood 100 percent of the time. It fails at SMALL n, where the quartiles
 # are interpolated between two order statistics and a low estimate collapses the
 # bandwidth into a set of spikes. Guarding on effective sample size beats BOTH

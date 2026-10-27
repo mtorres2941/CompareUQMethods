@@ -287,7 +287,7 @@ in `archive/figures/`.
 |---|---|
 | `SUPP1_DemonstrateDataGeneration` | How one synthetic dataset is built, from drawn targets to realized sample |
 | `SUPP2_DatasetExamplesByStratum` | Synthetic datasets by size stratum, with real categories beside them |
-| `FIG2_MetricCoverage` | Where the 147 real categories sit inside the synthetic cloud, characteristic by characteristic |
+| `FIG1_MetricCoverage` | Where the 147 real categories sit inside the synthetic cloud, characteristic by characteristic |
 | `SUPP3_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
 | `FIG_WeightingDrivers` | Which categories can safely assume uniform weights, against size and dispersion |
 | `FIG8_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit near that curve |
@@ -297,7 +297,7 @@ in `archive/figures/`.
 | File | What it shows |
 |---|---|
 | `SUPP4_DemoW1Dist` | What a Wasserstein-1 distance is: the area between two cumulative curves |
-| `FIG1_PDFandCDFofUQMethods` | The six UQ methods on one real category (reinforcing steel), as densities and as distribution functions |
+| `FIG2_PDFandCDFofUQMethods` | The six UQ methods on one real category (reinforcing steel), as densities and as distribution functions |
 | `FIG_W1DistanceAndRank` | How far each method sits from its target, and how often it is closest. Both arms |
 | `SUPP_KSTestStripAndRank`, `SUPP_Wass2DistStripAndRank` | The same under two other distances, as a robustness check |
 | `FIG_W1VsCharacteristic_{Empirical,Synthetic}` | W1 against every dataset characteristic, one panel each |

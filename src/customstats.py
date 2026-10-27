@@ -937,6 +937,17 @@ def weighted_quantile(X, W, x, output='perc2val'):
 #: of that p05.
 SILVERMAN_MIN_NEFF = 20.0
 
+#: The divisor that turns an interquartile range into a standard deviation in
+#: Silverman's rule. The interquartile range of a standard normal is
+#: 2 * 0.674490 = 1.348980, so 1.35 is the closer rounding: dividing by it biases
+#: the scale estimate by -0.08 percent, where 1.34 biases it by +0.67 percent.
+#: Silverman (1986, eq. 3.30) prints 1.34, and this code used 1.34 until
+#: 2026-10-26; Torres et al. (2026) used 1.35. Author decision 2026-10-26, which
+#: reverses decision 98: use the correct value, and say in Supplement 1 why it
+#: differs from the printed rule. Every KDE number moved by the change and is
+#: reported in the decision log.
+SILVERMAN_IQR_DIVISOR = 1.35
+
 
 def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
     """
@@ -950,11 +961,11 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
         Weights for each data point.
     bw_method : {'scott', 'silverman', 'silverman_guarded'}
         'scott'      1.06 * sd * n_eff ** -0.2, Scott (1992).
-        'silverman'  0.9 * min(sd, IQR/1.34) * n_eff ** -0.2, Silverman's robust
+        'silverman'  0.9 * min(sd, IQR/1.35) * n_eff ** -0.2, Silverman's robust
                      rule of thumb.
         'silverman_guarded'  Silverman's rule throughout, 0.9 * scale *
                      n_eff ** -0.2, with the SCALE ESTIMATE guarded: the robust
-                     min(sd, IQR/1.34) when there are at least `min_neff`
+                     min(sd, IQR/1.35) when there are at least `min_neff`
                      effective observations, the plain standard deviation when
                      there are not. See WHY THE GUARD below.
     min_neff : float
@@ -972,10 +983,10 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
     WHY THE GUARD, measured in `audits/bandwidth_rules.py` over 149
     empirical and 800 synthetic datasets, both weightings.
 
-    Silverman's `min(sd, IQR/1.34)` bounds the scale estimate from ABOVE, which
+    Silverman's `min(sd, IQR/1.35)` bounds the scale estimate from ABOVE, which
     is what stops a few outliers inflating the bandwidth. That part works, and
     it works hardest exactly where it looks most alarming: on the heavy-tailed
-    categories where `(IQR/1.34)/sd` falls below 0.2, the robust rule beats
+    categories where `(IQR/1.35)/sd` falls below 0.2, the robust rule beats
     Scott on held-out likelihood in 100 percent of cases. A tight core with
     extreme outliers is real structure, and shrinking the bandwidth to fit it is
     correct.
@@ -1032,21 +1043,21 @@ def weighted_bw(X, W, bw_method='silverman', min_neff=SILVERMAN_MIN_NEFF):
     std = weighted_std(X, W)
     iqr = weighted_quantile(X, W, 0.75, output='perc2val') - weighted_quantile(X, W, 0.25, output='perc2val')
     if iqr == 0 or not np.isfinite(iqr):
-        iqr = std * 1.34
+        iqr = std * SILVERMAN_IQR_DIVISOR
 
     #effective sample size (n_eff) used since len(X) may overstate the sample size with uneven weights
     n_eff = (np.sum(W))**2 / np.sum(W**2)
     # n_eff = len(X)
     
     if bw_method=='silverman':
-        bw = 0.9 * np.min([std, iqr/1.34]) * n_eff**-0.2
+        bw = 0.9 * np.min([std, iqr/SILVERMAN_IQR_DIVISOR]) * n_eff**-0.2
     elif bw_method=='scott':
         bw = 1.06 * std * n_eff**-0.2
     elif bw_method=='silverman_guarded':
         # Silverman's rule throughout. The only thing the guard changes is the
-        # SCALE ESTIMATE: min(std, IQR/1.34) when the sample can support a
+        # SCALE ESTIMATE: min(std, IQR/1.35) when the sample can support a
         # quartile, the standard deviation when it cannot.
-        scale = np.min([std, iqr/1.34]) if n_eff >= min_neff else std
+        scale = np.min([std, iqr/SILVERMAN_IQR_DIVISOR]) if n_eff >= min_neff else std
         bw = 0.9 * scale * n_eff**-0.2
     else:
         raise ValueError(f"bw_method must be 'scott', 'silverman' or "
