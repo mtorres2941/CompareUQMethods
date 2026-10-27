@@ -394,11 +394,11 @@ paragraph. The graphical abstract (section 6) is separate and not counted.
 | 1 | `FIG2_PDFandCDFofUQMethods` | what the methods ARE; 2 |
 | 2 | `FIG1_MetricCoverage` | generalizability |
 | 3 | `FIG3_ClaimScorecard` | 1, 6, 9, 10 |
-| 4 | `FIG4_MixedPolicy_SpreadZoom` | 3, 4 |
+| 4 | `FIG6_MixedPolicy_SpreadZoom` | 3, 4 |
 | 5 | `FIG5_WhenToUseWhich` | 8, 11 |
-| 6 | `FIG6_BuildingDominance` (sorted dots) | 7 |
+| 6 | `FIG8_BuildingDominance` (sorted dots) | 7 |
 | 7 | `FIG7_WeightingBySize` (box plus strip) | 5 |
-| 8 | `FIG8_ShapePlane` | 2 |
+| 8 | `FIG4_ShapePlane` | 2 |
 | 9 | `FIG9_Building138` | the worked example, section 5 |
 
 ### Figure 1 -- the six methods on one real category
@@ -528,10 +528,10 @@ choice moves a material's estimated contribution by 12 percent": for a typical
 building it moves it by 5 and for one in ten by more than 34.
 
 ### Figure 4 -- the rule, and what market-share data would buy. CHOSEN: ZOOM PLUS SPREAD
-`FIG4_MixedPolicy_SpreadZoom` in the main text; `SUPP9_MixedPolicy`, panels
+`FIG6_MixedPolicy_SpreadZoom` in the main text; `SUPP9_MixedPolicy`, panels
 (a) ratio of means and (b) median, in the supplement
 
-![](../outputs/figures/CompareUQMethods_FIG4_MixedPolicy_SpreadZoom.png)
+![](../outputs/figures/CompareUQMethods_FIG6_MixedPolicy_SpreadZoom.png)
 
 **Caption.** Error of the size rule (kernel density estimate at or above the
 cutoff, three-parameter lognormal below, uniform weights; orange) and of the
@@ -599,9 +599,9 @@ could check, which is the case for following the size rule rather than trying
 to judge each category. That is the paper's framing for takeaways 8 and 11.
 
 ### Figure 6 -- where real buildings sit on the safe-lead axis. CHOSEN: SORTED DOTS
-`FIG6_BuildingDominance`
+`FIG8_BuildingDominance`
 
-![](../outputs/figures/CompareUQMethods_FIG6_BuildingDominance.png)
+![](../outputs/figures/CompareUQMethods_FIG8_BuildingDominance.png)
 
 **Caption.** The 292 North American buildings of Benke et al. (2025), A1-A3,
 sorted by the ratio of the largest material's emissions to the second largest
@@ -671,9 +671,9 @@ shares divided by the error using them, on a log axis.
   even if one existed."
 
 ### Figure 8 -- why the rigid families lose
-`FIG8_ShapePlane`
+`FIG4_ShapePlane`
 
-![](../outputs/figures/CompareUQMethods_FIG8_ShapePlane.png)
+![](../outputs/figures/CompareUQMethods_FIG4_ShapePlane.png)
 
 **Caption.** Skewness against coefficient of variation, uniform weights, for
 the 127 real EC3 categories with at least ten EPDs (log x axis;
@@ -844,7 +844,7 @@ the equal-intensity run was dropped by the author (section 5).
 
 ### 1. Every figure design is settled
 
-Figure 4: zoom plus spread (`FIG4_MixedPolicy_SpreadZoom`), with the two
+Figure 4: zoom plus spread (`FIG6_MixedPolicy_SpreadZoom`), with the two
 single-statistic versions in the supplement. Figure 6: sorted dots. Figure 7:
 box plus strip. Building 138: the ridgeline by contribution. The graphical
 abstract: three panels, tightened. Figure 5 stays. Every unchosen design is in

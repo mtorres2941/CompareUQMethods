@@ -290,7 +290,7 @@ in `archive/figures/`.
 | `FIG1_MetricCoverage` | Where the 147 real categories sit inside the synthetic cloud, characteristic by characteristic |
 | `SUPP3_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
 | `FIG_WeightingDrivers` | Which categories can safely assume uniform weights, against size and dispersion |
-| `FIG8_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit near that curve |
+| `FIG4_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit near that curve |
 
 ### Notebook 2 - the fits
 
@@ -331,9 +331,9 @@ in `archive/figures/`.
 | `SUPP8_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
 | `FIG3_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule, on the median per-case error; thin boxes mark cells noise cannot separate from their row's best |
 | `SUPP7_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
-| `FIG4_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
+| `FIG6_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
 | `SUPP9_MixedPolicy` | The same cutoff sweep on each statistic alone, (a) ratio of means and (b) median |
-| `FIG6_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
+| `FIG8_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
 | `FIG9_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |
 | `FIG_GraphicalAbstract` | The graphical abstract |
 
