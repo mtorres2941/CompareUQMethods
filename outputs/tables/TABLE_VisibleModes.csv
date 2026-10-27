@@ -27,7 +27,7 @@ empirical,CMU [<3000 psi],274,1,1
 empirical,CMU [>=6000 psi],8,1,1
 empirical,CMU [strength not stated],39,1,1
 empirical,CableTrays,59,1,1
-empirical,Carpet,1989,1,1
+empirical,Carpet,1989,1,2
 empirical,CastDecksAndUnderlayment,255,1,1
 empirical,Cement,1084,1,1
 empirical,CementBoard,21,1,1
@@ -42,7 +42,7 @@ empirical,ConcretePaving [5000-5999 psi],42,2,2
 empirical,ConcretePaving [<3000 psi],32,1,1
 empirical,ConcretePaving [strength not stated],38,1,1
 empirical,Countertops,76,1,1
-empirical,CurtainWalls,54,1,1
+empirical,CurtainWalls,54,1,2
 empirical,DampproofingAndWaterproofing,162,1,1
 empirical,DataCabling,951,1,1
 empirical,DeckingSteel,62,2,1
@@ -536,7 +536,7 @@ synthetic,dataset2575,41,2,2
 synthetic,dataset2576,49,1,1
 synthetic,dataset2577,72,1,1
 synthetic,dataset2578,13,1,1
-synthetic,dataset2579,84,1,1
+synthetic,dataset2579,84,1,2
 synthetic,dataset2580,10,2,2
 synthetic,dataset2581,68,1,2
 synthetic,dataset2582,11,1,1
@@ -549,7 +549,7 @@ synthetic,dataset2588,28,1,1
 synthetic,dataset2589,25,1,2
 synthetic,dataset2590,58,1,1
 synthetic,dataset2591,78,1,1
-synthetic,dataset2592,44,1,2
+synthetic,dataset2592,44,1,3
 synthetic,dataset2593,13,1,1
 synthetic,dataset2594,19,1,1
 synthetic,dataset2595,81,1,1
@@ -608,7 +608,7 @@ synthetic,dataset2645,76,1,1
 synthetic,dataset2646,53,1,1
 synthetic,dataset2647,62,1,1
 synthetic,dataset2648,46,1,1
-synthetic,dataset2649,70,1,1
+synthetic,dataset2649,70,1,2
 synthetic,dataset2650,98,1,1
 synthetic,dataset2651,26,1,2
 synthetic,dataset2652,65,1,1
@@ -1064,7 +1064,7 @@ synthetic,dataset3093,92,1,1
 synthetic,dataset3094,29,1,1
 synthetic,dataset3095,11,1,2
 synthetic,dataset3096,12,1,1
-synthetic,dataset3097,24,1,1
+synthetic,dataset3097,24,1,2
 synthetic,dataset3098,18,1,1
 synthetic,dataset3099,14,1,1
 synthetic,dataset31,9,1,1
@@ -1375,7 +1375,7 @@ synthetic,dataset3398,49,1,2
 synthetic,dataset3399,44,1,1
 synthetic,dataset3400,11,1,1
 synthetic,dataset3401,68,1,1
-synthetic,dataset3402,33,1,1
+synthetic,dataset3402,33,1,2
 synthetic,dataset3403,80,1,2
 synthetic,dataset3404,75,1,2
 synthetic,dataset3405,64,1,1
@@ -1714,7 +1714,7 @@ synthetic,dataset3733,37,1,2
 synthetic,dataset3734,14,1,1
 synthetic,dataset3735,94,1,1
 synthetic,dataset3736,17,1,1
-synthetic,dataset3737,53,1,2
+synthetic,dataset3737,53,1,3
 synthetic,dataset3738,62,1,1
 synthetic,dataset3739,27,1,1
 synthetic,dataset3740,16,1,1
@@ -1825,7 +1825,7 @@ synthetic,dataset3842,44,1,1
 synthetic,dataset3843,40,1,1
 synthetic,dataset3844,91,1,1
 synthetic,dataset3845,32,1,2
-synthetic,dataset3846,53,1,1
+synthetic,dataset3846,53,1,2
 synthetic,dataset3847,50,1,1
 synthetic,dataset3848,17,1,1
 synthetic,dataset3849,19,1,1
@@ -2164,7 +2164,7 @@ synthetic,dataset4170,91,1,3
 synthetic,dataset4171,50,1,1
 synthetic,dataset4172,99,1,1
 synthetic,dataset4173,19,1,2
-synthetic,dataset4174,61,1,1
+synthetic,dataset4174,61,1,2
 synthetic,dataset4175,35,1,1
 synthetic,dataset4176,40,1,1
 synthetic,dataset4177,96,1,1
@@ -2427,7 +2427,7 @@ synthetic,dataset4427,13,1,1
 synthetic,dataset4428,17,1,1
 synthetic,dataset4429,10,1,1
 synthetic,dataset4430,20,1,1
-synthetic,dataset4431,79,1,2
+synthetic,dataset4431,79,1,3
 synthetic,dataset4432,67,1,2
 synthetic,dataset4433,23,1,1
 synthetic,dataset4434,37,1,1
@@ -2546,7 +2546,7 @@ synthetic,dataset4544,22,1,1
 synthetic,dataset4545,18,1,1
 synthetic,dataset4546,95,1,1
 synthetic,dataset4547,17,1,2
-synthetic,dataset4548,53,1,1
+synthetic,dataset4548,53,1,2
 synthetic,dataset4549,19,1,1
 synthetic,dataset4550,11,1,1
 synthetic,dataset4551,48,1,2
@@ -2646,7 +2646,7 @@ synthetic,dataset4642,29,1,1
 synthetic,dataset4643,10,1,1
 synthetic,dataset4644,18,1,2
 synthetic,dataset4645,98,1,1
-synthetic,dataset4646,82,1,3
+synthetic,dataset4646,82,1,4
 synthetic,dataset4647,16,1,1
 synthetic,dataset4648,20,1,1
 synthetic,dataset4649,29,1,2
@@ -2704,7 +2704,7 @@ synthetic,dataset4699,59,1,1
 synthetic,dataset4700,94,1,1
 synthetic,dataset4701,27,2,2
 synthetic,dataset4702,21,1,1
-synthetic,dataset4703,23,1,1
+synthetic,dataset4703,23,1,2
 synthetic,dataset4704,13,1,1
 synthetic,dataset4705,19,1,2
 synthetic,dataset4706,12,1,1
@@ -2726,7 +2726,7 @@ synthetic,dataset4721,34,1,1
 synthetic,dataset4722,18,1,1
 synthetic,dataset4723,40,1,1
 synthetic,dataset4724,11,1,1
-synthetic,dataset4725,21,1,1
+synthetic,dataset4725,21,1,2
 synthetic,dataset4726,63,1,2
 synthetic,dataset4727,18,1,1
 synthetic,dataset4728,40,1,1
@@ -2885,7 +2885,7 @@ synthetic,dataset4880,14,1,2
 synthetic,dataset4881,39,1,2
 synthetic,dataset4882,40,1,1
 synthetic,dataset4883,21,1,3
-synthetic,dataset4884,72,1,1
+synthetic,dataset4884,72,1,2
 synthetic,dataset4885,70,1,2
 synthetic,dataset4886,12,1,1
 synthetic,dataset4887,49,1,1
@@ -2915,7 +2915,7 @@ synthetic,dataset4910,13,1,1
 synthetic,dataset4911,29,1,1
 synthetic,dataset4912,24,1,1
 synthetic,dataset4913,87,1,1
-synthetic,dataset4914,21,1,1
+synthetic,dataset4914,21,1,2
 synthetic,dataset4915,65,1,2
 synthetic,dataset4916,56,1,1
 synthetic,dataset4917,46,1,2
@@ -2944,7 +2944,7 @@ synthetic,dataset4939,15,1,1
 synthetic,dataset4940,72,1,1
 synthetic,dataset4941,11,1,1
 synthetic,dataset4942,39,1,2
-synthetic,dataset4943,96,1,2
+synthetic,dataset4943,96,1,3
 synthetic,dataset4944,34,1,1
 synthetic,dataset4945,63,1,2
 synthetic,dataset4946,39,1,1
@@ -3002,7 +3002,7 @@ synthetic,dataset4997,29,1,1
 synthetic,dataset4998,22,1,2
 synthetic,dataset4999,41,1,1
 synthetic,dataset5,9,1,1
-synthetic,dataset5000,165,1,1
+synthetic,dataset5000,165,1,2
 synthetic,dataset5001,460,1,2
 synthetic,dataset5002,584,1,1
 synthetic,dataset5003,146,2,2
@@ -3051,7 +3051,7 @@ synthetic,dataset5043,250,1,1
 synthetic,dataset5044,176,1,1
 synthetic,dataset5045,997,1,3
 synthetic,dataset5046,169,1,1
-synthetic,dataset5047,677,1,1
+synthetic,dataset5047,677,1,2
 synthetic,dataset5048,144,1,2
 synthetic,dataset5049,955,1,1
 synthetic,dataset5050,168,1,1
@@ -3083,7 +3083,7 @@ synthetic,dataset5074,964,1,1
 synthetic,dataset5075,167,1,1
 synthetic,dataset5076,307,1,1
 synthetic,dataset5077,141,1,1
-synthetic,dataset5078,223,1,1
+synthetic,dataset5078,223,1,2
 synthetic,dataset5079,521,1,2
 synthetic,dataset5080,149,1,1
 synthetic,dataset5081,381,1,2
@@ -3198,7 +3198,7 @@ synthetic,dataset5188,785,1,1
 synthetic,dataset5189,373,1,1
 synthetic,dataset519,8,1,1
 synthetic,dataset5190,405,1,2
-synthetic,dataset5191,480,1,1
+synthetic,dataset5191,480,1,2
 synthetic,dataset5192,132,1,1
 synthetic,dataset5193,473,1,1
 synthetic,dataset5194,759,1,2
@@ -3335,7 +3335,7 @@ synthetic,dataset5321,430,1,1
 synthetic,dataset5322,730,2,2
 synthetic,dataset5323,109,1,2
 synthetic,dataset5324,139,1,1
-synthetic,dataset5325,140,1,1
+synthetic,dataset5325,140,1,2
 synthetic,dataset5326,400,1,1
 synthetic,dataset5327,834,1,1
 synthetic,dataset5328,274,1,1
@@ -3540,7 +3540,7 @@ synthetic,dataset5522,268,1,1
 synthetic,dataset5523,471,1,1
 synthetic,dataset5524,191,1,1
 synthetic,dataset5525,822,1,1
-synthetic,dataset5526,202,1,1
+synthetic,dataset5526,202,1,2
 synthetic,dataset5527,157,1,2
 synthetic,dataset5528,900,2,2
 synthetic,dataset5529,646,1,1
@@ -3624,7 +3624,7 @@ synthetic,dataset5605,360,1,1
 synthetic,dataset5606,114,1,1
 synthetic,dataset5607,396,1,2
 synthetic,dataset5608,268,1,2
-synthetic,dataset5609,511,1,1
+synthetic,dataset5609,511,1,2
 synthetic,dataset5610,111,1,2
 synthetic,dataset5611,513,1,1
 synthetic,dataset5612,193,1,1
@@ -3688,7 +3688,7 @@ synthetic,dataset5668,454,1,1
 synthetic,dataset5669,679,1,1
 synthetic,dataset5670,412,1,1
 synthetic,dataset5671,739,1,1
-synthetic,dataset5672,229,1,1
+synthetic,dataset5672,229,1,2
 synthetic,dataset5673,354,1,1
 synthetic,dataset5674,328,1,1
 synthetic,dataset5675,801,2,2
@@ -3717,7 +3717,7 @@ synthetic,dataset5697,795,1,1
 synthetic,dataset5698,714,1,1
 synthetic,dataset5699,113,1,2
 synthetic,dataset5700,666,1,1
-synthetic,dataset5701,125,1,2
+synthetic,dataset5701,125,1,3
 synthetic,dataset5702,115,1,2
 synthetic,dataset5703,573,2,2
 synthetic,dataset5704,343,1,1
@@ -3773,7 +3773,7 @@ synthetic,dataset5751,241,1,2
 synthetic,dataset5752,575,1,1
 synthetic,dataset5753,566,1,1
 synthetic,dataset5754,121,1,1
-synthetic,dataset5755,406,1,1
+synthetic,dataset5755,406,1,2
 synthetic,dataset5756,138,1,1
 synthetic,dataset5757,311,1,2
 synthetic,dataset5758,173,1,1
@@ -3862,7 +3862,7 @@ synthetic,dataset5838,297,1,1
 synthetic,dataset5839,157,1,1
 synthetic,dataset584,9,1,1
 synthetic,dataset5840,238,1,1
-synthetic,dataset5841,215,1,1
+synthetic,dataset5841,215,1,2
 synthetic,dataset5842,186,1,1
 synthetic,dataset5843,369,1,1
 synthetic,dataset5844,289,1,1
@@ -4028,7 +4028,7 @@ synthetic,dataset6001,131,1,1
 synthetic,dataset6002,370,1,1
 synthetic,dataset6003,143,1,1
 synthetic,dataset6004,115,1,1
-synthetic,dataset6005,315,1,1
+synthetic,dataset6005,315,1,2
 synthetic,dataset6006,452,1,1
 synthetic,dataset6007,714,1,1
 synthetic,dataset6008,606,1,1
@@ -4187,7 +4187,7 @@ synthetic,dataset6155,125,1,1
 synthetic,dataset6156,282,2,2
 synthetic,dataset6157,110,1,1
 synthetic,dataset6158,100,1,2
-synthetic,dataset6159,854,1,1
+synthetic,dataset6159,854,1,2
 synthetic,dataset6160,489,1,1
 synthetic,dataset6161,364,1,1
 synthetic,dataset6162,219,1,2
@@ -4333,7 +4333,7 @@ synthetic,dataset6299,922,1,1
 synthetic,dataset630,9,1,1
 synthetic,dataset6300,160,1,1
 synthetic,dataset6301,315,1,1
-synthetic,dataset6302,332,1,1
+synthetic,dataset6302,332,1,2
 synthetic,dataset6303,145,1,1
 synthetic,dataset6304,527,1,1
 synthetic,dataset6305,122,1,1
@@ -4462,7 +4462,7 @@ synthetic,dataset6425,105,1,1
 synthetic,dataset6426,130,1,2
 synthetic,dataset6427,248,1,1
 synthetic,dataset6428,292,1,1
-synthetic,dataset6429,136,1,1
+synthetic,dataset6429,136,1,2
 synthetic,dataset6430,257,1,1
 synthetic,dataset6431,276,1,1
 synthetic,dataset6432,128,1,1
@@ -4478,7 +4478,7 @@ synthetic,dataset6441,814,1,1
 synthetic,dataset6442,688,1,1
 synthetic,dataset6443,649,2,2
 synthetic,dataset6444,168,1,1
-synthetic,dataset6445,142,1,2
+synthetic,dataset6445,142,1,3
 synthetic,dataset6446,489,1,1
 synthetic,dataset6447,294,2,2
 synthetic,dataset6448,482,1,1
@@ -4587,10 +4587,10 @@ synthetic,dataset6547,362,2,2
 synthetic,dataset6548,526,1,1
 synthetic,dataset6549,190,1,1
 synthetic,dataset6550,730,1,1
-synthetic,dataset6551,173,1,1
+synthetic,dataset6551,173,1,2
 synthetic,dataset6552,691,1,1
 synthetic,dataset6553,119,1,1
-synthetic,dataset6554,144,1,1
+synthetic,dataset6554,144,1,2
 synthetic,dataset6555,240,1,1
 synthetic,dataset6556,714,1,1
 synthetic,dataset6557,139,1,1
@@ -4725,7 +4725,7 @@ synthetic,dataset6682,392,1,1
 synthetic,dataset6683,667,1,1
 synthetic,dataset6684,166,1,1
 synthetic,dataset6685,225,1,2
-synthetic,dataset6686,875,1,1
+synthetic,dataset6686,875,1,2
 synthetic,dataset6687,769,1,1
 synthetic,dataset6688,361,1,1
 synthetic,dataset6689,298,1,1
@@ -4816,7 +4816,7 @@ synthetic,dataset6771,382,1,1
 synthetic,dataset6772,291,1,1
 synthetic,dataset6773,948,1,1
 synthetic,dataset6774,328,1,2
-synthetic,dataset6775,242,1,1
+synthetic,dataset6775,242,1,2
 synthetic,dataset6776,248,1,2
 synthetic,dataset6777,353,1,1
 synthetic,dataset6778,226,1,2
@@ -5024,7 +5024,7 @@ synthetic,dataset6976,661,2,2
 synthetic,dataset6977,157,1,1
 synthetic,dataset6978,610,1,1
 synthetic,dataset6979,507,1,1
-synthetic,dataset6980,930,1,1
+synthetic,dataset6980,930,1,2
 synthetic,dataset6981,923,1,1
 synthetic,dataset6982,188,1,1
 synthetic,dataset6983,584,1,1
@@ -5088,7 +5088,7 @@ synthetic,dataset7039,844,1,1
 synthetic,dataset7040,457,1,1
 synthetic,dataset7041,157,2,2
 synthetic,dataset7042,121,1,1
-synthetic,dataset7043,170,1,1
+synthetic,dataset7043,170,1,2
 synthetic,dataset7044,916,1,1
 synthetic,dataset7045,916,1,1
 synthetic,dataset7046,240,1,1
@@ -5254,7 +5254,7 @@ synthetic,dataset7201,220,1,1
 synthetic,dataset7202,101,1,1
 synthetic,dataset7203,959,1,1
 synthetic,dataset7204,404,1,2
-synthetic,dataset7205,252,1,4
+synthetic,dataset7205,252,1,5
 synthetic,dataset7206,349,1,1
 synthetic,dataset7207,109,1,1
 synthetic,dataset7208,149,1,1
@@ -5273,7 +5273,7 @@ synthetic,dataset7220,163,1,2
 synthetic,dataset7221,157,1,1
 synthetic,dataset7222,334,1,1
 synthetic,dataset7223,136,1,1
-synthetic,dataset7224,456,1,2
+synthetic,dataset7224,456,1,3
 synthetic,dataset7225,127,1,1
 synthetic,dataset7226,106,1,1
 synthetic,dataset7227,208,1,1
@@ -5393,7 +5393,7 @@ synthetic,dataset7339,797,2,2
 synthetic,dataset7340,352,1,1
 synthetic,dataset7341,192,1,1
 synthetic,dataset7342,754,1,1
-synthetic,dataset7343,113,1,1
+synthetic,dataset7343,113,1,2
 synthetic,dataset7344,206,2,2
 synthetic,dataset7345,344,1,1
 synthetic,dataset7346,218,1,2
@@ -5509,7 +5509,7 @@ synthetic,dataset7454,903,1,1
 synthetic,dataset7455,345,1,2
 synthetic,dataset7456,538,1,2
 synthetic,dataset7457,641,1,1
-synthetic,dataset7458,129,1,2
+synthetic,dataset7458,129,1,3
 synthetic,dataset7459,449,1,1
 synthetic,dataset7460,303,1,2
 synthetic,dataset7461,373,1,1
@@ -5537,7 +5537,7 @@ synthetic,dataset7482,354,1,1
 synthetic,dataset7483,587,1,1
 synthetic,dataset7484,196,1,2
 synthetic,dataset7485,617,1,1
-synthetic,dataset7486,183,1,1
+synthetic,dataset7486,183,1,2
 synthetic,dataset7487,104,1,1
 synthetic,dataset7488,144,1,2
 synthetic,dataset7489,105,1,1
@@ -5607,7 +5607,7 @@ synthetic,dataset7551,4691,1,1
 synthetic,dataset7552,1987,1,1
 synthetic,dataset7553,1664,1,1
 synthetic,dataset7554,4820,1,1
-synthetic,dataset7555,8308,1,2
+synthetic,dataset7555,8308,1,3
 synthetic,dataset7556,1991,1,2
 synthetic,dataset7557,2096,1,2
 synthetic,dataset7558,7148,1,1
@@ -5818,7 +5818,7 @@ synthetic,dataset7758,2227,1,1
 synthetic,dataset7759,3676,1,1
 synthetic,dataset7760,2246,1,1
 synthetic,dataset7761,8751,2,2
-synthetic,dataset7762,1797,1,2
+synthetic,dataset7762,1797,1,3
 synthetic,dataset7763,1910,1,1
 synthetic,dataset7764,4313,1,1
 synthetic,dataset7765,1008,1,1
@@ -6301,7 +6301,7 @@ synthetic,dataset8233,4053,1,1
 synthetic,dataset8234,7829,1,1
 synthetic,dataset8235,1288,1,1
 synthetic,dataset8236,8421,1,1
-synthetic,dataset8237,3311,1,1
+synthetic,dataset8237,3311,1,2
 synthetic,dataset8238,4660,1,1
 synthetic,dataset8239,2359,1,1
 synthetic,dataset824,8,1,2
@@ -7010,7 +7010,7 @@ synthetic,dataset8928,2398,1,1
 synthetic,dataset8929,2241,1,2
 synthetic,dataset8930,4078,1,1
 synthetic,dataset8931,1910,1,2
-synthetic,dataset8932,1384,1,3
+synthetic,dataset8932,1384,1,4
 synthetic,dataset8933,9152,1,1
 synthetic,dataset8934,6449,1,1
 synthetic,dataset8935,9088,1,1
@@ -7214,7 +7214,7 @@ synthetic,dataset9128,1913,1,1
 synthetic,dataset9129,4462,2,2
 synthetic,dataset913,9,1,1
 synthetic,dataset9130,1240,1,1
-synthetic,dataset9131,5422,1,1
+synthetic,dataset9131,5422,1,2
 synthetic,dataset9132,2629,1,1
 synthetic,dataset9133,3866,1,1
 synthetic,dataset9134,1061,1,1

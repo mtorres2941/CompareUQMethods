@@ -333,7 +333,7 @@ method,flip_top,flip_order
 "Normal, Variable",False,True
 "Lognormal, Uniform",False,True
 "Lognormal, Variable",False,True
-"KDE, Uniform",True,False
+"KDE, Uniform",False,False
 "KDE, Variable",False,True
 "Normal, Uniform",False,False
 "Normal, Variable",False,False
@@ -363,7 +363,7 @@ method,flip_top,flip_order
 "Normal, Variable",False,False
 "Lognormal, Uniform",False,False
 "Lognormal, Variable",False,False
-"KDE, Uniform",False,True
+"KDE, Uniform",False,False
 "KDE, Variable",False,False
 "Normal, Uniform",True,False
 "Normal, Variable",False,False
@@ -867,7 +867,7 @@ method,flip_top,flip_order
 "Normal, Variable",False,False
 "Lognormal, Uniform",False,False
 "Lognormal, Variable",False,False
-"KDE, Uniform",False,False
+"KDE, Uniform",False,True
 "KDE, Variable",False,False
 "Normal, Uniform",False,False
 "Normal, Variable",False,False
@@ -1408,7 +1408,7 @@ method,flip_top,flip_order
 "Lognormal, Uniform",False,True
 "Lognormal, Variable",False,False
 "KDE, Uniform",False,True
-"KDE, Variable",True,False
+"KDE, Variable",False,False
 "Normal, Uniform",False,True
 "Normal, Variable",False,False
 "Lognormal, Uniform",False,True
@@ -1545,14 +1545,14 @@ method,flip_top,flip_order
 "Normal, Variable",False,False
 "Lognormal, Uniform",False,True
 "Lognormal, Variable",False,False
-"KDE, Uniform",True,True
+"KDE, Uniform",True,False
 "KDE, Variable",False,False
 "Normal, Uniform",False,False
 "Normal, Variable",False,False
 "Lognormal, Uniform",False,False
 "Lognormal, Variable",False,False
 "KDE, Uniform",False,False
-"KDE, Variable",False,False
+"KDE, Variable",True,False
 "Normal, Uniform",False,False
 "Normal, Variable",False,False
 "Lognormal, Uniform",False,True
@@ -1618,7 +1618,7 @@ method,flip_top,flip_order
 "Lognormal, Uniform",True,True
 "Lognormal, Variable",False,False
 "KDE, Uniform",False,False
-"KDE, Variable",False,False
+"KDE, Variable",False,True
 "Normal, Uniform",False,False
 "Normal, Variable",False,False
 "Lognormal, Uniform",False,False
@@ -1869,7 +1869,7 @@ method,flip_top,flip_order
 "Normal, Variable",False,False
 "Lognormal, Uniform",False,False
 "Lognormal, Variable",False,False
-"KDE, Uniform",False,True
+"KDE, Uniform",False,False
 "KDE, Variable",False,False
 "Normal, Uniform",False,True
 "Normal, Variable",False,False
