@@ -1,0 +1,2 @@
+n_datasets,same_closest_method_pct,median_within_dataset_rank_corr,mean_rank_order_w1,mean_rank_order_overlap,family_order_w1,family_order_overlap,corpus,weight_rho
+10000,68.75,0.8857142857142857,"KDE, Variable > KDE, Uniform > Lognormal, Variable > Lognormal, Uniform > Normal, Uniform > Normal, Variable","KDE, Variable > KDE, Uniform > Lognormal, Uniform > Lognormal, Variable > Normal, Uniform > Normal, Variable",KDE > Lognormal > Normal,KDE > Lognormal > Normal,2026-10-26,0.5
