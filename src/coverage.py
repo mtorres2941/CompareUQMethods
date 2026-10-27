@@ -418,6 +418,82 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
                                        'real_data_basis', 'synthetic_achieved'])
 
 
+def manuscript_table1(cfg, synthetic, parents, empirical, mixture_basis):
+    """Table 1 as the manuscript prints it: one row per generation parameter,
+    the value in the generator, and the empirical quantity its range rests on.
+
+    The short companion of `generation_parameter_table`, which is the full
+    record and goes to Supplement 1. Same inputs, so the two cannot disagree.
+    Achieved values appear only where the configured range would mislead a
+    reader on its own: overlap, and the coefficient of variation, whose target
+    reaches 16 while the true distributions reach about 2.
+    """
+    nstat = pd.to_numeric(empirical['n'])
+    cv_emp = _clean(empirical['coeffvar'])
+    cv_log = np.log10(cv_emp)
+    sk = _clean(empirical['skewness'])
+    ku = _clean(empirical['kurtosis'])
+    fams = [c['family'] for r in parents.values() for c in r['components']]
+    share = pd.Series(fams).value_counts(normalize=True) * 100
+    ov_a = [r['overlap_achieved'] for r in parents.values()]
+    cv_a = [r['cv_achieved'] for r in parents.values()]
+    def fam(name):
+        return f'{FAMILY_DISPLAY[name]} ({share.get(name, 0.0):.1f}%)'
+
+    rows = [
+        ('Dataset size (EPDs)',
+         '2,500 datasets in each of 3-9, 10-99, 100-999, and 1,000-9,999, '
+         'log-uniform within each range',
+         f'{int(nstat.min())} to {int(nstat.max()):,} EPDs per dataset, '
+         f'median {int(nstat.median())}'),
+        ('Number of components',
+         f'{cfg.k_min} to {cfg.k_max}, uniform',
+         f'{mixture_basis["multimodal_share"] * 100:.1f}% of the '
+         f'{mixture_basis["n_fitted"]} datasets with at least six EPDs have two '
+         'or more components when a Gaussian mixture is fitted by BIC'),
+        ('Component skewness',
+         f'{cfg.comp_skew_lo:g} to {cfg.comp_skew_hi:g}, uniform',
+         f'Dataset skewness of {sk.min():.3g} to {sk.max():.3g}, median '
+         f'{sk.median():.3g}'),
+        ('Component excess kurtosis',
+         f'{cfg.comp_exkurt_lo:g} to {cfg.comp_exkurt_hi:g}, uniform, raised to '
+         'the lowest feasible value where needed',
+         f'Dataset excess kurtosis of {ku.min():.3g} to {ku.max():,.0f}'),
+        ('Component type',
+         f'{fam("johnsonsu")}, {fam("betaprime")}, or {fam("beta")}, set by the '
+         "component's skewness and kurtosis",
+         'Not applicable'),
+        ('Component standard deviation, relative',
+         f'{10 ** cfg.comp_sd_log10_lo:.2g} to {10 ** cfg.comp_sd_log10_hi:.2g}, '
+         'log-uniform',
+         'Not applicable; each dataset is divided by its unweighted mean'),
+        ('Overlap between neighboring components',
+         f'{10 ** cfg.overlap_log10_lo:.2g} to {10 ** cfg.overlap_log10_hi:.2g}, '
+         f'log-uniform (achieved median {np.median(ov_a):.2f})',
+         'Matches the share of datasets with one, two, and three or more '
+         'visible modes'),
+        ('Coefficient of variation of the true distribution',
+         f'Normal in log10, mean {cfg.cv_log10_mean:.3f}, standard deviation '
+         f'{cfg.cv_log10_sd:.3f}, limited to {10 ** cfg.cv_log10_lo:.3g} to '
+         f'{10 ** cfg.cv_log10_hi:.3g} (achieved {min(cv_a):.3f} to '
+         f'{max(cv_a):.2f})',
+         f'Log10 mean of {cv_log.mean():.3f} and standard deviation of '
+         f'{cv_log.std():.3f}; range of {cv_emp.min():.3f} to {cv_emp.max():.2f}'),
+        ('Share of EPDs sampled from each component',
+         f'Dirichlet, concentration {cfg.mode_share_alpha:g}',
+         'Not observable'),
+        ('Market share of each component',
+         'Flat Dirichlet' if cfg.market_share_alpha == 1
+         else f'Dirichlet, concentration {cfg.market_share_alpha:g}',
+         'Not published'),
+        ('Truncation',
+         f'{cfg.trunc_iqr_mult:g} x IQR rule in log space',
+         'Same rule as for the empirical datasets'),
+    ]
+    return pd.DataFrame(rows, columns=['Parameter', 'Value in the generator',
+                                       'Basis in the empirical datasets'])
+
+
 # --------------------------------------------------------------------------
 def distribution_comparison(empirical, synthetic, metrics=ALL_METRICS):
     """Compare the DISTRIBUTION of each characteristic between the two arms.
