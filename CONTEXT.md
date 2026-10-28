@@ -1363,7 +1363,7 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 149 x 28 |
 | `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 9,999 x 37 |
 | `TABLE_MethodScores.csv` | NB2 | one row per (arm, dataset, method): W1, held-out W1, both ranks, model-spread ratio |
-| `TABLE_WeightingBySizeIntervals.csv` | NB2 | figure pass 2026-10-07: per size band and family, the median ratio of uniform-weight W1 to known-share W1 with its 95 pct bootstrap interval over datasets, which `FIG7_WeightingBySize` shades on each median. A `# TABLE` re-slice of `TABLE_MethodScores.csv` |
+| `TABLE_WeightingBySizeIntervals.csv` | NB2 | figure pass 2026-10-07: per size band and family, the median ratio of uniform-weight W1 to known-share W1 with its 95 pct bootstrap interval over datasets, which `FIG6_WeightingBySize` shades on each median. A `# TABLE` re-slice of `TABLE_MethodScores.csv` |
 | `TABLE_MethodSummary.csv` | NB2 | the six methods by arm, the table to read first |
 | `TABLE_MethodCurves.parquet` | NB2 | every score against every characteristic, unbinned, with the rolling mean the figures draw. **Parquet since Stage 3**: 4.0M rows of which five columns are repeated strings, 96.4 MB as csv.gz against 44.4 as parquet and 23x faster to read. Every float is still float64 |
 | `TABLE_BandwidthRules.csv` | NB2 | the two KDE methods under all three bandwidth rules |

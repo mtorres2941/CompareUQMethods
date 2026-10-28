@@ -199,7 +199,7 @@ printed; it used to shade 68 to 106, a fit-level band for the version of the
 rule needing market shares, computed with the tie test decision 224 retired
 (decision 258).
 
-Before: ![](../archive/figures/CompareUQMethods_FIG_WhenToUseWhich.png)
+Before: ![](../archive/figures/CompareUQMethods_FIG_WhenToUseWhich_beforeFigurePass.png)
 After: ![](../outputs/figures/CompareUQMethods_FIG5_WhenToUseWhich.png)
 
 *Caption.* Share of synthetic datasets on which each of the six UQ methods is

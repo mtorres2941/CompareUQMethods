@@ -270,9 +270,12 @@ Every image under `outputs/figures/` with the notebook that writes it and what
 it shows. Each file has a `.pdf` sibling of the same name; names are given here
 without the `CompareUQMethods_` prefix and the extension.
 
-**The nine main-text figures carry their manuscript number** -- `FIG1_` to
-`FIG9_` -- from the figure pass of 2026-10-07, when the figure selection was
-fixed (`reports/MANUSCRIPT_NARRATIVE.md` section 4). Every other `FIG_` and
+**The eight main-text figures carry their manuscript number** -- `FIG1_` to
+`FIG8_` -- from the figure pass of 2026-10-07, when the figure selection was
+fixed (`reports/MANUSCRIPT_NARRATIVE.md` section 4). On 2026-10-28 the author
+dropped the fit-level `FIG_WhenToUseWhich` from the main text, because the
+size rule is chosen on pLCA claim error, which `FIG5_MixedPolicy_SpreadZoom`
+shows directly, and the later figures moved up one number. Every other `FIG_` and
 `SUPP_` prefix records what the generating cell declares itself to be, not
 where the manuscript puts it. The supplement's twelve figures carry `SUPP1_` to
 `SUPP12_` (SUPP6 is three pages, one per material tier). Renaming is one word per cell -- `figstyle.savefig` takes a
@@ -313,7 +316,7 @@ in `archive/figures/`.
 | `FIG_Regret` | What it costs to use one method on every dataset instead of the best one for each |
 | `FIG_MethodByMaterial` | Which default to use, and what it costs, by material tier |
 | `SUPP6a`, `SUPP6b`, `SUPP6c_AllEmpiricalFits_<tier>` | Every real category with all six fitted models |
-| `FIG7_WeightingBySize` | When knowing a market share starts to help: per dataset, the error ignoring the true shares over the error using them, by size band, with the 95 pct interval of each band's median and the real categories' own sizes underneath |
+| `FIG6_WeightingBySize` | When knowing a market share starts to help: per dataset, the error ignoring the true shares over the error using them, by size band, with the 95 pct interval of each band's median and the real categories' own sizes underneath |
 
 ### Notebook 3 - the probabilistic LCA
 
@@ -332,17 +335,17 @@ in `archive/figures/`.
 | `SUPP8_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
 | `FIG3_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule, on the median per-case error; thin boxes mark cells noise cannot separate from their row's best |
 | `SUPP7_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
-| `FIG6_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
+| `FIG5_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
 | `SUPP9_MixedPolicy` | The same cutoff sweep on each statistic alone, (a) ratio of means and (b) median |
-| `FIG8_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
-| `FIG9_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |
+| `FIG7_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
+| `FIG8_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |
 | `FIG_GraphicalAbstract` | The graphical abstract |
 
 ### Notebook 4 - which characteristics decide
 
 | File | What it shows |
 |---|---|
-| `FIG5_WhenToUseWhich` | Which method is closest to the truth, against category size |
+| `FIG_WhenToUseWhich` | Which method is closest to the truth, against category size. Not in the manuscript |
 | `SUPP10_ChoiceDrivers` | Whether dataset size is enough on its own |
 | `SUPP_RollingVersusBinned_{Empirical,Synthetic}` | The rolling average against its replacement, kept so the two can be compared |
 

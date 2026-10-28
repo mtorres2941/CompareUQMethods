@@ -396,12 +396,12 @@ paragraph. The graphical abstract (section 6) is separate and not counted.
 | 1 | `FIG2_PDFandCDFofUQMethods` | what the methods ARE; 2 |
 | 2 | `FIG1_MetricCoverage` | generalizability |
 | 3 | `FIG3_ClaimScorecard` | 1, 6, 9, 10 |
-| 4 | `FIG6_MixedPolicy_SpreadZoom` | 3, 4 |
-| 5 | `FIG5_WhenToUseWhich` | 8, 11 |
-| 6 | `FIG8_BuildingDominance` (sorted dots) | 7 |
-| 7 | `FIG7_WeightingBySize` (box plus strip) | 5 |
+| 4 | `FIG5_MixedPolicy_SpreadZoom` | 3, 4 |
+| 5 | `FIG_WhenToUseWhich` | 8, 11 |
+| 6 | `FIG7_BuildingDominance` (sorted dots) | 7 |
+| 7 | `FIG6_WeightingBySize` (box plus strip) | 5 |
 | 8 | `FIG4_ShapePlane` | 2 |
-| 9 | `FIG9_Building138` | the worked example, section 5 |
+| 9 | `FIG8_Building138` | the worked example, section 5 |
 
 ### Figure 1 -- the six methods on one real category
 `FIG2_PDFandCDFofUQMethods`
@@ -530,10 +530,10 @@ choice moves a material's estimated contribution by 12 percent": for a typical
 building it moves it by 5 and for one in ten by more than 34.
 
 ### Figure 4 -- the rule, and what market-share data would buy. CHOSEN: ZOOM PLUS SPREAD
-`FIG6_MixedPolicy_SpreadZoom` in the main text; `SUPP9_MixedPolicy`, panels
+`FIG5_MixedPolicy_SpreadZoom` in the main text; `SUPP9_MixedPolicy`, panels
 (a) ratio of means and (b) median, in the supplement
 
-![](../outputs/figures/CompareUQMethods_FIG6_MixedPolicy_SpreadZoom.png)
+![](../outputs/figures/CompareUQMethods_FIG5_MixedPolicy_SpreadZoom.png)
 
 **Caption.** Error of the size rule (kernel density estimate at or above the
 cutoff, three-parameter lognormal below, uniform weights; orange) and of the
@@ -573,9 +573,9 @@ are distinguishably worse under both. **Print 40 to 170.**
 ![](../outputs/figures/CompareUQMethods_SUPP9_MixedPolicy.png)
 
 ### Figure 5 -- which method is closest, by category size
-`FIG5_WhenToUseWhich`
+`FIG_WhenToUseWhich`
 
-![](../outputs/figures/CompareUQMethods_FIG5_WhenToUseWhich.png)
+![](../outputs/figures/CompareUQMethods_FIG_WhenToUseWhich.png)
 
 **Caption.** Share of synthetic datasets on which each of the six UQ methods
 is closest to the market-weighted parent (W1), in a window of 800 datasets
@@ -601,9 +601,9 @@ could check, which is the case for following the size rule rather than trying
 to judge each category. That is the paper's framing for takeaways 8 and 11.
 
 ### Figure 6 -- where real buildings sit on the safe-lead axis. CHOSEN: SORTED DOTS
-`FIG8_BuildingDominance`
+`FIG7_BuildingDominance`
 
-![](../outputs/figures/CompareUQMethods_FIG8_BuildingDominance.png)
+![](../outputs/figures/CompareUQMethods_FIG7_BuildingDominance.png)
 
 **Caption.** The 292 North American buildings of Benke et al. (2025), A1-A3,
 sorted by the ratio of the largest material's emissions to the second largest
@@ -637,9 +637,9 @@ figure redraws from a clean clone (the pattern decision 31 set). The threshold
 is calibrated at four materials and these buildings hold a median of 37.
 
 ### Figure 7 -- when market shares start to help. CHOSEN: BOX PLUS STRIP
-`FIG7_WeightingBySize`
+`FIG6_WeightingBySize`
 
-![](../outputs/figures/CompareUQMethods_FIG7_WeightingBySize.png)
+![](../outputs/figures/CompareUQMethods_FIG6_WeightingBySize.png)
 
 **Caption.** For each synthetic dataset, the W1 of a fit with uniform weights
 divided by the W1 of the same family fitted with the true market shares, both
@@ -786,7 +786,7 @@ the cell has its own fixed-seed stream, decision 254):
 seven policies, beside the uncertainty index per method.** The shared kgCO2e
 axis shows which material leads; the dots show that the uncertainty does not
 follow the same order. 
-![](../outputs/figures/CompareUQMethods_FIG9_Building138.png)
+![](../outputs/figures/CompareUQMethods_FIG8_Building138.png)
 
 **Caption.** Building 138 of Benke et al. (2025), a multifamily residential
 building in Oregon: its seven largest materials, mapped to EC3 categories, rows
@@ -809,7 +809,7 @@ would only decide which of two near-equal numbers is larger. The bars do not
 include the uncertainty from fitting each model to its EPDs, which is not
 measured here. `TABLE_Building138UIInterval.csv`.
 
-**Chosen by the author: by contribution** (`FIG9_Building138`). The
+**Chosen by the author: by contribution** (`FIG8_Building138`). The
 uncertainty-index ordering is in `archive/figures/`.
 
 **The honest caveats.** The concrete is lightweight and the categories split by
@@ -846,7 +846,7 @@ the equal-intensity run was dropped by the author (section 5).
 
 ### 1. Every figure design is settled
 
-Figure 4: zoom plus spread (`FIG6_MixedPolicy_SpreadZoom`), with the two
+Figure 4: zoom plus spread (`FIG5_MixedPolicy_SpreadZoom`), with the two
 single-statistic versions in the supplement. Figure 6: sorted dots. Figure 7:
 box plus strip. Building 138: the ridgeline by contribution. The graphical
 abstract: three panels, tightened. Figure 5 stays. Every unchosen design is in
