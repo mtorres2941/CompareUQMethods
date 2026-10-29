@@ -361,13 +361,14 @@ data-collection argument, which the measurements support in this order:**
 5. An industry-average EPD would be the one published production-weighted number,
    and the frozen extract contains none -- all 120,280 records are product EPDs
    (decision 176). A concrete ask of the EPD programs.
-6. **More EPDs alone stops helping.** Above 100 EPDs a
-   uniform-weighted fit's error against the market-weighted truth levels off
-   near 0.1 (0.097 at 100 to 999, 0.084 above 1,000), about the distance between
-   the population that publishes and the population that gets built (0.099).
-   With market weights the same error keeps falling, from 0.076 to 0.029. More
-   EPDs alone do not close that gap; share information does (decision 219,
-   `outputs/tables/audits/TABLE_BandwidthNeff.csv`).
+6. **More EPDs alone stops helping.** With uniform weights the median claim
+   error of KDE levels off near 17% above 300 EPDs (17.0% at 300 to 999, 17.2%
+   above 1,000); with market weights it keeps falling, to 13.1% and then 11.2%.
+   The lognormal behaves the same way (18.4% and 18.8% against 13.9% and
+   13.4%). More EPDs alone do not close that gap; share information does. These
+   are our medians over `outputs/tables/TABLE_WeightingBySizeClaims.csv`
+   (columns `claim_error_uniform` and `claim_error_market`, by `family` and
+   size band); decision 219 found the same plateau at the fit level.
 
 Plus the remedies the paper names without adopting: upper truncation (decision
 199) and the rule's own limits (decision 205).
@@ -946,9 +947,9 @@ is fixed. Do them once, on these ten figures and no others:
     9   FIG_Building138               notebook 3 cell 117
     GA  FIG_GraphicalAbstract         notebook 3 cell 118
 
-Status is from `outputs/tables/audits/TABLE_FigureStyleCompliance.csv`, which
-does not yet cover cells 114, 117 and 118; re-run `python audits/figure_manifest.py`
-first. Cell numbers shift when cells are added, so find each by its stem.
+Status comes from `python audits/figure_manifest.py`, which writes
+`TABLE_FigureStyleCompliance.csv` under the untracked `outputs/tables/audits/`;
+re-run it before relying on it. Cell numbers shift when cells are added, so find each by its stem.
 
 **a. Number them.** `figstyle.savefig` takes a stem, so a number is one word
 per cell (decision 235). Archive each old file to `archive/figures/` with its

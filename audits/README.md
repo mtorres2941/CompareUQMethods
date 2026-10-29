@@ -18,4 +18,6 @@ Run from the repository root, with the pinned environment:
 
     conda run -n compareuq python audits/bandwidth_rules.py
 
-Tables land in `outputs/tables/audits/`.
+Tables land in `outputs/tables/audits/`, which is not tracked. An audit's
+output describes the corpus as it stood when its decision was made; re-run the
+script to see it on the current one. The manuscript quotes none of them.
