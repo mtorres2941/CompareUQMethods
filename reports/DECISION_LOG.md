@@ -9309,3 +9309,56 @@ rather than in conversation.
      --into-outputs --only "when knowing the market shares"` after the table
      cell, and `TABLE_WeightingBySizeClaimIntervals.csv`.
 
+
+262. **2026-10-29, MANUSCRIPT. THE ALTERNATIVES THE DISCUSSION ANSWERS ARE
+     SCORED ON THE CLAIMS, AND THE SIZE RULE'S LIMITS ARE RE-MEASURED ON THE
+     RULE THE PAPER RECOMMENDS.** Section 4.1 had to quote the other
+     distribution types and bandwidth rules, and Section 4.4 the upper
+     truncation, from audits run on an earlier corpus with W1 as the score.
+     They are now scored in notebook 3 on the fifteen claims, against the
+     true distributions of the current corpus (2026-10-26, weight_rho 0.5).
+
+     Added, under uniform and market weights: the two-parameter lognormal,
+     gamma, Weibull, KDE with Scott's rule and KDE with Silverman's rule
+     unguarded; under uniform weights, the lognormal and KDE capped at 2 and
+     3 times the largest EPD. Not added: a cross-validated bandwidth (hours of
+     compute, and the criterion the guard was calibrated on). Every added
+     method starts from copies of the main run's streams, so the seven
+     published methods come back bit-identical (asserted, difference 0.0 on
+     all four frames), and no published table or figure changed in content.
+
+     Pooled median error over the fifteen claims, uniform weights, with the
+     paired difference from KDE: KDE 17.53; Silverman unguarded 17.46
+     (-0.07, -0.14 to 0.00); caps at 2x and 3x 17.53 (0.00); Scott 18.21
+     (+0.67, 0.53 to 0.80); three-parameter lognormal 18.39; gamma 19.01;
+     Weibull 20.34; two-parameter lognormal 22.96 (+5.43, 5.11 to 5.75);
+     normal 26.45. Above 1,000 EPDs (mean over the seven per-material claims)
+     the two-parameter lognormal is at 23.6 against 14.2 for KDE.
+
+     Decision 205's limits, re-measured on the size rule with uniform weights
+     at 80 EPDs: in the 117 groups whose four materials all sit below the
+     cutoff and the 173 all above it the rule is never strictly best of the
+     four practical options but is within noise of the best on 13 and 14 of 14
+     claims; in the 2,210 straddling groups it is best on 7 of 14 and within
+     noise on all 14. Signed error of the building total's mean, median over
+     pLCAs: rule -2.00 pct, lognormal -3.09, KDE -0.31, normal +8.37. The
+     other two limits of decision 205 are not re-measured: the hindsight
+     ceiling is the 17.2 pct floor of Section 3.1, and the argmax limit went
+     with the old claim definitions.
+
+     Fix found on the way: `families.fit_weibull_mle` overflowed (NaN score)
+     when market weights sat almost entirely on one EPD (dataset649); x^c is
+     now computed relative to the largest x, which leaves the fit unchanged
+     wherever it previously converged.
+
+     The 116 untracked files in `outputs/tables/audits/`, almost all from
+     earlier corpora, were deleted; the scripts remain. Item 6 of the
+     narrative's data-collection argument now quotes claim error from
+     `TABLE_WeightingBySizeClaims.csv`.
+
+     **Moved numbers: none.**
+
+     Reproduce: notebook 3 cells `alt-methods-run`, then
+     `python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables` for
+     `TABLE_AltMethodIntervals.csv`, `TABLE_ClaimScorecardAltMethods.csv` and
+     `TABLE_SizeRuleLimits.csv`.

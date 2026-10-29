@@ -1,0 +1,247 @@
+panel,row,method,point,lo,hi,best_four,diff_lo_four,diff_hi_four,tie_four,subset,n_plca,ratio_of_sums,mean_abs,corpus,weight_rho,mixed_threshold
+composition,the total: its mean,"KDE, Uniform",0.10168359308852835,0.07888105901076921,0.1385756009734222,"Lognormal, Uniform",-0.015321910636893348,0.03329677017650512,True,all below,117,,,2026-10-26,0.5,80
+composition,the total: its mean,"Lognormal, Uniform",0.09636751698181299,0.08133296737602974,0.11402006968268051,"Lognormal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,the total: its mean,"Normal, Uniform",0.12241061740867966,0.09610403216598493,0.150712776818883,"Lognormal, Uniform",-0.001009090086854667,0.0558869484546365,True,all below,117,,,2026-10-26,0.5,80
+composition,the total: its mean,"size rule
+(uniform)",0.09636751698181299,0.08133296737602974,0.11402006968268051,"Lognormal, Uniform",0.0,0.0,True,all below,117,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"KDE, Uniform",0.3140187128608306,0.262341071716992,0.3675022174505128,"Lognormal, Uniform",-0.028065886016226112,0.06505910715999931,True,all below,117,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"Lognormal, Uniform",0.29168431115937393,0.23911005543509886,0.36115277604625734,"Lognormal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"Normal, Uniform",0.4041517883989102,0.34439897440901057,0.4717119259872671,"Lognormal, Uniform",0.0659568968703116,0.1646793763003349,False,all below,117,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"size rule
+(uniform)",0.29168431115937393,0.23911005543509886,0.36115277604625734,"Lognormal, Uniform",0.0,0.0,True,all below,117,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"KDE, Uniform",0.13635715468539994,0.10575259030652048,0.17647228259082054,"Lognormal, Uniform",-0.03233777976069502,0.03650982729410092,True,all below,117,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"Lognormal, Uniform",0.126600105493218,0.10684045906005255,0.19788661370343752,"Lognormal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"Normal, Uniform",0.15459322872361583,0.12000144206484387,0.19584341291875837,"Lognormal, Uniform",-0.016527950507635412,0.05190866802270304,True,all below,117,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"size rule
+(uniform)",0.126600105493218,0.10684045906005255,0.19788661370343752,"Lognormal, Uniform",0.0,0.0,True,all below,117,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"KDE, Uniform",0.08022222222222211,0.06688888888888889,0.09244444444444433,"Lognormal, Uniform",-0.0006138888888888293,0.026113888888888926,True,all below,117,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"Lognormal, Uniform",0.06888888888888878,0.053594444444444445,0.08066666666666666,"Lognormal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"Normal, Uniform",0.104,0.09399999999999999,0.10749999999999998,"Lognormal, Uniform",0.02366527777777767,0.04766944444444454,False,all below,117,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"size rule
+(uniform)",0.06888888888888878,0.053594444444444445,0.08066666666666666,"Lognormal, Uniform",0.0,0.0,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"KDE, Uniform",0.1433099650239577,0.1221364651071499,0.1692248247355329,"Lognormal, Uniform",-0.014252956134614218,0.016695068819854747,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"Lognormal, Uniform",0.14237893187743578,0.12697676457708468,0.1663744271208009,"Lognormal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"Normal, Uniform",0.16853463751794212,0.14051109186244964,0.19240698167205256,"Lognormal, Uniform",0.004183102312569407,0.04534437779476763,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"size rule
+(uniform)",0.14237893187743578,0.12697676457708468,0.1663744271208009,"Lognormal, Uniform",0.0,0.0,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"KDE, Uniform",0.29913331805031024,0.2803031126524231,0.33426162726638453,"KDE, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"Lognormal, Uniform",0.3214444866316424,0.29006472809385375,0.3539804051322657,"KDE, Uniform",-0.0057317904543782725,0.04579459736234848,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"Normal, Uniform",0.3475274667285142,0.32074436992158945,0.3817576471083977,"KDE, Uniform",0.022465808048302234,0.0707590531882083,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"size rule
+(uniform)",0.3214444866316424,0.29006472809385375,0.3539804051322657,"KDE, Uniform",-0.0057317904543782725,0.04579459736234848,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"KDE, Uniform",0.2185481706024831,0.18579138156683675,0.24737615445867756,"Lognormal, Uniform",-0.027111073889023292,0.025481275593905926,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"Lognormal, Uniform",0.21264197466755233,0.187533721509637,0.25375840347128664,"Lognormal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"Normal, Uniform",0.2192561744931747,0.19513218241505045,0.2475887854699975,"Lognormal, Uniform",-0.023063562462124067,0.026221507894225754,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"size rule
+(uniform)",0.21264197466755233,0.187533721509637,0.25375840347128664,"Lognormal, Uniform",0.0,0.0,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"KDE, Uniform",0.1327663085944183,0.11370874464785607,0.15238714901660802,"Lognormal, Uniform",-0.0008294534108016653,0.024763358939639164,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"Lognormal, Uniform",0.12069434294104786,0.1055699092756417,0.1340903762268078,"Lognormal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"Normal, Uniform",0.1541159486349591,0.13610968191160927,0.17543752925738368,"Lognormal, Uniform",0.019691070473922625,0.051102911266990944,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"size rule
+(uniform)",0.12069434294104786,0.1055699092756417,0.1340903762268078,"Lognormal, Uniform",0.0,0.0,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"KDE, Uniform",0.3241815400008029,0.29639552198452923,0.37034306113843096,"Normal, Uniform",-0.02369612712777197,0.030876193164139493,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"Lognormal, Uniform",0.3106259913265407,0.2784430417723927,0.36242723294806095,"Normal, Uniform",-0.03534712323614877,0.02605963458227451,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"Normal, Uniform",0.30962580678438434,0.2822876214457088,0.3609196294097629,"Normal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"size rule
+(uniform)",0.3106259913265407,0.2784430417723927,0.36242723294806095,"Normal, Uniform",-0.03534712323614877,0.02605963458227451,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"KDE, Uniform",0.36181561996779377,0.33537624007316047,0.3884065478657273,"KDE, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"Lognormal, Uniform",0.3726159002052486,0.3258258258258256,0.41091593475533256,"KDE, Uniform",-0.027657855596049656,0.04489150511972488,True,all below,117,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"Normal, Uniform",0.48149801368572537,0.44299112582379546,0.5263653483992465,"KDE, Uniform",0.09016736992551769,0.15352149813111074,False,all below,117,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"size rule
+(uniform)",0.3726159002052486,0.3258258258258256,0.41091593475533256,"KDE, Uniform",-0.027657855596049656,0.04489150511972488,True,all below,117,,,2026-10-26,0.5,80
+composition,the uncertainty index,"KDE, Uniform",0.6626224052818788,0.5817607120242527,0.7480921147175379,"Normal, Uniform",-0.002345011874990207,0.07898001156270458,True,all below,117,,,2026-10-26,0.5,80
+composition,the uncertainty index,"Lognormal, Uniform",0.6664717328800345,0.5842111202712806,0.7312884958062993,"Normal, Uniform",-0.03182055398734368,0.09532206516052888,True,all below,117,,,2026-10-26,0.5,80
+composition,the uncertainty index,"Normal, Uniform",0.6317060510677523,0.5436673640825446,0.7244333326276067,"Normal, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,the uncertainty index,"size rule
+(uniform)",0.6664717328800345,0.5842111202712806,0.7312884958062993,"Normal, Uniform",-0.03182055398734368,0.09532206516052888,True,all below,117,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"KDE, Uniform",0.3263338039618363,0.29686301152901,0.3606847051327995,"KDE, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"Lognormal, Uniform",0.35518167041682724,0.31009063463799197,0.3928880431712426,"KDE, Uniform",-0.013066572143378852,0.06263786970924771,True,all below,117,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"Normal, Uniform",0.4474684758195852,0.40030180590443154,0.4942104629287198,"KDE, Uniform",0.07513602187210813,0.16033032764685023,False,all below,117,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"size rule
+(uniform)",0.35518167041682724,0.31009063463799197,0.3928880431712426,"KDE, Uniform",-0.013066572143378852,0.06263786970924771,True,all below,117,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"KDE, Uniform",0.3984531661766513,0.3457285701844368,0.44467248073310045,"KDE, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"Lognormal, Uniform",0.44579424287706393,0.39706024439400744,0.49304973369128463,"KDE, Uniform",0.009344667313488415,0.08753515498537745,False,all below,117,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"Normal, Uniform",0.5311110396171312,0.4886596649249315,0.574428785129756,"KDE, Uniform",0.09254918304788914,0.17104491976409003,False,all below,117,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"size rule
+(uniform)",0.44579424287706393,0.39706024439400744,0.49304973369128463,"KDE, Uniform",0.009344667313488415,0.08753515498537745,False,all below,117,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"KDE, Uniform",0.33964912280701753,0.30218568277521557,0.3761854125613761,"KDE, Uniform",0.0,0.0,False,all below,117,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"Lognormal, Uniform",0.36798280956218105,0.33068482204109306,0.4108674928503334,"KDE, Uniform",-0.010564678074030592,0.07101499891271322,True,all below,117,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"Normal, Uniform",0.48427245983254125,0.419986593594859,0.5279791243838794,"KDE, Uniform",0.09563671870661207,0.18870495465573636,False,all below,117,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"size rule
+(uniform)",0.36798280956218105,0.33068482204109306,0.4108674928503334,"KDE, Uniform",-0.010564678074030592,0.07101499891271322,True,all below,117,,,2026-10-26,0.5,80
+composition,the total: its mean,"KDE, Uniform",0.04619127239292347,0.03890407969743978,0.05541775816541258,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,the total: its mean,"Lognormal, Uniform",0.04648055987927523,0.034509221529576216,0.055943863958771184,"KDE, Uniform",-0.006999871462262428,0.007710027701289194,True,all above,173,,,2026-10-26,0.5,80
+composition,the total: its mean,"Normal, Uniform",0.1360819970801898,0.12424188542101611,0.16204543392236012,"KDE, Uniform",0.0769505748296264,0.11545851868182291,False,all above,173,,,2026-10-26,0.5,80
+composition,the total: its mean,"size rule
+(uniform)",0.04619127239292347,0.03890407969743978,0.05541775816541258,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"KDE, Uniform",0.09794895241644201,0.08065057456823581,0.1270010539306775,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"Lognormal, Uniform",0.14224710966783005,0.1219676909157694,0.18335229688588192,"KDE, Uniform",0.015796253044714402,0.07591658757811937,False,all above,173,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"Normal, Uniform",0.18950134018385578,0.1595161730495318,0.21004129262156604,"KDE, Uniform",0.05188371497521198,0.11417099213823183,False,all above,173,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"size rule
+(uniform)",0.09794895241644201,0.08065057456823581,0.1270010539306775,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"KDE, Uniform",0.06030020200759882,0.04916001568365254,0.07145086513440736,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"Lognormal, Uniform",0.0641057506672699,0.046655439043980715,0.07372117672124112,"KDE, Uniform",-0.01057252617933735,0.011940584048034863,True,all above,173,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"Normal, Uniform",0.08071467698578842,0.06427821666077715,0.09578220333457964,"KDE, Uniform",0.002718379527549904,0.03558710720349992,False,all above,173,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"size rule
+(uniform)",0.06030020200759882,0.04916001568365254,0.07145086513440736,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"KDE, Uniform",0.02922222222222211,0.024327777777777775,0.03528472222222213,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"Lognormal, Uniform",0.03522222222222211,0.027666666666666666,0.04111111111111106,"KDE, Uniform",0.00022222222222233312,0.011277777777777777,False,all above,173,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"Normal, Uniform",0.07344444444444445,0.059055555555555556,0.0981194444444443,"KDE, Uniform",0.029222222222222226,0.0679999999999999,False,all above,173,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"size rule
+(uniform)",0.02922222222222211,0.024327777777777775,0.03528472222222213,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"KDE, Uniform",0.047849980651721996,0.042502714182391405,0.057496453635747305,"Lognormal, Uniform",-0.0036396722940768207,0.006757022838201412,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"Lognormal, Uniform",0.0466508694805572,0.03989260743397371,0.05529109530117222,"Lognormal, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"Normal, Uniform",0.1303547441754012,0.11137129918845264,0.14963327560368186,"Lognormal, Uniform",0.06528898079003691,0.10005414366360806,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"size rule
+(uniform)",0.047849980651721996,0.042502714182391405,0.057496453635747305,"Lognormal, Uniform",-0.0036396722940768207,0.006757022838201412,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"KDE, Uniform",0.11210392658048143,0.09662563677734817,0.1280702167500636,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"Lognormal, Uniform",0.13406351557632282,0.12261544117453212,0.14724001217667054,"KDE, Uniform",0.007539303346950245,0.03798265699058702,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"Normal, Uniform",0.17666512690225677,0.16598349768583331,0.19327271119453904,"KDE, Uniform",0.045502791397230756,0.0846912549350256,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"size rule
+(uniform)",0.11210392658048143,0.09662563677734817,0.1280702167500636,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"KDE, Uniform",0.07416352046433133,0.06575421980446575,0.08486572742522804,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"Lognormal, Uniform",0.08179912535736689,0.07431337850027615,0.09324308586915442,"KDE, Uniform",-0.000443152989239734,0.016312457566934,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"Normal, Uniform",0.0874358404232709,0.07680298308007685,0.09762604073340282,"KDE, Uniform",0.0044797338050067085,0.02074512232902044,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"size rule
+(uniform)",0.07416352046433133,0.06575421980446575,0.08486572742522804,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"KDE, Uniform",0.053604306356691035,0.048367835030600534,0.06096665597525896,"Lognormal, Uniform",-0.0017880031685293864,0.0046748782458757646,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"Lognormal, Uniform",0.05282811539106069,0.045937748491824075,0.05953580922435233,"Lognormal, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"Normal, Uniform",0.11147362204436943,0.10140797117994345,0.12026157705036354,"Lognormal, Uniform",0.047681235878879874,0.06789501392532114,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"size rule
+(uniform)",0.053604306356691035,0.048367835030600534,0.06096665597525896,"Lognormal, Uniform",-0.0017880031685293864,0.0046748782458757646,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"KDE, Uniform",0.12667051682740843,0.11553493294599193,0.13938226581823915,"Normal, Uniform",-0.007466433681134925,0.01241843423977231,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"Lognormal, Uniform",0.1290170776666431,0.11687071014642221,0.1382706767741815,"Normal, Uniform",-0.006413319807583785,0.014710834815195676,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"Normal, Uniform",0.12340245280070977,0.11382300029213606,0.13473712605932814,"Normal, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"size rule
+(uniform)",0.12667051682740843,0.11553493294599193,0.13938226581823915,"Normal, Uniform",-0.007466433681134925,0.01241843423977231,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"KDE, Uniform",0.14964587714415145,0.13685272360457296,0.17388433896038763,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"Lognormal, Uniform",0.15622821273519297,0.1341618493827174,0.1718495131081078,"KDE, Uniform",-0.011999030616096763,0.015504964667626207,True,all above,173,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"Normal, Uniform",0.3512101919005975,0.32354668518399354,0.3850997691783672,"KDE, Uniform",0.1674340341658719,0.23283039803075856,False,all above,173,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"size rule
+(uniform)",0.14964587714415145,0.13685272360457296,0.17388433896038763,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,the uncertainty index,"KDE, Uniform",0.25186937776295304,0.23157475603433295,0.26650086206654017,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,the uncertainty index,"Lognormal, Uniform",0.2733459514210377,0.23385450992843335,0.3074405689437888,"KDE, Uniform",-0.009941966850459123,0.056164349468665484,True,all above,173,,,2026-10-26,0.5,80
+composition,the uncertainty index,"Normal, Uniform",0.2584341942126556,0.2345983519175238,0.2853118913048436,"KDE, Uniform",-0.01246094625139682,0.02744683370941812,True,all above,173,,,2026-10-26,0.5,80
+composition,the uncertainty index,"size rule
+(uniform)",0.25186937776295304,0.23157475603433295,0.26650086206654017,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"KDE, Uniform",0.15248085758972124,0.13391984359726294,0.1741377216732987,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"Lognormal, Uniform",0.16830075144358086,0.15417387583935513,0.19112818668156517,"KDE, Uniform",-0.0011662812182911982,0.03867003738469868,True,all above,173,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"Normal, Uniform",0.6132057382520848,0.5724246664890688,0.6625984251968504,"KDE, Uniform",0.4194027339100971,0.5103839324142164,False,all above,173,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"size rule
+(uniform)",0.15248085758972124,0.13391984359726294,0.1741377216732987,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"KDE, Uniform",0.18296495953948844,0.15811387727976717,0.20230368070925192,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"Lognormal, Uniform",0.18560826290761928,0.17026383649762047,0.21545613584380782,"KDE, Uniform",-0.013086016517009852,0.024094586474086355,True,all above,173,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"Normal, Uniform",0.3495730179545471,0.32486991162537243,0.38110330237838663,"KDE, Uniform",0.13654069054878007,0.20608632428987542,False,all above,173,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"size rule
+(uniform)",0.18296495953948844,0.15811387727976717,0.20230368070925192,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"KDE, Uniform",0.16411054961413374,0.14442815249266827,0.18639053254437868,"KDE, Uniform",0.0,0.0,False,all above,173,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"Lognormal, Uniform",0.1737023674069355,0.15433041886597315,0.2051194945189584,"KDE, Uniform",-0.01277871596506913,0.035721888104851385,True,all above,173,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"Normal, Uniform",0.6135207985940021,0.565523306948109,0.6563992368427467,"KDE, Uniform",0.39683980846870653,0.4926908957447292,False,all above,173,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"size rule
+(uniform)",0.16411054961413374,0.14442815249266827,0.18639053254437868,"KDE, Uniform",0.0,0.0,True,all above,173,,,2026-10-26,0.5,80
+composition,the total: its mean,"KDE, Uniform",0.07071420450099433,0.06755587553406468,0.0751824331865361,"size rule
+(uniform)",-0.0007599259399680737,0.004972662206801615,True,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its mean,"Lognormal, Uniform",0.07021736185512632,0.06600297019573584,0.07363841274461384,"size rule
+(uniform)",-0.0007078659726307644,0.002828970078676087,True,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its mean,"Normal, Uniform",0.10875202237306478,0.10357267065509294,0.11385232145733297,"size rule
+(uniform)",0.03396529417098897,0.045354977567007564,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its mean,"size rule
+(uniform)",0.06919001908936398,0.06544684778783513,0.07198855555236447,"size rule
+(uniform)",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"KDE, Uniform",0.17991265134863746,0.17235294805513962,0.18730137892400128,"size rule
+(uniform)",-0.0018389539880556,0.011189738050591178,True,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"Lognormal, Uniform",0.22041933113937812,0.21234418659658377,0.22909298387040772,"size rule
+(uniform)",0.038293552778500814,0.05226978480487527,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"Normal, Uniform",0.29720093402240566,0.28831231800195706,0.3056305663375209,"size rule
+(uniform)",0.11385033335763438,0.1301692464615361,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its standard deviation,"size rule
+(uniform)",0.1747171237344537,0.1676230956509542,0.1845949696586612,"size rule
+(uniform)",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"KDE, Uniform",0.09499002039610152,0.08970680090993532,0.10047005415023229,"size rule
+(uniform)",0.0017890974376285889,0.010141388422468211,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"Lognormal, Uniform",0.09172029473024683,0.08771942328763158,0.09700283677526589,"size rule
+(uniform)",-0.0002751098502509302,0.005906400301834383,True,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"Normal, Uniform",0.09862595591178354,0.0936886083902781,0.1043248896585165,"size rule
+(uniform)",0.00433060631046099,0.015371633903753507,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the total: its 90th percentile,"size rule
+(uniform)",0.08885631256430454,0.08361689281371723,0.0946177009759515,"size rule
+(uniform)",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"KDE, Uniform",0.05194444444444439,0.04949861111111099,0.05466666666666667,"size rule
+(uniform)",0.005666666666666667,0.009555555555555562,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"Lognormal, Uniform",0.049166666666666664,0.047055555555555496,0.052113888888888814,"size rule
+(uniform)",0.003554166666666554,0.006444444444444447,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"Normal, Uniform",0.08077777777777767,0.07777777777777765,0.08477777777777766,"size rule
+(uniform)",0.033554166666666545,0.03989027777777788,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the chance of meeting a budget,"size rule
+(uniform)",0.044444444444444384,0.042166666666666616,0.04633333333333333,"size rule
+(uniform)",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"KDE, Uniform",0.0854405330051072,0.08163531071267316,0.08880838638230963,"Lognormal, Uniform",-0.0003061661104467123,0.0037919392394372303,True,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"Lognormal, Uniform",0.08340884655379685,0.08058331125062951,0.08702732371168172,"Lognormal, Uniform",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"Normal, Uniform",0.13643813306421002,0.1317751582216161,0.14209117774177363,"Lognormal, Uniform",0.04893520020295326,0.058316765974663246,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its mean contribution,"size rule
+(uniform)",0.08466218171723644,0.08153773998049291,0.08857425127902396,"Lognormal, Uniform",-2.3266724318461018e-05,0.0029875880005702108,True,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"KDE, Uniform",0.18693105147652653,0.1800018332394268,0.19300718365885153,"KDE, Uniform",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"Lognormal, Uniform",0.20587038154234535,0.20070413985667368,0.21240397932894517,"KDE, Uniform",0.013855967891500426,0.02548477877004651,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"Normal, Uniform",0.23820234835502663,0.23197198727001664,0.24431655673175962,"KDE, Uniform",0.04511106493687822,0.057363690981918486,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its standard deviation,"size rule
+(uniform)",0.19004404424338253,0.18408424723924602,0.19664220354382325,"KDE, Uniform",-0.0006658065664300612,0.007713539822240589,True,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"KDE, Uniform",0.1207822474355747,0.11682762132185433,0.12574347054444238,"size rule
+(uniform)",0.0006262926455594065,0.006196514959562261,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"Lognormal, Uniform",0.12540445901258934,0.12081181156561374,0.12999599313466456,"size rule
+(uniform)",0.004997131856946705,0.0104413118730908,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"Normal, Uniform",0.12583645909176788,0.12104581583723914,0.13041236773610076,"size rule
+(uniform)",0.004387376208371517,0.0118674320375096,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its 95th percentile,"size rule
+(uniform)",0.1176705605197534,0.11299539623521834,0.12198014005958825,"size rule
+(uniform)",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"KDE, Uniform",0.09275138842656233,0.08952991988146673,0.09590152727101162,"Lognormal, Uniform",-0.0006260275909162179,0.0032836323272118586,True,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"Lognormal, Uniform",0.09141033285217562,0.08835011060548127,0.0944743669452931,"Lognormal, Uniform",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"Normal, Uniform",0.1280118149851467,0.1242080588885951,0.13158108588138653,"Lognormal, Uniform",0.032786115106413674,0.039928686073422696,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its share of the total,"size rule
+(uniform)",0.09230008788187498,0.08920664782246891,0.0951952941959935,"Lognormal, Uniform",-2.2431324445089382e-05,0.0018411569827924625,True,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"KDE, Uniform",0.20822824414647567,0.20085557482445318,0.21699322177404298,"size rule
+(uniform)",0.00856024452693221,0.018996841612955815,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"Lognormal, Uniform",0.20339921659335275,0.19500332199198636,0.21179552393703013,"size rule
+(uniform)",0.0043269952056645385,0.013014395702659167,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"Normal, Uniform",0.2095015600694019,0.20277138079075616,0.2185997378138723,"size rule
+(uniform)",0.010597151817200678,0.02100987548172374,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its share at the building 95th,"size rule
+(uniform)",0.19454579642479763,0.18850960343072803,0.20176476832916662,"size rule
+(uniform)",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"KDE, Uniform",0.25994665970355446,0.2534680239578757,0.26827813283582125,"KDE, Uniform",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"Lognormal, Uniform",0.2631227455755138,0.2554347826086957,0.27128469727186444,"KDE, Uniform",-0.003544267613739392,0.008942679608503156,True,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"Normal, Uniform",0.4250999180159869,0.4142418179949622,0.43556195598914,"KDE, Uniform",0.1533915989417437,0.17547582628394562,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a material: its chance of being largest,"size rule
+(uniform)",0.263612580370692,0.25582022213771893,0.27160800885496716,"KDE, Uniform",-0.00242795464350857,0.00953078038230552,True,straddle,2210,,,2026-10-26,0.5,80
+composition,the uncertainty index,"KDE, Uniform",0.4555157246859304,0.4407676460002324,0.47039892266718203,"size rule
+(uniform)",-0.004036398311997748,0.016764336926195597,True,straddle,2210,,,2026-10-26,0.5,80
+composition,the uncertainty index,"Lognormal, Uniform",0.47055494393185837,0.4549877622917401,0.48496479702178236,"size rule
+(uniform)",0.011400523007579603,0.03125249863674359,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the uncertainty index,"Normal, Uniform",0.4859525578754452,0.4712497594235236,0.5027030664380573,"size rule
+(uniform)",0.02562440768369598,0.0500946685388763,False,straddle,2210,,,2026-10-26,0.5,80
+composition,the uncertainty index,"size rule
+(uniform)",0.44916686292807195,0.43354634418335136,0.46480116224722906,"size rule
+(uniform)",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"KDE, Uniform",0.22995279713227523,0.22378277153558052,0.23579414843168087,"KDE, Uniform",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"Lognormal, Uniform",0.25017464826897085,0.24221183800623017,0.25823089384410114,"KDE, Uniform",0.013478040360936949,0.02755644743120912,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"Normal, Uniform",0.5108059225837496,0.49924740249536415,0.5211762746691957,"KDE, Uniform",0.26865885978615855,0.2915269104623349,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: how often it binds,"size rule
+(uniform)",0.2340966735944484,0.22728508576795664,0.24092801950982906,"KDE, Uniform",-8.210460255183498e-05,0.009516205869425576,True,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"KDE, Uniform",0.2866253448711748,0.2777895520659354,0.2944049578464262,"KDE, Uniform",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"Lognormal, Uniform",0.301355750203151,0.29181820507766465,0.3089260572170411,"KDE, Uniform",0.007757279808376027,0.022155498250442603,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"Normal, Uniform",0.43484064555758,0.4213689580217787,0.4456727138693558,"KDE, Uniform",0.13636395015917605,0.15982979964952587,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: its mean saving,"size rule
+(uniform)",0.287782016057275,0.27852737573712705,0.2974459230990862,"KDE, Uniform",-0.004143769347343678,0.00798230852148219,True,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"KDE, Uniform",0.2532621589561089,0.2461706783369803,0.26156823785239147,"KDE, Uniform",0.0,0.0,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"Lognormal, Uniform",0.27586206896551724,0.26601671309192154,0.28307034134419656,"KDE, Uniform",0.014702689813505889,0.029245689344722423,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"Normal, Uniform",0.5537439613526565,0.5412895343134861,0.5653495440729484,"KDE, Uniform",0.28677262231155715,0.3122419316433033,False,straddle,2210,,,2026-10-26,0.5,80
+composition,a cap: its chance of saving 5 pct,"size rule
+(uniform)",0.2566017604694585,0.24823805794831635,0.2635327891950322,"KDE, Uniform",-0.0026480977247163332,0.008203739897780123,True,straddle,2210,,,2026-10-26,0.5,80
+bias,the total: its mean,"KDE, Uniform",-0.003069585046947767,,,,,,,all,2500,-0.015979918529987865,0.09582960438183491,2026-10-26,0.5,80
+bias,the total: its mean,"KDE, Variable",0.014690762736584675,,,,,,,all,2500,0.008936096760850894,0.09716788551495842,2026-10-26,0.5,80
+bias,the total: its mean,"Lognormal, Uniform",-0.030918240407249296,,,,,,,all,2500,-0.052342600067227824,0.09203253635144992,2026-10-26,0.5,80
+bias,the total: its mean,"Lognormal, Variable",-0.0177774519713296,,,,,,,all,2500,-0.03759999024429998,0.08897660588212303,2026-10-26,0.5,80
+bias,the total: its mean,"Normal, Uniform",0.08374579174408404,,,,,,,all,2500,0.06962836524430877,0.1392319299831796,2026-10-26,0.5,80
+bias,the total: its mean,"Normal, Variable",0.08274876647354015,,,,,,,all,2500,0.076588527163387,0.14240709516890723,2026-10-26,0.5,80
+bias,the total: its mean,"size rule
+(uniform)",-0.020008916428124718,,,,,,,all,2500,-0.042098566939553904,0.09076435449544863,2026-10-26,0.5,80
