@@ -316,7 +316,6 @@ in `archive/figures/`.
 | `FIG_Regret` | What it costs to use one method on every dataset instead of the best one for each |
 | `FIG_MethodByMaterial` | Which default to use, and what it costs, by material tier |
 | `SUPP6a`, `SUPP6b`, `SUPP6c_AllEmpiricalFits_<tier>` | Every real category with all six fitted models |
-| `FIG6_WeightingBySize` | When knowing a market share starts to help: per dataset, the error ignoring the true shares over the error using them, by size band, with the 95 pct interval of each band's median and the real categories' own sizes underneath |
 
 ### Notebook 3 - the probabilistic LCA
 
@@ -337,6 +336,7 @@ in `archive/figures/`.
 | `SUPP7_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
 | `FIG5_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
 | `SUPP9_MixedPolicy` | The same cutoff sweep on each statistic alone, (a) ratio of means and (b) median |
+| `FIG6_WeightingBySize` | When knowing a market share starts to help: per dataset, the pLCA claim error ignoring the true shares over the claim error using them, by size band, with the 95% interval of each band's median and the real categories' own sizes underneath. In notebook 3 since 2026-10-28, when it moved from W1 to claim error |
 | `FIG7_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
 | `FIG8_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |
 | `FIG_GraphicalAbstract` | The graphical abstract |

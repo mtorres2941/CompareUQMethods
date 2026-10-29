@@ -714,7 +714,9 @@ crossing because the penalty curve is steeper on the high side.
 
 **NO SINGLE-DECLARATION CUTOFF IS PUBLISHED, at the fit level or the claim
 level (decisions 225 and 237).** The paper quotes two RANGES: **40 to 170**
-declarations for the family split and **80 to 100** for the weighting split.
+declarations for the family split and **30 to 100** for the weighting split
+(80 to 100 until 2026-10-28, when the weighting figure moved from W1 to pLCA
+claim error, decision 261).
 `mixedpolicy.MIXED_THRESHOLD = 80` is a constant the code needs to name one
 policy, not a result. Any bare `81`, `68 to 97` or `68 to 106` found in this
 repository outside the historical decision-log entries is stale; the decision
@@ -943,8 +945,8 @@ market weights at or above `MIXED_THRESHOLD = 80` declarations, a
 three-parameter lognormal with uniform weights below. **80 from 2026-09-30, decision 224**, and it
 is a round reference constant the code needs in order to name one policy, NOT a
 published result. **The paper quotes two numbers and both are ranges**: 40 to
-170 declarations for the family split and 80 to 100 for where knowing market
-share starts helping. No single-declaration threshold is published. **The rule the paper recommends
+170 declarations for the family split and 30 to 100 for where knowing market
+share starts helping the pLCA claims (decision 261). No single-declaration threshold is published. **The rule the paper recommends
 is the FEASIBLE one** -- uniform weights throughout, only the family switching
 -- because nobody publishes market shares (decision 216), and its published
 cutoff range is **40 to 170** (decision 224). `select_method` takes exactly one required argument and a test
@@ -1363,7 +1365,9 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_EmpiricalECCMetricsAndW1.xlsx` | NB2 | 149 x 28 |
 | `TABLE_SyntheticECCMetricsAndW1.xlsx` | NB2 | 9,999 x 37 |
 | `TABLE_MethodScores.csv` | NB2 | one row per (arm, dataset, method): W1, held-out W1, both ranks, model-spread ratio |
-| `TABLE_WeightingBySizeIntervals.csv` | NB2 | figure pass 2026-10-07: per size band and family, the median ratio of uniform-weight W1 to known-share W1 with its 95 pct bootstrap interval over datasets, which `FIG6_WeightingBySize` shades on each median. A `# TABLE` re-slice of `TABLE_MethodScores.csv` |
+| `TABLE_WeightingBySizeIntervals.csv` | NB2 | figure pass 2026-10-07: per size band and family, the median ratio of uniform-weight W1 to known-share W1 with its 95 pct bootstrap interval over datasets, which `FIG6_WeightingBySize` shaded on each median until 2026-10-28; drawn by nothing since, kept for comparison (decision 261). A `# TABLE` re-slice of `TABLE_MethodScores.csv` |
+| `TABLE_WeightingBySizeClaims.csv` | NB3 | 2026-10-28, decision 261: one row per (synthetic dataset, family): mean claim error over the seven per-material claims (as `TABLE_FitVersusClaim`) with uniform weights and with the true market shares, and their ratio. `FIG6_WeightingBySize` draws it. A `# TABLE` re-slice of `TABLE_PLCATruth.csv.gz` |
+| `TABLE_WeightingBySizeClaimIntervals.csv` | NB3 | the same per size band: median ratio with its paired 95 pct bootstrap interval over datasets; the KDE bands whose interval includes 1x set the shaded range of `FIG6_WeightingBySize` |
 | `TABLE_MethodSummary.csv` | NB2 | the six methods by arm, the table to read first |
 | `TABLE_MethodCurves.parquet` | NB2 | every score against every characteristic, unbinned, with the rolling mean the figures draw. **Parquet since Stage 3**: 4.0M rows of which five columns are repeated strings, 96.4 MB as csv.gz against 44.4 as parquet and 23x faster to read. Every float is still float64 |
 | `TABLE_BandwidthRules.csv` | NB2 | the two KDE methods under all three bandwidth rules |

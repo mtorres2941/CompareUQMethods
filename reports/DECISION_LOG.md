@@ -9267,3 +9267,45 @@ rather than in conversation.
      was 0.001 to 0.371), and the market-weighted kernel estimate is no longer
      indistinguishable from the best of seven on "a material: its share at the
      building 95th".
+
+261. **2026-10-28, MANUSCRIPT. "ERROR" MEANS pLCA CLAIM ERROR, NEVER W1, AND
+     THE WEIGHTING FIGURE IS REDRAWN ON CLAIM ERROR.** `[AUTHOR]` "Using the
+     same language ('error') to describe W1 distance and error in pLCA result
+     is highly misleading." Figure 6 divided W1 by W1 and labeled the ratio
+     "error ignoring the shares / error using them", beside Figures 3 and 5,
+     whose "error" is the pLCA claim error.
+
+     It now divides the mean claim error over the seven per-material claims
+     (the definition of `TABLE_FitVersusClaim`) with uniform weights by the
+     same with the true market shares. Claim errors exist only after the pLCAs,
+     so the figure and two new `# TABLE` cells moved from notebook 2 to
+     notebook 3: `TABLE_WeightingBySizeClaims.csv` and
+     `TABLE_WeightingBySizeClaimIntervals.csv`. The W1 table
+     `TABLE_WeightingBySizeIntervals.csv` stays, drawn by nothing.
+
+     Same day, same reasoning: the fit-level "when to use which" figure left
+     the main text (the size rule is chosen on claim error), and Figures 6 to 9
+     became 5 to 8.
+
+     **Moved numbers, before (W1) -> after (claim error), median ratio:**
+
+         KDE 3-9            below 1 -> 0.92 (0.90 to 0.93)
+         KDE 30-79          below 1 -> 0.99 (0.93 to 1.05)
+         KDE 80-100         about 1 -> 1.06 (0.97 to 1.18)
+         KDE 101-299        above 1 -> 1.09 (1.03 to 1.14)
+         KDE 3000-9999      about 3 -> 1.45 (1.36 to 1.53)
+
+     **THE PUBLISHED WEIGHTING RANGE MOVES FROM 80 TO 100 TO 30 TO 100 EPDs.**
+     It is now read from the intervals rather than typed: the KDE bands whose
+     95 pct interval includes 1x, which are 30-79 and 80-100. Below 30 the
+     shares clearly hurt the claims; above 100 they clearly help. The
+     three-parameter lognormal crosses one band earlier (30-79 at 1.04, 1.00 to
+     1.09). The share of real categories below the range falls from 64 to 39
+     pct. The direction of the finding does not change; its size does: for the
+     largest datasets knowing the shares cuts claim error by a factor of about
+     1.45, against about 3 on W1.
+
+     Reproduce: `python audits/render_figures.py 03_CompareUQ_PerformPLCA
+     --into-outputs --only "when knowing the market shares"` after the table
+     cell, and `TABLE_WeightingBySizeClaimIntervals.csv`.
+
