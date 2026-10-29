@@ -620,9 +620,15 @@ def fit_weibull_mle(x, w, tol=1e-12):
         raise ValueError('the Weibull fit needs strictly positive data')
     lx = np.log(x)
     mlx = float(w @ lx)
+    # x^c is computed as exp(c * (log x - max log x)), which leaves the ratio in
+    # the score and the scale below unchanged and cannot overflow. Without it a
+    # dataset whose market weights sit almost entirely on one EPD drives the
+    # shape so high that x^c is inf and the score is NaN (dataset649, three
+    # EPDs, one carrying 99.9 percent of the weight).
+    lmax = float(lx.max())
 
     def score(c):
-        xc = np.exp(c * lx)
+        xc = np.exp(c * (lx - lmax))
         s = float(w @ xc)
         if not s > 0:
             return np.inf
@@ -637,7 +643,7 @@ def fit_weibull_mle(x, w, tol=1e-12):
         c = 1.0                       # degenerate: fall back to exponential
     else:
         c = float(optimize.brentq(score, lo, hi, xtol=tol, rtol=1e-14))
-    scale = float((w @ np.exp(c * lx)) ** (1.0 / c))
+    scale = float(np.exp(lmax) * (w @ np.exp(c * (lx - lmax))) ** (1.0 / c))
     return dict(c=c, loc=0.0, scale=scale)
 
 
