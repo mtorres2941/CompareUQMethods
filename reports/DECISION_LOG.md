@@ -9386,3 +9386,27 @@ rather than in conversation.
      Reproduce: notebook 3 cell `alt-methods-run`, then
      `python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables` for
      `TABLE_AltMethodIntervals.csv` and `TABLE_3_SensitivityMethods.csv`.
+
+264. **2026-10-30, MANUSCRIPT. THE LOGNORMALITY GAP BETWEEN THE ARMS DOES NOT
+     INFLATE KDE'S ADVANTAGE.** 10.3 percent of the synthetic datasets are
+     less lognormal than 95 percent of the empirical ones
+     (`TABLE_CorpusGaps.csv`), so the corpus could overstate how far KDE leads
+     the lognormal. The claims were scored again on the 1,613 pLCA groups
+     whose four materials all sit at or above the empirical 5th percentile of
+     `fit_lognorm_SF` (0.806), and on the 887 groups with at least one below.
+     Pooled median error over the fourteen claims scored on pLCA groups (the
+     design comparison excluded, as its pairs are not pLCA groups), uniform
+     weights, lognormal minus KDE: all groups 0.92 (0.70 to 1.12); all four
+     inside 0.92 (0.68 to 1.21); at least one outside 0.87 (0.41 to 1.28).
+     Both methods do worse on the groups outside the range (KDE 20.16 against
+     17.10), by about the same amount. The other half of the gap,
+     dispersed-and-multimodal datasets (1.1 against 5.4 percent), is too rare
+     on the synthetic arm to restrict on, and leans toward understating KDE's
+     advantage. Manuscript Sections 3.5 and 4.1.
+
+     **Moved numbers: none.** A new table; the table-cell run left every
+     tracked table and figure unchanged in content.
+
+     Reproduce: `python audits/render_figures.py 03_CompareUQ_PerformPLCA
+     --tables`, cell `lognormality-restricted`, for
+     `TABLE_LognormalityRestricted.csv`.
