@@ -9362,3 +9362,27 @@ rather than in conversation.
      `python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables` for
      `TABLE_AltMethodIntervals.csv`, `TABLE_ClaimScorecardAltMethods.csv` and
      `TABLE_SizeRuleLimits.csv`.
+
+263. **2026-10-30, MANUSCRIPT. THE THREE-PARAMETER LOGNORMAL'S GRID LIMIT IS
+     SCORED ON THE CLAIMS, AND THE SENSITIVITY RESULTS MOVE TO RESULTS.** The
+     author moved the sensitivity analysis from Discussion 4.1 to a new
+     Results Section 3.5, with a Table 3, on the grounds that the Discussion
+     presents no new analysis. The one choice decision 262 left untested, the
+     limit of the threshold grid (`families.PROFILE_DELTA_LO_FRAC` = 0.25
+     weighted standard deviations below the smallest EPD), was added to the
+     alternative methods at half and at twice that value, both weightings.
+
+     Pooled median error over the fifteen claims, uniform weights: 0.25
+     (the study) 18.39; 0.125 18.18, 0.21 better (0.09 to 0.33), worse for
+     3 to 9 EPDs (+1.31, 0.88 to 1.69); 0.5 19.10, 0.70 worse (0.62 to 0.81),
+     mostly above 100 EPDs. For 10 to 99 EPDs, where the size rule applies the
+     lognormal, neither differs from 0.25 beyond noise. KDE stays ahead of the
+     lognormal at every limit. The limit stays at 0.25: it was chosen on
+     bounded variance, not on this score.
+
+     **Moved numbers: none.** The control asserts the seven published methods
+     and the fourteen methods of decision 262 unchanged.
+
+     Reproduce: notebook 3 cell `alt-methods-run`, then
+     `python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables` for
+     `TABLE_AltMethodIntervals.csv` and `TABLE_3_SensitivityMethods.csv`.
