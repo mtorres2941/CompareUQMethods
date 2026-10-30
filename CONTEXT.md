@@ -1375,6 +1375,7 @@ consistency moved mean W1 across the characteristics from 0.488 to 0.270.
 | `TABLE_TargetSummary.csv` | NB2 | the six methods by arm, criterion and weighting scheme |
 | `TABLE_CrossValidatedScores.csv.gz` | NB2 | one row per (dataset, method, split, direction) |
 | `TABLE_CrossValidatedSummary.csv` | NB2 | the mean over splits and the spread across them |
+| `TABLE_CrossValidatedBySize.csv` | NB2 | `# TABLE` cell `cv-by-size`, Section 4.1: by size band, how many empirical categories each family is closest on, the median held-out W1 of each family, and how many categories have a closest method that beats the second closest by more than two standard errors of the paired difference over the splits |
 | `TABLE_PairedBootstrap.csv` | NB2 | whether a gap between two methods survives resampling the datasets |
 | `TABLE_WeightingDecomposition.csv` | NB2 | fit error against the definitional gap |
 | `TABLE_WeightingOnCommonTarget.csv` | NB2 | do market weights help, on the parent, by size band. Its columns are `uniform`, `market` and `market_wins`; they were `variable*` until Stage 4 |
