@@ -9410,3 +9410,40 @@ rather than in conversation.
      Reproduce: `python audits/render_figures.py 03_CompareUQ_PerformPLCA
      --tables`, cell `lognormality-restricted`, for
      `TABLE_LognormalityRestricted.csv`.
+
+265. **2026-10-30, ANALYSIS. A LOGNORMAL THAT CAN SKEW LEFT DOES NOT CLOSE ITS
+     GAP TO KDE.** The study's three-parameter lognormal is the threshold form,
+     ln(x - tau) normal (Aitchison and Brown 1969; Heijungs 2024, Section
+     11.6). It can only skew right. Heijungs also describes the reflected form,
+     ln(theta - x) normal, which skews left. `families.fit_lognorm3_signed`
+     fits the study's form when the weighted moment skewness is zero or above,
+     and otherwise fits the same profile-likelihood form to -x and mirrors it.
+     It runs as one more alternative method, 'Lognormal reflected', on deep
+     copies of the truth and swap random-number streams. The four-parameter
+     form bounded on [tau, theta] is not tested: its extra parameter is an
+     upper bound, and truncation at an upper bound did not help (Section 3.5).
+
+     Reflected datasets (`TABLE_LognormalReflected.csv`): 1,178 of 10,000
+     synthetic datasets with uniform weights (33.3 percent for 3 to 9 EPDs,
+     1.5 percent above 1,000) and 1,477 with variable weights. Pooled median
+     error over the fifteen claims, uniform weights: 18.44 (18.05 to 18.83)
+     against 18.39 for the study's form, and KDE 17.53. On the 1,178
+     left-skewed materials, mean over the seven per-material claims of the
+     median error: study's lognormal 27.80, reflected 29.57, worse by 1.76
+     (1.10 to 2.26); KDE 26.50, better by 1.31 (0.69 to 1.92). On data that
+     skew left, mirroring the lognormal is worse than keeping it right-skewed
+     with a threshold below the data. The lognormal's shortfall against KDE is
+     not caused by its fixed direction of skew. Manuscript Sections 2.2 and
+     3.5, Figure 9, Table S2.
+
+     **Moved numbers: none.** With the reflected rows removed, every grown
+     AltMethod table and Table 3 equals HEAD exactly; every other table and
+     figure is unchanged in content. In `TABLE_ClaimScorecardAltMethods.csv`
+     the within-claim `rank` of earlier methods moves by up to 2 because a
+     method was added; `best_method` and `best_error` are unchanged.
+
+     Reproduce: notebook 3 cell `alt-methods-run`, then
+     `python audits/render_figures.py 03_CompareUQ_PerformPLCA --tables`, cells
+     `table3-sensitivity` and `reflected-subset`, for
+     `TABLE_3_SensitivityMethods.csv` and
+     `TABLE_LognormalReflectedSubset.csv`.

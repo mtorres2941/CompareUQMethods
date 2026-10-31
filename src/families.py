@@ -651,3 +651,68 @@ def make_weibull(p):
     return Truncated(weibull_min(c=p['c'], loc=p['loc'], scale=p['scale']),
                      label='weibull',
                      params={k: p[k] for k in ('c', 'loc', 'scale')})
+
+
+# ---------------------------------------------------------------------------
+# the three-parameter lognormal REFLECTED for left-skewed data, Stage 4
+# ---------------------------------------------------------------------------
+class Reflected:
+    """The mirror image -X of a frozen scipy distribution X.
+
+    `Truncated` needs only pdf, cdf and ppf, so this is all the reflection
+    has to supply. The survival function and the inverse survival function
+    of X are used rather than 1 - cdf and ppf(1 - q), so that the far tail
+    keeps its precision.
+    """
+
+    def __init__(self, dist):
+        self.base = dist
+
+    def pdf(self, x):
+        return self.base.pdf(-np.asarray(x, dtype=float))
+
+    def cdf(self, x):
+        return self.base.sf(-np.asarray(x, dtype=float))
+
+    def ppf(self, q):
+        return -self.base.isf(np.asarray(q, dtype=float))
+
+
+def weighted_moment_skew(x, w):
+    """Weighted moment skewness, m3 / m2^1.5. Only its SIGN is used here,
+    and a small-sample correction never changes the sign."""
+    x, w = np.asarray(x, float), _norm_weights(w)
+    d = x - float(w @ x)
+    m2 = float(w @ d ** 2)
+    return float(w @ d ** 3) / m2 ** 1.5 if m2 > 0 else 0.0
+
+
+def fit_lognorm3_signed(x, w, delta_lo_frac=PROFILE_DELTA_LO_FRAC, **kw):
+    """The three-parameter lognormal of `fit_lognorm3_profile`, REFLECTED
+    when the weighted data skew to the left.
+
+    WHY. The threshold form (Heijungs 2024, Sect. 11.6.2) shifts a lognormal
+    and cannot change the sign of its skewness, so on a left-skewed dataset the
+    profile can only run toward the normal limit. Replacing x - threshold by
+    threshold - x gives the same family with its tail on the left and an UPPER
+    bound a guard's width above the largest EPD. On right-skewed data, and on
+    data with zero skewness, this is `fit_lognorm3_profile` exactly.
+
+    The reflected fit is the ordinary profile fit of -x, so the guard, the grid
+    and `status` mean the same thing on both sides. `reflected` says which.
+    """
+    x = np.asarray(x, float)
+    if weighted_moment_skew(x, w) >= 0:
+        p = fit_lognorm3_profile(x, w, delta_lo_frac=delta_lo_frac, **kw)
+        return dict(p, reflected=False)
+    p = fit_lognorm3_profile(-x, w, delta_lo_frac=delta_lo_frac, **kw)
+    return dict(p, reflected=True)
+
+
+def make_lognorm_signed(p):
+    keep = {k: p[k] for k in ('s', 'loc', 'scale')}
+    base = lognorm(s=p['s'], loc=p['loc'], scale=p['scale'])
+    if not p.get('reflected', False):
+        return Truncated(base, label='lognormal', params=keep)
+    return Truncated(Reflected(base), label='lognormal|reflected',
+                     params=dict(keep, reflected=1.0))

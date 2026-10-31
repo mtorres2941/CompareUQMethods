@@ -386,3 +386,46 @@ def test_weibull_survives_the_w1_optimal_control():
     assert 'c' in p and np.isfinite(p['c'])
     # The W1-optimal fit starts from the MLE, so it can never score worse.
     assert FT.score_w1_model(opt, x, w) <= FT.score_w1_model(mle, x, w) + 1e-12
+
+
+# ---------------------------------------------------------------------------
+# Stage 4: the three-parameter lognormal reflected for left-skewed data
+# ---------------------------------------------------------------------------
+def test_signed_lognormal_is_the_study_lognormal_on_right_skewed_data():
+    """On data that skew right the reflected variant must BE the study's
+    three-parameter lognormal, so it can only differ where it is meant to."""
+    import fitting as FT
+    rng = np.random.default_rng(3)
+    x = rng.lognormal(0.0, 0.6, 300)
+    x = x / x.mean()
+    w = np.full(len(x), 1.0 / len(x))
+    m3, p3 = FT.fit_family('lognormal_3p', x, w)
+    ms, ps = FT.fit_family('lognormal_3p_signed', x, w)
+    assert ps['reflected'] is False
+    q = np.linspace(0.001, 0.999, 41)
+    assert np.array_equal(ms.ppf(q), m3.ppf(q))
+
+
+def test_signed_lognormal_on_left_skewed_data_is_the_mirror_image():
+    """On left-skewed data the fit is the ordinary fit of -x, mirrored: its
+    upper bound sits a guard's width above the largest EPD, its quantiles are
+    the negated quantiles of the mirrored fit, and it is a proper distribution
+    on (0, upper bound)."""
+    import fitting as FT
+    rng = np.random.default_rng(4)
+    x = 3.0 - rng.lognormal(0.0, 0.5, 400)
+    x = x[x > 0]
+    x = x / x.mean()
+    w = np.full(len(x), 1.0 / len(x))
+    assert F.weighted_moment_skew(x, w) < 0
+    m, p = FT.fit_family('lognormal_3p_signed', x, w)
+    assert p['reflected'] is True
+    upper = -p['loc']
+    assert upper > x.max()
+    q = np.linspace(0.01, 0.99, 21)
+    xs = m.ppf(q)
+    assert np.all(np.diff(xs) > 0) and xs.max() < upper and xs.min() > 0
+    assert m.cdf(xs) == pytest.approx(q, abs=1e-9)
+    grid = np.linspace(1e-9, upper, 200001)
+    mass = float(np.sum(m.pdf(grid)) * (grid[1] - grid[0]))
+    assert mass == pytest.approx(1.0, abs=1e-3)

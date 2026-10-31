@@ -261,6 +261,8 @@ FAMILIES = {
     'lognormal_offset': (None, families.make_lognorm),
     'gamma': (families.fit_gamma_mle, families.make_gamma),
     'weibull': (families.fit_weibull_mle, families.make_weibull),
+    'lognormal_3p_signed': (families.fit_lognorm3_signed,
+                            families.make_lognorm_signed),
 }
 
 PARAMETRIC_FAMILIES = tuple(FAMILIES)
