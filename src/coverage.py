@@ -294,14 +294,14 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
          f'integer uniform on [{cfg.k_min}, {cfg.k_max}]',
          f'a Gaussian mixture selected by BIC (at most five components) has '
          f'two or more components in {mb["multimodal_share"] * 100:.1f}% of '
-         f'the {mb["n_fitted"]} real categories with at least six EPDs',
+         f'the {mb["n_fitted"]} empirical datasets with at least six EPDs',
          f'{min(ks)} to {max(ks)}, mean {np.mean(ks):.2f}'),
         ('Overlap between neighboring components',
          f'log-uniform on [{10 ** cfg.overlap_log10_lo:.2g}, '
          f'{10 ** cfg.overlap_log10_hi:.2f}], solved for by moving the '
          'component locations',
          'set by matching the share of datasets with one, two, and three or '
-         'more visible modes to the real categories, whose components cannot '
+         'more visible modes to the empirical datasets, whose components cannot '
          'be observed',
          f'median {np.median(ov_a):.4f}, 95th percentile '
          f'{np.percentile(ov_a, 95):.4f}, maximum {np.max(ov_a):.4f}'),
@@ -310,23 +310,23 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
          f'deviation {cfg.cv_log10_sd:.3f}, truncated to '
          f'[{10 ** cfg.cv_log10_lo:.3g}, {10 ** cfg.cv_log10_hi:.3g}], solved '
          'for by placing the mixture relative to zero',
-         f'real categories: log10 coefficient of variation with mean '
+         f'empirical datasets: log10 coefficient of variation with mean '
          f'{cv_log.mean():.3f} and standard deviation {cv_log.std():.3f}, '
          f'range {cv_emp.min():.3g} to {cv_emp.max():.3g}. The target is for '
          'the true distribution, whose coefficient of variation runs above '
          'that of a finite sample from it, and its spread is doubled to reach '
-         'beyond the real range',
+         'beyond the empirical range',
          f'target met exactly in {ok * 100:.1f}%; achieved {rng_of(cv_a)}'),
         ('Component skewness target',
          f'uniform on [{cfg.comp_skew_lo}, {cfg.comp_skew_hi}]',
-         f'real category skewness {_clean(emp["skewness"]).min():.3g} to '
+         f'empirical dataset skewness {_clean(emp["skewness"]).min():.3g} to '
          f'{_clean(emp["skewness"]).max():.3g}, median '
          f'{_clean(emp["skewness"]).median():.3g}',
          rng_of(comp_skew)),
         ('Component excess kurtosis target',
          f'uniform on [{cfg.comp_exkurt_lo}, {cfg.comp_exkurt_hi}], raised to '
          'the feasible boundary skewness ** 2 - 2 where it falls below it',
-         f'real category excess kurtosis {_clean(emp["kurtosis"]).min():.3g} '
+         f'empirical dataset excess kurtosis {_clean(emp["kurtosis"]).min():.3g} '
          f'to {_clean(emp["kurtosis"]).max():.3g}',
          rng_of(comp_exk)),
         ('Component location spread',
@@ -343,15 +343,17 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
          'mean',
          rng_of(comp_sd)),
         ('Component family',
-         'Johnson SU, lognormal, beta-prime or beta, chosen by which Pearson '
-         'region the moment target falls in',
+         'Johnson SU, beta-prime or beta, chosen by which Pearson region the '
+         'moment target falls in; a lognormal applies only on the line between '
+         'the Johnson SU and beta-prime regions, which a continuous draw does '
+         'not reach',
          'not a free choice: the family follows from the skewness and kurtosis '
          'target',
          ', '.join(f'{FAMILY_DISPLAY.get(k, k)} {v / len(fams) * 100:.1f}%'
                    for k, v in fam_counts.items())),
         ('Share of EPDs drawn from each component, Dirichlet alpha',
          f'{cfg.mode_share_alpha}',
-         'not measurable: the component structure of a real category is '
+         'not measurable: the component structure of an empirical dataset is '
          'unobserved',
          f'largest component share, 5th to 95th percentile {pct_of(pi_max)}'),
         ('Market share of each component, Dirichlet alpha',
@@ -363,7 +365,7 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
         ('Split of a component\'s market share among its EPDs, Dirichlet alpha',
          f'{cfg.point_weight_alpha}, flat',
          'the same value splits each group\'s share among its EPDs in the '
-         'real categories',
+         'empirical datasets',
          f'{cfg.point_weight_alpha}'),
         ('Coupling of EPD market weights to component market shares',
          f'{cfg.mode_coupling}',
@@ -374,7 +376,7 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
         ('Truncation bounds',
          f'Q1 / r ** {m} and Q3 * r ** {m} of the mixture, with r = Q3 / Q1: '
          f'the {m} x IQR rule applied in log space',
-         'the real categories are cleaned with the same rule, on the sample',
+         'the empirical datasets are cleaned with the same rule, on the sample',
          f'probability mass removed: median {np.median(tmass):.4f}, '
          f'95th percentile {np.percentile(tmass, 95):.4f}, '
          f'maximum {np.max(tmass):.4f}'),
@@ -387,14 +389,14 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
         ('Dataset size n',
          '2,500 datasets log-uniform within each of 3-9, 10-99, 100-999, '
          '1000-9999',
-         f'real n runs {int(nstat.min())} to {int(nstat.max()):,}, '
+         f'empirical dataset size runs {int(nstat.min())} to {int(nstat.max()):,}, '
          f'median {int(nstat.median())}',
          f'{int(synthetic.n.min())} to {int(synthetic.n.max()):,}, '
          f'median {int(synthetic.n.median())}'),
         ('Probe set, outside the corpus',
          f'{cfg.probe.n_datasets} datasets log-uniform on '
          f'[{cfg.probe.n_lo:,}, {cfg.probe.n_hi:,}]',
-         f'{int((nstat > 9999).sum())} real categories exceed 9,999 EPDs, the '
+         f'{int((nstat > 9999).sum())} empirical datasets exceed 9,999 EPDs, the '
          f'largest {int(nstat.max()):,}',
          f'{len(probe)} datasets, {int(probe.n.min()):,} to '
          f'{int(probe.n.max()):,}' if len(probe) else 'none'),

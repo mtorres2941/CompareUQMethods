@@ -1,0 +1,23 @@
+step,quantity,value
+extract,epds,120280
+extract,categories,138
+split_removed,excluded product,7
+split_removed,not one population,313
+split_removed,product type,12
+split_removed,residual bin,2459
+split_removed,specified property,2
+split_removed,total,2793
+split_removed,populations_after,149
+mass_ceiling,epds,112
+unit_contradiction,epds,11
+physical_checks,epds_either,123
+iqr_overlap,also_removed_by_iqr,119
+iqr_overlap,removed_only_by_physical,4
+iqr_removed,epds_checked,117364
+iqr_removed,low,455
+iqr_removed,high,140
+iqr_removed,datasets_losing_one,57
+min_n_dropped,populations,2
+min_n_dropped,epds,3
+retained,datasets,147
+retained,epds,116766
