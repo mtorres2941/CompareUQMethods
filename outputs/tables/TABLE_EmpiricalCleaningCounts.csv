@@ -1,23 +1,78 @@
 step,quantity,value
-extract,epds,120280
-extract,categories,138
-split_removed,excluded product,7
-split_removed,not one population,313
-split_removed,product type,12
-split_removed,residual bin,2459
-split_removed,specified property,2
-split_removed,total,2793
-split_removed,populations_after,149
-mass_ceiling,epds,112
-unit_contradiction,epds,11
-physical_checks,epds_either,123
-iqr_overlap,also_removed_by_iqr,119
-iqr_overlap,removed_only_by_physical,4
-iqr_removed,epds_checked,117364
-iqr_removed,low,455
-iqr_removed,high,140
-iqr_removed,datasets_losing_one,57
-min_n_dropped,populations,2
-min_n_dropped,epds,3
-retained,datasets,147
-retained,epds,116766
+extract,epds,120280.0
+extract,categories,138.0
+split_removed,excluded product,7.0
+split_removed,not one population,313.0
+split_removed,product type,12.0
+split_removed,residual bin,2459.0
+split_removed,specified property,2.0
+split_removed,total,2793.0
+split_removed,populations_after,149.0
+mass_ceiling,epds,112.0
+unit_contradiction,epds,11.0
+physical_checks,epds_either,123.0
+iqr_overlap,also_removed_by_iqr,119.0
+iqr_overlap,removed_only_by_physical,4.0
+iqr_removed,epds_checked,117364.0
+iqr_removed,low,455.0
+iqr_removed,high,140.0
+iqr_removed,datasets_losing_one,57.0
+min_n_dropped,populations,2.0
+min_n_dropped,epds,3.0
+retained,datasets,147.0
+retained,epds,116766.0
+by_dataset,mass_ceiling|AluminiumBillets|count,1.0
+by_dataset,mass_ceiling|AluminiumBillets|ecc_min,592.88
+by_dataset,mass_ceiling|AluminiumBillets|ecc_max,592.88
+by_dataset,mass_ceiling|AluminiumExtrusions|count,1.0
+by_dataset,mass_ceiling|AluminiumExtrusions|ecc_min,22574.0
+by_dataset,mass_ceiling|AluminiumExtrusions|ecc_max,22574.0
+by_dataset,mass_ceiling|Brick|count,1.0
+by_dataset,mass_ceiling|Brick|ecc_min,247.0
+by_dataset,mass_ceiling|Brick|ecc_max,247.0
+by_dataset,mass_ceiling|Cement|count,87.0
+by_dataset,mass_ceiling|Cement|ecc_min,243.0
+by_dataset,mass_ceiling|Cement|ecc_max,1064.693037
+by_dataset,mass_ceiling|Elevators|count,2.0
+by_dataset,mass_ceiling|Elevators|ecc_min,20812.4
+by_dataset,mass_ceiling|Elevators|ecc_max,21945.2
+by_dataset,mass_ceiling|FenestrationFraming|count,1.0
+by_dataset,mass_ceiling|FenestrationFraming|ecc_min,797.0
+by_dataset,mass_ceiling|FenestrationFraming|ecc_max,797.0
+by_dataset,mass_ceiling|HotRolled|count,1.0
+by_dataset,mass_ceiling|HotRolled|ecc_min,571.0
+by_dataset,mass_ceiling|HotRolled|ecc_max,571.0
+by_dataset,mass_ceiling|Mortar|count,2.0
+by_dataset,mass_ceiling|Mortar|ecc_min,124.0
+by_dataset,mass_ceiling|Mortar|ecc_max,160.0
+by_dataset,mass_ceiling|PlateSteel|count,2.0
+by_dataset,mass_ceiling|PlateSteel|ecc_min,276.0
+by_dataset,mass_ceiling|PlateSteel|ecc_max,277.0
+by_dataset,mass_ceiling|PrecastConcrete|count,6.0
+by_dataset,mass_ceiling|PrecastConcrete|ecc_min,132.0
+by_dataset,mass_ceiling|PrecastConcrete|ecc_max,432.44
+by_dataset,mass_ceiling|RebarSteel|count,4.0
+by_dataset,mass_ceiling|RebarSteel|ecc_min,639.0
+by_dataset,mass_ceiling|RebarSteel|ecc_max,2590430.1766135097
+by_dataset,mass_ceiling|SteelSuspensionAssembly|count,3.0
+by_dataset,mass_ceiling|SteelSuspensionAssembly|ecc_min,205.25625
+by_dataset,mass_ceiling|SteelSuspensionAssembly|ecc_max,205.71458333333337
+by_dataset,mass_ceiling|WireMeshSteel|count,1.0
+by_dataset,mass_ceiling|WireMeshSteel|ecc_min,2400.0
+by_dataset,mass_ceiling|WireMeshSteel|ecc_max,2400.0
+by_dataset,unit_contradiction|PowerCabling|count,2.0
+by_dataset,unit_contradiction|PowerCabling|ecc_min,5130.0
+by_dataset,unit_contradiction|PowerCabling|ecc_max,14300.000000000002
+by_dataset,unit_contradiction|PowerCabling|implied_mass_max,3559.999999631553
+by_dataset,unit_contradiction|ReadyMix [3000-3999 psi]|count,2.0
+by_dataset,unit_contradiction|ReadyMix [3000-3999 psi]|ecc_min,8530.759321
+by_dataset,unit_contradiction|ReadyMix [3000-3999 psi]|ecc_max,10808.74838
+by_dataset,unit_contradiction|ReadyMix [3000-3999 psi]|implied_mass_max,101556.723611073
+by_dataset,unit_contradiction|ReadyMix [4000-4999 psi]|count,6.0
+by_dataset,unit_contradiction|ReadyMix [4000-4999 psi]|ecc_min,10846.08211
+by_dataset,unit_contradiction|ReadyMix [4000-4999 psi]|ecc_max,109292.19
+by_dataset,unit_contradiction|ReadyMix [4000-4999 psi]|implied_mass_max,155971.06002329578
+by_dataset,unit_contradiction|ReadyMix [<3000 psi]|count,1.0
+by_dataset,unit_contradiction|ReadyMix [<3000 psi]|ecc_min,24132.39556
+by_dataset,unit_contradiction|ReadyMix [<3000 psi]|ecc_max,24132.39556
+by_dataset,unit_contradiction|ReadyMix [<3000 psi]|implied_mass_max,229121.16337776073
