@@ -215,6 +215,8 @@ Color encodes, it does not decorate.
 
 - Plain ASCII only, as everywhere in this project. No Unicode minus, no
   multiplication sign, no typographic quotes. Write `CO2`, not a subscript.
+  **Exception: Greek letters are written as the letters themselves** (author,
+  2026-11-03).
 - **Percentages use the `%` symbol, never "pct"** (author, 2026-10-07: "Just
   use the percent symbol throughout all these figures"). `%` is ASCII. A stored
   table key that contains "pct" is mapped to display text in the figure cell;

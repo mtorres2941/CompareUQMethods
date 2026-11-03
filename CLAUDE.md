@@ -130,7 +130,11 @@ several define methods this analysis implements directly.
 
 - Plain ASCII in all output, code comments, and figure text. No Unicode
   subscripts, no Unicode multiplication sign, no typographic quotes or dashes.
-  Write CO2, not the subscript form.
+  Write CO2, not the subscript form. **Exception, author 2026-11-03: Greek
+  letters are written as the letters themselves (γ, μ, σ, ε), not spelled
+  out,** in prose and figure text; code identifiers stay ASCII. Equations in
+  manuscript drafts are given in LaTeX ($...$ inline, $$...$$ displayed) so
+  they paste into Word's equation editor.
 - Never silently change a result. If a change moves a number, stop and tell me
   which number, by how much, and why.
 - Prefer explicit and readable over clever. I need to defend every line of this

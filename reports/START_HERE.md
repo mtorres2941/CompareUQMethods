@@ -202,7 +202,8 @@ the repository.
   prose and figure annotations round at the first digit where the two fits
   disagree.
 - **Plain ASCII, US spelling, in every file this project writes.** No Unicode
-  subscripts, no Unicode minus, no Unicode multiplication sign.
+  subscripts, no Unicode minus, no Unicode multiplication sign. Greek letters
+  are the exception and are written as the letters themselves (2026-11-03).
 - **An absolute distance is not a quality score.** Every goodness-of-fit number
   rose 16 to 45 percent when the corpus was made more dispersed and the fits did
   not get worse. Any check written against an absolute band is suspect.
