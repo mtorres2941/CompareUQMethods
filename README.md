@@ -279,7 +279,7 @@ shows directly, and the later figures moved up one number. Every other `FIG_` an
 `SUPP_` prefix records what the generating cell declares itself to be, not
 where the manuscript puts it. The supplement's figures carry their manuscript number, `SUPP1_` to
 `SUPP11_` (SUPP6 to SUPP8 are the empirical fits, one figure per material tier), and the supplement's
-tables theirs, `TABLE_S1_` and `TABLE_S2_`. Figures the manuscript does not use
+tables theirs, `TABLE_S1_` to `TABLE_S3_`. Figures the manuscript does not use
 are unnumbered. Renaming is one word per cell -- `figstyle.savefig` takes a
 stem, not a path -- and `tests/test_figure_manifest.py` fails on any file a
 rename leaves behind without a generator. The superseded unnumbered files are
