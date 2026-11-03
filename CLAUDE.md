@@ -133,9 +133,9 @@ several define methods this analysis implements directly.
   Write CO2, not the subscript form. **Exception, author 2026-11-03: Greek
   letters are written as the letters themselves (γ, μ, σ, ε), not spelled
   out,** in prose and figure text; code identifiers stay ASCII. Equations in
-  manuscript drafts are given in LaTeX as code (inline in backticks,
-  displayed in a latex fenced block), so a Markdown viewer shows the source
-  for pasting into Word's equation editor instead of rendering it.
+  manuscript drafts: numbered equations are LaTeX source in a latex fenced
+  block, so a Markdown viewer shows the source for pasting into Word's
+  equation editor; inline math stays as $...$.
 - Never silently change a result. If a change moves a number, stop and tell me
   which number, by how much, and why.
 - Prefer explicit and readable over clever. I need to defend every line of this
