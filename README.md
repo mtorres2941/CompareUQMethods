@@ -341,7 +341,7 @@ in `archive/figures/`.
 | `FIG6_WeightingBySize` | When knowing a market share starts to help: per dataset, the pLCA claim error ignoring the true shares over the claim error using them, by size band, with the 95% interval of each band's median and the real categories' own sizes underneath. In notebook 3 since 2026-10-28, when it moved from W1 to claim error |
 | `FIG7_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
 | `FIG8_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |
-| `FIG9_Sensitivity` | The pLCA claim error under the alternative distribution types, bandwidth rules and grid limits, drawn from `TABLE_S2_SensitivityMethods.csv` |
+| `FIG9_Sensitivity` | The pLCA claim error under the alternative distribution types, bandwidth rules and grid limits, drawn from `TABLE_SensitivityMethods.csv` |
 | `FIG_GraphicalAbstract` | The graphical abstract |
 
 ### Notebook 4 - which characteristics decide
