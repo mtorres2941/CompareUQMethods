@@ -278,7 +278,7 @@ size rule is chosen on pLCA claim error, which `FIG5_MixedPolicy_SpreadZoom`
 shows directly, and the later figures moved up one number. Every other `FIG_` and
 `SUPP_` prefix records what the generating cell declares itself to be, not
 where the manuscript puts it. The supplement's figures carry their manuscript number, `SUPP1_` to
-`SUPP9_` (SUPP6 is three pages, one per material tier), and the supplement's
+`SUPP11_` (SUPP6 to SUPP8 are the empirical fits, one figure per material tier), and the supplement's
 tables theirs, `TABLE_S1_` and `TABLE_S2_`. Figures the manuscript does not use
 are unnumbered. Renaming is one word per cell -- `figstyle.savefig` takes a
 stem, not a path -- and `tests/test_figure_manifest.py` fails on any file a
@@ -317,7 +317,7 @@ in `archive/figures/`.
 | `FIG_TargetBySize` | The size dependence, which is what both arms agree on |
 | `FIG_Regret` | What it costs to use one method on every dataset instead of the best one for each |
 | `FIG_MethodByMaterial` | Which default to use, and what it costs, by material tier |
-| `SUPP6a`, `SUPP6b`, `SUPP6c_AllEmpiricalFits_<tier>` | Every real category with all six fitted models |
+| `SUPP6_`, `SUPP7_`, `SUPP8_AllEmpiricalFits_<tier>` | Every real category with all six fitted models |
 
 ### Notebook 3 - the probabilistic LCA
 
@@ -333,11 +333,11 @@ in `archive/figures/`.
 | `FIG_RanksByDatasetAndPEWT` | How often each material leads, by dataset and method, in those three |
 | `SUPP_FlipCalibration` | How far apart two models must be before the answer changes, and what such a distance looks like |
 | `SUPP_MaterialDominance` | What a leading material buys -- the ranking -- and what it does not -- the magnitude |
-| `SUPP8_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
+| `SUPP10_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
 | `FIG3_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule, on the median per-case error; thin boxes mark cells noise cannot separate from their row's best |
-| `SUPP7_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
+| `SUPP9_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
 | `FIG5_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
-| `SUPP9_MixedPolicy` | The same cutoff sweep on each statistic alone, (a) ratio of means and (b) median |
+| `SUPP11_MixedPolicy` | The same cutoff sweep on each statistic alone, (a) ratio of means and (b) median |
 | `FIG6_WeightingBySize` | When knowing a market share starts to help: per dataset, the pLCA claim error ignoring the true shares over the claim error using them, by size band, with the 95% interval of each band's median and the real categories' own sizes underneath. In notebook 3 since 2026-10-28, when it moved from W1 to claim error |
 | `FIG7_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
 | `FIG8_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |

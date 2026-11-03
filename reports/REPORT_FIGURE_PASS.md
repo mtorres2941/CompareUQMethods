@@ -386,9 +386,9 @@ per material tier, at the printed width.
 
 Before: ![](../archive/figures/CompareUQMethods_SUPP_AllEmpiricalFits.png)
 After:
-![](../outputs/figures/CompareUQMethods_SUPP6a_AllEmpiricalFits_Structure.png)
-![](../outputs/figures/CompareUQMethods_SUPP6b_AllEmpiricalFits_Envelope.png)
-![](../outputs/figures/CompareUQMethods_SUPP6c_AllEmpiricalFits_Other.png)
+![](../outputs/figures/CompareUQMethods_SUPP6_AllEmpiricalFits_Structure.png)
+![](../outputs/figures/CompareUQMethods_SUPP7_AllEmpiricalFits_Envelope.png)
+![](../outputs/figures/CompareUQMethods_SUPP8_AllEmpiricalFits_Other.png)
 
 *Caption.* Every real EC3 category in the (a) structure, (b) envelope and (c)
 other tiers, ordered by number of EPDs: a weighted histogram of the EPDs (gray),
@@ -398,7 +398,7 @@ the six fitted models, and the normalized mean of 1.0 (dotted).
 the same panel titles, legend and % labels, and its own tie boxes, computed on
 the ratio of means.
 
-![](../outputs/figures/CompareUQMethods_SUPP7_ClaimScorecardMeanForm.png)
+![](../outputs/figures/CompareUQMethods_SUPP9_ClaimScorecardMeanForm.png)
 
 *Caption.* As Figure 3, with every cell computed as the ratio of means, total
 absolute error over total true value, and the tie test run on that statistic.
@@ -407,7 +407,7 @@ absolute error over total true value, and the tie test run on that statistic.
 panels, and a subtitle naming the orange tick.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_PLCATruth.png)
-After: ![](../outputs/figures/CompareUQMethods_SUPP8_PLCATruth.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP10_PLCATruth.png)
 
 *Caption.* The distribution over 2,500 synthetic pLCAs of each method's error
 against the true market-weighted parents in (a) one material's contribution and
@@ -420,7 +420,7 @@ asked.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_MixedPolicy.png)
 ![](../archive/figures/CompareUQMethods_FIG_MixedPolicy_Median.png)
-After: ![](../outputs/figures/CompareUQMethods_SUPP9_MixedPolicy.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP11_MixedPolicy.png)
 
 *Caption.* Error pooled over fifteen claims against the cutoff (kernel density
 estimate at or above, three-parameter lognormal below) for the size rule with
