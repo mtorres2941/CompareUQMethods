@@ -351,25 +351,25 @@ category of Figure 1, and Gypsum, which with rebar is in the worked example of
 Figure 9. Wide-ranging
 characteristics are on log or symmetric-log axes.
 
-**SUPP4** `SUPP4_DemoW1Dist`. The framed legend that sat on the CDF is
+**SUPP4** `SUPP5_DemoW1Dist`. The framed legend that sat on the CDF is
 replaced by labels on the curves; panels labeled; a title.
 
 Before: ![](../archive/figures/CompareUQMethods_DEF_DemoW1Dist.png)
-After: ![](../outputs/figures/CompareUQMethods_SUPP4_DemoW1Dist.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP5_DemoW1Dist.png)
 
 *Caption.* A fitted model (blue) and a small dataset (black). (a) The model's
 probability density and the data as ticks, tick length showing weight. (b) The
 two cumulative distribution functions; the shaded area between them is the
 Wasserstein-1 distance (W1).
 
-**SUPP5** `SUPP5_BandwidthRule`. **The guard line was drawn at 30 and labeled
+**SUPP5** `SUPP4_BandwidthRule`. **The guard line was drawn at 30 and labeled
 30; the shipped threshold has been 20 since decision 80.** It now reads
 `customstats.SILVERMAN_MIN_NEFF`. The W1 rows were labeled "against the
 target"; they are in-sample, each fit scored against the data it was fitted
 to, and now say so.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_BandwidthRule.png)
-After: ![](../outputs/figures/CompareUQMethods_SUPP5_BandwidthRule.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP4_BandwidthRule.png)
 
 *Caption.* Kernel bandwidth over the data's standard deviation (a, b) and
 in-sample W1 (c, d) against dataset size under Scott's rule (red), Silverman's
@@ -434,7 +434,7 @@ to 200 in (b). 2,500 synthetic pLCAs.
 weights" and "(eq)" are gone; the title says what is measured.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_ChoiceDrivers.png)
-After: ![](../outputs/figures/CompareUQMethods_SUPP10_ChoiceDrivers.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP_ChoiceDrivers.png)
 
 *Caption.* Share of the variation in which family is closer to the truth (the
 log ratio of the kernel estimate's W1 to the three-parameter lognormal's)
@@ -448,7 +448,7 @@ its own table is 1.50% of the mean.** The number is now computed from the
 table. Also %, panel labels, and no monospace.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_FlipCalibration.png)
-After: ![](../outputs/figures/CompareUQMethods_SUPP11_FlipCalibration.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP_FlipCalibration.png)
 
 *Caption.* (a) The chance that the leading material changes against the
 relative W1 between two fitted models, for a calibration set of two weightings
@@ -460,7 +460,7 @@ crossings. (b) to (d) Two densities as far apart as each crossing.
 Figure 6, and the group size in a subtitle.
 
 Before: ![](../archive/figures/CompareUQMethods_FIG_MaterialDominance.png)
-After: ![](../outputs/figures/CompareUQMethods_SUPP12_MaterialDominance.png)
+After: ![](../outputs/figures/CompareUQMethods_SUPP_MaterialDominance.png)
 
 *Caption.* Against the ratio of the leading material's mean contribution to the
 next, in four-material synthetic pLCAs: (a) the chance that switching UQ method

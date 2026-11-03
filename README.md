@@ -270,15 +270,17 @@ Every image under `outputs/figures/` with the notebook that writes it and what
 it shows. Each file has a `.pdf` sibling of the same name; names are given here
 without the `CompareUQMethods_` prefix and the extension.
 
-**The eight main-text figures carry their manuscript number** -- `FIG1_` to
-`FIG8_` -- from the figure pass of 2026-10-07, when the figure selection was
+**The nine main-text figures carry their manuscript number** -- `FIG1_` to
+`FIG9_` -- from the figure pass of 2026-10-07, when the figure selection was
 fixed (`reports/MANUSCRIPT_NARRATIVE.md` section 4). On 2026-10-28 the author
 dropped the fit-level `FIG_WhenToUseWhich` from the main text, because the
 size rule is chosen on pLCA claim error, which `FIG5_MixedPolicy_SpreadZoom`
 shows directly, and the later figures moved up one number. Every other `FIG_` and
 `SUPP_` prefix records what the generating cell declares itself to be, not
-where the manuscript puts it. The supplement's twelve figures carry `SUPP1_` to
-`SUPP12_` (SUPP6 is three pages, one per material tier). Renaming is one word per cell -- `figstyle.savefig` takes a
+where the manuscript puts it. The supplement's figures carry their manuscript number, `SUPP1_` to
+`SUPP9_` (SUPP6 is three pages, one per material tier), and the supplement's
+tables theirs, `TABLE_S1_` and `TABLE_S2_`. Figures the manuscript does not use
+are unnumbered. Renaming is one word per cell -- `figstyle.savefig` takes a
 stem, not a path -- and `tests/test_figure_manifest.py` fails on any file a
 rename leaves behind without a generator. The superseded unnumbered files are
 in `archive/figures/`.
@@ -300,7 +302,7 @@ in `archive/figures/`.
 
 | File | What it shows |
 |---|---|
-| `SUPP4_DemoW1Dist` | What a Wasserstein-1 distance is: the area between two cumulative curves |
+| `SUPP5_DemoW1Dist` | What a Wasserstein-1 distance is: the area between two cumulative curves |
 | `FIG2_PDFandCDFofUQMethods` | The six UQ methods on one real category (reinforcing steel), as densities and as distribution functions |
 | `FIG_W1DistanceAndRank` | How far each method sits from its target, and how often it is closest. Both arms |
 | `SUPP_KSTestStripAndRank`, `SUPP_Wass2DistStripAndRank` | The same under two other distances, as a robustness check |
@@ -310,7 +312,7 @@ in `archive/figures/`.
 | `SUPP_ByCharacteristic_<name>` (12 files) | One page per characteristic, so each can be read on its own |
 | `FIG_RankVsDatasetSize` | Which method wins against dataset size, and by how much |
 | `FIG_WinShareVsCharacteristic_{Empirical,Synthetic}` | Which method wins, by percentile of each characteristic |
-| `SUPP5_BandwidthRule` | What the bandwidth rule does, against dataset size |
+| `SUPP4_BandwidthRule` | What the bandwidth rule does, against dataset size |
 | `FIG_EvaluationTarget` | What changing the scoring target does to the comparison |
 | `FIG_TargetBySize` | The size dependence, which is what both arms agree on |
 | `FIG_Regret` | What it costs to use one method on every dataset instead of the best one for each |
@@ -329,8 +331,8 @@ in `archive/figures/`.
 | `FIG_PLCAW1Distances` | W1 between the six methods, for the three example pLCAs |
 | `FIG_PLCAVisualizeUQFits` | The components and the total of those three pLCAs |
 | `FIG_RanksByDatasetAndPEWT` | How often each material leads, by dataset and method, in those three |
-| `SUPP11_FlipCalibration` | How far apart two models must be before the answer changes, and what such a distance looks like |
-| `SUPP12_MaterialDominance` | What a leading material buys -- the ranking -- and what it does not -- the magnitude |
+| `SUPP_FlipCalibration` | How far apart two models must be before the answer changes, and what such a distance looks like |
+| `SUPP_MaterialDominance` | What a leading material buys -- the ranking -- and what it does not -- the magnitude |
 | `SUPP8_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
 | `FIG3_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule, on the median per-case error; thin boxes mark cells noise cannot separate from their row's best |
 | `SUPP7_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
@@ -339,6 +341,7 @@ in `archive/figures/`.
 | `FIG6_WeightingBySize` | When knowing a market share starts to help: per dataset, the pLCA claim error ignoring the true shares over the claim error using them, by size band, with the 95% interval of each band's median and the real categories' own sizes underneath. In notebook 3 since 2026-10-28, when it moved from W1 to claim error |
 | `FIG7_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
 | `FIG8_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |
+| `FIG9_Sensitivity` | The pLCA claim error under the alternative distribution types, bandwidth rules and grid limits, drawn from `TABLE_S2_SensitivityMethods.csv` |
 | `FIG_GraphicalAbstract` | The graphical abstract |
 
 ### Notebook 4 - which characteristics decide
@@ -346,7 +349,7 @@ in `archive/figures/`.
 | File | What it shows |
 |---|---|
 | `FIG_WhenToUseWhich` | Which method is closest to the truth, against category size. Not in the manuscript |
-| `SUPP10_ChoiceDrivers` | Whether dataset size is enough on its own |
+| `SUPP_ChoiceDrivers` | Whether dataset size is enough on its own |
 | `SUPP_RollingVersusBinned_{Empirical,Synthetic}` | The rolling average against its replacement, kept so the two can be compared |
 
 ---
