@@ -683,6 +683,19 @@ def tick_positions(values, scale, linthresh=None, max_ticks=6):
         ticks = [10.0 ** d for d in decades[::step]]
     elif scale == 'symlog':
         ticks = symlog_ticks(v, linthresh, max_per_side=max(1, max_ticks // 2))
+        # Near zero the transform is linear, so with a large threshold the
+        # ticks at -1, 0 and 1 land almost on top of each other and their
+        # labels overprint (Figure S3, skewness with market weights, read
+        # "-10 -10 1"). Keep zero, then the outer ticks first, and drop any
+        # tick closer than 8% of the plotted span to one already kept.
+        pos = {t: float(f(np.array([t]))[0]) for t in ticks}
+        span = float(f(np.array([v.max()]))[0] - f(np.array([v.min()]))[0])
+        kept = [0.0] if 0.0 in pos else []
+        for t in sorted(ticks, key=abs, reverse=True):
+            if t != 0.0 and all(abs(pos[t] - pos[k]) >= 0.08 * span
+                                for k in kept):
+                kept.append(t)
+        ticks = sorted(kept)
     else:
         return None, None                      # let matplotlib choose
     labels = []
