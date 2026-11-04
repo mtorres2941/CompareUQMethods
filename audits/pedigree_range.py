@@ -168,6 +168,21 @@ def main():
     print()
     print(f'written to {os.path.relpath(path, ROOT)}')
 
+    # THE NUMBERS SECTION 1.1 OF THE MANUSCRIPT PRINTS, in a tracked table.
+    # `outputs/tables/audits/` is gitignored, so the enumeration above cannot
+    # be the table a printed number cites.
+    summary = pd.DataFrame([
+        ('pedigree_gsd_min', lo, 'all scores 1, the best data quality'),
+        ('pedigree_gsd_max', hi, 'all scores 5, the worst data quality'),
+        ('data_gsd_median', med, f'median over {len(data)} EC3 categories'),
+        ('share_wider_than_pedigree_max', float((data > hi).mean()),
+         'share of EC3 categories whose GSD exceeds pedigree_gsd_max'),
+    ], columns=['quantity', 'value', 'note'])
+    spath = os.path.join(ROOT, 'outputs', 'tables', 'TABLE_PedigreeRange.csv')
+    summary.to_csv(spath, index=False)
+    print(summary.to_string(index=False))
+    print(f'written to {os.path.relpath(spath, ROOT)}')
+
 
 if __name__ == '__main__':
     main()

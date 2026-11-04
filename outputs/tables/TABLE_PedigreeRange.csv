@@ -1,0 +1,5 @@
+quantity,value,note
+pedigree_gsd_min,1.02469507659596,"all scores 1, the best data quality"
+pedigree_gsd_max,1.5873254285309029,"all scores 5, the worst data quality"
+data_gsd_median,1.8712200310668614,median over 147 EC3 categories
+share_wider_than_pedigree_max,0.6190476190476191,share of EC3 categories whose GSD exceeds pedigree_gsd_max
