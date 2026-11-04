@@ -246,8 +246,9 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
     category) and `mixture_basis` (from `empirical_mixture_basis`), never
     hardcoded, so it cannot describe an arm the study no longer uses.
 
-    Written for the paper: plain ASCII, "%" rather than "pct", and no
-    references to the project's own history.
+    Written for the paper: plain ASCII, "%" rather than "pct", no
+    references to the project's own history, and no code syntax, so the CSV
+    is pasted into Supplement 1 as it stands.
     """
     comp_skew, comp_exk, comp_sd, fams = [], [], [], []
     ks, ov_a, cv_a, tmass, dropped, retries = [], [], [], [], [], []
@@ -291,14 +292,14 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
     fam_counts = pd.Series(fams).value_counts()
     rows = [
         ('Number of mixture components, k',
-         f'integer uniform on [{cfg.k_min}, {cfg.k_max}]',
+         f'integer, uniform on {cfg.k_min} to {cfg.k_max}',
          f'a Gaussian mixture selected by BIC (at most five components) has '
          f'two or more components in {mb["multimodal_share"] * 100:.1f}% of '
          f'the {mb["n_fitted"]} empirical datasets with at least six EPDs',
          f'{min(ks)} to {max(ks)}, mean {np.mean(ks):.2f}'),
         ('Overlap between neighboring components',
-         f'log-uniform on [{10 ** cfg.overlap_log10_lo:.2g}, '
-         f'{10 ** cfg.overlap_log10_hi:.2f}], solved for by moving the '
+         f'log-uniform on {10 ** cfg.overlap_log10_lo:.2g} to '
+         f'{10 ** cfg.overlap_log10_hi:.2g}, solved for by moving the '
          'component locations',
          'set by matching the share of datasets with one, two, and three or '
          'more visible modes to the empirical datasets, whose components cannot '
@@ -307,8 +308,8 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
          f'{np.percentile(ov_a, 95):.4f}, maximum {np.max(ov_a):.4f}'),
         ('Coefficient of variation of the true distribution',
          f'normal in log10 with mean {cfg.cv_log10_mean:.3f} and standard '
-         f'deviation {cfg.cv_log10_sd:.3f}, truncated to '
-         f'[{10 ** cfg.cv_log10_lo:.3g}, {10 ** cfg.cv_log10_hi:.3g}], solved '
+         f'deviation {cfg.cv_log10_sd:.3f}, limited to '
+         f'{10 ** cfg.cv_log10_lo:.3g} to {10 ** cfg.cv_log10_hi:.3g}, solved '
          'for by placing the mixture relative to zero',
          f'empirical datasets: log10 coefficient of variation with mean '
          f'{cv_log.mean():.3f} and standard deviation {cv_log.std():.3f}, '
@@ -318,27 +319,28 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
          'beyond the empirical range',
          f'target met exactly in {ok * 100:.1f}%; achieved {rng_of(cv_a)}'),
         ('Component skewness target',
-         f'uniform on [{cfg.comp_skew_lo}, {cfg.comp_skew_hi}]',
+         f'uniform on {cfg.comp_skew_lo:g} to {cfg.comp_skew_hi:g}',
          f'empirical dataset skewness {_clean(emp["skewness"]).min():.3g} to '
          f'{_clean(emp["skewness"]).max():.3g}, median '
          f'{_clean(emp["skewness"]).median():.3g}',
          rng_of(comp_skew)),
         ('Component excess kurtosis target',
-         f'uniform on [{cfg.comp_exkurt_lo}, {cfg.comp_exkurt_hi}], raised to '
-         'the feasible boundary skewness ** 2 - 2 where it falls below it',
+         f'uniform on {cfg.comp_exkurt_lo:g} to {cfg.comp_exkurt_hi:g}, raised to '
+         'the lowest feasible value, the squared skewness minus 2, where it '
+         'falls below it',
          f'empirical dataset excess kurtosis {_clean(emp["kurtosis"]).min():.3g} '
-         f'to {_clean(emp["kurtosis"]).max():.3g}',
+         f'to {_clean(emp["kurtosis"]).max():,.0f}',
          rng_of(comp_exk)),
         ('Component location spread',
-         f'locations at z ** {cfg.position_skew} for z uniform on (0, 1), '
-         'before the overlap solve scales them',
+         f'locations at z to the power {cfg.position_skew:g}, for z uniform on '
+         '0 to 1, before the overlap solve scales them',
          'clusters components toward the low end with an occasional one far '
          'out, as in a category where most products are similar and a few are '
          'much more carbon intensive',
-         f'{cfg.position_skew}'),
+         f'{cfg.position_skew:g}'),
         ('Component standard deviation, relative',
-         f'log-uniform on [{10 ** cfg.comp_sd_log10_lo:.3g}, '
-         f'{10 ** cfg.comp_sd_log10_hi:.3g}]',
+         f'log-uniform on {10 ** cfg.comp_sd_log10_lo:.3g} to '
+         f'{10 ** cfg.comp_sd_log10_hi:.3g}',
          'only ratios matter: every dataset is divided by its own unweighted '
          'mean',
          rng_of(comp_sd)),
@@ -351,31 +353,33 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
          'target',
          ', '.join(f'{FAMILY_DISPLAY.get(k, k)} {v / len(fams) * 100:.1f}%'
                    for k, v in fam_counts.items())),
-        ('Share of EPDs drawn from each component, Dirichlet alpha',
-         f'{cfg.mode_share_alpha}',
+        ('Share of EPDs drawn from each component, Dirichlet concentration',
+         f'{cfg.mode_share_alpha:g}',
          'not measurable: the component structure of an empirical dataset is '
          'unobserved',
          f'largest component share, 5th to 95th percentile {pct_of(pi_max)}'),
-        ('Market share of each component, Dirichlet alpha',
-         f'{cfg.market_share_alpha}, flat',
+        ('Market share of each component, Dirichlet concentration',
+         f'{cfg.market_share_alpha:g}, flat',
          'market shares are not published; the flat Dirichlet gives every '
-         'allocation equal probability. Marsh et al. (2025) report a top share '
-         'of 63.75% for one steel production region',
+         'allocation equal probability. Marsh et al. (2025) report that basic '
+         'oxygen furnaces in the regions grouped as the rest of the world '
+         'produced 63.75% of global steel in 2022',
          f'largest market share, 5th to 95th percentile {pct_of(mkt_max)}'),
-        ('Split of a component\'s market share among its EPDs, Dirichlet alpha',
-         f'{cfg.point_weight_alpha}, flat',
+        ('Split of a component\'s market share among its EPDs, Dirichlet '
+         'concentration',
+         f'{cfg.point_weight_alpha:g}, flat',
          'the same value splits each group\'s share among its EPDs in the '
          'empirical datasets',
-         f'{cfg.point_weight_alpha}'),
+         f'{cfg.point_weight_alpha:g}'),
         ('Coupling of EPD market weights to component market shares',
-         f'{cfg.mode_coupling}',
-         'at 1.0 the market weight on each component equals its market share, '
+         f'{cfg.mode_coupling:g}',
+         'at 1 the market weight on each component equals its market share, '
          'so the market-weighted true distribution is the mixture weighted by '
          'market share',
-         f'{cfg.mode_coupling}'),
+         f'{cfg.mode_coupling:g}'),
         ('Truncation bounds',
-         f'Q1 / r ** {m} and Q3 * r ** {m} of the mixture, with r = Q3 / Q1: '
-         f'the {m} x IQR rule applied in log space',
+         f'Q1 / r^{m:g} and Q3 x r^{m:g} of the mixture, with r = Q3 / Q1, '
+         f'i.e., the {m:g} x IQR rule applied in log space',
          'the empirical datasets are cleaned with the same rule, on the sample',
          f'probability mass removed: median {np.median(tmass):.4f}, '
          f'95th percentile {np.percentile(tmass, 95):.4f}, '
@@ -387,22 +391,22 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
          'zero the body of a distribution may sit',
          f'mixture shifted in {np.mean(shifted) * 100:.1f}% of datasets'),
         ('Dataset size n',
-         '2,500 datasets log-uniform within each of 3-9, 10-99, 100-999, '
-         '1000-9999',
+         '2,500 datasets log-uniform within each of 3-9, 10-99, 100-999, and '
+         '1,000-9,999',
          f'empirical dataset size runs {int(nstat.min())} to {int(nstat.max()):,}, '
-         f'median {int(nstat.median())}',
+         f'median {nstat.median():g}',
          f'{int(synthetic.n.min())} to {int(synthetic.n.max()):,}, '
-         f'median {int(synthetic.n.median())}'),
+         f'median {synthetic.n.median():g}'),
         ('Probe set, outside the corpus',
          f'{cfg.probe.n_datasets} datasets log-uniform on '
-         f'[{cfg.probe.n_lo:,}, {cfg.probe.n_hi:,}]',
+         f'{cfg.probe.n_lo:,} to {cfg.probe.n_hi:,}',
          f'{int((nstat > 9999).sum())} empirical datasets exceed 9,999 EPDs, the '
          f'largest {int(nstat.max()):,}',
          f'{len(probe)} datasets, {int(probe.n.min()):,} to '
          f'{int(probe.n.max()):,}' if len(probe) else 'none'),
         ('Components dropped for falling outside truncation',
-         'dropped below 1e-9 of their own mass inside the bounds; both weight '
-         'vectors renormalized',
+         'dropped when less than 10^-9 of their own mass lies inside the '
+         'bounds; both weight vectors renormalized',
          'not applicable',
          f'{int(np.sum(dropped))} components across '
          f'{int(np.sum(np.array(dropped) > 0)):,} datasets'),
@@ -414,10 +418,11 @@ def generation_parameter_table(cfg, synthetic, probe, parents, empirical,
         ('Random seed',
          f'{cfg.seed}',
          'not applicable',
-         'recorded in runmeta.json beside the corpus'),
+         'recorded with the corpus in the code repository'),
     ]
-    return pd.DataFrame(rows, columns=['parameter', 'configured',
-                                       'real_data_basis', 'synthetic_achieved'])
+    return pd.DataFrame(rows, columns=['Parameter', 'Value in the generator',
+                                       'Basis in the empirical datasets',
+                                       'Achieved in the synthetic datasets'])
 
 
 def manuscript_table1(cfg, synthetic, parents, empirical, mixture_basis):
