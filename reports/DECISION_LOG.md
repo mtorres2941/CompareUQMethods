@@ -9447,3 +9447,37 @@ rather than in conversation.
      `table3-sensitivity` and `reflected-subset`, for
      `TABLE_3_SensitivityMethods.csv` and
      `TABLE_LognormalReflectedSubset.csv`.
+
+266. **2026-11-04, MANUSCRIPT. THE FINAL REVIEW'S NUMBERS AUDIT: EIGHT PRINTED
+     NUMBERS CORRECTED, TWO NUMBERS GIVEN THE TABLES THEY LACKED, ONE TABLE
+     VALUE THAT WAS TRUNCATED.** Every number in the main text and supplement
+     was checked against `corpus_2026-10-26`. The corrections are to the
+     manuscript text, not to any result: 3.1's one-in-ten change for the
+     four volatile claims starts at 93% (`TABLE_ClaimChoiceCost.csv`,
+     0.9348), not 94%; the share of the 292 buildings below the
+     twelve-material threshold of 2.98 is 85.3% (249), not 85.6%, which was
+     the count below 3.0; publishing market shares lowers the pooled error by
+     4.3 points (17.37 - 13.03), not 4.4, and that is about five times the
+     KDE-lognormal difference of 0.86, not four; the best mean leave-one-out
+     log-likelihood is -0.765, not -0.766; five groups of two materials were
+     excluded from the top-two ratio fits, not 75 (75 is five groups times 15
+     method pairs), so the fits use 28,795 groups; and 63.75% is the
+     Rest-of-World basic-oxygen-furnace row of Marsh et al. (2025), Table 3,
+     not the whole region.
+
+     **Moved number: Table S1's median synthetic dataset size, 99 -> 99.5.**
+     `coverage.generation_parameter_table` truncated the median with int().
+     The same function now writes Table S1 print-ready (no code syntax, the
+     manuscript's column headers); every other value in it is unchanged.
+
+     **New tables, no number moved:** `TABLE_BuildingTopTwoShares.csv`
+     (cell `building-top2-shares`: 213 of 292 below 2.28, 69.9% and 76.4% at
+     the interval's ends, 85.3% below 2.98, median 37 materials) and
+     `TABLE_PedigreeRange.csv` (`audits/pedigree_range.py`: 1.02 to 1.59
+     against a median of 1.87, 61.9% of categories wider). Figure 3 and
+     Figure S9 drop the size-rule label under panel (c)'s empty column, and
+     Figure S3's symlog ticks no longer overprint.
+
+     Reproduce: `python audits/render_figures.py 01_CompareUQ_CreateData
+     --tables` and `... 03_CompareUQ_PerformPLCA --tables`;
+     `python audits/pedigree_range.py`.
