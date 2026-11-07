@@ -127,3 +127,39 @@ def test_every_figure_cell_runs_against_the_setup_block_alone():
         'own, so changing one costs a full notebook run. Each needs the named '
         'frames persisted to a table and read back, or the helper moved into '
         f'the setup cell: {bad}')
+
+
+def _numbered(directory, pattern):
+    """{number: sorted stems} for the files in `directory` matching `pattern`,
+    whose first group is the manuscript number."""
+    import re
+    found = {}
+    for f in sorted(os.listdir(directory)):
+        m = re.match(pattern, f)
+        if m:
+            found.setdefault(int(m.group(1)), set()).add(m.group(0))
+    return {k: sorted(v) for k, v in found.items()}
+
+
+@pytest.mark.parametrize('kind, directory, pattern', [
+    ('main-text figure', 'outputs/figures',
+     r'CompareUQMethods_FIG(\d+)_[A-Za-z0-9_]+'),
+    ('supplement figure', 'outputs/figures',
+     r'CompareUQMethods_SUPP(\d+)_[A-Za-z0-9_]+'),
+    ('supplement table', 'outputs/tables', r'TABLE_S(\d+)_[A-Za-z0-9_]+'),
+])
+def test_manuscript_numbers_are_contiguous_and_unique(kind, directory,
+                                                       pattern):
+    """A file name carrying a manuscript number IS the claim that the
+    manuscript prints it under that number. When a figure leaves the paper the
+    later ones move up (2026-11-06: Figures 4 and 9 and Supplement Figures 5
+    and 11 left), and a rename that misses one leaves a gap or two files with
+    one number, which nothing else would notice. Figures the paper does not
+    use carry no number."""
+    found = _numbered(os.path.join(ROOT, directory), pattern)
+    assert found, f'no numbered {kind} found under {directory}'
+    gaps = sorted(set(range(1, max(found) + 1)) - set(found))
+    dupes = {k: v for k, v in found.items() if len(v) > 1}
+    assert not gaps and not dupes, (
+        f'{kind} numbers must run 1 to N with one file each; missing '
+        f'{gaps}, shared {dupes}')
