@@ -112,11 +112,11 @@ may be used for these concepts, in text, figures, captions or tables.**
 
 | Use | Never | Why |
 |---|---|---|
-| **uniform weights** | unweighted, equal weighting | decision 199 |
+| **uniform weights** | unweighted, equal weighting, as the name of the weighting scheme | decision 199. **"Unweighted" may name a statistic: "the unweighted mean" is allowed** (author, 2026-11-06); the scheme is always "uniform weights" |
 | **market weights** | variable, Dirichlet shares, sampled market shares | decision 199. Four vocabularies were tried; this is the last |
 | **known market shares** | oracle, true weights | the contrast with "market weights" is the point |
 | **EPDs** | declarations, records, data points, values, ECCs when the count is meant | an EPD is a document, an ECC is the number it carries. **Settled by the author 2026-10-07: "never refer to EPDs as 'declarations'... This applies everywhere across the manuscript and figures."** "40 to 170 EPDs", "EPDs in the category" |
-| the five questions: **magnitude, attribution, information, action, comparison** | "results", "key results", "takeaways" | "result" was flagged four times as too vague |
+| the five questions: **magnitude, attribution, information, action, comparison** | "results", "key results", "takeaways" | "result" was flagged four times as too vague. Not a strict ban (author, 2026-11-06): change "these results" or "this shows" only where the vagueness harms the message |
 | **a probabilistic LCA claim** | a result, an output | principle 8 |
 
 **One sentence must travel with "market weights" at first use**, by decision 199:
@@ -139,8 +139,8 @@ they bind the same way.
 - **Round a fitted crossing at the first digit where the parametric and monotone
   fits disagree, and print both where they still differ there** (decision 175).
   The tables carry full precision; prose does not.
-- **No single-declaration cutoff is printed anywhere.** The family split is 40 to
-  170 declarations and the weighting split is 80 to 100 (decision 225).
+- **No single-EPD cutoff is printed anywhere.** The family split is 40 to 170
+  EPDs and the weighting split is 30 to 100 EPDs (decisions 225, 261).
 - **An absolute distance is not a quality score.** Every goodness-of-fit number
   rose 16 to 45 percent when the corpus was made more dispersed, and the fits did
   not get worse.
