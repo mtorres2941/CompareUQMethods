@@ -524,7 +524,7 @@ panel and box all on total misstated carbon over total true carbon. That is the
 number for a carbon budget or a building stock; the main figure is the number
 for one building. Its title count is 10 of 15, the main figure's 7 of 15.
 
-![](../outputs/figures/CompareUQMethods_SUPP7_ClaimScorecardMeanForm.png)
+![](../outputs/figures/CompareUQMethods_SUPP8_ClaimScorecardMeanForm.png)
 
 **The bar is right skewed on every claim**, so the honest sentence is not "the
 choice moves a material's estimated contribution by 12 percent": for a typical
@@ -534,7 +534,7 @@ building it moves it by 5 and for one in ten by more than 34.
 `FIG5_MixedPolicy_SpreadZoom` in the main text; `SUPP9_MixedPolicy`, panels
 (a) ratio of means and (b) median, in the supplement
 
-![](../outputs/figures/CompareUQMethods_FIG5_MixedPolicy_SpreadZoom.png)
+![](../outputs/figures/CompareUQMethods_FIG4_MixedPolicy_SpreadZoom.png)
 
 **Caption.** Error of the size rule (kernel density estimate at or above the
 cutoff, three-parameter lognormal below, uniform weights; orange) and of the
@@ -571,7 +571,7 @@ are distinguishably worse under both. **Print 40 to 170.**
 
 **Supplement: the same curve on each statistic alone.**
 
-![](../outputs/figures/CompareUQMethods_SUPP9_MixedPolicy.png)
+![](../outputs/figures/CompareUQMethods_SUPP_MixedPolicy.png)
 
 ### Figure 5 -- which method is closest, by category size
 `FIG_WhenToUseWhich`
@@ -604,7 +604,7 @@ to judge each category. That is the paper's framing for takeaways 8 and 11.
 ### Figure 6 -- where real buildings sit on the safe-lead axis. CHOSEN: SORTED DOTS
 `FIG7_BuildingDominance`
 
-![](../outputs/figures/CompareUQMethods_FIG7_BuildingDominance.png)
+![](../outputs/figures/CompareUQMethods_FIG6_BuildingDominance.png)
 
 **Caption.** The 292 North American buildings of Benke et al. (2025), A1-A3,
 sorted by the ratio of the largest material's emissions to the second largest
@@ -640,7 +640,7 @@ is calibrated at four materials and these buildings hold a median of 37.
 ### Figure 7 -- when market shares start to help. CHOSEN: BOX PLUS STRIP
 `FIG6_WeightingBySize`
 
-![](../outputs/figures/CompareUQMethods_FIG6_WeightingBySize.png)
+![](../outputs/figures/CompareUQMethods_FIG5_WeightingBySize.png)
 
 **Caption.** For each synthetic dataset, the W1 of a fit with uniform weights
 divided by the W1 of the same family fitted with the true market shares, both
@@ -676,7 +676,7 @@ shares divided by the error using them, on a log axis.
 ### Figure 8 -- why the rigid families lose
 `FIG4_ShapePlane`
 
-![](../outputs/figures/CompareUQMethods_FIG4_ShapePlane.png)
+![](../outputs/figures/CompareUQMethods_FIG_ShapePlane.png)
 
 **Caption.** Skewness against coefficient of variation, uniform weights, for
 the 127 real EC3 categories with at least ten EPDs (log x axis;
@@ -787,7 +787,7 @@ the cell has its own fixed-seed stream, decision 254):
 seven policies, beside the uncertainty index per method.** The shared kgCO2e
 axis shows which material leads; the dots show that the uncertainty does not
 follow the same order. 
-![](../outputs/figures/CompareUQMethods_FIG8_Building138.png)
+![](../outputs/figures/CompareUQMethods_SUPP10_Building138.png)
 
 **Caption.** Building 138 of Benke et al. (2025), a multifamily residential
 building in Oregon: its seven largest materials, mapped to EC3 categories, rows

@@ -9481,3 +9481,35 @@ rather than in conversation.
      Reproduce: `python audits/render_figures.py 01_CompareUQ_CreateData
      --tables` and `... 03_CompareUQ_PerformPLCA --tables`;
      `python audits/pedigree_range.py`.
+
+267. **2026-11-06, MANUSCRIPT. OUTPUT FILES RENAMED TO THE FINAL NUMBERING
+     AFTER THE TRIM; NO NUMBER MOVED.** The main-text trim removed Figures 4
+     (shape plane) and 9 (sensitivity) and both main-text tables, and moved
+     Building 138 to Supplement 5; the supplement trim removed Figures S5 (the
+     W1 illustration, which Figure 2b already shows) and S11 (the cutoff sweep,
+     which Figure 4's top panel already draws) and ten rows of Table S1.
+
+     **Renamed:** FIG5 to FIG4_MixedPolicy_SpreadZoom, FIG6 to
+     FIG5_WeightingBySize, FIG7 to FIG6_BuildingDominance (redrawn without the
+     Building 138 marker, which the main text no longer discusses),
+     FIG8_Building138 to SUPP10_Building138 (redrawn with (a) and (b) panel
+     labels), SUPP6-8 to SUPP5-7_AllEmpiricalFits, SUPP9 to
+     SUPP8_ClaimScorecardMeanForm, SUPP10 to SUPP9_PLCATruth. **Unnumbered,
+     kept with their generators:** FIG_ShapePlane (its table still supplies
+     the Section 3.2 counts), FIG_Sensitivity, SUPP_DemoW1Dist,
+     SUPP_MixedPolicy. Every renamed PNG is byte-identical to its predecessor.
+
+     **Tables:** the Table 1 and Table 2 generators are retired
+     (`coverage.manuscript_table1` and notebook 3 cell `table2-claims`
+     deleted; Supplement 3.2 defines every claim). Table S1 is now
+     `TABLE_S1_GenerationParameters.csv`, the nine rows Supplement 1 prints,
+     cut in notebook 1 from the full record, which is kept unnumbered as
+     `TABLE_GenerationParametersFull.csv` and is byte-identical to the old
+     `TABLE_S1_GenerationParametersFull.csv`.
+
+     **Guard:** `tests/test_figure_manifest.py` now fails if the numbered
+     main-text figures, supplement figures or supplement tables skip a number
+     or share one.
+
+     Reproduce: `python audits/render_figures.py 01_CompareUQ_CreateData
+     --tables`; `pytest tests/test_figure_manifest.py`.

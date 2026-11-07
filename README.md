@@ -270,17 +270,14 @@ Every image under `outputs/figures/` with the notebook that writes it and what
 it shows. Each file has a `.pdf` sibling of the same name; names are given here
 without the `CompareUQMethods_` prefix and the extension.
 
-**The nine main-text figures carry their manuscript number** -- `FIG1_` to
-`FIG9_` -- from the figure pass of 2026-10-07, when the figure selection was
-fixed (`reports/MANUSCRIPT_NARRATIVE.md` section 4). On 2026-10-28 the author
-dropped the fit-level `FIG_WhenToUseWhich` from the main text, because the
-size rule is chosen on pLCA claim error, which `FIG5_MixedPolicy_SpreadZoom`
-shows directly, and the later figures moved up one number. Every other `FIG_` and
-`SUPP_` prefix records what the generating cell declares itself to be, not
-where the manuscript puts it. The supplement's figures carry their manuscript number, `SUPP1_` to
-`SUPP11_` (SUPP6 to SUPP8 are the empirical fits, one figure per material tier), and the supplement's
-tables theirs, `TABLE_S1_` to `TABLE_S3_`. Figures the manuscript does not use
-are unnumbered. Renaming is one word per cell -- `figstyle.savefig` takes a
+**The six main-text figures carry their manuscript number**, `FIG1_` to
+`FIG6_`, and the supplement's ten figures theirs, `SUPP1_` to `SUPP10_`
+(SUPP5 to SUPP7 are the empirical fits, one figure per material tier; SUPP10 is
+the Building 138 example of Supplement 5). The supplement's tables carry
+theirs, `TABLE_S1_` to `TABLE_S3_`; the manuscript has no main-text table.
+Every other `FIG_` and `SUPP_` prefix records what the generating cell
+declares itself to be, not where the manuscript puts it: figures the
+manuscript does not use are unnumbered. Renaming is one word per cell -- `figstyle.savefig` takes a
 stem, not a path -- and `tests/test_figure_manifest.py` fails on any file a
 rename leaves behind without a generator. The superseded unnumbered files are
 in `archive/figures/`.
@@ -296,13 +293,13 @@ in `archive/figures/`.
 | `FIG1_MetricCoverage` | Where the 147 real categories sit inside the synthetic cloud, characteristic by characteristic |
 | `SUPP3_GeneratedVsEmpiricalMetrics` | Every statistical characteristic, the two arms' distributions overlaid |
 | `FIG_WeightingDrivers` | Which categories can safely assume uniform weights, against size and dispersion |
-| `FIG4_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit near that curve |
+| `FIG_ShapePlane` | Why a two-parameter lognormal cannot fit this data: its skewness is fixed at CV^3 + 3 CV, and only 27 of 127 real categories sit near that curve |
 
 ### Notebook 2 - the fits
 
 | File | What it shows |
 |---|---|
-| `SUPP5_DemoW1Dist` | What a Wasserstein-1 distance is: the area between two cumulative curves |
+| `SUPP_DemoW1Dist` | What a Wasserstein-1 distance is: the area between two cumulative curves |
 | `FIG2_PDFandCDFofUQMethods` | The six UQ methods on one real category (reinforcing steel), as densities and as distribution functions |
 | `FIG_W1DistanceAndRank` | How far each method sits from its target, and how often it is closest. Both arms |
 | `SUPP_KSTestStripAndRank`, `SUPP_Wass2DistStripAndRank` | The same under two other distances, as a robustness check |
@@ -317,7 +314,7 @@ in `archive/figures/`.
 | `FIG_TargetBySize` | The size dependence, which is what both arms agree on |
 | `FIG_Regret` | What it costs to use one method on every dataset instead of the best one for each |
 | `FIG_MethodByMaterial` | Which default to use, and what it costs, by material tier |
-| `SUPP6_`, `SUPP7_`, `SUPP8_AllEmpiricalFits_<tier>` | Every real category with all six fitted models |
+| `SUPP5_`, `SUPP6_`, `SUPP7_AllEmpiricalFits_<tier>` | Every real category with all six fitted models |
 
 ### Notebook 3 - the probabilistic LCA
 
@@ -333,15 +330,15 @@ in `archive/figures/`.
 | `FIG_RanksByDatasetAndPEWT` | How often each material leads, by dataset and method, in those three |
 | `SUPP_FlipCalibration` | How far apart two models must be before the answer changes, and what such a distance looks like |
 | `SUPP_MaterialDominance` | What a leading material buys -- the ranking -- and what it does not -- the magnitude |
-| `SUPP10_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
+| `SUPP9_PLCATruth` | How wrong each method's answer is against the true parents, as a distribution |
 | `FIG3_ClaimScorecard` | Every claim a probabilistic LCA makes, scored for the six methods and the size rule, on the median per-case error; thin boxes mark cells noise cannot separate from their row's best |
-| `SUPP9_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
-| `FIG5_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
-| `SUPP11_MixedPolicy` | The same cutoff sweep on each statistic alone, (a) ratio of means and (b) median |
-| `FIG6_WeightingBySize` | When knowing a market share starts to help: per dataset, the pLCA claim error ignoring the true shares over the claim error using them, by size band, with the 95% interval of each band's median and the real categories' own sizes underneath. In notebook 3 since 2026-10-28, when it moved from W1 to claim error |
-| `FIG7_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
-| `FIG8_Building138` | One real building: each material's fitted contribution under every method, and which material drives the uncertainty, with Monte Carlo intervals |
-| `FIG9_Sensitivity` | The pLCA claim error under the alternative distribution types, bandwidth rules and grid limits, drawn from `TABLE_SensitivityMethods.csv` |
+| `SUPP8_ClaimScorecardMeanForm` | The same scorecard on total error over total truth |
+| `FIG4_MixedPolicy_SpreadZoom` | How much the cutoff matters and what knowing market share would buy, on both statistics, over the spread of one building's error |
+| `SUPP_MixedPolicy` | The same cutoff sweep on each statistic alone, (a) ratio of means and (b) median |
+| `FIG5_WeightingBySize` | When knowing a market share starts to help: per dataset, the pLCA claim error ignoring the true shares over the claim error using them, by size band, with the 95% interval of each band's median and the real categories' own sizes underneath. In notebook 3 since 2026-10-28, when it moved from W1 to claim error |
+| `FIG6_BuildingDominance` | Where 292 real North American buildings sit on the safe-lead axis (Benke et al. 2025) |
+| `SUPP10_Building138` | One real building: (a) each material's fitted contribution under every method, and (b) which material drives the uncertainty, with Monte Carlo intervals |
+| `FIG_Sensitivity` | The pLCA claim error under the alternative distribution types, bandwidth rules and grid limits, drawn from `TABLE_SensitivityMethods.csv` |
 | `FIG_GraphicalAbstract` | The graphical abstract |
 
 ### Notebook 4 - which characteristics decide
