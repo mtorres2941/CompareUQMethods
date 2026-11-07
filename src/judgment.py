@@ -57,7 +57,7 @@ spread can a judgment-driven model sit before it changes the answer.
 
 The factor table was not in this repository when the sweep was designed, so the
 range was chosen to bracket generously. The author has since supplied Muller,
-Lesage, Ciroth, Mutel, Weidema and Samson (2016), Int J Life Cycle Assess
+Lesage and Samson (2016), Int J Life Cycle Assess
 21:1185-1196, and `audits/pedigree_range.py` enumerates all 3,125 score
 combinations from its Table 3 and Table 4. The matrix spans a geometric
 standard deviation of **1.025 at the best scores to 1.587 at the worst** -- a

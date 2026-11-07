@@ -54,7 +54,7 @@ TABLES = os.path.join(ROOT, 'outputs', 'tables', 'audits')
 
 #: Ecoinvent's published pedigree uncertainty factors, scores 2 to 5; score 1
 #: contributes a factor of exactly 1. Read from the "Prior" column of Table 3
-#: of Muller, Lesage, Ciroth, Mutel, Weidema and Samson (2016), "Giving a
+#: of Muller, Lesage and Samson (2016), "Giving a
 #: scientific basis for uncertainty factors used in global life cycle
 #: inventory databases", Int J Life Cycle Assess 21:1185-1196, where "prior"
 #: means the value ecoinvent uses and which that paper sets out to update.

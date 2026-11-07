@@ -6532,7 +6532,7 @@ rather than in conversation.
      most of which turns out to be unreachable. `[AUTHOR]` "you should've just
      told me to go fetch it! I just dropped two papers in there."
 
-     From Muller, Lesage, Ciroth, Mutel, Weidema and Samson (2016), Int J Life
+     From Muller, Lesage and Samson (2016), Int J Life
      Cycle Assess 21:1185-1196, Table 3's prior column, which is what ecoinvent
      uses, with the basic uncertainty factor of 1.05 its Table 4 gives for
      semi-finished products and materials under every sector it reports.
