@@ -9513,3 +9513,26 @@ rather than in conversation.
 
      Reproduce: `python audits/render_figures.py 01_CompareUQ_CreateData
      --tables`; `pytest tests/test_figure_manifest.py`.
+
+268. **2026-11-18, MANUSCRIPT. THE SHAPE PLANE RETURNS AS FIGURE 4; FIGURE 7
+     STATES ITS THRESHOLD.** At the author's review: the two-parameter
+     lognormal point in Section 3.2 ("27 of 127 empirical datasets within 25%
+     of skewness = CV^3 + 3 CV") is worth a figure "given the ubiquity of the
+     lognormal distribution". `FIG_ShapePlane` becomes `FIG4_ShapePlane`, its
+     figure text saying "empirical datasets", not "categories". The old
+     Figures 4 to 6 become `FIG5_MixedPolicy_SpreadZoom`,
+     `FIG6_WeightingBySize`, `FIG7_BuildingDominance`; Figures 5 and 6 are
+     unchanged in content.
+
+     **Figure 7** said "safe above 2.3x", which defined nothing (author: "safe
+     is ambiguous and ill defined"). It now labels the band as the 1% chance
+     that two UQ methods name a different leading material, at 2.3x, and adds
+     dotted lines at the 5% (1.73) and 10% (1.53) thresholds for groups of
+     four, the values Section 3.4 already quotes (TABLE_PLCARatioCrossings,
+     nmats 4). "Real" is gone from the title. No number moved. Two counts the
+     figure does not print and the text does not use: 162 of 292 buildings
+     (55%) lie below the 5% threshold and 134 (46%) below the 10% one.
+
+     Reproduce: `python audits/render_figures.py 03_CompareUQ_PerformPLCA
+     --only "where real buildings sit" --out /tmp/f`;
+     `pytest tests/test_figure_manifest.py`.
