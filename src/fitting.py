@@ -126,10 +126,11 @@ LOGFIT_OFFSET = 0.5
 #
 # THE THRESHOLD WAS SWEPT IN STAGE 2C on the leave-one-out criterion AND on W1
 # against the known parent, which disagree: the parent criterion is best at
-# n_eff >= 5 and the held-out likelihood at 20 to 30. 30 is kept deliberately.
-# Moving it to improve W1 would be tuning the setting on the criterion the study
-# reports, which is the one thing decision 54 was careful not to do, and the
-# whole span from 20 to 30 differs by about 1 percent of either criterion.
+# n_eff >= 5 and the held-out likelihood at 20 to 30. Decision 80 set it at 20,
+# the low end of the held-out optimum, and no lower: moving it further to improve
+# W1 would be tuning the setting on the criterion the study reports, which is
+# the one thing decision 54 was careful not to do, and the whole span from 20 to
+# 30 differs by about 1 percent of either criterion.
 # audits/guard_threshold_sweep.py.
 #
 # THE THRESHOLD IS CALIBRATED ON HELD-OUT LIKELIHOOD, NOT ON W1, deliberately:
