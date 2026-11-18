@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite it as below."
+title: "CompareUQMethods: A comparative analysis of uncertainty quantification methods for probabilistic whole-building life cycle assessment"
+type: software
+authors:
+  - family-names: Torres
+    given-names: "Martín I."
+  - family-names: Srubar
+    given-names: "Wil V."
+    name-suffix: III
+doi: 10.5281/zenodo.19226429
+repository-code: "https://github.com/mtorres2941/CompareUQMethods"
+license: MIT

@@ -1,6 +1,6 @@
 # CompareUQMethods
 
-**Uncertainty quantification methods for probabilistic whole-building life cycle assessment: A comparative analysis**
+**A comparative analysis of uncertainty quantification methods for probabilistic whole-building life cycle assessment**
 
 Martín I. Torres, Wil V. Srubar III
 University of Colorado Boulder
@@ -380,7 +380,7 @@ in `archive/figures/`.
 
 If you use this code or data in your research, please cite:
 
-> Torres, M.I. and Srubar III, W.V. (submitted). Uncertainty quantification methods for probabilistic whole-building life cycle assessment: A comparative analysis. *Building & Environment*.
+> Torres, M.I. and Srubar III, W.V. (submitted). A comparative analysis of uncertainty quantification methods for probabilistic whole-building life cycle assessment. *Building and Environment*.
 
 The dataset and code are archived on Zenodo: https://doi.org/10.5281/zenodo.19226429
 
